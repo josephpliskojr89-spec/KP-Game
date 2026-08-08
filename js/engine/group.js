@@ -156,6 +156,91 @@
     return lines;
   };
 
+  // ---- Editing roles after formation (v0.3.3) --------------------------
+  // Pre-debut, the room adjusts. Post-debut, a center change is news —
+  // and a questionable one is bad news the fans write themselves.
+  KP.setGroupRoles = function (state, groupId, roles) {
+    const RC = KP.C.GROUP.ROLECHANGE;
+    const g = KP.groupById(state, groupId);
+    if (!g) return { ok: false, reason: 'No such group.' };
+    if (g.type === 'solo') return { ok: false, reason: 'A solo already has one of everything.' };
+    for (const role of ['leader', 'center']) {
+      if (!roles[role] || !g.members.includes(roles[role])) {
+        return { ok: false, reason: 'Assign a ' + role + ' from the lineup.' };
+      }
+    }
+    ['mainVocal', 'mainDancer', 'mainRapper'].forEach(r => {
+      if (roles[r] && !g.members.includes(roles[r])) delete roles[r];
+    });
+    const old = g.roles;
+    const changed = ['leader', 'center', 'mainVocal', 'mainDancer', 'mainRapper']
+      .filter(r => (old[r] || null) !== (roles[r] || null));
+    if (!changed.length) return { ok: false, reason: 'Nothing changed.' };
+
+    const notes = [];
+    // human cost/gain on every named-role move
+    changed.forEach(r => {
+      const isCenter = r === 'center';
+      const demoted = old[r] && state.people[old[r]];
+      const promoted = roles[r] && state.people[roles[r]];
+      if (demoted && demoted.id !== (roles[r] || null)) {
+        demoted.morale = KP.clamp(demoted.morale - (isCenter ? RC.centerDemoteMorale : RC.demoteMorale), 0, 100);
+        if (isCenter) demoted.personality.confidence = KP.clamp(demoted.personality.confidence - RC.centerDemoteConf, 0, 100);
+        demoted.history.push({ week: state.week, text: 'Lost the ' + roleLabel(r) + ' position in ' + g.name + '.' });
+      }
+      if (promoted && promoted.id !== (old[r] || null)) {
+        promoted.morale = KP.clamp(promoted.morale + RC.promoteMorale, 0, 100);
+        if (isCenter) promoted.personality.confidence = KP.clamp(promoted.personality.confidence + RC.centerPromoteConf, 0, 100);
+        promoted.history.push({ week: state.week, text: 'Named ' + roleLabel(r) + ' of ' + g.name + '.' });
+      }
+    });
+
+    const centerChanged = changed.includes('center');
+    if (centerChanged) {
+      const oldC = state.people[old.center];
+      const newC = state.people[roles.center];
+      // the two of them will feel this, whatever the press says
+      if (oldC && newC) {
+        const key = KP.pairKey(oldC, newC);
+        state.relationships[key] = state.relationships[key] || { score: 0, state: null };
+        state.relationships[key].score = KP.clamp(state.relationships[key].score - RC.strain, -100, 100);
+      }
+      g.centerHistory = g.centerHistory || [];
+      g.centerHistory.push({ week: state.week, id: roles.center });
+
+      if (g.debuted && oldC && newC) {
+        const oldPull = KP.derived(oldC).centerPull;
+        const newPull = KP.derived(newC).centerPull;
+        const publicPick = g.results && g.results.centerOvershadowed && roles.center === g.results.breakoutId;
+        if (publicPick) {
+          g.popularity = KP.clamp((g.popularity || 0) + RC.approvalPopGain, 0, 100);
+          notes.push({ kind: 'public', text: 'The internet takes full credit: ' + KP.displayName(newC) +
+            ' is now the center it chose months ago. The fan accounts are insufferable and the engagement is real.' });
+        } else if (newPull < oldPull - RC.questionableGap) {
+          g.popularity = KP.clamp((g.popularity || 0) - RC.questionablePopHit, 0, 100);
+          notes.push({ kind: 'public', urgent: true, text: 'The center change is not landing. Fancams still point at ' +
+            KP.displayName(oldC) + ', and the comment sections are asking what the company is thinking.' });
+        } else {
+          notes.push({ kind: 'public', text: 'A center change this deep into an act is news. Coverage is cautiously curious; the next comeback will settle it.' });
+        }
+      } else if (!g.debuted) {
+        notes.push({ kind: 'company', text: g.name + ' room report: the center change landed quietly — before a debut, everything is still rehearsal.' });
+      }
+    }
+
+    g.roles = Object.assign({}, roles);
+    notes.forEach(n => {
+      n.week = state.week; n.read = false; n.id = 'm' + (state.nextMsgId++);
+    });
+    state.inbox = notes.concat(state.inbox || []).slice(0, 60);
+    return { ok: true, notes, centerChanged };
+  };
+
+  function roleLabel(r) {
+    return { leader: 'leader', center: 'center', mainVocal: 'main vocal',
+      mainDancer: 'main dancer', mainRapper: 'main rapper' }[r] || r;
+  }
+
   // Perceived role suggestions for the builder UI — through the scout's eyes.
   KP.roleHints = function (state, members) {
     const scout = KP.DATA.evaluators[2];

@@ -106,6 +106,10 @@
     });
     html.push('</div>');
 
+    if (g.type !== 'solo') {
+      html.push('<div class="pad" style="margin-top:2px"><button class="btn small ghost" style="border:1px solid var(--line)" data-action="open-roles" data-id="' + g.id + '">Edit roles</button></div>');
+    }
+
     // chemistry observations + frictions with their handles
     html.push('<div class="kicker">Room report</div>');
     KP.chemistryNotes(state, members).forEach(n => html.push('<div class="note">' + UI.esc(n) + '</div>'));

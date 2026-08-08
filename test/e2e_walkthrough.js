@@ -165,6 +165,15 @@ async function main() {
   await page.waitForSelector('.role-row select');
   ok(await page.$$eval('.role-row', els => els.length) === 5, 'five role selectors');
   ok((await page.textContent('#screen')).includes('staff pick'), 'role hints marked as staff picks');
+
+  // v0.3.3 regression: a changed role select must survive a re-render
+  const options = await page.$eval('.role-row select', el => Array.from(el.options).map(o => o.value));
+  const current = await page.$eval('.role-row select', el => el.value);
+  const other = options.find(v => v !== current);
+  await page.selectOption('.role-row select', other);
+  await tap('[data-action=builder-name]');   // triggers a re-render
+  ok((await page.$eval('.role-row select', el => el.value)) === other,
+    'a chosen role survives re-render — no snap-back to staff picks');
   ok(await page.$$eval('.note', els => els.length) >= 1, 'room preview gives chemistry observations');
   await tap('[data-action=builder-propose]');
   await page.waitForSelector('.modal-sheet');

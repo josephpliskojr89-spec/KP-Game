@@ -139,6 +139,48 @@
         break;
       }
 
+      case 'open-roles': {
+        const g = KP.groupById(s, t.dataset.id);
+        if (!g) break;
+        const members = g.members.map(id => s.people[id]);
+        const rows = [['leader', 'Leader'], ['center', 'Center'], ['mainVocal', 'Main Vocal'],
+          ['mainDancer', 'Main Dancer'], ['mainRapper', 'Main Rapper']].map(([key, label]) =>
+          '<div class="role-row"><span class="r-label">' + label + '</span>' +
+          '<select id="roles-edit-' + key + '">' +
+          members.map(m => '<option value="' + m.id + '"' + (g.roles[key] === m.id ? ' selected' : '') + '>' +
+            UI.esc(KP.displayName(m)) + '</option>').join('') +
+          '</select></div>').join('');
+        UI.modal('Roles · ' + g.name,
+          rows +
+          (g.debuted
+            ? '<div class="pad" style="margin-top:12px;font-size:.78rem;color:var(--magenta)">They have debuted. A center change is public — the fans will have a verdict, and the member who loses the spot will feel it either way.</div>'
+            : '<div class="pad" style="margin-top:12px;font-size:.78rem;color:var(--ink-dim)">Before a debut, the room adjusts quietly.</div>'),
+          '<button class="btn" data-action="close-modal" style="flex:1">Cancel</button>' +
+          '<button class="btn primary" data-action="roles-save" data-id="' + g.id + '" style="flex:1">Apply</button>');
+        break;
+      }
+      case 'roles-save': {
+        const roles = {};
+        ['leader', 'center', 'mainVocal', 'mainDancer', 'mainRapper'].forEach(key => {
+          const el = document.getElementById('roles-edit-' + key);
+          if (el) roles[key] = el.value;
+        });
+        const r = KP.setGroupRoles(s, t.dataset.id, roles);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.closeModal();
+        if (r.notes.length) {
+          UI.modal('The change lands',
+            r.notes.map(n => '<div class="note' + (n.urgent ? ' urgent' : '') + '">' + UI.esc(n.text) +
+              '<span class="n-who">— community & PR digest</span></div>').join(''),
+            '<button class="btn primary" data-action="close-modal" style="flex:1">Noted</button>');
+        } else {
+          UI.toast('Roles updated.');
+        }
+        App.render();
+        break;
+      }
+
       case 'open-stagename': {
         const p = s.people[t.dataset.id];
         const sugg = KP.suggestStageNames(s, p);
@@ -331,6 +373,15 @@
         App.render();
         break;
       }
+    }
+  });
+
+  // selects: builder role picks must actually stick (v0.3.3 bug fix —
+  // there was no change handler, so re-renders reverted to staff picks)
+  document.addEventListener('change', (e) => {
+    const t = e.target;
+    if (t.dataset && t.dataset.action === 'builder-role' && App.builderDraft) {
+      App.builderDraft.roles[t.dataset.role] = t.value;
     }
   });
 

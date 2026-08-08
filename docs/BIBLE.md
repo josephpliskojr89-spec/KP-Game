@@ -215,6 +215,24 @@ out of the final lineup takes a real morale hit and her file remembers.
 Shelving the project disappoints every hopeful. One project at a time,
 never during group development. Suite 013.
 
+**Editing roles after formation** (v0.3.3 — owner: *"the ability to edit
+roles for a group already formed, with a penalty if applicable. changing
+the center should have consequences if it's a questionable choice"*).
+`KP.setGroupRoles`: leader + center mandatory, members only, solos
+refused, no-ops refused. Every named-role move has a human cost — the
+demoted lose morale (the center seat costs double, plus confidence), the
+promoted gain, files remember, and the old and new center's relationship
+strains. Pre-debut, that is all: the room adjusts quietly. Post-debut, a
+center change is public: a **questionable** pick (new centerPull more
+than 8 below the old) costs popularity and draws urgent PR blowback
+("the comment sections are asking what the company is thinking");
+handing the center to the breakout the public already chose (the
+overshadow correction) *gains* popularity ("the internet takes full
+credit"); anything between gets cautious coverage. Center history is
+kept. UI: Edit Roles on the group page, with a warning when they've
+debuted. Suite 018; the builder role-select snap-back bug (no change
+handler) is fixed with an e2e regression check.
+
 **Multiple groups** (v0.2.2): `state.groups[]`, each with its own id,
 demos, prep, popularity, promo cycle, discography, and results. Rules:
 one group *in development* at a time (a new lineup needs every existing
@@ -801,4 +819,17 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > stronger (19/40 strong+, 4 sensations) because high-headroom young
 > rosters grow more before debut day. Numbers: battery 17/17, soak
 > clean, e2e 51, lockstep 0.3.2. Rode to main.
+
+> **v0.3.3 — the center is a decision** (owner found the builder
+> role-select snap-back bug and asked for post-formation role editing
+> with consequences)
+> Bug: the builder's role dropdowns had no change handler — selections
+> were never stored and every re-render reverted to staff picks. Fixed,
+> with an e2e regression check. Feature: Edit Roles on the group page.
+> Every named-role move costs the demoted and rewards the promoted;
+> the two centers' relationship strains; files remember. Post-debut
+> center changes go public: questionable picks (−8 pull) cost
+> popularity and draw urgent blowback, overshadow corrections gain it,
+> the middle gets cautious coverage. Numbers: battery 18/18 (suite 018),
+> soak clean, e2e 52, lockstep 0.3.3. Rode to main.
 

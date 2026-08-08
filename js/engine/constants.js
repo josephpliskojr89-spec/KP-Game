@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.3.2',
+    VERSION: '0.3.3',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -139,6 +139,17 @@
       roles: ['leader', 'center', 'mainVocal', 'mainDancer', 'mainRapper'],
       chemistryPairWeight: 0.55,
       chemistryPersonalityWeight: 0.45,
+      // role changes after formation (v0.3.3): pre-debut shuffles are
+      // cheap; post-debut center changes are news, and questionable ones
+      // are bad news
+      ROLECHANGE: {
+        demoteMorale: 4, promoteMorale: 4,
+        centerDemoteMorale: 10, centerDemoteConf: 6, centerPromoteConf: 4,
+        strain: 12,               // old center vs new center, humanly
+        questionableGap: 8,       // new center pulls this much less = questionable
+        questionablePopHit: 6,
+        approvalPopGain: 4,       // giving the public the center it chose
+      },
     },
 
     // ---- The project (v0.2.5): a provisional lineup the building knows about
