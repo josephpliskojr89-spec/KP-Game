@@ -80,6 +80,26 @@
     } },
   ];
 
+  // v0.2.2 — one group becomes many. The single group moves into
+  // state.groups[] with an id; its demos ride along; the open objective
+  // learns which group it concerns.
+  MIGRATIONS.push({ v: '0.2.2', fn: function (state) {
+    state.groups = state.groups || [];
+    state.nextGroupId = state.nextGroupId || 1;
+    if (state.group) {
+      const g = state.group;
+      g.id = g.id || ('g' + (state.nextGroupId++));
+      g.releases = g.releases || [];
+      g.demos = state.demos || null;
+      state.groups.push(g);
+      delete state.group;
+      delete state.demos;
+      if (state.objective && state.objective.type === 'comeback' && !state.objective.groupId) {
+        state.objective.groupId = g.id;
+      }
+    }
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

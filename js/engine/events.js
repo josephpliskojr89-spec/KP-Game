@@ -8,7 +8,7 @@
   const EVENTS = [
     {
       id: 'execDeadlineNudge', cooldown: 8, weight: 1,
-      when: (s) => !s.group && s.objective.status === 'open' &&
+      when: (s) => !KP.groups(s).length && s.objective.status === 'open' &&
         (s.objective.deadlineWeek - s.week) <= 32 && (s.objective.deadlineWeek - s.week) > 12,
       fire: (s, rng) => ({ kind: 'executive', text: s.executive.name + ' stopped by. “' +
         Math.floor((s.objective.deadlineWeek - s.week) / KP.C.WEEKS_PER_MONTH) +
@@ -16,18 +16,15 @@
     },
     {
       id: 'execDeadlineUrgent', cooldown: 4, weight: 3,
-      when: (s) => !s.group && s.objective.status === 'open' && (s.objective.deadlineWeek - s.week) <= 12,
+      when: (s) => !KP.groups(s).length && s.objective.status === 'open' && (s.objective.deadlineWeek - s.week) <= 12,
       fire: (s) => ({ kind: 'executive', urgent: true, text: s.executive.name +
         ': “The board meets after the deadline. Either I present a debut, or I present an explanation. Choose which one you want to be.”' }),
     },
     {
       id: 'execCostlyTrainee', cooldown: 20, weight: 1,
-      when: (s) => {
-        const w = s.week - 1;
-        return w > 20 && s.roster.length > 6 && !s.group;
-      },
+      when: (s) => s.week > 20 && KP.freeTrainees(s).length > 5,
       fire: (s, rng) => {
-        const pool = s.roster.map(id => s.people[id]).filter(p => p.signedWeek == null);
+        const pool = KP.freeTrainees(s).map(id => s.people[id]).filter(p => p.signedWeek == null);
         if (!pool.length) return null;
         const p = rng.pick(pool);
         return { kind: 'executive', text: s.executive.name + ' flagged ' + p.name.display +
@@ -71,9 +68,9 @@
     },
     {
       id: 'preDebutViral', cooldown: 999, weight: 1,
-      when: (s, rng) => !!s.group && !s.group.debuted && rng.chance(KP.C.EVENTS.viralChance * 4),
+      when: (s, rng) => !!KP.devGroup(s) && rng.chance(KP.C.EVENTS.viralChance * 4),
       fire: (s, rng) => {
-        const members = s.group.members.map(id => s.people[id]);
+        const members = KP.devGroup(s).members.map(id => s.people[id]);
         const star = members.slice().sort((a, b) => KP.derived(b).centerPull - KP.derived(a).centerPull)[0];
         star.mediaExp += 8;
         return { kind: 'public', text: 'A practice-room clip of ' + star.name.display + ' is circulating well beyond our usual audience. Pre-debut attention is a gift — and a deadline.' };

@@ -28,7 +28,12 @@
     if (!App.view || !App.view.type) UI.setEra(null);
     if (App.view && App.view.type === 'dossier') el.innerHTML = UI.renderDossier(s, App.view.id);
     else if (App.view && App.view.type === 'builder') el.innerHTML = UI.renderBuilder(s, App.builderDraft);
-    else if (App.view && App.view.type === 'results') el.innerHTML = '<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>' + UI.renderResults(s);
+    else if (App.view && App.view.type === 'results') el.innerHTML = '<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>' + UI.renderResults(s, App.view.id);
+    else if (App.view && App.view.type === 'grouppage') {
+      const gp = KP.groupById(s, App.view.id);
+      el.innerHTML = '<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>' +
+        (gp ? UI.renderGroupPage(s, gp) : '<div class="card">Group not found.</div>');
+    }
     else if (App.tab === 'desk') el.innerHTML = UI.renderDesk(s);
     else if (App.tab === 'talent') el.innerHTML = UI.renderTalent(s, App.talentSub);
     else if (App.tab === 'groups') el.innerHTML = UI.renderGroups(s);
@@ -58,11 +63,10 @@
     const notes = KP.advanceWeek(s);
     App.save();
     const urgent = notes.filter(n => n.urgent);
-    const debut = notes.find(n => n.kind === 'debut' && s.group && s.group.debuted &&
-      s.group.results && s.group.results.week === s.week);
+    const resolved = KP.groups(s).find(g => g.results && g.results.week === s.week);
     App.render();
-    if (debut) {
-      push('results');
+    if (resolved) {
+      push('results', resolved.id);
       return;
     }
     if (notes.length) {
@@ -100,7 +104,14 @@
       case 'open-system': systemSheet(); break;
       case 'talent-sub': App.talentSub = t.dataset.sub; App.render(); break;
       case 'open-dossier': push('dossier', t.dataset.id); break;
-      case 'open-results': push('results'); break;
+      case 'open-results': push('results', t.dataset.id); break;
+      case 'open-grouppage': push('grouppage', t.dataset.id); break;
+      case 'studio-group': {
+        App.studioGroupId = t.dataset.id;
+        App.studioDraft.songId = null; App.studioDraft.conceptId = null; App.studioDraft.week = null;
+        App.render();
+        break;
+      }
 
       case 'observe': {
         const r = KP.observeProspect(s, t.dataset.id);
@@ -225,8 +236,8 @@
         if (d.members.includes(id)) {
           d.members = d.members.filter(x => x !== id);
           Object.keys(d.roles).forEach(r => { if (d.roles[r] === id) delete d.roles[r]; });
-        } else if (d.members.length < s.objective.maxMembers) d.members.push(id);
-        else UI.toast('The directive caps the lineup at ' + s.objective.maxMembers + '.', true);
+        } else if (d.members.length < KP.C.GROUP.maxMembers) d.members.push(id);
+        else UI.toast('The directive caps the lineup at ' + KP.C.GROUP.maxMembers + '.', true);
         App.render();
         break;
       }
@@ -261,8 +272,9 @@
         const d = App.studioDraft;
         const total = d.alloc.vocals + d.alloc.dance + d.alloc.rap + d.alloc.media;
         if (total !== 100) { UI.toast('Allocation totals ' + total + '% — make it 100.', true); break; }
-        const sel = s.demos.find(x => x.id === d.songId);
-        const r = KP.planDebut(s, { songId: d.songId, conceptId: d.conceptId || sel.conceptId,
+        const sg = UI.studioGroup(s);
+        const sel = (sg.demos || []).find(x => x.id === d.songId);
+        const r = KP.planDebut(s, { groupId: sg.id, songId: d.songId, conceptId: d.conceptId || sel.conceptId,
           promo: d.promo, week: d.week, alloc: d.alloc, format: d.format, focus: d.focus });
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();

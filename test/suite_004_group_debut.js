@@ -29,7 +29,7 @@ function buildGroup(state) {
   t.ok(Array.isArray(good.review) && good.review.length > 0, 'executive reacts in words');
   const again = buildGroup(state);
   t.ok(!again.ok, 'only one group in development at a time');
-  t.ok(state.group.maknae, 'maknae recorded as a fact');
+  t.ok(state.groups[0].maknae, 'maknae recorded as a fact');
 }
 
 // chemistry is bounded and observable
@@ -63,9 +63,9 @@ function buildGroup(state) {
     t.ok(plan.ok, 'seed ' + s + ': debut planned');
     const trustBefore = state.trust;
     let guard = 0;
-    while (!state.group.debuted && guard++ < 12) KP.advanceWeek(state);
-    t.ok(state.group.debuted, 'seed ' + s + ': debut resolved on schedule');
-    const r = state.group.results;
+    while (!state.groups[0].debuted && guard++ < 12) KP.advanceWeek(state);
+    t.ok(state.groups[0].debuted, 'seed ' + s + ': debut resolved on schedule');
+    const r = state.groups[0].results;
     t.ok(r.reception >= 1 && r.reception <= 100, 'seed ' + s + ': reception bounded');
     t.ok(r.performance >= 1 && r.performance <= 100, 'seed ' + s + ': performance bounded');
     t.ok(!!state.people[r.breakoutId], 'seed ' + s + ': breakout member exists');
@@ -75,9 +75,9 @@ function buildGroup(state) {
     const archived = (state.objectiveHistory || []).find(o => o.type === 'debutGirlGroup');
     t.ok(archived && ['met', 'metPoorly'].includes(archived.status), 'seed ' + s + ': debut objective resolved and archived');
     t.ok(state.objective.type === 'comeback' && state.objective.status === 'open', 'seed ' + s + ': a comeback directive succeeded it');
-    t.ok(state.group.members.every(id => state.people[id].status === 'idol'), 'seed ' + s + ': members became idols');
+    t.ok(state.groups[0].members.every(id => state.people[id].status === 'idol'), 'seed ' + s + ': members became idols');
     bands[r.receptionBand] = (bands[r.receptionBand] || 0) + 1;
-    if (r.breakoutId === state.group.roles.center) centerBreakouts++;
+    if (r.breakoutId === state.groups[0].roles.center) centerBreakouts++;
     if (r.centerOvershadowed) overshadowedSeen++;
   }
   t.ok(Object.keys(bands).length >= 2, 'reception varies across seeds: ' + JSON.stringify(bands));

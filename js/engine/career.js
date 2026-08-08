@@ -8,14 +8,17 @@
   // Self-healing predicate: an objective is finished and no successor has
   // been issued. Called every advance; issues at most one per week.
   KP.objectiveSuccessionDue = function (state) {
-    return !!(state.group && state.group.debuted &&
+    return !!(KP.groups(state).some(g => g.debuted) &&
       state.objective && state.objective.status !== 'open' &&
       !state.objective.succeeded);
   };
 
   KP.issueNextObjective = function (state, rng) {
     const CB = KP.C.COMEBACK;
-    const g = state.group;
+    // the next directive targets the group that has waited longest since a
+    // release — the executive keeps every act working
+    const g = KP.groups(state).filter(x => x.debuted)
+      .sort((a, b) => (a.lastReleaseWeek || 0) - (b.lastReleaseWeek || 0))[0];
     const prev = state.objective;
     prev.succeeded = true;
     state.objectiveHistory = state.objectiveHistory || [];
@@ -41,13 +44,14 @@
 
     state.objective = {
       type: 'comeback',
+      groupId: g.id,
       text: g.name + ' comeback by ' + KP.weekLabel(deadline).text + ' — the executive wants it received at least as well as the last release.',
       targetReception: target,
       deadlineWeek: deadline,
       status: 'open',
     };
 
-    const line = execObjectiveLine(state, prev, rng);
+    const line = execObjectiveLine(state, prev, rng, g);
     return {
       kind: 'executive', urgent: true,
       text: state.executive.name + ': ' + line +
@@ -56,8 +60,7 @@
     };
   };
 
-  function execObjectiveLine(state, prev, rng) {
-    const g = state.group;
+  function execObjectiveLine(state, prev, rng, g) {
     const band = g.results ? g.results.receptionBand : 'solid';
     if (prev.status === 'missed') {
       return '“The deadline came and went, and I wore that in front of the board. You get one more window. ' + g.name + ' comes back, and it lands. Am I clear?”';

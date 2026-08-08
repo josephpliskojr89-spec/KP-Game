@@ -38,7 +38,7 @@ const t = makeT('suite_006_release');
   KP.planDebut(state, { songId: state.demos[0].id, promo: 'modest',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
   let guard = 0;
-  while (!state.group.debuted && guard++ < 12) KP.advanceWeek(state);
+  while (!state.groups[0].debuted && guard++ < 12) KP.advanceWeek(state);
   const idol = KP.releaseTrainee(state, ids[0]);
   t.ok(!idol.ok, 'cannot release a debuted idol');
 }

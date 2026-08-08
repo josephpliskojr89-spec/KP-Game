@@ -5,14 +5,22 @@
   'use strict';
   const KP = root.KP = root.KP || {};
 
+  // Which group a plan targets: explicit id, else the only sensible one.
+  function targetGroup(state, plan) {
+    const groups = KP.groups(state);
+    if (plan && plan.groupId) return KP.groupById(state, plan.groupId);
+    if (groups.length === 1) return groups[0];
+    return KP.devGroup(state) || null;
+  }
+
   // Schedule a release: lock song, concept, prep allocation, promo, week.
   // Works for the debut and for every comeback after it.
   KP.planDebut = function (state, plan) {
     const D = KP.C.DEBUT;
-    const g = state.group;
-    if (!g) return { ok: false, reason: 'No group to debut.' };
+    const g = targetGroup(state, plan);
+    if (!g) return { ok: false, reason: 'No group to debut. With several groups, say which one.' };
     if (g.prep) return { ok: false, reason: 'A release is already locked.' };
-    const demo = (state.demos || []).find(s => s.id === plan.songId);
+    const demo = (g.demos || state.demos || []).find(s => s.id === plan.songId);
     if (!demo) return { ok: false, reason: 'Choose a title track.' };
     const format = D.FORMATS.find(f => f.id === (plan.format || 'single')) || D.FORMATS[0];
     const minPrep = Math.max(D.prepWeeksMin, format.minPrep);
@@ -43,9 +51,8 @@
     return { ok: true };
   };
 
-  // Weekly release-prep: focused rehearsal replaces individual training.
-  KP.prepWeek = function (state, rng) {
-    const g = state.group;
+  // Weekly release-prep for one group: rehearsal replaces training.
+  KP.prepWeek = function (state, rng, g) {
     if (!g || !g.prep) return [];
     const notes = [];
     const members = g.members.map(id => state.people[id]);
@@ -64,21 +71,20 @@
     });
     g.prep.progress++;
     const weeksLeft = g.prep.scheduledWeek - state.week;
-    if (weeksLeft === 2) notes.push({ kind: 'debut', text: 'Two weeks out. Teasers are cut, the stage is booked, and everyone is sleeping badly.' });
+    if (weeksLeft === 2) notes.push({ kind: 'debut', text: g.name + ': two weeks out. Teasers are cut, the stage is booked, and everyone is sleeping badly.' });
     return notes;
   };
 
-  // Resolve a locked release. Self-healing: fires when due OR overdue.
+  // The next group whose locked release is due OR overdue, if any.
   // (prep is cleared on resolution, so it can never double-fire.)
   KP.debutDue = function (state) {
-    const g = state.group;
-    return !!(g && g.prep && state.week >= g.prep.scheduledWeek);
+    return KP.groups(state).find(g => g.prep && state.week >= g.prep.scheduledWeek) || null;
   };
 
-  KP.resolveDebut = function (state, rng) {
+  KP.resolveDebut = function (state, rng, group) {
     const D = KP.C.DEBUT;
-    const g = state.group;
-    const demo = state.demos.find(s => s.id === g.prep.songId);
+    const g = group || KP.debutDue(state) || KP.groups(state)[0];
+    const demo = (g.demos || state.demos || []).find(s => s.id === g.prep.songId);
     const concept = KP.conceptById(g.prep.conceptId);
     const members = g.members.map(id => state.people[id]);
 
@@ -134,7 +140,9 @@
     breakout.personality.confidence = KP.clamp(breakout.personality.confidence + 8, 0, 100);
     breakout.history.push({ week: state.week, text: 'Named the breakout of the ' + (isDebut ? 'debut' : 'comeback') + ' by nearly every recap.' });
 
-    // trust + objective resolution, by what the executive actually asked for
+    // trust + objective resolution, by what the executive actually asked
+    // for — an objective only resolves if it concerns THIS group
+    const objForThis = !state.objective.groupId || state.objective.groupId === g.id;
     let trustDelta;
     if (isDebut) {
       trustDelta = KP.C.EXEC.debutTrustDelta[band.key];
@@ -143,7 +151,7 @@
       }
     } else {
       trustDelta = KP.C.COMEBACK.comebackTrustDelta[band.key];
-      if (state.objective.type === 'comeback' && state.objective.status === 'open') {
+      if (state.objective.type === 'comeback' && state.objective.status === 'open' && objForThis) {
         state.objective.status = reception >= state.objective.targetReception ? 'met' : 'metPoorly';
         if (state.objective.status === 'metPoorly') trustDelta -= 3;
       }
@@ -200,7 +208,8 @@
       isDebut, format: format.id, tracks: format.tracks,
     });
     g.prep = null;
-    state.demos = null;   // the producers bring fresh demos for the next cycle
+    g.demos = null;       // the producers bring fresh demos for the next cycle
+    if (state.demos) state.demos = null;   // pre-multigroup compatibility
     return g.results;
   };
 

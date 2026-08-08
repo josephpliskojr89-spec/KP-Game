@@ -27,27 +27,30 @@
     state.week++;
 
     const roster = state.roster.map(id => state.people[id]);
+    const groups = KP.groups(state);
 
     // 1. development (or release prep, which replaces training for members);
     //    idols live on the promotion/recovery cycle, not the training room
-    const g = state.group;
-    const prepping = g && g.prep;
-    const prepIds = prepping ? g.members : [];
+    const prepIds = [];
+    groups.forEach(g => { if (g.prep) g.members.forEach(id => prepIds.push(id)); });
     roster.forEach(p => {
       if (prepIds.includes(p.id)) return;
       if (p.status === 'idol') { idolWeek(state, p); return; }
       KP.developWeek(state, p, rng).forEach(n => inbox.push(n));
     });
-    if (prepping) KP.prepWeek(state, rng).forEach(n => inbox.push(n));
+    groups.forEach(g => {
+      if (g.prep) KP.prepWeek(state, rng, g).forEach(n => inbox.push(n));
+    });
 
     // popularity cools once the promotion cycle and its afterglow end;
-    // a fan-care rollout stretches the afterglow
-    if (g && g.debuted && !g.prep) {
+    // a fan-care rollout stretches the afterglow — per group
+    groups.forEach(g => {
+      if (!g.debuted || g.prep) return;
       const focus = KP.C.COMEBACK.FOCUS[g.promoFocus] || KP.C.COMEBACK.FOCUS.musicShows;
       if (state.week > (g.promoUntil || 0) + KP.C.COMEBACK.decayGraceWeeks + focus.graceBonus) {
         g.popularity = Math.max(0, (g.popularity || 0) - KP.C.COMEBACK.popDecayPerWeek);
       }
-    }
+    });
 
     // 2. showcase cadence (live reps for everyone, sharper reads)
     if (state.week % KP.C.TRAIN.showcaseEveryWeeks === 0 && roster.length) {
@@ -64,10 +67,11 @@
     KP.eventsWeek(state, rng).forEach(n => inbox.push(n));
 
     // 6. release resolution — due or overdue, never an exact-date match
-    if (KP.debutDue(state)) {
-      const res = KP.resolveDebut(state, rng);
-      inbox.push({ kind: 'debut', urgent: true,
-        text: state.group.name + (res.isDebut ? ' debuted with “' : ' came back with “') +
+    let dueGroup;
+    while ((dueGroup = KP.debutDue(state))) {
+      const res = KP.resolveDebut(state, rng, dueGroup);
+      inbox.push({ kind: 'debut', urgent: true, groupId: dueGroup.id,
+        text: dueGroup.name + (res.isDebut ? ' debuted with “' : ' came back with “') +
           res.songTitle + '”. ' + res.receptionLabel + '. Full report in the Studio.' });
     }
 
@@ -110,7 +114,7 @@
   // focus the player chose — then the schedule finally breathes.
   function idolWeek(state, p) {
     const CB = KP.C.COMEBACK;
-    const g = state.group;
+    const g = KP.groupOf(state, p.id);
     const promoting = g && g.debuted && state.week <= (g.promoUntil || 0);
     if (promoting) {
       const f = CB.FOCUS[g.promoFocus] || CB.FOCUS.musicShows;
@@ -142,8 +146,8 @@
     const p = state.people[personId];
     if (!p || !state.roster.includes(personId)) return { ok: false, reason: 'Not on the roster.' };
     if (p.status === 'idol') return { ok: false, reason: 'She has debuted. Terminating an active artist is above your pay grade.' };
-    if (state.group && state.group.members.includes(personId)) {
-      return { ok: false, reason: 'She is in the debut lineup. The lineup would have to change first.' };
+    if (KP.groupOf(state, personId)) {
+      return { ok: false, reason: 'She is in a lineup. The lineup would have to change first.' };
     }
     state.roster = state.roster.filter(id => id !== personId);
     p.status = 'released';
@@ -168,10 +172,10 @@
     const items = [];
     const nextShowcase = state.week + (KP.C.TRAIN.showcaseEveryWeeks - (state.week % KP.C.TRAIN.showcaseEveryWeeks));
     items.push({ week: nextShowcase, label: 'Monthly showcase' });
-    if (state.group && state.group.prep) {
-      items.push({ week: state.group.prep.scheduledWeek,
-        label: state.group.name + (state.group.debuted ? ' comeback' : ' debut'), hot: true });
-    }
+    KP.groups(state).forEach(g => {
+      if (g.prep) items.push({ week: g.prep.scheduledWeek,
+        label: g.name + (g.debuted ? ' comeback' : ' debut'), hot: true });
+    });
     if (state.objective.status === 'open') {
       items.push({ week: state.objective.deadlineWeek, label: 'Executive deadline', hot: true });
     }

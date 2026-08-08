@@ -26,14 +26,16 @@ const BANDS = {
   multiRelease:      { lo: 0.70, hi: 1.00, label: 'orgs with >=2 releases (the loop loops)' },
   chartTopTen:       { lo: 0.05, hi: 0.70, label: 'orgs with a top-10 chart peak' },
   popAlive:          { lo: 0.50, hi: 1.00, label: 'orgs ending with a warm-or-better fanbase' },
+  secondGroup:       { lo: 0.30, hi: 1.00, label: 'orgs that launched a second group' },
 };
 
 const tally = {
   sensation: 0, strongPlus: 0, missOrQuiet: 0, nonCenterBreakout: 0,
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
   frictionSeen: 0, conflictEndemic: 0,
-  multiRelease: 0, chartTopTen: 0, popAlive: 0,
+  multiRelease: 0, chartTopTen: 0, popAlive: 0, secondGroup: 0,
 };
+let totalGroups = 0;
 let mediationsRun = 0;
 let totalReleases = 0;
 const receptions = [];
@@ -79,40 +81,45 @@ for (let s = 0; s < SEEDS; s++) {
       const m = KP.mediatePair(state, worst.a.id, worst.b.id);
       if (m.ok) mediationsRun++;
     }
-    // form the group around week 20
-    if (!state.group && state.week >= 20 && state.roster.length >= 5) {
-      const members = state.roster.map(id => state.people[id])
+    // form the first group around week 20; a second lineup once the first
+    // has debuted and the trainee room can field one (v0.2.2)
+    const wantSecond = state.groups.length === 1 && state.groups[0].debuted &&
+      state.week >= 70 && KP.freeTrainees(state).length >= 4 && state.budget > 120;
+    if ((!state.groups.length && state.week >= 20 && state.roster.length >= 5) || wantSecond) {
+      const size = state.groups.length ? 4 : 5;
+      const pool = KP.freeTrainees(state).map(id => state.people[id])
         .map(p => ({ p, v: KP.C.TALENTS.reduce((sum, d) => sum + KP.perceived(state, p, d, scout), 0) }))
-        .sort((a, b) => b.v - a.v).slice(0, 5).map(x => x.p);
-      const hints = KP.roleHints(state, members);
-      const name = KP.suggestGroupNames(state, KP.rngFor(state))[0];
-      KP.proposeGroup(state, name, members.map(m => m.id), hints);
-    }
-    // plan the next release once formed — the debut and every comeback
-    // after it ride the same studio path
-    if (state.group && !state.group.prep &&
-        (!state.group.debuted || state.week > (state.group.promoUntil || 0) + 2)) {
-      // the debut gets full investment (as a human would); comebacks
-      // economize when the division runs tight
-      const promoAffordable = (!state.group.debuted || state.budget > 60) ? 'standard' : 'modest';
-      const fmtCost = KP.C.DEBUT.FORMATS[0].cost;
-      if (state.budget > KP.C.DEBUT.promoCost[promoAffordable] + fmtCost) {
-        if (!state.demos) {
-          const rng = KP.rngFor(state);
-          state.demos = KP.generateDemos(state, rng);
-          state.rngState = rng.state();
-        }
-        const demo = state.demos.slice().sort((a, b) => b.hook - a.hook)[0];
-        const targetWeek = state.group.debuted
-          ? state.week + 8
-          : Math.min(state.week + 8, state.objective.deadlineWeek);
-        KP.planDebut(state, {
-          songId: demo.id, conceptId: demo.conceptId, promo: promoAffordable,
-          week: targetWeek,
-          alloc: { vocals: 30, dance: 30, rap: 10, media: 30 },
-        });
+        .sort((a, b) => b.v - a.v).slice(0, size).map(x => x.p);
+      if (pool.length >= 4) {
+        const hints = KP.roleHints(state, pool);
+        const name = KP.suggestGroupNames(state, KP.rngFor(state))[0] + (state.groups.length ? ' II' : '');
+        KP.proposeGroup(state, name, pool.map(m => m.id), hints);
       }
     }
+    // plan the next release for whichever group needs one — debuts and
+    // comebacks ride the same studio path
+    state.groups.forEach(g => {
+      if (g.prep) return;
+      if (g.debuted && state.week <= (g.promoUntil || 0) + 2) return;
+      const promoAffordable = (!g.debuted || state.budget > 60) ? 'standard' : 'modest';
+      const fmtCost = KP.C.DEBUT.FORMATS[0].cost;
+      if (state.budget <= KP.C.DEBUT.promoCost[promoAffordable] + fmtCost) return;
+      if (!g.demos) {
+        const rng = KP.rngFor(state);
+        g.demos = KP.generateDemos(state, rng);
+        state.rngState = rng.state();
+      }
+      const demo = g.demos.slice().sort((a, b) => b.hook - a.hook)[0];
+      const targetWeek = g.debuted
+        ? state.week + 8
+        : (state.objective.type === 'debutGirlGroup' && state.objective.status === 'open'
+          ? Math.min(state.week + 8, state.objective.deadlineWeek) : state.week + 8);
+      KP.planDebut(state, {
+        groupId: g.id, songId: demo.id, conceptId: demo.conceptId, promo: promoAffordable,
+        week: targetWeek,
+        alloc: { vocals: 30, dance: 30, rap: 10, media: 30 },
+      });
+    });
 
     const notes = KP.advanceWeek(state);
     notes.forEach(n => { if (n.kind === 'health' && /wall|injur/i.test(n.text)) burnoutSeen = true; });
@@ -128,14 +135,16 @@ for (let s = 0; s < SEEDS; s++) {
       guard(p.fatigue >= 0 && p.fatigue <= 100, seed + ' ' + p.id + ' fatigue out of range');
     });
     guard(state.budget >= 0, seed + ' negative budget: ' + state.budget);
-    if (state.group && state.group.prep) {
-      guard(state.week <= state.group.prep.scheduledWeek, seed + ' a locked release sailed past unresolved');
-    }
+    state.groups.forEach(gg => {
+      if (gg.prep) guard(state.week <= gg.prep.scheduledWeek, seed + ' a locked release sailed past unresolved');
+    });
   }
 
   // --- per-seed observatory tallies ---
-  const g = state.group;
+  const g = state.groups[0];
   guard(!!(g && g.debuted && g.results), seed + ' auto-player failed to reach a debut');
+  if (state.groups.length >= 2) tally.secondGroup++;
+  totalGroups += state.groups.length;
   guard((state.objectiveHistory || []).length >= 1, seed + ' the objective ladder never advanced');
   if (g && g.debuted) {
     guard(g.members.map(id => state.people[id])
@@ -192,7 +201,7 @@ receptions.sort((a, b) => a - b);
 const med = receptions[Math.floor(receptions.length / 2)] || 0;
 console.log('debut reception: median ' + med +
   ', min ' + (receptions[0] || 0) + ', max ' + (receptions[receptions.length - 1] || 0));
-console.log('releases per org: ' + (totalReleases / SEEDS).toFixed(1) + ' average');
+console.log('releases per org: ' + (totalReleases / SEEDS).toFixed(1) + ' average; groups per org: ' + (totalGroups / SEEDS).toFixed(1));
 console.log('avg roster talent growth over the run: ' +
   (growths.reduce((a, b) => a + b, 0) / Math.max(1, growths.length)).toFixed(1) + ' pts');
 

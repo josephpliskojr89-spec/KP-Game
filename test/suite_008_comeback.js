@@ -17,7 +17,7 @@ function throughDebut(seed) {
   KP.planDebut(state, { songId: state.demos[0].id, promo: 'modest',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
   let guard = 0;
-  while (!state.group.debuted && guard++ < 12) KP.advanceWeek(state);
+  while (!state.groups[0].debuted && guard++ < 12) KP.advanceWeek(state);
   return state;
 }
 
@@ -31,9 +31,9 @@ function throughDebut(seed) {
   t.ok(state.objectiveHistory.length === 1 && state.objectiveHistory[0].type === 'debutGirlGroup', 'the debut objective is archived');
   t.ok(state.inbox.some(m => m.kind === 'executive' && /reinvestment/.test(m.text)), 'the directive arrives as a letter with a grant');
   t.ok(state.demos === null, 'the old demos are cleared for a fresh cycle');
-  t.ok(state.group.releases.length === 1 && state.group.releases[0].isDebut, 'discography holds the debut');
-  t.ok(state.group.popularity > 0, 'the debut founded a fanbase');
-  t.ok(state.group.results.chartPeak >= 1 && state.group.results.chartPeak <= 100, 'chart peak bounded');
+  t.ok(state.groups[0].releases.length === 1 && state.groups[0].releases[0].isDebut, 'discography holds the debut');
+  t.ok(state.groups[0].popularity > 0, 'the debut founded a fanbase');
+  t.ok(state.groups[0].results.chartPeak >= 1 && state.groups[0].results.chartPeak <= 100, 'chart peak bounded');
 }
 
 // a full comeback cycle: plan, resolve, compound
@@ -47,13 +47,13 @@ function throughDebut(seed) {
   const plan = KP.planDebut(state, { songId: state.demos[0].id, promo: 'standard',
     week: state.week + 6, alloc: { vocals: 30, dance: 30, rap: 10, media: 30 } });
   t.ok(plan.ok, 'comeback planning succeeds through the same studio path');
-  const popBefore = state.group.popularity;
+  const popBefore = state.groups[0].popularity;
   let guard = 0;
-  while (state.group.prep && guard++ < 12) KP.advanceWeek(state);
-  t.eq(state.group.releases.length, 2, 'discography holds two releases');
-  t.ok(!state.group.releases[1].isDebut, 'the second release is a comeback');
-  t.ok(state.group.results.isDebut === false, 'latest report is a comeback report');
-  t.ok(state.group.popularity !== popBefore, 'popularity moved with the comeback');
+  while (state.groups[0].prep && guard++ < 12) KP.advanceWeek(state);
+  t.eq(state.groups[0].releases.length, 2, 'discography holds two releases');
+  t.ok(!state.groups[0].releases[1].isDebut, 'the second release is a comeback');
+  t.ok(state.groups[0].results.isDebut === false, 'latest report is a comeback report');
+  t.ok(state.groups[0].popularity !== popBefore, 'popularity moved with the comeback');
   t.ok(['met', 'metPoorly'].includes(state.objectiveHistory[1] ? state.objectiveHistory[1].status : state.objective.status) ||
        state.objective.type === 'comeback', 'the comeback objective resolved or a successor was issued');
   // after resolution, the ladder continues
@@ -64,7 +64,7 @@ function throughDebut(seed) {
 // idols recover once promotion ends (the v0.1.x fatigue bug is dead)
 {
   const state = throughDebut('cb-fatigue');
-  const members = state.group.members.map(id => state.people[id]);
+  const members = state.groups[0].members.map(id => state.people[id]);
   members.forEach(m => { m.fatigue = 80; });
   // sail past the promotion window with no prep
   for (let w = 0; w < 10; w++) KP.advanceWeek(state);
@@ -77,9 +77,9 @@ function throughDebut(seed) {
 {
   const state = throughDebut('cb-decay');
   for (let w = 0; w < 6; w++) KP.advanceWeek(state);
-  const popAfterPromo = state.group.popularity;
+  const popAfterPromo = state.groups[0].popularity;
   for (let w = 0; w < 20; w++) KP.advanceWeek(state);
-  t.ok(state.group.popularity < popAfterPromo, 'momentum dies in the room between releases');
+  t.ok(state.groups[0].popularity < popAfterPromo, 'momentum dies in the room between releases');
 }
 
 // comeback deadline miss: gentler penalty, ladder continues
@@ -94,25 +94,32 @@ function throughDebut(seed) {
   t.ok(state.objectiveHistory.some(o => o.status === 'missed'), 'the miss is on the record');
 }
 
-// migration: a v0.1.x post-debut save gains the comeback fields + fatigue repair
+// migration: a v0.1.x post-debut save (single-group shape) gains the
+// comeback fields, the fatigue repair, and the multi-group shape
 {
   const state = throughDebut('cb-migrate');
-  // strip v0.2.0 fields to fake an old save
-  const g = state.group;
+  // fake a genuine old save: single group on state.group, no v0.2.x fields
+  const g = state.groups[0];
   delete g.releases; delete g.popularity; delete g.lastReleaseWeek; delete g.promoUntil;
   delete g.results.isDebut; delete g.results.chartPeak; delete g.results.chartWeeks;
+  delete g.id; delete g.demos;
+  state.group = g;
+  delete state.groups; delete state.nextGroupId;
   delete state.objectiveHistory;
   state.objective = { type: 'debutGirlGroup', text: 'x', status: 'met', deadlineWeek: 72 };
   g.members.forEach(id => { state.people[id].fatigue = 95; });
   state.version = '0.1.2';
   const back = KP.deserialize(KP.serialize(state));
   t.eq(back.version, KP.C.VERSION, 'migrated save stamped forward');
-  t.ok(back.group.releases && back.group.releases.length === 1, 'discography backfilled from results');
-  t.ok(back.group.popularity > 0, 'popularity backfilled');
-  t.ok(back.group.members.every(id => back.people[id].fatigue <= 60), 'pegged idol fatigue repaired');
+  t.ok(!back.group && back.groups.length === 1 && back.groups[0].id, 'single group moved into groups[] with an id');
+  const bg = back.groups[0];
+  t.ok(bg.releases && bg.releases.length === 1, 'discography backfilled from results');
+  t.ok(bg.popularity > 0, 'popularity backfilled');
+  t.ok(bg.members.every(id => back.people[id].fatigue <= 60), 'pegged idol fatigue repaired');
   t.ok(back.inbox.some(m => /finally slept/.test(m.text)), 'the repair is narrated in the fiction');
   KP.advanceWeek(back);
   t.eq(back.objective.type, 'comeback', 'the ladder self-heals: a directive is issued on the next advance');
+  t.eq(back.objective.groupId, bg.id, 'the directive knows which group it concerns');
 }
 
 // determinism through a full comeback cycle

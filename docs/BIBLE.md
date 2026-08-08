@@ -148,7 +148,17 @@ bands (friction alive in every org; conflict-heavy endings rare).
 Player proposes 4–6 members with leader + center mandatory, main vocal /
 dancer / rapper optional; maknae is recorded as a fact, not a role. Staff
 picks are hints from perceived reads. The executive reviews the proposal in
-words and remembers. One group in development at a time (vertical slice).
+words and remembers.
+
+**Multiple groups** (v0.2.2): `state.groups[]`, each with its own id,
+demos, prep, popularity, promo cycle, discography, and results. Rules:
+one group *in development* at a time (a new lineup needs every existing
+group debuted), a person belongs to at most one group, names are unique.
+`KP.freeTrainees` is the pool a new lineup draws from. The Groups tab
+lists group cards when there are several; the Studio grows a group
+switcher and defaults to whichever group most needs a record. Comeback
+directives carry `objective.groupId` and only resolve on that group's
+release — the executive targets whichever act has waited longest.
 
 **Releasing** (v0.1.1): `KP.releaseTrainee` is a player action only — the
 engine never auto-cuts (design-grammar law). Rails: debut-lineup members
@@ -538,4 +548,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Stage names with suggestions, uniqueness, and the public/staff naming
 > split. Numbers: battery 9/9 (suite 009), soak clean, e2e 48, lockstep
 > 0.2.1. Rode to main. Second group ships next as v0.2.2.
+
+> **v0.2.2 — the second group** (owner: *"a second group would be great"*)
+> The single-group vertical slice becomes an agency: `state.group` →
+> `state.groups[]` with per-group ids, demos, prep, popularity, promo
+> cycles, and discographies. New-lineup rules (all groups debuted first,
+> no shared members, unique names), a Groups tab that lists the portfolio,
+> a Studio group switcher, per-group results reports, and comeback
+> directives that name their group and target whichever act has waited
+> longest. Migration moves an existing save's group into the new shape
+> untouched, demos and open objective included. The soak auto-player now
+> runs a two-group agency: 40/40 seeds launched a second group, 8.0
+> releases and 2.0 groups per org, all 13 census bands alive.
+> Numbers: battery 10/10 (suite 010: rails, independent cycles, targeted
+> ladder, two-group determinism), soak clean, e2e 49, lockstep 0.2.2.
+> Rode to main.
 

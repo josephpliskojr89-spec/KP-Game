@@ -237,6 +237,7 @@ async function main() {
   await tap('[data-nav=groups]');
   const disco = await page.textContent('#screen');
   ok((disco.match(/peaked #/g) || []).length >= 2, 'discography lists both releases with chart peaks');
+  ok(/without a lineup/.test(disco), 'the groups tab points at trainees waiting for a second lineup');
 
   await browser.close();
   server.close();

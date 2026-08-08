@@ -5,19 +5,36 @@
   const KP = root.KP = root.KP || {};
   const UI = KP.UI;
 
+  // Which group the studio is working with right now.
+  UI.studioGroup = function (state) {
+    const groups = KP.groups(state);
+    if (!groups.length) return null;
+    const chosen = KP.groupById(state, KP.App.studioGroupId);
+    if (chosen) return chosen;
+    // default: the group most in need of a record
+    return KP.devGroup(state) ||
+      groups.slice().sort((a, b) => (a.lastReleaseWeek || 0) - (b.lastReleaseWeek || 0))[0];
+  };
+
   UI.renderStudio = function (state, draft) {
-    const g = state.group;
+    const groups = KP.groups(state);
+    const g = UI.studioGroup(state);
     const html = [];
     if (!g) {
       return '<div class="group-hero"><div class="g-status">Studio</div>' +
         '<div class="g-name" style="font-size:clamp(1.7rem,8vw,2.4rem)">No artist,<br>no record.</div>' +
         '<div style="color:var(--ink-dim);font-size:.86rem;margin-top:8px;line-height:1.5">Form a group first. The demos will be waiting.</div></div>';
     }
+    const switcher = groups.length > 1
+      ? '<div class="pad" style="margin-bottom:8px"><div class="seg">' +
+        groups.map(x => '<button class="' + (x.id === g.id ? 'on' : '') + '" data-action="studio-group" data-id="' + x.id + '">' + UI.esc(x.name) + '</button>').join('') +
+        '</div></div>'
+      : '';
     if (g.prep) {
       const inW = g.prep.scheduledWeek - state.week;
-      const demo = state.demos.find(s => s.id === g.prep.songId);
+      const demo = (g.demos || []).find(s => s.id === g.prep.songId);
       UI.setEra(g.prep.conceptId);
-      return '<div class="group-hero"><div class="g-status">Locked & in production</div>' +
+      return switcher + '<div class="group-hero"><div class="g-status">Locked & in production · ' + UI.esc(g.name) + '</div>' +
         '<div class="g-name" style="font-size:clamp(1.9rem,10vw,2.8rem)">“' + UI.esc(demo.title) + '”</div>' +
         '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px">' +
         '<span class="chip cool">' + UI.esc(KP.conceptById(g.prep.conceptId).label) + '</span>' +
@@ -27,24 +44,25 @@
     }
 
     // --- planning mode ---
-    if (!state.demos) {
+    if (!g.demos) {
       const rng = KP.rngFor(state);
-      state.demos = KP.generateDemos(state, rng);
+      g.demos = KP.generateDemos(state, rng);
       state.rngState = rng.state();
       KP.App.save();
     }
     const members = g.members.map(id => state.people[id]);
-    const sel = state.demos.find(s => s.id === draft.songId) || null;
+    const sel = g.demos.find(s => s.id === draft.songId) || null;
     const conceptId = draft.conceptId || (sel ? sel.conceptId : null);
     if (conceptId) UI.setEra(conceptId);
 
+    html.push(switcher);
     html.push('<div class="pad"><div class="d-label">' + (g.debuted ? 'Comeback planning' : 'Debut planning') + ' · ' + UI.esc(g.name) + '</div>' +
       '<div class="bigname" style="font-size:clamp(1.6rem,8vw,2.2rem)">Pick the record.<br>Pick the day.</div>' +
       (g.debuted && g.results ? '<div style="font-size:.76rem;color:var(--ink-dim);margin-top:8px">Last release: “' + UI.esc(g.results.songTitle) + '” — ' + UI.esc(g.results.receptionLabel.toLowerCase()) + ', peaked #' + g.results.chartPeak + '. The room is ' + KP.popularityWord(g.popularity) + '.</div>' : '') +
       '</div>');
 
     html.push('<div class="kicker">Demos on the desk</div>');
-    state.demos.forEach(demo => {
+    g.demos.forEach(demo => {
       const on = draft.songId === demo.id;
       html.push('<div class="card demo-card ' + (on ? 'on' : '') + '" data-action="studio-song" data-id="' + demo.id + '">' +
         '<div class="s-eq"><i></i><i></i><i></i></div>' +
@@ -118,8 +136,11 @@
   };
 
   // ---- results ---------------------------------------------------------
-  UI.renderResults = function (state) {
-    const g = state.group;
+  UI.renderResults = function (state, groupId) {
+    const g = (groupId && KP.groupById(state, groupId)) ||
+      KP.groups(state).filter(x => x.results)
+        .sort((a, b) => (b.results.week || 0) - (a.results.week || 0))[0];
+    if (!g || !g.results) return '<div class="card">No report yet.</div>';
     const r = g.results;
     const html = [];
     UI.setEra(r.conceptId);

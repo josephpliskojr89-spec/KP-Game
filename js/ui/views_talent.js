@@ -32,7 +32,7 @@
 
   function rosterRow(state, p) {
     const head = KP.headline(state, p);
-    const groupMember = state.group && state.group.members.includes(p.id);
+    const grp = KP.groupOf(state, p.id);
     const focus = (p.training.focus || []).map(f => KP.C.TALENT_LABELS[f]).join(' + ');
     return '<div class="talent-row" data-action="open-dossier" data-id="' + p.id + '">' +
       UI.portrait(p, 'md') +
@@ -40,7 +40,7 @@
       '<div class="t-name">' + UI.esc(KP.displayName(p)) + '</div>' +
       '<div class="t-sub">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' + UI.esc(head.text) + '</div>' +
       '<div class="t-chips">' + UI.condChips(p) +
-      (groupMember ? '<span class="chip gold">' + UI.esc(state.group.name) + '</span>' : '') +
+      (grp ? '<span class="chip gold">' + UI.esc(grp.name) + '</span>' : '') +
       (p.status === 'idol' ? '<span class="chip gold">debuted</span>' : '') +
       '</div></div>' +
       '<div class="t-side"><span class="chip">' +
@@ -71,8 +71,8 @@
   function renderTrainingPage(state) {
     const html = [];
     const trainees = state.roster.map(id => state.people[id]).filter(p => p.status === 'trainee');
-    const prepping = state.group && state.group.prep && !state.group.debuted;
-    const prepIds = prepping ? state.group.members : [];
+    const prepIds = [];
+    KP.groups(state).forEach(g => { if (g.prep) g.members.forEach(id => prepIds.push(id)); });
     if (!trainees.length) {
       return '<div class="card" style="margin-top:12px">No trainees to schedule.</div>';
     }
@@ -117,7 +117,7 @@
     const html = [];
 
     html.push('<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>');
-    const inLineup = state.group && state.group.members.includes(p.id);
+    const inLineup = !!KP.groupOf(state, p.id);
     const nameHtml = p.name.stage
       ? UI.esc(p.name.stage)
       : UI.esc(p.name.family) + '<br>' + UI.esc(p.name.given);
@@ -203,10 +203,10 @@
 
     // releasing — a hard decision, so it lives behind a confirm
     if (p.status === 'trainee') {
-      const inGroup = state.group && state.group.members.includes(p.id);
+      const inGroup = !!KP.groupOf(state, p.id);
       html.push('<div class="pad" style="margin-top:18px">' +
         '<button class="btn danger small" data-action="release" data-id="' + p.id + '"' + (inGroup ? ' disabled' : '') + '>Release from contract</button>' +
-        (inGroup ? '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">She is in the debut lineup.</div>' : '') +
+        (inGroup ? '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">She is in a lineup.</div>' : '') +
         '</div>');
     }
 

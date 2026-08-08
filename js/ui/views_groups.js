@@ -6,12 +6,45 @@
   const UI = KP.UI;
 
   UI.renderGroups = function (state) {
-    if (!state.group) return renderNoGroup(state);
-    return renderGroupPage(state);
+    const groups = KP.groups(state);
+    if (!groups.length) return renderNoGroup(state);
+    if (groups.length === 1) return UI.renderGroupPage(state, groups[0]) + newLineupCard(state);
+    const html = [];
+    groups.forEach(g => html.push(groupCard(state, g)));
+    html.push(newLineupCard(state));
+    return html.join('');
   };
 
+  function groupCard(state, g) {
+    const promoting = g.debuted && state.week <= (g.promoUntil || 0);
+    const status = g.debuted
+      ? (g.prep ? 'Comeback in prep' : promoting ? 'Promoting' : 'Active')
+      : g.prep ? 'Debut in prep' : 'In development';
+    return '<div class="group-hero" data-action="open-grouppage" data-id="' + g.id + '" style="cursor:pointer">' +
+      '<div class="g-status">' + UI.esc(status) + '</div>' +
+      '<div class="g-name" style="font-size:clamp(2rem,10vw,2.8rem)">' + UI.esc(g.name) + '</div>' +
+      '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:6px">' +
+      '<span class="chip">' + g.members.length + ' members</span>' +
+      (g.debuted ? '<span class="chip ' + (g.popularity >= 58 ? 'hot' : '') + '">' + KP.popularityWord(g.popularity) + '</span>' : '') +
+      ((g.releases || []).length ? '<span class="chip gold">' + g.releases.length + ' release' + (g.releases.length === 1 ? '' : 's') + '</span>' : '') +
+      '</div></div>';
+  }
+
+  function newLineupCard(state) {
+    const free = KP.freeTrainees(state).length;
+    if (KP.devGroup(state)) return '';
+    if (free >= KP.C.GROUP.minMembers) {
+      return '<div class="card" style="margin-top:14px">The trainee room still has people waiting for their shot — ' + free + ' without a lineup.' +
+        '<div style="margin-top:12px"><button class="btn primary" data-action="open-builder">Propose a new lineup</button></div></div>';
+    }
+    if (free > 0) {
+      return '<div class="card" style="margin-top:14px;color:var(--ink-dim);font-size:.82rem">' + free + ' trainee' + (free === 1 ? '' : 's') + ' without a lineup — a second group needs at least ' + KP.C.GROUP.minMembers + '. The scouting board is open.</div>';
+    }
+    return '';
+  }
+
   function renderNoGroup(state) {
-    const ready = state.roster.length >= state.objective.minMembers;
+    const ready = KP.freeTrainees(state).length >= KP.C.GROUP.minMembers;
     const monthsLeft = KP.monthsUntil(state.week, state.objective.deadlineWeek);
     return '<div class="group-hero">' +
       '<div class="g-status">No group in development</div>' +
@@ -21,12 +54,11 @@
       (state.objective.status === 'open' ? ' within ' + monthsLeft + ' months.' : '.') +
       ' The best five trainees are not automatically the best group.</div>' +
       '<div style="margin-top:16px"><button class="btn primary" data-action="open-builder"' + (ready ? '' : ' disabled') + '>Propose a lineup</button></div>' +
-      (ready ? '' : '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:8px">You need at least ' + state.objective.minMembers + ' trainees.</div>') +
+      (ready ? '' : '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:8px">You need at least ' + KP.C.GROUP.minMembers + ' unassigned trainees.</div>') +
       '</div>';
   }
 
-  function renderGroupPage(state) {
-    const g = state.group;
+  UI.renderGroupPage = function (state, g) {
     const members = g.members.map(id => state.people[id]);
     const html = [];
     const era = g.prep ? g.prep.conceptId : null;
@@ -94,7 +126,7 @@
           '<span class="m-week">' + (r.isDebut ? 'debut · ' : '') + 'peaked #' + r.chartPeak +
           (r.chartWeeks ? ' · ' + r.chartWeeks + ' weeks charting' : ' · missed the charts') + '</span></div></div>');
       });
-      html.push('<div class="pad" style="margin-top:8px"><button class="btn small" data-action="open-results">Latest full report</button></div>');
+      html.push('<div class="pad" style="margin-top:8px"><button class="btn small" data-action="open-results" data-id="' + g.id + '">Latest full report</button></div>');
     }
     return html.join('');
   }
@@ -102,11 +134,11 @@
   // ---- builder ---------------------------------------------------------
   UI.renderBuilder = function (state, draft) {
     const html = [];
-    const trainees = state.roster.map(id => state.people[id]).filter(p => p.status === 'trainee');
+    const trainees = KP.freeTrainees(state).map(id => state.people[id]);
     html.push('<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>');
     html.push('<div class="pad"><div class="d-label">Lineup proposal</div>' +
       '<div class="bigname" style="font-size:clamp(1.6rem,8vw,2.2rem)">Who stands<br>together?</div>' +
-      '<div style="font-size:.78rem;color:var(--ink-dim);margin-top:8px">Pick ' + state.objective.minMembers + '–' + state.objective.maxMembers + ' members. ' +
+      '<div style="font-size:.78rem;color:var(--ink-dim);margin-top:8px">Pick ' + KP.C.GROUP.minMembers + '–' + KP.C.GROUP.maxMembers + ' members. ' +
       'Complementary strengths, compatible people, one coherent concept.</div></div>');
 
     html.push('<div class="kicker">Members · ' + draft.members.length + ' selected</div>');
@@ -121,7 +153,7 @@
     });
     html.push('</div>');
 
-    if (draft.members.length >= state.objective.minMembers) {
+    if (draft.members.length >= KP.C.GROUP.minMembers) {
       const members = draft.members.map(id => state.people[id]);
       const hints = KP.roleHints(state, members);
 

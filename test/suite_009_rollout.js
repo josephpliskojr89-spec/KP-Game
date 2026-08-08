@@ -18,7 +18,7 @@ function throughDebut(seed, planExtra) {
   const r = KP.planDebut(state, plan);
   if (!r.ok) throw new Error('debut plan failed: ' + r.reason);
   let guard = 0;
-  while (!state.group.debuted && guard++ < 14) KP.advanceWeek(state);
+  while (!state.groups[0].debuted && guard++ < 14) KP.advanceWeek(state);
   return state;
 }
 
@@ -30,8 +30,8 @@ function throughDebut(seed, planExtra) {
   KP.planDebut(state, { songId: state.demos[0].id, promo: 'modest',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
   let guard = 0;
-  while (state.group.prep && guard++ < 12) KP.advanceWeek(state);
-  const r = state.group.results;
+  while (state.groups[0].prep && guard++ < 12) KP.advanceWeek(state);
+  const r = state.groups[0].results;
   t.ok(r.isDebut === false, 'second release is a comeback');
   t.ok(!/debut/i.test(r.receptionLabel), 'its label never says debut (got "' + r.receptionLabel + '")');
   t.ok(Object.values(KP.C.COMEBACK.bandLabels).includes(r.receptionLabel), 'label comes from the comeback table');
@@ -57,11 +57,11 @@ function throughDebut(seed, planExtra) {
   t.ok(ok.ok, 'a funded mini-album locks');
   const mini = KP.C.DEBUT.FORMATS.find(f => f.id === 'mini');
   t.eq(state.budget, budgetBefore - mini.cost - KP.C.DEBUT.promoCost.modest, 'cost = record + promotion');
-  t.eq(state.group.prep.format, 'mini', 'format stored on the plan');
+  t.eq(state.groups[0].prep.format, 'mini', 'format stored on the plan');
   let guard = 0;
-  while (!state.group.debuted && guard++ < 14) KP.advanceWeek(state);
-  t.eq(state.group.releases[0].format, 'mini', 'format lands in the discography');
-  t.eq(state.group.releases[0].tracks, mini.tracks, 'track count recorded');
+  while (!state.groups[0].debuted && guard++ < 14) KP.advanceWeek(state);
+  t.eq(state.groups[0].releases[0].format, 'mini', 'format lands in the discography');
+  t.eq(state.groups[0].releases[0].tracks, mini.tracks, 'track count recorded');
 }
 
 // same-world revenue scales with format
@@ -69,11 +69,11 @@ function throughDebut(seed, planExtra) {
   const a = throughDebut('roll-rev', { format: 'single' });
   const b = throughDebut('roll-rev', { format: 'full', week: undefined });
   // identical seeds and plans except format; full pays more for the same story
-  t.ok(b.group.results.reception === a.group.results.reception ||
-       Math.abs(b.group.results.reception - a.group.results.reception) <= 100,
+  t.ok(b.groups[0].results.reception === a.groups[0].results.reception ||
+       Math.abs(b.groups[0].results.reception - a.groups[0].results.reception) <= 100,
        'sanity: both resolved');
-  if (b.group.results.reception === a.group.results.reception) {
-    t.ok(b.group.results.revenue > a.group.results.revenue, 'a full album pays more than a single for the same reception');
+  if (b.groups[0].results.reception === a.groups[0].results.reception) {
+    t.ok(b.groups[0].results.revenue > a.groups[0].results.revenue, 'a full album pays more than a single for the same reception');
   } else {
     const full = KP.C.DEBUT.FORMATS.find(f => f.id === 'full');
     t.ok(full.revenueMult > 1.5, 'full album multiplier is materially bigger');
@@ -85,8 +85,8 @@ function throughDebut(seed, planExtra) {
 {
   const varietyState = throughDebut('roll-focus', { focus: 'variety' });
   const showsState = throughDebut('roll-focus2', { focus: 'musicShows' });
-  const vm = varietyState.group.members.map(id => varietyState.people[id]);
-  const sm = showsState.group.members.map(id => showsState.people[id]);
+  const vm = varietyState.groups[0].members.map(id => varietyState.people[id]);
+  const sm = showsState.groups[0].members.map(id => showsState.people[id]);
   const mediaBefore = vm.map(m => m.mediaExp);
   const liveBefore = sm.map(m => m.liveExp);
   for (let w = 0; w < 4; w++) { KP.advanceWeek(varietyState); KP.advanceWeek(showsState); }
@@ -94,13 +94,13 @@ function throughDebut(seed, planExtra) {
   const liveGain = sm.reduce((s, m, i) => s + m.liveExp - liveBefore[i], 0) / sm.length;
   t.ok(mediaGain >= 4 * KP.C.COMEBACK.FOCUS.variety.mediaExp - 1, 'variety promo builds media experience');
   t.ok(liveGain >= 4 * KP.C.COMEBACK.FOCUS.musicShows.liveExp - 1, 'music-show promo builds live experience');
-  t.eq(varietyState.group.promoFocus, 'variety', 'focus persists on the group');
+  t.eq(varietyState.groups[0].promoFocus, 'variety', 'focus persists on the group');
 }
 
 // stage names
 {
   const state = throughDebut('roll-name');
-  const id = state.group.members[0];
+  const id = state.groups[0].members[0];
   const p = state.people[id];
   t.ok(!KP.setStageName(state, id, '').ok, 'empty stage name rejected');
   t.ok(!KP.setStageName(state, id, 'ABCDEFGHIJKLMNOP').ok, 'over-long stage name rejected');
@@ -109,7 +109,7 @@ function throughDebut(seed, planExtra) {
   t.eq(KP.displayName(p), 'Lume', 'public display uses the stage name');
   t.ok(p.name.display !== 'Lume', 'the real name survives underneath');
   t.ok(p.history.some(h => /stage name/.test(h.text)), 'the file records it');
-  const other = state.group.members[1];
+  const other = state.groups[0].members[1];
   t.ok(!KP.setStageName(state, other, 'lume').ok, 'stage names are unique, case-insensitive');
   const sugg = KP.suggestStageNames(state, state.people[other]);
   t.ok(sugg.length >= 2 && sugg.every(n => n.toLowerCase() !== 'lume'), 'suggestions exist and avoid taken names');
@@ -123,24 +123,28 @@ function throughDebut(seed, planExtra) {
   KP.planDebut(state, { songId: state.demos[0].id, promo: 'modest',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
   let guard = 0;
-  while (state.group.prep && guard++ < 12) KP.advanceWeek(state);
-  // fake a v0.2.0 save: strip formats, restore the buggy debut wording
-  const g = state.group;
+  while (state.groups[0].prep && guard++ < 12) KP.advanceWeek(state);
+  // fake a v0.2.0 save: single-group shape, no formats, buggy debut wording
+  const g = state.groups[0];
   delete g.promoFocus;
   g.releases.forEach(r => { delete r.format; delete r.tracks; });
   delete g.results.format;
+  delete g.id; delete g.demos;
   g.results.receptionLabel = KP.C.DEBUT.receptionBands.find(b => b.key === g.results.receptionBand).label;
+  state.group = g;
+  delete state.groups; delete state.nextGroupId;
   state.version = '0.2.0';
   const back = KP.deserialize(KP.serialize(state));
-  t.ok(back.group.releases.every(r => r.format === 'single'), 'old releases backfilled as singles');
-  t.ok(!/debut/i.test(back.group.results.receptionLabel), 'the mislabeled comeback report is repaired');
-  t.eq(back.group.promoFocus, 'musicShows', 'rollout focus defaulted');
+  const bg = back.groups[0];
+  t.ok(bg.releases.every(r => r.format === 'single'), 'old releases backfilled as singles');
+  t.ok(!/debut/i.test(bg.results.receptionLabel), 'the mislabeled comeback report is repaired');
+  t.eq(bg.promoFocus, 'musicShows', 'rollout focus defaulted');
 }
 
 // determinism through formats and stage names
 {
   const a = throughDebut('roll-fork', { format: 'mini', week: undefined, focus: 'fanCare' });
-  KP.setStageName(a, a.group.members[0], 'Nova');
+  KP.setStageName(a, a.groups[0].members[0], 'Nova');
   const b = KP.deserialize(KP.serialize(a));
   for (let w = 0; w < 10; w++) { KP.advanceWeek(a); KP.advanceWeek(b); }
   t.eq(KP.serialize(a), KP.serialize(b), 'restored save continues identically');
