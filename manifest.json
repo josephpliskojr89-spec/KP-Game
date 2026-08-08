@@ -1,0 +1,18 @@
+{
+  "name": "K-Pop Agency Manager",
+  "short_name": "KPAM",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0b0f",
+  "theme_color": "#0b0b0f",
+  "description": "A career management simulation set inside a fictional K-pop entertainment company.",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
