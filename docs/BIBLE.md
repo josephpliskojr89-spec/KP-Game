@@ -197,7 +197,96 @@ executive politics. Phase 5: generations and long-term history.
 Phase 2 system is designed. The brief's MVP success test (§20) is the
 checklist for that conversation.
 
-## §16 Watch items
+## §16 Planned work — the procedural mandate (v0.2.x line)
+
+> Owner, after v0.1.0 shipped: *"the next step for the game will be making
+> everything procedural. every run should feel different."*
+
+**Status: approved direction, specced, NOT started.** Gate: the owner plays
+the v0.1.0 slice first; the feel report may reorder or cut phases below.
+Nothing in this section is built until that conversation happens.
+
+### The audit (what is static across runs today, measured v0.1.0)
+
+| Layer | Today | Verdict |
+|---|---|---|
+| People (talents, cones, personality, archetypes) | procedural | fine |
+| Player company | Hanseong, identical every run | **scripted** |
+| Rivals | always Novaline + Aurum, fixed blurbs | **scripted** |
+| Objective | identical text/deadline/allowance | **scripted** |
+| Opening trainees | slots 0/1 hard-coded to the §25 characters | **scripted** |
+| Executive | pool of 3; personality is a label, no mechanics | shallow |
+| Evaluator staff | 3 fixed people, fixed biases | **scripted** |
+| Blurbs | ~148 fixed lines; repeat runs re-read them | shallow pool |
+| Names | 30×42 combos | shallow pool |
+| Songs / group names / producers / headlines | 225 / 110 / 5 / 5 | shallow pool |
+| Market trends | `trendFit` is a static per-song roll | no world state |
+
+The principle for the fix, from the design grammar: **texture comes from
+generators plus census bands** — generate everything, then let the
+observatory prove every archetype of world stays alive and nothing floods.
+
+### Phases (each a small versioned release: code + suite + soak + ledger)
+
+- **v0.2.0 — Voices and names.** Content generators replace shallow pools:
+  syllable-built Korean names (collision-checked), song-title grammar,
+  group-name generator, producer/headline generators. Blurbs become
+  assembled lines (voice × domain × band × detail fragment) instead of
+  fixed strings — target ≥10× effective variety. Law 2 holds: assembly is
+  hash-picked, deterministic per person/evaluator/observation.
+- **v0.2.1 — The staff.** Evaluators are generated people: name, role,
+  favored domain, accuracy, and a voice that mechanically selects their
+  blurb register (precise / blunt / instinct / dry / poetic). Staff differ
+  per save, so *whose* opinion you learn to trust differs per save.
+- **v0.2.2 — The company you join.** Player company and rivals generated:
+  names, sizes, budgets, philosophies, reputation profiles. Signatures get
+  mechanical pull (a vocal-house's inherited trainees skew vocal; a
+  performance-house attracts dance prospects — reputation is gravity, per
+  brief §12). Rival count 2–4; philosophies sampled; Whitecliff's "patient"
+  archetype finally activates.
+- **v0.2.3 — The scenario.** The scripted §25 openers become a **hook
+  library** the generator samples 2–3 from: broken brilliance (elite at X,
+  poor at Y), hidden gem (ordinary reads, strange scout notes), sunk-cost
+  veteran ("use her or cut her"), contested prospect, feuding pair,
+  natural mentor. Same teaching function every run, different people every
+  run. Objective generator varies deadline (60–84wk), member range,
+  signings allowance, and budget, all framed in the executive's voice.
+- **v0.2.4 — Executives with teeth.** Personality becomes mechanics:
+  patience scales deadline-pressure events and missed-deadline penalty;
+  trend-chasers judge reception vs trendFit, traditionalists vs brand fit;
+  micromanagers send more directives; profit hunters weight revenue in
+  trust deltas. Review and debut lines come from personality-keyed tables.
+- **v0.2.5 — The market moves.** A per-seed trend state (which concept
+  families are rising/falling) drifts over time. `trendFit` is computed
+  against the trend state at release week, not stored on the song — so the
+  *same* demo is a different bet in month 3 vs month 12, and comeback
+  timing (brief §10) becomes a real decision. Headlines report actual
+  world events (rival signings, trend shifts), not flavor.
+- **v0.2.6 — Pre-history.** Generate 3–5 years of industry past at new
+  game: rival groups with names, debut receptions, a chart memory. Company
+  reputations are *derived from that history* instead of declared, and the
+  wire/Industry tab reference real prior events. This is the foundation
+  the Phase-5 "generations" roadmap item builds on.
+
+### Cross-cutting rules
+
+1. Same seed → identical world, including all generated content (suite 001
+   invariant extends to companies, staff, scenario, history).
+2. New suite per phase, plus a **divergence suite**: two different seeds
+   must share no company name, executive, staff lineup, objective text, or
+   opening-hook instantiation.
+3. Observatory additions: scenario-guarantee guards (every world has ≥1
+   teaching hook and ≥1 contested prospect), name-collision alarm,
+   company-archetype census band, trend-state sanity (no concept pinned
+   hot/cold for a whole run).
+4. Generators live in `js/engine/` with fragments in data tables; UI code
+   never assembles content.
+5. Save migrations: existing v0.1.0 saves keep their scripted world —
+   migrations backfill the new fields (trend state, staff records) without
+   rewriting anyone's story. A League-Office-style letter is not needed;
+   the changes are invisible to a mid-run save.
+
+## §17 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
 
@@ -242,4 +331,14 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > id counter interleaved parallel states (moved to `state.nextPersonId`);
 > modal stopPropagation swallowed every sheet button (e2e caught it).
 > Next: owner plays the slice; feel report decides Phase 2.
+
+> **Planning note (docs-only, post-v0.1.0)** — Owner set the next
+> direction while testing the slice: *"making everything procedural.
+> every run should feel different. no need to code anything yet while I
+> test."* Audited what is static across runs (company, rivals, objective,
+> opening trainees, staff, and all shallow content pools — measured
+> numbers in §16) and specced the v0.2.x procedural line: content
+> generators → generated staff → generated companies → scenario hook
+> library → executive mechanics → drifting market trends → pre-history.
+> Gated on the owner's v0.1.0 feel report. No code written.
 
