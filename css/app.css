@@ -347,6 +347,36 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .rival-card .rv-name { font-weight: 900; font-size: 1.2rem; letter-spacing: -.01em; }
 .rival-card .rv-phil { font-size: .64rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--cyan); margin: 3px 0 8px; }
 .rival-card .rv-blurb { font-size: .82rem; color: var(--ink-dim); font-style: italic; line-height: 1.4; }
+.rv-acts { margin-top: 10px; border-top: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+.rv-act { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 7px 0 0; }
+.rv-act-name { font-weight: 800; font-size: .86rem; letter-spacing: .02em; }
+.rv-act-note { font-size: .7rem; color: var(--ink-dim); }
+
+/* the scene chart (v0.4.0) */
+.chart-row { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-bottom: 1px solid color-mix(in srgb, var(--line) 55%, transparent); }
+.chart-row:last-child { border-bottom: none; }
+.chart-row.mine { background: color-mix(in srgb, var(--gold) 7%, transparent); border-left: 2px solid var(--gold); }
+.cr-pos { font-weight: 900; font-size: 1.05rem; width: 24px; text-align: center; color: var(--ink-dim); flex: none; }
+.chart-row.mine .cr-pos { color: var(--gold); }
+.cr-body { flex: 1; min-width: 0; }
+.cr-title { font-weight: 800; font-size: .88rem; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cr-act { font-size: .68rem; color: var(--ink-dim); margin-top: 2px; }
+.cr-move { font-size: .66rem; font-weight: 800; color: var(--ink-faint); flex: none; min-width: 30px; text-align: right; }
+.cr-move.up { color: var(--cyan); }
+.cr-move.down { color: var(--magenta); }
+.cr-move.new { color: var(--gold); letter-spacing: .1em; }
+.cr-weeks { font-size: .64rem; color: var(--ink-faint); flex: none; width: 24px; text-align: right; }
+
+/* the fan feed (v0.4.0) */
+.feed-post {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 12px 14px; margin: 0 14px 10px;
+}
+.fp-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.fp-handle { font-weight: 800; font-size: .78rem; color: var(--cyan); letter-spacing: .02em; }
+.fp-week { font-size: .62rem; color: var(--ink-faint); }
+.fp-text { font-size: .88rem; line-height: 1.5; margin-top: 6px; }
+.fp-likes { font-size: .68rem; color: var(--magenta); margin-top: 8px; font-weight: 700; }
 
 /* modal */
 #modal-root:empty { display: none; }

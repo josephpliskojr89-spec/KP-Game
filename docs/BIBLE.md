@@ -356,30 +356,38 @@ pre-debut viral clip.
 
 ## §13 Rival agencies
 
-Novaline (trend chasers), Aurum (performance monsters); Whitecliff (patient)
-is in data, unused in the 2-rival slice. Rivals read prospects through
-their own coarse fog and weighted-pick targets by philosophy — distinctive
-mistakes are intended. They escalate interest, sign, and appear on the
-Industry tab and the wire.
+Novaline (trend chasers), Aurum (performance monsters), Whitecliff
+(patient — finally activated in v0.4.0's 3-rival opening). Rivals read
+prospects through their own coarse fog and weighted-pick targets by
+philosophy — distinctive mistakes are intended. They escalate interest,
+sign, and appear on the Industry tab and the wire. As of v0.4.0 they are
+full competitors, not just scouts: they run acts, debut, come back, and
+rise or fall as companies — see §19.
 
 ## §14 Verification
 
 - **Battery** (`node tools/run_battery.js`): accreting suites, exit-code
-  verdict. 001 generation (incl. age distribution), 002 scouting/perceived,
-  003 development, 004 group/debut+ladder, 005 saves, 006 releasing,
-  007 mediation, 008 comeback loop (incl. migration). ~20k assertions.
+  verdict. 20 suites: 001 generation (incl. age distribution), 002
+  scouting/perceived, 003 development, 004 group/debut+ladder, 005 saves,
+  006 releasing, 007 mediation, 008 comeback loop, 009 rollout, 010
+  multigroup, 011 opening, 012 idol growth, 013 the project, 014
+  hype/solo, 015 generators, 016 age curve, 017 generation realism, 018
+  roles, 019 the living world, 020 the fan feed. ~24k assertions.
 - **Soak** (`node tools/harness.js [seeds]`): auto-player runs 140 weeks
   per seed through real engine calls — signings, training, sit-downs,
-  debut, and repeated comebacks; observatory census bands (12: debut
+  debut, and repeated comebacks; observatory census bands (24: debut
   reception spread, breakouts, rival steals, burnouts, friction, conflict
-  endings, multi-release looping, top-10 peaks, fanbase survival) plus an
+  endings, multi-release looping, top-10 peaks, fanbase survival, second
+  groups, fiscal pressure, hype, solos, rival act debuts, chart life,
+  company lifecycle, feed life, chart top-three, crowded weeks) plus an
   age census, with EXTINCT/FLOOD alarms; hard invariant guards (scale,
   ceilings, fatigue, budget, unresolved releases, pinned idol fatigue,
-  chart bounds) kill the run.
+  chart bounds, rival-count bounds, feed caps and well-formedness) kill
+  the run.
 - **E2E** (`NODE_PATH=$(npm root -g) node test/e2e_walkthrough.js`):
   Playwright drives the real UI at 390×844 through a full career — scouting,
-  training page, sit-down, release flow, debut, reload, and a full comeback
-  cycle — 48 checks.
+  training page, sit-down, release flow, debut, reload, a full comeback
+  cycle, and the Industry tab's Scene/Chart/Feed — 60 checks.
 - **Lockstep** (`node tools/version_lockstep.js`): version agrees across
   constants, sw cache key, index cache-busters, splash tag, precache list.
 
@@ -482,6 +490,13 @@ assemble from canonical wholes + opener×detail fragments (~20+ variants
 per domain×band cell, deterministic per person under Law 2). Retired
 song titles never reissue. Remaining phases below, in order.
 
+*(v0.4.0 note: the "company you join" phase's rival half is partially
+subsumed — companies now generate dynamically through the lifecycle
+(`genCompanyName`, emerge/merge/split), and Whitecliff activated with
+RIVALS.count 3. Still open from that phase: generating the PLAYER's
+company and the authored starting rivals themselves. Generated staff and
+executives-with-teeth remain next in the line.)*
+
 > Owner, after v0.1.0 shipped: *"the next step for the game will be making
 > everything procedural. every run should feel different."*
 
@@ -569,6 +584,77 @@ observatory prove every archetype of world stays alive and nothing floods.
    rewriting anyone's story. A League-Office-style letter is not needed;
    the changes are invisible to a mid-run save.
 
+## §19 The living world (v0.4.0)
+
+> Owner: *"I think the next step is the AI. I want to see other companies
+> debuting new acts and competing with me. I want to see new companies
+> emerge on scene, others fall or split, merge, etc. let's start making
+> the world come to life. and I also want to start adding an in world
+> social media side. I want to see fans posting about their favorites,
+> groups they don't like, their crushes, their biases, all of that fun
+> stuff."*
+
+All of it lives in `js/engine/industry.js`; tuning in `KP.C.INDUSTRY`,
+`KP.C.CHART` (scene-chart half) and `KP.C.FEED`.
+
+**Rival acts.** Every rival carries `prestige` (0–100), `acts[]` and a
+`nextDebutWeek`. A debut consumes 4 trainees from the rival's roster,
+generates a named act (same group-name generator as the player's, one
+shared uniqueness set) with a concept and a quality anchored to prestige,
+and releases a lead single immediately. Acts come back every 16–26 weeks:
+reception = quality·0.85 + popularity·0.15 + noise − 6, popularity
+compounds or cools exactly like the player's mechanic in spirit, prestige
+drifts toward act outcomes. Idle acts cool; an aging act with a cold
+fanbase risks the "conclusion of team activities." Rival debuts always
+make the wire; comebacks only when hot (≥64) — the chart and the feed
+carry the rest.
+
+**The scene chart** (`state.chart`). Every release — the player's and the
+rivals' — enters with score = reception + popularity·0.2, decays ×0.88
+weekly, and drops below 8. Positions are stamped once per week AFTER all
+releases resolve (`KP.chartStamp`), giving the Chart sub-tab honest
+▲/▼/NEW movement. The per-release `chartPeak` number in discographies is
+the wider streaming market and stays as it was; the scene chart is the
+weekly conversation. Player entries are highlighted.
+
+**Crowding.** `industryWeek` runs before the player's release resolution
+and counts rival releases that week; `resolveDebut` subtracts
+min(6, 2.5 × count) from reception and says so in the public notes when
+it bites (≥5). Rival cadence makes this a real scheduling consideration
+(~29/40 soak orgs hit at least one crowded release).
+
+**Company lifecycle** (monthly, floor 2 / ceiling 6 companies):
+- **Emerge** — fresh money founds a label (generated name via
+  `genCompanyName`, low prestige, hungry blurb).
+- **Fall** — a company below prestige 26 with no active act folds.
+- **Merge** — with 4+ rivals, the two weakest combine under a new name,
+  keeping both rosters and all acts.
+- **Split** — a powerhouse (prestige ≥72, roster ≥14) sheds a faction
+  that becomes a new competitor with its philosophy and six trainees.
+New companies scout the same prospect board through the same fog.
+`state.lifecycleEvents` counts these for the observatory.
+
+**The fan feed** (`state.feed`, Industry → Feed). Curated, not a
+firehose: at most 4 posts/week, 44 kept, newest first, written once and
+never re-rolled (Law 2 applies to the feed). Posts come from what
+actually happened, in priority order: player release reactions (band-
+aware praise or snark, breakout bias posts, overshadow discourse,
+crowded-week complaints), industry events (debuts, hits, disbandments,
+collapses, mergers, splits), then ambient chatter (hyped trainees, chart
+battles, bias-of-the-week posts, opinions on rival acts). Handles are
+generated (`genFanHandle`) — invented accounts only, never real people.
+
+**Content law (hard, from brief §11/§13, tested as a negative law in
+suite 020):** snark aims at songs, styling and company decisions — NEVER
+at bodies or appearance; no harassment; crushes stay wholesome ("hope
+she's getting enough rest"). The fans are funny, not cruel.
+
+**Whitecliff activates:** the opening scene now seeds all three authored
+rivals (RIVALS.count 3), each arriving with prestige, 1–2 running acts
+with history, chart residue and a debut calendar — the scene chart and
+feed open mid-conversation. Migration 0.4.0 runs the same seeding on
+existing saves and announces itself as the industry desk expanding.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -580,8 +666,16 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 - **Rival steals at 40/40 seeds** — band-legal but pinned at the top; if
   players report the board feels like a fire sale, tune
   `rivalSignHotChance` down.
-- **Whitecliff unused** at RIVALS.count=2 — activates when rival count
-  grows in Phase 2.
+- ~~**Whitecliff unused** at RIVALS.count=2~~ — retired v0.4.0: the
+  opening scene seeds all three rivals and the lifecycle grows the field
+  to as many as six.
+- **Chart top-three pinned at 40/40** (v0.4.0 soak) — band-legal at the
+  top edge. The player's fresh releases usually outscore the rivals'
+  decayed entries. If the owner reports the chart feels easy, raise rival
+  act quality or add release-week clustering.
+- **Feed tone** — the negative content law is tested, but *funny* cannot
+  be asserted. Watch the owner's screenshots; stale or repetitive posts
+  mean the template pools need widening (they are data, cheap to grow).
 - **Sit-down treadmill** (v0.1.2): the soak auto-player, mediating every
   friction eagerly, runs ~16 sit-downs per org over 84 weeks. Band-legal
   and partly a policy artifact, but if human play feels like relationship
@@ -844,4 +938,33 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > popularity and draw urgent blowback, overshadow corrections gain it,
 > the middle gets cautious coverage. Numbers: battery 18/18 (suite 018),
 > soak clean, e2e 52, lockstep 0.3.3. Rode to main.
+
+> **v0.4.0 — the living world** (owner: *"I want to see other companies
+> debuting new acts and competing with me… new companies emerge on
+> scene, others fall or split, merge… and I also want to start adding an
+> in world social media side"*)
+> New module `industry.js` (§19). Rivals run acts: prestige-anchored
+> debuts that consume their rosters, 16–26-week comeback cycles,
+> popularity that compounds and cools, disbandments when it goes cold.
+> Every release enters the weekly scene chart (decay 0.88, honest
+> movement arrows); releasing into a crowded week now costs reception
+> (min(6, 2.5/rival release) — industryWeek runs before the player's
+> resolution on purpose). Monthly lifecycle: labels emerge, starved ones
+> fold, the two weakest merge, powerhouses shed factions — floor 2,
+> ceiling 6, all through generated company names. The fan feed: ≤4
+> curated posts/week reacting to real events (release reactions, bias
+> posts, overshadow discourse, industry obituaries) plus ambient
+> chatter, under the hard content law (snark at songs/styling/companies,
+> never bodies; crushes wholesome) enforced as a negative-law scan in
+> suite 020. Industry tab rebuilt as Scene/Chart/Feed. Whitecliff
+> activated (3 starting rivals, each seeded with running acts — retires
+> a §18 watch item). Migration 0.4.0 seeds the world into existing
+> saves, narrated as the industry desk expanding. Two seed-snapshot
+> assertions exposed by the new rng draws (suites 014, 018) were
+> rewritten as mechanism-level invariants — the v0.3.0 lesson holding.
+> Numbers: battery 20/20 (suites 019 industry, 020 feed), soak clean
+> (24 bands: rival debuts 40/40, lifecycle 32/40, crowded releases
+> 29/40, feeds full 40/40), e2e 60 (Scene/Chart/Feed walkthrough,
+> fans naming the player's group), lockstep 0.4.0 (25 modules).
+> Rode to main.
 

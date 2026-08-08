@@ -8,17 +8,26 @@ const { loadEngine, makeT } = require('./load_engine');
 const KP = loadEngine();
 const t = makeT('suite_014_hype_solo');
 
-// hype decays when nothing feeds it
+// hype decays when nothing feeds it — mechanism-level, not seed-snapshot:
+// each week's delta is either pure decay or a discrete event pop, and
+// decay weeks must actually occur
 {
   const state = KP.newGame('hs-decay');
   const p = state.people[state.roster[0]];
   p.hype = 50;
-  // dampen the person so events are unlikely, then watch the window close
-  KP.C.TALENTS.forEach(d => { p.talents[d].cur = 20; });
-  p.personality.confidence = 10; p.liveExp = 0;
-  const before = p.hype;
-  for (let w = 0; w < 12; w++) KP.advanceWeek(state);
-  t.ok(p.hype < before, 'hype decays over time (' + before + ' → ' + p.hype.toFixed(1) + ')');
+  const H = KP.C.HYPE;
+  let decayWeeks = 0;
+  for (let w = 0; w < 12; w++) {
+    const before = p.hype;
+    KP.advanceWeek(state);
+    const delta = p.hype - before;
+    const isDecay = delta <= 0 && delta >= -H.decayPerWeek - 0.001;
+    const isEvent = delta >= H.gainMin - H.decayPerWeek - 0.001;
+    t.ok(isDecay || isEvent,
+      'weekly hype moves by decay or by an event pop, nothing else (delta ' + delta.toFixed(1) + ')');
+    if (isDecay && before > 0) decayWeeks++;
+  }
+  t.ok(decayWeeks >= 1, 'the window actually closes on quiet weeks (' + decayWeeks + '/12 decayed)');
 }
 
 // hype events find magnetic trainees across seeds
@@ -66,11 +75,16 @@ const t = makeT('suite_014_hype_solo');
   KP.advanceWeek(state);
   state.hypeDirective.deadlineWeek = state.week + 1;
   const trustBefore = state.trust;
-  for (let w = 0; w < 3; w++) KP.advanceWeek(state);
+  let hypeAtCollapse = null;
+  for (let w = 0; w < 3; w++) {
+    KP.advanceWeek(state);
+    if (!state.hypeDirective && hypeAtCollapse == null) hypeAtCollapse = star.hype;
+  }
   t.ok(!state.hypeDirective, 'missed directive resolved and archived');
   t.ok(state.objectiveHistory.some(o => o.type === 'hypeDebut' && o.status === 'missed'), 'the miss is on the record');
   t.ok(state.trust < trustBefore, 'missing the window costs trust');
-  t.ok(star.hype <= KP.C.HYPE.collapseTo, 'her hype collapsed');
+  t.ok(hypeAtCollapse != null && hypeAtCollapse <= KP.C.HYPE.collapseTo,
+    'her hype collapsed when the window closed (' + hypeAtCollapse + ')');
   t.ok(state.inbox.some(m => /Remember that I remember/.test(m.text)), 'the CEO says so, coldly');
 }
 

@@ -95,6 +95,11 @@
     // 5. table events
     KP.eventsWeek(state, rng).forEach(n => inbox.push(n));
 
+    // 5b. the rest of the industry works too (v0.4.0): chart cools, rival
+    //     acts debut and come back — BEFORE our releases resolve, so a
+    //     crowded week is a crowded week
+    KP.industryWeek(state, rng).forEach(n => inbox.push(n));
+
     // 6. release resolution — due or overdue, never an exact-date match
     let dueGroup;
     while ((dueGroup = KP.debutDue(state))) {
@@ -184,7 +189,15 @@
       if (rng.chance(0.6)) {
         inbox.push({ kind: 'industry', text: KP.genHeadline(rng) });
       }
+
+      // companies rise, fall, merge and split on the month boundary (v0.4.0)
+      KP.industryLifecycle(state, rng).forEach(n => inbox.push(n));
     }
+
+    // 9. stamp this week's chart positions (all releases are in), then let
+    //    the fans react to everything that just happened
+    KP.chartStamp(state);
+    KP.feedWeek(state, rng, inbox);
 
     // trim + stamp inbox
     const kept = inbox.slice(0, KP.C.EVENTS.maxInboxPerWeek + inbox.filter(n => n.urgent).length);

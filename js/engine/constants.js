@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.3.3',
+    VERSION: '0.4.0',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -266,6 +266,44 @@
     CHART: {
       noiseSd: 6,
       maxWeeksOn: 16,
+      // the weekly scene chart (v0.4.0): every release — yours and the
+      // rivals' — enters with a heat score and cools until it drops off
+      decay: 0.88,              // last week's heat, kept per week
+      dropBelow: 8,             // entries fall off below this score
+      maxEntries: 24,
+      showTop: 10,
+    },
+
+    // ---- The living world (v0.4.0): rival acts, lifecycle, crowding -----
+    INDUSTRY: {
+      minRivals: 2, maxRivals: 6,
+      debutTraineeCost: 4,       // a rival debut consumes this many trainees
+      debutInterval: [28, 52],   // weeks between one rival's debuts
+      actQualityNoise: 7,        // debut quality = prestige-anchored + noise
+      cycleWeeks: [16, 26],      // how often a rival act comes back
+      releaseNoiseSd: 9,         // rival release reception noise
+      actPopDecay: 0.45,         // rival act popularity cools while idle
+      disbandFloorPop: 14,       // below this, an aging act is at risk
+      disbandMinAgeWeeks: 70,
+      disbandChance: 0.05,       // weekly, when at risk
+      scoutIntake: 0.35,         // weekly chance a rival roster grows by one
+      comebackNoteMin: 64,       // rival comebacks only make the inbox when hot
+      emergeChance: 0.06,        // monthly, while below maxRivals
+      collapseChance: 0.09,      // monthly, for a starved company
+      collapsePrestige: 26,      // below this with no active act = starved
+      mergeChance: 0.035,        // monthly, needs 4+ rivals
+      splitChance: 0.03,         // monthly, needs a giant to crack
+      splitPrestige: 72, splitRoster: 14,
+      crowdPenaltyPer: 2.5, crowdPenaltyMax: 6,  // releasing into a crowded week
+    },
+
+    // ---- The fan feed (v0.4.0): curated, world-aware, never cruel -------
+    FEED: {
+      maxPosts: 44,
+      weeklyMax: 4,              // a digest, not a firehose
+      ambientChance: 0.55,       // chance of ambient fan chatter in a quiet week
+      hypePostMin: 35,           // trainee hype level the feed starts noticing
+      viralChance: 0.08,         // a post occasionally escapes containment
     },
 
     // ---- Executives & trust ---------------------------------------------
@@ -294,7 +332,8 @@
 
     // ---- Rival agencies -------------------------------------------------
     RIVALS: {
-      count: 2,
+      count: 3,   // v0.4.0: Whitecliff finally activates — the world is full
+
       interestLevels: ['watching', 'interested', 'hot'],
       weeklyInterestShift: 0.18,  // chance a rival escalates interest in someone
     },

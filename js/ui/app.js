@@ -10,6 +10,7 @@
     state: null,
     tab: 'desk',
     talentSub: 'roster',
+    industrySub: 'scene',
     view: null,          // pushed view: {type:'dossier'|'builder'|'results', id}
     builderDraft: null,
     studioDraft: { songId: null, conceptId: null, promo: 'standard', week: null,
@@ -38,7 +39,7 @@
     else if (App.tab === 'talent') el.innerHTML = UI.renderTalent(s, App.talentSub);
     else if (App.tab === 'groups') el.innerHTML = UI.renderGroups(s);
     else if (App.tab === 'studio') el.innerHTML = UI.renderStudio(s, App.studioDraft);
-    else if (App.tab === 'industry') el.innerHTML = UI.renderIndustry(s);
+    else if (App.tab === 'industry') el.innerHTML = UI.renderIndustry(s, App.industrySub);
 
     document.querySelectorAll('#bottomnav button').forEach(b => {
       b.classList.toggle('active', b.dataset.nav === App.tab && !App.view);
@@ -103,6 +104,7 @@
       case 'nav-studio': go('studio'); break;
       case 'open-system': systemSheet(); break;
       case 'talent-sub': App.talentSub = t.dataset.sub; App.render(); break;
+      case 'industry-sub': App.industrySub = t.dataset.sub; App.render(); break;
       case 'open-dossier': push('dossier', t.dataset.id); break;
       case 'open-results': push('results', t.dataset.id); break;
       case 'open-grouppage': push('grouppage', t.dataset.id); break;

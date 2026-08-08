@@ -32,6 +32,12 @@ const BANDS = {
   directiveFired:    { lo: 0.02, hi: 0.80, label: 'orgs that drew a hype directive' },
   soloDebuts:        { lo: 0.02, hi: 0.60, label: 'orgs that debuted a solo act' },
   fiscalWarned:      { lo: 0.00, hi: 0.35, label: 'orgs warned at trust-hitting level (2+)' },
+  rivalActDebut:     { lo: 0.80, hi: 1.00, label: 'worlds where a rival debuted a new act' },
+  chartAlive:        { lo: 0.40, hi: 1.00, label: 'worlds ending with a living chart (>=3 entries)' },
+  lifecycleSeen:     { lo: 0.35, hi: 1.00, label: 'worlds where a company rose/fell/merged/split' },
+  feedAlive:         { lo: 0.85, hi: 1.00, label: 'worlds with a full fan feed (>=25 posts)' },
+  playerTopThree:    { lo: 0.25, hi: 1.00, label: 'orgs that reached the chart top three' },
+  crowdedRelease:    { lo: 0.10, hi: 0.90, label: 'orgs that released into a crowded week' },
 };
 
 const tally = {
@@ -40,6 +46,7 @@ const tally = {
   frictionSeen: 0, conflictEndemic: 0,
   multiRelease: 0, chartTopTen: 0, popAlive: 0, secondGroup: 0, fiscalNoticed: 0, fiscalWarned: 0,
   hypeSeen: 0, directiveFired: 0, soloDebuts: 0,
+  rivalActDebut: 0, chartAlive: 0, lifecycleSeen: 0, feedAlive: 0, playerTopThree: 0, crowdedRelease: 0,
 };
 let totalGroups = 0;
 let mediationsRun = 0;
@@ -63,6 +70,7 @@ for (let s = 0; s < SEEDS; s++) {
   let pressureSeen = false;
   let pressureWarned = false;
   let hypeSeen = false, directiveSeen = false, soloProposed = false;
+  let playerTop3 = false;
 
   for (let w = 0; w < 140; w++) {
     // --- auto-player policy (perceived reads only) ---
@@ -170,6 +178,19 @@ for (let s = 0; s < SEEDS; s++) {
     state.groups.forEach(gg => {
       if (gg.prep) guard(state.week <= gg.prep.scheduledWeek, seed + ' a locked release sailed past unresolved');
     });
+
+    // --- living-world guards (v0.4.0) ---
+    const I = KP.C.INDUSTRY;
+    guard(state.rivals.length >= I.minRivals && state.rivals.length <= I.maxRivals,
+      seed + ' rival count out of bounds: ' + state.rivals.length);
+    guard(state.feed.length <= KP.C.FEED.maxPosts, seed + ' feed blew its cap: ' + state.feed.length);
+    state.feed.forEach(p => guard(!!(p.handle && p.text), seed + ' malformed feed post'));
+    state.chart.entries.forEach(e => {
+      guard(Number.isFinite(e.score) && e.score >= 0, seed + ' chart score broken: ' + e.score);
+    });
+    state.rivals.forEach(r => (r.acts || []).forEach(a => (a.releases || []).forEach(rel =>
+      guard(rel.reception >= 1 && rel.reception <= 100, seed + ' rival reception off the scale'))));
+    if (state.chart.entries.some(e => e.isPlayer && e.pos != null && e.pos <= 3)) playerTop3 = true;
   }
 
   // --- per-seed observatory tallies ---
@@ -208,6 +229,14 @@ for (let s = 0; s < SEEDS; s++) {
   if (hypeSeen) tally.hypeSeen++;
   if (directiveSeen) tally.directiveFired++;
   if (state.groups.some(gg => gg.type === 'solo' && gg.debuted)) tally.soloDebuts++;
+  // living-world census (v0.4.0)
+  if (state.rivals.some(r => (r.acts || []).some(a => a.debutWeek > 1))) tally.rivalActDebut++;
+  if (state.chart.entries.length >= 3) tally.chartAlive++;
+  if ((state.lifecycleEvents || 0) >= 1) tally.lifecycleSeen++;
+  if (state.feed.length >= 25) tally.feedAlive++;
+  if (playerTop3) tally.playerTopThree++;
+  if (state.groups.some(gg => (gg.releases || []).length &&
+      gg.results && (gg.results.crowd || 0) > 0)) tally.crowdedRelease++;
   {
     // end-state conflict census across roster pairs
     let negative = 0, pairCount = 0;

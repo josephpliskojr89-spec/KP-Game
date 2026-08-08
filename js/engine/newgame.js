@@ -99,6 +99,10 @@
       state.rivals.forEach(r => { r.interest[mostCharismatic.id] = 2; });
     }
 
+    // --- the living world (v0.4.0): rivals arrive with prestige, running
+    //     acts and a debut calendar; the chart and the feed open mid-story
+    KP.seedIndustry(state, rng);
+
     // --- opening inbox
     const open = [
       { kind: 'executive', urgent: true, text: state.executive.name + ' — ' + exec.intro + ' The directive is on your desk: a 4–6 member girl group, debuted within 18 months. Budget covers three external signings.' },

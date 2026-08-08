@@ -100,6 +100,55 @@
     return 'TEAM ' + rng.pick(PROD_WORD).toUpperCase();
   };
 
+  // Company names (v0.4.0): the scene births new labels; each needs a
+  // plausible letterhead. Short name = first word, used in wire copy.
+  const CO_WORD = ['Halcyon', 'Bluenote', 'Kite', 'Northline', 'Vantage',
+    'Clover', 'Monarch', 'Palisade', 'Arclight', 'Tidewater', 'Lantern',
+    'Summit', 'Foxglove', 'Ironring', 'Seolim', 'Dawnhak', 'Mirae', 'Hanbit'];
+  const CO_SUFFIX = ['Entertainment', 'Media', 'Creative', 'Company', 'Collective', 'Sound'];
+  KP.genCompanyName = function (rng, used) {
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const roll = rng.next();
+      let name;
+      if (roll < 0.55) name = rng.pick(CO_WORD) + ' ' + rng.pick(CO_SUFFIX);
+      else if (roll < 0.75) name = rng.pick(CO_WORD) + ' ' + rng.pick(['House', 'Lab', 'Room']);
+      else if (roll < 0.9) name = rng.pick(CO_WORD) + ' & ' + rng.pick(CO_WORD);
+      else name = 'The ' + rng.pick(CO_WORD) + ' Company';
+      const short = name.replace(/^The /, '').split(/[ &]/)[0];
+      const key = short.toLowerCase();
+      if (!used || !used.has(key)) {
+        if (used) used.add(key);
+        return { name, short };
+      }
+    }
+    const w = rng.pick(CO_WORD) + rng.int(2, 9);
+    return { name: w + ' ' + rng.pick(CO_SUFFIX), short: w };
+  };
+
+  // Fan handles (v0.4.0): the feed speaks through invented accounts only —
+  // never real people, never real orgs.
+  const FH_A = ['moon', 'star', 'peach', 'holo', 'dew', 'cloud', 'sable',
+    'mint', 'wired', 'velvet', 'sonic', 'daisy', 'prism', 'echo', 'lilac',
+    'comet', 'sugar', 'nite', 'orbit', 'fizz', 'gguk', 'bora', 'haze'];
+  const FH_B = ['archive', 'notes', 'bops', 'talk', 'files', 'cam', 'diary',
+    'edits', 'radar', 'stan', 'watcher', 'core', 'loops', 'gaze', 'club',
+    'chart', 'static', 'log', 'receipts', 'era'];
+  KP.genFanHandle = function (rng, used) {
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const roll = rng.next();
+      let h;
+      if (roll < 0.4) h = rng.pick(FH_A) + rng.pick(FH_B);
+      else if (roll < 0.65) h = rng.pick(FH_A) + '_' + rng.pick(FH_B);
+      else if (roll < 0.85) h = rng.pick(FH_A) + rng.pick(FH_B) + rng.int(2, 99);
+      else h = rng.pick(FH_B) + '.' + rng.pick(FH_A);
+      if (!used || !used.has(h)) {
+        if (used) used.add(h);
+        return h;
+      }
+    }
+    return rng.pick(FH_A) + rng.pick(FH_B) + rng.int(100, 999);
+  };
+
   const HEADLINE_TOPIC = ['girl-group listenership', 'music show ratings',
     'album pre-orders', 'fan-event attendance', 'debut-week streaming',
     'lightstick sales', 'international chart entries'];

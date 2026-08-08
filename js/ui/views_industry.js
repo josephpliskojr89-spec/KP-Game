@@ -1,13 +1,28 @@
-/* Industry tab: rival agencies, company standing, the news wire.
-   Plus the new-career intro screen. */
+/* Industry tab (v0.4.0): three rooms — the Scene (companies and their
+   acts), the Chart (this week's positions), and the Feed (the fans,
+   verbatim). Plus the new-career intro screen. */
 (function (root) {
   'use strict';
   const KP = root.KP = root.KP || {};
   const UI = KP.UI;
 
-  UI.renderIndustry = function (state) {
+  UI.renderIndustry = function (state, sub) {
+    sub = sub || 'scene';
     const html = [];
+    html.push('<div class="pad" style="margin-top:2px"><div class="seg">' +
+      '<button class="' + (sub === 'scene' ? 'on' : '') + '" data-action="industry-sub" data-sub="scene">Scene</button>' +
+      '<button class="' + (sub === 'chart' ? 'on' : '') + '" data-action="industry-sub" data-sub="chart">Chart</button>' +
+      '<button class="' + (sub === 'feed' ? 'on' : '') + '" data-action="industry-sub" data-sub="feed">Feed</button>' +
+      '</div></div>');
+    if (sub === 'chart') html.push(renderChart(state));
+    else if (sub === 'feed') html.push(renderFeed(state));
+    else html.push(renderScene(state));
+    return html.join('');
+  };
 
+  // ---- Scene -----------------------------------------------------------
+  function renderScene(state) {
+    const html = [];
     html.push('<div class="kicker">Your company</div>');
     html.push('<div class="card rival-card">' +
       '<div class="rv-name">' + UI.esc(state.company.name) + '</div>' +
@@ -16,16 +31,26 @@
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">' + repChips(state.company.reputation) + '</div>' +
       '</div>');
 
-    html.push('<div class="kicker">Rival agencies</div>');
-    state.rivals.forEach(r => {
-      const interested = Object.keys(r.interest).length;
+    html.push('<div class="kicker">The other companies</div>');
+    (state.rivals || []).forEach(r => {
+      const interested = Object.keys(r.interest || {}).length;
+      const activeActs = (r.acts || []).filter(a => !a.retired);
+      const actLines = activeActs.map(a =>
+        '<div class="rv-act"><span class="rv-act-name">' + UI.esc(a.name) + '</span>' +
+        '<span class="rv-act-note">' + KP.popularityWord(a.popularity) + ' fanbase · ' +
+        (a.releases || []).length + ' release' + ((a.releases || []).length === 1 ? '' : 's') + '</span></div>').join('');
+      const moves = (r.recentMoves || []).slice(-2).reverse().map(m =>
+        '<span class="chip">' + UI.esc(m) + '</span>').join('');
       html.push('<div class="card rival-card">' +
         '<div class="rv-name">' + UI.esc(r.name) + '</div>' +
-        '<div class="rv-phil">' + philWord(r.philosophy) + '</div>' +
-        '<div class="rv-blurb">' + UI.esc(r.blurb) + '</div>' +
+        '<div class="rv-phil">' + philWord(r.philosophy) + ' · ' + prestigeWord(r.prestige) + '</div>' +
+        '<div class="rv-blurb">' + UI.esc(r.blurb || '') + '</div>' +
+        (actLines ? '<div class="rv-acts">' + actLines + '</div>'
+          : '<div class="rv-acts"><div class="rv-act"><span class="rv-act-note">No active act — the trainee floor is all they have.</span></div></div>') +
         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">' +
-        '<span class="chip">~' + r.rosterCount + ' trainees</span>' +
-        (interested ? '<span class="chip hot">tracking ' + interested + ' of your leads</span>' : '<span class="chip">quiet this week</span>') +
+        '<span class="chip">~' + (r.rosterCount || 0) + ' trainees</span>' +
+        (interested ? '<span class="chip hot">tracking ' + interested + ' of your leads</span>' : '') +
+        moves +
         '</div></div>');
     });
 
@@ -35,10 +60,69 @@
       news.forEach(m => html.push(UI.mailRow(state, m)));
     }
     return html.join('');
-  };
+  }
+
+  // ---- Chart -----------------------------------------------------------
+  function renderChart(state) {
+    const html = [];
+    const entries = KP.chartPositions(state).slice(0, KP.C.CHART.showTop);
+    html.push('<div class="kicker">The scene chart · ' + UI.esc(KP.weekLabel(state.week).text) + '</div>');
+    if (!entries.length) {
+      html.push('<div class="card" style="color:var(--ink-dim);font-size:.85rem">A quiet week on the charts. Someone will fix that — the only question is whose logo is on the album.</div>');
+      return html.join('');
+    }
+    html.push('<div class="card" style="padding:6px 0">');
+    entries.forEach((e, i) => {
+      const pos = i + 1;
+      let move;
+      if (e.lastPos == null) move = '<span class="cr-move new">NEW</span>';
+      else if (e.lastPos > pos) move = '<span class="cr-move up">▲' + (e.lastPos - pos) + '</span>';
+      else if (e.lastPos < pos) move = '<span class="cr-move down">▼' + (pos - e.lastPos) + '</span>';
+      else move = '<span class="cr-move">—</span>';
+      html.push('<div class="chart-row' + (e.isPlayer ? ' mine' : '') + '">' +
+        '<span class="cr-pos">' + pos + '</span>' +
+        '<div class="cr-body"><div class="cr-title">' + UI.esc(e.title) + '</div>' +
+        '<div class="cr-act">' + UI.esc(e.act) + ' · ' + UI.esc(e.company) +
+        (e.isPlayer ? ' <span class="chip gold" style="margin-left:4px">yours</span>' : '') + '</div></div>' +
+        move +
+        '<span class="cr-weeks">' + (e.weeksOn || 0) + 'w</span>' +
+        '</div>');
+    });
+    html.push('</div>');
+    html.push('<div class="pad" style="font-size:.72rem;color:var(--ink-faint);line-height:1.5">Every release enters on impact and cools week by week. Peak positions live in each group’s discography.</div>');
+    return html.join('');
+  }
+
+  // ---- Feed ------------------------------------------------------------
+  function renderFeed(state) {
+    const html = [];
+    html.push('<div class="kicker">The fan feed</div>');
+    const posts = state.feed || [];
+    if (!posts.length) {
+      html.push('<div class="card" style="color:var(--ink-dim);font-size:.85rem">The forums are quiet. Debut someone and they will never be quiet again.</div>');
+      return html.join('');
+    }
+    posts.forEach(p => {
+      html.push('<div class="feed-post">' +
+        '<div class="fp-head"><span class="fp-handle">@' + UI.esc(p.handle) + '</span>' +
+        '<span class="fp-week">' + UI.esc(KP.weekLabel(p.week).text) + '</span></div>' +
+        '<div class="fp-text">' + UI.esc(p.text) + '</div>' +
+        '<div class="fp-likes">♥ ' + formatLikes(p.likes) + '</div>' +
+        '</div>');
+    });
+    return html.join('');
+  }
+  function formatLikes(n) {
+    n = n || 0;
+    return n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : String(n);
+  }
 
   function philWord(p) {
-    return { trendChaser: 'Trend chasers', performance: 'Performance monsters', patient: 'Patient developers' }[p] || p;
+    return { trendChaser: 'Trend chasers', performance: 'Performance monsters',
+      patient: 'Patient developers', hungry: 'Hungry newcomers' }[p] || p;
+  }
+  function prestigeWord(v) {
+    return v >= 70 ? 'powerhouse' : v >= 55 ? 'established' : v >= 40 ? 'mid-tier' : 'scrappy';
   }
   function repHeadline(rep) {
     const best = Object.entries(rep).sort((a, b) => b[1] - a[1])[0];

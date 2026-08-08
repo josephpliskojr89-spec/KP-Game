@@ -132,10 +132,12 @@
     if (demo.hook >= D.spark.hookMin && pulls[0].pull >= D.spark.pullMin && rng.chance(D.spark.chance)) {
       spark = D.spark.boostMin + rng.next() * (D.spark.boostMax - D.spark.boostMin);
     }
+    // a crowded release week splits the public's attention (v0.4.0)
+    const crowd = KP.crowdPenalty(state);
     const reception = KP.clamp(Math.round(
       demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
       groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
-      popLift + hypeLift + soloEdge + spark + luck), 1, 100);
+      popLift + hypeLift + soloEdge + spark + luck - crowd), 1, 100);
     const band = D.receptionBands.find(b => reception >= b.min);
     const centerOvershadowed = !isSolo && breakout.id !== g.roles.center &&
       pulls.find(x => x.m.id === g.roles.center).pull < pulls[0].pull - 8;
@@ -210,14 +212,21 @@
       chem, groupFit: Math.round(groupFit),
       trustDelta, revenue,
       chartPeak: peak, chartWeeks: weeksOn,
+      crowd: Math.round(crowd),
       execLine: execDebutLine(band.key, centerOvershadowed, state),
-      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut),
+      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut, crowd),
     };
     g.releases = g.releases || [];
     g.releases.push({
       week: state.week, songTitle: demo.title, conceptId: concept.id,
       reception, receptionBand: band.key, chartPeak: peak, chartWeeks: weeksOn,
       isDebut, format: format.id, tracks: format.tracks,
+    });
+    // the release enters the weekly scene chart alongside the rivals'
+    KP.chartEnter(state, {
+      title: demo.title, act: g.name, company: state.company.short,
+      isPlayer: true, groupId: g.id,
+      score: reception + (g.popularity || 0) * 0.2, entered: state.week,
     });
     g.prep = null;
     g.demos = null;       // the producers bring fresh demos for the next cycle
@@ -235,10 +244,11 @@
     }
   }
 
-  function publicNotes(state, bandKey, breakout, overshadowed, demo, rng, sparked, isDebut) {
+  function publicNotes(state, bandKey, breakout, overshadowed, demo, rng, sparked, isDebut, crowd) {
     const notes = [];
     const bn = KP.displayName(breakout);
     if (sparked) notes.push('A fancam of ' + bn + ' is circulating far beyond the usual audience. The clip is doing the promotion’s job for free.');
+    if ((crowd || 0) >= 5) notes.push('The release landed in a crowded week — half the industry picked the same Monday. Louder rooms have drowned better songs.');
     if (bandKey === 'sensation') notes.push('One performance clip is everywhere. Marketing would like to know what we’re doing next while everyone is still paying attention.');
     if (bandKey === 'strong') notes.push('“' + demo.title + '” is holding on the charts past week one — the good sign.');
     if (bandKey === 'solid') notes.push(isDebut ? 'Reviews are kind; numbers are cautious. The second single will decide the story.' : 'Reviews are kind; numbers are steady. The fanbase showed up — growth is the open question.');

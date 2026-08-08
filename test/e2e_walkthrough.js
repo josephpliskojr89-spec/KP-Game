@@ -251,6 +251,25 @@ async function main() {
   ok((disco.match(/peaked #/g) || []).length >= 2, 'discography lists both releases with chart peaks');
   ok(/without a lineup/.test(disco), 'the groups tab points at trainees waiting for a second lineup');
 
+  // --- the living world: scene, chart, feed (v0.4.0) ---
+  await tap('[data-nav=industry]');
+  await page.waitForSelector('.rival-card');
+  const scene = await page.textContent('#screen');
+  ok(scene.includes('The other companies'), 'the scene lists the other companies');
+  ok(/trainees/.test(scene), 'rival rosters are visible');
+  ok(/fanbase/.test(scene), 'rival acts show on their company cards');
+  await tap('[data-action=industry-sub][data-sub=chart]');
+  await page.waitForSelector('.chart-row');
+  ok(await page.$$eval('.chart-row', els => els.length) >= 2, 'the scene chart has entries');
+  ok(await page.$('.chart-row.mine') !== null, 'our release is on the chart, marked as ours');
+  await tap('[data-action=industry-sub][data-sub=feed]');
+  await page.waitForSelector('.feed-post');
+  ok(await page.$$eval('.feed-post', els => els.length) >= 3, 'the fan feed is alive');
+  const groupName = await page.evaluate(() => KP.App.state.groups[0].name);
+  const feedText = await page.textContent('#screen');
+  ok(feedText.includes('@'), 'the fans post under handles');
+  ok(feedText.includes(groupName), 'the fans are talking about our group by name');
+
   await browser.close();
   server.close();
   console.log('PASS e2e_walkthrough: ' + checks + ' checks');

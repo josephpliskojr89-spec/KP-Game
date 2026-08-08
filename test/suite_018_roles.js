@@ -67,13 +67,15 @@ function debuted(seed) {
   weakest.talents.charisma.cur = Math.max(5, oldCenter.talents.charisma.cur - 30);
   weakest.talents.visuals.cur = Math.max(5, oldCenter.talents.visuals.cur - 30);
   const popBefore = g.popularity;
+  const relBefore = (state.relationships[KP.pairKey(oldCenter, weakest)] || { score: 0 }).score;
   const r = KP.setGroupRoles(state, g.id, Object.assign({}, g.roles, { center: weakest.id }));
   t.ok(r.ok, 'the questionable change is allowed — consequences are the rail');
   t.ok(g.popularity < popBefore, 'the fanbase cools (' + popBefore + ' → ' + g.popularity + ')');
   t.ok(r.notes.some(n => n.urgent && /what the company is thinking/.test(n.text)), 'the blowback is narrated');
   t.ok(state.inbox.some(m => /what the company is thinking/.test(m.text)), 'and lands in the inbox');
   const rel = state.relationships[KP.pairKey(oldCenter, weakest)];
-  t.ok(rel && rel.score <= 0, 'the two centers feel it between themselves');
+  t.ok(rel && rel.score <= relBefore - KP.C.GROUP.ROLECHANGE.strain + 0.001,
+    'the two centers feel it between themselves (' + relBefore + ' → ' + rel.score + ')');
 }
 
 // post-debut, correcting an overshadow: the public approves

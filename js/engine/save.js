@@ -140,6 +140,22 @@
     });
   } });
 
+  // v0.4.0 — the living world. Existing rivals gain prestige, running acts
+  // and a debut calendar; the scene chart and the fan feed switch on. All
+  // through the same seeding path a new game uses.
+  MIGRATIONS.push({ v: '0.4.0', fn: function (state) {
+    if (!state.rngState) return;
+    const rng = KP.Rng.fromState(state.rngState);
+    KP.seedIndustry(state, rng);
+    state.rngState = rng.state();
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'industry', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The industry desk has expanded: the trade wires, the weekly scene chart, and — heaven help us — the fan forums now run on your monitors. The other companies were always out there working. Now you get to watch them do it.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {
