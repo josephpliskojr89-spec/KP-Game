@@ -417,6 +417,18 @@ pressure — shipped; see §6, §10b and the ledger.)*
 *(The hype & solo queue shipped as v0.2.6 — hard-directive version, per
 the owner. See §10c and the ledger.)*
 
+**Standing design note — the leader role** (owner, after asking what the
+engine looks for in a leader: *"as we add media stuff and tours, things
+of that nature, the leader role will start to matter more"*). Do NOT
+bolt abstract leader mechanics onto the current systems. Instead, every
+future media/tour/variety system must ask "what does the leader do
+here?" and give the role visible work: fielding interviews, carrying
+press conferences, covering for members on camera, holding the room on
+tour legs, being the face of apologies when something goes wrong. A
+well-aligned leader (assigned role matches emergent leadership) should
+make those systems go smoother; a misaligned one should show. The
+leader's weight accretes with content, not from a stat aura.
+
 ## §10c Hype, the hard directive & solo acts (v0.2.6)
 
 **Hype** (`person.hype`, hidden, worded quiet / noticed / buzzing / "the
