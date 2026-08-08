@@ -36,11 +36,9 @@
     // the board reinvests in what works
     const grant = Math.round(25 + Math.max(0, lastReception - 45) * 0.6);
     state.budget += grant;
-    let extraSigning = false;
-    if (rng.chance(0.5) && state.signingsAllowed - state.signingsUsed < 2) {
-      state.signingsAllowed += 1;
-      extraSigning = true;
-    }
+    // the first post-debut directive announces the opening-up: the
+    // signing allowance is retired, the books become the leash
+    const capJustLifted = prev.type === 'debutGirlGroup';
 
     state.objective = {
       type: 'comeback',
@@ -55,8 +53,10 @@
     return {
       kind: 'executive', urgent: true,
       text: state.executive.name + ': ' + line +
-        ' The division books show a ' + grant + ' reinvestment' +
-        (extraSigning ? ' and approval for one more external signing.' : '.'),
+        ' The division books show a ' + grant + ' reinvestment.' +
+        (capJustLifted
+          ? ' “And the signing allowance is retired — the division is yours to staff. Sign who you need. I read the books every month, and so does the board.”'
+          : ''),
     };
   };
 

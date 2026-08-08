@@ -100,10 +100,26 @@ when hidden charisma upside exceeds the scout's perceived read by >22.
 ## §6 Scouting economy
 
 Targeted look: 4 budget, max 4 observations, each narrows every read.
-Sign cost: base 14 + 6·(max rival heat). The executive allowance caps
-external signings at 3 for the opening objective. Rivals escalate interest
-weekly (watching → interested → hot) and sign hot prospects out from under
-a slow player (5–16%/week). Fresh leads arrive ~30%/week.
+Sign cost: base 14 + 6·(max rival heat). Rivals escalate interest weekly
+(watching → interested → hot) and sign hot prospects out from under a
+slow player (5–16%/week). Fresh leads arrive ~30%/week.
+
+**The tutorial rail and the open agency** (v0.2.3, owner: *"after the
+debut of the first group, remove the cap on signings but have the CEO put
+pressure on you if you're spending too much... the first group feels like
+a tutorial and then the game opens up"*). The 3-signing allowance binds
+only while no group has debuted (`KP.signingsCapped`). The first
+post-debut directive announces the change in the executive's voice
+("the signing allowance is retired… I read the books every month").
+After that, signings are limited by budget and by **fiscal pressure**:
+the CEO reads a rolling quarter of net budget movement at each month
+boundary. A quarter more than 90 in the red escalates pressure
+(noticed → warned → board-level); level 2+ costs trust (−3/−5); surplus
+quarters cool it, with a "books look like a business again" note at
+zero. One expensive album month is business — three red months are a
+problem. Tuning history: a per-month threshold FLOODed the census (40/40
+orgs nagged); the rolling quarter with a split notice/warned census
+landed at 13/40 noticed, 1/40 warned.
 
 ## §7 Development
 
@@ -232,11 +248,16 @@ The debut is the first release, not the end. One machinery
   label from `COMEBACK.bandLabels`, and the miss/quiet/solid public notes
   are debut/comeback aware. The migration relabels an afflicted saved
   report in place.
-- **Stage names** (v0.2.1): assignable to lineup members and idols
-  (dossier → "Give a stage name"), ≤14 chars, unique case-insensitively,
-  with deterministic suggestions. `KP.displayName` rules the public
-  surfaces (rosters, member strips, breakout cards, PR notes); staff
-  observations keep using real names — the building knows who people are.
+- **Stage names** (v0.2.1, tightened v0.2.3 — owner's law: *"if using a
+  stage name, only use that in reports"*): assignable to lineup members
+  and idols (dossier → "Give a stage name"), ≤14 chars, unique
+  case-insensitively, with deterministic suggestions. `KP.displayName`
+  (full) and `KP.publicGiven` (short) rule **every report surface** —
+  inbox notes, PR digests, development/health/showcase notes, relationship
+  and chemistry observations, friction cards, sit-down outcomes, release
+  fallout, event texts. The dossier header keeps the legal name — a
+  personnel file, not a report. Suite 011 sweeps 30 weeks of reports for
+  real-name leaks.
 
 ## §11 Economy
 
@@ -312,17 +333,8 @@ moving parts and nothing else).
 
 ## §16 Roadmap (owner-gated)
 
-**Queued for the next release (v0.2.3), owner-requested:**
-
-1. *"if using a stage name, only use that in reports."* Once a stage name
-   exists, every report-style surface — inbox notes, week reports, PR
-   digests, breakout mentions, event texts, sit-down outcomes, showcase
-   and relationship observations — uses the stage name **only**, never the
-   real name. Audit every string that names a person (`name.display`,
-   `name.given` call sites) and route them through `KP.displayName` /
-   a given-name variant. The one exception: the dossier header keeps the
-   legal name line — it is a personnel file, not a report. This supersedes
-   the v0.2.1 "staff observations keep real names" split.
+*(The v0.2.3 queue — stage names in all reports, cap lift + fiscal
+pressure — shipped; see §6, §10b and the ledger.)*
 
 Per brief §21. Phase 2: multiple groups, comeback cycles, charts,
 endorsements, staff hiring, richer rival AI. Phase 3: international
@@ -575,4 +587,23 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Numbers: battery 10/10 (suite 010: rails, independent cycles, targeted
 > ladder, two-group determinism), soak clean, e2e 49, lockstep 0.2.2.
 > Rode to main.
+
+> **v0.2.3 — the open agency** (owner: *"remove the cap on signings
+> [after the first debut] but have the CEO put pressure on you if you're
+> spending too much. that allows the first group to feel like a tutorial
+> and then the game opens up"* — plus the queued stage-name rule)
+> The signing allowance is now the tutorial rail: it binds only until the
+> first debut, and the first post-debut directive retires it in the
+> executive's own words. In its place, fiscal pressure: the CEO reads a
+> rolling quarter of the books monthly — noticed → warned → board-level,
+> trust hits at level 2+, cooled by surplus quarters. Tuned through two
+> soak rounds (monthly threshold FLOODed 40/40; rolling quarter + split
+> census landed 13/40 noticed, 1/40 trust-warned). Desk shows "open
+> signing" / "the board is watching spend" instead of the retired
+> allowance chip. And the stage-name law shipped: every report surface —
+> development, health, showcase, relationship, chemistry, friction,
+> sit-down, release fallout, events, PR — routes through
+> displayName/publicGiven; suite 011 sweeps 30 weeks of reports for
+> real-name leaks and found zero. Numbers: battery 11/11, soak clean
+> (15 bands), e2e 51, lockstep 0.2.3. Rode to main.
 

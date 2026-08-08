@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.2.2',
+    VERSION: '0.2.3',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -215,6 +215,11 @@
     ECON: {
       startBudget: 120,
       signCostBase: 14, signCostPerHeat: 6,  // rival heat raises price
+      // fiscal pressure (v0.2.3): after the first debut the signing cap
+      // lifts — the CEO watches burn rate instead. Judged on the rolling
+      // quarter, so one big album month is business, three deficit months
+      // are a problem. Level 2+ costs trust.
+      PRESSURE: { quarterBurnWarn: 90, trustHitL2: -3, trustHitL3: -5 },
       weeklyTrainingCostPerTrainee: 0.25,
       productionCost: 30,
       monthlyStipend: 12,         // roughly covers upkeep; spends are the choices

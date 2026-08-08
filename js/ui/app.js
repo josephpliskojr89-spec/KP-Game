@@ -124,7 +124,9 @@
         const cost = KP.signCost(s, p);
         UI.modal('Sign ' + p.name.display + '?',
           '<div class="pad" style="font-size:.88rem;line-height:1.5;color:var(--ink-dim)">Contract cost <b style="color:var(--gold)">₩ ' + cost + '</b>. ' +
-          'Signings remaining after this: ' + (s.signingsAllowed - s.signingsUsed - 1) + '.</div>',
+          (KP.signingsCapped(s)
+            ? 'Signings remaining after this: ' + (s.signingsAllowed - s.signingsUsed - 1) + '.'
+            : 'Budget after this: ₩ ' + (s.budget - cost) + '. The executive reads the books monthly.') + '</div>',
           '<button class="btn" data-action="close-modal" style="flex:1">Not yet</button>' +
           '<button class="btn primary" data-action="sign-confirm" data-id="' + p.id + '" style="flex:1">Sign her</button>');
         break;
@@ -184,9 +186,9 @@
         const rels = s.relationships || {};
         const close = s.roster.filter(oid => oid !== p.id).map(oid => s.people[oid])
           .filter(o => { const r = rels[KP.pairKey(p, o)]; return r && r.state === 'close'; });
-        UI.modal('Release ' + p.name.display + '?',
+        UI.modal('Release ' + KP.displayName(p) + '?',
           '<div class="pad" style="font-size:.88rem;line-height:1.55;color:var(--ink-dim)">Her contract ends, she leaves the building, and the decision is yours to own. Signings spent on her are not refunded.' +
-          (close.length ? '<br><br>' + close.map(o => o.name.given).join(' and ') + ' will take it hard.' : '') + '</div>',
+          (close.length ? '<br><br>' + close.map(o => KP.publicGiven(o)).join(' and ') + ' will take it hard.' : '') + '</div>',
           '<button class="btn" data-action="close-modal" style="flex:1">Keep her</button>' +
           '<button class="btn danger" data-action="release-confirm" data-id="' + p.id + '" style="flex:1">Release her</button>');
         break;
@@ -198,7 +200,7 @@
         if (r.ok) {
           App.save();
           App.view = null; App.tab = 'talent';
-          UI.toast(p.name.display + ' has left the building.');
+          UI.toast(KP.displayName(p) + ' has left the building.');
           App.render();
         } else UI.toast(r.reason, true);
         break;

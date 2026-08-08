@@ -20,7 +20,11 @@
         : state.objective.status === 'met' || state.objective.status === 'metPoorly'
           ? '<span class="chip gold">delivered</span>'
           : '<span class="chip hot">deadline missed</span>') +
-      '<span class="chip">' + (state.signingsAllowed - state.signingsUsed) + ' signings left</span>' +
+      (KP.signingsCapped(state)
+        ? '<span class="chip">' + (state.signingsAllowed - state.signingsUsed) + ' signings left</span>'
+        : (state.fiscal && state.fiscal.pressure > 0
+          ? '<span class="chip hot">the board is watching spend</span>'
+          : '<span class="chip cool">open signing</span>')) +
       '<span class="chip">trust: ' + trustWord(state.trust) + '</span>' +
       '</div></div>');
 
@@ -49,7 +53,7 @@
       html.push('<div class="kicker">On the <span class="k-accent">radar</span></div>');
       html.push('<div class="card" data-action="open-dossier" data-id="' + feature.id + '" style="display:flex;gap:14px;align-items:center">' +
         UI.portrait(feature, 'md') +
-        '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:1rem">' + UI.esc(feature.name.display) + '</div>' +
+        '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:1rem">' + UI.esc(KP.displayName(feature)) + '</div>' +
         '<div style="font-size:.82rem;font-style:italic;color:var(--ink-dim);margin-top:4px;line-height:1.4">“' + UI.esc(line) + '”</div></div>' +
         '</div>');
     }

@@ -27,13 +27,15 @@ const BANDS = {
   chartTopTen:       { lo: 0.05, hi: 0.70, label: 'orgs with a top-10 chart peak' },
   popAlive:          { lo: 0.50, hi: 1.00, label: 'orgs ending with a warm-or-better fanbase' },
   secondGroup:       { lo: 0.30, hi: 1.00, label: 'orgs that launched a second group' },
+  fiscalNoticed:     { lo: 0.05, hi: 0.85, label: 'orgs whose books got noticed (level 1)' },
+  fiscalWarned:      { lo: 0.00, hi: 0.35, label: 'orgs warned at trust-hitting level (2+)' },
 };
 
 const tally = {
   sensation: 0, strongPlus: 0, missOrQuiet: 0, nonCenterBreakout: 0,
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
   frictionSeen: 0, conflictEndemic: 0,
-  multiRelease: 0, chartTopTen: 0, popAlive: 0, secondGroup: 0,
+  multiRelease: 0, chartTopTen: 0, popAlive: 0, secondGroup: 0, fiscalNoticed: 0, fiscalWarned: 0,
 };
 let totalGroups = 0;
 let mediationsRun = 0;
@@ -54,10 +56,17 @@ for (let s = 0; s < SEEDS; s++) {
   const startTalent = avgRosterTalent(state);
   Object.values(state.people).forEach(p => allAges.push(p.age));
   let sawFriction = false;
+  let pressureSeen = false;
+  let pressureWarned = false;
 
   for (let w = 0; w < 140; w++) {
     // --- auto-player policy (perceived reads only) ---
-    if (state.week <= 3 && state.signingsUsed < state.signingsAllowed) {
+    // pre-debut: use the tutorial allowance; post-cap: restock the trainee
+    // room when it runs thin and the books allow (v0.2.3)
+    const wantSign = KP.signingsCapped(state)
+      ? (state.week <= 3 && state.signingsUsed < state.signingsAllowed)
+      : (KP.freeTrainees(state).length < 4 && state.budget > 150);
+    if (wantSign) {
       const ranked = state.prospects.map(id => state.people[id])
         .map(p => ({ p, v: KP.C.TALENTS.reduce((sum, d) => sum + KP.perceived(state, p, d, scout), 0) }))
         .sort((a, b) => b.v - a.v);
@@ -122,7 +131,11 @@ for (let s = 0; s < SEEDS; s++) {
     });
 
     const notes = KP.advanceWeek(state);
-    notes.forEach(n => { if (n.kind === 'health' && /wall|injur/i.test(n.text)) burnoutSeen = true; });
+    notes.forEach(n => {
+      if (n.kind === 'health' && /wall|injur/i.test(n.text)) burnoutSeen = true;
+      if (/quarterly books/.test(n.text)) pressureSeen = true;
+      if (/board sees these numbers|Keep earning that/.test(n.text)) pressureWarned = true;
+    });
 
     // --- hard invariant guards every week ---
     Object.values(state.people).forEach(p => {
@@ -171,6 +184,8 @@ for (let s = 0; s < SEEDS; s++) {
   if (burnoutSeen) tally.burnouts++;
   if (state.roster.map(id => state.people[id]).some(p => KP.evaluate(state, p).instinct)) tally.instinctSigning++;
   if (sawFriction) tally.frictionSeen++;
+  if (pressureSeen || pressureWarned) tally.fiscalNoticed++;
+  if (pressureWarned) tally.fiscalWarned++;
   {
     // end-state conflict census across roster pairs
     let negative = 0, pairCount = 0;

@@ -85,8 +85,8 @@
   UI.frictionCard = function (state, f) {
     const cd = KP.mediationCooldown(state, f.a.id, f.b.id);
     const label = f.state === 'conflict'
-      ? f.a.name.given + ' and ' + f.b.name.given + ' are in open conflict. This needs handling before it needs explaining.'
-      : 'There is friction between ' + f.a.name.given + ' and ' + f.b.name.given + '. Professional in public, cold everywhere else.';
+      ? KP.publicGiven(f.a) + ' and ' + KP.publicGiven(f.b) + ' are in open conflict. This needs handling before it needs explaining.'
+      : 'There is friction between ' + KP.publicGiven(f.a) + ' and ' + KP.publicGiven(f.b) + '. Professional in public, cold everywhere else.';
     const sharedFocus = (f.a.training.focus || []).some(x => (f.b.training.focus || []).includes(x));
     return '<div class="note ' + (f.state === 'conflict' ? 'urgent' : '') + '">' + UI.esc(label) +
       (sharedFocus ? '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:5px">They train side by side every day. Distance might help — so might a conversation.</div>' : '') +

@@ -100,6 +100,14 @@
     }
   } });
 
+  // v0.2.3 — the open agency. Fiscal tracking begins; the signing cap is
+  // computed (capped only until first debut), so no data change needed.
+  MIGRATIONS.push({ v: '0.2.3', fn: function (state) {
+    state.fiscal = state.fiscal || {
+      monthStartBudget: state.budget, pressure: 0, monthSignings: 0,
+    };
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

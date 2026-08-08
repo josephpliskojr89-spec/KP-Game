@@ -37,14 +37,24 @@
     return { ok: true };
   };
 
+  // The signing allowance is the tutorial rail: it binds only until the
+  // first debut. After that the agency is open — the CEO watches the
+  // books instead (fiscal pressure, sim.js).
+  KP.signingsCapped = function (state) {
+    return !KP.groups(state).some(g => g.debuted);
+  };
+
   KP.signProspect = function (state, personId) {
     const p = state.people[personId];
     if (!p || p.status !== 'prospect') return { ok: false, reason: 'No longer available.' };
     const cost = KP.signCost(state, p);
     if (state.budget < cost) return { ok: false, reason: 'The budget cannot cover this signing.' };
-    if (state.signingsUsed >= state.signingsAllowed) return { ok: false, reason: 'The executive approved ' + state.signingsAllowed + ' external signings. That allowance is spent.' };
+    if (KP.signingsCapped(state) && state.signingsUsed >= state.signingsAllowed) {
+      return { ok: false, reason: 'The executive approved ' + state.signingsAllowed + ' external signings until the debut. That allowance is spent.' };
+    }
     state.budget -= cost;
     state.signingsUsed++;
+    if (state.fiscal) state.fiscal.monthSignings = (state.fiscal.monthSignings || 0) + 1;
     p.status = 'trainee';
     p.signedWeek = state.week;
     p.training = { focus: [], intensity: 'standard' };
@@ -71,7 +81,7 @@
           if (cur < 3) {
             rival.interest[target.id] = cur + 1;
             if (rival.interest[target.id] >= 2) {
-              notes.push({ kind: 'scouting', text: rival.short + ' scouts were seen at ' + target.name.display + '’s academy. Their interest looks ' + (rival.interest[target.id] === 3 ? 'serious' : 'real') + '.' });
+              notes.push({ kind: 'scouting', text: rival.short + ' scouts were seen at ' + KP.displayName(target) + '’s academy. Their interest looks ' + (rival.interest[target.id] === 3 ? 'serious' : 'real') + '.' });
             }
           }
         }
@@ -88,7 +98,7 @@
           state.prospects = state.prospects.filter(id => id !== pid);
           state.rivals.forEach(r => { delete r.interest[pid]; });
           rival.rosterCount = (rival.rosterCount || 0) + 1;
-          notes.push({ kind: 'scouting', urgent: true, text: rival.short + ' signed ' + p.name.display + '. She is off the board.' });
+          notes.push({ kind: 'scouting', urgent: true, text: rival.short + ' signed ' + KP.displayName(p) + '. She is off the board.' });
         }
       });
     });
@@ -100,7 +110,7 @@
       state.nextPersonId = KP.peekNextId();
       state.people[p.id] = p;
       state.prospects.push(p.id);
-      notes.push({ kind: 'scouting', text: 'New lead: ' + p.name.display + ', ' + p.age + ', via ' + p.source.toLowerCase() + '. First report is on the board.' });
+      notes.push({ kind: 'scouting', text: 'New lead: ' + KP.displayName(p) + ', ' + p.age + ', via ' + p.source.toLowerCase() + '. First report is on the board.' });
     }
     return notes;
   };

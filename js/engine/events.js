@@ -27,7 +27,7 @@
         const pool = KP.freeTrainees(s).map(id => s.people[id]).filter(p => p.signedWeek == null);
         if (!pool.length) return null;
         const p = rng.pick(pool);
-        return { kind: 'executive', text: s.executive.name + ' flagged ' + p.name.display +
+        return { kind: 'executive', text: s.executive.name + ' flagged ' + KP.displayName(p) +
           '’s file. “She has been a trainee longer than some employees. Use her or make room.”' };
       },
     },
@@ -41,7 +41,7 @@
         const hot = s.prospects.filter(id => KP.rivalHeat(s, id).max >= 2).map(id => s.people[id]);
         if (!hot.length) return null;
         const p = rng.pick(hot);
-        return { kind: 'scouting', text: p.name.display + '’s coach called. Other agencies are asking about her availability. If we want her, the window is now.' };
+        return { kind: 'scouting', text: KP.displayName(p) + '’s coach called. Other agencies are asking about her availability. If we want her, the window is now.' };
       },
     },
     {
@@ -51,7 +51,7 @@
         const low = s.roster.map(id => s.people[id]).filter(p => p.morale < 35);
         if (!low.length) return null;
         const p = rng.pick(low);
-        return { kind: 'health', text: p.name.display + ' has been quiet lately. Her roommates say she practices, eats, and says almost nothing. Worth a conversation.' };
+        return { kind: 'health', text: KP.displayName(p) + ' has been quiet lately. Her roommates say she practices, eats, and says almost nothing. Worth a conversation.' };
       },
     },
     {
@@ -63,7 +63,7 @@
         const p = rng.pick(pool);
         p.flags.privateNote = true;
         p.morale = KP.clamp(p.morale + 4, 0, 100);
-        return { kind: 'life', text: 'Managers believe ' + p.name.display + ' is seeing someone outside the company. It has not affected her schedule. Unless it becomes a work matter, it is not our business.' };
+        return { kind: 'life', text: 'Managers believe ' + KP.displayName(p) + ' is seeing someone outside the company. It has not affected her schedule. Unless it becomes a work matter, it is not our business.' };
       },
     },
     {
@@ -73,7 +73,7 @@
         const members = KP.devGroup(s).members.map(id => s.people[id]);
         const star = members.slice().sort((a, b) => KP.derived(b).centerPull - KP.derived(a).centerPull)[0];
         star.mediaExp += 8;
-        return { kind: 'public', text: 'A practice-room clip of ' + star.name.display + ' is circulating well beyond our usual audience. Pre-debut attention is a gift — and a deadline.' };
+        return { kind: 'public', text: 'A practice-room clip of ' + KP.displayName(star) + ' is circulating well beyond our usual audience. Pre-debut attention is a gift — and a deadline.' };
       },
     },
   ];

@@ -211,7 +211,10 @@ async function main() {
 
   // --- the ladder: a comeback directive succeeded the debut objective ---
   await tap('[data-nav=desk]');
-  ok((await page.textContent('.objective')).includes('comeback'), 'the executive already set the next target');
+  const deskObjective = await page.textContent('.objective');
+  ok(deskObjective.includes('comeback'), 'the executive already set the next target');
+  ok(!/signings left/.test(deskObjective), 'the signing-allowance chip retired with the cap (v0.2.3)');
+  ok(/open signing|watching spend/.test(deskObjective), 'the desk shows the open-agency state instead');
 
   // --- ride out promotion, then plan and resolve a comeback ---
   for (let i = 0; i < 5; i++) await advanceWeek();

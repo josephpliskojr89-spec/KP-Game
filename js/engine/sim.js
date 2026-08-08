@@ -92,10 +92,39 @@
       inbox.push(KP.issueNextObjective(state, rng));
     }
 
-    // 8. month boundary: stipend + costs + a headline
+    // 8. month boundary: stipend + costs, the CEO's read of the books,
+    //    and a headline
     if ((state.week - 1) % KP.C.WEEKS_PER_MONTH === 0) {
       const upkeep = Math.round(state.roster.length * KP.C.ECON.weeklyTrainingCostPerTrainee * KP.C.WEEKS_PER_MONTH);
       state.budget = Math.max(0, state.budget + KP.C.ECON.monthlyStipend - upkeep);
+
+      // fiscal pressure (v0.2.3): once the signing cap lifts, the CEO
+      // reads the books on a rolling quarter — one big album month is
+      // business, a quarter of red ink gets noticed, a red half-year
+      // costs trust
+      state.fiscal = state.fiscal || { monthStartBudget: state.budget, pressure: 0, monthSignings: 0 };
+      const net = state.budget - state.fiscal.monthStartBudget;
+      state.fiscal.recentNets = (state.fiscal.recentNets || []).concat([net]).slice(-3);
+      if (!KP.signingsCapped(state)) {
+        const P = KP.C.ECON.PRESSURE;
+        const quarterNet = state.fiscal.recentNets.reduce((a, b) => a + b, 0);
+        if (quarterNet < -P.quarterBurnWarn) {
+          state.fiscal.pressure = Math.min(3, (state.fiscal.pressure || 0) + 1);
+          const spree = state.fiscal.monthSignings >= 3;
+          const lvl = state.fiscal.pressure;
+          if (lvl >= 3) state.trust = KP.clamp(state.trust + P.trustHitL3, 0, 100);
+          else if (lvl === 2) state.trust = KP.clamp(state.trust + P.trustHitL2, 0, 100);
+          inbox.push({ kind: 'executive', urgent: lvl >= 2, text: pressureLetter(state, lvl, quarterNet, spree) });
+        } else if (quarterNet >= 0 && state.fiscal.pressure > 0) {
+          state.fiscal.pressure--;
+          if (state.fiscal.pressure === 0) {
+            inbox.push({ kind: 'executive', text: state.executive.name + '’s office, briefly: “The books look like a business again. Carry on.”' });
+          }
+        }
+      }
+      state.fiscal.monthStartBudget = state.budget;
+      state.fiscal.monthSignings = 0;
+
       if (rng.chance(0.6)) {
         inbox.push({ kind: 'industry', text: rng.pick(KP.DATA.headlines) });
       }
@@ -109,6 +138,21 @@
     saveRng(state, rng);
     return kept;
   };
+
+  function pressureLetter(state, lvl, net, spree) {
+    const who = state.executive.name;
+    if (lvl >= 3) {
+      return who + ': “Three months of burning money. The board sees these numbers too, and unlike me, they do not know your plans. Show revenue, or show restraint.”';
+    }
+    if (lvl === 2) {
+      return who + ': “The division is ' + Math.abs(Math.round(net)) + ' in the red over the quarter' +
+        (spree ? ' — and the trainee floor is filling up fast' : '') +
+        '. I lifted the signing cap because I trusted your judgment. Keep earning that.”';
+    }
+    return who + '’s office flagged the quarterly books: spend ran ' + Math.abs(Math.round(net)) +
+      ' over income' + (spree ? ', much of it on new signings' : '') +
+      '. Nothing said yet — but it was noticed.';
+  }
 
   // Idol weeks: promotion runs hot — where the heat goes is the rollout
   // focus the player chose — then the schedule finally breathes.
@@ -161,7 +205,7 @@
       const rel = rels[KP.pairKey(p, other)];
       if (rel && rel.state === 'close') {
         other.morale = KP.clamp(other.morale - 8, 0, 100);
-        shaken.push(other.name.given);
+        shaken.push(KP.publicGiven(other));
       }
     });
     return { ok: true, shaken };

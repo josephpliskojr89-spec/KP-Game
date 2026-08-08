@@ -25,8 +25,9 @@
       executive: { name: exec.name, personality: exec.personality, intro: exec.intro },
       trust: KP.C.EXEC.startTrust,
       budget: KP.C.ECON.startBudget,
-      signingsAllowed: 3,
+      signingsAllowed: 3,        // the tutorial rail — lifts at first debut
       signingsUsed: 0,
+      fiscal: { monthStartBudget: KP.C.ECON.startBudget, pressure: 0, monthSignings: 0 },
       objective: {
         type: 'debutGirlGroup',
         text: 'Assemble and debut a 4–6 member girl group within 18 months.',

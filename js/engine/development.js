@@ -63,20 +63,20 @@
       const cap = person.flags['ceil_' + d] != null ? person.flags['ceil_' + d] : 100;
       person.talents[d].cur = Math.min(cap, person.talents[d].cur + 2.5);
       person.personality.confidence = KP.clamp(person.personality.confidence + T.confidenceFromBreakthrough, 0, 100);
-      notes.push({ kind: 'breakthrough', text: person.name.display + ' had a breakthrough week in ' + KP.C.TALENT_LABELS[d].toLowerCase() + '. Something clicked — you could see it from the hallway.' });
+      notes.push({ kind: 'breakthrough', text: KP.displayName(person) + ' had a breakthrough week in ' + KP.C.TALENT_LABELS[d].toLowerCase() + '. Something clicked — you could see it from the hallway.' });
     } else if (person.training.focus.length && rng.chance(T.plateauChance)) {
       const d = rng.pick(person.training.focus);
-      notes.push({ kind: 'plateau', text: person.name.display + ' has plateaued in ' + KP.C.TALENT_LABELS[d].toLowerCase() + '. The coaches suggest changing her focus for a few weeks.' });
+      notes.push({ kind: 'plateau', text: KP.displayName(person) + ' has plateaued in ' + KP.C.TALENT_LABELS[d].toLowerCase() + '. The coaches suggest changing her focus for a few weeks.' });
     }
 
     // overtraining consequences
     if (person.fatigue > T.fatigueHardCap && rng.chance(T.burnoutChance)) {
       person.flags.burnout = (person.flags.burnout || 0) + 4; // weeks of forced light load
       person.morale = KP.clamp(person.morale - 12, 0, 100);
-      notes.push({ kind: 'health', urgent: true, text: person.name.display + ' hit a wall. Medical staff have ordered reduced load for a month. This was preventable.' });
+      notes.push({ kind: 'health', urgent: true, text: KP.displayName(person) + ' hit a wall. Medical staff have ordered reduced load for a month. This was preventable.' });
     } else if (person.fatigue > T.fatigueSoftCap && intensity === 'heavy' && rng.chance(T.injuryChance)) {
       person.flags.burnout = (person.flags.burnout || 0) + 2;
-      notes.push({ kind: 'health', urgent: true, text: person.name.display + ' picked up a minor injury in practice. Two weeks of careful scheduling ahead.' });
+      notes.push({ kind: 'health', urgent: true, text: KP.displayName(person) + ' picked up a minor injury in practice. Two weeks of careful scheduling ahead.' });
     }
     if (person.flags.burnout > 0) {
       person.flags.burnout--;
@@ -99,7 +99,7 @@
     if (sorted.length && rng.chance(0.5)) {
       const star = sorted[0];
       star.personality.confidence = KP.clamp(star.personality.confidence + 3, 0, 100);
-      notes.push({ kind: 'showcase', text: 'Monthly showcase: staff notes are in. ' + star.name.display + ' drew the most attention on stage this time.' });
+      notes.push({ kind: 'showcase', text: 'Monthly showcase: staff notes are in. ' + KP.displayName(star) + ' drew the most attention on stage this time.' });
     } else {
       notes.push({ kind: 'showcase', text: 'Monthly showcase held. Evaluators updated their reads on the trainee pool.' });
     }

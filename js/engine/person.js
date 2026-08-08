@@ -137,10 +137,14 @@
     };
   };
 
-  // Public-facing name: the stage name once one exists, else the real one.
-  // Staff notes keep using real names — the building knows who people are.
+  // Public-facing names. Owner's law (v0.2.3): "if using a stage name,
+  // only use that in reports." Every report surface routes through these;
+  // the dossier header keeps the legal name — a file, not a report.
   KP.displayName = function (p) {
     return (p.name && p.name.stage) ? p.name.stage : p.name.display;
+  };
+  KP.publicGiven = function (p) {
+    return (p.name && p.name.stage) ? p.name.stage : p.name.given;
   };
 
   KP.setStageName = function (state, personId, name) {

@@ -52,7 +52,8 @@
     const evl = KP.evaluate(state, p);
     const best = evl.domains.slice().sort((a, b) => bandRank(b.band) - bandRank(a.band))[0];
     const cost = KP.signCost(state, p);
-    const canSign = state.signingsUsed < state.signingsAllowed && state.budget >= cost;
+    const canSign = state.budget >= cost &&
+      (!KP.signingsCapped(state) || state.signingsUsed < state.signingsAllowed);
     return '<div class="talent-row">' +
       '<div data-action="open-dossier" data-id="' + p.id + '">' + UI.portrait(p, 'md') + '</div>' +
       '<div class="t-body" data-action="open-dossier" data-id="' + p.id + '">' +
@@ -83,7 +84,7 @@
       html.push('<div class="card train-card" style="padding:12px">' +
         '<div style="display:flex;gap:11px;align-items:center" data-action="open-dossier" data-id="' + p.id + '">' +
         UI.portrait(p, 'sm') +
-        '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:.95rem">' + UI.esc(p.name.display) + '</div>' +
+        '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:.95rem">' + UI.esc(KP.displayName(p)) + '</div>' +
         '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">' + UI.condChips(p) + '</div></div></div>');
       if (inPrep) {
         html.push('<div style="font-size:.76rem;color:var(--ink-dim);font-style:italic;margin-top:9px">In debut rehearsals — the comeback schedule owns her week.</div>');
@@ -242,8 +243,8 @@
       const other = state.people[otherId];
       const rel = rels[KP.pairKey(p, other)];
       if (!rel || rel.state == null) return;
-      if (rel.state === 'close') out.push('Close with ' + other.name.display + ' — they bring out the best in each other.');
-      if (rel.state === 'friendly') out.push('Gets on well with ' + other.name.display + '.');
+      if (rel.state === 'close') out.push('Close with ' + KP.displayName(other) + ' — they bring out the best in each other.');
+      if (rel.state === 'friendly') out.push('Gets on well with ' + KP.displayName(other) + '.');
     });
     return out.slice(0, 3);
   }

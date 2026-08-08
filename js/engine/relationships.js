@@ -66,7 +66,7 @@
   };
 
   function relObservation(a, b, st, prev) {
-    const A = a.name.given, B = b.name.given;
+    const A = KP.publicGiven(a), B = KP.publicGiven(b);
     switch (st.key) {
       case 'close': return A + ' and ' + B + ' bring out the best in each other. Staff have started scheduling them together on purpose.';
       case 'friendly': return A + ' and ' + B + ' have warmed up to each other lately.';
@@ -132,7 +132,7 @@
       M.baseChance + (prof - 50) / 220 + (warmth - 50) / 260 - (bothDominant ? 0.18 : 0),
       0.15, 0.9);
     const roll = rng.next();
-    const A = a.name.given, B = b.name.given;
+    const A = KP.publicGiven(a), B = KP.publicGiven(b);
     let outcome, text;
     if (roll < chance) {
       rel.score = KP.clamp(rel.score + 10 + rng.next() * 14, -100, 100);
@@ -196,7 +196,7 @@
         const rel = (state.relationships || {})[pairKey(members[i], members[j])];
         if (!rel) continue;
         const st = KP.relState(rel.score);
-        if (st.key === 'close') notes.push(members[i].name.given + ' + ' + members[j].name.given + ': trusted partners.');
+        if (st.key === 'close') notes.push(KP.publicGiven(members[i]) + ' + ' + KP.publicGiven(members[j]) + ': trusted partners.');
       }
     }
     const leaders = members.filter(m => m.personality.leadership > 65);
