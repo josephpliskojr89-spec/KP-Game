@@ -43,9 +43,17 @@
       (grp ? '<span class="chip gold">' + UI.esc(grp.name) + '</span>' : '') +
       (p.status === 'idol' ? '<span class="chip gold">debuted</span>' : '') +
       '</div></div>' +
-      '<div class="t-side"><span class="chip">' +
-      (p.status === 'idol' ? 'promotion' : focus ? UI.esc(focus) : 'no focus') + '</span></div>' +
+      '<div class="t-side"><span class="chip">' + idolOrFocusChip(state, p, focus) + '</span></div>' +
       '</div>';
+  }
+
+  function idolOrFocusChip(state, p, focus) {
+    if (p.status !== 'idol') return focus ? UI.esc(focus) : 'no focus';
+    const grp = KP.groupOf(state, p.id);
+    if (grp && grp.prep) return 'rehearsals';
+    if (grp && state.week <= (grp.promoUntil || 0)) return 'promotion';
+    const auto = KP.idolFocus(state, p);
+    return auto ? 'drilling ' + UI.esc(KP.C.TALENT_LABELS[auto.domain]) : 'polished';
   }
 
   function prospectRow(state, p) {
@@ -158,6 +166,14 @@
     // staff observations on derived qualities, once observed enough
     if (isTrainee) {
       const notes = derivedNotes(p);
+      if (p.status === 'idol') {
+        const grp = KP.groupOf(state, p.id);
+        const idle = !(grp && (grp.prep || state.week <= (grp.promoUntil || 0)));
+        const auto = idle ? KP.idolFocus(state, p) : null;
+        if (auto) notes.unshift('Between schedules she drills ' + KP.C.TALENT_LABELS[auto.domain].toLowerCase() +
+          ' on her own. After a debut, everyone knows the gap — including her.');
+        else if (idle) notes.unshift('Her coaches have little left to teach. What remains now is stages.');
+      }
       if (notes.length) {
         html.push('<div class="kicker">Staff observations</div>');
         notes.forEach(n => html.push('<div class="note">' + UI.esc(n) + '</div>'));

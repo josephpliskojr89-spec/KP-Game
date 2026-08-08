@@ -231,6 +231,17 @@ The debut is the first release, not the end. One machinery
   This replaced the v0.1.x bug where idols kept accruing training fatigue
   forever; the v0.2.0 migration repairs pegged saves with a narrated
   management-review letter.
+- **Idol self-development** (v0.2.4 — owner: *"a system where they auto
+  focus on the attribute with the most runway… once they've debuted,
+  everyone kind of knows what they need to work on"*). In idle weeks
+  (no prep, no promotion), a debuted idol auto-trains the domain with the
+  most runway to her resolved ceiling: half the trainee rate, scaled by
+  growth and work ethic, ceiling-crawl near the top, +3 fatigue against
+  the −8 recovery, and skipped entirely above 60 fatigue — rest wins.
+  No player controls: it simulates a professional who knows her gap.
+  Visible as a "drilling X" roster chip, a dossier observation, and a
+  rare inbox note. Suite 012 guards growth, focus choice, ceilings,
+  tired-rest, promo non-interference, and determinism.
 - **Charts-lite**: each release records a peak position (from reception +
   popularity + σ6 noise) and weeks-charting; the discography on the group
   page is the story so far, on the record.
@@ -606,4 +617,16 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > displayName/publicGiven; suite 011 sweeps 30 weeks of reports for
 > real-name leaks and found zero. Numbers: battery 11/11, soak clean
 > (15 bands), e2e 51, lockstep 0.2.3. Rode to main.
+
+> **v0.2.4 — idols keep growing** (owner Q&A: idols only improved during
+> comeback prep; owner chose auto-development — *"auto focus on the
+> attribute with the most runway… everyone kind of knows what they need
+> to work on"*)
+> Idle idols now drill their biggest remaining gap automatically at half
+> trainee rate, resting instead when tired, never crossing ceilings,
+> never during promotion or prep. Surfaced as roster chips ("drilling
+> Dance"), a dossier line, and rare inbox flavor. No migration needed —
+> behavior only. Numbers: battery 12/12 (suite 012), soak clean (roster
+> talent growth 10.4 → 10.9 pts, all bands alive), e2e 51, lockstep
+> 0.2.4. Rode to main.
 

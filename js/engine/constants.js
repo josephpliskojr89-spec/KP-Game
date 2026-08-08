@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.2.3',
+    VERSION: '0.2.4',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -178,6 +178,10 @@
       idolRecovery: 8,             // weekly fatigue recovery when idle
       popDecayPerWeek: 0.35,       // popularity cools once promo + grace end
       decayGraceWeeks: 8,
+      // idol self-development (v0.2.4): between promotions, a debuted pro
+      // drills the attribute with the most runway on her own — after a
+      // debut, everyone knows the gap, including her
+      IDOL_AUTO: { mult: 0.5, fatigueCost: 3, restThreshold: 60 },
       popFactor: 0.12,             // how much an existing fanbase lifts reception
       comebackTrustDelta: { sensation: 14, strong: 9, solid: 4, quiet: -5, miss: -12 },
       missedDeadlinePenalty: -15,  // gentler than the debut deadline

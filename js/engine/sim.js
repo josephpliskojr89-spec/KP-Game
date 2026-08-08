@@ -35,7 +35,11 @@
     groups.forEach(g => { if (g.prep) g.members.forEach(id => prepIds.push(id)); });
     roster.forEach(p => {
       if (prepIds.includes(p.id)) return;
-      if (p.status === 'idol') { idolWeek(state, p); return; }
+      if (p.status === 'idol') {
+        const n = idolWeek(state, p, rng);
+        if (n) inbox.push(n);
+        return;
+      }
       KP.developWeek(state, p, rng).forEach(n => inbox.push(n));
     });
     groups.forEach(g => {
@@ -154,9 +158,23 @@
       '. Nothing said yet — but it was noticed.';
   }
 
+  // The attribute a debuted idol works on herself: the one with the most
+  // runway to her (resolved) ceiling. Exposed for the UI.
+  KP.idolFocus = function (state, p) {
+    let best = null;
+    KP.C.TALENTS.forEach(d => {
+      const t = p.talents[d];
+      const ceil = p.flags['ceil_' + d] != null ? p.flags['ceil_' + d] : (t.ceilLo + t.ceilHi) / 2;
+      const room = ceil - t.cur;
+      if (!best || room > best.room) best = { domain: d, room };
+    });
+    return (best && best.room > 0.5) ? best : null;
+  };
+
   // Idol weeks: promotion runs hot — where the heat goes is the rollout
-  // focus the player chose — then the schedule finally breathes.
-  function idolWeek(state, p) {
+  // focus the player chose — then the schedule breathes, and the pro
+  // quietly drills what everyone knows she needs (v0.2.4).
+  function idolWeek(state, p, rng) {
     const CB = KP.C.COMEBACK;
     const g = KP.groupOf(state, p.id);
     const promoting = g && g.debuted && state.week <= (g.promoUntil || 0);
@@ -167,10 +185,37 @@
       p.liveExp += f.liveExp;
       if (f.morale) p.morale = KP.clamp(p.morale + f.morale, 0, 100);
       if (f.pop) g.popularity = KP.clamp((g.popularity || 0) + f.pop, 0, 100);
-    } else {
-      p.fatigue = KP.clamp(p.fatigue - CB.idolRecovery, 0, 100);
-      p.morale = KP.clamp(p.morale + 1, 0, 100);
+      return null;
     }
+    p.fatigue = KP.clamp(p.fatigue - CB.idolRecovery, 0, 100);
+    p.morale = KP.clamp(p.morale + 1, 0, 100);
+    return idolAutoTrain(state, p, rng);
+  }
+
+  function idolAutoTrain(state, p, rng) {
+    const A = KP.C.COMEBACK.IDOL_AUTO;
+    if (p.fatigue > A.restThreshold) return null;   // too tired: rest wins
+    // resolve true ceilings lazily, same rule as the training room
+    KP.C.TALENTS.forEach(d => {
+      if (p.flags['ceil_' + d] == null) {
+        const t = p.talents[d];
+        p.flags['ceil_' + d] = Math.round(t.ceilLo + rng.next() * (t.ceilHi - t.ceilLo));
+      }
+    });
+    const focus = KP.idolFocus(state, p);
+    if (!focus) return null;
+    const t = p.talents[focus.domain];
+    const ceil = p.flags['ceil_' + focus.domain];
+    let g = KP.C.TRAIN.baseGain * t.growth * A.mult * (0.6 + p.personality.workEthic / 200);
+    if (ceil - t.cur < 6) g *= KP.C.TRAIN.ceilingCrawl;
+    g *= 0.6 + rng.next() * 0.8;
+    t.cur = Math.min(ceil, t.cur + g);
+    p.fatigue = KP.clamp(p.fatigue + A.fatigueCost, 0, 100);
+    if (rng.chance(0.015)) {
+      return { kind: 'development', text: KP.displayName(p) + ' has been booking extra ' +
+        KP.C.TALENT_LABELS[focus.domain].toLowerCase() + '-room time on her own between schedules. Nobody asked her to. That is rather the point.' };
+    }
+    return null;
   }
 
   // ---- Training assignment (UI-facing) ---------------------------------
