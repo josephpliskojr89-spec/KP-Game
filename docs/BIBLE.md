@@ -92,6 +92,34 @@ Live experience (showcases, rehearsals, debuts) feeds them — a trainee can
 become a far better performer with no raw-skill change (suite 003 proves
 it).
 
+## §4b Generation realism (v0.3.2)
+
+Two owner laws from a pair of dossier screenshots:
+
+**Polish comes from training time** (*"a 14 year old shouldn't be that
+polished"*): trained skills (vocals/rap/dance) scale with age — mean 30
+at 14 rising to 52 at 22, and the *spread* narrows with youth too (sd 10
+at 14 → 15 at 22), because training time is what differentiates people.
+Visuals and charisma stay age-independent — they are innate, and a
+14-year-old with an exceptional face is exactly what street casting
+finds. Measured: 2% of 14–15s carry a Strong trained skill, and ~80% of
+those are archetype prodigies (naturalVocalist, performanceAce) — the
+exception always has a reason.
+
+**The market is efficient** (*"I find it hard to believe a 19 year old
+with that much talent would just be walking around on the streets"*):
+an 18+ *prospect* whose trained skill rolls elite (>62) is corrected
+down 75% of the time — someone already signed the great ones. The
+surviving 25% are flagged `overlooked` and narrated by the scout
+("Somebody upstream made a mistake. Move before they correct it") — the
+implausibility becomes a story. Inherited trainees are exempt: the
+building trained them; that IS the explanation.
+
+**Sources follow profiles**: weighted by the rolled person — academies
+produce the trained kids (dance-academy finds measure +dance), street
+casting and social media find young magnetic faces, and 19+ prospects
+arrive mostly through referrals, auditions and academies. Suite 017.
+
 ## §5 Perceived layer
 
 `perceived = truth + deterministic offset` where offset width =
@@ -758,4 +786,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > rebirth, roster preservation, determinism, the absolute floor), soak
 > clean (pool mean 16.5, 13% aged 19+), e2e 51, lockstep 0.3.1.
 > Rode to main.
+
+> **v0.3.2 — generation realism** (owner, from two dossier screenshots:
+> a polished 14-year-old and an elite 19-year-old street-cast — both
+> implausible)
+> Trained skills now scale with age in mean AND spread (young rolls
+> cluster raw; prodigies come from archetypes — measured 2% of 14–15s
+> polished, ~80% of those archetyped). Visuals/charisma stay innate.
+> The market correction prunes elite trained skills from the 18+ board
+> (75%) and flags the surviving 25% as overlooked finds with their own
+> urgent scout note. Sources now follow profiles: street/social skews
+> young, 19+ arrives through channels, dance academies produce dancers
+> (all measured in suite 017). Emergent soak shift, in band: debuts got
+> stronger (19/40 strong+, 4 sensations) because high-headroom young
+> rosters grow more before debut day. Numbers: battery 17/17, soak
+> clean, e2e 51, lockstep 0.3.2. Rode to main.
 

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.3.1',
+    VERSION: '0.3.2',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -40,8 +40,22 @@
       // uncommon. I don't want to go any younger than 14." Mean ~16.6,
       // 14-18 ≈ 86%, 19+ ≈ 14%. The 14 floor is a hard line.
       ageWeights: { 14: 10, 15: 22, 16: 22, 17: 16, 18: 12, 19: 6, 20: 4, 21: 2, 22: 1 },
-      aptMean: 44, aptSd: 15,      // current-ability seed distribution
+      aptMean: 44, aptSd: 15,      // innate domains (visuals, charisma) — age-independent
       aptMin: 12, aptMax: 78,
+      // v0.3.2, owner: "a 14 year old shouldn't be that polished."
+      // Trained skills (vocals/rap/dance) scale with age: raw at 14,
+      // formed by 22. Mean = trainedAptBase + ageFactor·trainedAptSlope.
+      trainedAptBase: 30, trainedAptSlope: 22,
+      // spread narrows with youth too: training time is what differentiates
+      // people, so young rolls cluster — prodigies come from archetypes
+      trainedSdBase: 10, trainedSdSlope: 5,
+      // v0.3.2, owner: "I find it hard to believe a 19 year old with that
+      // much talent would just be walking around on the streets." The
+      // market is efficient: elite trained skills on 18+ PROSPECTS are
+      // corrected down (someone already signed the great ones) — except
+      // the rare overlooked find, who gets flagged and narrated.
+      marketAge: 18, marketElite: 62, marketKeepChance: 0.25,
+      marketCompressBase: 45, marketCompressFactor: 0.3,
       // potential cone: ceiling = cur + headroomBase..headroomMax, scaled by age
       headroomMin: 4, headroomMax: 34,
       youngHeadroomBonus: 10,      // extra max headroom at the youngest ages

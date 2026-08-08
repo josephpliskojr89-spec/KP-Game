@@ -207,6 +207,14 @@
       'The board has better uses for this signing.', 'Someone will sign her. It does not have to be us.'],
   };
 
+  // the market missed one (v0.3.2): an older prospect this polished being
+  // available is a mistake somebody else made — say so, urgently
+  const OVERLOOKED_NOTES = [
+    'This polished, this age, still unsigned? Somebody upstream made a mistake. Move before they correct it.',
+    'Everyone assumed someone else had already signed her. Nobody had. These windows close on their own.',
+    'I checked twice why she is still available. The answer is luck. Ours — if we hurry.',
+  ];
+
   const INSTINCT_NOTES = [
     'I don’t have objective evidence for this. Don’t let another company sign her.',
     'On paper she is ordinary. In the room she is not. Trust me once.',
@@ -257,11 +265,16 @@
     const rec = pickLine(RECOMMEND[bandKey(topTwo)],
       [state.seed, person.id, 'rec'].join('|'));
 
-    // rare instinct note: senior scout smells hidden charisma the numbers miss
+    // rare instinct note: senior scout smells hidden charisma the numbers
+    // miss — or flags the overlooked older find the market forgot
     let instinct = null;
-    const hiddenGap = person.talents.charisma.ceilHi - KP.perceived(state, person, 'charisma', scout);
-    if (hiddenGap > 22 && KP.hash01([state.seed, person.id, 'instinct'].join('|')) < KP.C.SCOUT.instinctNoteChance * 3) {
-      instinct = pickLine(INSTINCT_NOTES, [state.seed, person.id, 'instinctLine'].join('|'));
+    if (person.flags && person.flags.overlooked && person.status === 'prospect') {
+      instinct = pickLine(OVERLOOKED_NOTES, [state.seed, person.id, 'overlooked'].join('|'));
+    } else {
+      const hiddenGap = person.talents.charisma.ceilHi - KP.perceived(state, person, 'charisma', scout);
+      if (hiddenGap > 22 && KP.hash01([state.seed, person.id, 'instinct'].join('|')) < KP.C.SCOUT.instinctNoteChance * 3) {
+        instinct = pickLine(INSTINCT_NOTES, [state.seed, person.id, 'instinctLine'].join('|'));
+      }
     }
 
     return { domains, recommendation: rec, instinct };

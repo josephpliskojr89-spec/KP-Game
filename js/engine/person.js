@@ -60,9 +60,20 @@
     const age = opts.age != null ? opts.age : sampleAge(rng);
     const youth = (G.ageRange[1] - age) / (G.ageRange[1] - G.ageRange[0]); // 1 = youngest
 
+    const TRAINED = ['vocals', 'rap', 'dance'];
+    const ageFactor = (age - G.ageRange[0]) / (G.ageRange[1] - G.ageRange[0]);
     const talents = {};
     C().TALENTS.forEach(key => {
-      const cur = KP.clamp(Math.round(rng.normal(G.aptMean, G.aptSd)), G.aptMin, G.aptMax);
+      // polish comes from training time: trained skills scale with age;
+      // visuals and charisma are innate and don't
+      const isTrainedSkill = TRAINED.includes(key);
+      const mean = isTrainedSkill
+        ? G.trainedAptBase + ageFactor * G.trainedAptSlope
+        : G.aptMean;
+      const sd = isTrainedSkill
+        ? G.trainedSdBase + ageFactor * G.trainedSdSlope
+        : G.aptSd;
+      const cur = KP.clamp(Math.round(rng.normal(mean, sd)), G.aptMin, G.aptMax);
       const headroom = rng.range(G.headroomMin, G.headroomMax + youth * G.youngHeadroomBonus);
       const width = rng.range(G.coneWidthMin, G.coneWidthMax) * (0.7 + 0.6 * youth);
       const ceilLo = Math.round(cur + Math.max(2, headroom - width / 2));
@@ -114,8 +125,48 @@
       t.ceilHi = KP.clamp(Math.round(t.ceilHi), t.ceilLo + 2, 100);
       t.growth = Math.max(0.3, Math.min(2.2, t.growth));
     });
+    // the market is efficient (v0.3.2): an 18+ PROSPECT with elite trained
+    // skill was almost certainly signed already — correct the roll down,
+    // except the rare overlooked find, who becomes a story instead
+    if (p.status === 'prospect' && !opts.inherited && age >= G.marketAge) {
+      TRAINED.forEach(k => {
+        const t = p.talents[k];
+        if (t.cur > G.marketElite) {
+          if (rng.chance(1 - G.marketKeepChance)) {
+            t.cur = Math.round(G.marketCompressBase + (t.cur - G.marketElite) * G.marketCompressFactor);
+            t.ceilLo = KP.clamp(t.ceilLo, t.cur + 1, 97);
+            t.ceilHi = KP.clamp(t.ceilHi, t.ceilLo + 2, 100);
+          } else {
+            p.flags.overlooked = true;
+          }
+        }
+      });
+    }
+    // sources follow profiles (v0.3.2): academies produce trained kids,
+    // the street finds young magnetic faces, adults arrive via channels
+    if (!opts.source) p.source = pickSource(rng, age, p.talents);
     return p;
   };
+
+  function pickSource(rng, age, talents) {
+    const youth = Math.max(0, 18 - age);
+    const entries = [
+      ['Dance academy', talents.dance.cur * 1.2],
+      ['Vocal academy', talents.vocals.cur * 1.2],
+      ['Street casting', (talents.visuals.cur + talents.charisma.cur) / 2 + youth * 6],
+      ['Social media', talents.charisma.cur * 0.8 + youth * 4],
+      ['School performance', youth * 8 + 10],
+      ['Open audition', 15 + age * 2],
+      ['Referral', 10 + age * 2.5],
+    ];
+    const total = entries.reduce((s, e) => s + e[1], 0);
+    let roll = rng.next() * total;
+    for (const [label, w] of entries) {
+      roll -= w;
+      if (roll <= 0) return label;
+    }
+    return entries[entries.length - 1][0];
+  }
 
   // ---- Derived qualities — never purchased, always computed ------------
   KP.derived = function (p) {
