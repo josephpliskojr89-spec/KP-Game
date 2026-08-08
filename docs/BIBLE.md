@@ -347,6 +347,32 @@ moving parts and nothing else).
 *(The v0.2.3 queue — stage names in all reports, cap lift + fiscal
 pressure — shipped; see §6, §10b and the ledger.)*
 
+**Queued: v0.2.5 — pre-debut hype & solo acts** (owner: *"simulate pre
+debut hype… a trainee is well known through socials and the CEO starts
+pressuring you to debut them. now you have to decide how to make it
+work"* + solo acts, engine-endorsed as the third answer to the hype
+dilemma). Direction approved in principle; details to confirm on build:
+
+1. **Hype** — hidden per-person state, worded (unknown / noticed /
+   buzzing / "the internet has decided"). Accrues from emergent events
+   weighted by centerPull/visuals (trending cover, resurfaced street-cast
+   photos, escaped showcase clip); **decays weekly once peaked** — a
+   window, not a stockpile. The internet forgets.
+2. **CEO relay** — past a threshold, pressure events on the undebuted
+   hyped trainee, escalating like the fiscal system (noticed → pointed →
+   trust-dragging if ignored for months).
+3. **Cash-in** — at debut, a member's hype converts into launch reception
+   + founding popularity + breakout pull. A group cashes its hyped
+   member; a solo cashes everything.
+4. **Solo acts** — act of one through the existing release machinery:
+   roles collapsed, chemistry term replaced, reception reweighted hard
+   onto charisma/stage presence (high variance, no cover for a bad
+   live), full promo fatigue on one body. Kept rare-but-real by risk, not
+   by rules; the executive ladder keeps demanding groups.
+5. **Observatory** — bands: hyped trainees emerge in [20%–80%] of orgs,
+   hype-pressure letters alive, solo debuts viable but a minority of
+   releases; guard: hype decays to zero when never cashed.
+
 Per brief §21. Phase 2: multiple groups, comeback cycles, charts,
 endorsements, staff hiring, richer rival AI. Phase 3: international
 markets, tours, awards, producer ecosystem. Phase 4: career mobility and
