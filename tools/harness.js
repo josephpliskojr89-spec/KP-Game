@@ -21,12 +21,16 @@ const BANDS = {
   rivalSteals:       { lo: 0.30, hi: 1.00, label: 'rivals signed >=1 prospect' },
   burnouts:          { lo: 0.00, hi: 0.45, label: 'orgs with a burnout incident' },
   instinctSigning:   { lo: 0.00, hi: 1.00, label: 'scout instinct notes seen' },
+  frictionSeen:      { lo: 0.20, hi: 1.00, label: 'orgs that saw real friction' },
+  conflictEndemic:   { lo: 0.00, hi: 0.25, label: 'orgs ending conflict-heavy (>30% pairs)' },
 };
 
 const tally = {
   sensation: 0, strongPlus: 0, missOrQuiet: 0, nonCenterBreakout: 0,
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
+  frictionSeen: 0, conflictEndemic: 0,
 };
+let mediationsRun = 0;
 const receptions = [];
 const growths = [];
 const allAges = [];
@@ -42,6 +46,7 @@ for (let s = 0; s < SEEDS; s++) {
 
   const startTalent = avgRosterTalent(state);
   Object.values(state.people).forEach(p => allAges.push(p.age));
+  let sawFriction = false;
 
   for (let w = 0; w < 84; w++) {
     // --- auto-player policy (perceived reads only) ---
@@ -61,6 +66,14 @@ for (let s = 0; s < SEEDS; s++) {
       const intensity = p.fatigue > 70 ? 'rest' : p.fatigue > 55 ? 'light' : 'standard';
       KP.setTraining(state, id, best, intensity);
     });
+    // conflict management: the auto-player uses the same sit-down tool
+    const frictions = KP.frictionPairs(state, state.roster);
+    if (frictions.length) sawFriction = true;
+    const worst = frictions.find(f => f.state === 'conflict') || frictions[0];
+    if (worst && state.budget > 60 && KP.mediationCooldown(state, worst.a.id, worst.b.id) === 0) {
+      const m = KP.mediatePair(state, worst.a.id, worst.b.id);
+      if (m.ok) mediationsRun++;
+    }
     // form the group around week 20
     if (!state.group && state.week >= 20 && state.roster.length >= 5) {
       const members = state.roster.map(id => state.people[id])
@@ -115,6 +128,22 @@ for (let s = 0; s < SEEDS; s++) {
   if (Object.values(state.people).some(p => p.status === 'rival')) tally.rivalSteals++;
   if (burnoutSeen) tally.burnouts++;
   if (state.roster.map(id => state.people[id]).some(p => KP.evaluate(state, p).instinct)) tally.instinctSigning++;
+  if (sawFriction) tally.frictionSeen++;
+  {
+    // end-state conflict census across roster pairs
+    let negative = 0, pairCount = 0;
+    for (let i = 0; i < state.roster.length; i++) {
+      for (let j = i + 1; j < state.roster.length; j++) {
+        const rel = state.relationships[
+          KP.pairKey(state.people[state.roster[i]], state.people[state.roster[j]])];
+        if (!rel) continue;
+        pairCount++;
+        const st = KP.relState(rel.score).key;
+        if (st === 'tense' || st === 'conflict') negative++;
+      }
+    }
+    if (pairCount && negative / pairCount > 0.3) tally.conflictEndemic++;
+  }
   growths.push(avgRosterTalent(state) - startTalent);
 }
 
@@ -138,6 +167,7 @@ const ageMean = allAges.reduce((a, b) => a + b, 0) / allAges.length;
 const age20frac = allAges.filter(a => a >= 20).length / allAges.length;
 console.log('generated-pool age: mean ' + ageMean.toFixed(1) + ', ' +
   Math.round(age20frac * 100) + '% aged 20+');
+console.log('sit-downs run by the auto-player: ' + mediationsRun);
 let alarms = 0;
 if (ageMean < 17 || ageMean > 18.8) { alarms++; console.error('AGE ALARM: mean out of [17, 18.8]'); }
 if (age20frac > 0.32) { alarms++; console.error('AGE ALARM: 20+ share floods above 32%'); }

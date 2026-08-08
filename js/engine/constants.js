@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.1.1',
+    VERSION: '0.1.2',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -108,6 +108,13 @@
       ],
       mentorAgeGap: 3,
       observationChance: 0.5,     // chance a state change surfaces as a note
+      reversion: 0.038,           // negative pairs drift back toward professional
+      coolOff: 0.7,               // extra weekly healing when a feuding pair is kept apart
+      MED: {                      // the sit-down: mediation is a player tool
+        cost: 3,                  // staff time, in budget units
+        cooldownWeeks: 6,         // per pair — you cannot force it weekly
+        baseChance: 0.55,         // shaped by professionalism, warmth, dominance
+      },
     },
 
     // ---- Groups ---------------------------------------------------------

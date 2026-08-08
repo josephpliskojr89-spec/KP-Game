@@ -118,12 +118,30 @@ observation to everyone.
 ## §8 Relationships & chemistry
 
 Pair scores (−100..100) drift weekly from personality compatibility (warmth
-helps, twin dominance clashes, effort mismatch grates, rivalry cuts both
-ways) plus shared-focus context. States: close / friendly / professional /
-tense / conflict. State *changes* surface as observations. Group chemistry
-(hidden 0–100) = pair average blended with personality mix (exactly one
-natural leader helps). The player sees words ("talented individuals, cold
-room"), never a meter.
+helps, twin dominance clashes, real effort mismatch grates, rivalry cuts
+both ways) plus shared-focus context. States: close / friendly /
+professional / tense / conflict. State *changes* surface as observations.
+Group chemistry (hidden 0–100) = pair average blended with personality mix
+(exactly one natural leader helps). The player sees words ("talented
+individuals, cold room"), never a meter.
+
+**Repair forces** (v0.1.2 — owner: *"a lot of conflict and no way to do
+anything about it other than hope"*; measured 65% of pairs tense-or-worse
+at week 40, 36% in open conflict). The compatibility mean is now ~neutral
+(always-negative penalty terms gated behind real thresholds), negative
+pairs regress toward professional scaled by professionalism (`reversion`),
+and feuding pairs kept on *separate* training focus cool off extra
+(`coolOff`) — separation is a deliberate player lever, hinted in the UI.
+Post-fix texture: ~20% tense, ~1–6% open conflict, warmth intact.
+
+**The sit-down** (`KP.mediatePair`): the player's direct tool. Costs staff
+time (3), 6-week cooldown per pair, success odds from professionalism +
+warmth − twin dominance (clamped 15–90%). Outcomes in prose: cleared
+(+10..24, small morale lift), cool (+2, "calm, not peace"), rare backfire
+(−6) when two dominants share a small room. Frictions render as **friction
+cards** — the problem and its handle together — in the dossier, the group
+room report, and the builder preview. Guarded by suite 007 and two census
+bands (friction alive in every org; conflict-heavy endings rare).
 
 ## §9 Groups & roster exits
 
@@ -337,6 +355,11 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   `rivalSignHotChance` down.
 - **Whitecliff unused** at RIVALS.count=2 — activates when rival count
   grows in Phase 2.
+- **Sit-down treadmill** (v0.1.2): the soak auto-player, mediating every
+  friction eagerly, runs ~16 sit-downs per org over 84 weeks. Band-legal
+  and partly a policy artifact, but if human play feels like relationship
+  whack-a-mole, consider longer-lasting mediation effects (a "settled"
+  grace period) before touching drift again.
 - **`ScheduleBlock`, `Contract`, `Market` domain objects** from brief §17
   are not yet modeled; weekly training assignment stands in for schedules
   in the slice.
@@ -397,4 +420,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > by suite 001 and a new observatory age census.
 > Numbers: battery 6/6, 40-seed soak clean (age mean 18.0 / 21% 20+,
 > reception median 53), e2e 38/38, lockstep green. Rode to main.
+
+> **v0.1.2 — conflict gets a handle** (second feel report)
+> Owner: *"a lot of conflict and no way to do anything about it other than
+> hope it works out."* Diagnosis confirmed and quantified: the drift model
+> was structurally biased down — always-negative penalty terms, no repair
+> force — leaving 65% of pairs tense-or-worse by week 40 (36% in "open
+> conflict", which §8 had promised was rare). Two-part fix: (1) drift
+> rebalance — neutral compatibility mean, professionalism-scaled reversion,
+> cool-off for feuding pairs trained apart (separation is now a real
+> lever); (2) **the sit-down** — mediation with cost, cooldown, and
+> personality-shaped odds, resolved in prose, surfaced as friction cards
+> (problem + handle together) in dossier, group room report, and builder.
+> Tuning took two soak rounds: the first pass left 22/40 orgs ending
+> conflict-heavy (new census band FLOODed) because shared-focus corrosion
+> kept mediation on a treadmill; softened it and strengthened reversion →
+> 5/40, in band. Week-40 texture now ~20% tense, ~1% open conflict, warmth
+> intact (27 close pairs vs 26 before — the game did not go bland).
+> Numbers: battery 7/7 (suite 007 added), soak clean with two new
+> relationship census bands, e2e 42/42 (stages a conflict, resolves it
+> through the UI), lockstep 0.1.2. New watch item: sit-down treadmill.
+> Rode to main.
 

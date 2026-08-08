@@ -80,6 +80,23 @@
     setTimeout(() => t.remove(), 2600);
   };
 
+  // Friction card: the problem and its handle, together. Used by dossier,
+  // group page and builder — anywhere a tense pair surfaces.
+  UI.frictionCard = function (state, f) {
+    const cd = KP.mediationCooldown(state, f.a.id, f.b.id);
+    const label = f.state === 'conflict'
+      ? f.a.name.given + ' and ' + f.b.name.given + ' are in open conflict. This needs handling before it needs explaining.'
+      : 'There is friction between ' + f.a.name.given + ' and ' + f.b.name.given + '. Professional in public, cold everywhere else.';
+    const sharedFocus = (f.a.training.focus || []).some(x => (f.b.training.focus || []).includes(x));
+    return '<div class="note ' + (f.state === 'conflict' ? 'urgent' : '') + '">' + UI.esc(label) +
+      (sharedFocus ? '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:5px">They train side by side every day. Distance might help — so might a conversation.</div>' : '') +
+      '<div style="margin-top:10px;display:flex;gap:8px;align-items:center">' +
+      (cd > 0
+        ? '<span class="chip">sat down recently · ' + cd + 'w</span>'
+        : '<button class="btn small" data-action="mediate" data-a="' + f.a.id + '" data-b="' + f.b.id + '">Arrange a sit-down · ' + KP.C.REL.MED.cost + '</button>') +
+      '</div><span class="n-who">— staff observation</span></div>';
+  };
+
   // era accents: comeback/debut pages inherit the chosen concept's identity
   const ERA_COLORS = {
     bright: ['#f59e0b', '#f43f5e'], elegant: ['#a78bfa', '#e2c76c'],

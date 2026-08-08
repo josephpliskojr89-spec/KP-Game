@@ -113,6 +113,29 @@ async function main() {
   // --- advance lives in the topbar now ---
   ok(await page.$eval('#topbar #advance-btn', el => !!el), 'advance button sits in the topbar');
 
+  // --- the sit-down: stage a conflict, then resolve it through the UI ---
+  await page.evaluate(() => {
+    const s = KP.App.state;
+    const a = s.people[s.roster[0]], b = s.people[s.roster[1]];
+    s.relationships[KP.pairKey(a, b)] = { score: -50, state: 'conflict' };
+    KP.App.save();
+  });
+  await tap('[data-action=talent-sub][data-sub=roster]');
+  await tap('.talent-row');
+  await page.waitForSelector('[data-action=mediate]');
+  ok((await page.textContent('#screen')).includes('open conflict'), 'the dossier surfaces the conflict');
+  const budgetBeforeMed = parseInt((await page.textContent('#tb-budget')).replace(/\D/g, ''), 10);
+  await tap('[data-action=mediate]');
+  await page.waitForSelector('.modal-sheet');
+  ok((await page.textContent('.modal-sheet')).includes('sit-down'), 'the sit-down resolves with a story');
+  await tap('[data-action=close-modal]');
+  const budgetAfterMed = parseInt((await page.textContent('#tb-budget')).replace(/\D/g, ''), 10);
+  ok(budgetAfterMed === budgetBeforeMed - 3, 'staff time cost budget');
+  const cdText = await page.textContent('#screen');
+  ok(cdText.includes('sat down recently') || !(await page.$('[data-action=mediate]')),
+    'cooldown blocks an immediate repeat from the UI');
+  await tap('[data-action=back]');
+
   // --- weeks pass ---
   for (let i = 0; i < 6; i++) await advanceWeek();
   ok((await page.textContent('#tb-week')).length > 0, 'calendar moved');

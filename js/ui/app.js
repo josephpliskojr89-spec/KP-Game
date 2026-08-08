@@ -125,6 +125,18 @@
         break;
       }
 
+      case 'mediate': {
+        const r = KP.mediatePair(s, t.dataset.a, t.dataset.b);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.modal('The sit-down',
+          '<div class="note" style="margin-top:4px">' + UI.esc(r.text) +
+          '<span class="n-who">— staff, afterwards</span></div>',
+          '<button class="btn primary" data-action="close-modal" style="flex:1">Noted</button>');
+        App.render();
+        break;
+      }
+
       case 'release': {
         const p = s.people[t.dataset.id];
         const rels = s.relationships || {};

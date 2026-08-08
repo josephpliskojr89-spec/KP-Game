@@ -10,15 +10,18 @@
 
   // Static compatibility from personalities: warmth helps, twin dominance
   // clashes, competitiveness cuts both ways, professionalism stabilizes.
+  // Rebalanced v0.1.2 — the old always-negative penalty terms decayed the
+  // average pair into conflict ("a lot of conflict", owner). Mean is now
+  // ~neutral; conflict comes from genuinely clashing people.
   function compatibility(a, b) {
     const pa = a.personality, pb = b.personality;
     let c = 0;
-    c += (pa.warmth + pb.warmth - 100) / 18;
-    c -= Math.max(0, (pa.dominance + pb.dominance - 130)) / 14;
-    c -= Math.abs(pa.workEthic - pb.workEthic) / 22;      // effort mismatch grates
-    c += (Math.min(pa.professionalism, pb.professionalism) - 50) / 20;
+    c += (pa.warmth + pb.warmth - 100) / 16;
+    c -= Math.max(0, (pa.dominance + pb.dominance - 145)) / 16;
+    c -= Math.max(0, Math.abs(pa.workEthic - pb.workEthic) - 15) / 28;  // only real mismatch grates
+    c += (Math.min(pa.professionalism, pb.professionalism) - 42) / 24;
     const comp = (pa.competitiveness + pb.competitiveness) / 2;
-    c += comp > 70 ? -1.2 : comp > 55 ? 0.6 : 0;          // rivalry: productive until it isn't
+    c += comp > 72 ? -1.0 : comp > 55 ? 0.5 : 0;          // rivalry: productive until it isn't
     return c;
   }
 
@@ -41,9 +44,16 @@
         const rel = state.relationships[key];
         let drift = compatibility(a, b) * 0.35;
         const shared = (a.training.focus || []).some(f => (b.training.focus || []).includes(f));
-        if (shared) drift += R.sharedFocusBonus * (compatibility(a, b) >= 0 ? 1 : -0.6);
+        if (shared) drift += R.sharedFocusBonus * (compatibility(a, b) >= 0 ? 1 : -0.25);
         drift += (rng.next() - 0.5) * R.weeklyDrift;
         rel.score = KP.clamp(rel.score + drift, -100, 100);
+        // repair forces (v0.1.2): professionals let grudges go, and time
+        // apart cools a feud — rooms no longer rot unattended
+        if (rel.score < 0) {
+          const prof = (a.personality.professionalism + b.personality.professionalism) / 2;
+          rel.score += (-rel.score) * R.reversion * (0.5 + prof / 100);
+          if (rel.score < -14 && !shared) rel.score += R.coolOff;
+        }
 
         const st = KP.relState(rel.score);
         if (rel.state && st.key !== rel.state && rng.chance(R.observationChance)) {
@@ -68,6 +78,88 @@
       default: return A + ' and ' + B + ' were seen practicing together.';
     }
   }
+
+  // Frictions among a set of people — structured, for UI buttons.
+  KP.frictionPairs = function (state, personIds) {
+    const out = [];
+    const rels = state.relationships || {};
+    for (let i = 0; i < personIds.length; i++) {
+      for (let j = i + 1; j < personIds.length; j++) {
+        const a = state.people[personIds[i]], b = state.people[personIds[j]];
+        if (!a || !b) continue;
+        const rel = rels[pairKey(a, b)];
+        if (rel && rel.score < -14) {
+          out.push({ a, b, score: rel.score, state: KP.relState(rel.score).key });
+        }
+      }
+    }
+    return out.sort((x, y) => x.score - y.score);
+  };
+
+  KP.mediationCooldown = function (state, aId, bId) {
+    const key = aId < bId ? aId + '~' + bId : bId + '~' + aId;
+    const last = (state.mediations || {})[key];
+    if (last == null) return 0;
+    return Math.max(0, KP.C.REL.MED.cooldownWeeks - (state.week - last));
+  };
+
+  // The sit-down. A player tool, not a button that fixes people: success
+  // odds come from who they are, and forcing it too often makes it worse.
+  KP.mediatePair = function (state, aId, bId) {
+    const M = KP.C.REL.MED;
+    const a = state.people[aId], b = state.people[bId];
+    if (!a || !b || !state.roster.includes(aId) || !state.roster.includes(bId)) {
+      return { ok: false, reason: 'Both of them need to be in the building.' };
+    }
+    const key = pairKey(a, b);
+    const rel = (state.relationships || {})[key];
+    if (!rel || rel.score >= -5) {
+      return { ok: false, reason: 'Staff see nothing there that needs a closed door.' };
+    }
+    if (KP.mediationCooldown(state, aId, bId) > 0) {
+      return { ok: false, reason: 'They sat down recently. Pushing again this soon does more harm than good.' };
+    }
+    if (state.budget < M.cost) return { ok: false, reason: 'No budget for staff time this week.' };
+    state.budget -= M.cost;
+    state.mediations = state.mediations || {};
+    state.mediations[key] = state.week;
+
+    const rng = KP.rngFor(state);
+    const prof = (a.personality.professionalism + b.personality.professionalism) / 2;
+    const warmth = (a.personality.warmth + b.personality.warmth) / 2;
+    const bothDominant = a.personality.dominance > 65 && b.personality.dominance > 65;
+    const chance = KP.clamp(
+      M.baseChance + (prof - 50) / 220 + (warmth - 50) / 260 - (bothDominant ? 0.18 : 0),
+      0.15, 0.9);
+    const roll = rng.next();
+    const A = a.name.given, B = b.name.given;
+    let outcome, text;
+    if (roll < chance) {
+      rel.score = KP.clamp(rel.score + 10 + rng.next() * 14, -100, 100);
+      a.morale = KP.clamp(a.morale + 2, 0, 100);
+      b.morale = KP.clamp(b.morale + 2, 0, 100);
+      outcome = 'cleared';
+      text = rng.pick([
+        A + ' and ' + B + ' talked for two hours. Nobody cried, one of them laughed, and the room feels lighter already.',
+        'It went better than staff expected. ' + A + ' said what she had been sitting on for weeks; ' + B + ' actually heard it.',
+        'They walked in separately and left together to get food. Take the win.',
+      ]);
+    } else if (bothDominant && roll > 0.93) {
+      rel.score = KP.clamp(rel.score - 6, -100, 100);
+      outcome = 'backfired';
+      text = 'Two strong personalities, one small room. Voices were raised. This one is worse before it is better.';
+    } else {
+      rel.score = KP.clamp(rel.score + 2, -100, 100);
+      outcome = 'cool';
+      text = rng.pick([
+        A + ' and ' + B + ' were polite, brief, and unresolved. The door is at least open now.',
+        'They said the professional things. Staff believe it bought calm, not peace.',
+      ]);
+    }
+    rel.state = KP.relState(rel.score).key;
+    state.rngState = rng.state();
+    return { ok: true, outcome, text };
+  };
 
   // Group chemistry (hidden 0-100) from pair scores + personality mix.
   KP.groupChemistry = function (state, members) {
@@ -94,6 +186,8 @@
   };
 
   // Player-facing chemistry observations (words, not a meter).
+  // Frictions are NOT listed here — they render separately with sit-down
+  // actions (KP.frictionPairs), so a problem is always next to its handle.
   KP.chemistryNotes = function (state, members) {
     const notes = [];
     const chem = KP.groupChemistry(state, members);
@@ -103,7 +197,6 @@
         if (!rel) continue;
         const st = KP.relState(rel.score);
         if (st.key === 'close') notes.push(members[i].name.given + ' + ' + members[j].name.given + ': trusted partners.');
-        if (st.key === 'tense' || st.key === 'conflict') notes.push(members[i].name.given + ' + ' + members[j].name.given + ': friction the cameras would find.');
       }
     }
     const leaders = members.filter(m => m.personality.leadership > 65);

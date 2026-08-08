@@ -156,12 +156,15 @@
       }
     }
 
-    // relationships seen so far
+    // relationships seen so far — frictions come with their handle
     if (isTrainee) {
       const rels = relationshipLines(state, p);
-      if (rels.length) {
+      const frictions = KP.frictionPairs(state, state.roster)
+        .filter(f => f.a.id === p.id || f.b.id === p.id);
+      if (rels.length || frictions.length) {
         html.push('<div class="kicker">In the building</div>');
         rels.forEach(r => html.push('<div class="note">' + UI.esc(r) + '</div>'));
+        frictions.forEach(f => html.push(UI.frictionCard(state, f)));
       }
     }
 
@@ -233,9 +236,8 @@
       const rel = rels[KP.pairKey(p, other)];
       if (!rel || rel.state == null) return;
       if (rel.state === 'close') out.push('Close with ' + other.name.display + ' — they bring out the best in each other.');
-      if (rel.state === 'tense') out.push('Tension with ' + other.name.display + '. Professional, but cold.');
-      if (rel.state === 'conflict') out.push('Open conflict with ' + other.name.display + '. Needs handling.');
+      if (rel.state === 'friendly') out.push('Gets on well with ' + other.name.display + '.');
     });
-    return out.slice(0, 4);
+    return out.slice(0, 3);
   }
 })(typeof window !== 'undefined' ? window : globalThis);

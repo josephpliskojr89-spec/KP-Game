@@ -57,9 +57,10 @@
     });
     html.push('</div>');
 
-    // chemistry observations
+    // chemistry observations + frictions with their handles
     html.push('<div class="kicker">Room report</div>');
     KP.chemistryNotes(state, members).forEach(n => html.push('<div class="note">' + UI.esc(n) + '</div>'));
+    KP.frictionPairs(state, g.members).forEach(f => html.push(UI.frictionCard(state, f)));
 
     // status / next step
     if (!g.debuted) {
@@ -120,6 +121,7 @@
 
       html.push('<div class="kicker">Room preview</div>');
       KP.chemistryNotes(state, members).forEach(n => html.push('<div class="note">' + UI.esc(n) + '</div>'));
+      KP.frictionPairs(state, draft.members).forEach(f => html.push(UI.frictionCard(state, f)));
 
       html.push('<div class="kicker">Name</div>');
       html.push('<div class="pad" style="display:flex;gap:8px;flex-wrap:wrap">' +
