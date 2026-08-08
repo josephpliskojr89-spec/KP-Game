@@ -92,6 +92,26 @@ const t = makeT('suite_015_generators');
   const counts = Object.entries(perBandLines).map(([k, v]) => v.size);
   const richCells = counts.filter(c => c >= 6).length;
   t.ok(richCells >= 10, 'most (domain, band) cells show 6+ distinct blurbs in 12 worlds (' + richCells + '/' + counts.length + ')');
+
+  // every (domain, band) cell exists and composes — all 25, including the
+  // Capable bridge (v0.4.1). Talents pinned to band midpoints; max
+  // observations keep the fog inside the band.
+  {
+    const st = KP.newGame('gen-cells');
+    const p = st.people[st.roster[0]];
+    p.observations = KP.C.SCOUT.maxObservations;
+    const mids = { raw: 10, developing: 30, capable: 50, strong: 70, exceptional: 95 };
+    Object.entries(mids).forEach(([band, mid]) => {
+      KP.C.TALENTS.forEach(d => { p.talents[d].cur = mid; });
+      const evl = KP.evaluate(st, p);
+      evl.domains.forEach(d => {
+        t.eq(d.band, band, d.domain + ' at ' + mid + ' reads in the ' + band + ' band');
+        t.ok(typeof d.line === 'string' && d.line.length > 10, d.domain + '/' + band + ' composes a real blurb');
+      });
+      t.ok(typeof evl.recommendation === 'string' && evl.recommendation.length > 5,
+        'a recommendation exists for the ' + band + ' band');
+    });
+  }
   // determinism: same person, same blurbs, forever
   const st = KP.newGame('gen-blurb-det');
   const p = st.people[st.roster[0]];

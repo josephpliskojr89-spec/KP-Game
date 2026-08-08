@@ -156,6 +156,18 @@
     });
   } });
 
+  // v0.4.1 — the five-band ladder. No data changes (bands are read, not
+  // stored — Law 2), but dossier language shifts mid-save, so the
+  // evaluation department says so.
+  MIGRATIONS.push({ v: '0.4.1', fn: function (state) {
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The evaluation department has recalibrated its rubric: five grades now, with “Capable” between Developing and Strong. Coach Baek: “Half the roster was neither learning nor excelling and the old forms had no word for it. Now we have the word.” Existing reads have been restated — nobody got better or worse overnight, only described more honestly.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

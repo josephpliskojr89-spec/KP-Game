@@ -157,6 +157,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .band { font-weight: 800; letter-spacing: .08em; text-transform: uppercase; font-size: .62rem; }
 .band.raw { color: var(--ink-faint); }
 .band.developing { color: var(--cyan); }
+.band.capable { color: var(--ink); }
 .band.strong { color: var(--violet); }
 .band.exceptional { color: var(--gold); text-shadow: 0 0 12px color-mix(in srgb, var(--gold) 50%, transparent); }
 

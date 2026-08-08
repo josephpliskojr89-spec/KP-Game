@@ -116,7 +116,7 @@
     const n = Math.min(p.observations || 0, KP.C.SCOUT.maxObservations);
     return n === 0 ? 'one report' : n >= KP.C.SCOUT.maxObservations ? 'fully scouted' : n + 1 + ' looks';
   }
-  function bandRank(b) { return ['raw', 'developing', 'strong', 'exceptional'].indexOf(b); }
+  function bandRank(b) { return KP.C.BANDS.findIndex(x => x.key === b); }
 
   // ---- dossier ---------------------------------------------------------
   UI.renderDossier = function (state, id) {

@@ -73,4 +73,21 @@ t.ok(JSON.stringify(a) !== JSON.stringify(c), 'different seeds diverge');
 const sample = Object.values(a.people)[0];
 t.ok(sample.overall === undefined && sample.ovr === undefined, 'no Overall rating exists');
 
+// the five-band ladder (v0.4.1, owner's ranges): clean 20-point bands,
+// Capable bridging developing → strong. Boundaries asserted exactly.
+{
+  t.eq(KP.C.BANDS.length, 5, 'five bands on the ladder');
+  const expect = [
+    [1, 'raw'], [20, 'raw'],
+    [21, 'developing'], [40, 'developing'],
+    [41, 'capable'], [60, 'capable'],
+    [61, 'strong'], [80, 'strong'],
+    [81, 'exceptional'], [100, 'exceptional'],
+  ];
+  expect.forEach(([v, key]) => {
+    t.eq(KP.band(v).key, key, 'value ' + v + ' reads as ' + key);
+  });
+  t.eq(KP.band(41).label, 'Capable', 'the bridge band carries its name');
+}
+
 t.finish();

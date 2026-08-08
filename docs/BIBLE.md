@@ -15,8 +15,9 @@ Process reference: `docs/DEVELOPMENT_ENGINE.md`.
 One-sentence laws. Enforced by tests, cited by name, never reverted casually.
 
 1. **No visible Overall rating.** Talent is communicated through evaluator
-   blurbs and, at most, four qualitative bands (Raw / Developing / Strong /
-   Exceptional). The internal 0–100 scale never reaches the player's eyes.
+   blurbs and, at most, five qualitative bands (Raw / Developing / Capable /
+   Strong / Exceptional — clean 20-point ranges, owner's ladder as of
+   v0.4.1). The internal 0–100 scale never reaches the player's eyes.
 2. **Reads are knowledge, not slot pulls.** Every perceived value is
    deterministic per (evaluator, person, domain, observation count).
    Reopening a screen never re-rolls an opinion.
@@ -131,6 +132,19 @@ Blurbs are picked deterministically from per-domain, per-band line tables in
 `js/engine/blurbs.js`. The overall recommendation keys off the two best
 perceived domains — never an average of five. Rare **instinct notes** fire
 when hidden charisma upside exceeds the scout's perceived read by >22.
+
+**The band ladder (v0.4.1, owner's ranges):** Raw 1–20, Developing 21–40,
+**Capable 41–60**, Strong 61–80, Exceptional 81–100. The owner's reasoning
+verbatim: *"developing implies they're still learning and then it's a big
+jump to being strong. capable bridges that gap."* Each of the 25
+domain×band blurb cells exists and composes (asserted in suite 015);
+boundaries are asserted exactly in suite 001. The voice split that
+matters: Developing = still learning ("the coaching is landing — give it
+time"), Capable = does the job, unremarkably ("dependable mid-formation;
+nobody watches her, nobody worries about her"). Note Exceptional now
+starts at 81 (was 72) and Raw ends at 20 (was 34) — the top grade got
+rarer and the bottom one kinder, both consequences of the owner's clean
+ranges, not separate tuning decisions.
 
 ## §6 Scouting economy
 
@@ -967,4 +981,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 29/40, feeds full 40/40), e2e 60 (Scene/Chart/Feed walkthrough,
 > fans naming the player's group), lockstep 0.4.0 (25 modules).
 > Rode to main.
+
+> **v0.4.1 — the five-band ladder** (owner: *"the rating system needs
+> one more on between developing and strong. I'd call it capable…
+> each would just occupy a 20 point range"*)
+> BANDS is now Raw 1–20 / Developing 21–40 / Capable 41–60 / Strong
+> 61–80 / Exceptional 81–100, exactly as specified (Law 1 amended).
+> Blurb content rebalanced to match the words: lines that always read
+> as does-the-job ("Capable when needed…", "Keeps up with the back
+> line…", "Photographs fine…") moved from the old too-wide Developing
+> cells into new Capable cells; fresh still-learning lines wrote
+> Developing back up; charisma got an original Capable voice
+> ("memorable is the next step"); RECOMMEND gained a Capable register
+> ("dependable is underrated — sign her for the room"). bandRank now
+> derives from the table instead of a hardcoded list. Side effects
+> owned in the Bible §5 note: Exceptional starts at 81 (rarer),
+> Raw ends at 20 (kinder). No data migration (bands are read, never
+> stored — Law 2), but the rubric change is narrated to existing saves
+> by Coach Baek ("the old forms had no word for it. Now we have the
+> word."). Suite 001 asserts every boundary exactly; suite 015 asserts
+> all 25 domain×band cells compose. Numbers: battery 20/20, soak
+> clean (24 bands), e2e 60, lockstep 0.4.1. Rode to main.
 

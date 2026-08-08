@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.4.0',
+    VERSION: '0.4.1',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -22,12 +22,15 @@
       vocals: 'Vocals', rap: 'Rap', dance: 'Dance',
       visuals: 'Visuals', charisma: 'Charisma',
     },
-    // Player-facing qualitative bands (usability rail, blurbs carry the load)
+    // Player-facing qualitative bands (usability rail, blurbs carry the load).
+    // v0.4.1, owner's ladder: clean 20-point ranges, with Capable bridging
+    // the jump from still-learning to genuinely strong.
     BANDS: [
-      { max: 35, key: 'raw',         label: 'Raw' },
-      { max: 55, key: 'developing',  label: 'Developing' },
-      { max: 72, key: 'strong',      label: 'Strong' },
-      { max: 101, key: 'exceptional', label: 'Exceptional' },
+      { max: 21, key: 'raw',         label: 'Raw' },          //  1–20
+      { max: 41, key: 'developing',  label: 'Developing' },   // 21–40
+      { max: 61, key: 'capable',     label: 'Capable' },      // 41–60
+      { max: 81, key: 'strong',      label: 'Strong' },       // 61–80
+      { max: 101, key: 'exceptional', label: 'Exceptional' }, // 81–100
     ],
 
     // ---- Generation -----------------------------------------------------

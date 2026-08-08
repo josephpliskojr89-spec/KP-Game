@@ -166,7 +166,7 @@ function debuted(seed) {
   t.ok(migrated.feed.length >= 3, 'the feed switched on');
   t.ok(migrated.rivals.every(r => r.prestige != null && r.acts.length >= 1 && r.nextDebutWeek != null),
     'existing rivals gained prestige, acts and a calendar');
-  t.ok(migrated.inbox[0] && /industry desk has expanded/.test(migrated.inbox[0].text),
+  t.ok(migrated.inbox.some(m => /industry desk has expanded/.test(m.text)),
     'the expansion is narrated in the fiction');
   // and the migrated world continues deterministically
   const m2 = KP.deserialize(json);
