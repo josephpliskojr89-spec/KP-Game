@@ -39,8 +39,8 @@ function throughDebut(seed) {
 // a full comeback cycle: plan, resolve, compound
 {
   const state = throughDebut('cb-cycle');
-  // ride out promotion, then plan the comeback
-  for (let w = 0; w < 6; w++) KP.advanceWeek(state);
+  // ride out promotion AND the contractual rest window (v0.4.2)
+  while (state.week <= (state.groups[0].promoUntil || 0) + KP.C.COMEBACK.restWeeks) KP.advanceWeek(state);
   const rng = KP.rngFor(state);
   state.demos = KP.generateDemos(state, rng);
   state.rngState = rng.state();

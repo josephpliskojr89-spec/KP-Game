@@ -20,6 +20,16 @@
     const g = targetGroup(state, plan);
     if (!g) return { ok: false, reason: 'No group to debut. With several groups, say which one.' };
     if (g.prep) return { ok: false, reason: 'A release is already locked.' };
+    // v0.4.2 — the calendar closes after a release: promotion, then
+    // contractual rest. No new lock until it reopens.
+    if (g.debuted) {
+      const opens = (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks;
+      if (state.week <= opens) {
+        return { ok: false, reason: state.week <= (g.promoUntil || 0)
+          ? 'They are mid-promotion. Rest follows the last stage — the calendar reopens ' + KP.weekLabel(opens + 1).text + '.'
+          : 'The members are on scheduled rest. The calendar reopens ' + KP.weekLabel(opens + 1).text + '. Let them sleep.' };
+      }
+    }
     const demo = (g.demos || state.demos || []).find(s => s.id === plan.songId);
     if (!demo) return { ok: false, reason: 'Choose a title track.' };
     const format = D.FORMATS.find(f => f.id === (plan.format || 'single')) || D.FORMATS[0];
@@ -48,16 +58,29 @@
       scheduledWeek: plan.week,
       progress: 0,
     };
+    // locking over a worn roster is allowed — and the staff say so (v0.4.2)
+    const members = g.members.map(id => state.people[id]);
+    const fatigueAvg = members.reduce((s, m) => s + m.fatigue, 0) / members.length;
+    if (fatigueAvg >= KP.C.COMEBACK.OVERWORK.lockWarnAt) {
+      return { ok: true, warning: 'The staff flag the schedule: the members are still worn from the last cycle. This one will cost them more than it should.' };
+    }
     return { ok: true };
   };
 
   // Weekly release-prep for one group: rehearsal replaces training.
+  // Benched members (overwork, v0.4.2) sit rehearsal out and recover.
   KP.prepWeek = function (state, rng, g) {
     if (!g || !g.prep) return [];
     const notes = [];
+    const OW = KP.C.COMEBACK.OVERWORK;
     const members = g.members.map(id => state.people[id]);
     const a = g.prep.alloc;
     members.forEach(m => {
+      if (m.flags.burnout > 0) {
+        m.flags.burnout--;
+        m.fatigue = KP.clamp(m.fatigue - OW.benchRecovery, 0, 100);
+        return;
+      }
       // rehearsal trains toward allocation, at a discount vs targeted training
       [['vocals', a.vocals], ['dance', a.dance], ['rap', a.rap]].forEach(([d, share]) => {
         const t = m.talents[d];
@@ -67,12 +90,27 @@
       });
       m.mediaExp += a.media / 100 * 2.5;
       m.liveExp += 1.2;                     // stage rehearsals are live reps
-      m.fatigue = KP.clamp(m.fatigue + 9, 0, 100);
+      m.fatigue = KP.clamp(m.fatigue + KP.C.DEBUT.prepFatigue, 0, 100);
+      // pushing a gassed member through rehearsal is a gamble (v0.4.2)
+      if (m.fatigue >= OW.threshold && rng.chance(OW.chance)) {
+        notes.push(KP.overworkIncident(state, m, 'rehearsal', rng));
+      }
     });
     g.prep.progress++;
     const weeksLeft = g.prep.scheduledWeek - state.week;
     if (weeksLeft === 2) notes.push({ kind: 'debut', text: g.name + ': two weeks out. Teasers are cut, the stage is booked, and everyone is sleeping badly.' });
     return notes;
+  };
+
+  // The incident: medical staff pull her from the schedule. Shared by
+  // rehearsal (here) and promotion (sim.js).
+  KP.overworkIncident = function (state, m, where, rng) {
+    const OW = KP.C.COMEBACK.OVERWORK;
+    m.flags.burnout = rng.int(OW.weeksMin, OW.weeksMax);
+    m.morale = KP.clamp(m.morale - OW.moraleHit, 0, 100);
+    m.history.push({ week: state.week, text: 'Pulled from the schedule by medical staff — exhaustion.' });
+    return { kind: 'health', urgent: true,
+      text: KP.displayName(m) + ' was pulled from ' + where + ' by medical staff this week. The official word is “scheduled rest.” The honest word is exhaustion, and everyone in the building knows whose calendar caused it.' };
   };
 
   // The next group whose locked release is due OR overdue, if any.
@@ -97,8 +135,11 @@
     const liveRel = members.reduce((s, m) => s + KP.derived(m).liveReliability, 0) / members.length;
     const fatigueAvg = members.reduce((s, m) => s + m.fatigue, 0) / members.length;
     const prepBonus = Math.min(10, (g.prep.progress || 0) * 1.1);
+    // members benched by medical staff (v0.4.2) cost the stage directly
+    const benched = members.filter(m => m.flags.burnout > 0);
     const performance = KP.clamp(
-      skillVsDemand * 52 + liveRel * 0.28 + prepBonus - Math.max(0, fatigueAvg - 60) * 0.3, 5, 100);
+      skillVsDemand * 52 + liveRel * 0.28 + prepBonus - Math.max(0, fatigueAvg - 60) * 0.3
+      - benched.length * KP.C.COMEBACK.OVERWORK.perfPenalty, 5, 100);
 
     // --- group concept fit + chemistry
     const fits = members.map(m => KP.conceptFit(m, concept));
@@ -213,8 +254,9 @@
       trustDelta, revenue,
       chartPeak: peak, chartWeeks: weeksOn,
       crowd: Math.round(crowd),
+      benched: benched.map(m => m.id),
       execLine: execDebutLine(band.key, centerOvershadowed, state),
-      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut, crowd),
+      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut, crowd, benched, fatigueAvg),
     };
     g.releases = g.releases || [];
     g.releases.push({
@@ -244,11 +286,13 @@
     }
   }
 
-  function publicNotes(state, bandKey, breakout, overshadowed, demo, rng, sparked, isDebut, crowd) {
+  function publicNotes(state, bandKey, breakout, overshadowed, demo, rng, sparked, isDebut, crowd, benched, fatigueAvg) {
     const notes = [];
     const bn = KP.displayName(breakout);
     if (sparked) notes.push('A fancam of ' + bn + ' is circulating far beyond the usual audience. The clip is doing the promotion’s job for free.');
     if ((crowd || 0) >= 5) notes.push('The release landed in a crowded week — half the industry picked the same Monday. Louder rooms have drowned better songs.');
+    (benched || []).forEach(m => notes.push(KP.displayName(m) + ' sat out part of the schedule on medical advice. The formations papered over the gap; the fans counted heads anyway.'));
+    if ((fatigueAvg || 0) >= 75 && !(benched || []).length) notes.push('The stages looked tired by the second week — clean, professional, and running on will. The cameras noticed.');
     if (bandKey === 'sensation') notes.push('One performance clip is everywhere. Marketing would like to know what we’re doing next while everyone is still paying attention.');
     if (bandKey === 'strong') notes.push('“' + demo.title + '” is holding on the charts past week one — the good sign.');
     if (bandKey === 'solid') notes.push(isDebut ? 'Reviews are kind; numbers are cautious. The second single will decide the story.' : 'Reviews are kind; numbers are steady. The fanbase showed up — growth is the open question.');

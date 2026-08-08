@@ -371,7 +371,14 @@
           promo: d.promo, week: d.week, alloc: d.alloc, format: d.format, focus: d.focus });
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
-        UI.toast('Locked. ' + KP.weekLabel(d.week).text + '. No going back.');
+        if (r.warning) {
+          UI.modal('Locked — with a note from staff',
+            '<div class="note urgent" style="margin-top:4px">' + UI.esc(r.warning) +
+            '<span class="n-who">— management, quietly</span></div>',
+            '<button class="btn primary" data-action="close-modal" style="flex:1">Understood</button>');
+        } else {
+          UI.toast('Locked. ' + KP.weekLabel(d.week).text + '. No going back.');
+        }
         App.render();
         break;
       }

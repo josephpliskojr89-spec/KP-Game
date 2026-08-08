@@ -285,21 +285,44 @@
     return (best && best.room > 0.5) ? best : null;
   };
 
-  // Idol weeks: promotion runs hot — where the heat goes is the rollout
-  // focus the player chose — then the schedule breathes, and the pro
-  // quietly drills what everyone knows she needs (v0.2.4).
+  // Idol weeks (v0.4.2): promotion runs hot — where the heat goes is the
+  // rollout focus the player chose — then the calendar CLOSES for
+  // contractual rest that actually restores, and only then does the pro
+  // quietly drill what everyone knows she needs (v0.2.4). A member the
+  // medical staff benched does none of it; she sleeps.
   function idolWeek(state, p, rng) {
     const CB = KP.C.COMEBACK;
     const g = KP.groupOf(state, p.id);
+    if (p.flags.burnout > 0) {
+      p.flags.burnout--;
+      p.fatigue = KP.clamp(p.fatigue - CB.OVERWORK.benchRecovery, 0, 100);
+      p.morale = KP.clamp(p.morale + 1, 0, 100);
+      return null;
+    }
     const promoting = g && g.debuted && state.week <= (g.promoUntil || 0);
     if (promoting) {
       const f = CB.FOCUS[g.promoFocus] || CB.FOCUS.musicShows;
       const soloMult = g.type === 'solo' ? KP.C.SOLO.promoFatigueMult : 1;
-      p.fatigue = KP.clamp(p.fatigue + f.fatigue * soloMult, 0, 100);
+      // above the soft cap the managers rotate her stages: load halves,
+      // the overwork gamble below does not (v0.4.2)
+      const softened = p.fatigue >= CB.promoSoftCap ? CB.promoSoftMult : 1;
+      p.fatigue = KP.clamp(p.fatigue + f.fatigue * soloMult * softened, 0, 100);
       p.mediaExp += f.mediaExp;
       p.liveExp += f.liveExp;
       if (f.morale) p.morale = KP.clamp(p.morale + f.morale, 0, 100);
       if (f.pop) g.popularity = KP.clamp((g.popularity || 0) + f.pop, 0, 100);
+      // promoting on empty is legal, and a gamble (v0.4.2)
+      if (p.fatigue >= CB.OVERWORK.threshold && rng.chance(CB.OVERWORK.chance)) {
+        return KP.overworkIncident(state, p, 'promotion', rng);
+      }
+      return null;
+    }
+    const resting = g && g.debuted &&
+      state.week <= (g.promoUntil || 0) + CB.restWeeks;
+    if (resting) {
+      // the contractual rest window: no schedules, real recovery
+      p.fatigue = KP.clamp(p.fatigue - CB.restRecovery, 0, 100);
+      p.morale = KP.clamp(p.morale + 2, 0, 100);
       return null;
     }
     p.fatigue = KP.clamp(p.fatigue - CB.idolRecovery, 0, 100);

@@ -669,6 +669,49 @@ with history, chart residue and a debut calendar — the scene chart and
 feed open mid-conversation. Migration 0.4.0 runs the same seeding on
 existing saves and announces itself as the industry desk expanding.
 
+## §20 The fatigue economy (v0.4.2)
+
+> Owner: *"the idols in groups are perpetually running on fumes. is that
+> by design?"* It was not — it was a leak. The v0.2.0 design said
+> "promotion runs hot, then the schedule breathes," and a migration
+> letter even promised rest days, but nothing in the rules ever CREATED
+> idle weeks: the studio hands out fresh demos on release day, so a
+> prompt player ran prep→release→lock forever. Probe measurement: 100%
+> of post-debut weeks pinned at fatigue 100. Owner chose the remedy:
+> *"I like both"* — contractual rest AND exhaustion with teeth.
+
+**The rail — the calendar closes.** After a release: `promoWeeks` (4) of
+promotion, then `restWeeks` (3) of contractual rest. `planDebut` refuses
+a new lock until the calendar reopens, with promo-phase and rest-phase
+reasons; the Studio shows a closed-calendar hero ("Let them sleep.")
+instead of the planning board. During the rest window recovery runs at
+`restRecovery` (15/wk, vs 8 idle) and morale climbs. The harness
+auto-player waits out the window AND waits for avg fatigue < 45 —
+modeling a player who reads the warnings.
+
+**The teeth — pushing is legal, and a gamble.**
+- Rehearsal load is `DEBUT.prepFatigue` 6/wk (was a hardcoded 9); promo
+  focus loads dropped 9/6/5 → 7/5/4. Above `promoSoftCap` 70 the
+  managers rotate her stages: promo load halves. The risk does not.
+- Locking over a roster averaging ≥ `lockWarnAt` 65 succeeds and returns
+  a staff warning the UI shows as a modal ("this one will cost them").
+- Any member at fatigue ≥ 88 during rehearsal or promotion risks an
+  **overwork incident** (4.5%/member/wk): medical staff bench her for
+  2–4 weeks (urgent inbox letter, morale −8, her file remembers). While
+  benched she does nothing but recover (12/wk) — no rehearsal gains, no
+  promo work.
+- A member still benched on release day costs the stage `perfPenalty` 4
+  each, and the public counts heads in the report. A gassed-but-standing
+  roster (avg ≥ 75) gets its own public note: the cameras noticed.
+
+**Measured shape** (max legal pace, no voluntary breathers): sawtooth
+between ~30 and ~90 with real recovery valleys every cycle, peaks
+creeping upward across back-to-back sprints — sprint debt is real, and
+the breather that clears it is the player's decision, prompted by the
+staff, never forced beyond the 3-week floor. Census: idol weeks average
+off the fumes in 40/40 worlds (rolling half-year); medical benchings
+occur in most max-pace runs by design.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -690,6 +733,12 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 - **Feed tone** — the negative content law is tested, but *funny* cannot
   be asserted. Watch the owner's screenshots; stale or repetitive posts
   mean the template pools need widening (they are data, cheap to grow).
+- **Overwork benchings at 40/40 max-pace runs** (v0.4.2) — the harness
+  never volunteers extra idle weeks, so every soak org eventually eats a
+  benching. Band-legal and arguably the point of the hard version, but
+  if the owner reports the medical letters feel constant in human play
+  (humans breathe more than the bot), lower `OVERWORK.chance` or raise
+  the threshold before touching the rest window.
 - **Sit-down treadmill** (v0.1.2): the soak auto-player, mediating every
   friction eagerly, runs ~16 sit-downs per org over 84 weeks. Band-legal
   and partly a policy artifact, but if human play feels like relationship
@@ -1002,4 +1051,26 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > word."). Suite 001 asserts every boundary exactly; suite 015 asserts
 > all 25 domain×band cells compose. Numbers: battery 20/20, soak
 > clean (24 bands), e2e 60, lockstep 0.4.1. Rode to main.
+
+> **v0.4.2 — the schedule breathes** (owner: *"the idols in groups are
+> perpetually running on fumes. is that by design?"* Diagnosis: a leak —
+> nothing ever created idle weeks, probe showed 100% of post-debut
+> weeks pinned at fatigue 100. Owner: *"I like both"* — rest AND teeth.)
+> Full spec in §20. The calendar closes after every release: 4 promo
+> weeks then 3 contractual rest weeks at double recovery; planDebut
+> refuses early locks, the Studio shows "Let them sleep." Loads
+> rebalanced (prep 9→6, promo 9/6/5→7/5/4, soft cap above 70 as
+> managers rotate stages). The teeth: locking over a worn roster draws
+> a staff warning modal; members pushed at 88+ risk medical benching
+> (2–4 weeks, urgent letter, no gains); still-benched members cost the
+> stage at release and the public counts heads. Harness auto-player
+> learned to breathe (waits for avg <45); census judges the rolling
+> rhythm, not end-phase snapshots. Migration finally honors the v0.2.0
+> promise: pinned rosters sent home to sleep, audit narrated. Probe:
+> pinned-at-100 forever → sawtooth 30–90 with recovery valleys every
+> cycle. Three fixtures that planned inside the now-closed calendar
+> (suites 008, 009, e2e) updated to ride out the window — the rail
+> works everywhere, including on our own tests. Numbers: battery 21/21
+> (suite 021), soak clean (26 bands, idols off the fumes 40/40), e2e
+> 62, lockstep 0.4.2. Rode to main.
 

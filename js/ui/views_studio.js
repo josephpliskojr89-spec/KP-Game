@@ -43,6 +43,30 @@
         '<div style="color:var(--ink-dim);font-size:.84rem;margin-top:12px;line-height:1.5">Rehearsal split — vocals ' + g.prep.alloc.vocals + '%, dance ' + g.prep.alloc.dance + '%, rap ' + g.prep.alloc.rap + '%, media ' + g.prep.alloc.media + '%. Advance the weeks. The date does not move.</div></div>';
     }
 
+    // --- the calendar is closed: promotion, then contractual rest (v0.4.2)
+    if (g.debuted) {
+      const opens = (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks;
+      if (state.week <= opens) {
+        const promoting = state.week <= (g.promoUntil || 0);
+        const members = g.members.map(id => state.people[id]);
+        const avgF = Math.round(members.reduce((s, m) => s + m.fatigue, 0) / members.length);
+        return switcher + '<div class="group-hero"><div class="g-status">' +
+          (promoting ? 'Mid-promotion · ' : 'Scheduled rest · ') + UI.esc(g.name) + '</div>' +
+          '<div class="g-name" style="font-size:clamp(1.7rem,8vw,2.4rem)">' +
+          (promoting ? 'The stages<br>come first.' : 'Let them<br>sleep.') + '</div>' +
+          '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">' +
+          (promoting ? '<span class="chip hot">promo through ' + UI.esc(KP.weekLabel(g.promoUntil).text) + '</span>' : '') +
+          '<span class="chip cool">calendar reopens ' + UI.esc(KP.weekLabel(opens + 1).text) + '</span>' +
+          '<span class="chip' + (avgF >= 70 ? ' hot' : '') + '">the room is ' + (avgF >= 70 ? 'running on fumes' : avgF >= 45 ? 'tired' : 'recovering well') + '</span>' +
+          '</div>' +
+          '<div style="color:var(--ink-dim);font-size:.84rem;margin-top:12px;line-height:1.5">' +
+          (promoting
+            ? 'Promotion runs hot by design. The rest window after it is contractual — the next release cannot be locked until the calendar reopens.'
+            : 'The rest is contractual and it works: recovery runs at double pace until the calendar reopens. The producers are already writing.') +
+          '</div></div>';
+      }
+    }
+
     // --- planning mode ---
     if (!g.demos) {
       const rng = KP.rngFor(state);

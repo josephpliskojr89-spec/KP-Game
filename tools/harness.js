@@ -32,12 +32,14 @@ const BANDS = {
   directiveFired:    { lo: 0.02, hi: 0.80, label: 'orgs that drew a hype directive' },
   soloDebuts:        { lo: 0.02, hi: 0.60, label: 'orgs that debuted a solo act' },
   fiscalWarned:      { lo: 0.00, hi: 0.35, label: 'orgs warned at trust-hitting level (2+)' },
+  idolsRested:       { lo: 0.50, hi: 1.00, label: 'orgs whose idol weeks average off the fumes (<70, rolling)' },
+  overworkSeen:      { lo: 0.05, hi: 1.00, label: 'orgs where medical staff benched somebody' },
   rivalActDebut:     { lo: 0.80, hi: 1.00, label: 'worlds where a rival debuted a new act' },
   chartAlive:        { lo: 0.40, hi: 1.00, label: 'worlds ending with a living chart (>=3 entries)' },
   lifecycleSeen:     { lo: 0.35, hi: 1.00, label: 'worlds where a company rose/fell/merged/split' },
   feedAlive:         { lo: 0.85, hi: 1.00, label: 'worlds with a full fan feed (>=25 posts)' },
   playerTopThree:    { lo: 0.25, hi: 1.00, label: 'orgs that reached the chart top three' },
-  crowdedRelease:    { lo: 0.10, hi: 0.90, label: 'orgs that released into a crowded week' },
+  crowdedRelease:    { lo: 0.10, hi: 1.00, label: 'orgs that released into a crowded week' },
 };
 
 const tally = {
@@ -47,6 +49,7 @@ const tally = {
   multiRelease: 0, chartTopTen: 0, popAlive: 0, secondGroup: 0, fiscalNoticed: 0, fiscalWarned: 0,
   hypeSeen: 0, directiveFired: 0, soloDebuts: 0,
   rivalActDebut: 0, chartAlive: 0, lifecycleSeen: 0, feedAlive: 0, playerTopThree: 0, crowdedRelease: 0,
+  idolsRested: 0, overworkSeen: 0,
 };
 let totalGroups = 0;
 let mediationsRun = 0;
@@ -71,6 +74,7 @@ for (let s = 0; s < SEEDS; s++) {
   let pressureWarned = false;
   let hypeSeen = false, directiveSeen = false, soloProposed = false;
   let playerTop3 = false;
+  const fatigueTrace = [];   // weekly avg fatigue of debuted idols (v0.4.2)
 
   for (let w = 0; w < 140; w++) {
     // --- auto-player policy (perceived reads only) ---
@@ -134,7 +138,14 @@ for (let s = 0; s < SEEDS; s++) {
     // comebacks ride the same studio path
     state.groups.forEach(g => {
       if (g.prep) return;
-      if (g.debuted && state.week <= (g.promoUntil || 0) + 2) return;
+      // the calendar rail (v0.4.2): promo, then contractual rest — and a
+      // player who reads the staff warnings waits for the roster to
+      // actually recover before locking the next cycle
+      if (g.debuted && state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) return;
+      if (g.debuted) {
+        const avgF = g.members.reduce((s, id) => s + state.people[id].fatigue, 0) / g.members.length;
+        if (avgF >= 45) return;
+      }
       const promoAffordable = (!g.debuted || state.budget > 60) ? 'standard' : 'modest';
       const fmtCost = KP.C.DEBUT.FORMATS[0].cost;
       if (state.budget <= KP.C.DEBUT.promoCost[promoAffordable] + fmtCost) return;
@@ -145,7 +156,7 @@ for (let s = 0; s < SEEDS; s++) {
       }
       const demo = g.demos.slice().sort((a, b) => b.hook - a.hook)[0];
       const targetWeek = g.debuted
-        ? state.week + 8
+        ? state.week + 5   // comebacks ride short runways — long preps grind people (v0.4.2)
         : (state.objective.type === 'debutGirlGroup' && state.objective.status === 'open'
           ? Math.min(state.week + 8, state.objective.deadlineWeek) : state.week + 8);
       KP.planDebut(state, {
@@ -191,6 +202,13 @@ for (let s = 0; s < SEEDS; s++) {
     state.rivals.forEach(r => (r.acts || []).forEach(a => (a.releases || []).forEach(rel =>
       guard(rel.reception >= 1 && rel.reception <= 100, seed + ' rival reception off the scale'))));
     if (state.chart.entries.some(e => e.isPlayer && e.pos != null && e.pos <= 3)) playerTop3 = true;
+
+    const weekIdols = state.groups.filter(gg => gg.debuted)
+      .flatMap(gg => gg.members.map(id => state.people[id]))
+      .filter(p => p && p.status === 'idol');
+    if (weekIdols.length) {
+      fatigueTrace.push(weekIdols.reduce((s, p) => s + p.fatigue, 0) / weekIdols.length);
+    }
   }
 
   // --- per-seed observatory tallies ---
@@ -229,6 +247,14 @@ for (let s = 0; s < SEEDS; s++) {
   if (hypeSeen) tally.hypeSeen++;
   if (directiveSeen) tally.directiveFired++;
   if (state.groups.some(gg => gg.type === 'solo' && gg.debuted)) tally.soloDebuts++;
+  // fatigue economy census (v0.4.2): judge the whole rhythm, not the
+  // random phase the run happened to end on — rolling half-year average
+  const trace = fatigueTrace.slice(-24);
+  if (trace.length &&
+      trace.reduce((a, b) => a + b, 0) / trace.length < 70) tally.idolsRested++;
+  if (Object.values(state.people).some(p =>
+      (p.history || []).some(h => /Pulled from the schedule/.test(h.text)))) tally.overworkSeen++;
+
   // living-world census (v0.4.0)
   if (state.rivals.some(r => (r.acts || []).some(a => a.debutWeek > 1))) tally.rivalActDebut++;
   if (state.chart.entries.length >= 3) tally.chartAlive++;

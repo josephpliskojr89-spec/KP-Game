@@ -168,6 +168,28 @@
     });
   } });
 
+  // v0.4.2 — the schedule breathes. The v0.2.0 letter promised rest days;
+  // the calendar never actually scheduled them, and debuted rosters ran
+  // pinned on fumes. Contractual rest now exists — and the repair honors
+  // the old promise: exhausted idols finally sleep.
+  MIGRATIONS.push({ v: '0.4.2', fn: function (state) {
+    let repaired = false;
+    (state.groups || []).forEach(g => {
+      if (!g.debuted) return;
+      g.members.forEach(id => {
+        const p = state.people[id];
+        if (p && p.status === 'idol' && p.fatigue > 55) { p.fatigue = 50; repaired = true; }
+      });
+    });
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'health', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'A management audit found what the members already knew: the release calendar never actually contained the rest days it promised. Effective immediately, promotion cool-downs are contractual — after every cycle the schedule closes and stays closed.' +
+        (repaired ? ' The current roster was sent home for a real week off. They slept like the debt it was.' : ''),
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

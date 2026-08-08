@@ -194,6 +194,7 @@ async function main() {
   await tap('[data-action=studio-week]');
   await tap('[data-action=studio-lock]');
   await page.waitForTimeout(150);
+  await closeModalIfOpen();   // staff may flag a worn roster at lock (v0.4.2)
   ok((await page.textContent('#screen')).includes('Locked'), 'debut locked and in production');
 
   // --- ride to the debut ---
@@ -225,8 +226,15 @@ async function main() {
   ok(!/signings left/.test(deskObjective), 'the signing-allowance chip retired with the cap (v0.2.3)');
   ok(/open signing|watching spend/.test(deskObjective), 'the desk shows the open-agency state instead');
 
-  // --- ride out promotion, then plan and resolve a comeback ---
+  // --- the calendar closes after a release (v0.4.2): promo, then rest ---
   for (let i = 0; i < 5; i++) await advanceWeek();
+  await tap('[data-nav=studio]');
+  const closed = await page.textContent('#screen');
+  ok(/calendar reopens/.test(closed), 'the studio shows the closed calendar after promo');
+  ok(/Let them|stages/.test(closed), 'the rest window is narrated, not just disabled');
+
+  // --- rest ends; plan and resolve a comeback ---
+  for (let i = 0; i < 3; i++) await advanceWeek();
   await tap('[data-nav=studio]');
   await page.waitForSelector('.demo-card');
   ok((await page.textContent('#screen')).includes('Comeback planning'), 'the studio reopened with fresh demos');
@@ -235,6 +243,11 @@ async function main() {
   await tap('[data-action=studio-week]');
   await tap('[data-action=studio-lock]');
   await page.waitForTimeout(150);
+  // a worn roster draws a staff note at lock time (v0.4.2) — acknowledge it
+  if (await page.$('.modal-sheet')) {
+    ok((await page.textContent('.modal-sheet')).includes('worn'), 'staff flag the lock over a worn roster');
+    await tap('.modal-sheet [data-action=close-modal]');
+  }
   ok((await page.textContent('#screen')).includes('comeback'), 'the comeback is locked');
   let comebackSeen = false;
   for (let i = 0; i < 12; i++) {

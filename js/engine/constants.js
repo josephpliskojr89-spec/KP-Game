@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.4.1',
+    VERSION: '0.4.2',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -210,6 +210,7 @@
     // ---- Debut resolution ----------------------------------------------
     DEBUT: {
       prepWeeksMin: 4,
+      prepFatigue: 6,   // weekly rehearsal load (v0.4.2: was a hardcoded 9)
       // release formats (v0.2.1): bigger records cost more, need more
       // runway, and pay more when they land
       FORMATS: [
@@ -242,6 +243,21 @@
       promoWeeks: 4,               // promotion period after a release
       promoFatigue: 7,             // weekly fatigue during promotion
       idolRecovery: 8,             // weekly fatigue recovery when idle
+      // v0.4.2 — the schedule breathes (owner: idols were perpetually on
+      // fumes; "I like both" — contractual rest AND exhaustion with teeth)
+      restWeeks: 3,                // after promo the calendar CLOSES: no new lock
+      restRecovery: 15,            // scheduled rest actually restores people
+      promoSoftCap: 70,            // above this, managers rotate her stages…
+      promoSoftMult: 0.5,          // …and the promo load halves (not the risk)
+      OVERWORK: {                  // pushing a gassed roster is legal — and risky
+        threshold: 88,             // fatigue where incidents become possible
+        chance: 0.045,             // weekly, per member, during promo/prep
+        weeksMin: 2, weeksMax: 4,  // benched duration
+        benchRecovery: 12,         // recovery while benched
+        moraleHit: 8,              // hers, when she is pulled from the schedule
+        perfPenalty: 4,            // stage cost per member benched at release
+        lockWarnAt: 65,            // avg fatigue where staff warn at lock time
+      },
       popDecayPerWeek: 0.35,       // popularity cools once promo + grace end
       decayGraceWeeks: 8,
       // idol self-development (v0.2.4): between promotions, a debuted pro
@@ -259,11 +275,11 @@
       // rollout focus: what the promotion weeks are actually spent on
       FOCUS: {
         musicShows: { label: 'Music shows', desc: 'Live stages every week. The hard reps.',
-          fatigue: 9, liveExp: 2.5, mediaExp: 0.5, morale: 0, pop: 0, graceBonus: 0 },
+          fatigue: 7, liveExp: 2.5, mediaExp: 0.5, morale: 0, pop: 0, graceBonus: 0 },
         variety:    { label: 'Variety & media', desc: 'Panels, radio, content. Personalities get found here.',
-          fatigue: 6, liveExp: 0.5, mediaExp: 3.5, morale: 0, pop: 0, graceBonus: 0 },
+          fatigue: 5, liveExp: 0.5, mediaExp: 3.5, morale: 0, pop: 0, graceBonus: 0 },
         fanCare:    { label: 'Fan engagement', desc: 'Fansigns and fan content. Slow promotion, loyal fans.',
-          fatigue: 5, liveExp: 0.5, mediaExp: 1, morale: 2, pop: 0.25, graceBonus: 4 },
+          fatigue: 4, liveExp: 0.5, mediaExp: 1, morale: 2, pop: 0.25, graceBonus: 4 },
       },
     },
     CHART: {

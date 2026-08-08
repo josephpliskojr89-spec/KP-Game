@@ -25,7 +25,9 @@ function throughDebut(seed, planExtra) {
 // comeback reports use comeback language — never "debut"
 {
   const state = throughDebut('roll-label');
-  for (let w = 0; w < 6; w++) KP.advanceWeek(state);
+  // ride out promotion AND the contractual rest window (v0.4.2)
+  const g0 = state.groups[0];
+  while (state.week <= (g0.promoUntil || 0) + KP.C.COMEBACK.restWeeks) KP.advanceWeek(state);
   state.demos = KP.generateDemos(state, KP.rngFor(state));
   KP.planDebut(state, { songId: state.demos[0].id, promo: 'modest',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
