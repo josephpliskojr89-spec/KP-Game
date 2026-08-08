@@ -187,7 +187,31 @@ Industry tab and the wire.
 
 **Ship ritual:** battery → soak → e2e → lockstep → Bible note → push.
 
-## §15 Roadmap (owner-gated)
+## §15 Branch & deploy model
+
+The owner plays on mobile via **GitHub Pages, deploying from a branch**
+(owner's choice of hosting; branch-deploy chosen over an Actions workflow
+because the game is a static site with no build step — a pipeline would add
+moving parts and nothing else).
+
+- **Working branch** (`claude/new-session-…`) — where development happens;
+  every push has already passed the §14 ritual.
+- **`main` — production.** The Pages source. The deployed site is the live
+  game the owner plays; whatever save lives in that phone's localStorage is
+  the true production environment (Law 7 applies to it above all).
+  Work rides working branch → `main` only when the ritual is green.
+- A **`testing`** lane can be added later for risky builds: the owner
+  flips the Pages source branch to try them — no code changes needed.
+- The site is subpath-safe by construction (all-relative asset paths,
+  relative sw registration, `start_url: "."`), so it serves correctly from
+  `https://<user>.github.io/KP-Game/`. Keep it that way: never introduce
+  root-absolute URLs.
+- Updates reach the phone through the version lockstep: a new release
+  changes the sw cache key + busters, so the next launch refetches and the
+  old cache is deleted on activate. "Deployed" means the Pages build for
+  the commit went green — that check is part of done.
+
+## §16 Roadmap (owner-gated)
 
 Per brief §21. Phase 2: multiple groups, comeback cycles, charts,
 endorsements, staff hiring, richer rival AI. Phase 3: international
@@ -197,7 +221,7 @@ executive politics. Phase 5: generations and long-term history.
 Phase 2 system is designed. The brief's MVP success test (§20) is the
 checklist for that conversation.
 
-## §16 Planned work — the procedural mandate (v0.2.x line)
+## §17 Planned work — the procedural mandate (v0.2.x line)
 
 > Owner, after v0.1.0 shipped: *"the next step for the game will be making
 > everything procedural. every run should feel different."*
@@ -286,7 +310,7 @@ observatory prove every archetype of world stays alive and nothing floods.
    rewriting anyone's story. A League-Office-style letter is not needed;
    the changes are invisible to a mid-run save.
 
-## §17 Watch items
+## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
 
@@ -337,7 +361,7 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > every run should feel different. no need to code anything yet while I
 > test."* Audited what is static across runs (company, rivals, objective,
 > opening trainees, staff, and all shallow content pools — measured
-> numbers in §16) and specced the v0.2.x procedural line: content
+> numbers in §17) and specced the v0.2.x procedural line: content
 > generators → generated staff → generated companies → scenario hook
 > library → executive mechanics → drifting market trends → pre-history.
 > Gated on the owner's v0.1.0 feel report. No code written.
