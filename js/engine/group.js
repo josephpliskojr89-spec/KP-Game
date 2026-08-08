@@ -68,14 +68,18 @@
   // group already debuted, and members belong to at most one group.
   KP.proposeGroup = function (state, name, memberIds, roles) {
     if (KP.devGroup(state)) return { ok: false, reason: 'A group is already in development. Debut them first.' };
-    if (memberIds.length < KP.C.GROUP.minMembers || memberIds.length > KP.C.GROUP.maxMembers) {
-      return { ok: false, reason: 'A lineup runs ' + KP.C.GROUP.minMembers + '–' + KP.C.GROUP.maxMembers + ' members.' };
+    const isSolo = memberIds.length === 1;   // v0.2.6: an act of one
+    if (!isSolo && (memberIds.length < KP.C.GROUP.minMembers || memberIds.length > KP.C.GROUP.maxMembers)) {
+      return { ok: false, reason: 'A lineup runs ' + KP.C.GROUP.minMembers + '–' + KP.C.GROUP.maxMembers + ' members — or exactly one, for a solo.' };
     }
     const members = memberIds.map(id => state.people[id]);
     if (members.some(m => !m || m.status !== 'trainee')) return { ok: false, reason: 'Every member must be a signed trainee.' };
     if (memberIds.some(id => KP.groupOf(state, id))) return { ok: false, reason: 'Someone in this lineup already belongs to a group.' };
     if (KP.groups(state).some(g => g.name.toLowerCase() === String(name).toLowerCase())) {
       return { ok: false, reason: 'That name is taken in this building.' };
+    }
+    if (isSolo) {
+      roles = { leader: memberIds[0], center: memberIds[0] };
     }
     for (const role of ['leader', 'center']) {
       if (!roles[role] || !memberIds.includes(roles[role])) {
@@ -90,6 +94,7 @@
     state.nextGroupId = state.nextGroupId || 1;
     const group = {
       id: 'g' + (state.nextGroupId++),
+      type: isSolo ? 'solo' : 'group',
       name,
       members: memberIds.slice(),
       roles: Object.assign({}, roles),
@@ -129,6 +134,14 @@
   // the player has the authority — but the reaction is remembered.
   KP.execReviewLineup = function (state, members, roles) {
     const lines = [];
+    if (members.length === 1) {
+      const pull = KP.derived(members[0]).centerPull;
+      lines.push(pull >= 60
+        ? '“A solo. Bold. She had better be exactly who you think she is — there is nobody to stand next to when she isn’t.”'
+        : '“A solo debut for her? I hope you know something my reports do not.”');
+      if ((members[0].hype || 0) >= 35) lines.push('“At least the internet already did half the marketing. Do not waste that.”');
+      return lines;
+    }
     const chem = KP.groupChemistry(state, members);
     const center = state.people[roles.center];
     const centerPull = KP.derived(center).centerPull;

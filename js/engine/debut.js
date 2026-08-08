@@ -105,30 +105,39 @@
     const groupFit = fits.reduce((s, v) => s + v, 0) / fits.length;
     const chem = KP.groupChemistry(state, members);
 
-    // --- breakout: the public picks whom to watch (center gets exposure, not destiny)
+    // --- breakout: the public picks whom to watch (center gets exposure,
+    //     not destiny — and it watches whom it already knows)
+    const isSolo = members.length === 1;
     const pulls = members.map(m => {
       let pull = KP.derived(m).centerPull * 0.7 + KP.conceptFit(m, concept) * 0.3;
       if (m.id === g.roles.center) pull += D.centerBreakoutBonus;
+      pull += (m.hype || 0) * KP.C.HYPE.breakoutPullFactor;
       pull += rng.normal(0, D.breakoutNoiseSd);
       return { m, pull };
     }).sort((a, b) => b.pull - a.pull);
     const breakout = pulls[0].m;
 
     // --- public reception: material + performance + fit + promo + luck,
-    //     for comebacks the fanbase already earned — and, rarely, the
-    //     defining clip: a big hook + a magnetic performer catching fire
+    //     for comebacks the fanbase already earned, for debuts any hype
+    //     the members walk in with — and, rarely, the defining clip
     const isDebut = !g.debuted;
-    const luck = rng.normal(0, D.luckSd);
+    const luck = rng.normal(0, D.luckSd * (isSolo ? KP.C.SOLO.luckMult : 1));
     const popLift = isDebut ? 0 : ((g.popularity || 0) - 50) * KP.C.COMEBACK.popFactor;
+    const hypeSum = members.reduce((s, m) => s + (m.hype || 0), 0);
+    const hypeLift = isSolo
+      ? Math.min(KP.C.HYPE.soloReceptionMax, hypeSum * KP.C.HYPE.soloReceptionFactor)
+      : Math.min(KP.C.HYPE.cashReceptionMax, hypeSum * KP.C.HYPE.cashReceptionFactor);
+    const soloEdge = isSolo ? (members[0].talents.charisma.cur - 50) * KP.C.SOLO.charismaFactor : 0;
     let spark = 0;
     if (demo.hook >= D.spark.hookMin && pulls[0].pull >= D.spark.pullMin && rng.chance(D.spark.chance)) {
       spark = D.spark.boostMin + rng.next() * (D.spark.boostMax - D.spark.boostMin);
     }
     const reception = KP.clamp(Math.round(
       demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
-      groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] + popLift + spark + luck), 1, 100);
+      groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
+      popLift + hypeLift + soloEdge + spark + luck), 1, 100);
     const band = D.receptionBands.find(b => reception >= b.min);
-    const centerOvershadowed = breakout.id !== g.roles.center &&
+    const centerOvershadowed = !isSolo && breakout.id !== g.roles.center &&
       pulls.find(x => x.m.id === g.roles.center).pull < pulls[0].pull - 8;
 
     // --- consequences
@@ -170,10 +179,13 @@
     const revenue = Math.round((Math.max(0, reception - 30) * 1.6 + (isDebut ? 0 : (g.popularity || 0) * 0.4)) * format.revenueMult);
     state.budget += revenue;
 
-    // popularity: the debut founds the fanbase; comebacks compound or cool it
+    // popularity: the debut founds the fanbase (hype converts into it);
+    // comebacks compound or cool it
     g.popularity = isDebut
-      ? KP.clamp(Math.round(15 + reception * 0.75), 0, 100)
+      ? KP.clamp(Math.round(15 + reception * 0.75 + hypeSum * KP.C.HYPE.cashPopFactor), 0, 100)
       : KP.clamp(Math.round(g.popularity * 0.55 + reception * 0.55), 0, 100);
+    // hype is spent — it became the act
+    members.forEach(m => { m.hype = 0; });
 
     // charts-lite: peak position + weeks charting
     const peak = KP.clamp(Math.round(104 - (reception * 0.92 + g.popularity * 0.22) + rng.normal(0, KP.C.CHART.noiseSd)), 1, 100);

@@ -361,31 +361,38 @@ moving parts and nothing else).
 *(The v0.2.3 queue — stage names in all reports, cap lift + fiscal
 pressure — shipped; see §6, §10b and the ledger.)*
 
-**Queued: v0.2.5 — pre-debut hype & solo acts** (owner: *"simulate pre
-debut hype… a trainee is well known through socials and the CEO starts
-pressuring you to debut them. now you have to decide how to make it
-work"* + solo acts, engine-endorsed as the third answer to the hype
-dilemma). Direction approved in principle; details to confirm on build:
+*(The hype & solo queue shipped as v0.2.6 — hard-directive version, per
+the owner. See §10c and the ledger.)*
 
-1. **Hype** — hidden per-person state, worded (unknown / noticed /
-   buzzing / "the internet has decided"). Accrues from emergent events
-   weighted by centerPull/visuals (trending cover, resurfaced street-cast
-   photos, escaped showcase clip); **decays weekly once peaked** — a
-   window, not a stockpile. The internet forgets.
-2. **CEO relay** — past a threshold, pressure events on the undebuted
-   hyped trainee, escalating like the fiscal system (noticed → pointed →
-   trust-dragging if ignored for months).
-3. **Cash-in** — at debut, a member's hype converts into launch reception
-   + founding popularity + breakout pull. A group cashes its hyped
-   member; a solo cashes everything.
-4. **Solo acts** — act of one through the existing release machinery:
-   roles collapsed, chemistry term replaced, reception reweighted hard
-   onto charisma/stage presence (high variance, no cover for a bad
-   live), full promo fatigue on one body. Kept rare-but-real by risk, not
-   by rules; the executive ladder keeps demanding groups.
-5. **Observatory** — bands: hyped trainees emerge in [20%–80%] of orgs,
-   hype-pressure letters alive, solo debuts viable but a minority of
-   releases; guard: hype decays to zero when never cashed.
+## §10c Hype, the hard directive & solo acts (v0.2.6)
+
+**Hype** (`person.hype`, hidden, worded quiet / noticed / buzzing / "the
+internet has decided"): emergent events find magnetic trainees (weekly
+chance scaled by centerPull — trending covers, resurfaced street-cast
+photos, escaped showcase clips), and everything decays 0.5/week. A
+window, not a stockpile.
+
+**The hard directive** (owner: *"dude I want the hard version"*): at hype
+≥65 the CEO stops asking — a dated directive to debut her, "in a group,
+alone, I do not care which," 20 weeks. Met by any debut (trust +6, a
+rare compliment). Missed: trust −12, her hype collapses to 20, her
+morale drops, and the letter ends "Remember that I remember." Tracked in
+`state.hypeDirective`, archived to objectiveHistory as `hypeDebut`,
+shown on the Desk as a second clock in magenta.
+
+**Cash-in**: at debut, member hype lifts reception (group: Σ·0.12 capped
+12; solo: ·0.16 capped 15), founds extra popularity (Σ·0.25), and pulls
+the public's eye in the breakout roll. Hype zeroes on debut — it became
+the act.
+
+**Solo acts**: one-member acts through the same release machinery
+(`type:'solo'`). Roles collapse to herself; "chemistry" is her own nerve
+(45 + confidence·0.18); reception adds a charisma edge and ×1.4 luck
+variance — high leverage, nowhere to hide; promo fatigue ×1.5 on the one
+body; overshadow impossible. The executive reviews solos in their own
+voice. Kept honest by risk, not rules — the objective ladder keeps
+demanding groups. Suite 014; census: internet-found-someone 40/40,
+directives 21/40, solo debuts 20/40 in soak.
 
 Per brief §21. Phase 2: multiple groups, comeback cycles, charts,
 endorsements, staff hiring, richer rival AI. Phase 3: international
@@ -686,4 +693,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Numbers: battery 13/13 (suite 013), soak clean, e2e 51, lockstep
 > 0.2.5. Rode to main. Hype + solos + the hard directive ship next as
 > v0.2.6.
+
+> **v0.2.6 — the internet has decided** (owner: hype + solos, *"dude I
+> want the hard version"*)
+> Pre-debut hype as a decaying window: emergent events find magnetic
+> trainees, the Desk grows a second clock, and past the threshold the
+> CEO issues the hard directive — debut her in 20 weeks, group or solo,
+> or eat −12 trust and watch her window collapse ("Remember that I
+> remember"). Debuts cash hype into launch reception, founding fanbase,
+> and the public's eye. Solo acts ship as one-member acts through the
+> same machinery: her own nerve for chemistry, a charisma edge, ×1.4
+> volatility, ×1.5 promo fatigue, nowhere to hide. Statistical suite
+> check: hyped debuts open bigger on average across 15 paired seeds.
+> Numbers: battery 14/14 (suite 014, green first run), soak clean with
+> 18 census bands (internet found someone 40/40, directives 21/40, solo
+> debuts 20/40), e2e 51, lockstep 0.2.6. Rode to main.
 

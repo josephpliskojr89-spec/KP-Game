@@ -162,8 +162,13 @@
   };
 
   // Group chemistry (hidden 0-100) from pair scores + personality mix.
+  // A solo's "chemistry" is her own nerve (v0.2.6).
   KP.groupChemistry = function (state, members) {
     const G = KP.C.GROUP;
+    if (members.length === 1) {
+      return Math.round(KP.clamp(
+        KP.C.SOLO.chemBase + members[0].personality.confidence * KP.C.SOLO.chemConfFactor, 0, 100));
+    }
     let pairSum = 0, pairs = 0;
     for (let i = 0; i < members.length; i++) {
       for (let j = i + 1; j < members.length; j++) {
@@ -190,6 +195,9 @@
   // actions (KP.frictionPairs), so a problem is always next to its handle.
   KP.chemistryNotes = function (state, members) {
     const notes = [];
+    if (members.length === 1) {
+      return ['It is her, a stage, and nowhere to hide. Solo acts do not get a room to blame.'];
+    }
     const chem = KP.groupChemistry(state, members);
     for (let i = 0; i < members.length; i++) {
       for (let j = i + 1; j < members.length; j++) {

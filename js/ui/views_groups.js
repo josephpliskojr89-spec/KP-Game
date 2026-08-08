@@ -85,6 +85,13 @@
 
     html.push('<div class="member-strip">');
     members.forEach(m => {
+      if (g.type === 'solo') {
+        html.push('<div class="member-cell" data-action="open-dossier" data-id="' + m.id + '">' +
+          UI.portrait(m, 'md') +
+          '<div class="mc-name">' + UI.esc(m.name.stage || m.name.given) + '</div>' +
+          '<div class="mc-role">Solo</div></div>');
+        return;
+      }
       const roles = [];
       if (g.roles.leader === m.id) roles.push('Leader');
       if (g.roles.center === m.id) roles.push('Center');
@@ -160,6 +167,16 @@
         '<div class="pc-read">' + UI.esc(head.text) + '</div></div>');
     });
     html.push('</div>');
+
+    // a solo act (v0.2.6): exactly one, and nowhere to hide
+    if (draft.members.length === 1) {
+      const soloist = state.people[draft.members[0]];
+      html.push('<div class="kicker">Or debut her alone</div>');
+      html.push('<div class="card">A solo lives or dies on one person. No room to blame, no one to cover a bad night — and nothing to share the spotlight with.' +
+        ((soloist.hype || 0) >= 35 ? '<div style="margin-top:8px;color:var(--magenta);font-size:.8rem">The internet already knows her. A solo cashes all of that in.</div>' : '') +
+        '<div style="margin-top:12px"><button class="btn primary" data-action="builder-propose-solo" data-id="' + soloist.id + '">Propose ' + UI.esc(KP.displayName(soloist)) + ', solo</button></div>' +
+        '</div>');
+    }
 
     // the project: fewer than a full lineup can still become a commitment
     // the whole building hears about (v0.2.5)

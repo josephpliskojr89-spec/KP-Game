@@ -276,6 +276,21 @@
         break;
       }
       case 'builder-name': App.builderDraft.name = t.dataset.name; App.render(); break;
+      case 'builder-propose-solo': {
+        const soloist = s.people[t.dataset.id];
+        let actName = KP.displayName(soloist);
+        if (KP.groups(s).some(g => g.name.toLowerCase() === actName.toLowerCase())) actName += ' (solo)';
+        const r = KP.proposeGroup(s, actName, [soloist.id], {});
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        App.view = null; App.tab = 'groups';
+        UI.modal('The executive reviews the solo',
+          r.review.map(line => '<div class="note">' + UI.esc(line) +
+            '<span class="n-who">— ' + UI.esc(s.executive.name) + '</span></div>').join(''),
+          '<button class="btn primary" data-action="close-modal" style="flex:1">Understood</button>');
+        App.render();
+        break;
+      }
       case 'builder-propose': {
         const d = App.builderDraft;
         const r = KP.proposeGroup(s, d.name, d.members, d.roles);

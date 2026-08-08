@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.2.5',
+    VERSION: '0.2.6',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -135,6 +135,30 @@
       cancelMoraleHit: 4,         // shelving the project stings the hopefuls
       droppedMoraleHit: 8,        // being locked in, then left out, stings more
       standoutNoteChance: 0.05,   // weekly chance a hopeful gets named
+    },
+
+    // ---- Pre-debut hype (v0.2.6): a window, not a stockpile -------------
+    HYPE: {
+      eventBase: 0.055,          // weekly event chance, scaled by centerPull
+      gainMin: 10, gainMax: 20,
+      decayPerWeek: 0.5,         // the internet forgets
+      directiveThreshold: 65,    // past this, the CEO forces your hand
+      directiveWeeks: 20,
+      directiveMetTrust: 6,
+      directiveMissTrust: -12,
+      collapseTo: 20,            // a missed window does not come back
+      cashReceptionFactor: 0.12, cashReceptionMax: 12,   // group debut cash-in
+      soloReceptionFactor: 0.16, soloReceptionMax: 15,   // a solo cashes it all
+      cashPopFactor: 0.25,       // hype founds fanbase
+      breakoutPullFactor: 0.12,  // the public watches whom it already knows
+    },
+
+    // ---- Solo acts (v0.2.6): high leverage, nowhere to hide -------------
+    SOLO: {
+      charismaFactor: 0.12,      // a solo lives on the person, not the average
+      luckMult: 1.4,             // and it is volatile
+      promoFatigueMult: 1.5,     // one body carries the whole rollout
+      chemBase: 45, chemConfFactor: 0.18,   // "chemistry" is her own nerve
     },
 
     // ---- Songs & concepts ----------------------------------------------

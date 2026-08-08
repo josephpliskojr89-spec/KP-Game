@@ -42,6 +42,7 @@
       '<div class="t-chips">' + UI.condChips(p) +
       (grp ? '<span class="chip gold">' + UI.esc(grp.name) + '</span>' : '') +
       (p.status === 'idol' ? '<span class="chip gold">debuted</span>' : '') +
+      ((p.hype || 0) >= 35 ? '<span class="chip hot">' + UI.esc(KP.hypeWord(p.hype)) + '</span>' : '') +
       '</div></div>' +
       '<div class="t-side"><span class="chip">' + idolOrFocusChip(state, p, focus) + '</span></div>' +
       '</div>';
@@ -166,6 +167,11 @@
     // staff observations on derived qualities, once observed enough
     if (isTrainee) {
       const notes = derivedNotes(p);
+      if (p.status === 'trainee' && (p.hype || 0) >= 35) {
+        notes.unshift((p.hype >= KP.C.HYPE.directiveThreshold
+          ? 'Her clip counts read like a mid-tier idol’s and she has not debuted. The building is not the only one that noticed.'
+          : 'Her socials are moving on their own. The public is early — or we are late.'));
+      }
       if (p.status === 'idol') {
         const grp = KP.groupOf(state, p.id);
         const idle = !(grp && (grp.prep || state.week <= (grp.promoUntil || 0)));

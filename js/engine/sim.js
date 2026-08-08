@@ -83,6 +83,9 @@
       }
     }
 
+    // 2c. pre-debut hype: the internet finds people on its own schedule
+    hypeWeek(state, rng).forEach(n => inbox.push(n));
+
     // 3. relationships
     KP.relationsWeek(state, roster, rng).forEach(n => inbox.push(n));
 
@@ -116,6 +119,33 @@
     // 7b. the ladder: a finished objective summons the next directive
     if (KP.objectiveSuccessionDue(state)) {
       inbox.push(KP.issueNextObjective(state, rng));
+    }
+
+    // 7c. the hype directive resolves — met when she debuted, missed when
+    // the window closed on your desk (self-healing, fires once)
+    const hd = state.hypeDirective;
+    if (hd && hd.status === 'open') {
+      const person = state.people[hd.personId];
+      if (person && person.status === 'idol') {
+        hd.status = 'met';
+        state.trust = KP.clamp(state.trust + KP.C.HYPE.directiveMetTrust, 0, 100);
+        inbox.push({ kind: 'executive', text: state.executive.name + ': “' + KP.displayName(person) +
+          ' debuted while the internet still cared. That is how this business is supposed to work. Noted.”' });
+      } else if (state.week > hd.deadlineWeek) {
+        hd.status = 'missed';
+        state.trust = KP.clamp(state.trust + KP.C.HYPE.directiveMissTrust, 0, 100);
+        if (person) {
+          person.hype = Math.min(person.hype || 0, KP.C.HYPE.collapseTo);
+          person.morale = KP.clamp(person.morale - 10, 0, 100);
+        }
+        inbox.push({ kind: 'executive', urgent: true, text: state.executive.name + ': “The internet moved on from ' +
+          (person ? KP.displayName(person) : 'her') + ' while we held meetings. I gave you a direct instruction. Remember that I remember.”' });
+      }
+      if (hd.status !== 'open') {
+        state.objectiveHistory = state.objectiveHistory || [];
+        state.objectiveHistory.push({ type: 'hypeDebut', status: hd.status, week: state.week, personId: hd.personId });
+        state.hypeDirective = null;
+      }
     }
 
     // 8. month boundary: stipend + costs, the CEO's read of the books,
@@ -165,6 +195,55 @@
     return kept;
   };
 
+  // Pre-debut hype: emergent events find magnetic trainees; everything
+  // decays; past the threshold the CEO forces your hand (hard directive —
+  // owner's choice: "I want the hard version").
+  KP.hypeWord = function (h) {
+    if (h >= KP.C.HYPE.directiveThreshold) return 'the internet has decided';
+    if (h >= 35) return 'buzzing';
+    if (h >= 15) return 'noticed';
+    return 'quiet';
+  };
+
+  function hypeWeek(state, rng) {
+    const H = KP.C.HYPE;
+    const notes = [];
+    let eventFired = false;
+    state.roster.forEach(id => {
+      const p = state.people[id];
+      if (p.status !== 'trainee') return;
+      p.hype = Math.max(0, (p.hype || 0) - H.decayPerWeek);
+      if (!eventFired) {
+        const pull = KP.derived(p).centerPull;
+        if (rng.chance(H.eventBase * KP.clamp(pull, 20, 90) / 60)) {
+          eventFired = true;
+          p.hype = KP.clamp(p.hype + H.gainMin + rng.next() * (H.gainMax - H.gainMin), 0, 100);
+          notes.push({ kind: 'public', text: rng.pick([
+            'A dance cover ' + KP.displayName(p) + ' filmed months ago is suddenly trending. The comments all ask the same question: when does she debut?',
+            'Street-cast photos of ' + KP.displayName(p) + ' resurfaced overnight and the reposts have not stopped.',
+            'A showcase clip of ' + KP.displayName(p) + ' escaped containment. Her name is in search trends next to artists who have albums.',
+          ]) });
+        }
+      }
+    });
+    // the hard directive: past the threshold, the CEO stops asking
+    if (!state.hypeDirective) {
+      const hot = state.roster.map(id => state.people[id])
+        .filter(p => p.status === 'trainee' && (p.hype || 0) >= H.directiveThreshold)
+        .sort((a, b) => (b.hype || 0) - (a.hype || 0))[0];
+      if (hot) {
+        state.hypeDirective = {
+          personId: hot.id, issuedWeek: state.week,
+          deadlineWeek: state.week + H.directiveWeeks, status: 'open',
+        };
+        notes.push({ kind: 'executive', urgent: true, text: state.executive.name + ': “The internet has decided about ' +
+          KP.displayName(hot) + ' and I agree with it. Debut her by ' + KP.weekLabel(state.week + H.directiveWeeks).text +
+          ' — in a group, alone, I do not care which. Do not make me watch her fade on our payroll.”' });
+      }
+    }
+    return notes;
+  }
+
   function pressureLetter(state, lvl, net, spree) {
     const who = state.executive.name;
     if (lvl >= 3) {
@@ -202,7 +281,8 @@
     const promoting = g && g.debuted && state.week <= (g.promoUntil || 0);
     if (promoting) {
       const f = CB.FOCUS[g.promoFocus] || CB.FOCUS.musicShows;
-      p.fatigue = KP.clamp(p.fatigue + f.fatigue, 0, 100);
+      const soloMult = g.type === 'solo' ? KP.C.SOLO.promoFatigueMult : 1;
+      p.fatigue = KP.clamp(p.fatigue + f.fatigue * soloMult, 0, 100);
       p.mediaExp += f.mediaExp;
       p.liveExp += f.liveExp;
       if (f.morale) p.morale = KP.clamp(p.morale + f.morale, 0, 100);

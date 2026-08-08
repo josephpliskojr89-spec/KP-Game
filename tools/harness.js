@@ -28,6 +28,9 @@ const BANDS = {
   popAlive:          { lo: 0.50, hi: 1.00, label: 'orgs ending with a warm-or-better fanbase' },
   secondGroup:       { lo: 0.30, hi: 1.00, label: 'orgs that launched a second group' },
   fiscalNoticed:     { lo: 0.05, hi: 0.85, label: 'orgs whose books got noticed (level 1)' },
+  hypeSeen:          { lo: 0.30, hi: 1.00, label: 'orgs where the internet found someone' },
+  directiveFired:    { lo: 0.02, hi: 0.80, label: 'orgs that drew a hype directive' },
+  soloDebuts:        { lo: 0.02, hi: 0.60, label: 'orgs that debuted a solo act' },
   fiscalWarned:      { lo: 0.00, hi: 0.35, label: 'orgs warned at trust-hitting level (2+)' },
 };
 
@@ -36,6 +39,7 @@ const tally = {
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
   frictionSeen: 0, conflictEndemic: 0,
   multiRelease: 0, chartTopTen: 0, popAlive: 0, secondGroup: 0, fiscalNoticed: 0, fiscalWarned: 0,
+  hypeSeen: 0, directiveFired: 0, soloDebuts: 0,
 };
 let totalGroups = 0;
 let mediationsRun = 0;
@@ -58,6 +62,7 @@ for (let s = 0; s < SEEDS; s++) {
   let sawFriction = false;
   let pressureSeen = false;
   let pressureWarned = false;
+  let hypeSeen = false, directiveSeen = false, soloProposed = false;
 
   for (let w = 0; w < 140; w++) {
     // --- auto-player policy (perceived reads only) ---
@@ -89,6 +94,18 @@ for (let s = 0; s < SEEDS; s++) {
     if (worst && state.budget > 60 && KP.mediationCooldown(state, worst.a.id, worst.b.id) === 0) {
       const m = KP.mediatePair(state, worst.a.id, worst.b.id);
       if (m.ok) mediationsRun++;
+    }
+    // the hard directive: if the CEO demands a hyped trainee debut and no
+    // lineup is coming, solo her (v0.2.6)
+    if (state.hypeDirective && state.hypeDirective.status === 'open') {
+      const pid = state.hypeDirective.personId;
+      const person = state.people[pid];
+      if (person && person.status === 'trainee' && !KP.groupOf(state, pid) && !KP.devGroup(state)) {
+        let actName = KP.displayName(person);
+        if (KP.groups(state).some(gg => gg.name.toLowerCase() === actName.toLowerCase())) actName += ' SOLO';
+        const solo = KP.proposeGroup(state, actName, [pid], {});
+        if (solo.ok) soloProposed = true;
+      }
     }
     // form the first group around week 20; a second lineup once the first
     // has debuted and the trainee room can field one (v0.2.2)
@@ -131,6 +148,8 @@ for (let s = 0; s < SEEDS; s++) {
     });
 
     const notes = KP.advanceWeek(state);
+    if (state.hypeDirective) directiveSeen = true;
+    if (state.roster.some(id => (state.people[id].hype || 0) >= 25)) hypeSeen = true;
     notes.forEach(n => {
       if (n.kind === 'health' && /wall|injur/i.test(n.text)) burnoutSeen = true;
       if (/quarterly books/.test(n.text)) pressureSeen = true;
@@ -186,6 +205,9 @@ for (let s = 0; s < SEEDS; s++) {
   if (sawFriction) tally.frictionSeen++;
   if (pressureSeen || pressureWarned) tally.fiscalNoticed++;
   if (pressureWarned) tally.fiscalWarned++;
+  if (hypeSeen) tally.hypeSeen++;
+  if (directiveSeen) tally.directiveFired++;
+  if (state.groups.some(gg => gg.type === 'solo' && gg.debuted)) tally.soloDebuts++;
   {
     // end-state conflict census across roster pairs
     let negative = 0, pairCount = 0;
