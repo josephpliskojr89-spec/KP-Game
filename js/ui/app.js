@@ -45,7 +45,7 @@
 
   function setChrome(on) {
     ['topbar', 'bottomnav'].forEach(id => { document.getElementById(id).hidden = !on; });
-    document.getElementById('advance-btn').hidden = !on || !!App.view;
+    document.getElementById('advance-btn').hidden = !on;
   }
 
   function go(tab) { App.tab = tab; App.view = null; App.render(); }
@@ -122,6 +122,31 @@
         UI.closeModal();
         if (r.ok) { UI.toast(s.people[t.dataset.id].name.display + ' is ours.'); App.save(); App.view = null; App.render(); }
         else UI.toast(r.reason, true);
+        break;
+      }
+
+      case 'release': {
+        const p = s.people[t.dataset.id];
+        const rels = s.relationships || {};
+        const close = s.roster.filter(oid => oid !== p.id).map(oid => s.people[oid])
+          .filter(o => { const r = rels[KP.pairKey(p, o)]; return r && r.state === 'close'; });
+        UI.modal('Release ' + p.name.display + '?',
+          '<div class="pad" style="font-size:.88rem;line-height:1.55;color:var(--ink-dim)">Her contract ends, she leaves the building, and the decision is yours to own. Signings spent on her are not refunded.' +
+          (close.length ? '<br><br>' + close.map(o => o.name.given).join(' and ') + ' will take it hard.' : '') + '</div>',
+          '<button class="btn" data-action="close-modal" style="flex:1">Keep her</button>' +
+          '<button class="btn danger" data-action="release-confirm" data-id="' + p.id + '" style="flex:1">Release her</button>');
+        break;
+      }
+      case 'release-confirm': {
+        const p = s.people[t.dataset.id];
+        const r = KP.releaseTrainee(s, t.dataset.id);
+        UI.closeModal();
+        if (r.ok) {
+          App.save();
+          App.view = null; App.tab = 'talent';
+          UI.toast(p.name.display + ' has left the building.');
+          App.render();
+        } else UI.toast(r.reason, true);
         break;
       }
 

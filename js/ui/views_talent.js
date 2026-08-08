@@ -10,12 +10,15 @@
     sub = sub || 'roster';
     const html = [];
     html.push('<div class="pad" style="margin-top:2px"><div class="seg">' +
-      '<button class="' + (sub === 'roster' ? 'on' : '') + '" data-action="talent-sub" data-sub="roster">Trainees (' + state.roster.length + ')</button>' +
-      '<button class="' + (sub === 'board' ? 'on' : '') + '" data-action="talent-sub" data-sub="board">Scouting board (' + state.prospects.length + ')</button>' +
+      '<button class="' + (sub === 'roster' ? 'on' : '') + '" data-action="talent-sub" data-sub="roster">Roster (' + state.roster.length + ')</button>' +
+      '<button class="' + (sub === 'training' ? 'on' : '') + '" data-action="talent-sub" data-sub="training">Training</button>' +
+      '<button class="' + (sub === 'board' ? 'on' : '') + '" data-action="talent-sub" data-sub="board">Board (' + state.prospects.length + ')</button>' +
       '</div></div>');
     if (sub === 'roster') {
       state.roster.map(id => state.people[id]).forEach(p => html.push(rosterRow(state, p)));
       if (!state.roster.length) html.push('<div class="card">No trainees. That is a problem money can fix.</div>');
+    } else if (sub === 'training') {
+      html.push(renderTrainingPage(state));
     } else {
       html.push('<div class="pad" style="margin:10px 0 2px;font-size:.74rem;color:var(--ink-dim)">' +
         'A targeted look costs ' + KP.C.SCOUT.observeCost + ' and sharpens every read. Signing costs rise when rivals circle.</div>');
@@ -62,6 +65,41 @@
       '<button class="btn small" data-action="observe" data-id="' + p.id + '">Look · ' + KP.C.SCOUT.observeCost + '</button>' +
       '<button class="btn small primary" data-action="sign" data-id="' + p.id + '"' + (canSign ? '' : ' disabled') + '>Sign · ' + cost + '</button>' +
       '</div></div>';
+  }
+
+  // Training page: every trainee's plan, adjustable in place.
+  function renderTrainingPage(state) {
+    const html = [];
+    const trainees = state.roster.map(id => state.people[id]).filter(p => p.status === 'trainee');
+    const prepping = state.group && state.group.prep && !state.group.debuted;
+    const prepIds = prepping ? state.group.members : [];
+    if (!trainees.length) {
+      return '<div class="card" style="margin-top:12px">No trainees to schedule.</div>';
+    }
+    html.push('<div class="pad" style="margin:10px 0 2px;font-size:.74rem;color:var(--ink-dim)">' +
+      'Two focus areas max per trainee. Heavy weeks add up — so does rest.</div>');
+    trainees.forEach(p => {
+      const inPrep = prepIds.includes(p.id);
+      html.push('<div class="card train-card" style="padding:12px">' +
+        '<div style="display:flex;gap:11px;align-items:center" data-action="open-dossier" data-id="' + p.id + '">' +
+        UI.portrait(p, 'sm') +
+        '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:.95rem">' + UI.esc(p.name.display) + '</div>' +
+        '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">' + UI.condChips(p) + '</div></div></div>');
+      if (inPrep) {
+        html.push('<div style="font-size:.76rem;color:var(--ink-dim);font-style:italic;margin-top:9px">In debut rehearsals — the comeback schedule owns her week.</div>');
+      } else {
+        html.push('<div class="focus-chips" style="margin-top:10px">' +
+          KP.C.TALENTS.map(d => '<button class="chip ' + ((p.training.focus || []).includes(d) ? 'on' : '') + '" ' +
+            'data-action="toggle-focus" data-id="' + p.id + '" data-domain="' + d + '">' + UI.esc(KP.C.TALENT_LABELS[d]) + '</button>').join('') +
+          '</div>' +
+          '<div class="seg" style="margin-top:9px">' +
+          KP.C.TRAIN.intensities.map(i => '<button class="' + (p.training.intensity === i ? 'on ' + i : '') + '" ' +
+            'data-action="set-intensity" data-id="' + p.id + '" data-intensity="' + i + '">' + i + '</button>').join('') +
+          '</div>');
+      }
+      html.push('</div>');
+    });
+    return html.join('');
   }
 
   function looksWord(p) {
@@ -151,6 +189,15 @@
         '</div>');
       const heat = UI.heatChips(state, p.id);
       if (heat) html.push('<div class="pad" style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">' + heat + '</div>');
+    }
+
+    // releasing — a hard decision, so it lives behind a confirm
+    if (p.status === 'trainee') {
+      const inGroup = state.group && state.group.members.includes(p.id);
+      html.push('<div class="pad" style="margin-top:18px">' +
+        '<button class="btn danger small" data-action="release" data-id="' + p.id + '"' + (inGroup ? ' disabled' : '') + '>Release from contract</button>' +
+        (inGroup ? '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">She is in the debut lineup.</div>' : '') +
+        '</div>');
     }
 
     // history

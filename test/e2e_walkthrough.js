@@ -99,9 +99,36 @@ async function main() {
   await tap('[data-action=talent-sub][data-sub=roster]');
   ok(await page.$$eval('.talent-row', els => els.length) === 7, 'roster grew to seven');
 
+  // --- training page: intensity without opening dossiers (v0.1.1) ---
+  await tap('[data-action=talent-sub][data-sub=training]');
+  await page.waitForSelector('.train-card');
+  ok(await page.$$eval('.train-card', els => els.length) === 7, 'training page lists every trainee');
+  await page.click('.train-card .seg [data-intensity=rest]');
+  await page.waitForTimeout(80);
+  ok(await page.$('.train-card .seg button.on.rest') !== null, 'intensity flipped to rest from the training page');
+  await page.click('.train-card .focus-chips .chip:nth-child(2)');   // Rap — not set by the dossier step
+  await page.waitForTimeout(80);
+  ok(await page.$('.train-card .focus-chips .chip:nth-child(2).on') !== null, 'focus toggled from the training page');
+
+  // --- advance lives in the topbar now ---
+  ok(await page.$eval('#topbar #advance-btn', el => !!el), 'advance button sits in the topbar');
+
   // --- weeks pass ---
   for (let i = 0; i < 6; i++) await advanceWeek();
   ok((await page.textContent('#tb-week')).length > 0, 'calendar moved');
+
+  // --- release a trainee (the newest signing, as it happens) ---
+  await tap('[data-nav=talent]');
+  await tap('[data-action=talent-sub][data-sub=roster]');
+  await page.waitForSelector('.talent-row');
+  await page.click('.talent-row:nth-child(8)');   // 7th trainee row (after the seg header)
+  await page.waitForSelector('[data-action=release]');
+  await tap('[data-action=release]');
+  await page.waitForSelector('.modal-sheet');
+  ok((await page.textContent('.modal-sheet')).includes('not refunded'), 'release confirm states the cost');
+  await tap('[data-action=release-confirm]');
+  await page.waitForTimeout(150);
+  ok(await page.$$eval('.talent-row', els => els.length) === 6, 'roster shrank to six after the release');
 
   // --- group builder ---
   await tap('[data-nav=groups]');

@@ -29,6 +29,7 @@ const tally = {
 };
 const receptions = [];
 const growths = [];
+const allAges = [];
 let violations = [];
 
 function guard(cond, msg) { if (!cond) violations.push(msg); }
@@ -40,6 +41,7 @@ for (let s = 0; s < SEEDS; s++) {
   let burnoutSeen = false;
 
   const startTalent = avgRosterTalent(state);
+  Object.values(state.people).forEach(p => allAges.push(p.age));
 
   for (let w = 0; w < 84; w++) {
     // --- auto-player policy (perceived reads only) ---
@@ -131,7 +133,14 @@ console.log('reception: median ' + med +
 console.log('avg roster talent growth over the run: ' +
   (growths.reduce((a, b) => a + b, 0) / Math.max(1, growths.length)).toFixed(1) + ' pts');
 
+// age census: the pool must skew young (owner's law, v0.1.1)
+const ageMean = allAges.reduce((a, b) => a + b, 0) / allAges.length;
+const age20frac = allAges.filter(a => a >= 20).length / allAges.length;
+console.log('generated-pool age: mean ' + ageMean.toFixed(1) + ', ' +
+  Math.round(age20frac * 100) + '% aged 20+');
 let alarms = 0;
+if (ageMean < 17 || ageMean > 18.8) { alarms++; console.error('AGE ALARM: mean out of [17, 18.8]'); }
+if (age20frac > 0.32) { alarms++; console.error('AGE ALARM: 20+ share floods above 32%'); }
 Object.keys(BANDS).forEach(k => {
   const frac = tally[k] / SEEDS;
   const b = BANDS[k];

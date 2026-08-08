@@ -40,6 +40,21 @@ for (let s = 1; s <= 20; s++) {
   t.ok(hot.length >= 1, 'seed ' + s + ': at least one contested prospect at start');
 }
 
+// age distribution: trainees skew young (owner's law, v0.1.1)
+{
+  const ages = [];
+  for (let s = 0; s < 20; s++) {
+    const st = KP.newGame('agedist' + s);
+    Object.values(st.people).forEach(p => ages.push(p.age));
+  }
+  const mean = ages.reduce((a, b) => a + b, 0) / ages.length;
+  const over20 = ages.filter(a => a >= 20).length / ages.length;
+  const under18 = ages.filter(a => a <= 17).length / ages.length;
+  t.ok(mean >= 17 && mean <= 18.8, 'mean age skews young (got ' + mean.toFixed(1) + ')');
+  t.ok(over20 <= 0.32, '20+ is the rarity, not the norm (got ' + (over20 * 100).toFixed(0) + '%)');
+  t.ok(under18 >= 0.32, 'mid-teens dominate the pool (got ' + (under18 * 100).toFixed(0) + '%)');
+}
+
 // determinism: same seed → identical world
 const a = KP.newGame('same-seed');
 const b = KP.newGame('same-seed');

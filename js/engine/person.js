@@ -30,6 +30,19 @@
     quietProfessional: (p) => { p.personality.professionalism += 15; p.talents.charisma.cur = Math.max(C().GEN.aptMin, p.talents.charisma.cur - 6); },
   };
 
+  function sampleAge(rng) {
+    const w = C().GEN.ageWeights;
+    const ages = Object.keys(w).map(Number).sort((a, b) => a - b);
+    let total = 0;
+    ages.forEach(a => { total += w[a]; });
+    let roll = rng.next() * total;
+    for (const a of ages) {
+      roll -= w[a];
+      if (roll <= 0) return a;
+    }
+    return ages[ages.length - 1];
+  }
+
   function eachTalent(p, fn) { C().TALENTS.forEach(k => fn(p.talents[k], k)); }
   function bump(p, key, amt) {
     const t = p.talents[key];
@@ -44,7 +57,7 @@
     const G = C().GEN;
     const family = rng.pick(KP.DATA.familyNames);
     const given = rng.pick(KP.DATA.givenNamesF);
-    const age = opts.age != null ? opts.age : rng.int(G.ageRange[0], G.ageRange[1]);
+    const age = opts.age != null ? opts.age : sampleAge(rng);
     const youth = (G.ageRange[1] - age) / (G.ageRange[1] - G.ageRange[0]); // 1 = youngest
 
     const talents = {};

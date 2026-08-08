@@ -74,6 +74,11 @@ Ten hidden archetypes (naturalVocalist, performanceAce, centerCandidate,
 lateBloomer, workhorse, producerMinded, varietyNatural, glassSpirit,
 slowBurner, quietProfessional) mutate generation rolls.
 
+**Ages** (owner's law, v0.1.1: *"trainees skew too old. probably shouldn't
+be seeing many in training at 20+"*): weighted 15–23 via `GEN.ageWeights`,
+peak 17–18, mean ~18.0, ~21% aged 20+ — late recruits are the rarity.
+Guarded by suite 001 and an observatory age census.
+
 **Derived qualities** (`KP.derived`) are computed, never purchased:
 stagePresence, leadership, varietySkill, liveReliability, centerPull.
 Live experience (showcases, rehearsals, debuts) feeds them — a trainee can
@@ -120,12 +125,19 @@ tense / conflict. State *changes* surface as observations. Group chemistry
 natural leader helps). The player sees words ("talented individuals, cold
 room"), never a meter.
 
-## §9 Groups
+## §9 Groups & roster exits
 
 Player proposes 4–6 members with leader + center mandatory, main vocal /
 dancer / rapper optional; maknae is recorded as a fact, not a role. Staff
 picks are hints from perceived reads. The executive reviews the proposal in
 words and remembers. One group in development at a time (vertical slice).
+
+**Releasing** (v0.1.1): `KP.releaseTrainee` is a player action only — the
+engine never auto-cuts (design-grammar law). Rails: debut-lineup members
+and debuted idols cannot be released; spent signings are not refunded; the
+file records the exit; close friends of the released trainee lose morale,
+and the confirm dialog names them before the player commits. Accessible
+from the dossier behind a confirmation.
 
 ## §10 Studio & debut
 
@@ -173,15 +185,17 @@ Industry tab and the wire.
 ## §14 Verification
 
 - **Battery** (`node tools/run_battery.js`): accreting suites, exit-code
-  verdict. 001 generation, 002 scouting/perceived, 003 development,
-  004 group/debut, 005 saves. ~20k assertions.
+  verdict. 001 generation (incl. age distribution), 002 scouting/perceived,
+  003 development, 004 group/debut, 005 saves, 006 releasing. ~20k
+  assertions.
 - **Soak** (`node tools/harness.js [seeds]`): auto-player runs 84 weeks per
   seed through real engine calls; observatory census bands (sensations,
-  strong+, quiet/miss, non-center breakouts, rival steals, burnouts) with
-  EXTINCT/FLOOD alarms; hard invariant guards (scale, ceilings, fatigue,
-  budget, unresolved debuts) kill the run.
+  strong+, quiet/miss, non-center breakouts, rival steals, burnouts) plus
+  an age census, with EXTINCT/FLOOD alarms; hard invariant guards (scale,
+  ceilings, fatigue, budget, unresolved debuts) kill the run.
 - **E2E** (`NODE_PATH=$(npm root -g) node test/e2e_walkthrough.js`):
-  Playwright drives the real UI at 390×844 through a full career, 32 checks.
+  Playwright drives the real UI at 390×844 through a full career — scouting,
+  training page, release flow, debut, reload — 38 checks.
 - **Lockstep** (`node tools/version_lockstep.js`): version agrees across
   constants, sw cache key, index cache-busters, splash tag, precache list.
 
@@ -365,4 +379,22 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > generators → generated staff → generated companies → scenario hook
 > library → executive mechanics → drifting market trends → pre-history.
 > Gated on the owner's v0.1.0 feel report. No code written.
+
+> **v0.1.1 — first feel report, answered** (owner played on GitHub Pages)
+> Owner's words, all four delivered: *"move advance week to the unused
+> space at the top of the page between the week and currency"* — the
+> Advance pill now lives in the topbar, always reachable, and the floating
+> button is gone. *"quickly change their intensity from this page without
+> having to click through the individual profiles… maybe a dedicated
+> training page"* — new Training sub-tab in Talent: every trainee's focus
+> chips and intensity control inline; members in debut rehearsals shown as
+> schedule-owned. *"I need a way to release a trainee"* — releaseTrainee
+> with rails (no lineup members, no idols, no refunds, close friends named
+> in the confirm and shaken by the exit); suite 006 added. *"trainees skew
+> too old. probably shouldn't be seeing many in training at 20+"* —
+> diagnosed: uniform 16–23 put 48% of the pool at 20+, mean 19.4. Retuned
+> to weighted 15–23 (`GEN.ageWeights`): mean 18.0, 21% aged 20+, guarded
+> by suite 001 and a new observatory age census.
+> Numbers: battery 6/6, 40-seed soak clean (age mean 18.0 / 21% 20+,
+> reception median 53), e2e 38/38, lockstep green. Rode to main.
 

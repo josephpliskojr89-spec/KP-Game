@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.1.0',
+    VERSION: '0.1.1',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -34,7 +34,10 @@
     GEN: {
       prospectCount: [22, 28],     // external scouting board size at new game
       inheritedCount: 6,           // trainees the player starts with
-      ageRange: [16, 23],
+      ageRange: [15, 23],
+      // owner's law: trainees skew young. Weighted distribution, mean ~18,
+      // ~22% aged 20+ (late recruits are the rarity, not the norm).
+      ageWeights: { 15: 8, 16: 16, 17: 20, 18: 20, 19: 14, 20: 10, 21: 7, 22: 4, 23: 1 },
       aptMean: 44, aptSd: 15,      // current-ability seed distribution
       aptMin: 12, aptMax: 78,
       // potential cone: ceiling = cur + headroomBase..headroomMax, scaled by age

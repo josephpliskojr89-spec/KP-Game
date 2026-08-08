@@ -96,6 +96,32 @@
     return { ok: true };
   };
 
+  // ---- Releasing a trainee (player action only — Law: never auto-cut) --
+  KP.releaseTrainee = function (state, personId) {
+    const p = state.people[personId];
+    if (!p || !state.roster.includes(personId)) return { ok: false, reason: 'Not on the roster.' };
+    if (p.status === 'idol') return { ok: false, reason: 'She has debuted. Terminating an active artist is above your pay grade.' };
+    if (state.group && state.group.members.includes(personId)) {
+      return { ok: false, reason: 'She is in the debut lineup. The lineup would have to change first.' };
+    }
+    state.roster = state.roster.filter(id => id !== personId);
+    p.status = 'released';
+    p.training.focus = [];
+    p.history.push({ week: state.week, text: 'Released from ' + state.company.short + '.' });
+    // the building notices: close friends take it hard
+    const shaken = [];
+    const rels = state.relationships || {};
+    state.roster.forEach(otherId => {
+      const other = state.people[otherId];
+      const rel = rels[KP.pairKey(p, other)];
+      if (rel && rel.state === 'close') {
+        other.morale = KP.clamp(other.morale - 8, 0, 100);
+        shaken.push(other.name.given);
+      }
+    });
+    return { ok: true, shaken };
+  };
+
   // Upcoming calendar strip entries for the Desk.
   KP.upcoming = function (state) {
     const items = [];
