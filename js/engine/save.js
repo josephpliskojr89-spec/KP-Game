@@ -108,6 +108,38 @@
     };
   } });
 
+  // v0.3.1 — the age curve moved (15-16 is the norm now, floor 14) and
+  // the owner asked for the scouting board to be reborn under it. The
+  // signed roster is untouched — those people are the save's story.
+  MIGRATIONS.push({ v: '0.3.1', fn: function (state) {
+    if (!state.prospects || !state.rngState) return;
+    const rng = KP.Rng.fromState(state.rngState);
+    state.prospects.forEach(id => {
+      (state.rivals || []).forEach(r => { delete r.interest[id]; });
+      delete state.people[id];
+    });
+    state.prospects = [];
+    const usedNames = new Set(Object.values(state.people).map(p => p.name.given.toLowerCase()));
+    KP.resetIds(state.nextPersonId || 1);
+    const count = rng.int(KP.C.GEN.prospectCount[0], KP.C.GEN.prospectCount[1]);
+    let hot = null;
+    for (let i = 0; i < count; i++) {
+      const p = KP.generatePerson(rng, { status: 'prospect', usedNames });
+      state.people[p.id] = p;
+      state.prospects.push(p.id);
+      if (!hot || p.talents.charisma.cur > hot.talents.charisma.cur) hot = p;
+    }
+    state.nextPersonId = KP.peekNextId();
+    if (hot) (state.rivals || []).forEach(r => { r.interest[hot.id] = 2; });
+    state.rngState = rng.state();
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'scouting', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'Scout Im cleared the board and rebuilt it overnight: “The academies are full of fourteen- and fifteen-year-olds — that is where the industry looks now, so that is where we look. Fresh reports on your desk. The old files are archived, not mourned.”',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

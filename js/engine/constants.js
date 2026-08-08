@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.3.0',
+    VERSION: '0.3.1',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -34,10 +34,12 @@
     GEN: {
       prospectCount: [22, 28],     // external scouting board size at new game
       inheritedCount: 6,           // trainees the player starts with
-      ageRange: [15, 23],
-      // owner's law: trainees skew young. Weighted distribution, mean ~18,
-      // ~22% aged 20+ (late recruits are the rarity, not the norm).
-      ageWeights: { 15: 8, 16: 16, 17: 20, 18: 20, 19: 14, 20: 10, 21: 7, 22: 4, 23: 1 },
+      ageRange: [14, 22],
+      // owner's law (v0.3.1): "15-16 should be the norm, just like
+      // reality, with 14-18 making up the bulk and 19-21 far more
+      // uncommon. I don't want to go any younger than 14." Mean ~16.6,
+      // 14-18 ≈ 86%, 19+ ≈ 14%. The 14 floor is a hard line.
+      ageWeights: { 14: 10, 15: 22, 16: 22, 17: 16, 18: 12, 19: 6, 20: 4, 21: 2, 22: 1 },
       aptMean: 44, aptSd: 15,      // current-ability seed distribution
       aptMin: 12, aptMax: 78,
       // potential cone: ceiling = cur + headroomBase..headroomMax, scaled by age

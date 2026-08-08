@@ -74,10 +74,17 @@ Ten hidden archetypes (naturalVocalist, performanceAce, centerCandidate,
 lateBloomer, workhorse, producerMinded, varietyNatural, glassSpirit,
 slowBurner, quietProfessional) mutate generation rolls.
 
-**Ages** (owner's law, v0.1.1: *"trainees skew too old. probably shouldn't
-be seeing many in training at 20+"*): weighted 15–23 via `GEN.ageWeights`,
-peak 17–18, mean ~18.0, ~21% aged 20+ — late recruits are the rarity.
-Guarded by suite 001 and an observatory age census.
+**Ages** (owner's law, retuned v0.3.1: *"15-16 should be the norm, just
+like reality, with 14-18 making up the bulk of trainees, and 19-21 being
+far more uncommon. I don't want to go any younger than 14."*): weighted
+14–22 via `GEN.ageWeights`, mode 15–16 (~44%), 14–18 ≈ 86%, 19+ ≈ 14%,
+mean ~16.6. **The 14 floor is a hard line** — asserted person-by-person
+in suite 001, re-checked on every fresh weekly lead in suite 016, and
+alarmed in the observatory. The v0.3.1 migration regenerated existing
+saves' scouting boards under the new curve (narrated by Scout Im; the
+signed roster untouched — those people are the save's story).
+History: v0.1.1 moved uniform 16–23 (48% aged 20+) to peak 17–18; this
+release moved the peak to 15–16.
 
 **Derived qualities** (`KP.derived`) are computed, never purchased:
 stagePresence, leadership, varietySkill, liveReliability, centerPull.
@@ -736,5 +743,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > rewritten as formula-level or statistical invariants, per §5 of the
 > process doc. Numbers: battery 15/15 (suite 015), soak clean (18
 > bands), e2e 51, lockstep 0.3.0 (24 modules). Rode to main.
-> Next in line: v0.3.1 — generated staff.
+> Next in line: generated staff.
+
+> **v0.3.1 — the age curve, again** (owner: *"15-16 should be the norm…
+> 14-18 making up the bulk… 19-21 far more uncommon. I don't want to go
+> any younger than 14. regenerate the pool in my save"*)
+> New weights: mode 15–16, mean 16.6, 14–18 at ~86%, 19+ at ~14%, hard
+> floor 14 (asserted per person, per fresh lead, and alarmed in the
+> observatory). Migration reborn the scouting board in existing saves —
+> old prospect files removed, a fresh generator-named board under the
+> new curve, rivals circling its most charismatic face, Scout Im
+> narrating ("the old files are archived, not mourned") — with the
+> signed roster untouched. Numbers: battery 16/16 (suite 016: migration
+> rebirth, roster preservation, determinism, the absolute floor), soak
+> clean (pool mean 16.5, 13% aged 19+), e2e 51, lockstep 0.3.1.
+> Rode to main.
 

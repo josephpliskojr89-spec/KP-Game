@@ -40,7 +40,8 @@ for (let s = 1; s <= 20; s++) {
   t.ok(hot.length >= 1, 'seed ' + s + ': at least one contested prospect at start');
 }
 
-// age distribution: trainees skew young (owner's law, v0.1.1)
+// age distribution: 15-16 is the norm, 14-18 the bulk, 19+ uncommon,
+// and 14 is a hard floor (owner's law, v0.3.1)
 {
   const ages = [];
   for (let s = 0; s < 20; s++) {
@@ -48,11 +49,15 @@ for (let s = 1; s <= 20; s++) {
     Object.values(st.people).forEach(p => ages.push(p.age));
   }
   const mean = ages.reduce((a, b) => a + b, 0) / ages.length;
-  const over20 = ages.filter(a => a >= 20).length / ages.length;
-  const under18 = ages.filter(a => a <= 17).length / ages.length;
-  t.ok(mean >= 17 && mean <= 18.8, 'mean age skews young (got ' + mean.toFixed(1) + ')');
-  t.ok(over20 <= 0.32, '20+ is the rarity, not the norm (got ' + (over20 * 100).toFixed(0) + '%)');
-  t.ok(under18 >= 0.32, 'mid-teens dominate the pool (got ' + (under18 * 100).toFixed(0) + '%)');
+  const bulk = ages.filter(a => a >= 14 && a <= 18).length / ages.length;
+  const older = ages.filter(a => a >= 19).length / ages.length;
+  const norm = ages.filter(a => a === 15 || a === 16).length / ages.length;
+  t.ok(ages.every(a => a >= 14), 'NOBODY under 14 — hard floor (min ' + Math.min.apply(null, ages) + ')');
+  t.ok(ages.every(a => a <= 22), 'nobody over 22 (max ' + Math.max.apply(null, ages) + ')');
+  t.ok(mean >= 16.0 && mean <= 17.2, 'mean age ~16.6 (got ' + mean.toFixed(1) + ')');
+  t.ok(bulk >= 0.78, '14-18 is the bulk (got ' + (bulk * 100).toFixed(0) + '%)');
+  t.ok(older <= 0.22, '19+ is far more uncommon (got ' + (older * 100).toFixed(0) + '%)');
+  t.ok(norm >= 0.35, '15-16 is the norm (got ' + (norm * 100).toFixed(0) + '%)');
 }
 
 // determinism: same seed → identical world

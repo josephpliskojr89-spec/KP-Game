@@ -242,15 +242,16 @@ console.log('releases per org: ' + (totalReleases / SEEDS).toFixed(1) + ' averag
 console.log('avg roster talent growth over the run: ' +
   (growths.reduce((a, b) => a + b, 0) / Math.max(1, growths.length)).toFixed(1) + ' pts');
 
-// age census: the pool must skew young (owner's law, v0.1.1)
+// age census: 15-16 the norm, 14 a hard floor (owner's law, v0.3.1)
 const ageMean = allAges.reduce((a, b) => a + b, 0) / allAges.length;
-const age20frac = allAges.filter(a => a >= 20).length / allAges.length;
+const age19frac = allAges.filter(a => a >= 19).length / allAges.length;
 console.log('generated-pool age: mean ' + ageMean.toFixed(1) + ', ' +
-  Math.round(age20frac * 100) + '% aged 20+');
+  Math.round(age19frac * 100) + '% aged 19+');
 console.log('sit-downs run by the auto-player: ' + mediationsRun);
 let alarms = 0;
-if (ageMean < 17 || ageMean > 18.8) { alarms++; console.error('AGE ALARM: mean out of [17, 18.8]'); }
-if (age20frac > 0.32) { alarms++; console.error('AGE ALARM: 20+ share floods above 32%'); }
+if (allAges.some(a => a < 14)) { alarms++; console.error('AGE ALARM: someone under the 14 floor'); }
+if (ageMean < 16.0 || ageMean > 17.2) { alarms++; console.error('AGE ALARM: mean out of [16.0, 17.2]'); }
+if (age19frac > 0.22) { alarms++; console.error('AGE ALARM: 19+ share floods above 22%'); }
 Object.keys(BANDS).forEach(k => {
   const frac = tally[k] / SEEDS;
   const b = BANDS[k];
