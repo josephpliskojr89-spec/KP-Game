@@ -166,6 +166,20 @@ dancer / rapper optional; maknae is recorded as a fact, not a role. Staff
 picks are hints from perceived reads. The executive reviews the proposal in
 words and remembers.
 
+**The project** (v0.2.5 — owner: *"these 3 are in, now the rest of the
+trainees know there's a project and they start working to make it. you
+could even pinpoint what you're looking for"*). From the builder, 1–3
+locked members + up to 2 declared sought domains open a provisional
+group. While open: the building is told (one announcement letter), free
+trainees train at ×1.15 with +1 weekly fatigue (they push), and the
+sought domains fill any spare focus slot they have — the player's own
+plan always wins. Locked members get a small morale drip (a secured spot
+steadies you); occasional standout notes name the hardest-working
+hopeful. Finalizing a lineup consumes the project — a locked member left
+out of the final lineup takes a real morale hit and her file remembers.
+Shelving the project disappoints every hopeful. One project at a time,
+never during group development. Suite 013.
+
 **Multiple groups** (v0.2.2): `state.groups[]`, each with its own id,
 demos, prep, popularity, promo cycle, discography, and results. Rules:
 one group *in development* at a time (a new lineup needs every existing
@@ -655,4 +669,21 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > behavior only. Numbers: battery 12/12 (suite 012), soak clean (roster
 > talent growth 10.4 → 10.9 pts, all bands alive), e2e 51, lockstep
 > 0.2.4. Rode to main.
+
+> **v0.2.5 — the project** (owner, from a builder screenshot: *"these 3
+> are in, now the rest of the trainees know there's a project and they
+> start working to make it. you could even pinpoint what you're looking
+> for"*)
+> Provisional groups: lock 1–3 members from the builder, optionally
+> declare up to two sought domains, and the whole building reacts — an
+> announcement letter, hopefuls training harder (×1.15, +1 fatigue) and
+> self-directing spare focus toward what the project needs, locked
+> members steadying, standout notes naming who is camping in the
+> practice rooms. Finalizing consumes the project; dropping a locked
+> member costs her morale and her file remembers; shelving disappoints
+> every hopeful. Found-by-suite: openProject truncated to 3 locked
+> before validating, letting a full lineup slip through as a project.
+> Numbers: battery 13/13 (suite 013), soak clean, e2e 51, lockstep
+> 0.2.5. Rode to main. Hype + solos + the hard directive ship next as
+> v0.2.6.
 

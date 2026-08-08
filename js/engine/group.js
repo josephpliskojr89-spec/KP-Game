@@ -28,6 +28,41 @@
       state.people[id].status === 'trainee' && !KP.groupOf(state, id));
   };
 
+  // ---- The project (v0.2.5): a provisional lineup ----------------------
+  // "These 3 are in. Now the rest of the trainees know there's a project
+  // and they start working to make it." — owner
+  KP.openProject = function (state, lockedIds, seeking) {
+    const P = KP.C.PROJECT;
+    if (state.project) return { ok: false, reason: 'A project is already open. Finalize or shelve it first.' };
+    if (KP.devGroup(state)) return { ok: false, reason: 'A group is already in development.' };
+    lockedIds = (lockedIds || []).slice();
+    if (!lockedIds.length) return { ok: false, reason: 'Lock in at least one member to make it a project.' };
+    if (lockedIds.length >= KP.C.GROUP.minMembers) return { ok: false, reason: 'That is a full lineup — propose it instead.' };
+    if (lockedIds.length > P.maxLocked) return { ok: false, reason: 'Lock at most ' + P.maxLocked + ' — a project needs open spots to fight for.' };
+    for (const id of lockedIds) {
+      const p = state.people[id];
+      if (!p || p.status !== 'trainee') return { ok: false, reason: 'Locked members must be signed trainees.' };
+      if (KP.groupOf(state, id)) return { ok: false, reason: 'Someone in this project already belongs to a group.' };
+    }
+    seeking = (seeking || []).filter(d => KP.C.TALENTS.includes(d)).slice(0, P.maxSeeking);
+    state.project = { locked: lockedIds.slice(), seeking, openedWeek: state.week };
+    lockedIds.forEach(id => {
+      state.people[id].history.push({ week: state.week, text: 'Locked into the new group project.' });
+    });
+    return { ok: true };
+  };
+
+  KP.cancelProject = function (state) {
+    if (!state.project) return { ok: false, reason: 'No project to shelve.' };
+    const hopefuls = KP.freeTrainees(state).filter(id => !state.project.locked.includes(id));
+    hopefuls.forEach(id => {
+      const p = state.people[id];
+      p.morale = KP.clamp(p.morale - KP.C.PROJECT.cancelMoraleHit, 0, 100);
+    });
+    state.project = null;
+    return { ok: true, disappointed: hopefuls.length };
+  };
+
   // Validate + form a group. roles: {leader, center, mainVocal, mainDancer, mainRapper}
   // One group in development at a time; a new lineup needs every existing
   // group already debuted, and members belong to at most one group.
@@ -73,6 +108,20 @@
     // maknae is a fact, not a role
     const youngest = members.slice().sort((a, b) => a.age - b.age)[0];
     group.maknae = youngest.id;
+    // the project becomes the group — and anyone locked in but left out
+    // learns what that feels like
+    if (state.project) {
+      state.project.locked.forEach(id => {
+        if (!memberIds.includes(id)) {
+          const p = state.people[id];
+          if (p) {
+            p.morale = KP.clamp(p.morale - KP.C.PROJECT.droppedMoraleHit, 0, 100);
+            p.history.push({ week: state.week, text: 'Locked into the project, then left out of the final lineup.' });
+          }
+        }
+      });
+      state.project = null;
+    }
     return { ok: true, group, review: KP.execReviewLineup(state, members, roles) };
   };
 

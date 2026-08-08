@@ -6,13 +6,12 @@
   'use strict';
   const KP = root.KP = root.KP || {};
 
-  function gainFor(person, domain, rng) {
+  function gainFor(person, domain, rng, focusCount, driveMult) {
     const T = KP.C.TRAIN;
     const t = person.talents[domain];
     const per = person.personality;
     const intensity = person.training.intensity || 'standard';
-    const focusCount = person.training.focus.length;
-    let g = T.baseGain * t.growth * T.gainMult[intensity];
+    let g = T.baseGain * t.growth * T.gainMult[intensity] * (driveMult || 1);
     if (focusCount > 1) g *= T.secondFocusMult;
     g *= 0.6 + (per.workEthic / 100) * 0.55;
     g *= 0.7 + (per.coachability / 100) * 0.5;
@@ -46,26 +45,43 @@
       }
     });
 
+    // the project (v0.2.5): an open spot makes the free trainees push —
+    // they train harder, and if the project declared what it needs, they
+    // fill their own spare focus with it
+    const PR = KP.C.PROJECT;
+    const isHopeful = state.project && person.status === 'trainee' &&
+      !state.project.locked.includes(person.id) && !KP.groupOf(state, person.id);
+    const isLocked = state.project && state.project.locked.includes(person.id);
+    let focus = (person.training.focus || []).slice(0, 2);
+    if (isHopeful && state.project.seeking.length) {
+      state.project.seeking.forEach(d => {
+        if (focus.length < 2 && !focus.includes(d)) focus.push(d);
+      });
+    }
+    const driveMult = isHopeful ? PR.driveMult : 1;
+
     // gains on focused domains
-    (person.training.focus || []).forEach(domain => {
-      const g = gainFor(person, domain, rng);
+    focus.forEach(domain => {
+      const g = gainFor(person, domain, rng, focus.length, driveMult);
       if (g > 0) person.talents[domain].cur = Math.min(100, person.talents[domain].cur + g);
     });
 
     // fatigue & morale
     person.fatigue = KP.clamp(person.fatigue + T.fatigueLoad[intensity], 0, 100);
+    if (isHopeful && intensity !== 'rest') person.fatigue = KP.clamp(person.fatigue + PR.driveFatigue, 0, 100);
+    if (isLocked) person.morale = KP.clamp(person.morale + PR.lockedMoraleDrip, 0, 100);
     if (intensity === 'rest') person.morale = KP.clamp(person.morale + T.moraleRestBonus, 0, 100);
     if (intensity === 'heavy') person.morale = KP.clamp(person.morale - 1.5, 0, 100);
 
     // breakthrough / plateau — development redirects, stalls, reopens
-    if (person.training.focus.length && rng.chance(T.breakthroughChance * (0.5 + person.personality.resilience / 150))) {
-      const d = rng.pick(person.training.focus);
+    if (focus.length && rng.chance(T.breakthroughChance * (0.5 + person.personality.resilience / 150))) {
+      const d = rng.pick(focus);
       const cap = person.flags['ceil_' + d] != null ? person.flags['ceil_' + d] : 100;
       person.talents[d].cur = Math.min(cap, person.talents[d].cur + 2.5);
       person.personality.confidence = KP.clamp(person.personality.confidence + T.confidenceFromBreakthrough, 0, 100);
       notes.push({ kind: 'breakthrough', text: KP.displayName(person) + ' had a breakthrough week in ' + KP.C.TALENT_LABELS[d].toLowerCase() + '. Something clicked — you could see it from the hallway.' });
-    } else if (person.training.focus.length && rng.chance(T.plateauChance)) {
-      const d = rng.pick(person.training.focus);
+    } else if (focus.length && rng.chance(T.plateauChance)) {
+      const d = rng.pick(focus);
       notes.push({ kind: 'plateau', text: KP.displayName(person) + ' has plateaued in ' + KP.C.TALENT_LABELS[d].toLowerCase() + '. The coaches suggest changing her focus for a few weeks.' });
     }
 

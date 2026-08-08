@@ -61,6 +61,28 @@
       KP.showcaseWeek(state, roster, rng).forEach(n => inbox.push(n));
     }
 
+    // 2b. the project: the building talks about it
+    if (state.project) {
+      if (!state.project.announced) {
+        state.project.announced = true;
+        const seeking = state.project.seeking.map(d => KP.C.TALENT_LABELS[d].toLowerCase()).join(' and ');
+        inbox.push({ kind: 'company', text: 'Word is out about the new group project. ' +
+          state.project.locked.length + ' spot' + (state.project.locked.length === 1 ? ' is' : 's are') + ' already locked' +
+          (seeking ? ', and the practice rooms have heard we need ' + seeking : '') +
+          '. Every free trainee in the building is suddenly working late.' });
+      } else if (rng.chance(KP.C.PROJECT.standoutNoteChance)) {
+        const hopefuls = KP.freeTrainees(state).filter(id => !state.project.locked.includes(id))
+          .map(id => state.people[id]);
+        if (hopefuls.length) {
+          const star = hopefuls.slice().sort((a, b) =>
+            (b.personality.workEthic + b.personality.competitiveness) -
+            (a.personality.workEthic + a.personality.competitiveness))[0];
+          inbox.push({ kind: 'development', text: 'Since the project was announced, ' +
+            KP.displayName(star) + ' has barely left the practice rooms. The spot is not hers yet — she is training like it is.' });
+        }
+      }
+    }
+
     // 3. relationships
     KP.relationsWeek(state, roster, rng).forEach(n => inbox.push(n));
 

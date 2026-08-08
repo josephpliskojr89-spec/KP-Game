@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.2.4',
+    VERSION: '0.2.5',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -123,6 +123,18 @@
       roles: ['leader', 'center', 'mainVocal', 'mainDancer', 'mainRapper'],
       chemistryPairWeight: 0.55,
       chemistryPersonalityWeight: 0.45,
+    },
+
+    // ---- The project (v0.2.5): a provisional lineup the building knows about
+    PROJECT: {
+      maxLocked: 3,               // lock in up to this many; the rest compete
+      maxSeeking: 2,              // domains the project declares it needs
+      driveMult: 1.15,            // free trainees push harder while a spot is open
+      driveFatigue: 1,            // pushing has a cost
+      lockedMoraleDrip: 0.5,      // a secured spot steadies you
+      cancelMoraleHit: 4,         // shelving the project stings the hopefuls
+      droppedMoraleHit: 8,        // being locked in, then left out, stings more
+      standoutNoteChance: 0.05,   // weekly chance a hopeful gets named
     },
 
     // ---- Songs & concepts ----------------------------------------------

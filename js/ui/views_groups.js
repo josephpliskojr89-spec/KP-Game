@@ -7,7 +7,7 @@
 
   UI.renderGroups = function (state) {
     const groups = KP.groups(state);
-    if (!groups.length) return renderNoGroup(state);
+    if (!groups.length) return renderNoGroup(state) + (state.project ? newLineupCard(state) : '');
     if (groups.length === 1) return UI.renderGroupPage(state, groups[0]) + newLineupCard(state);
     const html = [];
     groups.forEach(g => html.push(groupCard(state, g)));
@@ -33,6 +33,12 @@
   function newLineupCard(state) {
     const free = KP.freeTrainees(state).length;
     if (KP.devGroup(state)) return '';
+    if (state.project) {
+      const seeking = state.project.seeking.map(d => KP.C.TALENT_LABELS[d]).join(' + ');
+      return '<div class="card" style="margin-top:14px"><b>Project open</b> — ' + state.project.locked.length +
+        ' locked' + (seeking ? ', seeking ' + UI.esc(seeking) : '') + '. The free trainees are pushing.' +
+        '<div style="margin-top:12px"><button class="btn primary" data-action="open-builder">Continue the lineup</button></div></div>';
+    }
     if (free >= KP.C.GROUP.minMembers) {
       return '<div class="card" style="margin-top:14px">The trainee room still has people waiting for their shot — ' + free + ' without a lineup.' +
         '<div style="margin-top:12px"><button class="btn primary" data-action="open-builder">Propose a new lineup</button></div></div>';
@@ -141,17 +147,42 @@
       '<div style="font-size:.78rem;color:var(--ink-dim);margin-top:8px">Pick ' + KP.C.GROUP.minMembers + '–' + KP.C.GROUP.maxMembers + ' members. ' +
       'Complementary strengths, compatible people, one coherent concept.</div></div>');
 
+    const proj = state.project;
     html.push('<div class="kicker">Members · ' + draft.members.length + ' selected</div>');
     html.push('<div class="pick-grid">');
     trainees.forEach(p => {
       const on = draft.members.includes(p.id);
+      const locked = proj && proj.locked.includes(p.id);
       const head = KP.headline(state, p);
       html.push('<div class="pick-cell ' + (on ? 'on' : '') + '" data-action="builder-toggle" data-id="' + p.id + '">' +
         UI.portrait(p, 'md') +
-        '<div class="pc-name">' + UI.esc(p.name.display) + '</div>' +
+        '<div class="pc-name">' + UI.esc(p.name.display) + (locked ? ' 🔒' : '') + '</div>' +
         '<div class="pc-read">' + UI.esc(head.text) + '</div></div>');
     });
     html.push('</div>');
+
+    // the project: fewer than a full lineup can still become a commitment
+    // the whole building hears about (v0.2.5)
+    if (draft.members.length >= 1 && draft.members.length < KP.C.GROUP.minMembers && !proj) {
+      html.push('<div class="kicker">Or open a project</div>');
+      html.push('<div class="card">Lock these ' + draft.members.length + ' in without finalizing. ' +
+        'The building will know a group is coming — and the rest of the trainees will train like the spot is theirs.' +
+        '<div style="margin:12px 0 4px;font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)">What the project needs (optional, up to 2)</div>' +
+        '<div class="focus-chips">' +
+        KP.C.TALENTS.map(d => '<button class="chip ' + ((draft.seeking || []).includes(d) ? 'on' : '') + '" ' +
+          'data-action="builder-seeking" data-domain="' + d + '">' + UI.esc(KP.C.TALENT_LABELS[d]) + '</button>').join('') +
+        '</div>' +
+        '<div style="margin-top:14px"><button class="btn primary" data-action="open-project">Open the project</button></div>' +
+        '</div>');
+    }
+    if (proj) {
+      const seeking = proj.seeking.map(d => KP.C.TALENT_LABELS[d]).join(' + ');
+      html.push('<div class="note">Project open since ' + UI.esc(KP.weekLabel(proj.openedWeek).text) + ' — ' +
+        proj.locked.length + ' locked' + (seeking ? ', seeking ' + UI.esc(seeking) : '') +
+        '. The free trainees are pushing for the open spots.' +
+        '<div style="margin-top:10px"><button class="btn danger small" data-action="cancel-project">Shelve the project</button></div>' +
+        '<span class="n-who">— the whole building knows</span></div>');
+    }
 
     if (draft.members.length >= KP.C.GROUP.minMembers) {
       const members = draft.members.map(id => state.people[id]);

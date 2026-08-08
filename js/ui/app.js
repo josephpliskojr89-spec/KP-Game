@@ -226,10 +226,42 @@
       }
 
       case 'open-builder': {
-        App.builderDraft = { members: [], roles: {}, name: null,
+        App.builderDraft = { members: [], roles: {}, name: null, seeking: [],
           nameOptions: KP.suggestGroupNames(s, KP.rngFor(s)) };
+        // an open project walks in with its locked members already selected
+        if (s.project) {
+          App.builderDraft.members = s.project.locked.slice();
+          App.builderDraft.seeking = s.project.seeking.slice();
+        }
         App.builderDraft.name = App.builderDraft.nameOptions[0];
         push('builder');
+        break;
+      }
+      case 'builder-seeking': {
+        const d = App.builderDraft;
+        const dom = t.dataset.domain;
+        d.seeking = d.seeking || [];
+        if (d.seeking.includes(dom)) d.seeking = d.seeking.filter(x => x !== dom);
+        else if (d.seeking.length < KP.C.PROJECT.maxSeeking) d.seeking.push(dom);
+        App.render();
+        break;
+      }
+      case 'open-project': {
+        const d = App.builderDraft;
+        const r = KP.openProject(s, d.members, d.seeking);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        App.view = null; App.tab = 'groups';
+        UI.toast('The project is open. The building will know by morning.');
+        App.render();
+        break;
+      }
+      case 'cancel-project': {
+        const r = KP.cancelProject(s);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast('Project shelved.' + (r.disappointed ? ' ' + r.disappointed + ' hopefuls heard.' : ''));
+        App.render();
         break;
       }
       case 'builder-toggle': {
