@@ -312,6 +312,18 @@ moving parts and nothing else).
 
 ## §16 Roadmap (owner-gated)
 
+**Queued for the next release (v0.2.3), owner-requested:**
+
+1. *"if using a stage name, only use that in reports."* Once a stage name
+   exists, every report-style surface — inbox notes, week reports, PR
+   digests, breakout mentions, event texts, sit-down outcomes, showcase
+   and relationship observations — uses the stage name **only**, never the
+   real name. Audit every string that names a person (`name.display`,
+   `name.given` call sites) and route them through `KP.displayName` /
+   a given-name variant. The one exception: the dossier header keeps the
+   legal name line — it is a personnel file, not a report. This supersedes
+   the v0.2.1 "staff observations keep real names" split.
+
 Per brief §21. Phase 2: multiple groups, comeback cycles, charts,
 endorsements, staff hiring, richer rival AI. Phase 3: international
 markets, tours, awards, producer ecosystem. Phase 4: career mobility and
