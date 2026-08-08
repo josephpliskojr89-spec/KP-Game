@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.2.0',
+    VERSION: '0.2.1',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -144,6 +144,13 @@
     // ---- Debut resolution ----------------------------------------------
     DEBUT: {
       prepWeeksMin: 4,
+      // release formats (v0.2.1): bigger records cost more, need more
+      // runway, and pay more when they land
+      FORMATS: [
+        { id: 'single', label: 'Single', cost: 30, minPrep: 4, revenueMult: 1.0, tracks: 2 },
+        { id: 'mini',   label: 'Mini-album', cost: 55, minPrep: 6, revenueMult: 1.6, tracks: 5 },
+        { id: 'full',   label: 'Full album', cost: 90, minPrep: 8, revenueMult: 2.3, tracks: 9 },
+      ],
       promoLevels: ['modest', 'standard', 'aggressive'],
       promoCost: { modest: 10, standard: 22, aggressive: 40 },
       promoBoost: { modest: -4, standard: 0, aggressive: 6 },
@@ -174,6 +181,20 @@
       popFactor: 0.12,             // how much an existing fanbase lifts reception
       comebackTrustDelta: { sensation: 14, strong: 9, solid: 4, quiet: -5, miss: -12 },
       missedDeadlinePenalty: -15,  // gentler than the debut deadline
+      // a comeback is not a debut — the recaps know the difference (v0.2.1)
+      bandLabels: {
+        sensation: 'A sensation', strong: 'A strong comeback',
+        solid: 'A solid comeback', quiet: 'A quiet return', miss: 'A miss',
+      },
+      // rollout focus: what the promotion weeks are actually spent on
+      FOCUS: {
+        musicShows: { label: 'Music shows', desc: 'Live stages every week. The hard reps.',
+          fatigue: 9, liveExp: 2.5, mediaExp: 0.5, morale: 0, pop: 0, graceBonus: 0 },
+        variety:    { label: 'Variety & media', desc: 'Panels, radio, content. Personalities get found here.',
+          fatigue: 6, liveExp: 0.5, mediaExp: 3.5, morale: 0, pop: 0, graceBonus: 0 },
+        fanCare:    { label: 'Fan engagement', desc: 'Fansigns and fan content. Slow promotion, loyal fans.',
+          fatigue: 5, liveExp: 0.5, mediaExp: 1, morale: 2, pop: 0.25, graceBonus: 4 },
+      },
     },
     CHART: {
       noiseSd: 6,

@@ -137,6 +137,48 @@
     };
   };
 
+  // Public-facing name: the stage name once one exists, else the real one.
+  // Staff notes keep using real names — the building knows who people are.
+  KP.displayName = function (p) {
+    return (p.name && p.name.stage) ? p.name.stage : p.name.display;
+  };
+
+  KP.setStageName = function (state, personId, name) {
+    const p = state.people[personId];
+    if (!p) return { ok: false, reason: 'No such person.' };
+    const clean = String(name || '').trim();
+    if (!clean) return { ok: false, reason: 'A stage name needs letters in it.' };
+    if (clean.length > 14) return { ok: false, reason: 'Fourteen characters or fewer — it has to fit on a lightstick.' };
+    const taken = Object.values(state.people).some(o =>
+      o.id !== personId && o.name.stage && o.name.stage.toLowerCase() === clean.toLowerCase());
+    if (taken) return { ok: false, reason: 'Another artist already uses that name.' };
+    const had = p.name.stage;
+    p.name.stage = clean;
+    if (!had) p.history.push({ week: state.week, text: 'Took the stage name “' + clean + '”.' });
+    else if (had !== clean) p.history.push({ week: state.week, text: 'Changed stage name from “' + had + '” to “' + clean + '”.' });
+    return { ok: true };
+  };
+
+  // Deterministic suggestions: condensed given name + curated pool picks.
+  KP.suggestStageNames = function (state, person) {
+    const out = [];
+    const condensed = person.name.given.replace(/-/g, '').toUpperCase();
+    out.push(condensed.charAt(0) + condensed.slice(1).toLowerCase());
+    const parts = person.name.given.split('-');
+    if (parts.length > 1) out.push(parts[1].charAt(0).toUpperCase() + parts[1].slice(1));
+    const used = new Set(Object.values(state.people)
+      .map(p => p.name.stage && p.name.stage.toLowerCase()).filter(Boolean));
+    const pool = KP.DATA.stageNames;
+    let i = KP.hashStr(state.seed + person.id) % pool.length;
+    while (out.length < 4) {
+      const cand = pool[i % pool.length];
+      if (!used.has(cand.toLowerCase()) && !out.includes(cand)) out.push(cand);
+      i++;
+      if (i > KP.hashStr(state.seed + person.id) % pool.length + pool.length) break;
+    }
+    return out.filter(n => !used.has(n.toLowerCase())).slice(0, 4);
+  };
+
   KP.band = function (v) {
     for (const b of KP.C.BANDS) if (v < b.max) return b;
     return KP.C.BANDS[KP.C.BANDS.length - 1];

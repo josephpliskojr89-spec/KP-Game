@@ -95,7 +95,8 @@ for (let s = 0; s < SEEDS; s++) {
       // the debut gets full investment (as a human would); comebacks
       // economize when the division runs tight
       const promoAffordable = (!state.group.debuted || state.budget > 60) ? 'standard' : 'modest';
-      if (state.budget > KP.C.DEBUT.promoCost[promoAffordable] + KP.C.ECON.productionCost) {
+      const fmtCost = KP.C.DEBUT.FORMATS[0].cost;
+      if (state.budget > KP.C.DEBUT.promoCost[promoAffordable] + fmtCost) {
         if (!state.demos) {
           const rng = KP.rngFor(state);
           state.demos = KP.generateDemos(state, rng);

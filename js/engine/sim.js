@@ -40,10 +40,13 @@
     });
     if (prepping) KP.prepWeek(state, rng).forEach(n => inbox.push(n));
 
-    // popularity cools once the promotion cycle and its afterglow end
-    if (g && g.debuted && !g.prep &&
-        state.week > (g.promoUntil || 0) + KP.C.COMEBACK.decayGraceWeeks) {
-      g.popularity = Math.max(0, (g.popularity || 0) - KP.C.COMEBACK.popDecayPerWeek);
+    // popularity cools once the promotion cycle and its afterglow end;
+    // a fan-care rollout stretches the afterglow
+    if (g && g.debuted && !g.prep) {
+      const focus = KP.C.COMEBACK.FOCUS[g.promoFocus] || KP.C.COMEBACK.FOCUS.musicShows;
+      if (state.week > (g.promoUntil || 0) + KP.C.COMEBACK.decayGraceWeeks + focus.graceBonus) {
+        g.popularity = Math.max(0, (g.popularity || 0) - KP.C.COMEBACK.popDecayPerWeek);
+      }
     }
 
     // 2. showcase cadence (live reps for everyone, sharper reads)
@@ -103,15 +106,19 @@
     return kept;
   };
 
-  // Idol weeks: promotion runs hot, then the schedule finally breathes.
+  // Idol weeks: promotion runs hot — where the heat goes is the rollout
+  // focus the player chose — then the schedule finally breathes.
   function idolWeek(state, p) {
     const CB = KP.C.COMEBACK;
     const g = state.group;
     const promoting = g && g.debuted && state.week <= (g.promoUntil || 0);
     if (promoting) {
-      p.fatigue = KP.clamp(p.fatigue + CB.promoFatigue, 0, 100);
-      p.mediaExp += 2;
-      p.liveExp += 1.5;
+      const f = CB.FOCUS[g.promoFocus] || CB.FOCUS.musicShows;
+      p.fatigue = KP.clamp(p.fatigue + f.fatigue, 0, 100);
+      p.mediaExp += f.mediaExp;
+      p.liveExp += f.liveExp;
+      if (f.morale) p.morale = KP.clamp(p.morale + f.morale, 0, 100);
+      if (f.pop) g.popularity = KP.clamp((g.popularity || 0) + f.pop, 0, 100);
     } else {
       p.fatigue = KP.clamp(p.fatigue - CB.idolRecovery, 0, 100);
       p.morale = KP.clamp(p.morale + 1, 0, 100);

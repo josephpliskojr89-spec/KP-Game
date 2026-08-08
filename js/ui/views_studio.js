@@ -72,13 +72,32 @@
         '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:10px">Total ' +
         (a.vocals + a.dance + a.rap + a.media) + '% — must land on 100.</div></div>');
 
+      const fmt = KP.C.DEBUT.FORMATS.find(f => f.id === draft.format) || KP.C.DEBUT.FORMATS[0];
+      html.push('<div class="kicker">The record</div>');
+      html.push('<div class="pad"><div class="seg">' +
+        KP.C.DEBUT.FORMATS.map(f => '<button class="' + (draft.format === f.id ? 'on' : '') + '" ' +
+          'data-action="studio-format" data-format="' + f.id + '">' + UI.esc(f.label) + ' · ' + f.cost + '</button>').join('') +
+        '</div><div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">' +
+        UI.esc(fmt.label) + ': ' + fmt.tracks + ' tracks, needs ' + Math.max(KP.C.DEBUT.prepWeeksMin, fmt.minPrep) + ' weeks of runway, pays ×' + fmt.revenueMult + ' when it lands.</div></div>');
+
       html.push('<div class="kicker">Promotion</div>');
       html.push('<div class="pad"><div class="seg">' +
         KP.C.DEBUT.promoLevels.map(pl => '<button class="' + (draft.promo === pl ? 'on' : '') + '" ' +
           'data-action="studio-promo" data-promo="' + pl + '">' + pl + ' · ' + KP.C.DEBUT.promoCost[pl] + '</button>').join('') +
-        '</div><div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">Plus production ' + KP.C.ECON.productionCost + '. Budget: ' + state.budget + '.</div></div>');
+        '</div><div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">Plus the record itself (' + fmt.cost + '). Budget: ' + state.budget + '.</div></div>');
 
-      const minW = state.week + KP.C.DEBUT.prepWeeksMin;
+      html.push('<div class="kicker">Rollout focus</div>');
+      html.push('<div class="pad">' +
+        Object.keys(KP.C.COMEBACK.FOCUS).map(k => {
+          const f = KP.C.COMEBACK.FOCUS[k];
+          return '<button class="chip ' + (draft.focus === k ? 'hot' : '') + '" style="margin:0 6px 6px 0" ' +
+            'data-action="studio-focus" data-focus="' + k + '">' + UI.esc(f.label) + '</button>';
+        }).join('') +
+        '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:4px">' +
+        UI.esc((KP.C.COMEBACK.FOCUS[draft.focus] || KP.C.COMEBACK.FOCUS.musicShows).desc) +
+        '</div></div>');
+
+      const minW = state.week + Math.max(KP.C.DEBUT.prepWeeksMin, fmt.minPrep);
       const options = [];
       const lastOption = (state.objective.status === 'open' && state.objective.type === 'debutGirlGroup')
         ? Math.min(minW + 16, state.objective.deadlineWeek)
@@ -123,7 +142,7 @@
     html.push('<div class="kicker">Breakout</div>');
     html.push('<div class="card" data-action="open-dossier" data-id="' + breakout.id + '" style="display:flex;gap:14px;align-items:center">' +
       UI.portrait(breakout, 'md') +
-      '<div style="flex:1"><div style="font-weight:800">' + UI.esc(breakout.name.display) + '</div>' +
+      '<div style="flex:1"><div style="font-weight:800">' + UI.esc(KP.displayName(breakout)) + '</div>' +
       '<div style="font-size:.78rem;color:var(--ink-dim);margin-top:3px">' +
       (r.breakoutId === g.roles.center ? 'The center held the center. The plan worked.' : 'Not your center. The public picked her anyway.') +
       '</div></div></div>');

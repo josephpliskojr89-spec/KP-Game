@@ -37,8 +37,8 @@
     return '<div class="talent-row" data-action="open-dossier" data-id="' + p.id + '">' +
       UI.portrait(p, 'md') +
       '<div class="t-body">' +
-      '<div class="t-name">' + UI.esc(p.name.display) + '</div>' +
-      '<div class="t-sub">' + p.age + ' · ' + UI.esc(head.text) + '</div>' +
+      '<div class="t-name">' + UI.esc(KP.displayName(p)) + '</div>' +
+      '<div class="t-sub">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' + UI.esc(head.text) + '</div>' +
       '<div class="t-chips">' + UI.condChips(p) +
       (groupMember ? '<span class="chip gold">' + UI.esc(state.group.name) + '</span>' : '') +
       (p.status === 'idol' ? '<span class="chip gold">debuted</span>' : '') +
@@ -117,11 +117,18 @@
     const html = [];
 
     html.push('<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>');
+    const inLineup = state.group && state.group.members.includes(p.id);
+    const nameHtml = p.name.stage
+      ? UI.esc(p.name.stage)
+      : UI.esc(p.name.family) + '<br>' + UI.esc(p.name.given);
     html.push('<div class="dossier-head">' + UI.portrait(p, 'lg') +
       '<div class="d-id"><div class="d-label">' + (p.status === 'prospect' ? 'Prospect file' : p.status === 'idol' ? 'Artist file' : 'Trainee file') + '</div>' +
-      '<div class="bigname">' + UI.esc(p.name.family) + '<br>' + UI.esc(p.name.given) + '</div>' +
-      '<div class="d-meta">' + p.age + ' · ' + UI.esc(p.source) +
+      '<div class="bigname">' + nameHtml + '</div>' +
+      '<div class="d-meta">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' + UI.esc(p.source) +
       (p.signedWeek ? ' · signed ' + UI.esc(KP.weekLabel(p.signedWeek).text) : '') + '</div>' +
+      ((p.status === 'idol' || inLineup)
+        ? '<div style="margin-top:8px"><button class="btn small ghost" data-action="open-stagename" data-id="' + p.id + '" style="border:1px solid var(--line)">' + (p.name.stage ? 'Change stage name' : 'Give a stage name') + '</button></div>'
+        : '') +
       '</div></div>');
 
     if (isTrainee) {

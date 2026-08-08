@@ -210,6 +210,23 @@ The debut is the first release, not the end. One machinery
   page is the story so far, on the record.
 - **Demos refresh** every cycle: resolution clears `state.demos`; the
   Studio regenerates four on next open, era accent and all.
+- **Formats** (v0.2.1): Single (30, 4wk runway, ×1.0) / Mini-album (55,
+  6wk, ×1.6) / Full album (90, 8wk, ×2.3). Bigger records cost more, need
+  more runway, pay more; format and track count land in the discography.
+- **Rollout focus** (v0.2.1): promotion weeks are spent somewhere — Music
+  shows (hard live reps, most fatigue), Variety & media (media exp,
+  personalities get found), Fan engagement (morale, popularity trickle,
+  +4 weeks of decay grace). Applied weekly by `idolWeek`.
+- **Comeback labels** (v0.2.1, owner-reported bug): comeback reports drew
+  labels from the debut band table ("A strong debut"). Comebacks now
+  label from `COMEBACK.bandLabels`, and the miss/quiet/solid public notes
+  are debut/comeback aware. The migration relabels an afflicted saved
+  report in place.
+- **Stage names** (v0.2.1): assignable to lineup members and idols
+  (dossier → "Give a stage name"), ≤14 chars, unique case-insensitively,
+  with deterministic suggestions. `KP.displayName` rules the public
+  surfaces (rosters, member strips, breakout cards, PR notes); staff
+  observations keep using real names — the building knows who people are.
 
 ## §11 Economy
 
@@ -509,4 +526,16 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > census bands (8.0 releases/org, every org loops, fanbases survive),
 > e2e 48/48 (plays a full comeback cycle), lockstep 0.2.0 (23 modules).
 > Rode to main.
+
+> **v0.2.1 — the record and the rollout** (owner's screenshot caught the
+> comeback report calling itself a debut; requests: albums, media/promo
+> agency, stage names)
+> Fixed the label bug at the table level (comeback band labels) and in
+> afflicted saves (migration relabels the stored report). Formats:
+> single/mini/full with real cost, runway, and revenue tradeoffs. Rollout
+> focus: music shows / variety / fan engagement decide where the
+> promotion weeks go — fan care stretches the popularity grace window.
+> Stage names with suggestions, uniqueness, and the public/staff naming
+> split. Numbers: battery 9/9 (suite 009), soak clean, e2e 48, lockstep
+> 0.2.1. Rode to main. Second group ships next as v0.2.2.
 

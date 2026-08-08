@@ -14,8 +14,10 @@
     if (g.prep) return { ok: false, reason: 'A release is already locked.' };
     const demo = (state.demos || []).find(s => s.id === plan.songId);
     if (!demo) return { ok: false, reason: 'Choose a title track.' };
-    if (plan.week < state.week + D.prepWeeksMin) {
-      return { ok: false, reason: 'Production needs at least ' + D.prepWeeksMin + ' weeks of runway.' };
+    const format = D.FORMATS.find(f => f.id === (plan.format || 'single')) || D.FORMATS[0];
+    const minPrep = Math.max(D.prepWeeksMin, format.minPrep);
+    if (plan.week < state.week + minPrep) {
+      return { ok: false, reason: 'A ' + format.label.toLowerCase() + ' needs at least ' + minPrep + ' weeks of runway.' };
     }
     if (state.objective.type === 'debutGirlGroup' && state.objective.status === 'open' &&
         plan.week > state.objective.deadlineWeek) {
@@ -24,14 +26,16 @@
     const alloc = plan.alloc || { vocals: 25, dance: 25, rap: 25, media: 25 };
     const total = alloc.vocals + alloc.dance + alloc.rap + alloc.media;
     if (Math.round(total) !== 100) return { ok: false, reason: 'Rehearsal allocation must total 100%.' };
-    const promoCost = D.promoCost[plan.promo || 'standard'] + KP.C.ECON.productionCost;
-    if (state.budget < promoCost) return { ok: false, reason: 'Budget cannot cover production and this promotion level.' };
-    state.budget -= promoCost;
+    const cost = D.promoCost[plan.promo || 'standard'] + format.cost;
+    if (state.budget < cost) return { ok: false, reason: 'Budget cannot cover a ' + format.label.toLowerCase() + ' at this promotion level.' };
+    state.budget -= cost;
 
     g.prep = {
       songId: demo.id,
       conceptId: plan.conceptId || demo.conceptId,
       promo: plan.promo || 'standard',
+      format: format.id,
+      focus: KP.C.COMEBACK.FOCUS[plan.focus] ? plan.focus : 'musicShows',
       alloc,
       scheduledWeek: plan.week,
       progress: 0,
@@ -152,8 +156,10 @@
     if (avg('vocals') >= 62) rep.vocal = KP.clamp((rep.vocal || 60) + 4, 0, 100);
     if (breakout && reception >= 64) rep.starMaker = KP.clamp((rep.starMaker || 35) + (isDebut ? 8 : 4), 0, 100);
 
-    // revenue: a hit pays, and an established fanbase buys albums
-    const revenue = Math.round(Math.max(0, reception - 30) * 1.6 + (isDebut ? 0 : (g.popularity || 0) * 0.4));
+    // revenue: a hit pays, an established fanbase buys albums, and a
+    // bigger record multiplies both
+    const format = D.FORMATS.find(f => f.id === (g.prep.format || 'single')) || D.FORMATS[0];
+    const revenue = Math.round((Math.max(0, reception - 30) * 1.6 + (isDebut ? 0 : (g.popularity || 0) * 0.4)) * format.revenueMult);
     state.budget += revenue;
 
     // popularity: the debut founds the fanbase; comebacks compound or cool it
@@ -169,26 +175,29 @@
     g.debuted = true;
     g.lastReleaseWeek = state.week;
     g.promoUntil = state.week + KP.C.COMEBACK.promoWeeks;
+    g.promoFocus = g.prep.focus || 'musicShows';
+    const label = isDebut ? band.label : KP.C.COMEBACK.bandLabels[band.key];
     g.results = {
       week: state.week,
       isDebut,
       songTitle: demo.title,
       conceptId: concept.id,
+      format: format.id,
       performance: Math.round(performance),
-      reception, receptionBand: band.key, receptionLabel: band.label,
+      reception, receptionBand: band.key, receptionLabel: label,
       breakoutId: breakout.id,
       centerOvershadowed,
       chem, groupFit: Math.round(groupFit),
       trustDelta, revenue,
       chartPeak: peak, chartWeeks: weeksOn,
       execLine: execDebutLine(band.key, centerOvershadowed, state),
-      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0),
+      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut),
     };
     g.releases = g.releases || [];
     g.releases.push({
       week: state.week, songTitle: demo.title, conceptId: concept.id,
       reception, receptionBand: band.key, chartPeak: peak, chartWeeks: weeksOn,
-      isDebut,
+      isDebut, format: format.id, tracks: format.tracks,
     });
     g.prep = null;
     state.demos = null;   // the producers bring fresh demos for the next cycle
@@ -205,15 +214,15 @@
     }
   }
 
-  function publicNotes(state, bandKey, breakout, overshadowed, demo, rng, sparked) {
+  function publicNotes(state, bandKey, breakout, overshadowed, demo, rng, sparked, isDebut) {
     const notes = [];
-    const bn = breakout.name.display;
+    const bn = KP.displayName(breakout);
     if (sparked) notes.push('A fancam of ' + bn + ' is circulating far beyond the usual audience. The clip is doing the promotion’s job for free.');
     if (bandKey === 'sensation') notes.push('One performance clip is everywhere. Marketing would like to know what we’re doing next while everyone is still paying attention.');
     if (bandKey === 'strong') notes.push('“' + demo.title + '” is holding on the charts past week one — the good sign.');
-    if (bandKey === 'solid') notes.push('Reviews are kind; numbers are cautious. The second single will decide the story.');
-    if (bandKey === 'quiet') notes.push('The showcase was clean; the internet shrugged. Staff believe the material, not the members, is the question.');
-    if (bandKey === 'miss') notes.push('The debut came and went. What survives from it is up to us now.');
+    if (bandKey === 'solid') notes.push(isDebut ? 'Reviews are kind; numbers are cautious. The second single will decide the story.' : 'Reviews are kind; numbers are steady. The fanbase showed up — growth is the open question.');
+    if (bandKey === 'quiet') notes.push(isDebut ? 'The showcase was clean; the internet shrugged. Staff believe the material, not the members, is the question.' : 'The comeback stage was clean; the wider internet moved on quickly. The core fans stayed.');
+    if (bandKey === 'miss') notes.push(isDebut ? 'The debut came and went. What survives from it is up to us now.' : 'The comeback came and went. Momentum took the hit; the group did not — yet.');
     notes.push(bn + ' dominated teaser engagement and post-stage searches.');
     if (overshadowed) notes.push('Fans are openly asking why ' + bn + ' is not the center. That conversation is not going away on its own.');
     return notes;

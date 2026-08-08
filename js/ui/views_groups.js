@@ -56,7 +56,7 @@
       if (g.maknae === m.id) roles.push('Maknae');
       html.push('<div class="member-cell" data-action="open-dossier" data-id="' + m.id + '">' +
         UI.portrait(m, 'md') +
-        '<div class="mc-name">' + UI.esc(m.name.given) + '</div>' +
+        '<div class="mc-name">' + UI.esc(m.name.stage || m.name.given) + '</div>' +
         '<div class="mc-role">' + UI.esc(roles.join(' · ') || 'Member') + '</div></div>');
     });
     html.push('</div>');
@@ -87,8 +87,10 @@
     if (g.releases && g.releases.length) {
       html.push('<div class="kicker">Discography</div>');
       g.releases.slice().reverse().forEach(r => {
+        const fmt = KP.C.DEBUT.FORMATS.find(f => f.id === r.format);
         html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(r.week).text) + '</span>' +
           '<div><b>“' + UI.esc(r.songTitle) + '”</b> · ' + UI.esc(KP.conceptById(r.conceptId).label) +
+          (fmt ? ' · ' + UI.esc(fmt.label.toLowerCase()) : '') +
           '<span class="m-week">' + (r.isDebut ? 'debut · ' : '') + 'peaked #' + r.chartPeak +
           (r.chartWeeks ? ' · ' + r.chartWeeks + ' weeks charting' : ' · missed the charts') + '</span></div></div>');
       });

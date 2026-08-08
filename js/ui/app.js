@@ -13,6 +13,7 @@
     view: null,          // pushed view: {type:'dossier'|'builder'|'results', id}
     builderDraft: null,
     studioDraft: { songId: null, conceptId: null, promo: 'standard', week: null,
+      format: 'single', focus: 'musicShows',
       alloc: { vocals: 30, dance: 30, rap: 10, media: 30 } },
   };
 
@@ -125,6 +126,36 @@
         break;
       }
 
+      case 'open-stagename': {
+        const p = s.people[t.dataset.id];
+        const sugg = KP.suggestStageNames(s, p);
+        UI.modal('A name for the lights',
+          '<div class="pad" style="font-size:.82rem;color:var(--ink-dim);margin-bottom:10px">' +
+          UI.esc(p.name.display) + ' signs the fan cards with whatever we choose here. Pick well.</div>' +
+          '<div class="pad"><input class="nc-input" id="stagename-input" maxlength="14" placeholder="Stage name" value="' + UI.esc(p.name.stage || '') + '"></div>' +
+          '<div class="pad" style="display:flex;gap:7px;flex-wrap:wrap">' +
+          sugg.map(n => '<button class="chip" data-action="stagename-pick" data-name="' + UI.esc(n) + '">' + UI.esc(n) + '</button>').join('') +
+          '</div>',
+          '<button class="btn" data-action="close-modal" style="flex:1">Cancel</button>' +
+          '<button class="btn primary" data-action="stagename-save" data-id="' + p.id + '" style="flex:1">Set the name</button>');
+        break;
+      }
+      case 'stagename-pick': {
+        const input = document.getElementById('stagename-input');
+        if (input) input.value = t.dataset.name;
+        break;
+      }
+      case 'stagename-save': {
+        const input = document.getElementById('stagename-input');
+        const r = KP.setStageName(s, t.dataset.id, input ? input.value : '');
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        UI.closeModal();
+        App.save();
+        UI.toast('From now on, the lights say ' + s.people[t.dataset.id].name.stage + '.');
+        App.render();
+        break;
+      }
+
       case 'mediate': {
         const r = KP.mediatePair(s, t.dataset.a, t.dataset.b);
         if (!r.ok) { UI.toast(r.reason, true); break; }
@@ -223,6 +254,8 @@
       }
       case 'studio-concept': App.studioDraft.conceptId = t.dataset.id; App.render(); break;
       case 'studio-promo': App.studioDraft.promo = t.dataset.promo; App.render(); break;
+      case 'studio-format': App.studioDraft.format = t.dataset.format; App.studioDraft.week = null; App.render(); break;
+      case 'studio-focus': App.studioDraft.focus = t.dataset.focus; App.render(); break;
       case 'studio-week': App.studioDraft.week = parseInt(t.dataset.week, 10); App.render(); break;
       case 'studio-lock': {
         const d = App.studioDraft;
@@ -230,7 +263,7 @@
         if (total !== 100) { UI.toast('Allocation totals ' + total + '% — make it 100.', true); break; }
         const sel = s.demos.find(x => x.id === d.songId);
         const r = KP.planDebut(s, { songId: d.songId, conceptId: d.conceptId || sel.conceptId,
-          promo: d.promo, week: d.week, alloc: d.alloc });
+          promo: d.promo, week: d.week, alloc: d.alloc, format: d.format, focus: d.focus });
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
         UI.toast('Locked. ' + KP.weekLabel(d.week).text + '. No going back.');

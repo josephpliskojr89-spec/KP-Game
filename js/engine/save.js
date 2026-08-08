@@ -56,6 +56,28 @@
         }
       }
     } },
+    // v0.2.1 — formats, rollout focus, comeback labels. Backfills old
+    // preps/releases as singles and repairs any comeback report that was
+    // mislabeled with debut wording (owner-reported).
+    { v: '0.2.1', fn: function (state) {
+      const g = state.group;
+      if (!g) return;
+      if (g.prep) {
+        if (!g.prep.format) g.prep.format = 'single';
+        if (!g.prep.focus) g.prep.focus = 'musicShows';
+      }
+      if (g.debuted && !g.promoFocus) g.promoFocus = 'musicShows';
+      (g.releases || []).forEach(r => {
+        if (!r.format) { r.format = 'single'; r.tracks = 2; }
+      });
+      if (g.results) {
+        if (!g.results.format) g.results.format = 'single';
+        if (g.results.isDebut === false) {
+          g.results.receptionLabel =
+            KP.C.COMEBACK.bandLabels[g.results.receptionBand] || g.results.receptionLabel;
+        }
+      }
+    } },
   ];
 
   KP.migrate = function (state) {
