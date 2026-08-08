@@ -170,10 +170,46 @@ live reps + fatigue.
 
 Resolution: performance (skills vs demands, live reliability, prep,
 fatigue) → reception (hook 30%, performance 30%, group fit 14%, trend 13%,
-chemistry 12%, promo, luck σ9) → band (sensation / strong / solid / quiet /
-miss) → breakout (centerPull 70% + conceptFit 30% + center exposure bonus
-+ noise σ14). Consequences: trust delta, reputation drift, revenue,
-member histories, "fans question the center" thread when overshadowed.
+chemistry 12%, promo, luck σ9, plus popularity lift on comebacks and the
+**spark**) → band (sensation / strong / solid / quiet / miss) → breakout
+(centerPull 70% + conceptFit 30% + center exposure bonus + noise σ14).
+Consequences: trust delta, reputation drift, revenue, member histories,
+"fans question the center" thread when overshadowed.
+
+**The spark** (v0.2.0): when a big hook (≥68) meets a magnetic top
+performer (pull ≥66), a 35% roll adds +4..10 — the defining-clip moment,
+noted in the PR digest as a circulating fancam. The sensation band edge
+(75) was calibrated against a measured 200-seed debut distribution to
+~3.5% — rare but never extinct.
+
+## §10b The comeback loop (v0.2.0)
+
+The debut is the first release, not the end. One machinery
+(`planDebut`/`resolveDebut`) serves every release:
+
+- **Objective ladder** (`js/engine/career.js`): when an objective resolves
+  — met, met poorly, or missed — the executive issues the next directive
+  as a letter, with a reinvestment grant (25 + performance-scaled) and
+  sometimes an extra signing. Comeback objectives carry a target reception
+  that moves with the story (last result ± trust). Self-healing predicate:
+  `objectiveSuccessionDue` fires on any resolved objective with no
+  successor, once. Missing a comeback window costs less trust (−15) than
+  missing the debut (−30) and always earns "one more window."
+- **Popularity** (hidden 0–100, worded as burning/hot/warm/cooling/fading):
+  founded by the debut (15 + reception·0.75), compounded by comebacks
+  (0.55·old + 0.55·reception), lifts comeback reception (±12 max) and
+  album revenue, and **decays** (−0.35/week) once promotion + 8 grace weeks
+  end — the room between releases is where momentum goes to die.
+- **Promotion cycle**: 4 weeks after each release, members run hot (fatigue
+  +7/week, media/live exp up); after that, idols *recover* (−8/week).
+  This replaced the v0.1.x bug where idols kept accruing training fatigue
+  forever; the v0.2.0 migration repairs pegged saves with a narrated
+  management-review letter.
+- **Charts-lite**: each release records a peak position (from reception +
+  popularity + σ6 noise) and weeks-charting; the discography on the group
+  page is the story so far, on the record.
+- **Demos refresh** every cycle: resolution clears `state.demos`; the
+  Studio regenerates four on next open, era accent and all.
 
 ## §11 Economy
 
@@ -204,16 +240,20 @@ Industry tab and the wire.
 
 - **Battery** (`node tools/run_battery.js`): accreting suites, exit-code
   verdict. 001 generation (incl. age distribution), 002 scouting/perceived,
-  003 development, 004 group/debut, 005 saves, 006 releasing. ~20k
-  assertions.
-- **Soak** (`node tools/harness.js [seeds]`): auto-player runs 84 weeks per
-  seed through real engine calls; observatory census bands (sensations,
-  strong+, quiet/miss, non-center breakouts, rival steals, burnouts) plus
-  an age census, with EXTINCT/FLOOD alarms; hard invariant guards (scale,
-  ceilings, fatigue, budget, unresolved debuts) kill the run.
+  003 development, 004 group/debut+ladder, 005 saves, 006 releasing,
+  007 mediation, 008 comeback loop (incl. migration). ~20k assertions.
+- **Soak** (`node tools/harness.js [seeds]`): auto-player runs 140 weeks
+  per seed through real engine calls — signings, training, sit-downs,
+  debut, and repeated comebacks; observatory census bands (12: debut
+  reception spread, breakouts, rival steals, burnouts, friction, conflict
+  endings, multi-release looping, top-10 peaks, fanbase survival) plus an
+  age census, with EXTINCT/FLOOD alarms; hard invariant guards (scale,
+  ceilings, fatigue, budget, unresolved releases, pinned idol fatigue,
+  chart bounds) kill the run.
 - **E2E** (`NODE_PATH=$(npm root -g) node test/e2e_walkthrough.js`):
   Playwright drives the real UI at 390×844 through a full career — scouting,
-  training page, release flow, debut, reload — 38 checks.
+  training page, sit-down, release flow, debut, reload, and a full comeback
+  cycle — 48 checks.
 - **Lockstep** (`node tools/version_lockstep.js`): version agrees across
   constants, sw cache key, index cache-busters, splash tag, precache list.
 
@@ -253,7 +293,10 @@ executive politics. Phase 5: generations and long-term history.
 Phase 2 system is designed. The brief's MVP success test (§20) is the
 checklist for that conversation.
 
-## §17 Planned work — the procedural mandate (v0.2.x line)
+## §17 Planned work — the procedural mandate (v0.3.x line)
+
+*(Renumbered from v0.2.x: the owner finished the slice and chose the
+comeback loop first — it shipped as v0.2.0. This mandate is next in line.)*
 
 > Owner, after v0.1.0 shipped: *"the next step for the game will be making
 > everything procedural. every run should feel different."*
@@ -284,41 +327,41 @@ observatory prove every archetype of world stays alive and nothing floods.
 
 ### Phases (each a small versioned release: code + suite + soak + ledger)
 
-- **v0.2.0 — Voices and names.** Content generators replace shallow pools:
+- **v0.3.0 — Voices and names.** Content generators replace shallow pools:
   syllable-built Korean names (collision-checked), song-title grammar,
   group-name generator, producer/headline generators. Blurbs become
   assembled lines (voice × domain × band × detail fragment) instead of
   fixed strings — target ≥10× effective variety. Law 2 holds: assembly is
   hash-picked, deterministic per person/evaluator/observation.
-- **v0.2.1 — The staff.** Evaluators are generated people: name, role,
+- **v0.3.1 — The staff.** Evaluators are generated people: name, role,
   favored domain, accuracy, and a voice that mechanically selects their
   blurb register (precise / blunt / instinct / dry / poetic). Staff differ
   per save, so *whose* opinion you learn to trust differs per save.
-- **v0.2.2 — The company you join.** Player company and rivals generated:
+- **v0.3.2 — The company you join.** Player company and rivals generated:
   names, sizes, budgets, philosophies, reputation profiles. Signatures get
   mechanical pull (a vocal-house's inherited trainees skew vocal; a
   performance-house attracts dance prospects — reputation is gravity, per
   brief §12). Rival count 2–4; philosophies sampled; Whitecliff's "patient"
   archetype finally activates.
-- **v0.2.3 — The scenario.** The scripted §25 openers become a **hook
+- **v0.3.3 — The scenario.** The scripted §25 openers become a **hook
   library** the generator samples 2–3 from: broken brilliance (elite at X,
   poor at Y), hidden gem (ordinary reads, strange scout notes), sunk-cost
   veteran ("use her or cut her"), contested prospect, feuding pair,
   natural mentor. Same teaching function every run, different people every
   run. Objective generator varies deadline (60–84wk), member range,
   signings allowance, and budget, all framed in the executive's voice.
-- **v0.2.4 — Executives with teeth.** Personality becomes mechanics:
+- **v0.3.4 — Executives with teeth.** Personality becomes mechanics:
   patience scales deadline-pressure events and missed-deadline penalty;
   trend-chasers judge reception vs trendFit, traditionalists vs brand fit;
   micromanagers send more directives; profit hunters weight revenue in
   trust deltas. Review and debut lines come from personality-keyed tables.
-- **v0.2.5 — The market moves.** A per-seed trend state (which concept
+- **v0.3.5 — The market moves.** A per-seed trend state (which concept
   families are rising/falling) drifts over time. `trendFit` is computed
   against the trend state at release week, not stored on the song — so the
   *same* demo is a different bet in month 3 vs month 12, and comeback
   timing (brief §10) becomes a real decision. Headlines report actual
   world events (rival signings, trend shifts), not flavor.
-- **v0.2.6 — Pre-history.** Generate 3–5 years of industry past at new
+- **v0.3.6 — Pre-history.** Generate 3–5 years of industry past at new
   game: rival groups with names, debut receptions, a chart memory. Company
   reputations are *derived from that history* instead of declared, and the
   wire/Industry tab reference real prior events. This is the foundation
@@ -440,5 +483,30 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Numbers: battery 7/7 (suite 007 added), soak clean with two new
 > relationship census bands, e2e 42/42 (stages a conflict, resolves it
 > through the UI), lockstep 0.1.2. New watch item: sit-down treadmill.
+> Rode to main.
+
+> **v0.2.0 — the comeback loop** (owner finished the slice: *"I created a
+> group, they debuted... now what?"* — chose the comeback loop over
+> starting the procedural line, which renumbers to v0.3.x)
+> The debut is now the first release, not the ending. Objective ladder:
+> every resolved directive summons the next as an executive letter with a
+> reinvestment grant — comeback targets that move with the story, gentler
+> deadline penalties, always "one more window." Popularity founded at
+> debut, compounded by comebacks, decaying in the room between releases;
+> worded (burning/hot/warm/cooling/fading), never a meter. Promotion
+> cycle: 4 hot weeks then real recovery — which killed a live bug found
+> during design: idols kept their training intensity forever and pegged at
+> 100 fatigue post-debut; the migration repairs afflicted saves with a
+> narrated management-review letter. Charts-lite peaks + weeks per
+> release; discography on the group page; Studio reopens each cycle with
+> fresh demos; era accents follow the new concept. Also new: **the
+> spark** — a big hook plus a magnetic performer can catch fire (+4..10,
+> fancam note in the PR digest) — added after the observatory declared
+> sensation debuts EXTINCT; the sensation band edge was then calibrated
+> against a measured 200-seed distribution (78 → 75, ~3.5% of debuts).
+> Numbers: battery 8/8 (suite 008: ladder, cycle, decay, fatigue
+> recovery, migration, determinism), 140-week 40-seed soak clean with 12
+> census bands (8.0 releases/org, every org loops, fanbases survive),
+> e2e 48/48 (plays a full comeback cycle), lockstep 0.2.0 (23 modules).
 > Rode to main.
 

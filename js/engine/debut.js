@@ -5,18 +5,20 @@
   'use strict';
   const KP = root.KP = root.KP || {};
 
-  // Schedule the debut: lock song, concept, prep allocation, promo, week.
+  // Schedule a release: lock song, concept, prep allocation, promo, week.
+  // Works for the debut and for every comeback after it.
   KP.planDebut = function (state, plan) {
     const D = KP.C.DEBUT;
     const g = state.group;
     if (!g) return { ok: false, reason: 'No group to debut.' };
-    if (g.debuted) return { ok: false, reason: 'They have already debuted.' };
+    if (g.prep) return { ok: false, reason: 'A release is already locked.' };
     const demo = (state.demos || []).find(s => s.id === plan.songId);
     if (!demo) return { ok: false, reason: 'Choose a title track.' };
     if (plan.week < state.week + D.prepWeeksMin) {
       return { ok: false, reason: 'Production needs at least ' + D.prepWeeksMin + ' weeks of runway.' };
     }
-    if (plan.week > state.objective.deadlineWeek) {
+    if (state.objective.type === 'debutGirlGroup' && state.objective.status === 'open' &&
+        plan.week > state.objective.deadlineWeek) {
       return { ok: false, reason: 'That date is past the executive deadline. Do not test her.' };
     }
     const alloc = plan.alloc || { vocals: 25, dance: 25, rap: 25, media: 25 };
@@ -37,10 +39,10 @@
     return { ok: true };
   };
 
-  // Weekly debut-prep: focused rehearsal replaces individual training focus.
+  // Weekly release-prep: focused rehearsal replaces individual training.
   KP.prepWeek = function (state, rng) {
     const g = state.group;
-    if (!g || !g.prep || g.debuted) return [];
+    if (!g || !g.prep) return [];
     const notes = [];
     const members = g.members.map(id => state.people[id]);
     const a = g.prep.alloc;
@@ -58,14 +60,15 @@
     });
     g.prep.progress++;
     const weeksLeft = g.prep.scheduledWeek - state.week;
-    if (weeksLeft === 2) notes.push({ kind: 'debut', text: 'Two weeks out. Teasers are cut, the showcase stage is booked, and everyone is sleeping badly.' });
+    if (weeksLeft === 2) notes.push({ kind: 'debut', text: 'Two weeks out. Teasers are cut, the stage is booked, and everyone is sleeping badly.' });
     return notes;
   };
 
-  // Resolve the debut. Self-healing predicate: fires when due OR overdue.
+  // Resolve a locked release. Self-healing: fires when due OR overdue.
+  // (prep is cleared on resolution, so it can never double-fire.)
   KP.debutDue = function (state) {
     const g = state.group;
-    return !!(g && g.prep && !g.debuted && state.week >= g.prep.scheduledWeek);
+    return !!(g && g.prep && state.week >= g.prep.scheduledWeek);
   };
 
   KP.resolveDebut = function (state, rng) {
@@ -92,13 +95,6 @@
     const groupFit = fits.reduce((s, v) => s + v, 0) / fits.length;
     const chem = KP.groupChemistry(state, members);
 
-    // --- public reception: material + performance + fit + promo + luck
-    const luck = rng.normal(0, D.luckSd);
-    const reception = KP.clamp(Math.round(
-      demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
-      groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] + luck), 1, 100);
-    const band = D.receptionBands.find(b => reception >= b.min);
-
     // --- breakout: the public picks whom to watch (center gets exposure, not destiny)
     const pulls = members.map(m => {
       let pull = KP.derived(m).centerPull * 0.7 + KP.conceptFit(m, concept) * 0.3;
@@ -107,6 +103,21 @@
       return { m, pull };
     }).sort((a, b) => b.pull - a.pull);
     const breakout = pulls[0].m;
+
+    // --- public reception: material + performance + fit + promo + luck,
+    //     for comebacks the fanbase already earned — and, rarely, the
+    //     defining clip: a big hook + a magnetic performer catching fire
+    const isDebut = !g.debuted;
+    const luck = rng.normal(0, D.luckSd);
+    const popLift = isDebut ? 0 : ((g.popularity || 0) - 50) * KP.C.COMEBACK.popFactor;
+    let spark = 0;
+    if (demo.hook >= D.spark.hookMin && pulls[0].pull >= D.spark.pullMin && rng.chance(D.spark.chance)) {
+      spark = D.spark.boostMin + rng.next() * (D.spark.boostMax - D.spark.boostMin);
+    }
+    const reception = KP.clamp(Math.round(
+      demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
+      groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] + popLift + spark + luck), 1, 100);
+    const band = D.receptionBands.find(b => reception >= b.min);
     const centerOvershadowed = breakout.id !== g.roles.center &&
       pulls.find(x => x.m.id === g.roles.center).pull < pulls[0].pull - 8;
 
@@ -114,29 +125,53 @@
     members.forEach(m => {
       m.status = 'idol';
       m.liveExp += 10; m.mediaExp += 6;
-      m.history.push({ week: state.week, text: 'Debuted with ' + g.name + ' — “' + demo.title + '”.' });
+      m.history.push({ week: state.week, text: (isDebut ? 'Debuted with ' : 'Comeback with ') + g.name + ' — “' + demo.title + '”.' });
     });
     breakout.personality.confidence = KP.clamp(breakout.personality.confidence + 8, 0, 100);
-    breakout.history.push({ week: state.week, text: 'Named the breakout of the debut by nearly every recap.' });
+    breakout.history.push({ week: state.week, text: 'Named the breakout of the ' + (isDebut ? 'debut' : 'comeback') + ' by nearly every recap.' });
 
-    const trustDelta = KP.C.EXEC.debutTrustDelta[band.key];
+    // trust + objective resolution, by what the executive actually asked for
+    let trustDelta;
+    if (isDebut) {
+      trustDelta = KP.C.EXEC.debutTrustDelta[band.key];
+      if (state.objective.type === 'debutGirlGroup' && state.objective.status === 'open') {
+        state.objective.status = reception >= 50 ? 'met' : 'metPoorly';
+      }
+    } else {
+      trustDelta = KP.C.COMEBACK.comebackTrustDelta[band.key];
+      if (state.objective.type === 'comeback' && state.objective.status === 'open') {
+        state.objective.status = reception >= state.objective.targetReception ? 'met' : 'metPoorly';
+        if (state.objective.status === 'metPoorly') trustDelta -= 3;
+      }
+    }
     state.trust = KP.clamp(state.trust + trustDelta, KP.C.EXEC.trustFloor, KP.C.EXEC.trustCap);
-    state.objective.status = reception >= 50 ? 'met' : 'metPoorly';
 
     // company reputation drifts toward what actually happened
     const rep = state.company.reputation;
-    if (reception >= 64) rep.girlGroup = KP.clamp((rep.girlGroup || 40) + 12, 0, 100);
+    if (reception >= 64) rep.girlGroup = KP.clamp((rep.girlGroup || 40) + (isDebut ? 12 : 6), 0, 100);
     if (avg('vocals') >= 62) rep.vocal = KP.clamp((rep.vocal || 60) + 4, 0, 100);
-    if (breakout && reception >= 64) rep.starMaker = KP.clamp((rep.starMaker || 35) + 8, 0, 100);
+    if (breakout && reception >= 64) rep.starMaker = KP.clamp((rep.starMaker || 35) + (isDebut ? 8 : 4), 0, 100);
 
-    // revenue: a hit pays
-    const revenue = Math.round(Math.max(0, reception - 30) * 1.6);
+    // revenue: a hit pays, and an established fanbase buys albums
+    const revenue = Math.round(Math.max(0, reception - 30) * 1.6 + (isDebut ? 0 : (g.popularity || 0) * 0.4));
     state.budget += revenue;
 
+    // popularity: the debut founds the fanbase; comebacks compound or cool it
+    g.popularity = isDebut
+      ? KP.clamp(Math.round(15 + reception * 0.75), 0, 100)
+      : KP.clamp(Math.round(g.popularity * 0.55 + reception * 0.55), 0, 100);
+
+    // charts-lite: peak position + weeks charting
+    const peak = KP.clamp(Math.round(104 - (reception * 0.92 + g.popularity * 0.22) + rng.normal(0, KP.C.CHART.noiseSd)), 1, 100);
+    const weeksOn = KP.clamp(Math.round((reception - 28) / 6), 0, KP.C.CHART.maxWeeksOn);
+
+    if (isDebut) { g.debutWeek = state.week; }
     g.debuted = true;
-    g.debutWeek = state.week;
+    g.lastReleaseWeek = state.week;
+    g.promoUntil = state.week + KP.C.COMEBACK.promoWeeks;
     g.results = {
       week: state.week,
+      isDebut,
       songTitle: demo.title,
       conceptId: concept.id,
       performance: Math.round(performance),
@@ -145,9 +180,18 @@
       centerOvershadowed,
       chem, groupFit: Math.round(groupFit),
       trustDelta, revenue,
+      chartPeak: peak, chartWeeks: weeksOn,
       execLine: execDebutLine(band.key, centerOvershadowed, state),
-      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng),
+      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0),
     };
+    g.releases = g.releases || [];
+    g.releases.push({
+      week: state.week, songTitle: demo.title, conceptId: concept.id,
+      reception, receptionBand: band.key, chartPeak: peak, chartWeeks: weeksOn,
+      isDebut,
+    });
+    g.prep = null;
+    state.demos = null;   // the producers bring fresh demos for the next cycle
     return g.results;
   };
 
@@ -161,9 +205,10 @@
     }
   }
 
-  function publicNotes(state, bandKey, breakout, overshadowed, demo, rng) {
+  function publicNotes(state, bandKey, breakout, overshadowed, demo, rng, sparked) {
     const notes = [];
     const bn = breakout.name.display;
+    if (sparked) notes.push('A fancam of ' + bn + ' is circulating far beyond the usual audience. The clip is doing the promotion’s job for free.');
     if (bandKey === 'sensation') notes.push('One performance clip is everywhere. Marketing would like to know what we’re doing next while everyone is still paying attention.');
     if (bandKey === 'strong') notes.push('“' + demo.title + '” is holding on the charts past week one — the good sign.');
     if (bandKey === 'solid') notes.push('Reviews are kind; numbers are cautious. The second single will decide the story.');

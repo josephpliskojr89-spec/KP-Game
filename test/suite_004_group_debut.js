@@ -70,7 +70,11 @@ function buildGroup(state) {
     t.ok(r.performance >= 1 && r.performance <= 100, 'seed ' + s + ': performance bounded');
     t.ok(!!state.people[r.breakoutId], 'seed ' + s + ': breakout member exists');
     t.ok(state.trust !== trustBefore, 'seed ' + s + ': the executive reacted');
-    t.ok(['met', 'metPoorly'].includes(state.objective.status), 'seed ' + s + ': objective resolved');
+    // v0.2.0: the resolved debut objective is archived and succeeded by an
+    // open comeback directive — the ladder never leaves the player idle
+    const archived = (state.objectiveHistory || []).find(o => o.type === 'debutGirlGroup');
+    t.ok(archived && ['met', 'metPoorly'].includes(archived.status), 'seed ' + s + ': debut objective resolved and archived');
+    t.ok(state.objective.type === 'comeback' && state.objective.status === 'open', 'seed ' + s + ': a comeback directive succeeded it');
     t.ok(state.group.members.every(id => state.people[id].status === 'idol'), 'seed ' + s + ': members became idols');
     bands[r.receptionBand] = (bands[r.receptionBand] || 0) + 1;
     if (r.breakoutId === state.group.roles.center) centerBreakouts++;

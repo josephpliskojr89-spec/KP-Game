@@ -13,7 +13,6 @@
         '<div class="g-name" style="font-size:clamp(1.7rem,8vw,2.4rem)">No artist,<br>no record.</div>' +
         '<div style="color:var(--ink-dim);font-size:.86rem;margin-top:8px;line-height:1.5">Form a group first. The demos will be waiting.</div></div>';
     }
-    if (g.debuted && g.results) return UI.renderResults(state);
     if (g.prep) {
       const inW = g.prep.scheduledWeek - state.week;
       const demo = state.demos.find(s => s.id === g.prep.songId);
@@ -23,7 +22,7 @@
         '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px">' +
         '<span class="chip cool">' + UI.esc(KP.conceptById(g.prep.conceptId).label) + '</span>' +
         '<span class="chip">' + UI.esc(g.prep.promo) + ' promotion</span>' +
-        '<span class="chip hot">' + (inW <= 0 ? 'this week' : inW + ' week' + (inW === 1 ? '' : 's') + ' to debut') + '</span></div>' +
+        '<span class="chip hot">' + (inW <= 0 ? 'this week' : inW + ' week' + (inW === 1 ? '' : 's') + ' to ' + (g.debuted ? 'comeback' : 'debut')) + '</span></div>' +
         '<div style="color:var(--ink-dim);font-size:.84rem;margin-top:12px;line-height:1.5">Rehearsal split — vocals ' + g.prep.alloc.vocals + '%, dance ' + g.prep.alloc.dance + '%, rap ' + g.prep.alloc.rap + '%, media ' + g.prep.alloc.media + '%. Advance the weeks. The date does not move.</div></div>';
     }
 
@@ -39,8 +38,10 @@
     const conceptId = draft.conceptId || (sel ? sel.conceptId : null);
     if (conceptId) UI.setEra(conceptId);
 
-    html.push('<div class="pad"><div class="d-label">Debut planning · ' + UI.esc(g.name) + '</div>' +
-      '<div class="bigname" style="font-size:clamp(1.6rem,8vw,2.2rem)">Pick the record.<br>Pick the day.</div></div>');
+    html.push('<div class="pad"><div class="d-label">' + (g.debuted ? 'Comeback planning' : 'Debut planning') + ' · ' + UI.esc(g.name) + '</div>' +
+      '<div class="bigname" style="font-size:clamp(1.6rem,8vw,2.2rem)">Pick the record.<br>Pick the day.</div>' +
+      (g.debuted && g.results ? '<div style="font-size:.76rem;color:var(--ink-dim);margin-top:8px">Last release: “' + UI.esc(g.results.songTitle) + '” — ' + UI.esc(g.results.receptionLabel.toLowerCase()) + ', peaked #' + g.results.chartPeak + '. The room is ' + KP.popularityWord(g.popularity) + '.</div>' : '') +
+      '</div>');
 
     html.push('<div class="kicker">Demos on the desk</div>');
     state.demos.forEach(demo => {
@@ -79,7 +80,10 @@
 
       const minW = state.week + KP.C.DEBUT.prepWeeksMin;
       const options = [];
-      for (let w = minW; w <= Math.min(minW + 16, state.objective.deadlineWeek); w += 2) options.push(w);
+      const lastOption = (state.objective.status === 'open' && state.objective.type === 'debutGirlGroup')
+        ? Math.min(minW + 16, state.objective.deadlineWeek)
+        : minW + 16;
+      for (let w = minW; w <= lastOption; w += 2) options.push(w);
       html.push('<div class="kicker">The date</div>');
       html.push('<div class="pad"><div style="display:flex;gap:8px;flex-wrap:wrap">' +
         options.map(w => '<button class="chip ' + (draft.week === w ? 'hot' : '') + '" data-action="studio-week" data-week="' + w + '">' +
@@ -89,7 +93,7 @@
         '</div>');
 
       html.push('<div class="pad" style="margin-top:20px">' +
-        '<button class="btn primary" style="width:100%" data-action="studio-lock"' + (draft.week ? '' : ' disabled') + '>Lock the debut</button></div>');
+        '<button class="btn primary" style="width:100%" data-action="studio-lock"' + (draft.week ? '' : ' disabled') + '>Lock the ' + (g.debuted ? 'comeback' : 'debut') + '</button></div>');
     }
     return html.join('');
   };
@@ -103,12 +107,13 @@
     const breakout = state.people[r.breakoutId];
 
     html.push('<div class="result-hero">' +
-      '<div class="r-band">Debut report · ' + UI.esc(KP.weekLabel(r.week).text) + '</div>' +
+      '<div class="r-band">' + (r.isDebut === false ? 'Comeback report' : 'Debut report') + ' · ' + UI.esc(KP.weekLabel(r.week).text) + '</div>' +
       '<div class="r-title">' + UI.esc(r.receptionLabel) + '</div>' +
       '<div class="r-song">' + UI.esc(g.name) + ' — “' + UI.esc(r.songTitle) + '” · ' + UI.esc(KP.conceptById(r.conceptId).label) + '</div>' +
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px">' +
       '<span class="chip">stage: ' + perfWord(r.performance) + '</span>' +
       '<span class="chip">room: ' + chemWord(r.chem) + '</span>' +
+      (r.chartPeak != null ? '<span class="chip cool">peaked #' + r.chartPeak + '</span>' : '') +
       '<span class="chip gold">revenue +' + r.revenue + '</span>' +
       '</div></div>');
 

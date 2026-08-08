@@ -23,14 +23,19 @@ const BANDS = {
   instinctSigning:   { lo: 0.00, hi: 1.00, label: 'scout instinct notes seen' },
   frictionSeen:      { lo: 0.20, hi: 1.00, label: 'orgs that saw real friction' },
   conflictEndemic:   { lo: 0.00, hi: 0.25, label: 'orgs ending conflict-heavy (>30% pairs)' },
+  multiRelease:      { lo: 0.70, hi: 1.00, label: 'orgs with >=2 releases (the loop loops)' },
+  chartTopTen:       { lo: 0.05, hi: 0.70, label: 'orgs with a top-10 chart peak' },
+  popAlive:          { lo: 0.50, hi: 1.00, label: 'orgs ending with a warm-or-better fanbase' },
 };
 
 const tally = {
   sensation: 0, strongPlus: 0, missOrQuiet: 0, nonCenterBreakout: 0,
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
   frictionSeen: 0, conflictEndemic: 0,
+  multiRelease: 0, chartTopTen: 0, popAlive: 0,
 };
 let mediationsRun = 0;
+let totalReleases = 0;
 const receptions = [];
 const growths = [];
 const allAges = [];
@@ -48,7 +53,7 @@ for (let s = 0; s < SEEDS; s++) {
   Object.values(state.people).forEach(p => allAges.push(p.age));
   let sawFriction = false;
 
-  for (let w = 0; w < 84; w++) {
+  for (let w = 0; w < 140; w++) {
     // --- auto-player policy (perceived reads only) ---
     if (state.week <= 3 && state.signingsUsed < state.signingsAllowed) {
       const ranked = state.prospects.map(id => state.people[id])
@@ -83,15 +88,29 @@ for (let s = 0; s < SEEDS; s++) {
       const name = KP.suggestGroupNames(state, KP.rngFor(state))[0];
       KP.proposeGroup(state, name, members.map(m => m.id), hints);
     }
-    // plan the debut once formed
-    if (state.group && !state.group.prep && !state.group.debuted) {
-      state.demos = state.demos || KP.generateDemos(state, KP.rngFor(state));
-      const demo = state.demos.slice().sort((a, b) => b.hook - a.hook)[0];
-      KP.planDebut(state, {
-        songId: demo.id, conceptId: demo.conceptId, promo: 'standard',
-        week: Math.min(state.week + 8, state.objective.deadlineWeek),
-        alloc: { vocals: 30, dance: 30, rap: 10, media: 30 },
-      });
+    // plan the next release once formed — the debut and every comeback
+    // after it ride the same studio path
+    if (state.group && !state.group.prep &&
+        (!state.group.debuted || state.week > (state.group.promoUntil || 0) + 2)) {
+      // the debut gets full investment (as a human would); comebacks
+      // economize when the division runs tight
+      const promoAffordable = (!state.group.debuted || state.budget > 60) ? 'standard' : 'modest';
+      if (state.budget > KP.C.DEBUT.promoCost[promoAffordable] + KP.C.ECON.productionCost) {
+        if (!state.demos) {
+          const rng = KP.rngFor(state);
+          state.demos = KP.generateDemos(state, rng);
+          state.rngState = rng.state();
+        }
+        const demo = state.demos.slice().sort((a, b) => b.hook - a.hook)[0];
+        const targetWeek = state.group.debuted
+          ? state.week + 8
+          : Math.min(state.week + 8, state.objective.deadlineWeek);
+        KP.planDebut(state, {
+          songId: demo.id, conceptId: demo.conceptId, promo: promoAffordable,
+          week: targetWeek,
+          alloc: { vocals: 30, dance: 30, rap: 10, media: 30 },
+        });
+      }
     }
 
     const notes = KP.advanceWeek(state);
@@ -108,22 +127,35 @@ for (let s = 0; s < SEEDS; s++) {
       guard(p.fatigue >= 0 && p.fatigue <= 100, seed + ' ' + p.id + ' fatigue out of range');
     });
     guard(state.budget >= 0, seed + ' negative budget: ' + state.budget);
-    if (state.group && state.group.prep && !state.group.debuted) {
-      guard(state.week <= state.group.prep.scheduledWeek, seed + ' debut sailed past unresolved');
+    if (state.group && state.group.prep) {
+      guard(state.week <= state.group.prep.scheduledWeek, seed + ' a locked release sailed past unresolved');
     }
   }
 
   // --- per-seed observatory tallies ---
-  guard(state.objective.status !== 'open', seed + ' objective never resolved by week ' + state.week);
   const g = state.group;
   guard(!!(g && g.debuted && g.results), seed + ' auto-player failed to reach a debut');
+  guard((state.objectiveHistory || []).length >= 1, seed + ' the objective ladder never advanced');
+  if (g && g.debuted) {
+    guard(g.members.map(id => state.people[id])
+      .every(p => p.fatigue <= 90 || g.prep || state.week <= (g.promoUntil || 0)),
+      seed + ' idols pinned at high fatigue with no schedule to blame');
+  }
   if (g && g.results) {
-    const r = g.results;
-    receptions.push(r.reception);
-    if (r.receptionBand === 'sensation') tally.sensation++;
-    if (['sensation', 'strong'].includes(r.receptionBand)) tally.strongPlus++;
-    if (['quiet', 'miss'].includes(r.receptionBand)) tally.missOrQuiet++;
-    if (r.breakoutId !== g.roles.center) tally.nonCenterBreakout++;
+    const first = (g.releases && g.releases[0]) || g.results;
+    receptions.push(first.reception);
+    if (first.receptionBand === 'sensation') tally.sensation++;
+    if (['sensation', 'strong'].includes(first.receptionBand)) tally.strongPlus++;
+    if (['quiet', 'miss'].includes(first.receptionBand)) tally.missOrQuiet++;
+    if (g.results.breakoutId !== g.roles.center) tally.nonCenterBreakout++;
+    totalReleases += (g.releases || []).length;
+    if ((g.releases || []).length >= 2) tally.multiRelease++;
+    if ((g.releases || []).some(r => r.chartPeak <= 10)) tally.chartTopTen++;
+    if ((g.popularity || 0) >= 42) tally.popAlive++;
+    (g.releases || []).forEach(r => {
+      guard(r.chartPeak >= 1 && r.chartPeak <= 100, seed + ' chart peak out of range');
+      guard(r.chartWeeks >= 0 && r.chartWeeks <= KP.C.CHART.maxWeeksOn, seed + ' chart weeks out of range');
+    });
   }
   if (Object.values(state.people).some(p => p.status === 'rival')) tally.rivalSteals++;
   if (burnoutSeen) tally.burnouts++;
@@ -154,11 +186,12 @@ function avgRosterTalent(state) {
 }
 
 // --- report ---
-console.log('=== Observatory — ' + SEEDS + ' seeds, 84 weeks each ===');
+console.log('=== Observatory — ' + SEEDS + ' seeds, 140 weeks each ===');
 receptions.sort((a, b) => a - b);
 const med = receptions[Math.floor(receptions.length / 2)] || 0;
-console.log('reception: median ' + med +
+console.log('debut reception: median ' + med +
   ', min ' + (receptions[0] || 0) + ', max ' + (receptions[receptions.length - 1] || 0));
+console.log('releases per org: ' + (totalReleases / SEEDS).toFixed(1) + ' average');
 console.log('avg roster talent growth over the run: ' +
   (growths.reduce((a, b) => a + b, 0) / Math.max(1, growths.length)).toFixed(1) + ' pts');
 

@@ -28,14 +28,23 @@
 
     const roster = state.roster.map(id => state.people[id]);
 
-    // 1. development (or debut prep, which replaces training for group members)
-    const prepping = state.group && state.group.prep && !state.group.debuted;
-    const prepIds = prepping ? state.group.members : [];
+    // 1. development (or release prep, which replaces training for members);
+    //    idols live on the promotion/recovery cycle, not the training room
+    const g = state.group;
+    const prepping = g && g.prep;
+    const prepIds = prepping ? g.members : [];
     roster.forEach(p => {
       if (prepIds.includes(p.id)) return;
+      if (p.status === 'idol') { idolWeek(state, p); return; }
       KP.developWeek(state, p, rng).forEach(n => inbox.push(n));
     });
     if (prepping) KP.prepWeek(state, rng).forEach(n => inbox.push(n));
+
+    // popularity cools once the promotion cycle and its afterglow end
+    if (g && g.debuted && !g.prep &&
+        state.week > (g.promoUntil || 0) + KP.C.COMEBACK.decayGraceWeeks) {
+      g.popularity = Math.max(0, (g.popularity || 0) - KP.C.COMEBACK.popDecayPerWeek);
+    }
 
     // 2. showcase cadence (live reps for everyone, sharper reads)
     if (state.week % KP.C.TRAIN.showcaseEveryWeeks === 0 && roster.length) {
@@ -51,19 +60,29 @@
     // 5. table events
     KP.eventsWeek(state, rng).forEach(n => inbox.push(n));
 
-    // 6. debut resolution — due or overdue, never an exact-date match
+    // 6. release resolution — due or overdue, never an exact-date match
     if (KP.debutDue(state)) {
       const res = KP.resolveDebut(state, rng);
       inbox.push({ kind: 'debut', urgent: true,
-        text: state.group.name + ' debuted with “' + res.songTitle + '”. ' + res.receptionLabel + '. Full report in the Studio.' });
+        text: state.group.name + (res.isDebut ? ' debuted with “' : ' came back with “') +
+          res.songTitle + '”. ' + res.receptionLabel + '. Full report in the Studio.' });
     }
 
     // 7. deadline check — self-healing: fires when overdue, once
     if (state.objective.status === 'open' && state.week > state.objective.deadlineWeek) {
       state.objective.status = 'missed';
-      state.trust = KP.clamp(state.trust + KP.C.EXEC.missedDeadlinePenalty, 0, 100);
+      const isComeback = state.objective.type === 'comeback';
+      const penalty = isComeback ? KP.C.COMEBACK.missedDeadlinePenalty : KP.C.EXEC.missedDeadlinePenalty;
+      state.trust = KP.clamp(state.trust + penalty, 0, 100);
       inbox.push({ kind: 'executive', urgent: true,
-        text: state.executive.name + ': “The deadline has passed without a debut. I defended this division at the board today. I will not do it twice.”' });
+        text: isComeback
+          ? state.executive.name + ': “The comeback window closed with nothing in it. Momentum does not wait for us, and neither does the board.”'
+          : state.executive.name + ': “The deadline has passed without a debut. I defended this division at the board today. I will not do it twice.”' });
+    }
+
+    // 7b. the ladder: a finished objective summons the next directive
+    if (KP.objectiveSuccessionDue(state)) {
+      inbox.push(KP.issueNextObjective(state, rng));
     }
 
     // 8. month boundary: stipend + costs + a headline
@@ -83,6 +102,21 @@
     saveRng(state, rng);
     return kept;
   };
+
+  // Idol weeks: promotion runs hot, then the schedule finally breathes.
+  function idolWeek(state, p) {
+    const CB = KP.C.COMEBACK;
+    const g = state.group;
+    const promoting = g && g.debuted && state.week <= (g.promoUntil || 0);
+    if (promoting) {
+      p.fatigue = KP.clamp(p.fatigue + CB.promoFatigue, 0, 100);
+      p.mediaExp += 2;
+      p.liveExp += 1.5;
+    } else {
+      p.fatigue = KP.clamp(p.fatigue - CB.idolRecovery, 0, 100);
+      p.morale = KP.clamp(p.morale + 1, 0, 100);
+    }
+  }
 
   // ---- Training assignment (UI-facing) ---------------------------------
   KP.setTraining = function (state, personId, focus, intensity) {
@@ -127,8 +161,9 @@
     const items = [];
     const nextShowcase = state.week + (KP.C.TRAIN.showcaseEveryWeeks - (state.week % KP.C.TRAIN.showcaseEveryWeeks));
     items.push({ week: nextShowcase, label: 'Monthly showcase' });
-    if (state.group && state.group.prep && !state.group.debuted) {
-      items.push({ week: state.group.prep.scheduledWeek, label: state.group.name + ' debut', hot: true });
+    if (state.group && state.group.prep) {
+      items.push({ week: state.group.prep.scheduledWeek,
+        label: state.group.name + (state.group.debuted ? ' comeback' : ' debut'), hot: true });
     }
     if (state.objective.status === 'open') {
       items.push({ week: state.objective.deadlineWeek, label: 'Executive deadline', hot: true });

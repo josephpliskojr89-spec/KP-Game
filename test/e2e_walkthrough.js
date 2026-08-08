@@ -207,7 +207,36 @@ async function main() {
   await page.waitForSelector('.objective');
   ok((await page.textContent('#tb-week')) === weekBefore, 'reload restored the autosave at the same week');
   await tap('[data-nav=groups]');
-  ok((await page.textContent('#screen')).includes('Debuted'), 'group remembers its debut after reload');
+  ok((await page.textContent('#screen')).includes('Discography'), 'group page shows a discography after reload');
+
+  // --- the ladder: a comeback directive succeeded the debut objective ---
+  await tap('[data-nav=desk]');
+  ok((await page.textContent('.objective')).includes('comeback'), 'the executive already set the next target');
+
+  // --- ride out promotion, then plan and resolve a comeback ---
+  for (let i = 0; i < 5; i++) await advanceWeek();
+  await tap('[data-nav=studio]');
+  await page.waitForSelector('.demo-card');
+  ok((await page.textContent('#screen')).includes('Comeback planning'), 'the studio reopened with fresh demos');
+  await tap('.demo-card');
+  await page.waitForSelector('[data-action=studio-week]');
+  await tap('[data-action=studio-week]');
+  await tap('[data-action=studio-lock]');
+  await page.waitForTimeout(150);
+  ok((await page.textContent('#screen')).includes('comeback'), 'the comeback is locked');
+  let comebackSeen = false;
+  for (let i = 0; i < 12; i++) {
+    await tap('#advance-btn');
+    await page.waitForTimeout(140);
+    if (await page.$('.result-hero')) { comebackSeen = true; break; }
+    await closeModalIfOpen();
+  }
+  ok(comebackSeen, 'the comeback resolved into a report');
+  ok((await page.textContent('.result-hero')).includes('Comeback report'), 'the report knows it is a comeback');
+  await tap('[data-action=back]');
+  await tap('[data-nav=groups]');
+  const disco = await page.textContent('#screen');
+  ok((disco.match(/peaked #/g) || []).length >= 2, 'discography lists both releases with chart peaks');
 
   await browser.close();
   server.close();

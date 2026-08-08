@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.1.2',
+    VERSION: '0.2.0',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -150,13 +150,34 @@
       luckSd: 9,                 // public reaction noise — the market is not a formula
       breakoutNoiseSd: 14,       // who the public actually watches
       centerBreakoutBonus: 10,   // exposure edge, not destiny
+      // the defining clip: a big hook + a magnetic performer can catch fire
+      spark: { hookMin: 68, pullMin: 66, chance: 0.35, boostMin: 4, boostMax: 10 },
       receptionBands: [
-        { min: 78, key: 'sensation', label: 'A sensation' },
+        // sensation edge calibrated v0.2.0: measured 200-seed debut
+        // distribution put >=75 at 3.5% — rare but alive, never extinct
+        { min: 75, key: 'sensation', label: 'A sensation' },
         { min: 64, key: 'strong', label: 'A strong debut' },
         { min: 50, key: 'solid', label: 'A respectable start' },
         { min: 38, key: 'quiet', label: 'A quiet landing' },
         { min: -101, key: 'miss', label: 'A miss' },
       ],
+    },
+
+    // ---- Comebacks, popularity & charts (v0.2.0) ------------------------
+    COMEBACK: {
+      objectiveWeeks: 28,          // runway the executive grants per comeback
+      promoWeeks: 4,               // promotion period after a release
+      promoFatigue: 7,             // weekly fatigue during promotion
+      idolRecovery: 8,             // weekly fatigue recovery when idle
+      popDecayPerWeek: 0.35,       // popularity cools once promo + grace end
+      decayGraceWeeks: 8,
+      popFactor: 0.12,             // how much an existing fanbase lifts reception
+      comebackTrustDelta: { sensation: 14, strong: 9, solid: 4, quiet: -5, miss: -12 },
+      missedDeadlinePenalty: -15,  // gentler than the debut deadline
+    },
+    CHART: {
+      noiseSd: 6,
+      maxWeeksOn: 16,
     },
 
     // ---- Executives & trust ---------------------------------------------

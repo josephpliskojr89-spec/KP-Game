@@ -32,12 +32,16 @@
     const era = g.prep ? g.prep.conceptId : null;
     if (era) UI.setEra(era);
 
+    const promoting = g.debuted && state.week <= (g.promoUntil || 0);
     html.push('<div class="group-hero">' +
-      '<div class="g-status">' + (g.debuted ? 'Debuted · ' + UI.esc(KP.weekLabel(g.debutWeek).text) : g.prep ? 'Debut in preparation' : 'In development') + '</div>' +
+      '<div class="g-status">' + (g.debuted
+        ? (g.prep ? 'Comeback in preparation' : promoting ? 'Promoting' : 'Active · debuted ' + UI.esc(KP.weekLabel(g.debutWeek).text))
+        : g.prep ? 'Debut in preparation' : 'In development') + '</div>' +
       '<div class="g-name">' + UI.esc(g.name) + '</div>' +
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:6px">' +
       '<span class="chip">' + members.length + ' members</span>' +
       (g.prep ? '<span class="chip cool">' + UI.esc(KP.conceptById(g.prep.conceptId).label) + '</span>' : '') +
+      (g.debuted ? '<span class="chip ' + (g.popularity >= 58 ? 'hot' : '') + '">' + KP.popularityWord(g.popularity) + '</span>' : '') +
       (g.debuted && g.results ? '<span class="chip gold">' + UI.esc(g.results.receptionLabel) + '</span>' : '') +
       '</div></div>');
 
@@ -63,21 +67,32 @@
     KP.frictionPairs(state, g.members).forEach(f => html.push(UI.frictionCard(state, f)));
 
     // status / next step
-    if (!g.debuted) {
-      html.push('<div class="kicker">Next step</div>');
-      if (!g.prep) {
-        html.push('<div class="card">The lineup exists on paper. It becomes real in the Studio: pick the song, the concept, and the date.' +
-          '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Open the Studio</button></div></div>');
-      } else {
-        const inW = g.prep.scheduledWeek - state.week;
-        html.push('<div class="card">Debut scheduled for <b>' + UI.esc(KP.weekLabel(g.prep.scheduledWeek).text) + '</b>' +
-          (inW > 0 ? ' — ' + inW + ' week' + (inW === 1 ? '' : 's') + ' out.' : ' — this week.') +
-          ' Rehearsals have replaced individual training for the members.</div>');
-      }
-    } else if (g.results) {
-      html.push('<div class="kicker">Debut</div>');
-      html.push('<div class="card">“' + UI.esc(g.results.songTitle) + '” — ' + UI.esc(g.results.receptionLabel) + '.' +
-        '<div style="margin-top:12px"><button class="btn" data-action="open-results">Full report</button></div></div>');
+    html.push('<div class="kicker">Next step</div>');
+    if (g.prep) {
+      const inW = g.prep.scheduledWeek - state.week;
+      html.push('<div class="card">' + (g.debuted ? 'Comeback' : 'Debut') + ' scheduled for <b>' + UI.esc(KP.weekLabel(g.prep.scheduledWeek).text) + '</b>' +
+        (inW > 0 ? ' — ' + inW + ' week' + (inW === 1 ? '' : 's') + ' out.' : ' — this week.') +
+        ' Rehearsals have replaced individual training for the members.</div>');
+    } else if (!g.debuted) {
+      html.push('<div class="card">The lineup exists on paper. It becomes real in the Studio: pick the song, the concept, and the date.' +
+        '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Open the Studio</button></div></div>');
+    } else if (promoting) {
+      html.push('<div class="card">Promotion week — music shows, fan signs, radio. The schedule is full and so are the members. Comeback planning opens when it winds down.</div>');
+    } else {
+      html.push('<div class="card">The room between releases is where momentum goes to die. The producers have fresh demos in the Studio.' +
+        '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Plan the comeback</button></div></div>');
+    }
+
+    // discography — the story so far, on the record
+    if (g.releases && g.releases.length) {
+      html.push('<div class="kicker">Discography</div>');
+      g.releases.slice().reverse().forEach(r => {
+        html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(r.week).text) + '</span>' +
+          '<div><b>“' + UI.esc(r.songTitle) + '”</b> · ' + UI.esc(KP.conceptById(r.conceptId).label) +
+          '<span class="m-week">' + (r.isDebut ? 'debut · ' : '') + 'peaked #' + r.chartPeak +
+          (r.chartWeeks ? ' · ' + r.chartWeeks + ' weeks charting' : ' · missed the charts') + '</span></div></div>');
+      });
+      html.push('<div class="pad" style="margin-top:8px"><button class="btn small" data-action="open-results">Latest full report</button></div>');
     }
     return html.join('');
   }
