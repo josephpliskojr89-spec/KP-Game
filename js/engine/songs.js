@@ -8,17 +8,15 @@
     const S = KP.C.SONG;
     const demos = [];
     const usedTitles = {};
+    // titles already in any discography stay retired — no accidental reissues
+    KP.groups(state).forEach(g => (g.releases || []).forEach(r => { usedTitles[r.songTitle] = true; }));
     for (let i = 0; i < S.demoCount; i++) {
-      let title;
-      do {
-        title = rng.pick(KP.DATA.songTitleA) + ' ' + rng.pick(KP.DATA.songTitleB);
-      } while (usedTitles[title]);
-      usedTitles[title] = true;
+      const title = KP.genSongTitle(rng, usedTitles);
       const concept = rng.pick(KP.C.CONCEPTS);
       demos.push({
         id: 'song' + (i + 1),
         title,
-        producer: rng.pick(KP.DATA.producers),
+        producer: KP.genProducer(rng),
         conceptId: concept.id,
         hook: q(rng), vocalDemand: q(rng), rapDemand: KP.clamp(q(rng) - 15, 5, 95),
         choreoPotential: q(rng), trendFit: q(rng),

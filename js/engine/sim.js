@@ -182,7 +182,7 @@
       state.fiscal.monthSignings = 0;
 
       if (rng.chance(0.6)) {
-        inbox.push({ kind: 'industry', text: rng.pick(KP.DATA.headlines) });
+        inbox.push({ kind: 'industry', text: KP.genHeadline(rng) });
       }
     }
 

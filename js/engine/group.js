@@ -5,12 +5,10 @@
   const KP = root.KP = root.KP || {};
 
   KP.suggestGroupNames = function (state, rng) {
-    const P = KP.DATA.groupNameParts;
+    const used = new Set(KP.groups(state).map(g => g.name.toLowerCase()));
     const names = [];
     while (names.length < 3) {
-      const n = rng.chance(0.5)
-        ? rng.pick(P.pre) + rng.pick(P.post)
-        : rng.pick(P.whole);
+      const n = KP.genGroupName(rng, used);
       if (!names.includes(n)) names.push(n);
     }
     return names;

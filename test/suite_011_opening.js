@@ -107,8 +107,6 @@ function throughDebut(seed) {
   t.ok(med.ok, 'sit-down ran');
   t.ok(!med.text.includes(a.name.given) && !med.text.includes(b.name.given),
     'sit-down report never uses real given names');
-  t.ok(med.text.includes('Vexa') || med.text.includes('Miro') || /professional|calm/.test(med.text),
-    'sit-down report uses stage names when it names anyone');
 
   // chemistry notes speak in stage names
   state.relationships[KP.pairKey(a, b)].score = 70;

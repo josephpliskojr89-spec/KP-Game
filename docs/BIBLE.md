@@ -407,6 +407,16 @@ checklist for that conversation.
 *(Renumbered from v0.2.x: the owner finished the slice and chose the
 comeback loop first — it shipped as v0.2.0. This mandate is next in line.)*
 
+**GATE OPENED** — owner, after playing through v0.2.6: *"the game feels
+good. I think we can start really fleshing it out now."* The line is
+live. **v0.3.0 (Voices and names) SHIPPED** — given names are
+syllable-built (1,400 combos, world-unique, no doubled syllables; family
+names stay a real small pool, that IS Korea), song titles and group
+names come from grammars, producers and headlines generate, and blurbs
+assemble from canonical wholes + opener×detail fragments (~20+ variants
+per domain×band cell, deterministic per person under Law 2). Retired
+song titles never reissue. Remaining phases below, in order.
+
 > Owner, after v0.1.0 shipped: *"the next step for the game will be making
 > everything procedural. every run should feel different."*
 
@@ -708,4 +718,23 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Numbers: battery 14/14 (suite 014, green first run), soak clean with
 > 18 census bands (internet found someone 40/40, directives 21/40, solo
 > debuts 20/40), e2e 51, lockstep 0.2.6. Rode to main.
+
+> **v0.3.0 — voices and names** (owner: *"the game feels good. I think we
+> can start really fleshing it out now"* — the procedural gate opened)
+> First phase of the procedural mandate: js/engine/gen.js. Given names
+> syllable-built and world-unique (~1,400 combos vs the old 42-name
+> pool; suite measured 200+ distinct names across 25 worlds, ≤25%
+> overlap between any two); song-title grammar with five shapes and
+> retired-title protection; group-name generator (four patterns);
+> producer and headline generators; and the blurb system rebuilt as
+> canonical wholes + opener×detail assembly — 6+ observed variants per
+> (domain, band) cell where the old tables held 2–3, all still
+> deterministic per person. Fixed pools removed from data.js.
+> Process note: changing generation shifted every downstream seed, which
+> exposed three old assertions as seed-snapshots rather than invariants
+> (sit-down success rate, popularity delta, format revenue) — all three
+> rewritten as formula-level or statistical invariants, per §5 of the
+> process doc. Numbers: battery 15/15 (suite 015), soak clean (18
+> bands), e2e 51, lockstep 0.3.0 (24 modules). Rode to main.
+> Next in line: v0.3.1 — generated staff.
 

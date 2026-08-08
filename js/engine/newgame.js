@@ -52,8 +52,9 @@
     };
 
     // --- inherited trainees: the scenario's two teaching characters + four
+    const usedNames = new Set();
     for (let i = 0; i < KP.C.GEN.inheritedCount; i++) {
-      const p = KP.generatePerson(rng, { status: 'trainee', inherited: true, source: 'Inherited trainee' });
+      const p = KP.generatePerson(rng, { status: 'trainee', inherited: true, source: 'Inherited trainee', usedNames });
       if (i === 0) {
         // exceptional vocalist, poor dance aptitude
         p.talents.vocals.cur = rng.int(72, 82);
@@ -88,7 +89,7 @@
     const count = rng.int(KP.C.GEN.prospectCount[0], KP.C.GEN.prospectCount[1]);
     let mostCharismatic = null;
     for (let i = 0; i < count; i++) {
-      const p = KP.generatePerson(rng, { status: 'prospect' });
+      const p = KP.generatePerson(rng, { status: 'prospect', usedNames });
       state.people[p.id] = p;
       state.prospects.push(p.id);
       if (!mostCharismatic || p.talents.charisma.cur > mostCharismatic.talents.charisma.cur) mostCharismatic = p;

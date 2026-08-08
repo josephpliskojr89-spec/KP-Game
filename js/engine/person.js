@@ -56,7 +56,7 @@
     opts = opts || {};
     const G = C().GEN;
     const family = rng.pick(KP.DATA.familyNames);
-    const given = rng.pick(KP.DATA.givenNamesF);
+    const given = KP.genGivenName(rng, opts.usedNames);
     const age = opts.age != null ? opts.age : sampleAge(rng);
     const youth = (G.ageRange[1] - age) / (G.ageRange[1] - G.ageRange[0]); // 1 = youngest
 

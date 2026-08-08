@@ -47,13 +47,20 @@ function throughDebut(seed) {
   const plan = KP.planDebut(state, { songId: state.demos[0].id, promo: 'standard',
     week: state.week + 6, alloc: { vocals: 30, dance: 30, rap: 10, media: 30 } });
   t.ok(plan.ok, 'comeback planning succeeds through the same studio path');
-  const popBefore = state.groups[0].popularity;
+  let popBeforeResolve = null;
   let guard = 0;
-  while (state.groups[0].prep && guard++ < 12) KP.advanceWeek(state);
+  while (state.groups[0].prep && guard++ < 12) {
+    popBeforeResolve = state.groups[0].popularity;
+    KP.advanceWeek(state);
+  }
   t.eq(state.groups[0].releases.length, 2, 'discography holds two releases');
   t.ok(!state.groups[0].releases[1].isDebut, 'the second release is a comeback');
   t.ok(state.groups[0].results.isDebut === false, 'latest report is a comeback report');
-  t.ok(state.groups[0].popularity !== popBefore, 'popularity moved with the comeback');
+  // invariant, not a snapshot: the compounding formula itself
+  const r2 = state.groups[0].results.reception;
+  t.eq(state.groups[0].popularity,
+    Math.max(0, Math.min(100, Math.round(popBeforeResolve * 0.55 + r2 * 0.55))),
+    'popularity compounded by the comeback formula');
   t.ok(['met', 'metPoorly'].includes(state.objectiveHistory[1] ? state.objectiveHistory[1].status : state.objective.status) ||
        state.objective.type === 'comeback', 'the comeback objective resolved or a successor was issued');
   // after resolution, the ladder continues

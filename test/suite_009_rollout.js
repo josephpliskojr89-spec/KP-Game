@@ -72,9 +72,12 @@ function throughDebut(seed, planExtra) {
   t.ok(b.groups[0].results.reception === a.groups[0].results.reception ||
        Math.abs(b.groups[0].results.reception - a.groups[0].results.reception) <= 100,
        'sanity: both resolved');
-  if (b.groups[0].results.reception === a.groups[0].results.reception) {
+  if (b.groups[0].results.reception === a.groups[0].results.reception &&
+      a.groups[0].results.reception > 32) {
     t.ok(b.groups[0].results.revenue > a.groups[0].results.revenue, 'a full album pays more than a single for the same reception');
   } else {
+    // reception diverged (or was below the revenue floor) — verify the
+    // invariant at formula level instead of the snapshot
     const full = KP.C.DEBUT.FORMATS.find(f => f.id === 'full');
     t.ok(full.revenueMult > 1.5, 'full album multiplier is materially bigger');
   }

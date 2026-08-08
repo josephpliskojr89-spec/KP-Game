@@ -8,7 +8,7 @@ const vm = require('vm');
 const ENGINE_FILES = [
   'constants.js', 'rng.js', 'data.js', 'person.js', 'blurbs.js',
   'development.js', 'relationships.js', 'scouting.js', 'songs.js',
-  'group.js', 'debut.js', 'events.js', 'career.js', 'sim.js', 'newgame.js', 'save.js',
+  'group.js', 'debut.js', 'events.js', 'career.js', 'gen.js', 'sim.js', 'newgame.js', 'save.js',
 ];
 
 function loadEngine() {
