@@ -119,6 +119,20 @@
       html.push('<div class="card">' + UI.narrativeLines(state, gNars) + '</div>');
     }
 
+    // the map (v0.6.6): where the world already knows them
+    if (g.debuted) {
+      const regions = KP.regionsOf(g);
+      const rows = KP.C.REGIONS.map(r => {
+        const v = regions[r.id] || 0;
+        const word = KP.regionWord(v);
+        const cls = word === 'devoted' ? ' gold' : word === 'loud' ? ' hot' : word === 'quiet' ? '' : ' cool';
+        return '<span class="chip' + cls + '"' + (word === 'quiet' ? ' style="opacity:.45"' : '') + '>' +
+          UI.esc(r.label) + ' · ' + word + '</span>';
+      });
+      html.push('<div class="kicker">The map</div>');
+      html.push('<div class="pad" style="display:flex;gap:7px;flex-wrap:wrap">' + rows.join('') + '</div>');
+    }
+
     // the trophy case (v0.6.5): music-show wins, counted forever
     const trophies = Object.entries(g.trophies || {}).filter(([, n]) => n > 0);
     if (trophies.length) {

@@ -157,6 +157,17 @@
       html.push('<div class="card">' + UI.narrativeLines(state, pNars) + '</div>');
     }
 
+    // her corners of the map (v0.6.6) — visible once she is on stages
+    if (p.status === 'idol') {
+      const gOf = KP.groupOf(state, p.id);
+      if (gOf && gOf.debuted) {
+        const homes = KP.strongholdsOf(state, p).map(KP.regionLabel);
+        html.push('<div class="note">Overseas desk margin note: her clips travel best in ' +
+          UI.esc(homes[0]) + ' and ' + UI.esc(homes[1]) +
+          '. Nobody assigned that. Some corners of the map just decide.<span class="n-who">— audience analytics, informally</span></div>');
+      }
+    }
+
     html.push('<div class="kicker">Evaluations</div>');
     evl.domains.forEach(d => {
       const val = KP.perceived(state, p, d.domain, d.evaluator);

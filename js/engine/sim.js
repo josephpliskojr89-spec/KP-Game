@@ -226,6 +226,10 @@
     // 8d. the numbers everyone can see move (v0.6.1) — hash-driven, no dice
     KP.socialWeek(state).forEach(n => inbox.push(n));
 
+    // 8d2. the map breathes (v0.6.6): borderless promo spreads, idle
+    //      regions cool slowly — rng-free
+    KP.regionsWeek(state);
+
     // 8e. the discourse burns (v0.6.2): storms ignite, grow, fade, boil
     KP.discourseWeek(state, rng).forEach(n => inbox.push(n));
 

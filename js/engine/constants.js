@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.6.5',
+    VERSION: '0.6.6',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -209,6 +209,46 @@
       { id: 'retro',       label: 'Retro',               weights: { vocals: 1.15, dance: 1.0, charisma: 1.15, visuals: 1.0, rap: 0.6 }, personality: { creativity: 0.9, warmth: 0.8 } },
       { id: 'dreamy',      label: 'Dreamy / Ethereal',   weights: { vocals: 1.25, dance: 0.8, charisma: 1.0, visuals: 1.2, rap: 0.4 }, personality: { creativity: 1.0, warmth: 0.9 } },
     ],
+
+    // ---- Regional popularity (v0.6.6): the map opens --------------------
+    // KR stays g.popularity — the number the charts, shows and war
+    // already run on (one truth per number). The six overseas regions
+    // are NEW numbers that move on releases (by concept resonance),
+    // member viral moments (personal strongholds), and borderless
+    // promo. Prerequisite for tours. Entirely rng-free.
+    REGIONS: [
+      { id: 'jp',    label: 'Japan' },
+      { id: 'cn',    label: 'Greater China' },
+      { id: 'sea',   label: 'Southeast Asia' },
+      { id: 'na',    label: 'North America' },
+      { id: 'latam', label: 'Latin America' },
+      { id: 'eu',    label: 'Europe' },
+    ],
+    // how each concept travels — craft resonance per market
+    CONCEPT_AFFINITY: {
+      bright:      { jp: 1.40, cn: 1.00, sea: 1.25, na: 0.70, latam: 0.85, eu: 0.80 },
+      elegant:     { jp: 1.10, cn: 1.35, sea: 0.95, na: 0.80, latam: 0.70, eu: 1.10 },
+      futuristic:  { jp: 0.90, cn: 0.90, sea: 0.90, na: 1.20, latam: 1.00, eu: 1.30 },
+      dark:        { jp: 0.80, cn: 1.00, sea: 1.00, na: 1.25, latam: 1.20, eu: 1.15 },
+      performance: { jp: 0.90, cn: 1.20, sea: 1.15, na: 1.00, latam: 1.20, eu: 0.95 },
+      hiphop:      { jp: 0.70, cn: 0.75, sea: 0.95, na: 1.40, latam: 1.30, eu: 1.05 },
+      retro:       { jp: 1.30, cn: 0.85, sea: 1.00, na: 0.90, latam: 1.00, eu: 1.15 },
+      dreamy:      { jp: 1.10, cn: 1.15, sea: 1.00, na: 0.80, latam: 0.75, eu: 1.25 },
+    },
+    REGIONAL: {
+      exportBase: 0.20,        // per-release gain = reception × this × affinity × reach
+      reachBase: 0.45,         // reach grows with the home fanbase…
+      reachPerPop: 1 / 140,    // …because fame is what travels
+      idleDecay: 0.12,         // overseas fandoms are patient — but not eternal
+      strongholdViral: 6,      // a member's viral moment lands HARD where she is loved
+      otherViral: 1.5,         // and ripples everywhere else
+      livestreamSpread: 0.4,   // livestreams are borderless — all regions, weekly
+      challengeSpread: 0.9,    // the challenge lands where it lands, hard
+      loudAt: 40,              // a region worth a letter
+      devotedAt: 65,           // a region worth a tour (v0.6.7 will collect)
+      strongholdNarrativeAt: 75, // a region past devoted becomes a story — a true second home
+      revenuePerOverseas: 1 / 220, // release revenue × (1 + avgOverseas × this)
+    },
 
     // ---- Debut resolution ----------------------------------------------
     DEBUT: {

@@ -339,10 +339,13 @@
     if (avg('vocals') >= 62) rep.vocal = KP.clamp((rep.vocal || 60) + 4, 0, 100);
     if (breakout && reception >= 64) rep.starMaker = KP.clamp((rep.starMaker || 35) + (isDebut ? 8 : 4), 0, 100);
 
-    // revenue: a hit pays, an established fanbase buys albums, and a
-    // bigger record multiplies both
+    // revenue: a hit pays, an established fanbase buys albums, a bigger
+    // record multiplies both — and the overseas orders move first when
+    // the map is warm (v0.6.6)
     const format = D.FORMATS.find(f => f.id === (g.prep.format || 'single')) || D.FORMATS[0];
-    const revenue = Math.round((Math.max(0, reception - 30) * 1.6 + (isDebut ? 0 : (g.popularity || 0) * 0.4)) * format.revenueMult);
+    const overseasMult = 1 + KP.overseasAvg(g) * KP.C.REGIONAL.revenuePerOverseas;
+    const revenue = Math.round((Math.max(0, reception - 30) * 1.6 + (isDebut ? 0 : (g.popularity || 0) * 0.4)) *
+      format.revenueMult * overseasMult);
     state.budget += revenue;
 
     // popularity: the debut founds the fanbase (hype converts into it);
@@ -418,6 +421,8 @@
     const war = KP.releaseWar(state, g, score, reception, concept.id, rng);
     war.notes.forEach(push);
     if (war.battle) g.results.battle = war.battle;
+    // the release exports (v0.6.6): concept resonance decides where
+    KP.regionsOnRelease(state, g, reception, concept.id).forEach(push);
     g.prep = null;
     g.demos = null;       // the producers bring fresh demos for the next cycle
     if (state.demos) state.demos = null;   // pre-multigroup compatibility

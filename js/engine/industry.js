@@ -796,6 +796,13 @@
         const p = state.people[n.personId];
         posts.push({ persona: 'casual', text: 'no because WHO is the ending fairy from this week… ' +
           (p ? KP.displayName(p) : 'her') + ' looked at the camera for three seconds and gained a fandom. I was there. I am the fandom' });
+      } else if (n.ind === 'regionLoud') {
+        const gName = (KP.groupById(state, n.groupId) || { name: 'they' }).name;
+        posts.push(rng.pick([
+          { persona: 'fan', text: 'the ' + KP.regionLabel(n.region) + ' fandom just organized a subway ad for ' + gName + ' and the photos are gorgeous. international fandom infrastructure is REAL' },
+          { persona: 'casual', text: 'apparently ' + gName + ' is blowing up in ' + KP.regionLabel(n.region) + '?? found out from a fan-sub account with better editing than actual broadcasters' },
+          { persona: 'stan', text: KP.regionLabel(n.region) + ' besties waking up at 4am for the lives… the international fandom carries so much and asks for one (1) tour. justice incoming, I can feel it' },
+        ]));
       } else if (n.ind === 'comebackAnnounce') {
         posts.push(rng.pick([
           { persona: 'stan', text: n.actName + ' comeback announced. presave, hydrate, clear your schedule, warn your coworkers' },
@@ -864,6 +871,7 @@
           dateSniper: coName() + ' has officially made a HOBBY of dropping releases on other people’s dates. the audacity is almost impressive. almost',
           rivalry: 'the ' + actName() + ' rivalry is canon now. every shared release week is a pay-per-view event and I have never been happier',
           showDarling: groupName() + ' winning the same show AGAIN. the stagehands know their coffee orders at this point. dynasty behavior',
+          regionStronghold: groupName() + ' really has a whole second home market now. the fan-sub accounts post before the company does. globalization won',
         };
         posts.push(m[n.narKey] || (state.company.short + ' discourse hours. we live here now'));
       }

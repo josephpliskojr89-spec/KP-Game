@@ -87,6 +87,13 @@
         const show = KP.showLabel((n.meta && n.meta.show) || 'countdown');
         return show + ' might as well engrave ' + group() + '’s name on the trophy.';
       }
+      case 'regionStronghold': {
+        const g = KP.groupById(state, n.subjectId);
+        const regions = g && g.regions ? g.regions : {};
+        const loudest = Object.keys(regions).sort((x, y) => regions[y] - regions[x])[0];
+        return group() + ' moves numbers in ' + KP.regionLabel(loudest || (n.meta && n.meta.region) || 'jp') +
+          ' like a domestic act.';
+      }
       default: return n.key;
     }
   };
@@ -156,6 +163,7 @@
       case 'dateSniper': return 'Twice now ' + rivalCo() + ' has parked a release on one of our announced dates. Nobody in this building believes in coincidence anymore. The staff have started calling them what they are.';
       case 'rivalry': return 'The internet has made it official: ' + rivalAct() + ' versus us is a RIVALRY now — capital letters, compilation videos, the works. Every shared release week from here is a scoreboard.';
       case 'showDarling': return 'Three trophies from the same stage and the coverage found its line: ' + KP.showLabel((n.meta && n.meta.show) || 'countdown') + ' belongs to ' + group() + ' now. Champions get measured harder — enjoy it anyway.';
+      case 'regionStronghold': return 'The trades noticed what the shipping manifests already knew: ' + group() + ' has a real overseas market now — ' + KP.regionLabel((n.meta && n.meta.region) || 'jp') + ' first among them. The word “tour” has started appearing in meetings uninvited.';
       default: return 'A narrative formed: ' + n.key;
     }
   }
@@ -165,6 +173,8 @@
   // for both call sites (release sparks, pre-debut hype events).
   KP.recordViral = function (state, person) {
     person.viralCount = (person.viralCount || 0) + 1;
+    // viral moments cross borders (v0.6.6) — hardest where she is loved
+    if (KP.regionsOnViral) KP.regionsOnViral(state, person);
     if (person.viralCount >= KP.C.MEMORY.viralFormAt) {
       return KP.recordEvidence(state, 'fancamStar', 'idol', person.id);
     }

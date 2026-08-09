@@ -874,9 +874,10 @@ better directive than any reception target. Not built yet; noted.
   picks, encores, ending fairies, wins. The Gaya-encore-goes-viral
   moment: emergent, memory-fed, feed-amplified — and it lives on the
   WINNING encore now.
-- **v0.6.6 — Regional popularity.** KR / JP / greater-China / SEA / NA
-  / LATAM / EU per group and idol; concepts and members resonate
-  differently by region. Prerequisite for tours.
+- **v0.6.6 — Regional popularity (SHIPPED, §28).** KR / JP /
+  greater-China / SEA / NA / LATAM / EU; concepts and members resonate
+  differently by region. Prerequisite for tours — the desk keeps
+  saying the word uninvited.
 - **v0.6.7 — Tour planning.** Cities, venue sizes, pricing, dates,
   rest days, production budget, setlists. Undersell/oversell both
   visible and narrated. Tours grow regional fandom and prestige, not
@@ -1213,6 +1214,52 @@ out of the inbox).
 **Harness:** first trophies in 40/40 soak careers, rival stage wins in
 40/40 worlds, the darling narrative in ~20/40 — a story half of long
 careers earn.
+
+## §28 Regional popularity (v0.6.6) — the map opens
+
+> §22 phase spec: *"KR / JP / greater-China / SEA / NA / LATAM / EU
+> per group and idol; concepts and members resonate differently by
+> region. Prerequisite for tours."*
+
+**One truth per number:** KR *is* `g.popularity` — the number the
+charts, shows and release war already run on. The six overseas regions
+(`g.regions`, module `js/engine/regions.js`) are new numbers, and the
+whole layer is **rng-free**: releases, virals, promo spread and decay
+all run on state and hash — zero seed drift by construction (the
+v0.6.1 social lesson, applied from day one).
+
+**How the map moves:** every release exports — gain = reception ×
+concept affinity × reach (fame is what travels: reach grows with the
+home fanbase) × **saturation** (the tenth hit moves Japan less than
+the first — markets asymptote instead of pinning 100, learned when the
+first soak ended every career at 99+ everywhere). The affinity table
+is craft-resonance data per concept per region (bright lands in Japan
+and SEA, hip-hop in the Americas, dreamy in Europe, elegant in Greater
+China…) — same world, different concept, the map flips. Member viral
+moments cross borders through the ONE existing door (`recordViral`):
+each idol has two **personal strongholds** — hash-derived corners of
+the map that simply love her, never inferred from anything about who
+she is — where her clips land at 6× (saturating). Livestreams spread
+thin and everywhere; the dance challenge lands hard in two
+hash-picked regions. Idle regions cool at 0.12/week — overseas
+fandoms are patient, not eternal.
+
+**Why it matters:** release revenue multiplies by average overseas
+warmth (a devoted map adds ~+30%; "the overseas orders moved first");
+a region crossing 40 ("loud") is a letter from the overseas desk; a
+region past 75 forms the **regionStronghold** narrative — "moves
+numbers in Japan like a domestic act", loudest region rendered live —
+which arrives in 26/40 soak careers with best-region endings spread
+67–83 (texture, not a solved map). Tours (v0.6.7) will read all of
+it: `devotedAt` 65 is the tour bar, and the migration letter already
+says the word "tour" keeps appearing in meetings uninvited.
+
+**Surfaces:** "The map" on the group page (six chips: quiet /
+stirring / loud / devoted), the overseas-desk margin note on idol
+dossiers ("her clips travel best in Japan and Latin America — nobody
+assigned that"), loud-crossing letters, region-flavored feed posts
+(subway ads, fan-sub accounts, 4am streaming parties), and the
+stronghold story in the trades.
 
 ## §18 Watch items
 
@@ -1816,3 +1863,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > and was recognized by its tell. Numbers: battery 31/31 (suite 031,
 > 19 assertions), soak clean (48 bands — first trophies 40/40,
 > darlings 20/40), e2e 89, lockstep 0.6.5 (30 modules). Rode to main.
+
+> **v0.6.6 — regional popularity** (owner: *"let's go"* — the §22
+> phase that opens the map and sets the table for tours)
+> Full spec in §28. New module regions.js, entirely rng-free: KR
+> stays g.popularity (one truth per number); six overseas regions per
+> group move on releases (reception × concept affinity × reach ×
+> saturation), member viral moments (two hash-derived personal
+> strongholds per idol — the "inexplicably huge in Brazil"
+> phenomenon, wired through the single recordViral door), borderless
+> promo (livestreams thin and wide, the challenge hard and local),
+> and slow idle cooling. Warm maps buy records (overseas revenue
+> multiplier at release), crossing loud is a letter, and a region
+> past 75 is the regionStronghold story with the region named live.
+> Concept affinity is craft data — same world, different concept, the
+> map flips, suite-proven. Tuning story: the first soak pinned every
+> career at 99+ everywhere (exports had no saturation) and the
+> stronghold story flooded at both 55 and 70 — saturation physics on
+> both doors plus threshold 75 landed best-region endings at 67–83
+> across seeds with the story in 26/40 careers. The map feeds §22's
+> next phase directly: devotedAt 65 is the tour bar. Numbers: battery
+> 32/32 (suite 032, 35 assertions), soak clean (50 bands), e2e 89,
+> lockstep 0.6.6 (31 modules). Rode to main.

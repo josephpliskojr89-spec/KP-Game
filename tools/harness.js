@@ -59,6 +59,8 @@ const BANDS = {
   showFirstWin:      { lo: 0.20, hi: 1.00, label: 'orgs that won their first music-show trophy' },
   showRivalWins:     { lo: 0.80, hi: 1.00, label: 'worlds where rival acts took stages' },
   showDarling:       { lo: 0.00, hi: 0.70, label: 'worlds where a stage became somebody\'s (darling narrative)' },
+  regionLoud:        { lo: 0.20, hi: 1.00, label: 'orgs that got loud in at least one overseas region' },
+  regionStory:       { lo: 0.10, hi: 1.00, label: 'orgs whose overseas market became a story (the long game pays)' },
 };
 
 const tally = {
@@ -74,9 +76,11 @@ const tally = {
   discourseSeen: 0, discourseHandled: 0, discourseBoiled: 0,
   warAnnounced: 0, warAmbushed: 0, warBattled: 0, warWon: 0, warRivalry: 0,
   showFirstWin: 0, showRivalWins: 0, showDarling: 0,
+  regionLoud: 0, regionStory: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
+const bestRegions = [];
 let totalSaveKB = 0;
 let mediationsRun = 0;
 let totalReleases = 0;
@@ -371,6 +375,11 @@ for (let s = 0; s < SEEDS; s++) {
   if (state.firstShowWinWeek) tally.showFirstWin++;
   if (state.rivals.some(r => (r.acts || []).some(a => (a.showWins || 0) >= 1))) tally.showRivalWins++;
   if ((state.memory || []).some(n => n.key === 'showDarling')) tally.showDarling++;
+  if (state.groups.some(g => g.regions &&
+      Object.values(g.regions).some(v => v >= KP.C.REGIONAL.loudAt))) tally.regionLoud++;
+  bestRegions.push(Math.max.apply(null, state.groups
+    .filter(g => g.regions).flatMap(g => Object.values(g.regions)).concat([0])));
+  if ((state.memory || []).some(n => n.key === 'regionStronghold')) tally.regionStory++;
 
   // memory census + guards (v0.6.0)
   guard((state.memory || []).length <= KP.C.MEMORY.cap, seed + ' memory over cap');
@@ -431,6 +440,7 @@ console.log('debut reception: median ' + med +
   ', min ' + (receptions[0] || 0) + ', max ' + (receptions[receptions.length - 1] || 0));
 console.log('releases per org: ' + (totalReleases / SEEDS).toFixed(1) + ' average; groups per org: ' + (totalGroups / SEEDS).toFixed(1));
 console.log('date ambushes per career: ' + (totalAmbushes / SEEDS).toFixed(1) + ' average (pettiness stays memorable, not constant)');
+console.log('best overseas region at career end: ' + bestRegions.map(v => Math.round(v)).sort((a, b) => a - b).join(','));
 console.log('save size after 140 weeks: ' + Math.round(totalSaveKB / SEEDS) + ' KB average (quota ~5 MB)');
 console.log('avg roster talent growth over the run: ' +
   (growths.reduce((a, b) => a + b, 0) / Math.max(1, growths.length)).toFixed(1) + ' pts');

@@ -416,6 +416,28 @@
     });
   } });
 
+  // v0.6.6 — regional popularity. Debuted groups did not start existing
+  // overseas today: their maps seed from what they already built (home
+  // fanbase × the last concept's resonance), then live from here.
+  MIGRATIONS.push({ v: '0.6.6', fn: function (state) {
+    (state.groups || []).forEach(g => {
+      if (g.regions || !g.debuted) return;
+      g.regions = {};
+      const lastRelease = (g.releases || [])[g.releases ? g.releases.length - 1 : 0];
+      const conceptId = lastRelease ? lastRelease.conceptId : 'bright';
+      KP.C.REGIONS.forEach(r => {
+        g.regions[r.id] = KP.clamp(
+          (g.popularity || 0) * 0.5 * KP.affinity(conceptId, r.id), 0, 100);
+      });
+    });
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The overseas desk delivered its first real report: the map, per group — Japan, Greater China, Southeast Asia, North America, Latin America, Europe. Concepts travel differently, members have corners of the world that simply love them, and warm regions buy records. The word “tour” is not in the budget yet. The desk keeps saying it anyway.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {
