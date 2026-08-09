@@ -38,6 +38,9 @@ const BANDS = {
   boardLosses:       { lo: 0.50, hi: 1.00, label: 'orgs that lost 3+ board prospects to rivals' },
   stolenOnStage:     { lo: 0.30, hi: 1.00, label: 'worlds where a lost prospect debuted for a rival' },
   memoryAlive:       { lo: 0.60, hi: 1.00, label: 'worlds holding living narratives (>=2)' },
+  discourseSeen:     { lo: 0.50, hi: 1.00, label: 'worlds where a storm trended' },
+  discourseHandled:  { lo: 0.10, hi: 1.00, label: 'orgs that steered a storm successfully' },
+  discourseBoiled:   { lo: 0.00, hi: 0.80, label: 'orgs that let a storm boil over' },
   idolNarrative:     { lo: 0.05, hi: 1.00, label: 'worlds where an idol earned a personal narrative' },
   nationalAlive:     { lo: 0.80, hi: 1.00, label: 'worlds with a living national chart (>=12 entries)' },
   natTopTwenty:      { lo: 0.30, hi: 1.00, label: 'orgs that cracked the national top 20' },
@@ -60,6 +63,7 @@ const tally = {
   idolsRested: 0, overworkSeen: 0, boardLosses: 0, stolenOnStage: 0,
   nationalAlive: 0, natTopTwenty: 0, natTopTen: 0, natNumberOne: 0,
   memoryAlive: 0, idolNarrative: 0,
+  discourseSeen: 0, discourseHandled: 0, discourseBoiled: 0,
 };
 let totalGroups = 0;
 let totalSaveKB = 0;
@@ -146,6 +150,18 @@ for (let s = 0; s < SEEDS; s++) {
         KP.proposeGroup(state, name, pool.map(m => m.id), hints);
       }
     }
+    // the PR desk: respond to hot negative storms, ride positive waves —
+    // the same constrained menu the human gets (v0.6.2)
+    KP.liveDiscourses(state).forEach(d => {
+      if (d.responded) return;
+      const actions = KP.C.DISCOURSE.KINDS[d.kind].actions;
+      if (!d.negative) {
+        KP.respondDiscourse(state, d.id, actions.includes('meme') ? 'meme' : actions[0]);
+      } else if (d.heat >= 50) {
+        KP.respondDiscourse(state, d.id, actions.includes('statement') ? 'statement' : actions[0]);
+      }
+    });
+
     // plan the next release for whichever group needs one — debuts and
     // comebacks ride the same studio path
     state.groups.forEach(g => {
@@ -298,6 +314,14 @@ for (let s = 0; s < SEEDS; s++) {
   const sizeKB = KP.saveSizeKB(state);
   guard(sizeKB <= 400, seed + ' save size runaway: ' + sizeKB + ' KB after 140 weeks');
   totalSaveKB += sizeKB;
+
+  // discourse census + guards (v0.6.2)
+  guard(KP.liveDiscourses(state).length <= KP.C.DISCOURSE.maxLive, seed + ' too many live storms');
+  (state.discourses || []).forEach(d => guard(d.heat >= 0 && d.heat <= 100 && d.kind && d.status,
+    seed + ' malformed discourse'));
+  if ((state.discourses || []).length) tally.discourseSeen++;
+  if ((state.discourses || []).some(d => d.status === 'resolved')) tally.discourseHandled++;
+  if ((state.discourses || []).some(d => d.status === 'boiled')) tally.discourseBoiled++;
 
   // memory census + guards (v0.6.0)
   guard((state.memory || []).length <= KP.C.MEMORY.cap, seed + ' memory over cap');

@@ -211,6 +211,9 @@
     // 8d. the numbers everyone can see move (v0.6.1) — hash-driven, no dice
     KP.socialWeek(state).forEach(n => inbox.push(n));
 
+    // 8e. the discourse burns (v0.6.2): storms ignite, grow, fade, boil
+    KP.discourseWeek(state, rng).forEach(n => inbox.push(n));
+
     // 9. stamp this week's chart positions (all releases are in) — the
     //    national board hands out milestone letters — then let the fans
     //    react to everything that just happened
@@ -252,6 +255,10 @@
           const narNote = KP.recordViral(state, p);   // memory counts (v0.6.0)
           if (narNote) notes.push(narNote);
           KP.socialSpike(state, p, KP.C.SOCIAL.viralSpike, 'viral');   // the numbers move (v0.6.1)
+          if (rng.chance(KP.C.DISCOURSE.fancamChance)) {               // a wave you can ride (v0.6.2)
+            const dn = KP.igniteDiscourse(state, rng, 'fancam', 'idol', p.id, null);
+            if (dn) notes.push(dn);
+          }
           notes.push({ kind: 'public', text: rng.pick([
             'A dance cover ' + KP.displayName(p) + ' filmed months ago is suddenly trending. The comments all ask the same question: when does she debut?',
             'Street-cast photos of ' + KP.displayName(p) + ' resurfaced overnight and the reposts have not stopped.',

@@ -184,8 +184,34 @@
   }
 
   // ---- Feed ------------------------------------------------------------
+  const ACTION_LABELS = { statement: 'Issue statement', apology: 'Apologize',
+    legal: 'Legal threat', meme: 'Lean into the meme', livestream: 'Member livestream' };
+  const PERSONA_LABELS = { fan: 'fan', stan: 'stan', casual: 'casual', anti: 'anti', press: 'press' };
+
   function renderFeed(state) {
     const html = [];
+
+    // trending storms first (v0.6.2) — the interactive part
+    const live = KP.liveDiscourses(state);
+    if (live.length) {
+      html.push('<div class="kicker">Trending</div>');
+      live.forEach(d => {
+        const spec = KP.C.DISCOURSE.KINDS[d.kind];
+        html.push('<div class="card disc-card' + (d.negative ? ' neg' : ' pos') + '">' +
+          '<div class="disc-head">' + UI.esc(spec.label).toUpperCase() +
+          ' · <span class="disc-heat">' + UI.esc(KP.heatWord(d.heat)) + '</span></div>' +
+          '<div class="disc-text">' + UI.esc(KP.discourseHeadline(state, d)) + '</div>' +
+          (d.responded
+            ? '<div class="disc-done">The company has spoken. The internet decides what that meant.</div>'
+            : '<div class="disc-actions">' +
+              spec.actions.map(a => '<button class="btn small" data-action="discourse-respond" data-id="' +
+                d.id + '" data-move="' + a + '">' + ACTION_LABELS[a] + '</button>').join('') +
+              '</div>' +
+              '<div class="disc-hint">Or say nothing — some stories die on their own. Some don’t.</div>') +
+          '</div>');
+      });
+    }
+
     html.push('<div class="kicker">The fan feed</div>');
     const posts = state.feed || [];
     if (!posts.length) {
@@ -195,6 +221,7 @@
     posts.forEach(p => {
       html.push('<div class="feed-post">' +
         '<div class="fp-head"><span class="fp-handle">@' + UI.esc(p.handle) + '</span>' +
+        (p.persona ? '<span class="fp-persona ' + UI.esc(p.persona) + '">' + UI.esc(PERSONA_LABELS[p.persona] || p.persona) + '</span>' : '') +
         '<span class="fp-week">' + UI.esc(KP.weekLabel(p.week).text) + '</span></div>' +
         '<div class="fp-text">' + UI.esc(p.text) + '</div>' +
         '<div class="fp-likes">♥ ' + formatLikes(p.likes) + '</div>' +

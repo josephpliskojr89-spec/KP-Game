@@ -170,6 +170,17 @@
       case 'talent-sub': App.talentSub = t.dataset.sub; App.render(); break;
       case 'industry-sub': App.industrySub = t.dataset.sub; App.render(); break;
       case 'industry-chart': App.industryChart = t.dataset.chart; App.render(); break;
+      case 'discourse-respond': {
+        const r = KP.respondDiscourse(s, t.dataset.id, t.dataset.move);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.modal(r.outcome === 'success' ? 'It lands' : r.outcome === 'backfire' ? 'It backfires' : 'It misses',
+          '<div class="note' + (r.outcome === 'success' ? '' : ' urgent') + '" style="margin-top:4px">' + UI.esc(r.text) +
+          '<span class="n-who">— PR desk, watching the numbers</span></div>',
+          '<button class="btn primary" data-action="close-modal" style="flex:1">Noted</button>');
+        App.render();
+        break;
+      }
       case 'open-dossier': push('dossier', t.dataset.id); break;
       case 'open-results': push('results', t.dataset.id); break;
       case 'open-grouppage': push('grouppage', t.dataset.id); break;

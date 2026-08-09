@@ -862,12 +862,9 @@ better directive than any reception target. Not built yet; noted.
   and idol-energy costs riding the v0.4.2 fatigue economy. Overwork
   discourse ("she looks exhausted") flows through the feed and
   sentiment, feeding memory.
-- **v0.6.3 — Interactive social media.** Posts from fans, antis,
-  journalists, company stans, casuals reacting to real events (line
-  distribution, styling, dating rumors, bad encores, injuries).
-  Limited company responses: ignore / statement / clarification /
-  apology / legal threat / lean into meme / member livestream. MOST
-  POSTS NOT ACTIONABLE by design.
+- **v0.6.3 → SHIPPED EARLY as v0.6.2 (owner reorder: "keep leaning
+  into social media") — Interactive social media.** See §24. The
+  promotion builder moves to the next slot.
 - **v0.6.4 — Competitive release calendar.** Announced comebacks
   visible in advance; challenge or dodge; rivals occasionally ambush
   a committed date ("Novaline, you absolute motherfuckers" is the
@@ -989,6 +986,57 @@ cells. Jane's viral fancam spikes JANE — the least musically
 important member becoming the public's favorite is now measurable,
 which is the on-ramp to v0.6.2's promotion decisions and the eventual
 brand-deal economy.
+
+## §24 The discourse (v0.6.2) — interactive social media
+
+> Owner: *"Let posts react to real events… Give the player limited
+> company responses: ignore, statement, clarification, apology, legal
+> threat, lean into meme, member livestream. Importantly, don't make
+> every post actionable. Half the fun is doomscrolling your fictional
+> fandom and yelling at people."*
+
+**The storm** (`state.discourses`, module `js/engine/discourse.js`): a
+trending topic with a kind, a subject and a heat level. Ignites from
+REAL events only: overwork worry ("she looks exhausted" — promoting at
+avg fatigue 75+), dating rumors (tabloids target 50k+ followers; always
+false in this world, per the content law), styling discourse (weak
+receptions), shaky encore clips (performance < 45, targets the least
+live-reliable member), health worry (medical benchings), and positive
+fancam waves (sparks and virals — an OPPORTUNITY with a window). Max 2
+live at once — the internet can only care about so much.
+
+**The burn:** heat feeds itself when hot, dies when cool (the desk's
+advice "most storms die on their own" is tuned to be TRUE — first cut
+had negative storms only climbing, and the soak flooded with
+boil-overs until the physics matched the fiction). A storm fading
+under 15 costs nothing — correct ignores are rewarded. A negative
+storm crossing 85 BOILS OVER: popularity and morale pay, the desk
+writes the epitaph ("sometimes silence is a statement too — this time
+it read as one").
+
+**The response desk (Feed tab, trending cards):** constrained menu per
+kind — statement, apology, legal threat, lean-into-meme, member
+livestream — plus the ever-present option of saying nothing. ONE
+response per storm ("the company has spoken once; speaking twice IS
+the story"). Statements ride professionalism, livestreams ride warmth
+(and cost the member real fatigue), memes ride an existing fancamStar
+narrative, hotter storms are harder to steer, legal threats can
+Streisand (+30 heat, "they're threatening fans now"). Misses feed the
+story a news cycle but bleed heat long-term; successes resolve it —
+ridden positive waves convert to followers and popularity. Every
+response instantly becomes a feed post judging it.
+
+**The feed itself:** posts now wear personas — fan / company stan /
+casual / anti / press — with antis bound by the same content law as
+everyone (songs, styling, companies; never bodies). Live storms post
+themselves into the feed weekly, persona-true and sentiment-colored.
+Volume up (6/week, 64 kept): a feed worth doomscrolling, where MOST of
+it remains deliberately non-actionable.
+
+**Harness:** the auto-player runs the same desk (statement at heat
+50+, ride positive waves) — storms trend in 40/40 soak worlds, get
+steered successfully in 40/40, and boil only when ignored, which the
+diligent bot never does; the boil path is suite-proven instead.
 
 ## §18 Watch items
 
@@ -1486,4 +1534,27 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > prestige update it reads). Numbers: battery 27/27 (suite 027), soak
 > clean (36 bands), e2e 80, lockstep 0.6.1 (27 modules). Rode to
 > main.
+
+> **v0.6.2 — the discourse** (owner: *"keep leaning into social media.
+> I want interactive social media to be a huge part of this"* — the
+> §22 social-media phase pulled forward by owner reorder)
+> Full spec in §24. Storms ignite from real events (overwork worry,
+> dating rumors, styling, encore clips, benchings, fancam waves), burn
+> on their own physics — cool ones die, hot ones feed themselves, 85+
+> boils over with popularity/morale costs and an epitaph — and meet a
+> constrained response desk on the Feed tab: statement / apology /
+> legal / meme / livestream, once per storm, personality-modified,
+> with real backfires (Streisand +30) and instant feed judgment of
+> every response. Positive waves convert to followers when ridden.
+> Feed grows personas (fan/stan/casual/anti/press, antis under the
+> same content law) and volume (6/week, 64 kept); live storms post
+> themselves. Tuning story: first physics had negative storms only
+> climbing — 36/40 soak worlds boiled, contradicting the desk's own
+> "most storms die on their own"; the burn was retuned (heat-scaled
+> cooling, responded storms bleed +4) until the fiction was true. Two
+> fixture repairs (organic storms pre-igniting in hermetic blocks; a
+> suite loop replaying identical rng draws). Numbers: battery 28/28
+> (suite 028, 30 assertions), soak clean (39 bands — storms trended
+> 40/40, steered 40/40), e2e 85 (force a storm, respond, read the
+> verdict), lockstep 0.6.2 (28 modules). Rode to main.
 

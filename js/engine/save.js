@@ -337,6 +337,18 @@
     });
   } });
 
+  // v0.6.2 — the discourse. No structural backfill needed (storms only
+  // exist once they ignite); the desk announces the new job.
+  MIGRATIONS.push({ v: '0.6.2', fn: function (state) {
+    state.discourses = state.discourses || [];
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The PR desk is live. When something about your people starts trending — overwork worries, tabloid rumors, styling discourse, a fancam wave — it appears at the top of the Feed with your options. A warning from the desk veterans: most storms die on their own, a statement can feed one, and the internet remembers legal threats. Ignoring things is a skill.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

@@ -615,14 +615,60 @@
   };
 
   // ---- the fan feed ------------------------------------------------------
-  function fanPost(state, rng, usedHandles, text) {
+  // Posts carry personas now (v0.6.2): fans, company stans, casuals,
+  // antis and press accounts. Antis obey the content law like everyone
+  // else — they attack songs, styling and companies, never bodies.
+  function pickPersona(rng) {
+    const roll = rng.next();
+    return roll < 0.45 ? 'fan' : roll < 0.65 ? 'stan' : roll < 0.85 ? 'casual'
+      : roll < 0.95 ? 'anti' : 'press';
+  }
+  function fanPost(state, rng, usedHandles, entry) {
+    const text = typeof entry === 'string' ? entry : entry.text;
+    const persona = (typeof entry === 'object' && entry.persona) || pickPersona(rng);
     const viral = rng.chance(KP.C.FEED.viralChance);
     return {
       week: state.week,
       handle: KP.genFanHandle(rng, usedHandles),
+      persona,
       text,
       likes: viral ? rng.int(400, 6000) : rng.int(2, 60),
     };
+  }
+
+  // live storms post themselves (v0.6.2) — sentiment-colored, persona-true
+  function discoursePost(state, d, rng) {
+    const who = d.subjectType === 'idol'
+      ? (state.people[d.subjectId] ? KP.displayName(state.people[d.subjectId]) : 'her')
+      : ((KP.groupById(state, d.subjectId) || { name: 'them' }).name);
+    const co = state.company.short;
+    const m = {
+      exhausted: [
+        { persona: 'fan', text: 'the way ' + who + ' is visibly running on empty in every clip this week. ' + co + ', explain the schedule' },
+        { persona: 'press', text: 'Fan accounts are posting side-by-side clips of ' + who + ' from three months ago vs now. The quote-posts are not kind to ' + co },
+      ],
+      dating: [
+        { persona: 'fan', text: 'the ' + who + ' café photos are literally two coworkers getting coffee. y’all need jobs and hobbies' },
+        { persona: 'anti', text: '“sources say”… the source is a blurry photo of the back of someone’s head. incredible journalism as always' },
+      ],
+      styling: [
+        { persona: 'anti', text: 'who is dressing ' + who + ' and what did the members do to them personally. the SONG is fine, the outfits are a crime scene' },
+        { persona: 'fan', text: 'petition for ' + co + ' to free ' + who + ' from whatever mood board did this. the fans will fund the new stylist' },
+      ],
+      encore: [
+        { persona: 'casual', text: 'the ' + who + ' encore clip… look, live singing is hard, but that was rough. be nice in the replies though' },
+        { persona: 'anti', text: 'encore discourse day two: half concern, half “this is why we can’t have nice things.” the clip does not improve on rewatch' },
+      ],
+      benched: [
+        { persona: 'fan', text: who + ' pulled from schedules… hope she is actually resting and not just hidden. companies lie about this constantly' },
+        { persona: 'stan', text: 'get well soon ' + who + '. and ' + co + '— maybe fewer 5am send-offs going forward? just a thought. from all of us' },
+      ],
+      fancam: [
+        { persona: 'stan', text: 'the ' + who + ' fancam has TWO MILLION views and I contributed forty of them personally. no regrets' },
+        { persona: 'casual', text: 'the algorithm decided everyone watches ' + who + ' today and honestly? the algorithm was right' },
+      ],
+    };
+    return rng.pick(m[d.kind] || m.fancam);
   }
 
   // Candidate builders — each returns a text or null. Event posts outrank
@@ -815,6 +861,12 @@
     KP.groups(state).forEach(g => {
       if (g.results && g.results.week === state.week) {
         candidates.push.apply(candidates, releasePosts(state, g, rng));
+      }
+    });
+    // 1b. live storms speak for themselves (v0.6.2)
+    KP.liveDiscourses(state).forEach(d => {
+      if (rng.chance(KP.C.DISCOURSE.postChance)) {
+        candidates.push(discoursePost(state, d, rng));
       }
     });
     // 2. industry events this week

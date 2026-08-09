@@ -370,6 +370,21 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .cr-move.new { color: var(--gold); letter-spacing: .1em; }
 .cr-weeks { font-size: .64rem; color: var(--ink-faint); flex: none; width: 24px; text-align: right; }
 
+/* the discourse (v0.6.2): trending storms + personas */
+.disc-card { border-left: 3px solid var(--magenta); }
+.disc-card.pos { border-left-color: var(--gold); }
+.disc-head { font-size: .64rem; font-weight: 900; letter-spacing: .2em; color: var(--magenta); }
+.disc-card.pos .disc-head { color: var(--gold); }
+.disc-head .disc-heat { color: var(--ink); letter-spacing: .08em; }
+.disc-text { font-size: .88rem; line-height: 1.5; margin: 8px 0 10px; }
+.disc-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+.disc-hint { font-size: .68rem; color: var(--ink-faint); margin-top: 8px; font-style: italic; }
+.disc-done { font-size: .76rem; color: var(--ink-dim); font-style: italic; }
+.fp-persona { font-size: .56rem; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--ink-dim); }
+.fp-persona.stan { color: var(--cyan); border-color: color-mix(in srgb, var(--cyan) 45%, transparent); }
+.fp-persona.anti { color: var(--magenta); border-color: color-mix(in srgb, var(--magenta) 45%, transparent); }
+.fp-persona.press { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 45%, transparent); }
+
 /* social numbers (v0.6.1): the public counts */
 .d-social { font-size: .8rem; font-weight: 800; color: var(--cyan); margin-top: 6px; letter-spacing: .02em; }
 .d-social .ds-up { font-size: .66rem; font-weight: 800; color: var(--gold); margin-left: 6px; }

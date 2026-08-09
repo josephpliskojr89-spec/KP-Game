@@ -38,17 +38,20 @@ function debuted(seed) {
 // ---- poachers: enough steals become a name ----
 {
   const state = KP.newGame('ws-poach');
-  const rival = state.rivals[0];
-  rival.poachCount = KP.C.MEMORY.poachAt - 1;
-  // force one more signing through the real path
+  // any rival may win the race — arm them all one steal short
+  state.rivals.forEach(r => { r.poachCount = KP.C.MEMORY.poachAt - 1; });
   const pid = state.prospects[0];
-  rival.interest[pid] = 3;
+  state.rivals[0].interest[pid] = 3;
   let guard = 0;
   while (state.people[pid].status === 'prospect' && guard++ < 200) {
-    KP.rivalScoutingWeek(state, KP.rngFor(state));
+    const rng = KP.rngFor(state);
+    KP.rivalScoutingWeek(state, rng);
+    state.rngState = rng.state();   // advance the stream — same draws never repeat
   }
   t.ok(state.people[pid].status === 'rival', 'fixture: the steal happened');
-  t.ok(KP.getNarrative(state, 'poachers', 'rivalCompany', rival.short), 'three steals and the name sticks');
+  const signer = state.rivals.find(r => r.short === state.people[pid].company);
+  t.ok(signer && KP.getNarrative(state, 'poachers', 'rivalCompany', signer.short),
+    'three steals and the name sticks (' + (signer && signer.short) + ')');
 }
 
 // ---- streaks and flop eras track rival acts ----

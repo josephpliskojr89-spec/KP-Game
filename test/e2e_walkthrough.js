@@ -332,7 +332,29 @@ async function main() {
   ok(/The national chart/.test(natText), 'the national board announces itself');
   ok(/titans/.test(natText), 'and explains what it is');
 
+  // --- the discourse (v0.6.2): a storm trends, the company responds ---
+  await page.evaluate(() => {
+    const s = KP.App.state;
+    const rng = KP.rngFor(s);
+    const g = s.groups[0];
+    KP.igniteDiscourse(s, rng, 'styling', 'group', g.id, g.id);
+    s.rngState = rng.state();
+    KP.App.save();
+    KP.App.render();
+  });
   await tap('[data-action=industry-sub][data-sub=feed]');
+  await page.waitForSelector('.disc-card');
+  const trending = await page.textContent('.disc-card');
+  ok(/STYLING DISCOURSE/.test(trending), 'the storm announces its kind');
+  ok(/die on their own/.test(trending), 'ignoring is offered as a strategy');
+  await tap('[data-action=discourse-respond][data-move=meme]');
+  await page.waitForSelector('.modal-sheet');
+  ok((await page.textContent('.modal-sheet')).includes('PR desk'), 'the response resolves with a story');
+  await tap('.modal-sheet [data-action=close-modal]');
+  const afterResp = await page.textContent('#screen');
+  ok(/company has spoken|The fan feed/.test(afterResp), 'the storm is answered or resolved');
+  ok(await page.$('.fp-persona') !== null, 'feed posts wear personas now');
+
   await page.waitForSelector('.feed-post');
   ok(await page.$$eval('.feed-post', els => els.length) >= 3, 'the fan feed is alive');
   const groupName = await page.evaluate(() => KP.App.state.groups[0].name);

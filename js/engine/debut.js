@@ -109,6 +109,11 @@
     m.flags.burnout = rng.int(OW.weeksMin, OW.weeksMax);
     m.morale = KP.clamp(m.morale - OW.moraleHit, 0, 100);
     m.history.push({ week: state.week, text: 'Pulled from the schedule by medical staff — exhaustion.' });
+    // the internet notices a missing member (v0.6.2)
+    if (rng.chance(KP.C.DISCOURSE.benchedChance)) {
+      const mg = KP.groupOf(state, m.id);
+      KP.igniteDiscourse(state, rng, 'benched', 'idol', m.id, mg && mg.id);
+    }
     return { kind: 'health', urgent: true,
       text: KP.displayName(m) + ' was pulled from ' + where + ' by medical staff this week. The official word is “scheduled rest.” The honest word is exhaustion, and everyone in the building knows whose calendar caused it.' };
   };
@@ -211,6 +216,18 @@
     if (reception >= 75) push(KP.recordEvidence(state, 'monsterRookies', 'group', g.id));
     if (!isDebut && prevReception != null && reception <= prevReception - KP.C.MEMORY.underperformGap) {
       push(KP.recordEvidence(state, 'underperformed', 'group', g.id));
+    }
+    // the internet reacts to the stage itself (v0.6.2)
+    const DD = KP.C.DISCOURSE;
+    if (performance < 45 && rng.chance(DD.encoreChance)) {
+      const shaky = members.slice().sort((a, b) => KP.derived(a).liveReliability - KP.derived(b).liveReliability)[0];
+      push(KP.igniteDiscourse(state, rng, 'encore', 'idol', shaky.id, g.id));
+    }
+    if (reception < 50 && rng.chance(DD.stylingChance)) {
+      push(KP.igniteDiscourse(state, rng, 'styling', 'group', g.id, g.id));
+    }
+    if (spark > 0 && rng.chance(DD.fancamChance)) {
+      push(KP.igniteDiscourse(state, rng, 'fancam', 'idol', breakout.id, g.id));
     }
 
     // trust + objective resolution, by what the executive actually asked

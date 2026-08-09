@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.6.1',
+    VERSION: '0.6.2',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -398,10 +398,53 @@
       rivalReleasePerReception: 150,
     },
 
-    // ---- The fan feed (v0.4.0): curated, world-aware, never cruel -------
+    // ---- The discourse (v0.6.2): interactive social media ---------------
+    // Trending storms ignite from real events, grow or fade on their own,
+    // and boil over if ignored at high heat. The company's response menu
+    // is CONSTRAINED per kind — and ignoring is always legal, often right.
+    DISCOURSE: {
+      maxLive: 2,               // the internet can only care about so much
+      fadeBelow: 15,            // heat under this = the feed moves on
+      boilAt: 85,               // negative heat over this = it boils over
+      weeklyDecay: 6,
+      weeklyGrowth: [0, 12],    // hot storms feed themselves; cool ones die
+      postChance: 0.85,         // chance/week a live storm posts to the feed
+      boilPopHit: 4, boilMoraleHit: 6,   // the cost of losing the narrative
+      statementCost: 2, legalCost: 3,    // PR hours are billable
+      livestreamFatigue: 8,     // she gives the fans two hours of herself
+      apologyPopCost: 2,        // conceding the story costs a little now
+      memeFollowerGain: 9000,   // a meme that lands converts heat to reach
+      KINDS: {
+        exhausted: { label: 'overwork worry', negative: true, start: [30, 55],
+          actions: ['statement', 'livestream'] },
+        dating:    { label: 'dating rumor', negative: true, start: [35, 60],
+          actions: ['statement', 'legal'] },
+        styling:   { label: 'styling discourse', negative: true, start: [25, 45],
+          actions: ['statement', 'meme'] },
+        encore:    { label: 'encore clip', negative: true, start: [30, 50],
+          actions: ['statement', 'apology', 'livestream'] },
+        benched:   { label: 'health worry', negative: true, start: [25, 45],
+          actions: ['statement', 'apology'] },
+        fancam:    { label: 'fancam wave', negative: false, start: [30, 55],
+          actions: ['meme', 'livestream'] },
+      },
+      // response base success; personality and context shift these
+      baseSuccess: { statement: 0.55, apology: 0.8, legal: 0.7, meme: 0.5, livestream: 0.6 },
+      legalBackfire: 0.25,      // Streisand is real
+      // trigger chances
+      exhaustedChance: 0.10,    // weekly, per promoting group at avg fatigue 75+
+      encoreChance: 0.5,        // at release, performance < 45
+      stylingChance: 0.35,      // at release, reception < 50
+      fancamChance: 0.5,        // at spark/viral
+      benchedChance: 0.6,       // at an overwork incident
+      datingChance: 0.006,      // weekly, per idol with 50k+ followers
+      datingMinSocial: 50000,
+    },
+
+    // ---- The fan feed (v0.4.0→v0.6.2): bigger, still never cruel --------
     FEED: {
-      maxPosts: 44,
-      weeklyMax: 4,              // a digest, not a firehose
+      maxPosts: 64,
+      weeklyMax: 6,              // livelier, still a digest
       ambientChance: 0.55,       // chance of ambient fan chatter in a quiet week
       hypePostMin: 35,           // trainee hype level the feed starts noticing
       viralChance: 0.08,         // a post occasionally escapes containment
