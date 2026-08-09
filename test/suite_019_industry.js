@@ -149,7 +149,9 @@ function debuted(seed) {
   t.ok(merged, 'two strugglers eventually merged');
   t.ok(split, 'the giant eventually shed a faction');
   t.ok(emerged, 'fresh money eventually entered the scene');
-  t.ok((state.lifecycleEvents || 0) >= 4, 'lifecycle events are counted');
+  // >=3, not >=4: the starved company can exit via the merge (one event
+  // covers two observed outcomes)
+  t.ok((state.lifecycleEvents || 0) >= 3, 'lifecycle events are counted (' + state.lifecycleEvents + ')');
 }
 
 // ---- migration: a 0.3.3 save wakes up in the living world ----

@@ -746,6 +746,61 @@ staff, never forced beyond the 3-week floor. Census: idol weeks average
 off the fumes in 40/40 worlds (rolling half-year); medical benchings
 occur in most max-pace runs by design.
 
+## §21 The national chart (v0.5.0)
+
+> Owner, after v0.4.4 unified the scene chart: *"I actually like your
+> instinct on a wider streaming chart as the more prestigious chart to
+> chase. finding a way to implement it would be important though since
+> we aren't simulating the wider world."* The answer: simulate it at
+> low resolution. The wider world doesn't need agencies — it needs
+> artists who release, chart, and fade.
+
+**The mainstream pool** (`state.national.artists`, 29): 6 titans, 11
+established, 12 risers — generated boy groups, girl groups, soloists and
+bands (`genArtistName`), each with fame, a release cadence, and slow
+fame drift. Titans release a little slower and land much harder;
+`megaChance` 0.55 of a titan release being a cultural moment (×1.3).
+Monthly churn: an artist under fame 32 may bow out for a fresh riser
+(wire note + feed elegy) — the pool never changes size.
+
+**The board** (`state.national.entries`): same machinery as the scene
+chart, harder field. National songs have longevity (decay 0.93 vs the
+scene's 0.88; titan hits 0.965 — the summit is DEFENDED), higher floor
+(14), bigger cap (48). Pool releases, scene-rival releases and player
+releases all enter with the scores they carry; ranks are stamped weekly
+by the same `chartStamp`. Since same-rate entries never swap order, a
+release's national peak is essentially its opening rank — you chart as
+high as the week you drop, then defend, which is how release timing
+stays a decision.
+
+**One truth per board:** `chartPeak` = scene, `nationalPeak` = national,
+both synced live from their entries and frozen on drop-off (v0.4.4
+law). Hard invariant, guarded in soak and suite: `nationalPeak >=
+chartPeak` — a superset field can never rank you better.
+
+**Milestones** (top 20 / 10 / 3 / #1): crossed tiers are recorded on the
+entry; only the deepest new tier speaks each week. First national top
+10 and first #1 per group are executive letters with trust and
+reputation attached — the national board is the one the CEO's directors
+read at breakfast. The fans have tiered reactions in the feed; a debut
+that OPENS in the national top ten gets its own public note.
+
+**Balance, measured (40-seed max-pace soak):** national alive 40/40,
+top-20 touched 40/40, top-10 40/40, **#1 in 15/40** — the summit stays
+rare even for the tireless auto-player, which means it will be a
+genuine career event at human pace. Tuning history in the ledger: the
+first cut let 39/40 top the chart; titans got stronger, longer-lived,
+more frequent, and one extra seat before the summit held.
+
+**UI:** Industry → Charts is a two-board room (Scene | National seg).
+Discographies read "peaked #x · national #y"; studio and results carry
+both chips, labeled — never one number in two places.
+
+**Roadmap hook:** national milestones are the natural spine for future
+executive objectives, media/tour content and the leader-role accretion
+(§16 standing note) — "get me a national top ten by year's end" is a
+better directive than any reception target. Not built yet; noted.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -1147,4 +1202,29 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > sources of truth for one visible number. Numbers: battery 23/23
 > (suite 023), soak clean (28 bands), e2e 64, lockstep 0.4.4.
 > Rode to main.
+
+> **v0.5.0 — the national chart** (owner: *"I actually like your
+> instinct on a wider streaming chart as the more prestigious chart to
+> chase… since we aren't simulating the wider world"*)
+> The wider world, simulated at low resolution — full spec in §21. A
+> 29-artist mainstream pool (generated titans/established/risers with
+> fame, cadence, drift and monthly churn) releases into a national
+> board that runs on the scene chart's machinery but harder: slower
+> decay, defended summit (titan longevity 0.965, megahits ×1.3), higher
+> floor. Player and scene-rival releases enter with the scores they
+> carry; nationalPeak syncs one-truth style beside chartPeak with the
+> superset invariant (national >= scene) guarded everywhere. Milestone
+> letters at top 20/10/3/#1 — first top-10 and first #1 are executive
+> moments with trust and reputation attached. Balance was measured, not
+> hoped: the first cut let 39/40 max-pace orgs top the chart; after
+> three tuning rounds (titan fame/count/longevity/megahits) the summit
+> held at 15/40 while top-20 stayed universal. Chart tab is a two-board
+> room; discographies read "peaked #x · national #y." Migration seeds
+> the pool, starts tracking anything still charting, estimates finished
+> records defensibly, and delivers any milestone letters earned at
+> first stamp. Three fixture repairs along the way (suite 019
+> event-count floor, suite 009's second pre-rest-rail fixture, suite
+> 024 fame-cap bound). Numbers: battery 24/24 (suite 024), soak clean
+> (32 bands, national #1 in 15/40 — the summit holds), e2e 67,
+> lockstep 0.5.0. Rode to main.
 

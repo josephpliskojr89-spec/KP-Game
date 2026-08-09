@@ -54,13 +54,19 @@
   // have entered — the movement arrows the Chart tab shows come from here.
   // v0.4.4: the discography records what the chart ACTUALLY did — player
   // releases sync their peak and weeks from the living entry until it
-  // drops off, at which point the record freezes. One chart, one truth.
+  // drops off, at which point the record freezes. One truth per chart:
+  // chartPeak is the scene, nationalPeak is the national board (v0.5.0),
+  // and the national board hands out milestone letters on the way up.
   KP.chartStamp = function (state) {
-    KP.chartPositions(state).forEach((e, i) => {
+    const notes = [];
+    const stampList = list => list.forEach((e, i) => {
       e.lastPos = e.pos;
       e.pos = i + 1;
       if (e.peakPos == null || e.pos < e.peakPos) e.peakPos = e.pos;
     });
+    stampList(KP.chartPositions(state));
+    stampList(KP.nationalPositions(state));
+
     ((state.chart && state.chart.entries) || []).forEach(e => {
       if (!e.isPlayer || !e.groupId || e.peakPos == null) return;
       const g = KP.groupById(state, e.groupId);
@@ -71,6 +77,160 @@
         g.results.chartPeak = e.peakPos;
         g.results.chartWeeks = e.weeksOn + 1;
       }
+    });
+
+    ((state.national && state.national.entries) || []).forEach(e => {
+      if (!e.isPlayer || !e.groupId || e.peakPos == null) return;
+      const g = KP.groupById(state, e.groupId);
+      if (!g) return;
+      const rel = (g.releases || []).find(r => r.week === e.entered);
+      if (rel) { rel.nationalPeak = e.peakPos; rel.nationalWeeks = e.weeksOn + 1; }
+      if (g.results && g.results.week === e.entered) {
+        g.results.nationalPeak = e.peakPos;
+        g.results.nationalWeeks = e.weeksOn + 1;
+      }
+      // milestones: record every tier crossed, speak only the deepest new one
+      const N = KP.C.NATIONAL;
+      e.milestones = e.milestones || [];
+      let best = null;
+      N.milestones.forEach(tier => {
+        if (e.pos <= tier && !e.milestones.includes(tier)) {
+          e.milestones.push(tier);
+          if (best == null || tier < best) best = tier;
+        }
+      });
+      if (best != null) {
+        const n = milestoneNote(state, g, e, best);
+        if (n) notes.push(n);
+      }
+    });
+    return notes;
+  };
+
+  function milestoneNote(state, g, e, tier) {
+    const N = KP.C.NATIONAL;
+    if (tier === 1) {
+      if (!g.nationalNumberOne) {
+        g.nationalNumberOne = true;
+        state.trust = KP.clamp(state.trust + N.firstTopTenTrust, 0, 100);
+        const rep = state.company.reputation;
+        rep.girlGroup = KP.clamp((rep.girlGroup || 40) + 8, 0, 100);
+        rep.starMaker = KP.clamp((rep.starMaker || 35) + 6, 0, 100);
+      }
+      return { kind: 'executive', urgent: true, ind: 'natMilestone', tier, actName: g.name, songTitle: e.title,
+        text: state.executive.name + ': “Number one. On the NATIONAL chart — the whole industry, the titans included. ' +
+          'I have rehearsed saying this calmly and I cannot. ' + g.name + ' is the biggest song in the country this week. Frame everything.”' };
+    }
+    if (tier === 3) {
+      return { kind: 'public', ind: 'natMilestone', tier, actName: g.name, songTitle: e.title,
+        text: '“' + e.title + '” climbed into the national top 3 — above half the industry’s untouchables. Legacy fandoms have noticed ' + g.name + ' now, which is both an honor and a declaration of war.' };
+    }
+    if (tier === 10) {
+      if (!g.nationalTopTen) {
+        g.nationalTopTen = true;
+        state.trust = KP.clamp(state.trust + N.firstTopTenTrust, 0, 100);
+        const rep = state.company.reputation;
+        rep.girlGroup = KP.clamp((rep.girlGroup || 40) + 6, 0, 100);
+        rep.starMaker = KP.clamp((rep.starMaker || 35) + 4, 0, 100);
+        return { kind: 'executive', urgent: true, ind: 'natMilestone', tier, actName: g.name, songTitle: e.title,
+          text: state.executive.name + ': “The national top ten. Not our little scene chart — the board my directors read at breakfast. Six years I have waited to forward a chart screenshot upstairs. ' + g.name + ' just ended the wait. Now stay up there.”' };
+      }
+      return { kind: 'public', ind: 'natMilestone', tier, actName: g.name, songTitle: e.title,
+        text: g.name + ' is back in the national top ten with “' + e.title + '”. The second visit is the one that makes the industry stop calling it luck.' };
+    }
+    return { kind: 'public', ind: 'natMilestone', tier, actName: g.name, songTitle: e.title,
+      text: '“' + e.title + '” entered the national top 20. ' + g.name + '’s name is on the big board now, sitting between artists with arena tours. The interns printed it out.' };
+  }
+
+  // ---- the national chart (v0.5.0): the wider world, low resolution -----
+  // A generated mainstream pool — titans, established names, risers —
+  // releases on its own cadence into a bigger, harder field. Player and
+  // scene-rival releases enter it with the scores they already carry.
+  const TYPE_LABELS = { boyGroup: 'boy group', girlGroup: 'girl group', soloist: 'soloist', band: 'band' };
+  function pickArtistType(rng) {
+    const roll = rng.next();
+    return roll < 0.32 ? 'boyGroup' : roll < 0.64 ? 'girlGroup' : roll < 0.86 ? 'soloist' : 'band';
+  }
+  function makePoolArtist(state, rng, tier, used) {
+    const N = KP.C.NATIONAL;
+    const type = pickArtistType(rng);
+    return {
+      name: KP.genArtistName(rng, type, used),
+      type, typeLabel: TYPE_LABELS[type], tier,
+      fame: rng.int(N.fame[tier][0], N.fame[tier][1]),
+      lastRelease: 0,
+      nextRelease: state.week + rng.int(1, N.cadence[1]),
+    };
+  }
+  KP.nationalPositions = function (state) {
+    return ((state.national && state.national.entries) || []).slice().sort((a, b) => b.score - a.score);
+  };
+  KP.nationalEnter = function (state, entry) {
+    state.national = state.national || { artists: [], entries: [] };
+    entry.weeksOn = entry.weeksOn || 0;
+    entry.pos = null; entry.lastPos = null; entry.peakPos = null;
+    state.national.entries.push(entry);
+    if (state.national.entries.length > KP.C.NATIONAL.maxEntries) {
+      state.national.entries.sort((a, b) => b.score - a.score);
+      state.national.entries.length = KP.C.NATIONAL.maxEntries;
+    }
+    return entry;
+  };
+  function nationalTitles(state) {
+    const used = usedTitles(state);
+    ((state.national && state.national.entries) || []).forEach(e => { used[e.title] = true; });
+    return used;
+  }
+  function nationalWeek(state, rng) {
+    const N = KP.C.NATIONAL;
+    state.national = state.national || { artists: [], entries: [] };
+    state.national.entries.forEach(e => { e.score *= (e.decayRate || N.decay); e.weeksOn++; });
+    state.national.entries = state.national.entries.filter(e => e.score >= N.dropBelow);
+    state.national.artists.forEach(ar => {
+      if (state.week < ar.nextRelease) return;
+      let mult = N.scoreMult[0] + rng.next() * (N.scoreMult[1] - N.scoreMult[0]);
+      const titan = ar.tier === 'titan';
+      if (titan && rng.chance(N.megaChance)) mult *= N.megaMult;   // a cultural moment
+      KP.nationalEnter(state, {
+        title: KP.genSongTitle(rng, nationalTitles(state)),
+        act: ar.name, company: ar.typeLabel, isPlayer: false, pool: true,
+        decayRate: titan ? N.titanDecay : undefined,
+        score: ar.fame * mult, entered: state.week,
+      });
+      ar.fame = KP.clamp(ar.fame + rng.int(-N.fameDriftMax, N.fameDriftMax), N.fameFloor, N.fameCap);
+      ar.lastRelease = state.week;
+      ar.nextRelease = state.week + rng.int(N.cadence[0], N.cadence[1]) +
+        (ar.tier === 'titan' ? N.titanCadenceBonus : 0);
+    });
+  }
+  KP.seedNational = function (state, rng) {
+    if (state.national && state.national.artists && state.national.artists.length) return;
+    const N = KP.C.NATIONAL;
+    state.national = { artists: [], entries: [] };
+    const used = usedActNames(state);
+    Object.keys(N.pool).forEach(tier => {
+      for (let i = 0; i < N.pool[tier]; i++) {
+        state.national.artists.push(makePoolArtist(state, rng, tier, used));
+      }
+    });
+    // the big chart opens mid-conversation: recent releases, still cooling
+    state.national.artists.forEach(ar => {
+      if (!rng.chance(0.6)) return;
+      const weeksAgo = rng.int(1, 14);
+      let mult = N.scoreMult[0] + rng.next() * (N.scoreMult[1] - N.scoreMult[0]);
+      const titan = ar.tier === 'titan';
+      if (titan && rng.chance(N.megaChance)) mult *= N.megaMult;
+      const rate = titan ? N.titanDecay : N.decay;
+      const score = ar.fame * mult * Math.pow(rate, weeksAgo);
+      if (score < N.dropBelow) return;
+      const e = KP.nationalEnter(state, {
+        title: KP.genSongTitle(rng, nationalTitles(state)),
+        act: ar.name, company: ar.typeLabel, isPlayer: false, pool: true,
+        decayRate: titan ? N.titanDecay : undefined,
+        score, entered: Math.max(-200, state.week - weeksAgo),
+      });
+      e.weeksOn = weeksAgo;
+      ar.lastRelease = Math.max(-200, state.week - weeksAgo);
     });
   };
 
@@ -147,9 +307,15 @@
     act.releases = act.releases || [];
     act.releases.push({ week: state.week, title, reception, isDebut: !!isDebut });
     rival.prestige = KP.clamp(rival.prestige + (reception - 55) * 0.06, 5, 95);
+    const score = reception + act.popularity * 0.2;
     KP.chartEnter(state, {
       title, act: act.name, company: rival.short, isPlayer: false,
-      score: reception + act.popularity * 0.2, entered: state.week,
+      score, entered: state.week,
+    });
+    // the scene fights for the middle of the national board too (v0.5.0)
+    KP.nationalEnter(state, {
+      title, act: act.name, company: rival.short, isPlayer: false,
+      score, entered: state.week,
     });
     state.rivalReleasesThisWeek = (state.rivalReleasesThisWeek || 0) + 1;
     return { title, reception };
@@ -164,6 +330,7 @@
     const notes = [];
     state.chart = state.chart || { entries: [] };
     chartTick(state);
+    nationalWeek(state, rng);   // the wider world keeps its own schedule (v0.5.0)
     state.rivalReleasesThisWeek = 0;
 
     (state.rivals || []).forEach(rival => {
@@ -314,6 +481,21 @@
       }
     }
 
+    // the national pool churns too: faded stars bow out, rookies rise (v0.5.0)
+    const N = KP.C.NATIONAL;
+    if (state.national && state.national.artists && rng.chance(N.retireChance)) {
+      const idx = state.national.artists.findIndex(ar => ar.fame < N.retireBelow);
+      if (idx >= 0) {
+        const gone = state.national.artists[idx];
+        const used = usedActNames(state);
+        state.national.artists.forEach(ar => used.add(ar.name.toLowerCase()));
+        state.national.artists[idx] = makePoolArtist(state, rng, 'riser', used);
+        bump();
+        notes.push({ kind: 'industry', ind: 'natRetire', company: gone.name,
+          text: gone.name + ' announced an indefinite hiatus after a quiet few years. The national chart will feel older without them — and younger because of ' + state.national.artists[idx].name + ', who is exactly the kind of act that takes a legend’s parking spot.' });
+      }
+    }
+
     // emerge: fresh money enters the scene
     if ((state.rivals || []).length < I.maxRivals && rng.chance(I.emergeChance)) {
       const fresh = makeCompany(state, rng);
@@ -380,6 +562,8 @@
         a.members = castMembers(state, r, rng, [17, 24]);
       }
     }));
+    // the wider world exists whether or not anyone local looks up (v0.5.0)
+    KP.seedNational(state, rng);
     KP.chartStamp(state);
     // the feed opens mid-argument, the way it always is
     if (!state.feed.length) {
@@ -476,6 +660,14 @@
         posts.push('half of an A&R floor walking out to start ' + n.company + '?? the tea is SCALDING. the trainees deserve hazard pay');
       } else if (n.ind === 'emerge') {
         posts.push('new label ' + n.company + ' just announced. every debut showcase gets my attention exactly once. impress me');
+      } else if (n.ind === 'natMilestone') {
+        const m = { 20: n.actName + ' in the NATIONAL top 20. we’re a real fandom now, act accordingly',
+          10: 'NATIONAL TOP TEN. I have personally been carrying ' + n.actName + '’s streams and I WILL be taking credit',
+          3: n.actName + ' top 3 on the national chart, above half the industry’s untouchables. screaming, crying, printing the screenshot',
+          1: n.actName + ' IS NUMBER ONE IN THE COUNTRY. in this house forever. lightstick to the moon' };
+        posts.push(m[n.tier] || m[20]);
+      } else if (n.ind === 'natRetire') {
+        posts.push('the ' + n.company + ' hiatus announcement has me revisiting my entire adolescence. pour one out for the national chart’s old guard');
       }
     });
     return posts;

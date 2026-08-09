@@ -284,6 +284,15 @@ async function main() {
   await page.waitForSelector('.chart-row');
   ok(await page.$$eval('.chart-row', els => els.length) >= 2, 'the scene chart has entries');
   ok(await page.$('.chart-row.mine') !== null, 'our release is on the chart, marked as ours');
+
+  // --- the national board (v0.5.0): the wider world, viewable ---
+  await tap('[data-action=industry-chart][data-chart=national]');
+  await page.waitForSelector('.chart-row');
+  ok(await page.$$eval('.chart-row', els => els.length) >= 8, 'the national chart is a bigger field');
+  const natText = await page.textContent('#screen');
+  ok(/The national chart/.test(natText), 'the national board announces itself');
+  ok(/titans/.test(natText), 'and explains what it is');
+
   await tap('[data-action=industry-sub][data-sub=feed]');
   await page.waitForSelector('.feed-post');
   ok(await page.$$eval('.feed-post', els => els.length) >= 3, 'the fan feed is alive');

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.4.4',
+    VERSION: '0.5.0',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -321,6 +321,32 @@
       splitChance: 0.03,         // monthly, needs a giant to crack
       splitPrestige: 72, splitRoster: 14,
       crowdPenaltyPer: 2.5, crowdPenaltyMax: 6,  // releasing into a crowded week
+    },
+
+    // ---- The national chart (v0.5.0): the wider world, low resolution ---
+    // The prestigious chart. A generated mainstream pool — titans,
+    // established names, risers — releases on its own cadence and sets a
+    // bar the scene has to climb to. Player and scene-rival releases
+    // enter the same field with the scores they already carry.
+    NATIONAL: {
+      pool: { titan: 6, established: 11, riser: 12 },
+      fame: { titan: [88, 97], established: [60, 80], riser: [40, 62] },
+      cadence: [14, 26],           // weeks between a pool artist's releases
+      titanCadenceBonus: 4,        // titans release a little slower, land harder
+      scoreMult: [0.95, 1.25],     // release score = fame × this roll
+      decay: 0.93,                 // national songs have longevity the scene lacks
+      titanDecay: 0.965,           // titan hits linger — the summit is defended
+      megaChance: 0.55,            // a titan release is often a cultural moment…
+      megaMult: 1.3,               // …that parks on top for a season
+      dropBelow: 14,               // and the floor is higher
+      maxEntries: 48,
+      showTop: 25,
+      fameDriftMax: 2,             // fame random-walks a little per release
+      fameFloor: 25, fameCap: 98,
+      retireBelow: 32,             // monthly: faded artists bow out…
+      retireChance: 0.25,          // …and a fresh riser takes the slot
+      milestones: [20, 10, 3, 1],  // the ladders worth a letter
+      firstTopTenTrust: 3,         // the CEO notices the national top 10
     },
 
     // ---- The fan feed (v0.4.0): curated, world-aware, never cruel -------

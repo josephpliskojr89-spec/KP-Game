@@ -239,6 +239,53 @@
     }
   } });
 
+  // v0.5.0 — the national chart. The wider world materializes at low
+  // resolution: a mainstream pool seeds, releases still alive on the
+  // scene chart begin national tracking today at their current heat, and
+  // finished records get a defensible estimate. Milestone letters earned
+  // at first stamp are delivered, not swallowed.
+  MIGRATIONS.push({ v: '0.5.0', fn: function (state) {
+    if (!state.rngState) return;
+    const rng = KP.Rng.fromState(state.rngState);
+    KP.seedNational(state, rng);
+    // live scene entries join the national board at their current score
+    ((state.chart && state.chart.entries) || []).forEach(e => {
+      const ne = KP.nationalEnter(state, {
+        title: e.title, act: e.act, company: e.company,
+        isPlayer: e.isPlayer, groupId: e.groupId,
+        score: e.score, entered: e.entered,
+      });
+      ne.weeksOn = e.weeksOn || 0;
+    });
+    const milestones = KP.chartStamp(state);
+    // finished records: a defensible estimate against today's field
+    const estimate = rec => Math.max(2, Math.min(60,
+      1 + KP.nationalPositions(state).filter(e => e.score > rec + 8).length + 2));
+    (state.groups || []).forEach(g => {
+      (g.releases || []).forEach(rel => {
+        if (rel.nationalPeak == null) {
+          rel.nationalPeak = estimate(rel.reception);
+          rel.nationalWeeks = rel.chartWeeks || 1;
+        }
+      });
+      if (g.results && g.results.nationalPeak == null) {
+        g.results.nationalPeak = estimate(g.results.reception);
+        g.results.nationalWeeks = g.results.chartWeeks || 1;
+      }
+    });
+    state.rngState = rng.state();
+    state.inbox = state.inbox || [];
+    milestones.reverse().forEach(n => {
+      n.week = state.week; n.read = false; n.id = 'm' + (state.nextMsgId++);
+      state.inbox.unshift(n);
+    });
+    state.inbox.unshift({
+      kind: 'industry', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The industry desk now carries the NATIONAL chart — the whole market, the arena acts, the names your trainees grew up on. The scene chart is your lane; the national board is the mountain. Anything of ours still charting starts being tracked there today.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

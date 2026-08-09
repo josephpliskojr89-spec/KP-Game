@@ -6,15 +6,15 @@
   const KP = root.KP = root.KP || {};
   const UI = KP.UI;
 
-  UI.renderIndustry = function (state, sub) {
+  UI.renderIndustry = function (state, sub, chartWhich) {
     sub = sub || 'scene';
     const html = [];
     html.push('<div class="pad" style="margin-top:2px"><div class="seg">' +
       '<button class="' + (sub === 'scene' ? 'on' : '') + '" data-action="industry-sub" data-sub="scene">Scene</button>' +
-      '<button class="' + (sub === 'chart' ? 'on' : '') + '" data-action="industry-sub" data-sub="chart">Chart</button>' +
+      '<button class="' + (sub === 'chart' ? 'on' : '') + '" data-action="industry-sub" data-sub="chart">Charts</button>' +
       '<button class="' + (sub === 'feed' ? 'on' : '') + '" data-action="industry-sub" data-sub="feed">Feed</button>' +
       '</div></div>');
-    if (sub === 'chart') html.push(renderChart(state));
+    if (sub === 'chart') html.push(renderChart(state, chartWhich));
     else if (sub === 'feed') html.push(renderFeed(state));
     else html.push(renderScene(state));
     return html.join('');
@@ -65,10 +65,18 @@
   }
 
   // ---- Chart -----------------------------------------------------------
-  function renderChart(state) {
+  function renderChart(state, which) {
     const html = [];
-    const entries = KP.chartPositions(state).slice(0, KP.C.CHART.showTop);
-    html.push('<div class="kicker">The scene chart · ' + UI.esc(KP.weekLabel(state.week).text) + '</div>');
+    const national = which === 'national';
+    html.push('<div class="pad" style="margin-top:2px"><div class="seg">' +
+      '<button class="' + (!national ? 'on' : '') + '" data-action="industry-chart" data-chart="scene">Scene</button>' +
+      '<button class="' + (national ? 'on' : '') + '" data-action="industry-chart" data-chart="national">National</button>' +
+      '</div></div>');
+    const entries = national
+      ? KP.nationalPositions(state).slice(0, KP.C.NATIONAL.showTop)
+      : KP.chartPositions(state).slice(0, KP.C.CHART.showTop);
+    html.push('<div class="kicker">' + (national ? 'The national chart' : 'The scene chart') +
+      ' · ' + UI.esc(KP.weekLabel(state.week).text) + '</div>');
     if (!entries.length) {
       html.push('<div class="card" style="color:var(--ink-dim);font-size:.85rem">A quiet week on the charts. Someone will fix that — the only question is whose logo is on the album.</div>');
       return html.join('');
@@ -91,7 +99,11 @@
         '</div>');
     });
     html.push('</div>');
-    html.push('<div class="pad" style="font-size:.72rem;color:var(--ink-faint);line-height:1.5">Every release enters on impact and cools week by week. The peak positions in each discography are THIS chart’s — one chart, one truth.</div>');
+    html.push('<div class="pad" style="font-size:.72rem;color:var(--ink-faint);line-height:1.5">' +
+      (national
+        ? 'The whole industry — titans, legacy fandoms, arena tours. The scene fights for the middle of this board. National peaks live in each discography beside the scene peak.'
+        : 'Your lane: the companies you actually trade blows with. Every release enters on impact and cools week by week; discography peaks are this chart’s truth.') +
+      '</div>');
     return html.join('');
   }
 

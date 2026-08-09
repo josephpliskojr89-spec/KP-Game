@@ -141,6 +141,7 @@
           '<div><b>“' + UI.esc(r.songTitle) + '”</b> · ' + UI.esc(KP.conceptById(r.conceptId).label) +
           (fmt ? ' · ' + UI.esc(fmt.label.toLowerCase()) : '') +
           '<span class="m-week">' + (r.isDebut ? 'debut · ' : '') + 'peaked #' + r.chartPeak +
+          (r.nationalPeak != null ? ' · national #' + r.nationalPeak : '') +
           (r.chartWeeks ? ' · ' + r.chartWeeks + ' weeks charting' : ' · missed the charts') + '</span></div></div>');
       });
       html.push('<div class="pad" style="margin-top:8px"><button class="btn small" data-action="open-results" data-id="' + g.id + '">Latest full report</button></div>');

@@ -194,9 +194,10 @@
       KP.industryLifecycle(state, rng).forEach(n => inbox.push(n));
     }
 
-    // 9. stamp this week's chart positions (all releases are in), then let
-    //    the fans react to everything that just happened
-    KP.chartStamp(state);
+    // 9. stamp this week's chart positions (all releases are in) — the
+    //    national board hands out milestone letters — then let the fans
+    //    react to everything that just happened
+    KP.chartStamp(state).forEach(n => inbox.push(n));
     KP.feedWeek(state, rng, inbox);
 
     // trim + stamp inbox

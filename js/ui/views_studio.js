@@ -82,7 +82,7 @@
     html.push(switcher);
     html.push('<div class="pad"><div class="d-label">' + (g.debuted ? 'Comeback planning' : 'Debut planning') + ' · ' + UI.esc(g.name) + '</div>' +
       '<div class="bigname" style="font-size:clamp(1.6rem,8vw,2.2rem)">Pick the record.<br>Pick the day.</div>' +
-      (g.debuted && g.results ? '<div style="font-size:.76rem;color:var(--ink-dim);margin-top:8px">Last release: “' + UI.esc(g.results.songTitle) + '” — ' + UI.esc(g.results.receptionLabel.toLowerCase()) + ', peaked #' + g.results.chartPeak + '. The room is ' + KP.popularityWord(g.popularity) + '.</div>' : '') +
+      (g.debuted && g.results ? '<div style="font-size:.76rem;color:var(--ink-dim);margin-top:8px">Last release: “' + UI.esc(g.results.songTitle) + '” — ' + UI.esc(g.results.receptionLabel.toLowerCase()) + ', scene #' + g.results.chartPeak + (g.results.nationalPeak != null ? ' · national #' + g.results.nationalPeak : '') + '. The room is ' + KP.popularityWord(g.popularity) + '.</div>' : '') +
       '</div>');
 
     html.push('<div class="kicker">Demos on the desk</div>');
@@ -177,7 +177,8 @@
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px">' +
       '<span class="chip">stage: ' + perfWord(r.performance) + '</span>' +
       '<span class="chip">room: ' + chemWord(r.chem) + '</span>' +
-      (r.chartPeak != null ? '<span class="chip cool">peaked #' + r.chartPeak + '</span>' : '') +
+      (r.chartPeak != null ? '<span class="chip cool">scene #' + r.chartPeak + '</span>' : '') +
+      (r.nationalPeak != null ? '<span class="chip gold">national #' + r.nationalPeak + '</span>' : '') +
       '<span class="chip gold">revenue +' + r.revenue + '</span>' +
       '</div></div>');
 

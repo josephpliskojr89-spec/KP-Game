@@ -230,12 +230,13 @@
     // hype is spent — it became the act
     members.forEach(m => { m.hype = 0; });
 
-    // ONE chart (v0.4.4, owner-reported disconnect): the peak position is
-    // the release's actual rank on the scene chart — entered here at its
-    // opening rank, then tracked live by chartStamp for as long as it
-    // charts. No parallel formula, no second market.
+    // ONE truth per chart (v0.4.4 / v0.5.0): peaks are actual ranks —
+    // opening rank here, then tracked live by chartStamp for as long as
+    // the entry charts. The scene is the lane; the national board is the
+    // whole industry, titans included, and it is harder by construction.
     const score = reception + (g.popularity || 0) * 0.2;
     const peak = 1 + KP.chartPositions(state).filter(e => e.score > score).length;
+    const natPeak = 1 + KP.nationalPositions(state).filter(e => e.score > score).length;
     const weeksOn = 1;
 
     if (isDebut) { g.debutWeek = state.week; }
@@ -257,19 +258,27 @@
       chem, groupFit: Math.round(groupFit),
       trustDelta, revenue,
       chartPeak: peak, chartWeeks: weeksOn,
+      nationalPeak: natPeak, nationalWeeks: weeksOn,
       crowd: Math.round(crowd),
       benched: benched.map(m => m.id),
       execLine: execDebutLine(band.key, centerOvershadowed, state),
-      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut, crowd, benched, fatigueAvg),
+      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut, crowd, benched, fatigueAvg, natPeak),
     };
     g.releases = g.releases || [];
     g.releases.push({
       week: state.week, songTitle: demo.title, conceptId: concept.id,
       reception, receptionBand: band.key, chartPeak: peak, chartWeeks: weeksOn,
+      nationalPeak: natPeak, nationalWeeks: weeksOn,
       isDebut, format: format.id, tracks: format.tracks,
     });
-    // the release enters the weekly scene chart alongside the rivals'
+    // the release enters BOTH boards: the scene, and the national chart
+    // the whole industry fights over
     KP.chartEnter(state, {
+      title: demo.title, act: g.name, company: state.company.short,
+      isPlayer: true, groupId: g.id,
+      score, entered: state.week,
+    });
+    KP.nationalEnter(state, {
       title: demo.title, act: g.name, company: state.company.short,
       isPlayer: true, groupId: g.id,
       score, entered: state.week,
@@ -290,9 +299,10 @@
     }
   }
 
-  function publicNotes(state, bandKey, breakout, overshadowed, demo, rng, sparked, isDebut, crowd, benched, fatigueAvg) {
+  function publicNotes(state, bandKey, breakout, overshadowed, demo, rng, sparked, isDebut, crowd, benched, fatigueAvg, natPeak) {
     const notes = [];
     const bn = KP.displayName(breakout);
+    if (natPeak != null && natPeak <= 10) notes.push('“' + demo.title + '” opened inside the national top ten — the big board, the one with the titans on it. Frame this week.');
     if (sparked) notes.push('A fancam of ' + bn + ' is circulating far beyond the usual audience. The clip is doing the promotion’s job for free.');
     if ((crowd || 0) >= 5) notes.push('The release landed in a crowded week — half the industry picked the same Monday. Louder rooms have drowned better songs.');
     (benched || []).forEach(m => notes.push(KP.displayName(m) + ' sat out part of the schedule on medical advice. The formations papered over the gap; the fans counted heads anyway.'));

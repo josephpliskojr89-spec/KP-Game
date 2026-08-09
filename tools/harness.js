@@ -37,6 +37,10 @@ const BANDS = {
   rivalActDebut:     { lo: 0.80, hi: 1.00, label: 'worlds where a rival debuted a new act' },
   boardLosses:       { lo: 0.50, hi: 1.00, label: 'orgs that lost 3+ board prospects to rivals' },
   stolenOnStage:     { lo: 0.30, hi: 1.00, label: 'worlds where a lost prospect debuted for a rival' },
+  nationalAlive:     { lo: 0.80, hi: 1.00, label: 'worlds with a living national chart (>=12 entries)' },
+  natTopTwenty:      { lo: 0.30, hi: 1.00, label: 'orgs that cracked the national top 20' },
+  natTopTen:         { lo: 0.10, hi: 1.00, label: 'orgs that reached the national top 10' },
+  natNumberOne:      { lo: 0.00, hi: 0.40, label: 'orgs that topped the national chart (the summit stays rare)' },
   chartAlive:        { lo: 0.40, hi: 1.00, label: 'worlds ending with a living chart (>=3 entries)' },
   lifecycleSeen:     { lo: 0.35, hi: 1.00, label: 'worlds where a company rose/fell/merged/split' },
   feedAlive:         { lo: 0.85, hi: 1.00, label: 'worlds with a full fan feed (>=25 posts)' },
@@ -52,6 +56,7 @@ const tally = {
   hypeSeen: 0, directiveFired: 0, soloDebuts: 0,
   rivalActDebut: 0, chartAlive: 0, lifecycleSeen: 0, feedAlive: 0, playerTopThree: 0, crowdedRelease: 0,
   idolsRested: 0, overworkSeen: 0, boardLosses: 0, stolenOnStage: 0,
+  nationalAlive: 0, natTopTwenty: 0, natTopTen: 0, natNumberOne: 0,
 };
 let totalGroups = 0;
 let mediationsRun = 0;
@@ -204,6 +209,21 @@ for (let s = 0; s < SEEDS; s++) {
     });
     state.rivals.forEach(r => (r.acts || []).forEach(a => (a.releases || []).forEach(rel =>
       guard(rel.reception >= 1 && rel.reception <= 100, seed + ' rival reception off the scale'))));
+    // the national chart (v0.5.0): the wider world stays coherent
+    const NAT = KP.C.NATIONAL;
+    const poolSize = Object.values(NAT.pool).reduce((a, b) => a + b, 0);
+    guard(state.national.artists.length === poolSize,
+      seed + ' national pool drifted: ' + state.national.artists.length);
+    state.national.entries.forEach(e =>
+      guard(Number.isFinite(e.score) && e.score >= 0 && !!e.title, seed + ' national entry broken'));
+    state.groups.forEach(gg => (gg.releases || []).forEach(r => {
+      if (r.nationalPeak != null && r.chartPeak != null) {
+        guard(r.nationalPeak >= r.chartPeak,
+          seed + ' national peak better than scene peak — impossible in a superset field (' +
+          r.nationalPeak + ' vs ' + r.chartPeak + ')');
+      }
+    }));
+
     // rivals with faces (v0.4.3): every active act is made of real people
     state.rivals.forEach(r => (r.acts || []).forEach(a => {
       if (a.retired) return;
@@ -270,6 +290,14 @@ for (let s = 0; s < SEEDS; s++) {
 
   // living-world census (v0.4.0)
   if (state.rivals.some(r => (r.acts || []).some(a => a.debutWeek > 1))) tally.rivalActDebut++;
+  // the national chart census (v0.5.0)
+  if (state.national.entries.length >= 12) tally.nationalAlive++;
+  const natPeaks = state.groups.flatMap(gg => (gg.releases || []).map(r => r.nationalPeak))
+    .filter(p => p != null);
+  if (natPeaks.some(p => p <= 20)) tally.natTopTwenty++;
+  if (natPeaks.some(p => p <= 10)) tally.natTopTen++;
+  if (natPeaks.some(p => p === 1)) tally.natNumberOne++;
+
   // rivals with faces (v0.4.3)
   const lostToRivals = Object.values(state.people).filter(p => p.status === 'rival' && !p.flags.rivalNative);
   if (lostToRivals.length >= 3) tally.boardLosses++;

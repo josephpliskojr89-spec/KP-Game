@@ -149,6 +149,34 @@
     return rng.pick(FH_A) + rng.pick(FH_B) + rng.int(100, 999);
   };
 
+  // National-pool artist names (v0.5.0): the wider world's stars. Groups
+  // share the group-name grammar (and its uniqueness set); soloists and
+  // bands get their own shapes.
+  KP.genArtistName = function (rng, type, used) {
+    if (type === 'boyGroup' || type === 'girlGroup') return KP.genGroupName(rng, used);
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const roll = rng.next();
+      let name;
+      if (type === 'band') {
+        if (roll < 0.5) name = 'The ' + rng.pick(GN_WHOLE).split(' ')[0] + 's';
+        else if (roll < 0.8) name = rng.pick(GN_WHOLE) + ' Club';
+        else name = rng.pick(GN_PRE) + rng.pick(GN_POST) + ' Band';
+      } else { // soloist
+        if (roll < 0.45) name = (rng.pick(GIVEN_A) + rng.pick(GIVEN_B))
+          .replace(/^(.)(.*)$/, (m, a, b) => a.toUpperCase() + b.toLowerCase());
+        else if (roll < 0.7) name = rng.pick(GN_WORD).charAt(0) + rng.pick(GN_WORD).slice(1).toLowerCase();
+        else if (roll < 0.88) name = rng.pick(GIVEN_A).toUpperCase() + '.' + rng.pick(GIVEN_B).charAt(0).toUpperCase();
+        else name = rng.pick(GN_PRE) + rng.pick(GN_POST).toLowerCase();
+      }
+      const key = name.toLowerCase();
+      if (!used || !used.has(key)) {
+        if (used) used.add(key);
+        return name;
+      }
+    }
+    return rng.pick(GN_PRE) + rng.pick(GN_POST) + ' ' + rng.int(2, 9);
+  };
+
   const HEADLINE_TOPIC = ['girl-group listenership', 'music show ratings',
     'album pre-orders', 'fan-event attendance', 'debut-week streaming',
     'lightstick sales', 'international chart entries'];
