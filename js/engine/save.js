@@ -438,6 +438,27 @@
     });
   } });
 
+  // v0.6.7 — creative direction. Groups that already release in one
+  // lane walk in with the brief (and the streak) they earned; everyone
+  // else starts with the field open.
+  MIGRATIONS.push({ v: '0.6.7', fn: function (state) {
+    (state.groups || []).forEach(g => {
+      if (g.concept !== undefined) return;
+      const rels = g.releases || [];
+      let run = 0;
+      const last = rels.length ? rels[rels.length - 1].conceptId : null;
+      for (let i = rels.length - 1; i >= 0 && rels[i].conceptId === last; i--) run++;
+      g.concept = (last && run >= 2) ? last : null;
+      g.conceptRun = g.concept ? run : 0;
+    });
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The A&R desk formalized something the building already did by feel: each group can commit to a CREATIVE DIRECTION, set on its page. With a brief, the producers pitch to it — most demos in the lane and a little sharper for it, one stretch, one wildcard they will push regardless. Stay consistent and the sound becomes the group. Change lanes after that, and the internet will have opinions.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

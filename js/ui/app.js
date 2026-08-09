@@ -181,6 +181,14 @@
         App.render();
         break;
       }
+      case 'group-concept': {
+        const r = KP.setGroupConcept(s, t.dataset.id, t.dataset.concept || null);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        if (r.note) UI.toast(r.note.slice(0, 120));
+        App.render();
+        break;
+      }
       case 'clash-hold': case 'clash-slip': {
         const r = KP.respondClash(s, t.dataset.id, act === 'clash-hold' ? 'hold' : 'slip');
         if (!r.ok) { UI.toast(r.reason, true); break; }

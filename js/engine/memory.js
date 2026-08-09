@@ -94,6 +94,10 @@
         return group() + ' moves numbers in ' + KP.regionLabel(loudest || (n.meta && n.meta.region) || 'jp') +
           ' like a domestic act.';
       }
+      case 'conceptIdentity': {
+        const c = KP.conceptById((n.meta && n.meta.concept) || 'bright');
+        return group() + ' and the ' + (c ? c.label.toLowerCase() : 'signature') + ' concept are inseparable now. The sound IS the group.';
+      }
       default: return n.key;
     }
   };
@@ -164,6 +168,10 @@
       case 'rivalry': return 'The internet has made it official: ' + rivalAct() + ' versus us is a RIVALRY now — capital letters, compilation videos, the works. Every shared release week from here is a scoreboard.';
       case 'showDarling': return 'Three trophies from the same stage and the coverage found its line: ' + KP.showLabel((n.meta && n.meta.show) || 'countdown') + ' belongs to ' + group() + ' now. Champions get measured harder — enjoy it anyway.';
       case 'regionStronghold': return 'The trades noticed what the shipping manifests already knew: ' + group() + ' has a real overseas market now — ' + KP.regionLabel((n.meta && n.meta.region) || 'jp') + ' first among them. The word “tour” has started appearing in meetings uninvited.';
+      case 'conceptIdentity': {
+        const c = KP.conceptById((n.meta && n.meta.concept) || 'bright');
+        return 'It is canon now: ' + group() + ' means ' + (c ? c.label.toLowerCase() : 'that sound') + '. Two eras deep and the public hears the group in the first four bars. An identity is free promotion — until the day you want to change it.';
+      }
       default: return 'A narrative formed: ' + n.key;
     }
   }

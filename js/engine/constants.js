@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.6.6',
+    VERSION: '0.6.7',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -250,6 +250,20 @@
       revenuePerOverseas: 1 / 220, // release revenue × (1 + avgOverseas × this)
     },
 
+    // ---- Creative direction (v0.6.7) ------------------------------------
+    // Owner: "choosing a concept for a group that has an effect on the
+    // songs pitched to them." A group can commit to a concept; the
+    // producers then pitch TO the brief — most demos in-lane and a
+    // little sharper for it, one adjacent, one wildcard they push
+    // anyway. Consistency becomes identity; identity makes pivots news.
+    DIRECTION: {
+      laneSlots: 2,            // demos written to the brief (of demoCount 4)
+      briefHookBonus: 2,       // a clear brief makes better records (gently — power creep is real)
+      identityAt: 2,           // consecutive in-lane releases before it is canon
+      pivotStrengthMult: 0.5,  // a pivot cuts the identity story down…
+      reinventionAt: 70,       // …and a pivot landing THIS well is a reinvention
+    },
+
     // ---- Debut resolution ----------------------------------------------
     DEBUT: {
       prepWeeksMin: 4,
@@ -402,9 +416,9 @@
       titanCadenceBonus: 4,        // titans release a little slower, land harder
       scoreMult: [0.95, 1.25],     // release score = fame × this roll
       decay: 0.93,                 // national songs have longevity the scene lacks
-      titanDecay: 0.965,           // titan hits linger — the summit is defended
+      titanDecay: 0.972,           // titan hits linger — the summit is defended
       megaChance: 0.55,            // a titan release is often a cultural moment…
-      megaMult: 1.38,              // …that parks on top for a season
+      megaMult: 1.45,              // …that parks on top for a season
       dropBelow: 14,               // and the floor is higher
       maxEntries: 48,
       showTop: 25,
@@ -532,7 +546,7 @@
       shakyEncoreChance: 0.2,  // after a win with a shaky room: a storm
       shakyLiveMax: 42,
       fairyChance: 0.12,       // weekly, per appearance: the ending fairy trends
-      darlingAt: 6,            // wins on ONE show before it becomes a story (dynasty, not tenure)
+      darlingAt: 7,            // wins on ONE show before it becomes a story (dynasty, not tenure)
     },
 
     // ---- The discourse (v0.6.2): interactive social media ---------------

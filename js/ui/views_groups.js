@@ -119,6 +119,25 @@
       html.push('<div class="card">' + UI.narrativeLines(state, gNars) + '</div>');
     }
 
+    // the creative direction (v0.6.7): the brief the producers pitch to
+    {
+      const dirId = g.concept || null;
+      const idNar = KP.getNarrative(state, 'conceptIdentity', 'group', g.id);
+      html.push('<div class="kicker">Creative direction</div>');
+      html.push('<div class="pad">' +
+        '<div style="display:flex;gap:7px;flex-wrap:wrap">' +
+        '<button class="chip' + (!dirId ? ' hot' : '') + '" data-action="group-concept" data-id="' + g.id + '" data-concept="">Open field</button>' +
+        KP.C.CONCEPTS.map(c => '<button class="chip' + (dirId === c.id ? ' hot' : '') + '" ' +
+          'data-action="group-concept" data-id="' + g.id + '" data-concept="' + c.id + '">' + UI.esc(c.label) + '</button>').join('') +
+        '</div>' +
+        '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">' +
+        (dirId
+          ? 'The producers pitch to this brief — most demos in the lane, one stretch, one wildcard. Consistency becomes identity.' +
+            (idNar ? ' The identity is CANON now; changing lanes will be news.' : '')
+          : 'No brief: the producers pitch the whole field. Commit to a lane and the pitches follow.') +
+        '</div></div>');
+    }
+
     // the map (v0.6.6): where the world already knows them
     if (g.debuted) {
       const regions = KP.regionsOf(g);

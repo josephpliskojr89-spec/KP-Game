@@ -61,6 +61,7 @@ const BANDS = {
   showDarling:       { lo: 0.00, hi: 0.70, label: 'worlds where a stage became somebody\'s (darling narrative)' },
   regionLoud:        { lo: 0.20, hi: 1.00, label: 'orgs that got loud in at least one overseas region' },
   regionStory:       { lo: 0.10, hi: 1.00, label: 'orgs whose overseas market became a story (the long game pays)' },
+  conceptCanon:      { lo: 0.10, hi: 1.00, label: 'orgs whose group earned a concept identity (the sound IS the group)' },
 };
 
 const tally = {
@@ -76,7 +77,7 @@ const tally = {
   discourseSeen: 0, discourseHandled: 0, discourseBoiled: 0,
   warAnnounced: 0, warAmbushed: 0, warBattled: 0, warWon: 0, warRivalry: 0,
   showFirstWin: 0, showRivalWins: 0, showDarling: 0,
-  regionLoud: 0, regionStory: 0,
+  regionLoud: 0, regionStory: 0, conceptCanon: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -191,7 +192,13 @@ for (let s = 0; s < SEEDS; s++) {
     });
 
     // plan the next release for whichever group needs one — debuts and
-    // comebacks ride the same studio path
+    // comebacks ride the same studio path. After a debut lands, the bot
+    // commits to the direction that worked (v0.6.7) — like a player would
+    state.groups.forEach(g => {
+      if (g.debuted && !g.concept && g.results && g.results.reception >= 55 && !g.prep) {
+        KP.setGroupConcept(state, g.id, g.results.conceptId);
+      }
+    });
     state.groups.forEach(g => {
       if (g.prep) return;
       // the calendar rail (v0.4.2): promo, then contractual rest — and a
@@ -214,7 +221,7 @@ for (let s = 0; s < SEEDS; s++) {
       if (state.budget <= KP.C.DEBUT.promoCost[promoAffordable] + fmtCost + planCost(rollout)) return;
       if (!g.demos) {
         const rng = KP.rngFor(state);
-        g.demos = KP.generateDemos(state, rng);
+        g.demos = KP.generateDemos(state, rng, g);
         state.rngState = rng.state();
       }
       const demo = g.demos.slice().sort((a, b) => b.hook - a.hook)[0];
@@ -380,6 +387,7 @@ for (let s = 0; s < SEEDS; s++) {
   bestRegions.push(Math.max.apply(null, state.groups
     .filter(g => g.regions).flatMap(g => Object.values(g.regions)).concat([0])));
   if ((state.memory || []).some(n => n.key === 'regionStronghold')) tally.regionStory++;
+  if ((state.memory || []).some(n => n.key === 'conceptIdentity')) tally.conceptCanon++;
 
   // memory census + guards (v0.6.0)
   guard((state.memory || []).length <= KP.C.MEMORY.cap, seed + ' memory over cap');

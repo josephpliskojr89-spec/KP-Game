@@ -796,6 +796,14 @@
         const p = state.people[n.personId];
         posts.push({ persona: 'casual', text: 'no because WHO is the ending fairy from this week… ' +
           (p ? KP.displayName(p) : 'her') + ' looked at the camera for three seconds and gained a fandom. I was there. I am the fandom' });
+      } else if (n.ind === 'conceptPivot') {
+        const gName = (KP.groupById(state, n.groupId) || { name: 'they' }).name;
+        posts.push(n.landed
+          ? { persona: 'casual', text: 'ok the ' + gName + ' concept change had NO right going this hard. growth arc confirmed, I was wrong and I love being wrong' }
+          : rng.pick([
+            { persona: 'anti', text: gName + ' abandoning the sound that built them… the hubris. streaming the old title track out of spite' },
+            { persona: 'stan', text: 'to everyone dooming about the ' + gName + ' concept change: they can do BOTH. expand your minds. (I am also scared)' },
+          ]));
       } else if (n.ind === 'regionLoud') {
         const gName = (KP.groupById(state, n.groupId) || { name: 'they' }).name;
         posts.push(rng.pick([
@@ -872,6 +880,7 @@
           rivalry: 'the ' + actName() + ' rivalry is canon now. every shared release week is a pay-per-view event and I have never been happier',
           showDarling: groupName() + ' winning the same show AGAIN. the stagehands know their coffee orders at this point. dynasty behavior',
           regionStronghold: groupName() + ' really has a whole second home market now. the fan-sub accounts post before the company does. globalization won',
+          conceptIdentity: groupName() + ' hearing one synth note and knowing EXACTLY what era it is… consistency is a superpower and they have it',
         };
         posts.push(m[n.narKey] || (state.company.short + ' discourse hours. we live here now'));
       }

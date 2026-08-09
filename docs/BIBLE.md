@@ -1261,6 +1261,44 @@ assigned that"), loud-crossing letters, region-flavored feed posts
 (subway ads, fan-sub accounts, 4am streaming parties), and the
 stronghold story in the trades.
 
+## §29 Creative direction (v0.6.7) — the brief the producers pitch to
+
+> Owner: *"something I would like to see is choosing a concept for a
+> group that has an affect on the songs pitched to them."*
+
+**The brief** (`g.concept`, set on the group page — "Creative
+direction" chips, or Open field): a group-level commitment. With a
+brief, `generateDemos` writes TO it: two of the four demos in-lane
+(tagged "to the brief" on the demo card, with a small hook bonus — a
+clear brief makes better records), one adjacent stretch, one wildcard
+the producers push regardless. No brief = the field, exactly as
+before. Changing the direction re-tools the pitches (demos regenerate
+next cycle) and resets the identity streak — identity is earned per
+lane. Locked productions cannot change direction mid-flight.
+
+**Identity** (`g.conceptRun`): consecutive in-lane releases count; at
+2 the **conceptIdentity** narrative forms — "the sound IS the group,"
+lane named live. It compounds with everything that already exists:
+in-lane consistency also concentrates the same regional affinities
+(§28), so a committed lane builds its overseas market faster — the
+systems interlock without extra wiring.
+
+**The pivot:** releasing off a previous concept while the identity
+narrative is live cuts the story's strength in half and makes news —
+"the fandom is split between growth and give it back" — unless the
+pivot lands at 70+ reception, in which case it is a REINVENTION and
+the recaps call it an era. The feed argues either way, persona-true.
+
+**Migration:** groups with two-plus trailing same-lane releases walk
+in with the brief and the streak they earned; mixed discographies
+stay open. **Harness:** the bot commits to the concept its debut
+proved (reception ≥ 55), like a player would — which raised the whole
+meta's release quality through fit-consistency and forced a world
+push-back: titan chart entries linger longer (titanDecay .965→.972,
+summit back to 9/40), megahits hit harder (1.38→1.45), and the show
+dynasty bar rose (darlingAt 6→7). The lesson on file: a strategy
+feature is a difficulty change, and the environment must answer it.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -1885,3 +1923,24 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > next phase directly: devotedAt 65 is the tour bar. Numbers: battery
 > 32/32 (suite 032, 35 assertions), soak clean (50 bands), e2e 89,
 > lockstep 0.6.6 (31 modules). Rode to main.
+
+> **v0.6.7 — creative direction** (owner: *"something I would like to
+> see is choosing a concept for a group that has an affect on the
+> songs pitched to them"*)
+> Full spec in §29. Groups commit to a creative direction on their
+> page; the producers pitch to the brief — two in-lane demos (tagged,
+> slightly sharper), one stretch, one wildcard. Two consecutive
+> in-lane eras form the conceptIdentity narrative; pivoting off a
+> live identity halves the story and splits the fandom — unless the
+> pivot lands 70+, which is a reinvention era. Direction changes
+> re-tool the pitch meeting and reset the streak (the reset was the
+> release's one real bug: without it, a pivot release REINFORCED the
+> old identity — caught by the suite). Migration infers earned lanes
+> from trailing discographies. Balance story: the bot committing to
+> its proven lane raised the whole meta through fit-consistency —
+> summit floods and show-dynasty floods followed, answered in the
+> WORLD, not the feature (titanDecay .972, megaMult 1.45, darlingAt
+> 7; summit 18/40 → 9/40). A strategy feature is a difficulty change.
+> Numbers: battery 33/33 (suite 033, 21 assertions), soak clean (51
+> bands — concept identity canon in 30/40), e2e 89, lockstep 0.6.7
+> (31 modules). Rode to main.

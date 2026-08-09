@@ -302,6 +302,32 @@
     if (!isDebut && prevReception != null && reception <= prevReception - KP.C.MEMORY.underperformGap) {
       push(KP.recordEvidence(state, 'underperformed', 'group', g.id));
     }
+    // creative direction (v0.6.7): consistency becomes identity, and an
+    // identity makes pivots news — cutting the old story down to size
+    const DIR = KP.C.DIRECTION;
+    const prevConcept = (g.releases && g.releases.length)
+      ? g.releases[g.releases.length - 1].conceptId : null;
+    if (prevConcept && concept.id !== prevConcept) {
+      const identity = KP.getNarrative(state, 'conceptIdentity', 'group', g.id);
+      if (identity) {
+        identity.strength = Math.round(identity.strength * DIR.pivotStrengthMult);
+        const oldLabel = (KP.conceptById(prevConcept) || { label: 'the old sound' }).label;
+        push({ kind: 'public', ind: 'conceptPivot', groupId: g.id,
+          landed: reception >= DIR.reinventionAt,
+          text: reception >= DIR.reinventionAt
+            ? 'The pivot LANDED. ' + g.name + ' walked away from the sound everyone knew them for, and the reinvention ate — the recaps are already calling it an era.'
+            : g.name + ' changed lanes — ' + concept.label.toLowerCase() + ' after all that ' +
+              oldLabel.toLowerCase() + '. The fandom is split between “growth” and “give it back,” and both sides are loud.' });
+      }
+    }
+    if (g.concept && concept.id === g.concept) {
+      g.conceptRun = (g.conceptRun || 0) + 1;
+      if (g.conceptRun >= DIR.identityAt) {
+        push(KP.recordEvidence(state, 'conceptIdentity', 'group', g.id, { concept: g.concept }));
+      }
+    } else {
+      g.conceptRun = 0;   // off the brief (or no brief): the streak resets
+    }
     // the internet reacts to the stage itself (v0.6.2)
     const DD = KP.C.DISCOURSE;
     if (performance < 45 && rng.chance(DD.encoreChance)) {

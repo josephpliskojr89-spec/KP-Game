@@ -88,7 +88,7 @@
     // --- planning mode ---
     if (!g.demos) {
       const rng = KP.rngFor(state);
-      g.demos = KP.generateDemos(state, rng);
+      g.demos = KP.generateDemos(state, rng, g);
       state.rngState = rng.state();
       KP.App.save();
     }
@@ -109,7 +109,8 @@
       html.push('<div class="card demo-card ' + (on ? 'on' : '') + '" data-action="studio-song" data-id="' + demo.id + '">' +
         '<div class="s-eq"><i></i><i></i><i></i></div>' +
         '<div class="s-title">“' + UI.esc(demo.title) + '”</div>' +
-        '<div class="s-prod">' + UI.esc(demo.producer) + ' · leans ' + UI.esc(KP.conceptById(demo.conceptId).label) + '</div>' +
+        '<div class="s-prod">' + UI.esc(demo.producer) + ' · leans ' + UI.esc(KP.conceptById(demo.conceptId).label) +
+        (demo.toBrief ? ' · <span style="color:var(--gold)">to the brief</span>' : '') + '</div>' +
         '<div class="s-notes">' + KP.demoOpinion(state, demo, members).map(l => UI.esc(l)).join('<br>') + '</div>' +
         '</div>');
     });

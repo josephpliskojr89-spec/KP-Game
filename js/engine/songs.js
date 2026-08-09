@@ -4,26 +4,64 @@
   'use strict';
   const KP = root.KP = root.KP || {};
 
-  KP.generateDemos = function (state, rng) {
+  // The pitch meeting. With a creative direction set (v0.6.7), the
+  // producers write TO the brief: most demos in-lane and a little
+  // sharper for it, one adjacent to stretch, one wildcard they push
+  // anyway — producers gonna produce.
+  KP.generateDemos = function (state, rng, group) {
     const S = KP.C.SONG;
+    const D = KP.C.DIRECTION;
     const demos = [];
     const usedTitles = {};
     // titles already in any discography stay retired — no accidental reissues
     KP.groups(state).forEach(g => (g.releases || []).forEach(r => { usedTitles[r.songTitle] = true; }));
+    const direction = group && group.concept ? KP.conceptById(group.concept) : null;
     for (let i = 0; i < S.demoCount; i++) {
       const title = KP.genSongTitle(rng, usedTitles);
-      const concept = rng.pick(KP.C.CONCEPTS);
+      let concept;
+      if (direction && i < D.laneSlots) {
+        concept = direction;                                   // to the brief
+      } else if (direction && i === D.laneSlots) {
+        concept = rng.pick(KP.C.CONCEPTS.filter(c => c.id !== direction.id));  // the stretch
+      } else {
+        concept = rng.pick(KP.C.CONCEPTS);                     // the wildcard
+      }
+      const toBrief = !!(direction && concept.id === direction.id);
       demos.push({
         id: 'song' + (i + 1),
         title,
         producer: KP.genProducer(rng),
         conceptId: concept.id,
-        hook: q(rng), vocalDemand: q(rng), rapDemand: KP.clamp(q(rng) - 15, 5, 95),
+        toBrief,
+        hook: KP.clamp(q(rng) + (toBrief ? D.briefHookBonus : 0), 10, 95),
+        vocalDemand: q(rng), rapDemand: KP.clamp(q(rng) - 15, 5, 95),
         choreoPotential: q(rng), trendFit: q(rng),
       });
     }
     function q(r) { return KP.clamp(Math.round(r.normal(S.qualityMean, S.qualitySd)), 10, 95); }
     return demos;
+  };
+
+  // The creative direction (v0.6.7): a group-level commitment the
+  // producers pitch to. Free to set while undebuted; changing an active
+  // group's direction re-tools the next cycle's pitches.
+  KP.setGroupConcept = function (state, groupId, conceptId) {
+    const g = KP.groupById(state, groupId);
+    if (!g) return { ok: false, reason: 'No such group.' };
+    if (conceptId != null && !KP.conceptById(conceptId)) {
+      return { ok: false, reason: 'No stylist has heard of that concept.' };
+    }
+    if (g.prep) return { ok: false, reason: 'A release is locked. The direction changes between cycles, not mid-production.' };
+    const before = g.concept || null;
+    g.concept = conceptId || null;
+    if (before === g.concept) return { ok: true, note: null };
+    g.conceptRun = 0;   // a new lane starts a new streak — identity is earned per lane
+    g.demos = null;     // the producers re-tool: fresh pitches next time
+    const note = g.concept
+      ? 'Creative direction set: ' + KP.conceptById(g.concept).label + ' for ' + g.name +
+        '. The producers have the brief' + (before ? ' — and the re-tooling starts tonight' : '') + '. The next pitch meeting will sound like it.'
+      : g.name + '’s direction is open again. The producers will pitch the whole field.';
+    return { ok: true, note };
   };
 
   KP.conceptById = function (id) {
