@@ -203,9 +203,28 @@
     ].join('');
   }
 
+  // ---- title screen (v0.5.1): the front door ---------------------------
+  UI.renderTitle = function (meta) {
+    const html = [];
+    html.push('<div class="nc-wrap title-wrap">' +
+      '<div class="title-mark">HCG</div>' +
+      '<div class="title-name">K-POP<br>AGENCY<br>MANAGER</div>' +
+      '<div class="title-sub">talent development division · build ' + KP.C.VERSION + '</div>');
+    if (meta) {
+      html.push('<button class="btn primary title-btn" data-action="title-continue">Continue' +
+        '<span class="tb-meta">' + UI.esc(meta.label) + ' · v' + UI.esc(meta.version) + '</span></button>');
+    }
+    html.push('<button class="btn title-btn" data-action="title-new">New career</button>');
+    html.push('<button class="btn title-btn" data-action="title-import">Import save</button>');
+    html.push('<div class="title-foot">Careers autosave every week. Export lives in the in-game System menu.</div>');
+    html.push('</div>');
+    return html.join('');
+  };
+
   // ---- new career ------------------------------------------------------
   UI.renderNewCareer = function () {
     return '<div class="nc-wrap">' +
+      '<div style="margin-bottom:10px"><button class="btn small" data-action="title-back">‹ Title</button></div>' +
       '<div class="d-label">New career</div>' +
       '<div class="nc-co">Hanseong<br>Culture Group</div>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px">' +

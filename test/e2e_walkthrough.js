@@ -47,10 +47,17 @@ async function main() {
     await closeModalIfOpen();
   }
 
-  // --- new career ---
+  // --- title screen (v0.5.1): the front door ---
   await page.goto(base);
-  await page.waitForSelector('#nc-name');
+  await page.waitForSelector('.title-wrap');
   ok(await page.$('#splash') !== null, 'splash exists');
+  ok(await page.$('[data-action=title-new]') !== null, 'title offers a new career');
+  ok(await page.$('[data-action=title-import]') !== null, 'title offers save import');
+  ok(await page.$('[data-action=title-continue]') === null, 'no Continue without an autosave');
+
+  // --- new career ---
+  await tap('[data-action=title-new]');
+  await page.waitForSelector('#nc-name');
   await page.fill('#nc-name', 'E2E Manager');
   await page.fill('#nc-seed', 'e2e-run');
   await tap('[data-action=start-career]');
@@ -211,11 +218,38 @@ async function main() {
   ok(results.includes('Breakout'), 'a breakout member was chosen');
   ok(results.includes('Upstairs'), 'the executive weighed in');
 
-  // --- autosave: reload and continue ---
+  // --- autosave: reload lands on the title, Continue restores (v0.5.1) ---
   const weekBefore = await page.textContent('#tb-week');
   await page.reload();
+  await page.waitForSelector('.title-wrap');
+  ok(await page.$('[data-action=title-continue]') !== null, 'the title now offers Continue');
+  ok((await page.textContent('[data-action=title-continue]')).length > 8, 'Continue shows the career meta');
+
+  // the overwrite guard: starting a new career over a live one asks first
+  await tap('[data-action=title-new]');
+  await page.waitForSelector('#nc-name');
+  await tap('[data-action=start-career]');
+  await page.waitForSelector('.modal-sheet');
+  ok((await page.textContent('.modal-sheet')).includes('career is in progress'), 'a live career is not silently overwritten');
+  await tap('.modal-sheet [data-action=close-modal]');
+  await tap('[data-action=title-back]');
+  await page.waitForSelector('[data-action=title-continue]');
+
+  await tap('[data-action=title-continue]');
   await page.waitForSelector('.objective');
-  ok((await page.textContent('#tb-week')) === weekBefore, 'reload restored the autosave at the same week');
+  ok((await page.textContent('#tb-week')) === weekBefore, 'Continue restored the autosave at the same week');
+
+  // --- export lives in the System sheet (v0.5.1) ---
+  await tap('[data-action=open-system]');
+  await page.waitForSelector('.modal-sheet');
+  ok((await page.textContent('.modal-sheet')).includes('Export save'), 'the System sheet offers export');
+  ok(/save \d+ KB/.test(await page.textContent('.modal-sheet')), 'and shows the save size');
+  await tap('[data-action=export-save]');
+  await page.waitForSelector('#export-text');
+  const exported = await page.$eval('#export-text', el => el.value);
+  ok(exported.startsWith('{"version"'), 'the export box holds the real career JSON');
+  await tap('.modal-sheet [data-action=close-modal]');
+  await closeModalIfOpen();
   await tap('[data-nav=groups]');
   ok((await page.textContent('#screen')).includes('Discography'), 'group page shows a discography after reload');
 

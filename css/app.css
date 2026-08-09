@@ -370,6 +370,19 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .cr-move.new { color: var(--gold); letter-spacing: .1em; }
 .cr-weeks { font-size: .64rem; color: var(--ink-faint); flex: none; width: 24px; text-align: right; }
 
+/* title screen (v0.5.1) */
+.title-wrap { display: flex; flex-direction: column; justify-content: center; min-height: 78vh; }
+.title-mark {
+  font-weight: 900; font-size: .8rem; letter-spacing: .34em; color: var(--gold);
+  border: 1px solid color-mix(in srgb, var(--gold) 50%, transparent);
+  width: fit-content; padding: 5px 10px 4px 13px; border-radius: 4px; margin-bottom: 18px;
+}
+.title-name { font-size: clamp(2.6rem, 14vw, 4rem); font-weight: 900; line-height: .95; letter-spacing: -.02em; }
+.title-sub { font-size: .66rem; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-dim); margin: 14px 0 30px; }
+.title-btn { width: 100%; margin-bottom: 10px; padding: 15px 18px; text-align: left; font-size: 1rem; }
+.title-btn .tb-meta { display: block; font-size: .64rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .75; margin-top: 4px; }
+.title-foot { font-size: .68rem; color: var(--ink-faint); margin-top: 16px; line-height: 1.5; }
+
 /* the fan feed (v0.4.0) */
 .feed-post {
   background: var(--surface); border: 1px solid var(--line); border-radius: 14px;

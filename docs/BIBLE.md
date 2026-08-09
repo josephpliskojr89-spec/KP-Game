@@ -431,6 +431,30 @@ moving parts and nothing else).
   old cache is deleted on activate. "Deployed" means the Pages build for
   the commit went green — that check is part of done.
 
+**Save durability (v0.5.1).** The production save is the sacred object
+(Law 7) and it lives in Safari's evictable web storage — so it is now
+defended in depth: `navigator.storage.persist()` is requested at boot
+(meaningful on iOS home-screen installs; System sheet shows
+protected/best-effort), the **title screen** fronts every launch
+(Continue with career meta / New career / Import save), starting a new
+career over a live autosave demands explicit confirmation, and **Export
+save** in the System sheet produces the career as copyable JSON or a
+downloaded file that re-imports from the title screen. `KP.tryImport`
+is a guarded door: shape-checked, migrated on the way in, refuses
+garbage and saves from newer builds with narrated reasons, never
+throws. Telemetry: save size shown in the System sheet, measured in
+every soak (~168 KB after 140 weeks vs ~5 MB quota; hard guard at 400
+KB), 10-year probe ~380 KB — years of headroom.
+
+**The Capacitor decision (owner-raised, deliberately deferred).** The
+measurement shows heap and quota are NOT near-term constraints; the
+Pages feel-loop is the project's engine and a native wrap would slow
+it. Wrap triggers, agreed in advance: a save approaching ~2 MB,
+app-store distribution, or native capabilities (notifications, IAP).
+The wrap is cheap when wanted — the game is a framework-free static
+folder; Capacitor points at it as-is plus a storage adapter behind
+`KP.saveLocal`. Even then, Pages remains the dev channel.
+
 ## §16 Roadmap (owner-gated)
 
 *(The v0.2.3 queue — stage names in all reports, cap lift + fiscal
@@ -1227,4 +1251,23 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 024 fame-cap bound). Numbers: battery 24/24 (suite 024), soak clean
 > (32 bands, national #1 in 15/40 — the summit holds), e2e 67,
 > lockstep 0.5.0. Rode to main.
+
+> **v0.5.1 — the front door** (owner: *"using the title screen as a
+> place to store new game, continue, and import saves with an export
+> save option in the settings menu"* — the durability layer from the
+> Capacitor conversation, shipped web-first)
+> Title screen fronts every launch: Continue (career meta on the
+> button), New career (with an overwrite guard when a live autosave
+> exists), Import save (paste or file, through the guarded
+> KP.tryImport door — shape-checked, migrated on entry, garbage and
+> future-version saves refused with reasons, never a throw). Export in
+> the System sheet: copy or download, re-imports from the title.
+> Boot requests navigator.storage.persist(); the System sheet reports
+> protected/best-effort and the save's size in KB. Soak now measures
+> save size every run (168 KB avg after 140 weeks, hard guard 400 KB,
+> ~5 MB quota) — bloat cannot sneak up. §15 records the Capacitor
+> decision: deferred with explicit triggers, Pages stays the
+> feel-loop. Numbers: battery 25/25 (suite 025), soak clean, e2e 76
+> (title flow, overwrite guard, Continue restore, export box),
+> lockstep 0.5.1. Rode to main.
 

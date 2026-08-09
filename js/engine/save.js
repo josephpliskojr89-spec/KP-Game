@@ -314,6 +314,34 @@
     return state;
   };
 
+  // Guarded import (v0.5.1): a pasted or uploaded save is untrusted text.
+  // Parse, shape-check, migrate — and never throw at the UI.
+  KP.tryImport = function (json) {
+    let raw;
+    try { raw = JSON.parse(json); }
+    catch (e) { return { ok: false, reason: 'That is not a save file — it does not even parse.' }; }
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      return { ok: false, reason: 'That parses, but it is not a career.' };
+    }
+    if (!raw.version || !raw.people || raw.week == null || !raw.company) {
+      return { ok: false, reason: 'That file is missing the bones of a career (version, week, people).' };
+    }
+    if (KP.versionLt(KP.C.VERSION, raw.version)) {
+      return { ok: false, reason: 'That save is from a NEWER build (v' + raw.version + '). Update the game first.' };
+    }
+    try {
+      const state = KP.deserialize(json);
+      return { ok: true, state };
+    } catch (e) {
+      return { ok: false, reason: 'The save would not load: ' + (e && e.message ? e.message : 'unknown error') };
+    }
+  };
+
+  // Save size in KB — surfaced in the System sheet, tracked in the soak.
+  KP.saveSizeKB = function (state) {
+    return Math.round(KP.serialize(state).length / 1024);
+  };
+
   // Browser-side persistence (no-ops under Node test sandbox).
   KP.saveLocal = function (state, slot) {
     if (typeof localStorage === 'undefined') return false;

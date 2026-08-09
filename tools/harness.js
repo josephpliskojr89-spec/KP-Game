@@ -59,6 +59,7 @@ const tally = {
   nationalAlive: 0, natTopTwenty: 0, natTopTen: 0, natNumberOne: 0,
 };
 let totalGroups = 0;
+let totalSaveKB = 0;
 let mediationsRun = 0;
 let totalReleases = 0;
 const receptions = [];
@@ -290,6 +291,11 @@ for (let s = 0; s < SEEDS; s++) {
 
   // living-world census (v0.4.0)
   if (state.rivals.some(r => (r.acts || []).some(a => a.debutWeek > 1))) tally.rivalActDebut++;
+  // save-size telemetry (v0.5.1): bloat must not sneak up on the quota
+  const sizeKB = KP.saveSizeKB(state);
+  guard(sizeKB <= 400, seed + ' save size runaway: ' + sizeKB + ' KB after 140 weeks');
+  totalSaveKB += sizeKB;
+
   // the national chart census (v0.5.0)
   if (state.national.entries.length >= 12) tally.nationalAlive++;
   const natPeaks = state.groups.flatMap(gg => (gg.releases || []).map(r => r.nationalPeak))
@@ -341,6 +347,7 @@ const med = receptions[Math.floor(receptions.length / 2)] || 0;
 console.log('debut reception: median ' + med +
   ', min ' + (receptions[0] || 0) + ', max ' + (receptions[receptions.length - 1] || 0));
 console.log('releases per org: ' + (totalReleases / SEEDS).toFixed(1) + ' average; groups per org: ' + (totalGroups / SEEDS).toFixed(1));
+console.log('save size after 140 weeks: ' + Math.round(totalSaveKB / SEEDS) + ' KB average (quota ~5 MB)');
 console.log('avg roster talent growth over the run: ' +
   (growths.reduce((a, b) => a + b, 0) / Math.max(1, growths.length)).toFixed(1) + ' pts');
 

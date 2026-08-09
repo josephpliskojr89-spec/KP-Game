@@ -8,6 +8,7 @@
 
   const App = KP.App = {
     state: null,
+    mode: 'title',       // 'title' | 'newcareer' | 'game' (v0.5.1)
     tab: 'desk',
     talentSub: 'roster',
     industrySub: 'scene',
@@ -24,7 +25,12 @@
   App.render = function () {
     const el = document.getElementById('screen');
     const s = App.state;
-    if (!s) { el.innerHTML = UI.renderNewCareer(); setChrome(false); return; }
+    if (App.mode !== 'game' || !s) {
+      setChrome(false);
+      el.innerHTML = App.mode === 'newcareer' ? UI.renderNewCareer() : UI.renderTitle(KP.saveMeta(null));
+      window.scrollTo(0, 0);
+      return;
+    }
     setChrome(true);
 
     if (!App.view || !App.view.type) UI.setEra(null);
@@ -63,6 +69,15 @@
   function go(tab) { App.tab = tab; App.view = null; App.render(); }
   function push(type, id) { App.view = { type, id }; App.render(); }
 
+  function startCareer() {
+    const name = (document.getElementById('nc-name').value || '').trim() || 'A&R Manager';
+    const seedRaw = (document.getElementById('nc-seed').value || '').trim();
+    App.state = KP.newGame(seedRaw || null, name);
+    App.mode = 'game';
+    App.save();
+    go('desk');
+  }
+
   // ---- weekly advance --------------------------------------------------
   function advance() {
     const s = App.state;
@@ -94,12 +109,56 @@
     const act = t.dataset.action;
 
     switch (act) {
-      case 'start-career': {
-        const name = (document.getElementById('nc-name').value || '').trim() || 'A&R Manager';
-        const seedRaw = (document.getElementById('nc-seed').value || '').trim();
-        App.state = KP.newGame(seedRaw || null, name);
-        App.save();
+      // ---- title screen (v0.5.1) ----
+      case 'title-continue': {
+        const st = KP.loadLocal(null);
+        if (!st) { UI.toast('No career found in the autosave.', true); App.render(); break; }
+        App.state = st; App.mode = 'game';
         go('desk');
+        break;
+      }
+      case 'title-new': App.mode = 'newcareer'; App.render(); break;
+      case 'title-back': App.mode = 'title'; App.render(); break;
+      case 'title-import': {
+        UI.modal('Import a career',
+          '<div class="pad" style="font-size:.8rem;color:var(--ink-dim);margin-bottom:8px">Paste an exported save below, or choose the file. The career loads and becomes the autosave.</div>' +
+          '<div class="pad"><textarea class="nc-input" id="import-text" rows="6" style="width:100%;font-size:.7rem;font-family:monospace" placeholder="{&quot;version&quot;: …}"></textarea></div>' +
+          '<div class="pad"><input type="file" id="import-file" accept=".json,application/json" style="font-size:.8rem"></div>',
+          '<button class="btn" data-action="close-modal" style="flex:1">Cancel</button>' +
+          '<button class="btn primary" data-action="import-confirm" style="flex:1">Import</button>');
+        break;
+      }
+      case 'import-confirm': {
+        const txt = (document.getElementById('import-text') || {}).value || '';
+        const r = KP.tryImport(txt.trim());
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.state = r.state;
+        KP.saveLocal(App.state);
+        App.mode = 'game';
+        UI.closeModal();
+        UI.toast('Career imported — ' + KP.weekLabel(App.state.week).text + '.');
+        go('desk');
+        break;
+      }
+
+      case 'start-career': {
+        // an existing career must never be silently overwritten (v0.5.1)
+        if (KP.saveMeta(null)) {
+          const meta = KP.saveMeta(null);
+          UI.modal('A career is in progress',
+            '<div class="pad" style="font-size:.88rem;line-height:1.5;color:var(--ink-dim)">The autosave holds a career at <b>' +
+            UI.esc(meta.label) + '</b>. Starting a new one overwrites it (numbered slots are kept). Export it first from the in-game System menu if it matters.</div>',
+            '<button class="btn" data-action="close-modal" style="flex:1">Keep it</button>' +
+            '<button class="btn danger" data-action="start-career-confirm" style="flex:1">Overwrite &amp; start</button>');
+          break;
+        }
+        // no existing career: fall through to the real start
+        startCareer();
+        break;
+      }
+      case 'start-career-confirm': {
+        UI.closeModal();
+        startCareer();
         break;
       }
       case 'advance': advance(); break;
@@ -428,10 +487,19 @@
         '</div>');
     }
     UI.modal('System',
-      '<div class="pad" style="font-size:.78rem;color:var(--ink-dim);margin-bottom:8px">Autosaves every week advance. v' + KP.C.VERSION + '</div>' +
+      '<div class="pad" style="font-size:.78rem;color:var(--ink-dim);margin-bottom:8px">Autosaves every week advance. v' + KP.C.VERSION +
+      ' · save ' + KP.saveSizeKB(s) + ' KB · storage <span id="storage-status">…</span></div>' +
       slots.join('') +
-      '<div class="pad" style="margin-top:14px"><button class="btn danger small" data-action="abandon">Abandon career</button></div>',
+      '<div class="pad" style="margin-top:14px;display:flex;gap:8px">' +
+      '<button class="btn small" data-action="export-save">Export save</button>' +
+      '<button class="btn danger small" data-action="abandon">Abandon career</button></div>',
       '<button class="btn primary" data-action="close-modal" style="flex:1">Close</button>');
+    if (typeof navigator !== 'undefined' && navigator.storage && navigator.storage.persisted) {
+      navigator.storage.persisted().then(p => {
+        const el = document.getElementById('storage-status');
+        if (el) el.textContent = p ? 'protected' : 'best-effort';
+      }).catch(() => {});
+    }
   }
   document.addEventListener('click', (e) => {
     const t = e.target.closest('[data-action]');
@@ -450,7 +518,51 @@
     if (t.dataset.action === 'abandon-confirm') {
       localStorage.removeItem(KP.C.SAVE_KEY + '_auto');
       localStorage.removeItem(KP.C.SAVE_KEY + '_auto_meta');
-      App.state = null; App.view = null; UI.closeModal(); App.render();
+      App.state = null; App.view = null; App.mode = 'title';
+      UI.closeModal(); App.render();
+    }
+    // export (v0.5.1): the career as a file or a clipboard string
+    if (t.dataset.action === 'export-save') {
+      const json = KP.serialize(App.state);
+      UI.modal('Export career',
+        '<div class="pad" style="font-size:.8rem;color:var(--ink-dim);margin-bottom:8px">' +
+        KP.weekLabel(App.state.week).text + ' · v' + KP.C.VERSION + ' · ' + KP.saveSizeKB(App.state) + ' KB. ' +
+        'Keep a copy anywhere safe — it re-imports from the title screen.</div>' +
+        '<div class="pad"><textarea class="nc-input" id="export-text" rows="5" readonly style="width:100%;font-size:.66rem;font-family:monospace">' +
+        UI.esc(json) + '</textarea></div>',
+        '<button class="btn" data-action="export-copy" style="flex:1">Copy</button>' +
+        '<button class="btn" data-action="export-download" style="flex:1">Download</button>' +
+        '<button class="btn primary" data-action="close-modal" style="flex:1">Done</button>');
+    }
+    if (t.dataset.action === 'export-copy') {
+      const ta = document.getElementById('export-text');
+      if (!ta) return;
+      const done = () => UI.toast('Copied. Paste it somewhere that survives your phone.');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(ta.value).then(done).catch(() => { ta.select(); document.execCommand('copy'); done(); });
+      } else { ta.select(); document.execCommand('copy'); done(); }
+    }
+    if (t.dataset.action === 'export-download') {
+      const blob = new Blob([KP.serialize(App.state)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'kpam-save-w' + App.state.week + '-v' + KP.C.VERSION + '.json';
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+      UI.toast('Save downloaded.');
+    }
+  });
+
+  // import file picker feeds the paste box (v0.5.1)
+  document.addEventListener('change', (e) => {
+    const t = e.target;
+    if (t && t.id === 'import-file' && t.files && t.files[0]) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const ta = document.getElementById('import-text');
+        if (ta) ta.value = String(reader.result || '');
+      };
+      reader.readAsText(t.files[0]);
     }
   });
 
@@ -459,7 +571,12 @@
     if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
-    App.state = KP.loadLocal(null);
+    // ask the browser to protect our storage from eviction (v0.5.1) —
+    // best-effort everywhere, meaningful on iOS home-screen installs
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().catch(() => {});
+    }
+    App.mode = 'title';
     App.render();
     setTimeout(() => {
       const sp = document.getElementById('splash');
