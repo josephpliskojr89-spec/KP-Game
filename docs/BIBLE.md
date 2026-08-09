@@ -865,10 +865,11 @@ better directive than any reception target. Not built yet; noted.
 - **v0.6.3 → SHIPPED EARLY as v0.6.2 (owner reorder: "keep leaning
   into social media") — Interactive social media.** See §24. The
   promotion builder moved to the next slot and shipped as v0.6.3.
-- **v0.6.4 — Competitive release calendar.** Announced comebacks
-  visible in advance; challenge or dodge; rivals occasionally ambush
-  a committed date ("Novaline, you absolute motherfuckers" is the
-  target emotional response, verbatim).
+- **v0.6.4 — Competitive release calendar (SHIPPED, §26).** Announced
+  comebacks visible in advance; challenge or dodge; rivals ambush
+  committed dates; head-to-head weeks are scored, remembered, and
+  feuded over ("Novaline, you absolute motherfuckers" is the target
+  emotional response, verbatim).
 - **v0.6.5 — Music-show ecosystem.** Named shows, stage picks, special
   stages, encores, ending fairies, wins. The Gaya-encore-goes-viral
   moment: emergent, memory-fed, feed-amplified.
@@ -1097,6 +1098,68 @@ fanCare → fanSign+livestream with grace 8) and the desk announces the
 job. **Harness:** the bot books the staff default when flush and a
 thrifty radio-and-livestream plan when tight — a player trims the plan
 before skipping the release, so the bot does too.
+
+## §26 The release war (v0.6.4) — the calendar is a battlefield
+
+> Owner, closing the loop on the mandate: *"so far, I don't have any
+> reason to hate my rivals."* Target emotion, verbatim from §22:
+> *"Novaline, you absolute motherfuckers."*
+
+**The public calendar** (`KP.releaseCalendar`, module
+`js/engine/calendar.js`): rival comebacks are announced up to 4 weeks
+ahead (`act.announcedWeek` — one source of truth, ON the act; big acts
+draw a desk letter, small ones just hit the calendar). The player's
+locked date goes public the week after lock — teasers exist, the
+industry reads them. Announced weeks show on the Desk strip and on the
+Studio date picker (`vs SIREN` on the chips), so the choice at pick
+time is real: dodge the traffic for clean air, or book a shared week
+on purpose and make it a statement.
+
+**The ambush** (`KP.calendarWeek`): while a release worth sniping is
+locked (popularity or walk-in hype ≥ 22) with ≥2 weeks of runway, a
+rival with an act due within ±3 weeks of the date may MOVE it onto the
+date — the most prestigious motivated house does it, because they can
+afford the pettiness. Weekly chance 0.12, per-company cooldown 14 —
+tuned to ~2.7 ambushes per 140-week career (memorable, not constant;
+the first cut at 0.25 hit 40/40 careers and read as background noise).
+The letter says what everyone is thinking: "Scheduling coincidences do
+not exist in this industry." Two ambushes by the same company form the
+**dateSniper** narrative — the staff start calling them what they are.
+
+**The decision** (`KP.respondClash`, war-room card on the Studio):
+HOLD — the date stands, morale ticks up, head-to-head it is — or SLIP
+2 weeks (bill 8, morale down: "the members did not say anything, which
+said plenty"; the anti posts call it scared behavior; refused when it
+would cross the executive deadline). One decision, once. Ignoring the
+card is a hold — silence is a choice too.
+
+**The battle** (`KP.releaseWar`, resolved inside `resolveDebut`): ANY
+same-week landing by an act of stature (pre-release popularity ≥ 20 —
+who they WERE, so a titan flopping on your date still counts) is a
+scored head-to-head, ambush or coincidence alike. Higher chart score
+takes the week: winner +3 popularity +2 morale, loser −2/−2 and the
+rival act pays −3 when we win; their floor manager tells the trades
+"We were not aware anyone else released this week." (They were aware.)
+Every meeting lands on the group's **feud ledger** (`g.feuds[actId]`:
+wins/losses, rendered on the group page and the rival act page) and at
+2 meetings the **rivalry** narrative forms — its text reads the ledger
+LIVE ("1–1 on shared weeks, and both fandoms keep receipts").
+
+**The copycat:** a player hit at reception ≥ 72 gets clocked by
+trend-chaser rivals (50%); their NEXT debut wears the stolen concept,
+the reveal letter names the lane ("The stylists know what they saw"),
+the trendCopier narrative reinforces, and the fans pile on. The steal
+is silent when it happens — the reveal IS the debut.
+
+**Feed:** every beat posts persona-true — announcements, ambush
+pettiness ("petty? deeply. am I seated? front row"), slips, holds,
+victory gloats, defeat stingers, copycat receipts, plus rivalry and
+dateSniper narrative arrivals.
+
+**Harness:** the bot fights when the room can win (popularity within
+10) and dodges when it cannot and the books allow; war census — the
+calendar lives in 40/40 worlds, battles fought 40/40, shared weeks won
+40/40, rivalries canon in ~17/40, ambush average printed per career.
 
 ## §18 Watch items
 
@@ -1646,3 +1709,33 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > seeds, every band alive, releases/org 7.3→9.0), e2e 87 (rollout
 > grid rendered, chip toggled), lockstep 0.6.3 (28 modules). Rode to
 > main.
+
+> **v0.6.4 — the release war** (owner: *"let's keep going because so
+> far, I don't have any reason to hate my rivals. I'm giving you
+> creative freedom to make this as deep and immersive as possible"* —
+> the §22 competitive-calendar phase, built to earn "Novaline, you
+> absolute motherfuckers")
+> Full spec in §26. New module calendar.js: rival comebacks announce
+> up to 4 weeks out on a public calendar (Desk strip + Studio date
+> chips show the traffic — "vs SIREN" at pick time); locked player
+> dates leak the week after lock; a rival with an act in shifting
+> range parks it on a date worth sniping (the most prestigious house
+> does it — they can afford the pettiness), and the war-room card on
+> the Studio offers the whole menu: hold the date, or slip two weeks
+> for money, morale, and the antis calling it scared behavior. Any
+> same-week landing by an act of stature resolves as a scored
+> head-to-head — winner takes popularity and morale, loser eats both,
+> the feud ledger on the group page counts forever, two meetings make
+> the rivalry narrative (text reads the ledger live), two ambushes
+> make the dateSniper name stick. Trend chasers steal the concept off
+> a 72+ hit and the reveal is their next debut wearing it. Tuning
+> story: first ambush cut (0.25 weekly) hit 40/40 careers — pettiness
+> as background noise — retuned to 0.12/cooldown 14 for ~2.7 per
+> career, memorable not constant; battle-worthiness reads PRE-release
+> popularity so a titan flopping on your date still counts as a
+> battle you won. One design catch in review: the first cut had the
+> loser's popularity read post-flop, letting big-act flops dodge the
+> battle entirely. Numbers: battery 30/30 (suite 030, 40 assertions),
+> soak clean (45 bands — calendar alive 40/40, rivalries canon
+> 17/40), e2e 89 (war strip on the Desk), lockstep 0.6.4 (29
+> modules). Rode to main.

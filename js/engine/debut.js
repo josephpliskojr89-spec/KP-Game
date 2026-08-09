@@ -77,13 +77,24 @@
       scheduledWeek: plan.week,
       progress: 0,
     };
+    // locking onto an announced rival week is a CHOICE — the challenge
+    // half of "challenge or dodge" (v0.6.4). The desk assumes intent.
+    const foes = KP.announcedAt(state, plan.week)
+      .filter(x => (x.act.popularity || 0) >= KP.C.WAR.battleMinPop);
+    let warning = null;
+    if (foes.length) {
+      g.prep.clash = { actId: foes[0].act.id, company: foes[0].rival.short,
+        actName: foes[0].act.name, week: plan.week, resolved: 'hold', chosen: true };
+      warning = foes[0].act.name + ' has that week announced. The desk assumes we are doing this on purpose — head-to-head it is.';
+    }
     // locking over a worn roster is allowed — and the staff say so (v0.4.2)
     const members = g.members.map(id => state.people[id]);
     const fatigueAvg = members.reduce((s, m) => s + m.fatigue, 0) / members.length;
     if (fatigueAvg >= KP.C.COMEBACK.OVERWORK.lockWarnAt) {
-      return { ok: true, warning: 'The staff flag the schedule: the members are still worn from the last cycle. This one will cost them more than it should.' };
+      warning = (warning ? warning + ' And ' : 'The staff flag the schedule: ') +
+        'the members are still worn from the last cycle. This one will cost them more than it should.';
     }
-    return { ok: true };
+    return warning ? { ok: true, warning } : { ok: true };
   };
 
   // Weekly release-prep for one group: rehearsal replaces training.
@@ -412,6 +423,12 @@
       isPlayer: true, groupId: g.id,
       score, entered: state.week,
     });
+    // the release war (v0.6.4): a same-week landing is a head-to-head
+    // battle the world keeps score on — and a hit this big may get its
+    // concept stolen by the trend chasers
+    const war = KP.releaseWar(state, g, score, reception, concept.id, rng);
+    war.notes.forEach(push);
+    if (war.battle) g.results.battle = war.battle;
     g.prep = null;
     g.demos = null;       // the producers bring fresh demos for the next cycle
     if (state.demos) state.demos = null;   // pre-multigroup compatibility

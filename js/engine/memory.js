@@ -71,6 +71,18 @@
       case 'dormant': return group() + ' has gone quiet — ' + Math.max(1, state.week - (n.meta && n.meta.since || state.week)) + ' weeks and counting.';
       case 'fancamStar': return idol() + ' is the fancam one. Everyone knows a clip.';
       case 'itGirl': return idol() + ' is becoming an it-girl.';
+      case 'dateSniper': {
+        const r = (state.rivals || []).find(x => x.short === n.subjectId);
+        const count = (r && r.ambushCount) || n.evidence + 1;
+        return rivalCo() + ' drops releases on other people’s dates. Ours, specifically — ' + count + ' times now.';
+      }
+      case 'rivalry': {
+        const foe = KP.groups(state).find(g => g.feuds && g.feuds[n.subjectId]);
+        const feud = foe && foe.feuds[n.subjectId];
+        return rivalAct() + (foe ? ' vs ' + foe.name + ' is a real rivalry — ' +
+          (feud.wins + '–' + feud.losses) + ' to ' + (feud.wins >= feud.losses ? 'us' : 'them') +
+          ' on shared weeks, and both fandoms keep receipts.' : ' has a rivalry the whole scene watches.');
+      }
       default: return n.key;
     }
   };
@@ -137,6 +149,8 @@
       case 'trendCopier': return rivalCo() + ' has a reputation now: first to every trend, occasionally face-first. The fans mean it affectionately. Mostly.';
       case 'performanceFactory': return 'The book on ' + rivalCo() + ' is written: their groups can dance before they can talk. Plan concepts accordingly.';
       case 'patientHouse': return rivalCo() + '’s reputation crystallized: sign young, wait years, rarely miss. The patient ones are the dangerous ones.';
+      case 'dateSniper': return 'Twice now ' + rivalCo() + ' has parked a release on one of our announced dates. Nobody in this building believes in coincidence anymore. The staff have started calling them what they are.';
+      case 'rivalry': return 'The internet has made it official: ' + rivalAct() + ' versus us is a RIVALRY now — capital letters, compilation videos, the works. Every shared release week from here is a scoreboard.';
       default: return 'A narrative formed: ' + n.key;
     }
   }

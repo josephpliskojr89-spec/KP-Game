@@ -56,10 +56,14 @@ function throughDebut(seed) {
   t.eq(state.groups[0].releases.length, 2, 'discography holds two releases');
   t.ok(!state.groups[0].releases[1].isDebut, 'the second release is a comeback');
   t.ok(state.groups[0].results.isDebut === false, 'latest report is a comeback report');
-  // invariant, not a snapshot: the compounding formula itself
+  // invariant, not a snapshot: the compounding formula itself — plus the
+  // release-war adjustment when a same-week battle happened (v0.6.4)
   const r2 = state.groups[0].results.reception;
+  const battle = state.groups[0].results.battle;
+  const warAdj = battle ? (battle.won ? KP.C.WAR.winPop : -KP.C.WAR.losePop) : 0;
   t.eq(state.groups[0].popularity,
-    Math.max(0, Math.min(100, Math.round(popBeforeResolve * 0.55 + r2 * 0.55))),
+    Math.max(0, Math.min(100, Math.max(0, Math.min(100,
+      Math.round(popBeforeResolve * 0.55 + r2 * 0.55))) + warAdj)),
     'popularity compounded by the comeback formula');
   t.ok(['met', 'metPoorly'].includes(state.objectiveHistory[1] ? state.objectiveHistory[1].status : state.objective.status) ||
        state.objective.type === 'comeback', 'the comeback objective resolved or a successor was issued');

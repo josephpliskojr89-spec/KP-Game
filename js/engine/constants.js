@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.6.3',
+    VERSION: '0.6.4',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -321,6 +321,33 @@
       splitChance: 0.03,         // monthly, needs a giant to crack
       splitPrestige: 72, splitRoster: 14,
       crowdPenaltyPer: 2.5, crowdPenaltyMax: 6,  // releasing into a crowded week
+    },
+
+    // ---- The release war (v0.6.4): the calendar is a battlefield --------
+    // Rival comebacks are announced ahead of time; the player's locked
+    // date goes public; rivals with a motive park their release ON that
+    // date; same-week landings resolve as head-to-head battles the whole
+    // world keeps score on. Target emotion, verbatim from the mandate:
+    // "Novaline, you absolute motherfuckers."
+    WAR: {
+      announceLead: 4,           // weeks ahead a rival comeback goes public
+      announceNoteMinPop: 28,    // smaller acts announce quietly (calendar only)
+      ambushChance: 0.12,        // weekly, while a worthwhile target is locked
+      ambushWindow: 3,           // an act due within ± this of your date can move
+      ambushMinTarget: 22,       // popularity/hype a release needs to be worth sniping
+      ambushMinLeadWeeks: 2,     // they move while you still have time to react
+      ambushCooldown: 14,        // weeks before the same company snipes again
+      slipWeeks: 2,              // the dodge: push the date back…
+      slipCost: 8,               // …rebook everything…
+      slipMorale: 2,             // …and the members know what it looks like (cost)
+      battleMinPop: 20,          // a same-week rival release this big is a BATTLE
+      winPop: 3, winMorale: 2,   // taking the week
+      losePop: 2, loseMorale: 2, // losing it
+      loseActPop: 3,             // what the rival act pays when we win
+      rivalryAt: 2,              // meetings before the internet declares a rivalry
+      sniperAt: 2,               // ambushes before a company earns the name
+      copyReceptionMin: 72,      // a player hit this big is worth stealing
+      copyChance: 0.5,           // …and the trend chasers usually do
     },
 
     // ---- The national chart (v0.5.0): the wider world, low resolution ---

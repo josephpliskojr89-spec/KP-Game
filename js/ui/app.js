@@ -181,6 +181,14 @@
         App.render();
         break;
       }
+      case 'clash-hold': case 'clash-slip': {
+        const r = KP.respondClash(s, t.dataset.id, act === 'clash-hold' ? 'hold' : 'slip');
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast(r.note.text.slice(0, 120));
+        App.render();
+        break;
+      }
       case 'open-dossier': push('dossier', t.dataset.id); break;
       case 'open-results': push('results', t.dataset.id); break;
       case 'open-grouppage': push('grouppage', t.dataset.id); break;

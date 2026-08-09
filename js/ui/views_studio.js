@@ -34,13 +34,31 @@
       const inW = g.prep.scheduledWeek - state.week;
       const demo = (g.demos || []).find(s => s.id === g.prep.songId);
       UI.setEra(g.prep.conceptId);
+      const clash = g.prep.clash;
+      // the war room (v0.6.4): a rival parked a release on our date —
+      // hold it, or slip. One decision, once.
+      let clashCard = '';
+      if (clash && !clash.resolved) {
+        const W = KP.C.WAR;
+        clashCard = '<div class="war-card">' +
+          '<div class="w-flag">Date clash · ' + UI.esc(clash.company) + '</div>' +
+          '<div class="w-text">' + UI.esc(clash.actName) + '’s comeback just landed on our announced date. Scheduling coincidences do not exist in this industry.</div>' +
+          '<div class="w-actions">' +
+          '<button class="btn primary" data-action="clash-hold" data-id="' + g.id + '">Hold the date</button>' +
+          '<button class="btn" data-action="clash-slip" data-id="' + g.id + '">Slip ' + W.slipWeeks + ' weeks · ' + W.slipCost + '</button>' +
+          '</div></div>';
+      } else if (clash && clash.resolved === 'hold') {
+        clashCard = '<div class="war-card held"><div class="w-flag">Head-to-head · ' + UI.esc(clash.company) + '</div>' +
+          '<div class="w-text">The date stands. ' + UI.esc(clash.actName) + ' releases the same week. The whole scene is watching the scoreboard.</div></div>';
+      }
       return switcher + '<div class="group-hero"><div class="g-status">Locked & in production · ' + UI.esc(g.name) + '</div>' +
         '<div class="g-name" style="font-size:clamp(1.9rem,10vw,2.8rem)">“' + UI.esc(demo.title) + '”</div>' +
         '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px">' +
         '<span class="chip cool">' + UI.esc(KP.conceptById(g.prep.conceptId).label) + '</span>' +
         '<span class="chip">' + UI.esc(g.prep.promo) + ' promotion</span>' +
         '<span class="chip hot">' + (inW <= 0 ? 'this week' : inW + ' week' + (inW === 1 ? '' : 's') + ' to ' + (g.debuted ? 'comeback' : 'debut')) + '</span></div>' +
-        '<div style="color:var(--ink-dim);font-size:.84rem;margin-top:12px;line-height:1.5">Rehearsal split — vocals ' + g.prep.alloc.vocals + '%, dance ' + g.prep.alloc.dance + '%, rap ' + g.prep.alloc.rap + '%, media ' + g.prep.alloc.media + '%. Advance the weeks. The date does not move.</div></div>';
+        '<div style="color:var(--ink-dim);font-size:.84rem;margin-top:12px;line-height:1.5">Rehearsal split — vocals ' + g.prep.alloc.vocals + '%, dance ' + g.prep.alloc.dance + '%, rap ' + g.prep.alloc.rap + '%, media ' + g.prep.alloc.media + '%. Advance the weeks.' +
+        (clash && !clash.resolved ? '' : ' The date does not move.') + '</div></div>' + clashCard;
     }
 
     // --- the calendar is closed: promotion, then contractual rest (v0.4.2)
@@ -153,11 +171,19 @@
         : minW + 16;
       for (let w = minW; w <= lastOption; w += 2) options.push(w);
       html.push('<div class="kicker">The date</div>');
+      // the war calendar (v0.6.4): announced rival weeks are visible at
+      // pick time — dodge the traffic, or pick the fight on purpose
       html.push('<div class="pad"><div style="display:flex;gap:8px;flex-wrap:wrap">' +
-        options.map(w => '<button class="chip ' + (draft.week === w ? 'hot' : '') + '" data-action="studio-week" data-week="' + w + '">' +
-          UI.esc(KP.weekLabel(w).text) + '</button>').join('') +
+        options.map(w => {
+          const foes = KP.announcedAt(state, w);
+          const big = foes.find(x => (x.act.popularity || 0) >= KP.C.WAR.battleMinPop);
+          return '<button class="chip ' + (draft.week === w ? 'hot' : '') + (big ? ' clash' : '') +
+            '" data-action="studio-week" data-week="' + w + '">' + UI.esc(KP.weekLabel(w).text) +
+            (foes.length ? ' · vs ' + UI.esc(foes[0].act.name) : '') + '</button>';
+        }).join('') +
         '</div>' +
         (options.length ? '' : '<div style="color:var(--danger);font-size:.8rem">No runway left before the deadline.</div>') +
+        '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">Announced rival weeks are marked. A clean week keeps the public’s attention whole; a shared week is a head-to-head the recaps will score.</div>' +
         '</div>');
 
       html.push('<div class="pad" style="margin-top:20px">' +
@@ -186,6 +212,8 @@
       '<span class="chip">room: ' + chemWord(r.chem) + '</span>' +
       (r.chartPeak != null ? '<span class="chip cool">scene #' + r.chartPeak + '</span>' : '') +
       (r.nationalPeak != null ? '<span class="chip gold">national #' + r.nationalPeak + '</span>' : '') +
+      (r.battle ? '<span class="chip ' + (r.battle.won ? 'gold' : 'hot') + '">' +
+        (r.battle.won ? 'took the week vs ' : 'lost the week to ') + UI.esc(r.battle.actName) + '</span>' : '') +
       '<span class="chip gold">revenue +' + r.revenue + '</span>' +
       '</div></div>');
 

@@ -51,6 +51,11 @@ const BANDS = {
   feedAlive:         { lo: 0.85, hi: 1.00, label: 'worlds with a full fan feed (>=25 posts)' },
   playerTopThree:    { lo: 0.25, hi: 1.00, label: 'orgs that reached the chart top three' },
   crowdedRelease:    { lo: 0.10, hi: 1.00, label: 'orgs that released into a crowded week' },
+  warAnnounced:      { lo: 0.80, hi: 1.00, label: 'worlds where comebacks were announced ahead (the calendar lives)' },
+  warAmbushed:       { lo: 0.05, hi: 1.00, label: 'orgs whose announced date drew an ambush (avg/career in header)' },
+  warBattled:        { lo: 0.10, hi: 1.00, label: 'orgs that fought a head-to-head release week' },
+  warWon:            { lo: 0.05, hi: 1.00, label: 'orgs that took at least one shared week' },
+  warRivalry:        { lo: 0.00, hi: 0.85, label: 'worlds where a rivalry became canon' },
 };
 
 const tally = {
@@ -64,8 +69,10 @@ const tally = {
   nationalAlive: 0, natTopTwenty: 0, natTopTen: 0, natNumberOne: 0,
   memoryAlive: 0, idolNarrative: 0,
   discourseSeen: 0, discourseHandled: 0, discourseBoiled: 0,
+  warAnnounced: 0, warAmbushed: 0, warBattled: 0, warWon: 0, warRivalry: 0,
 };
 let totalGroups = 0;
+let totalAmbushes = 0;
 let totalSaveKB = 0;
 let mediationsRun = 0;
 let totalReleases = 0;
@@ -90,6 +97,7 @@ for (let s = 0; s < SEEDS; s++) {
   let pressureWarned = false;
   let hypeSeen = false, directiveSeen = false, soloProposed = false;
   let playerTop3 = false;
+  let warAnnounceSeen = false, warAmbushSeen = false, warBattleSeen = false, warWonSeen = false;
   const fatigueTrace = [];   // weekly avg fatigue of debuted idols (v0.4.2)
 
   for (let w = 0; w < 140; w++) {
@@ -150,6 +158,18 @@ for (let s = 0; s < SEEDS; s++) {
         KP.proposeGroup(state, name, pool.map(m => m.id), hints);
       }
     }
+    // the war desk (v0.6.4): an ambushed date gets a decision, same menu
+    // the human gets — square up when the room can win, dodge when it
+    // cannot and the books allow
+    state.groups.forEach(g => {
+      if (!g.prep || !g.prep.clash || g.prep.clash.resolved) return;
+      const hit = KP.rivalActById(state, g.prep.clash.actId);
+      const theirPop = hit ? (hit.act.popularity || 0) : 50;
+      const fight = (g.popularity || 0) + 10 >= theirPop;
+      if (!fight && state.budget > KP.C.WAR.slipCost + 20) KP.respondClash(state, g.id, 'slip');
+      else KP.respondClash(state, g.id, 'hold');
+    });
+
     // the PR desk: respond to hot negative storms, ride positive waves —
     // the same constrained menu the human gets (v0.6.2)
     KP.liveDiscourses(state).forEach(d => {
@@ -204,6 +224,16 @@ for (let s = 0; s < SEEDS; s++) {
     const notes = KP.advanceWeek(state);
     if (state.hypeDirective) directiveSeen = true;
     if (state.roster.some(id => (state.people[id].hype || 0) >= 25)) hypeSeen = true;
+    // the war census (v0.6.4)
+    notes.forEach(n => { if (n.ind === 'ambush') totalAmbushes++; });
+    if (!warAnnounceSeen && state.rivals.some(r => (r.acts || []).some(a => a.announcedWeek != null))) warAnnounceSeen = true;
+    state.groups.forEach(g => {
+      if (g.prep && g.prep.clash && !g.prep.clash.chosen) warAmbushSeen = true;
+      if (g.results && g.results.week === state.week && g.results.battle) {
+        warBattleSeen = true;
+        if (g.results.battle.won) warWonSeen = true;
+      }
+    });
     notes.forEach(n => {
       if (n.kind === 'health' && /wall|injur/i.test(n.text)) burnoutSeen = true;
       if (/quarterly books/.test(n.text)) pressureSeen = true;
@@ -329,6 +359,11 @@ for (let s = 0; s < SEEDS; s++) {
   if ((state.discourses || []).length) tally.discourseSeen++;
   if ((state.discourses || []).some(d => d.status === 'resolved')) tally.discourseHandled++;
   if ((state.discourses || []).some(d => d.status === 'boiled')) tally.discourseBoiled++;
+  if (warAnnounceSeen) tally.warAnnounced++;
+  if (warAmbushSeen) tally.warAmbushed++;
+  if (warBattleSeen) tally.warBattled++;
+  if (warWonSeen) tally.warWon++;
+  if ((state.memory || []).some(n => n.key === 'rivalry')) tally.warRivalry++;
 
   // memory census + guards (v0.6.0)
   guard((state.memory || []).length <= KP.C.MEMORY.cap, seed + ' memory over cap');
@@ -388,6 +423,7 @@ const med = receptions[Math.floor(receptions.length / 2)] || 0;
 console.log('debut reception: median ' + med +
   ', min ' + (receptions[0] || 0) + ', max ' + (receptions[receptions.length - 1] || 0));
 console.log('releases per org: ' + (totalReleases / SEEDS).toFixed(1) + ' average; groups per org: ' + (totalGroups / SEEDS).toFixed(1));
+console.log('date ambushes per career: ' + (totalAmbushes / SEEDS).toFixed(1) + ' average (pettiness stays memorable, not constant)');
 console.log('save size after 140 weeks: ' + Math.round(totalSaveKB / SEEDS) + ' KB average (quota ~5 MB)');
 console.log('avg roster talent growth over the run: ' +
   (growths.reduce((a, b) => a + b, 0) / Math.max(1, growths.length)).toFixed(1) + ' pts');

@@ -287,9 +287,12 @@ async function main() {
   await tap('[data-action=studio-week]');
   await tap('[data-action=studio-lock]');
   await page.waitForTimeout(150);
-  // a worn roster draws a staff note at lock time (v0.4.2) — acknowledge it
+  // the lock may draw a staff note: a worn roster (v0.4.2) or a date
+  // clash with an announced rival week (v0.6.4) — acknowledge either
   if (await page.$('.modal-sheet')) {
-    ok((await page.textContent('.modal-sheet')).includes('worn'), 'staff flag the lock over a worn roster');
+    const lockNote = await page.textContent('.modal-sheet');
+    ok(/worn|announced|head-to-head/.test(lockNote),
+      'staff flag the lock (worn roster or date clash)');
     await tap('.modal-sheet [data-action=close-modal]');
   }
   ok((await page.textContent('#screen')).includes('comeback'), 'the comeback is locked');
@@ -353,7 +356,8 @@ async function main() {
   });
   await tap('[data-action=industry-sub][data-sub=feed]');
   await page.waitForSelector('.disc-card');
-  const trending = await page.textContent('.disc-card');
+  // another storm may already be live and render first — read them all
+  const trending = await page.$$eval('.disc-card', els => els.map(e => e.textContent).join('\n'));
   ok(/STYLING DISCOURSE/.test(trending), 'the storm announces its kind');
   ok(/die on their own/.test(trending), 'ignoring is offered as a strategy');
   await tap('[data-action=discourse-respond][data-move=meme]');
@@ -370,6 +374,18 @@ async function main() {
   const feedText = await page.textContent('#screen');
   ok(feedText.includes('@'), 'the fans post under handles');
   ok(feedText.includes(groupName), 'the fans are talking about our group by name');
+
+  // --- the war calendar (v0.6.4): announced comebacks share the Desk strip
+  await page.evaluate(() => {
+    const s = KP.App.state;
+    const act = s.rivals[0].acts.find(a => !a.retired) || s.rivals[0].acts[0];
+    act.announcedWeek = s.week + 3;
+    KP.App.save();
+  });
+  await tap('[data-nav=desk]');
+  await page.waitForTimeout(120);
+  ok(/comeback — /.test(await page.textContent('#screen')),
+    'announced rival comebacks reach the Desk calendar strip');
 
   await browser.close();
   server.close();

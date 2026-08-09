@@ -298,6 +298,7 @@
   function rivalRelease(state, rival, act, rng, isDebut) {
     const I = KP.C.INDUSTRY;
     const title = KP.genSongTitle(rng, usedTitles(state));
+    const statureBefore = act.popularity;   // battle-worthiness is who they WERE (v0.6.4)
     const reception = Math.round(KP.clamp(
       act.quality * 0.85 + act.popularity * 0.15 + rng.normal(0, I.releaseNoiseSd) - 6, 1, 100));
     act.popularity = isDebut
@@ -305,6 +306,7 @@
       : KP.clamp(Math.round(act.popularity * 0.55 + reception * 0.5), 0, 100);
     act.lastReleaseWeek = state.week;
     act.cycleWeeks = rng.int(I.cycleWeeks[0], I.cycleWeeks[1]);
+    act.announcedWeek = null;   // the announced date was kept — or moved (v0.6.4)
     act.releases = act.releases || [];
     act.releases.push({ week: state.week, title, reception, isDebut: !!isDebut });
     // their members' numbers move too (v0.6.1)
@@ -338,6 +340,10 @@
       score, entered: state.week,
     });
     state.rivalReleasesThisWeek = (state.rivalReleasesThisWeek || 0) + 1;
+    // the week's landings, for the head-to-head ledger (v0.6.4)
+    state.weekReleases = state.weekReleases || [];
+    state.weekReleases.push({ actId: act.id, actName: act.name, company: rival.short,
+      title, score, reception, actPop: Math.max(statureBefore, act.popularity) });
     return { title, reception, narNotes };
   }
 
@@ -352,6 +358,7 @@
     chartTick(state);
     nationalWeek(state, rng);   // the wider world keeps its own schedule (v0.5.0)
     state.rivalReleasesThisWeek = 0;
+    state.weekReleases = [];    // this week's landings, fresh (v0.6.4)
 
     (state.rivals || []).forEach(rival => {
       rival.acts = rival.acts || [];
@@ -359,7 +366,10 @@
 
       // a scheduled debut, if the trainee room can field one
       if (state.week >= (rival.nextDebutWeek || Infinity) && (rival.rosterCount || 0) >= I.debutTraineeCost) {
-        const concept = rng.pick(KP.C.CONCEPTS);
+        // the copycat reveal (v0.6.4): a trend chaser that clocked one of
+        // our hits debuts its next group wearing OUR concept
+        const stolen = rival.copyConcept ? KP.conceptById(rival.copyConcept.conceptId) : null;
+        const concept = stolen || rng.pick(KP.C.CONCEPTS);
         const members = castMembers(state, rival, rng, I.memberDebutAge);
         const act = {
           id: newActId(state),
@@ -385,6 +395,17 @@
             (rel.reception >= 64 ? 'The showcase is getting real traction. They will be in our lane by Friday.'
               : rel.reception >= 48 ? 'A competent launch. Watch the follow-up.'
               : 'The launch landed quietly. Even so, the calendar just got more crowded.') });
+        if (stolen) {
+          const from = rival.copyConcept.from;
+          rival.copyConcept = null;
+          const nar = KP.recordEvidence(state, 'trendCopier', 'rivalCompany', rival.short);
+          if (nar) notes.push(nar);
+          notes.push({ kind: 'industry', ind: 'conceptCopy', actName: act.name,
+            company: rival.short, fromGroup: from,
+            text: 'Look closely at that ' + act.name + ' debut: ' + concept.label.toLowerCase() +
+              ' concept, ' + from + '’s exact lane, months after ours worked. ' + rival.short +
+              ' will call it a coincidence. The stylists know what they saw.' });
+        }
         return;
       }
 
@@ -760,6 +781,46 @@
         const p = state.people[n.personId];
         posts.push({ persona: 'fan', text: 'the fan-sign clip of ' + (p ? KP.displayName(p) : 'her') +
           ' with the crying fan… this is why we stay. protect her at all costs' });
+      } else if (n.ind === 'comebackAnnounce') {
+        posts.push(rng.pick([
+          { persona: 'stan', text: n.actName + ' comeback announced. presave, hydrate, clear your schedule, warn your coworkers' },
+          { persona: 'casual', text: n.actName + ' announcing a comeback date like a court summons. fine, I’ll be there' },
+        ]));
+      } else if (n.ind === 'playerAnnounce') {
+        posts.push(n.actName
+          ? { persona: 'stan', text: 'they put the comeback on the SAME DAY as ' + n.actName + '?? ok. okay. so we’re doing this. everyone stretch' }
+          : rng.pick([
+            { persona: 'fan', text: 'DATE. ANNOUNCED. cancelling everything, the group comes first and my landlord can wait' },
+            { persona: 'casual', text: 'another comeback date on the calendar. the fourth quarter of this industry is a demolition derby' },
+          ]));
+      } else if (n.ind === 'ambush') {
+        posts.push(rng.pick([
+          { persona: 'anti', text: n.company + ' moving ' + n.actName + ' onto someone else’s announced date. petty? deeply. am I seated? front row' },
+          { persona: 'press', text: 'Industry note: ' + n.company + ' has scheduled ' + n.actName + ' opposite a previously announced release. Executives reached for comment cited “internal calendars.”' },
+          { persona: 'fan', text: n.company + ' saw a smaller company announce a date and said “that one. I want that one.” evil behavior. anyway stream day it is' },
+        ]));
+      } else if (n.ind === 'dateSlip') {
+        posts.push(rng.pick([
+          { persona: 'anti', text: 'moving your comeback out of ' + n.actName + '’s way is crazy work. the fear is showing' },
+          { persona: 'fan', text: 'the date moved and honestly? good. let the numbers breathe. this is called strategy, look it up' },
+        ]));
+      } else if (n.ind === 'dateHold') {
+        posts.push({ persona: 'stan', text: 'they said the date STANDS. head to head. inject the confidence directly into my veins' });
+      } else if (n.ind === 'battleWin') {
+        posts.push(rng.pick([
+          { persona: 'stan', text: 'same day release and WE took the week. ' + n.actName + ' picked the wrong date. screenshot everything' },
+          { persona: 'casual', text: 'the same-day chart battle was genuinely the most fun this industry has been all year. the winner knows who they are' },
+        ]));
+      } else if (n.ind === 'battleLoss') {
+        posts.push(rng.pick([
+          { persona: 'anti', text: n.actName + ' ate them alive on their own release day. that’s gotta sting. (it stings)' },
+          { persona: 'fan', text: 'we lost the week, not the war. charting is a marathon and I am built for endurance. streaming with intent' },
+        ]));
+      } else if (n.ind === 'conceptCopy') {
+        posts.push(rng.pick([
+          { persona: 'stan', text: n.company + ' debuting a group in ' + n.fromGroup + '’s EXACT concept months later. not one original thought in that entire building' },
+          { persona: 'casual', text: 'the new ' + n.actName + ' concept is giving… someone else’s moodboard. you know it, I know it, their stylists know it' },
+        ]));
       } else if (n.ind === 'narrative') {
         // a narrative just FORMED — the fans arrive with receipts (v0.6.0)
         const idolName = () => { const p = state.people[n.narSubjectId]; return p ? KP.displayName(p) : 'her'; };
@@ -785,6 +846,8 @@
           dormant: groupName() + ' has not released in MONTHS. blink twice if you’re being held hostage in the practice room',
           fancamStar: 'another ' + idolName() + ' viral moment. at this point it’s not luck, it’s a genre. the fancam one strikes again',
           itGirl: idolName() + ' is entering her it-girl era and the brands are going to figure it out any day now',
+          dateSniper: coName() + ' has officially made a HOBBY of dropping releases on other people’s dates. the audacity is almost impressive. almost',
+          rivalry: 'the ' + actName() + ' rivalry is canon now. every shared release week is a pay-per-view event and I have never been happier',
         };
         posts.push(m[n.narKey] || (state.company.short + ' discourse hours. we live here now'));
       }

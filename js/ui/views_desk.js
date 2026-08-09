@@ -48,7 +48,7 @@
       up.forEach(u => {
         const uwl = KP.weekLabel(u.week);
         const inW = u.week - state.week;
-        html.push('<div class="calcard' + (u.hot ? ' hot' : '') + '">' +
+        html.push('<div class="calcard' + (u.hot ? ' hot' : '') + (u.clash ? ' clash' : '') + '">' +
           '<div class="c-when">' + UI.esc(uwl.month) + ' · wk ' + uwl.weekOfMonth +
           (inW === 0 ? ' · now' : ' · in ' + inW + 'w') + '</div>' +
           '<div class="c-what">' + UI.esc(u.label) + '</div></div>');

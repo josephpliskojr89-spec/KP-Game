@@ -137,7 +137,23 @@
       (a.retired ? '<span class="chip hot">disbanded</span>'
         : '<span class="chip">' + KP.popularityWord(a.popularity) + ' fanbase</span>') +
       '<span class="chip">since ' + UI.esc(debutLabel) + '</span>' +
+      (a.announcedWeek && a.announcedWeek >= state.week
+        ? '<span class="chip clash">comeback · ' + UI.esc(KP.weekLabel(a.announcedWeek).text) + '</span>' : '') +
       '</div></div>');
+
+    // the scoreboard (v0.6.4): shared release weeks, counted forever
+    const feuds = KP.groups(state).filter(g => g.feuds && g.feuds[a.id]);
+    if (feuds.length) {
+      html.push('<div class="kicker">The scoreboard</div>');
+      feuds.forEach(g => {
+        const f = g.feuds[a.id];
+        html.push('<div class="note">' + UI.esc(g.name) + ' vs ' + UI.esc(a.name) + ': ' +
+          f.wins + '–' + f.losses + ' on shared release weeks' +
+          (f.wins === f.losses ? ' — dead even, which nobody finds satisfying.'
+            : f.wins > f.losses ? '. We lead. They know.' : '. They lead. We know.') +
+          '<span class="n-who">— the recap channels, keeping score</span></div>');
+      });
+    }
 
     // the world's story about this act (v0.6.1)
     const aNars = KP.narrativesFor(state, 'rivalAct', a.id)

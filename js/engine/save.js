@@ -370,6 +370,19 @@
     });
     // 0.6.1/0.6.2 saves may carry never-viewed profiles — mint them now
     KP.mintSocialAll(state);
+  } });
+
+  // v0.6.4 — the release war. Feud ledgers open empty; the calendar desk
+  // announces itself. Announcements accrue naturally from here.
+  MIGRATIONS.push({ v: '0.6.4', fn: function (state) {
+    (state.groups || []).forEach(g => { g.feuds = g.feuds || {}; });
+    state.weekReleases = state.weekReleases || [];
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The calendar desk is live: rival comebacks are announced ahead of time now, and your locked dates go public the moment the teasers cut. Fair warning from the veterans — in this industry, a public date is an invitation. Some companies RSVP.',
+    });
     state.inbox = state.inbox || [];
     state.inbox.unshift({
       kind: 'company', week: state.week, read: false,

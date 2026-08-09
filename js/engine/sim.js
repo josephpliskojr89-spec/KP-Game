@@ -102,6 +102,10 @@
     // 5. table events
     KP.eventsWeek(state, rng).forEach(n => inbox.push(n));
 
+    // 5b-pre. the release war (v0.6.4): comebacks go public, locked dates
+    //     leak, and rivals with a motive park releases on them
+    KP.calendarWeek(state, rng).forEach(n => inbox.push(n));
+
     // 5b. the rest of the industry works too (v0.4.0): chart cools, rival
     //     acts debut and come back — BEFORE our releases resolve, so a
     //     crowded week is a crowded week
@@ -413,18 +417,23 @@
     return { ok: true, shaken };
   };
 
-  // Upcoming calendar strip entries for the Desk.
+  // Upcoming calendar strip entries for the Desk — including the war
+  // calendar: announced rival comebacks share the strip (v0.6.4).
   KP.upcoming = function (state) {
     const items = [];
     const nextShowcase = state.week + (KP.C.TRAIN.showcaseEveryWeeks - (state.week % KP.C.TRAIN.showcaseEveryWeeks));
     items.push({ week: nextShowcase, label: 'Monthly showcase' });
     KP.groups(state).forEach(g => {
       if (g.prep) items.push({ week: g.prep.scheduledWeek,
-        label: g.name + (g.debuted ? ' comeback' : ' debut'), hot: true });
+        label: g.name + (g.debuted ? ' comeback' : ' debut'), hot: true,
+        clash: !!(g.prep.clash && g.prep.clash.resolved !== 'slip') });
+    });
+    KP.releaseCalendar(state).forEach(e => {
+      if (!e.isPlayer) items.push({ week: e.week, label: e.label + ' — ' + e.company });
     });
     if (state.objective.status === 'open') {
       items.push({ week: state.objective.deadlineWeek, label: 'Executive deadline', hot: true });
     }
-    return items.filter(i => i.week >= state.week).sort((a, b) => a.week - b.week).slice(0, 4);
+    return items.filter(i => i.week >= state.week).sort((a, b) => a.week - b.week).slice(0, 5);
   };
 })(typeof window !== 'undefined' ? window : globalThis);

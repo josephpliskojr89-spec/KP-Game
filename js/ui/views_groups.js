@@ -119,6 +119,23 @@
       html.push('<div class="card">' + UI.narrativeLines(state, gNars) + '</div>');
     }
 
+    // the rivalries (v0.6.4): shared release weeks, counted forever
+    const feudIds = Object.keys(g.feuds || {});
+    if (feudIds.length) {
+      html.push('<div class="kicker">The rivalries</div>');
+      feudIds.forEach(actId => {
+        const hit = KP.rivalActById(state, actId);
+        if (!hit) return;
+        const f = g.feuds[actId];
+        html.push('<div class="note">vs ' + UI.esc(hit.act.name) + ' (' + UI.esc(hit.rival.short) + '): ' +
+          f.wins + '–' + f.losses + ' on shared release weeks' +
+          (f.wins === f.losses ? '. Dead even. The next one decides the narrative.'
+            : f.wins > f.losses ? '. We lead — and their fandom has receipts folders about it.'
+            : '. They lead. The building does not talk about it, which is how you know it matters.') +
+          '<span class="n-who">— the desk’s rivalry file</span></div>');
+      });
+    }
+
     html.push('<div class="kicker">Room report</div>');
     KP.chemistryNotes(state, members).forEach(n => html.push('<div class="note">' + UI.esc(n) + '</div>'));
     KP.frictionPairs(state, g.members).forEach(f => html.push(UI.frictionCard(state, f)));
