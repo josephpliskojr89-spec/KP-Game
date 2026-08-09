@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.6.8',
+    VERSION: '0.6.9',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -268,6 +268,11 @@
     DEBUT: {
       prepWeeksMin: 4,
       prepFatigue: 6,   // weekly rehearsal load (v0.4.2: was a hardcoded 9)
+      // v0.6.9 — the crunch: early cycle is recording, fittings and
+      // teasers; the dance-practice hell is the LAST weeks. A long
+      // runway stops being a fatigue trap — resting first now works.
+      crunchWeeks: 3,        // full rehearsal load only this close to the date
+      prepFatigueEase: 0.35, // load multiplier before the crunch
       // release formats (v0.2.1): bigger records cost more, need more
       // runway, and pay more when they land
       FORMATS: [
@@ -512,9 +517,10 @@
           liveExp: 0, mediaExp: 0, morale: 1, followers: 0 },
       },
       // the staff suggestion: the friendly stage first, the big one once
-      // the fanbase is counted, faces later
+      // the fanbase is counted, faces later — and the last week ends
+      // gentle (v0.6.9): thank-yous and a live, half a breather
       DEFAULT: [['popWave', 'challenge'], ['countdown', 'variety'],
-        ['primeStage', 'fanSign'], ['variety', 'livestream']],
+        ['primeStage', 'fanSign'], ['livestream']],
     },
 
     // ---- The music-show ecosystem (v0.6.5) ------------------------------

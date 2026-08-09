@@ -124,7 +124,13 @@
       });
       m.mediaExp += a.media / 100 * 2.5;
       m.liveExp += 1.2;                     // stage rehearsals are live reps
-      m.fatigue = KP.clamp(m.fatigue + KP.C.DEBUT.prepFatigue, 0, 100);
+      // the crunch (v0.6.9): full load only in the final weeks — before
+      // that it is recording and fittings, not twelve-hour practice
+      const weeksOut = g.prep.scheduledWeek - state.week;
+      const load = weeksOut <= KP.C.DEBUT.crunchWeeks
+        ? KP.C.DEBUT.prepFatigue
+        : KP.C.DEBUT.prepFatigue * KP.C.DEBUT.prepFatigueEase;
+      m.fatigue = KP.clamp(m.fatigue + load, 0, 100);
       // pushing a gassed member through rehearsal is a gamble (v0.4.2)
       if (m.fatigue >= OW.threshold && rng.chance(OW.chance)) {
         notes.push(KP.overworkIncident(state, m, 'rehearsal', rng));
@@ -167,6 +173,12 @@
       // an empty week is a breather by design
       members.forEach(m => {
         if (!(m.flags.burnout > 0)) m.fatigue = KP.clamp(m.fatigue - R.emptyWeekRecovery, 0, 100);
+      });
+    } else if (plan.length === 1) {
+      // a deliberately light week half-breathes (v0.6.9) — pacing the
+      // rollout is a real tool, not just an empty slot
+      members.forEach(m => {
+        if (!(m.flags.burnout > 0)) m.fatigue = KP.clamp(m.fatigue - R.emptyWeekRecovery * 0.5, 0, 100);
       });
     }
     plan.forEach(actId => {

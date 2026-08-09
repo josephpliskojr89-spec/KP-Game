@@ -770,6 +770,22 @@ staff, never forced beyond the 3-week floor. Census: idol weeks average
 off the fumes in 40/40 worlds (rolling half-year); medical benchings
 occur in most max-pace runs by design.
 
+**v0.6.9 amendment — the crunch.** Owner: *"I'm still running into
+the issue of everyone in a group running on fumes during promotion
+after I let them rest to fresh before planning a new release."* The
+audit confirmed it: flat 6/week rehearsal for the WHOLE runway meant
+a fresh room hit release day at ~47 and peaked at ~79 mid-promo —
+resting first was being punished. Three changes, all fiction-true:
+(1) rehearsal load tapers — full only in the final `crunchWeeks` (3);
+before that it is recording, fittings and teasers at ×0.35 — so a
+long runway stops being a fatigue trap; (2) a one-booking rollout
+week half-breathes (pacing is a real tool, not just an empty slot);
+(3) the staff DEFAULT plan ends gentle — the last promo week is
+thank-yous and a livestream. Measured after: staff default peaks
+61–70 (a full campaign SHOULD end tired), a player-paced rollout
+peaks 59 and recovers into the final week. Fumes are now a choice —
+max runway, max bookings, no light weeks — not destiny.
+
 ## §21 The national chart (v0.5.0)
 
 > Owner, after v0.4.4 unified the scene chart: *"I actually like your
@@ -2020,3 +2036,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 34/34 (suite 034, 26 assertions), soak clean (55 bands — tours
 > 40/40, sellouts 40/40, gaffes 33/40), e2e 89, lockstep 0.6.8 (32
 > modules). Rode to main.
+
+> **v0.6.9 — the crunch** (owner: *"I'm still running into the issue
+> of everyone in a group running on fumes during promotion after I
+> let them rest to fresh before planning a new release"*)
+> A feel patch with an audit behind it (§20 amendment). The pipeline
+> from fresh was: flat 6/week rehearsal × the whole runway → release
+> day at 47, promo peak 79 — the players who rested and planned ahead
+> were punished hardest. Fixes: rehearsal tapers (full load only in
+> the final 3 crunch weeks, ×0.35 before — early cycle is recording
+> and fittings, not twelve-hour practice); one-booking rollout weeks
+> half-breathe; the staff default plan ends on a livestream-only
+> week. Measured: default peak 79 → 65 (8-week runway), player-paced
+> 59 with recovery inside promo. Tired at the end of a campaign is
+> correct; fumes are now a choice. Numbers: battery 34/34, soak
+> clean (benchings still alive at 38/40 for the never-idle bot),
+> e2e 89, lockstep 0.6.9. Rode to main.
