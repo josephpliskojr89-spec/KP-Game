@@ -52,11 +52,25 @@
   }
   // Stamp positions after ALL of the week's releases (rival and player)
   // have entered — the movement arrows the Chart tab shows come from here.
+  // v0.4.4: the discography records what the chart ACTUALLY did — player
+  // releases sync their peak and weeks from the living entry until it
+  // drops off, at which point the record freezes. One chart, one truth.
   KP.chartStamp = function (state) {
     KP.chartPositions(state).forEach((e, i) => {
       e.lastPos = e.pos;
       e.pos = i + 1;
       if (e.peakPos == null || e.pos < e.peakPos) e.peakPos = e.pos;
+    });
+    ((state.chart && state.chart.entries) || []).forEach(e => {
+      if (!e.isPlayer || !e.groupId || e.peakPos == null) return;
+      const g = KP.groupById(state, e.groupId);
+      if (!g) return;
+      const rel = (g.releases || []).find(r => r.week === e.entered);
+      if (rel) { rel.chartPeak = e.peakPos; rel.chartWeeks = e.weeksOn + 1; }
+      if (g.results && g.results.week === e.entered) {
+        g.results.chartPeak = e.peakPos;
+        g.results.chartWeeks = e.weeksOn + 1;
+      }
     });
   };
 

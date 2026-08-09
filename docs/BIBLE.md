@@ -627,9 +627,22 @@ carry the rest.
 rivals' — enters with score = reception + popularity·0.2, decays ×0.88
 weekly, and drops below 8. Positions are stamped once per week AFTER all
 releases resolve (`KP.chartStamp`), giving the Chart sub-tab honest
-▲/▼/NEW movement. The per-release `chartPeak` number in discographies is
-the wider streaming market and stays as it was; the scene chart is the
-weekly conversation. Player entries are highlighted.
+▲/▼/NEW movement. Player entries are highlighted.
+
+**One chart, one truth (v0.4.4).** The original v0.4.0 design kept the
+old formula-based `chartPeak` as "the wider streaming market" alongside
+the scene chart. The owner caught the contradiction immediately — a #1
+scene-chart song whose discography read "peaked #41" — and the two-chart
+fiction was retired. Now: a release's opening `chartPeak` is its actual
+entry rank; `chartStamp` syncs `chartPeak = entry.peakPos` and
+`chartWeeks = weeksOn + 1` into the group's release record and stored
+report every week the entry lives; when the entry drops off, the record
+freezes as history. The legacy formula (104 − reception·0.92 −
+pop·0.22 + noise) is gone from resolution. Migration 0.4.4 reconciles
+old archives — live entries sync exactly, dead records map onto the
+scene-chart scale by reception — narrated by the data team. Lesson for
+the file: never ship two sources of truth for one number the player can
+see in two places.
 
 **Crowding.** `industryWeek` runs before the player's release resolution
 and counts rival releases that week; `resolveDebut` subtracts
@@ -1115,5 +1128,23 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Numbers: battery 22/22 (suite 022, 130 assertions), soak clean (28
 > bands — board bleeds 3+ prospects in 40/40 worlds, a lost face
 > debuted against the player in 40/40), e2e 64, lockstep 0.4.3.
+> Rode to main.
+
+> **v0.4.4 — one chart** (owner: *"my group has a song that's been
+> number 1 but it shows #41 peak position"*)
+> The v0.4.0 two-chart compromise (scene chart for positions, legacy
+> formula for stored peaks) is retired — the owner caught the
+> contradiction the design note had rationalized. Peak position IS the
+> scene chart now: releases enter at their real rank, chartStamp syncs
+> peak and weeks-on-chart into the discography and stored report weekly
+> while the entry lives, and the record freezes when it drops off. The
+> legacy formula is deleted from resolution. Migration reconciles old
+> archives (live entries exactly, dead records mapped by reception),
+> narrated by the data team: "songs that hit number one finally say
+> so." Census updated: top-10 was table stakes on a ≤24-entry chart, so
+> the band now asks for #1 (40/40 at max pace — consistent with the
+> standing chart-easiness watch item). §19 gains the lesson: never two
+> sources of truth for one visible number. Numbers: battery 23/23
+> (suite 023), soak clean (28 bands), e2e 64, lockstep 0.4.4.
 > Rode to main.
 

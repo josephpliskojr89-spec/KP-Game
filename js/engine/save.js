@@ -205,6 +205,40 @@
     });
   } });
 
+  // v0.4.4 — one chart. Peak positions used to come from a pre-scene-chart
+  // formula and could contradict the chart the player watched (owner: a
+  // #1 song showing "peaked #41"). Releases still on the chart sync to
+  // their entry's true tracked peak; older records are reconciled onto
+  // the scene-chart scale. Narrated as the data team cleaning house.
+  MIGRATIONS.push({ v: '0.4.4', fn: function (state) {
+    const entryFor = (gId, week) => ((state.chart && state.chart.entries) || [])
+      .find(e => e.isPlayer && e.groupId === gId && e.entered === week);
+    const plausible = rec => Math.max(1, Math.min(40, Math.round(1 + Math.max(0, 75 - rec) / 5)));
+    let touched = false;
+    (state.groups || []).forEach(g => {
+      (g.releases || []).forEach(rel => {
+        const e = entryFor(g.id, rel.week);
+        const fixed = (e && e.peakPos != null) ? e.peakPos : plausible(rel.reception);
+        if (rel.chartPeak !== fixed) { rel.chartPeak = fixed; touched = true; }
+        if (e) rel.chartWeeks = e.weeksOn + 1;
+      });
+      if (g.results && g.results.chartPeak != null) {
+        const e = entryFor(g.id, g.results.week);
+        const fixed = (e && e.peakPos != null) ? e.peakPos : plausible(g.results.reception);
+        if (g.results.chartPeak !== fixed) { g.results.chartPeak = fixed; touched = true; }
+        if (e) g.results.chartWeeks = e.weeksOn + 1;
+      }
+    });
+    if (touched) {
+      state.inbox = state.inbox || [];
+      state.inbox.unshift({
+        kind: 'company', week: state.week, read: false,
+        id: 'm' + (state.nextMsgId++),
+        text: 'The data team reconciled the chart archives: peak positions in every discography now come from the scene chart itself — the one on your Industry desk — instead of a legacy market report that never agreed with it. Songs that hit number one finally say so.',
+      });
+    }
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

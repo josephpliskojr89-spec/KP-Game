@@ -91,7 +91,7 @@
         '</div>');
     });
     html.push('</div>');
-    html.push('<div class="pad" style="font-size:.72rem;color:var(--ink-faint);line-height:1.5">Every release enters on impact and cools week by week. Peak positions live in each group’s discography.</div>');
+    html.push('<div class="pad" style="font-size:.72rem;color:var(--ink-faint);line-height:1.5">Every release enters on impact and cools week by week. The peak positions in each discography are THIS chart’s — one chart, one truth.</div>');
     return html.join('');
   }
 

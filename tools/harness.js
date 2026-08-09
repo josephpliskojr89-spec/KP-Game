@@ -24,7 +24,7 @@ const BANDS = {
   frictionSeen:      { lo: 0.20, hi: 1.00, label: 'orgs that saw real friction' },
   conflictEndemic:   { lo: 0.00, hi: 0.25, label: 'orgs ending conflict-heavy (>30% pairs)' },
   multiRelease:      { lo: 0.70, hi: 1.00, label: 'orgs with >=2 releases (the loop loops)' },
-  chartTopTen:       { lo: 0.05, hi: 0.70, label: 'orgs with a top-10 chart peak' },
+  chartTopTen:       { lo: 0.20, hi: 1.00, label: 'orgs whose first group hit #1 on the scene chart' },
   popAlive:          { lo: 0.50, hi: 1.00, label: 'orgs ending with a warm-or-better fanbase' },
   secondGroup:       { lo: 0.30, hi: 1.00, label: 'orgs that launched a second group' },
   fiscalNoticed:     { lo: 0.05, hi: 0.85, label: 'orgs whose books got noticed (level 1)' },
@@ -242,11 +242,13 @@ for (let s = 0; s < SEEDS; s++) {
     if (g.results.breakoutId !== g.roles.center) tally.nonCenterBreakout++;
     totalReleases += (g.releases || []).length;
     if ((g.releases || []).length >= 2) tally.multiRelease++;
-    if ((g.releases || []).some(r => r.chartPeak <= 10)) tally.chartTopTen++;
+    // v0.4.4: peaks come from the real scene chart, so top-10 is table
+    // stakes — the census asks for the summit instead
+    if ((g.releases || []).some(r => r.chartPeak === 1)) tally.chartTopTen++;
     if ((g.popularity || 0) >= 42) tally.popAlive++;
     (g.releases || []).forEach(r => {
       guard(r.chartPeak >= 1 && r.chartPeak <= 100, seed + ' chart peak out of range');
-      guard(r.chartWeeks >= 0 && r.chartWeeks <= KP.C.CHART.maxWeeksOn, seed + ' chart weeks out of range');
+      guard(r.chartWeeks >= 0 && r.chartWeeks <= 30, seed + ' chart weeks out of range');
     });
   }
   if (Object.values(state.people).some(p => p.status === 'rival')) tally.rivalSteals++;

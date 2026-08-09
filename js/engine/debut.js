@@ -230,9 +230,13 @@
     // hype is spent — it became the act
     members.forEach(m => { m.hype = 0; });
 
-    // charts-lite: peak position + weeks charting
-    const peak = KP.clamp(Math.round(104 - (reception * 0.92 + g.popularity * 0.22) + rng.normal(0, KP.C.CHART.noiseSd)), 1, 100);
-    const weeksOn = KP.clamp(Math.round((reception - 28) / 6), 0, KP.C.CHART.maxWeeksOn);
+    // ONE chart (v0.4.4, owner-reported disconnect): the peak position is
+    // the release's actual rank on the scene chart — entered here at its
+    // opening rank, then tracked live by chartStamp for as long as it
+    // charts. No parallel formula, no second market.
+    const score = reception + (g.popularity || 0) * 0.2;
+    const peak = 1 + KP.chartPositions(state).filter(e => e.score > score).length;
+    const weeksOn = 1;
 
     if (isDebut) { g.debutWeek = state.week; }
     g.debuted = true;
@@ -268,7 +272,7 @@
     KP.chartEnter(state, {
       title: demo.title, act: g.name, company: state.company.short,
       isPlayer: true, groupId: g.id,
-      score: reception + (g.popularity || 0) * 0.2, entered: state.week,
+      score, entered: state.week,
     });
     g.prep = null;
     g.demos = null;       // the producers bring fresh demos for the next cycle
