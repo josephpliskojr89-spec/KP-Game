@@ -41,6 +41,22 @@
         '</div></div>');
     }
 
+    // the deals desk (v0.7.0): offers wait for an answer, briefly
+    const dealOffers = KP.openDealOffers(state);
+    if (dealOffers.length) {
+      html.push('<div class="kicker">On the deals desk</div>');
+      dealOffers.forEach(o => {
+        const p = state.people[o.personId];
+        html.push('<div class="war-card held"><div class="w-flag">Brand offer · expires ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '</div>' +
+          '<div class="w-text">' + UI.esc(o.brand) + ' wants ' + (p ? UI.esc(KP.displayName(p)) : 'her') +
+          ': ' + o.lump + ' up front, ' + o.weekly + '/week for ' + o.weeks + ' weeks. The shoots cost energy; the billboard pays in more than money.</div>' +
+          '<div class="w-actions">' +
+          '<button class="btn primary" data-action="deal-accept" data-id="' + o.id + '">Sign it</button>' +
+          '<button class="btn" data-action="deal-decline" data-id="' + o.id + '">Pass</button>' +
+          '</div></div>');
+      });
+    }
+
     // calendar strip
     const up = KP.upcoming(state);
     if (up.length) {

@@ -127,12 +127,14 @@
       tour.soldOut++;
       members.forEach(m => { m.morale = KP.clamp(m.morale + T.soldOutMorale, 0, 100); });
       state.company.reputation.girlGroup = KP.clamp((state.company.reputation.girlGroup || 40) + 2, 0, 100);
+      KP.fandomGain(g, KP.C.FANDOM.gainSoldOut);   // a full room deepens devotion (v0.7.0)
     } else if (soft) {
       tour.soft++;
       members.forEach(m => { m.morale = KP.clamp(m.morale - T.softMorale, 0, 100); });
     }
     if (setlist.moralePerLeg) {
       members.forEach(m => { m.morale = KP.clamp(m.morale + setlist.moralePerLeg, 0, 100); });
+      KP.fandomGain(g, KP.C.FANDOM.gainFanServiceLeg);   // fan service is FOR them (v0.7.0)
     }
     // touring grows the region — that is the point (saturating, §28)
     if (regionId !== 'kr') {

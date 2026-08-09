@@ -61,6 +61,7 @@ function ignite(state, kind, subjectType, subjectId, groupId) {
   const state2 = debuted('dc-boil');
   clean(state2);
   const g2 = state2.groups[0];
+  g2.promoUntil = 0; g2.promoGrace = 0;   // hermetic: no promo pop gains muddying the boil cost
   ignite(state2, 'exhausted', 'idol', g2.members[0], g2.id);
   const d2 = KP.liveDiscourses(state2)[0];
   d2.heat = 84;

@@ -471,6 +471,29 @@
     });
   } });
 
+  // v0.7.0 — the fandom era. Rival idols get the stage names they always
+  // had (deterministic, half the lineup); the fandom, deals and award
+  // desks open. Everything else accrues from live play.
+  MIGRATIONS.push({ v: '0.7.0', fn: function (state) {
+    Object.values(state.people || {}).forEach(p => {
+      if (p.status !== 'rival' || !p.flags || !p.flags.rivalNative || p.name.stage) return;
+      if (KP.hash01([state.seed, p.id, 'rivalstage'].join('|')) < 0.5) {
+        const sugg = KP.suggestStageNames(state, p);
+        if (sugg.length) p.name.stage = sugg[Math.floor(
+          KP.hash01([state.seed, p.id, 'stagepick'].join('|')) * sugg.length)];
+      }
+    });
+    state.deals = state.deals || [];
+    state.dealOffers = state.dealOffers || [];
+    state.awardHistory = state.awardHistory || [];
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'Three desks opened this morning. FANDOM: when a group’s room is big enough, the fan cafés will hold a naming vote — an organized fandom votes on music shows, buys records, and floods bad tags with fancams. BRANDS: ambassador offers will find your most wanted faces; the visual role sends invoices now. AWARDS: nominations drop at week 44, the ceremony is week 47, and the jury reads the whole year. One more thing — the other companies’ idols have always had stage names. The files now show them.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

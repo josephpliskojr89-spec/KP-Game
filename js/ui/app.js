@@ -181,6 +181,22 @@
         App.render();
         break;
       }
+      case 'fandom-name': {
+        const r = KP.nameFandom(s, t.dataset.id, parseInt(t.dataset.choice, 10));
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast(r.name + ' — in ' + r.color + '. It is official.');
+        App.render();
+        break;
+      }
+      case 'deal-accept': case 'deal-decline': {
+        const r = KP.respondDeal(s, t.dataset.id, act === 'deal-accept');
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast(r.note.slice(0, 120));
+        App.render();
+        break;
+      }
       case 'tour-scale': App.tourDraft.scale = t.dataset.scale; App.render(); break;
       case 'tour-pacing': App.tourDraft.pacing = t.dataset.pacing; App.render(); break;
       case 'tour-setlist': App.tourDraft.setlist = t.dataset.setlist; App.render(); break;

@@ -898,13 +898,13 @@ better directive than any reception target. Not built yet; noted.
   legs, pacing, production budget, setlists. Undersell/oversell both
   visible and narrated. Tours grow regional fandom and prestige, not
   just cash. Leader role gets tour-leg work (§16 standing note paid off).
-- **v0.6.8 — Fandom identity.** Fandom name, colors/lightstick, size
+- **v0.6.8 — Fandom identity (SHIPPED in v0.7.0, §31).** Fandom name, colors/lightstick, size
   vs intensity, fanclub membership, spending power. Casual-huge vs
   small-and-devout behave differently in everything above.
-- **v0.6.9 — Brand deals & ambassadorships.** Group and individual;
+- **v0.6.9 — Brand deals & ambassadorships (SHIPPED in v0.7.0, §31).** Group and individual;
   visuals become an economy; individual recognition feeds back into
   the group. "Justice for the visual role."
-- **v0.6.10 — Festival & award circuit.** Invitations from reputation
+- **v0.6.10 — Festival & award circuit (award season SHIPPED in v0.7.0, §31; festivals folded into a later pass).** Invitations from reputation
   and relationships; schedule interruptions; award season as campaign
   — nominations, wins, snubs, fandom warfare. Reads memory hard.
 - **v0.6.11 — Variety/personality careers.** Variety monsters, actors,
@@ -1366,6 +1366,57 @@ careers played to curtains), humane pacing, the hits. Census: tours
 in 40/40 careers, sellouts 40/40, soft legs 0/40 for the diligent bot
 (the risk is player-facing, suite-proven), posting incidents trend in
 ~33/40 worlds.
+
+## §31 The fandom era (v0.7.0) — a name, an invoice, and a trophy
+
+> Three §22 phases shipped together because they interlock, plus the
+> owner's rider: *"let's have other groups give their members stage
+> names. just feels right."*
+
+**Fandom identity** (`g.fandom`, module `js/engine/fandom.js`): at
+popularity 35 the fan cafés hold a naming vote — a decision card on
+the group page offers three generated proposals or "let them decide"
+(a hash vote the fans will bring up forever). The fandom gets a name,
+a color, and INTENSITY: size is g.popularity (the number that already
+existed — one truth), devotion is new. It grows from fan-facing care
+(fan signs, livestreams, fan-service tour legs, sold-out rooms,
+shared trophies) and cools 0.2/week without it. Teeth: an organized
+fandom votes on music shows (+intensity×0.1 to show scores), buys
+records (revenue ×(1+intensity/400)), and floods bad tags with
+fancams (storms on the group cool +2/week past intensity 60).
+
+**Brand deals** (`state.deals`, module `js/engine/deals.js`): offers
+find the faces the market wants — visuals ×0.5, reach, the it-girl
+narrative — and land on the Desk with an expiry ("brands do not
+wait"). Signing pays a lump plus a weekly trickle, builds mediaExp
+and following, costs shoot fatigue monthly; two campaigns form the
+**brandDarling** narrative ("the visual role sends invoices now").
+The conduct clause is real: a boiled storm on an ambassador cancels
+the deal with a 50% clawback and a cold letter.
+
+**Award season** (`state.awardHistory`, module `js/engine/awards.js`,
+rng-free): nominations at week 44 read the YEAR THAT HAPPENED —
+Rookie (this year's debuts, player and rival), Song (this year's
+releases + national peaks), Artist (popularity + trophies + fandom
+intensity) — with a hash "jury wobble." The ceremony at week 47 pays
+winners (trust +3, popularity +3, honors chips on the group page, a
+speech that thanks the fans first) and RADICALIZES the snubbed:
+losing a shortlist you were on gives the fandom +6 intensity —
+"nothing organizes a fanbase like an injustice."
+
+**Rival stage names:** about half of every generated rival lineup now
+debuts under a stage name (deterministic per person, from the same
+curated pool the player draws from — uniqueness enforced worldwide,
+which promptly broke a five-version-old suite fixture that wanted
+"Lume"). Old saves get theirs in migration: they always had them; the
+files just show them now.
+
+**Economy ruling, on the record:** with tours, deals and fandom
+revenue, a competently-run mature company stays solvent — the
+fiscal-pressure census went extinct under the diligent bot and the
+band floor was set to 0 on the same principle as un-boiled storms and
+un-soft tour legs: risk mechanics may read zero under a competent
+bot; they exist for human misplay, and the suites prove they bite.
 
 ## §18 Watch items
 
@@ -2052,3 +2103,26 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > correct; fumes are now a choice. Numbers: battery 34/34, soak
 > clean (benchings still alive at 38/40 for the never-idle bot),
 > e2e 89, lockstep 0.6.9. Rode to main.
+\n
+> **v0.7.0 — the fandom era** (owner: *"keep going. and let's have
+> other groups give their members stage names… add that along with
+> the final three steps"* — fandom identity, brand deals, and the
+> award circuit, closing the §22 near-map)
+> Full spec in §31. Three modules (fandom.js, deals.js, awards.js)
+> because the systems interlock: the naming vote is a player decision
+> that mints a name and a color; intensity — devotion, grown by care,
+> cooled by neglect — votes on music shows, buys records, and floods
+> bad tags with fancams; brand offers chase visuals, reach and the
+> it-girl narrative, pay real money, and die by conduct clause when
+> an ambassador's storm boils; award season reads the actual year at
+> week 44 and pays or radicalizes at week 47 — snubs are worth +6
+> intensity, because nothing organizes a fanbase like an injustice.
+> Rival lineups now debut half-under stage names from the shared
+> pool (the worldwide uniqueness law promptly cost a five-version-old
+> fixture its "Lume"). Balance ruling on the record: mature economies
+> stay solvent — the fiscal-pressure band went extinct under the
+> diligent bot and the floor moved to 0 on the standing principle
+> that risk mechanics may read zero under competent play. Numbers:
+> battery 35/35 (suite 035, 34 assertions), soak clean (59 bands —
+> fandoms named 40/40, deals 40/40, awards won 40/40, snubs 21/40),
+> e2e 89, lockstep 0.7.0 (35 modules). Rode to main.

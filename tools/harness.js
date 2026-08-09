@@ -27,7 +27,7 @@ const BANDS = {
   chartTopTen:       { lo: 0.20, hi: 1.00, label: 'orgs whose first group hit #1 on the scene chart' },
   popAlive:          { lo: 0.50, hi: 1.00, label: 'orgs ending with a warm-or-better fanbase' },
   secondGroup:       { lo: 0.30, hi: 1.00, label: 'orgs that launched a second group' },
-  fiscalNoticed:     { lo: 0.05, hi: 0.85, label: 'orgs whose books got noticed (level 1)' },
+  fiscalNoticed:     { lo: 0.00, hi: 0.85, label: 'orgs whose books got noticed (mature economies stay solvent)' },
   hypeSeen:          { lo: 0.30, hi: 1.00, label: 'orgs where the internet found someone' },
   directiveFired:    { lo: 0.02, hi: 0.80, label: 'orgs that drew a hype directive' },
   soloDebuts:        { lo: 0.02, hi: 0.60, label: 'orgs that debuted a solo act' },
@@ -66,6 +66,10 @@ const BANDS = {
   tourSoldOut:       { lo: 0.05, hi: 1.00, label: 'orgs that sold a leg out in minutes' },
   tourSoft:          { lo: 0.00, hi: 0.80, label: 'orgs that played to curtained-off sections' },
   gaffeSeen:         { lo: 0.02, hi: 0.90, label: 'worlds where a posting incident trended' },
+  fandomNamed:       { lo: 0.30, hi: 1.00, label: 'orgs whose fandom got its name' },
+  dealSigned:        { lo: 0.10, hi: 1.00, label: 'orgs that signed a brand deal' },
+  awardWon:          { lo: 0.05, hi: 1.00, label: 'orgs that took a year-end award home' },
+  awardSnubbed:      { lo: 0.00, hi: 0.90, label: 'orgs that watched someone else win (the radicalizer)' },
 };
 
 const tally = {
@@ -83,6 +87,7 @@ const tally = {
   showFirstWin: 0, showRivalWins: 0, showDarling: 0,
   regionLoud: 0, regionStory: 0, conceptCanon: 0,
   toured: 0, tourSoldOut: 0, tourSoft: 0, gaffeSeen: 0,
+  fandomNamed: 0, dealSigned: 0, awardWon: 0, awardSnubbed: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -112,7 +117,7 @@ for (let s = 0; s < SEEDS; s++) {
   let hypeSeen = false, directiveSeen = false, soloProposed = false;
   let playerTop3 = false;
   let warAnnounceSeen = false, warAmbushSeen = false, warBattleSeen = false, warWonSeen = false;
-  let tourSoldOutSeen = false, tourSoftSeen = false;
+  let tourSoldOutSeen = false, tourSoftSeen = false, awardSnubSeen = false;
   const fatigueTrace = [];   // weekly avg fatigue of debuted idols (v0.4.2)
 
   for (let w = 0; w < 140; w++) {
@@ -197,6 +202,13 @@ for (let s = 0; s < SEEDS; s++) {
       }
     });
 
+    // the fandom era (v0.7.0): name the fandom when the cafés ask, sign
+    // the brand offers — a player would
+    state.groups.forEach(g => {
+      if (KP.fandomEligible(state, g)) KP.nameFandom(state, g.id, 0);
+    });
+    KP.openDealOffers(state).forEach(o => KP.respondDeal(state, o.id, true));
+
     // the touring desk (v0.6.8): when the calendar is open and the map
     // is warm, the bot takes the road — scale by fanbase, legs by warmth
     state.groups.forEach(g => {
@@ -268,6 +280,7 @@ for (let s = 0; s < SEEDS; s++) {
       if (n.ind === 'ambush') totalAmbushes++;
       if (n.ind === 'tourLeg' && n.soldOut) tourSoldOutSeen = true;
       if (n.ind === 'tourLeg' && n.soft) tourSoftSeen = true;
+      if (n.ind === 'awardSnub') awardSnubSeen = true;
     });
     if (!warAnnounceSeen && state.rivals.some(r => (r.acts || []).some(a => a.announcedWeek != null))) warAnnounceSeen = true;
     state.groups.forEach(g => {
@@ -420,6 +433,10 @@ for (let s = 0; s < SEEDS; s++) {
   if (tourSoldOutSeen) tally.tourSoldOut++;
   if (tourSoftSeen) tally.tourSoft++;
   if ((state.discourses || []).some(d => d.kind === 'gaffe')) tally.gaffeSeen++;
+  if (state.groups.some(g => g.fandom)) tally.fandomNamed++;
+  if ((state.deals || []).length || Object.values(state.people).some(p => (p.dealCount || 0) > 0)) tally.dealSigned++;
+  if ((state.awardHistory || []).some(a => a.isPlayer)) tally.awardWon++;
+  if (awardSnubSeen) tally.awardSnubbed++;
 
   // memory census + guards (v0.6.0)
   guard((state.memory || []).length <= KP.C.MEMORY.cap, seed + ' memory over cap');

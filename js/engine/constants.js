@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.6.9',
+    VERSION: '0.7.0',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -651,6 +651,49 @@
       ambientChance: 0.55,       // chance of ambient fan chatter in a quiet week
       hypePostMin: 35,           // trainee hype level the feed starts noticing
       viralChance: 0.08,         // a post occasionally escapes containment
+    },
+
+    // ---- The fandom era (v0.7.0) ----------------------------------------
+    // §22 phases shipped together because they interlock: a fandom with
+    // a NAME has intensity; intensity mobilizes for shows, buys records,
+    // defends against storms; brands chase the faces; award season reads
+    // the whole year and hands out trophies — and radicalizing snubs.
+    FANDOM: {
+      nameAt: 35,               // popularity before the fan cafés hold the vote
+      intensityDecay: 0.2,      // devotion cools without care
+      gainFanSign: 2, gainLivestream: 1, gainFanServiceLeg: 3,
+      gainSoldOut: 2, gainShowWin: 1,
+      showVoteFactor: 0.1,      // show score bonus = intensity × this
+      revenueFactor: 1 / 400,   // release revenue × (1 + intensity × this)
+      stormDefenseAt: 60,       // an intense fandom cools storms…
+      stormDefenseCool: 2,      // …by this much extra per week
+      snubGain: 6,              // nothing radicalizes like a snub
+      COLORS: ['pearl violet', 'coral rose', 'midnight teal', 'champagne gold',
+        'arctic mint', 'garnet red', 'moonstone grey', 'electric periwinkle'],
+    },
+    DEALS: {
+      offerBaseChance: 0.04,    // weekly, once anyone is famous enough
+      minSocial: 40000,         // brands want reach
+      itGirlBonus: 0.06,        // the narrative does the selling
+      lump: [6, 14], weekly: [1, 2], weeks: [12, 20],
+      expiresWeeks: 3,          // offers do not wait
+      shootFatigue: 2,          // monthly, the shoots are real work
+      scandalPenaltyMult: 0.5,  // a cancelled deal claws back half the lump
+      maxActive: 3,             // the market has limits
+      brandDarlingAt: 2,        // deals before the narrative forms
+      CATEGORIES: ['cosmetics', 'fashion house', 'soft drink', 'tech', 'jewelry', 'sportswear'],
+      BRANDS: ['Léore', 'Maison Vue', 'Bombora', 'Nexel', 'Clair de Terre', 'Volt Athletics',
+        'Aurum Beauty', 'Peau', 'Fizzi', 'Hyperion Mobile', 'Lumière Seoul', 'Stride'],
+    },
+    AWARDS: {
+      nominationWeek: 44,       // of the 48-week year
+      ceremonyWeek: 47,
+      nomineeCount: 3,          // per category, the short list
+      winTrust: 3,
+      winPop: 3,
+      jitter: 6,                // hash-driven ceremony-night wobble
+      categories: ['rookie', 'song', 'artist'],
+      LABELS: { rookie: 'Rookie of the Year', song: 'Song of the Year', artist: 'Artist of the Year' },
     },
 
     // ---- Executives & trust ---------------------------------------------

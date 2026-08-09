@@ -272,6 +272,13 @@
       p.flags.rivalNative = true;
       state.people[p.id] = p;
       KP.socialOf(state, p);   // minted at the door, not on first look
+      // other companies give stage names too (v0.7.0) — about half the
+      // lineup debuts under one, picked deterministically
+      if (KP.hash01([state.seed, p.id, 'rivalstage'].join('|')) < 0.5) {
+        const sugg = KP.suggestStageNames(state, p);
+        if (sugg.length) p.name.stage = sugg[Math.floor(
+          KP.hash01([state.seed, p.id, 'stagepick'].join('|')) * sugg.length)];
+      }
       members.push(p.id);
     }
     state.nextPersonId = KP.peekNextId();
@@ -796,6 +803,28 @@
         const p = state.people[n.personId];
         posts.push({ persona: 'casual', text: 'no because WHO is the ending fairy from this week… ' +
           (p ? KP.displayName(p) : 'her') + ' looked at the camera for three seconds and gained a fandom. I was there. I am the fandom' });
+      } else if (n.ind === 'fandomNamed') {
+        const g = KP.groupById(state, n.groupId);
+        posts.push({ persona: 'fan', text: 'we have a NAME. we have a COLOR. ' +
+          (g && g.fandom ? g.fandom.name + ' in ' + g.fandom.color : 'it') +
+          ' forever. crying at a lightstick mockup at my big age. membership card WHEN' });
+      } else if (n.ind === 'dealSigned') {
+        const p = state.people[n.personId];
+        posts.push(rng.pick([
+          { persona: 'stan', text: (p ? KP.displayName(p) : 'she') + ' brand ambassador announcement. the campaign shots are ILLEGAL. buying products I cannot pronounce' },
+          { persona: 'casual', text: 'saw ' + (p ? KP.displayName(p) : 'an idol') + ' on a billboard today and pointed like she knows me. advertising works, I am the proof' },
+        ]));
+      } else if (n.ind === 'dealCancelled') {
+        posts.push({ persona: 'press', text: 'Brand watch: a conduct-clause cancellation this week. Agencies keep learning that ambassadorships are weather-dependent. The weather is the internet.' });
+      } else if (n.ind === 'awardWin') {
+        const g = KP.groupById(state, n.groupId);
+        posts.push(rng.pick([
+          { persona: 'stan', text: (g ? g.name : 'THEY') + ' WON. the speech. the tears. the group hug that crushed the trophy ribbon. year MADE. see everyone at the encore stage' },
+          { persona: 'fan', text: 'daesang season and OUR name got called. every voting guide, every streaming night — it counted. proud is too small a word' },
+        ]));
+      } else if (n.ind === 'awardSnub') {
+        const g = KP.groupById(state, n.groupId);
+        posts.push({ persona: 'stan', text: 'the ' + (g ? g.name : '') + ' snub is a CRIME and I have the receipts thread to prove it. rigged ceremony. anyway streaming doubled, spite is fuel' });
       } else if (n.ind === 'tourMoment') {
         const p = state.people[n.personId];
         posts.push({ persona: 'fan', text: 'the ' + KP.regionLabel(n.region) + ' crowd singing ' +

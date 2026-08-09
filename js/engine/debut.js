@@ -193,6 +193,11 @@
         if (A.morale) m.morale = KP.clamp(m.morale + A.morale, 0, 100);
         if (A.pop) g.popularity = KP.clamp((g.popularity || 0) + A.pop, 0, 100);
         if (A.followers) KP.socialSpike(state, m, A.followers, 'promo-' + actId);
+        // fan-facing care builds devotion (v0.7.0) — once per activity, not per member
+        if (m === members[0]) {
+          if (actId === 'fanSign') KP.fandomGain(g, KP.C.FANDOM.gainFanSign);
+          if (actId === 'livestream') KP.fandomGain(g, KP.C.FANDOM.gainLivestream);
+        }
         if (A.fatigue > 0 && m.fatigue >= CB.OVERWORK.threshold && rng.chance(CB.OVERWORK.chance)) {
           notes.push(KP.overworkIncident(state, m, 'promotion', rng));
         }
@@ -389,8 +394,10 @@
     // the map is warm (v0.6.6)
     const format = D.FORMATS.find(f => f.id === (g.prep.format || 'single')) || D.FORMATS[0];
     const overseasMult = 1 + KP.overseasAvg(g) * KP.C.REGIONAL.revenuePerOverseas;
+    // a devoted fandom buys everything twice (v0.7.0)
+    const fandomMult = 1 + KP.fandomIntensity(g) * KP.C.FANDOM.revenueFactor;
     const revenue = Math.round((Math.max(0, reception - 30) * 1.6 + (isDebut ? 0 : (g.popularity || 0) * 0.4)) *
-      format.revenueMult * overseasMult);
+      format.revenueMult * overseasMult * fandomMult);
     state.budget += revenue;
 
     // popularity: the debut founds the fanbase (hype converts into it);

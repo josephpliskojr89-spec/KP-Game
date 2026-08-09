@@ -98,6 +98,7 @@
         const c = KP.conceptById((n.meta && n.meta.concept) || 'bright');
         return group() + ' and the ' + (c ? c.label.toLowerCase() : 'signature') + ' concept are inseparable now. The sound IS the group.';
       }
+      case 'brandDarling': return idol() + ' is who the brands call first. The visual role sends invoices now.';
       default: return n.key;
     }
   };
@@ -172,6 +173,7 @@
         const c = KP.conceptById((n.meta && n.meta.concept) || 'bright');
         return 'It is canon now: ' + group() + ' means ' + (c ? c.label.toLowerCase() : 'that sound') + '. Two eras deep and the public hears the group in the first four bars. An identity is free promotion — until the day you want to change it.';
       }
+      case 'brandDarling': return 'Second campaign signed, and the industry noticed: ' + idol() + ' is who the brands call first now. Somewhere, every visual who was told the role “doesn’t monetize” is smiling.';
       default: return 'A narrative formed: ' + n.key;
     }
   }

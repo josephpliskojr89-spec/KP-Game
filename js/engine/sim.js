@@ -108,6 +108,10 @@
     // 5. table events
     KP.eventsWeek(state, rng).forEach(n => inbox.push(n));
 
+    // 5a2. the deals desk (v0.7.0): offers arrive, contracts pay, scandal
+    //      clauses bite
+    KP.dealsWeek(state, rng).forEach(n => inbox.push(n));
+
     // 5b-pre. the release war (v0.6.4): comebacks go public, locked dates
     //     leak, and rivals with a motive park releases on them
     KP.calendarWeek(state, rng).forEach(n => inbox.push(n));
@@ -226,6 +230,10 @@
       KP.industryLifecycle(state, rng).forEach(n => inbox.push(n));
     }
 
+    // 7d. award season (v0.7.0): nominations at week 44, the ceremony at
+    //     47 — computed from the year that actually happened, rng-free
+    KP.awardsWeek(state).forEach(n => inbox.push(n));
+
     // 8c. memory: opinions decay, slow patterns become narratives (v0.6.0)
     KP.memoryWeek(state).forEach(n => inbox.push(n));
 
@@ -235,6 +243,9 @@
     // 8d2. the map breathes (v0.6.6): borderless promo spreads, idle
     //      regions cool slowly — rng-free
     KP.regionsWeek(state);
+
+    // 8d3. devotion cools without care (v0.7.0) — rng-free
+    KP.fandomWeek(state);
 
     // 8e. the discourse burns (v0.6.2): storms ignite, grow, fade, boil
     KP.discourseWeek(state, rng).forEach(n => inbox.push(n));

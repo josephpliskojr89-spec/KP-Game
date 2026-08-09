@@ -122,7 +122,11 @@
     KP.liveDiscourses(state).forEach(d => {
       if (d.negative) {
         const feed = rng.int(D.weeklyGrowth[0], D.weeklyGrowth[1]);
-        const cool = D.weeklyDecay + (d.heat < 45 ? 3 : 0) + (d.responded ? 4 : 0);
+        // an organized fandom floods the tag with fancams (v0.7.0)
+        const g = d.groupId && KP.groupById(state, d.groupId);
+        const defense = (g && KP.fandomIntensity(g) >= KP.C.FANDOM.stormDefenseAt)
+          ? KP.C.FANDOM.stormDefenseCool : 0;
+        const cool = D.weeklyDecay + (d.heat < 45 ? 3 : 0) + (d.responded ? 4 : 0) + defense;
         d.heat += feed - cool;
       } else {
         d.heat += -D.weeklyDecay + rng.int(0, 6);

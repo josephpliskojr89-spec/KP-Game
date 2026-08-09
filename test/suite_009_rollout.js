@@ -124,15 +124,15 @@ function throughDebut(seed, planExtra) {
   const p = state.people[id];
   t.ok(!KP.setStageName(state, id, '').ok, 'empty stage name rejected');
   t.ok(!KP.setStageName(state, id, 'ABCDEFGHIJKLMNOP').ok, 'over-long stage name rejected');
-  const r = KP.setStageName(state, id, 'Lume');
+  const r = KP.setStageName(state, id, 'Solstice');
   t.ok(r.ok, 'stage name set');
-  t.eq(KP.displayName(p), 'Lume', 'public display uses the stage name');
-  t.ok(p.name.display !== 'Lume', 'the real name survives underneath');
+  t.eq(KP.displayName(p), 'Solstice', 'public display uses the stage name');
+  t.ok(p.name.display !== 'Solstice', 'the real name survives underneath');
   t.ok(p.history.some(h => /stage name/.test(h.text)), 'the file records it');
   const other = state.groups[0].members[1];
-  t.ok(!KP.setStageName(state, other, 'lume').ok, 'stage names are unique, case-insensitive');
+  t.ok(!KP.setStageName(state, other, 'solstice').ok, 'stage names are unique, case-insensitive');
   const sugg = KP.suggestStageNames(state, state.people[other]);
-  t.ok(sugg.length >= 2 && sugg.every(n => n.toLowerCase() !== 'lume'), 'suggestions exist and avoid taken names');
+  t.ok(sugg.length >= 2 && sugg.every(n => n.toLowerCase() !== 'solstice'), 'suggestions exist and avoid taken names');
 }
 
 // migration: v0.2.0 saves gain formats and the mislabeled report is repaired

@@ -119,6 +119,34 @@
       html.push('<div class="card">' + UI.narrativeLines(state, gNars) + '</div>');
     }
 
+    // the fandom (v0.7.0): a name, a color, and a temperature
+    if (g.fandom) {
+      const f = g.fandom;
+      html.push('<div class="kicker">The fandom</div>');
+      html.push('<div class="pad" style="display:flex;gap:7px;flex-wrap:wrap">' +
+        '<span class="chip gold">' + UI.esc(f.name) + '</span>' +
+        '<span class="chip cool">' + UI.esc(f.color) + '</span>' +
+        '<span class="chip">' + UI.esc(KP.popularityWord(g.popularity)) + ' · ' + UI.esc(KP.intensityWord(f.intensity)) + '</span>' +
+        '</div>');
+    } else if (KP.fandomEligible(state, g)) {
+      const opts = KP.fandomNameOptions(state, g);
+      html.push('<div class="kicker">The naming vote</div>');
+      html.push('<div class="war-card held"><div class="w-flag">The fan cafés are voting</div>' +
+        '<div class="w-text">The fanbase is big enough to want a name. The cafés have proposals; the company can back one, or let the vote run.</div>' +
+        '<div class="w-actions" style="flex-wrap:wrap">' +
+        opts.map((o, i) => '<button class="btn" data-action="fandom-name" data-id="' + g.id + '" data-choice="' + i + '">' + UI.esc(o) + '</button>').join('') +
+        '<button class="btn primary" data-action="fandom-name" data-id="' + g.id + '" data-choice="-1">Let them decide</button>' +
+        '</div></div>');
+    }
+
+    // honors (v0.7.0): what the year-end juries said
+    if (g.honors && g.honors.length) {
+      html.push('<div class="kicker">Honors</div>');
+      html.push('<div class="pad" style="display:flex;gap:7px;flex-wrap:wrap">' +
+        g.honors.map(h => '<span class="chip gold">' + UI.esc(KP.C.AWARDS.LABELS[h.category] || h.category) + ' · Y' + h.year + '</span>').join('') +
+        '</div>');
+    }
+
     // the creative direction (v0.6.7): the brief the producers pitch to
     {
       const dirId = g.concept || null;

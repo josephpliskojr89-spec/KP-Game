@@ -46,6 +46,7 @@
       if (!promoting(state, g) || !planFor(state, g).includes(showId)) return;
       const score = (g.popularity || 0) * S.fandomW + livePerf(state, g) * S.liveW +
         fresh(state.week - (g.lastReleaseWeek || 0)) * S.freshW +
+        KP.fandomIntensity(g) * KP.C.FANDOM.showVoteFactor +   // an organized fandom votes (v0.7.0)
         KP.hash01([state.seed, showId, state.week, g.id].join('|')) * W.jitter;
       list.push({ type: 'player', g, score });
     });
@@ -93,6 +94,7 @@
           m.morale = KP.clamp(m.morale + W.winMorale, 0, 100);
           KP.socialSpike(state, m, W.winFollowers, 'showwin-' + showId);
         });
+        KP.fandomGain(g, KP.C.SHOWWIN.winMorale ? KP.C.FANDOM.gainShowWin : 0);   // shared trophies bind (v0.7.0)
         const runnerUp = field[1];
         const first = !state.firstShowWinWeek;
         if (first) {

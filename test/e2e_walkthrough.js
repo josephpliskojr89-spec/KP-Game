@@ -349,6 +349,8 @@ async function main() {
     const s = KP.App.state;
     const rng = KP.rngFor(s);
     const g = s.groups[0];
+    // clear any organic storms so the forced one has room (maxLive cap)
+    (s.discourses || []).forEach(d => { if (d.status === 'live') d.status = 'faded'; });
     KP.igniteDiscourse(s, rng, 'styling', 'group', g.id, g.id);
     s.rngState = rng.state();
     KP.App.save();
