@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.6.7',
+    VERSION: '0.6.8',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -578,6 +578,10 @@
           actions: ['statement', 'apology'] },
         fancam:    { label: 'fancam wave', negative: false, start: [30, 55],
           actions: ['meme', 'livestream'] },
+        // v0.6.8 — the posting incident: an idol's post reads wrong.
+        // Delete-and-apologize, add context, or lean into the joke.
+        gaffe:     { label: 'posting incident', negative: true, start: [22, 42],
+          actions: ['apology', 'statement', 'meme'] },
       },
       // response base success; personality and context shift these
       baseSuccess: { statement: 0.55, apology: 0.8, legal: 0.7, meme: 0.5, livestream: 0.6 },
@@ -590,6 +594,47 @@
       benchedChance: 0.6,       // at an overwork incident
       datingChance: 0.006,      // weekly, per idol with 50k+ followers
       datingMinSocial: 50000,
+      gaffeChance: 0.004,       // weekly, per idol with a real following…
+      gaffeTiredBonus: 0.008,   // …and tired people post carelessly (v0.6.8)
+      gaffeTiredAt: 70,
+      gaffeMinSocial: 20000,
+    },
+
+    // ---- The road (v0.6.8): tours ---------------------------------------
+    // §22: "Cities, venue sizes, pricing, dates, rest days, production
+    // budget, setlists. Undersell/oversell both visible and narrated.
+    // Tours grow regional fandom and prestige, not just cash." A tour
+    // is constrained choices: a scale you can fill, legs the map has
+    // earned, a pacing with a human cost, a setlist with a point.
+    TOUR: {
+      legWeeks: 2, maxLegs: 4,
+      restWeeks: 3,              // the post-tour rest rail (contractual)
+      cooldownWeeks: 20,         // between tours — the road is not a lifestyle
+      minPopularity: 30,         // nobody tours a debut with no fanbase
+      SCALES: {
+        clubs:  { label: 'Club halls',  costPerLeg: 8,  revBase: 18, sweetSpot: 18, fatiguePerWeek: 5 },
+        halls:  { label: 'Theaters',    costPerLeg: 16, revBase: 38, sweetSpot: 38, fatiguePerWeek: 6 },
+        arenas: { label: 'Arenas',      costPerLeg: 30, revBase: 75, sweetSpot: 60, fatiguePerWeek: 7 },
+      },
+      // demand/sweetSpot ratio decides the narration and the money
+      soldOutAt: 1.35, softBelow: 0.75,
+      soldOutRevMult: 1.15, softRevMult: 0.55,
+      PACING: {
+        punishing: { label: 'Punishing', costMult: 1.0,  fatigueMult: 1.3 },
+        humane:    { label: 'Humane',    costMult: 1.3,  fatigueMult: 0.85 },
+      },
+      SETLISTS: {
+        hits:        { label: 'The hits',     revMult: 1.08 },
+        newMaterial: { label: 'New material', nextReleaseHype: 3 },
+        fanService:  { label: 'Fan service',  moralePerLeg: 2, regionMult: 1.2 },
+      },
+      regionGainPerLeg: 8,       // touring grows the region (saturating)
+      soldOutRegionBonus: 4,
+      soldOutMorale: 2, softMorale: 3,   // (soft is a hit, not a bonus)
+      liveExpPerWeek: 3,
+      leaderLeadershipAt: 60,    // a real leader runs the room on the road
+      leaderFatigueMult: 0.88,
+      weakLeaderFrictionChance: 0.3,  // per leg, when nobody runs the room
     },
 
     // ---- The fan feed (v0.4.0→v0.6.3): a real feed, never cruel ---------

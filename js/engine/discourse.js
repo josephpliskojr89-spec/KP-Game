@@ -48,6 +48,7 @@
       case 'encore': return 'A shaky encore clip of ' + who + ' is making the rounds. The tone is split between concern and cruelty.';
       case 'benched': return who + ' being pulled from the schedule set off a wave of health-worry posts aimed at the company.';
       case 'fancam': return 'A ' + who + ' fancam is having a MOMENT. The algorithm has chosen her, and the window is open.';
+      case 'gaffe': return who + ' posted something at 2am that reads very differently in daylight — a caption, a like, a reply. Screenshots outlive deletions, and the quote-posts are rolling in.';
       default: return 'Something about ' + who + ' is trending.';
     }
   };
@@ -102,6 +103,16 @@
         const g = KP.groupOf(state, p.id);
         const n = KP.igniteDiscourse(state, rng, 'dating', 'idol', p.id, g && g.id);
         if (n) notes.push(n);
+      }
+      // the posting incident (v0.6.8): tired people post carelessly —
+      // the storm has a systemic cause, not just a dice roll
+      if (p.status === 'idol' && (p.social || 0) >= D.gaffeMinSocial) {
+        const chance = D.gaffeChance + (p.fatigue >= D.gaffeTiredAt ? D.gaffeTiredBonus : 0);
+        if (rng.chance(chance)) {
+          const g = KP.groupOf(state, p.id);
+          const n = KP.igniteDiscourse(state, rng, 'gaffe', 'idol', p.id, g && g.id);
+          if (n) notes.push(n);
+        }
       }
     });
 

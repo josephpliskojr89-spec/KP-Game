@@ -878,10 +878,10 @@ better directive than any reception target. Not built yet; noted.
   greater-China / SEA / NA / LATAM / EU; concepts and members resonate
   differently by region. Prerequisite for tours — the desk keeps
   saying the word uninvited.
-- **v0.6.7 — Tour planning.** Cities, venue sizes, pricing, dates,
-  rest days, production budget, setlists. Undersell/oversell both
+- **v0.6.7 — Tour planning → SHIPPED as v0.6.8 (§30).** Venue scales,
+  legs, pacing, production budget, setlists. Undersell/oversell both
   visible and narrated. Tours grow regional fandom and prestige, not
-  just cash. Leader role gets tour-leg work (§16 standing note pays off).
+  just cash. Leader role gets tour-leg work (§16 standing note paid off).
 - **v0.6.8 — Fandom identity.** Fandom name, colors/lightstick, size
   vs intensity, fanclub membership, spending power. Casual-huge vs
   small-and-devout behave differently in everything above.
@@ -1298,6 +1298,58 @@ push-back: titan chart entries linger longer (titanDecay .965→.972,
 summit back to 9/40), megahits hit harder (1.38→1.45), and the show
 dynasty bar rose (darlingAt 6→7). The lesson on file: a strategy
 feature is a difficulty change, and the environment must answer it.
+
+## §30 The road (v0.6.8) — tours, and the posting incident
+
+> §22 phase spec: *"Cities, venue sizes, pricing, dates, rest days,
+> production budget, setlists. Undersell/oversell both visible and
+> narrated. Tours grow regional fandom and prestige, not just cash."*
+> Shipped with the owner's rider: keep expanding immersion, player
+> decisions, and social media.
+
+**The touring desk** (module `js/engine/tour.js`, on the Studio when
+the calendar is open): four constrained choices, every one with teeth.
+A **scale** you believe you can fill (club halls / theaters / arenas —
+each with a cost per leg, a fatigue price, and a sweet-spot demand); up
+to four two-week **legs** across home (demand = the domestic fanbase)
+and any overseas region warm enough (the §28 map is the routing sheet —
+a cold region cannot book an arena; the promoter refuses). A **pacing**
+(punishing is cheaper and costs the humans ×1.3; humane costs money) and
+a **setlist** with a point (the hits sell ×1.08; new material seeds the
+next release's reception; fan service buys morale and deepens the
+regions ×1.2). Eligibility rails mirror the release calendar: no
+touring mid-prep/promo/rest, a 20-week cooldown, and a fanbase floor.
+
+**Every leg reports honestly** when it closes: demand vs sweet spot
+decides the letter. ≥1.35 = **SOLD OUT in minutes** ("we under-booked.
+Wonderful problem") — bonus revenue, morale, reputation, +4 region.
+<0.75 = **soft** — "the upper sections were curtained off and everyone
+pretended not to notice," revenue gutted, morale hit. Between = the
+road as it should feel. Touring GROWS the region (+8/leg, saturating
+per §28 physics) — the map is the point, the money is the byproduct.
+A member whose personal stronghold hosts a leg gets her moment (the
+crowd sings her lines; viral pipeline fires). The **leader role pays
+off on the road**: leadership ≥60 trims everyone's fatigue; a room
+nobody runs breeds unmanaged frictions, per leg, narrated. Post-tour
+rest is contractual (3 weeks), and the studio is closed while they
+tour — one calendar, real opportunity costs.
+
+**The posting incident** (new discourse kind, the social-media
+expansion): idols with real followings sometimes post something that
+"reads very differently in daylight" — and the chance more than
+doubles past fatigue 70, because tired people post carelessly. The
+storm has a systemic cause the player can actually manage upstream.
+Response menu: delete-and-apologize / add context / lean into the
+joke — through the whole existing v0.6.2 machinery (burn, boils,
+feed judgment).
+
+**Harness:** the bot tours when the calendar and the map allow, books
+legs a competent player would (at least solid, never the promoter's
+bare minimum — the first policy booked marginal legs and 34/40
+careers played to curtains), humane pacing, the hits. Census: tours
+in 40/40 careers, sellouts 40/40, soft legs 0/40 for the diligent bot
+(the risk is player-facing, suite-proven), posting incidents trend in
+~33/40 worlds.
 
 ## §18 Watch items
 
@@ -1944,3 +1996,27 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Numbers: battery 33/33 (suite 033, 21 assertions), soak clean (51
 > bands — concept identity canon in 30/40), e2e 89, lockstep 0.6.7
 > (31 modules). Rode to main.
+\n
+> **v0.6.8 — the road** (owner: *"yeah we need tours now for sure…
+> you're free to continue expanding on immersion, and things for the
+> player to do. expanding social media and expanding on the decisions
+> the player has to make"*)
+> Full spec in §30. New module tour.js: the touring desk on the
+> Studio — scale, legs, pacing, setlist, four constrained choices
+> with bills and human costs, gated by the §28 map (cold regions
+> refuse arenas). Legs report honestly: sold out in minutes / solid /
+> curtained-off soft, each narrated and paid. Tours grow regions
+> (saturating), stronghold members get their overseas moment, the
+> leader role finally pays off on the road, a new-material setlist
+> seeds the next era, and post-tour rest is contractual. Social
+> expansion: the POSTING INCIDENT discourse kind — tired idols post
+> carelessly (chance doubles past fatigue 70; the storm has a
+> systemic cause), with delete/context/lean-in on the menu through
+> the existing PR machinery, plus tour-flavored feed content
+> everywhere. One crash caught in soak (recordViral's null pushed
+> raw into the inbox), one bot lesson (booking at the promoter's
+> bare minimum put 34/40 careers in curtained sections — competent
+> routing fixed it; the risk stays player-facing). Numbers: battery
+> 34/34 (suite 034, 26 assertions), soak clean (55 bands — tours
+> 40/40, sellouts 40/40, gaffes 33/40), e2e 89, lockstep 0.6.8 (32
+> modules). Rode to main.

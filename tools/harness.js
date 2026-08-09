@@ -62,6 +62,10 @@ const BANDS = {
   regionLoud:        { lo: 0.20, hi: 1.00, label: 'orgs that got loud in at least one overseas region' },
   regionStory:       { lo: 0.10, hi: 1.00, label: 'orgs whose overseas market became a story (the long game pays)' },
   conceptCanon:      { lo: 0.10, hi: 1.00, label: 'orgs whose group earned a concept identity (the sound IS the group)' },
+  toured:            { lo: 0.20, hi: 1.00, label: 'orgs that took a tour on the road' },
+  tourSoldOut:       { lo: 0.05, hi: 1.00, label: 'orgs that sold a leg out in minutes' },
+  tourSoft:          { lo: 0.00, hi: 0.80, label: 'orgs that played to curtained-off sections' },
+  gaffeSeen:         { lo: 0.02, hi: 0.90, label: 'worlds where a posting incident trended' },
 };
 
 const tally = {
@@ -78,6 +82,7 @@ const tally = {
   warAnnounced: 0, warAmbushed: 0, warBattled: 0, warWon: 0, warRivalry: 0,
   showFirstWin: 0, showRivalWins: 0, showDarling: 0,
   regionLoud: 0, regionStory: 0, conceptCanon: 0,
+  toured: 0, tourSoldOut: 0, tourSoft: 0, gaffeSeen: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -107,6 +112,7 @@ for (let s = 0; s < SEEDS; s++) {
   let hypeSeen = false, directiveSeen = false, soloProposed = false;
   let playerTop3 = false;
   let warAnnounceSeen = false, warAmbushSeen = false, warBattleSeen = false, warWonSeen = false;
+  let tourSoldOutSeen = false, tourSoftSeen = false;
   const fatigueTrace = [];   // weekly avg fatigue of debuted idols (v0.4.2)
 
   for (let w = 0; w < 140; w++) {
@@ -191,6 +197,24 @@ for (let s = 0; s < SEEDS; s++) {
       }
     });
 
+    // the touring desk (v0.6.8): when the calendar is open and the map
+    // is warm, the bot takes the road — scale by fanbase, legs by warmth
+    state.groups.forEach(g => {
+      if (!KP.tourEligible(state, g).ok) return;
+      if (state.budget < 80) return;
+      const T = KP.C.TOUR;
+      const warm = KP.tourLegOptions(state, g)
+        .filter(o => o.id !== 'kr').sort((a, b) => b.demand - a.demand);
+      const scale = (g.popularity >= 65 && warm[0] && warm[0].demand >= 50) ? 'arenas'
+        : g.popularity >= 45 ? 'halls' : 'clubs';
+      // book legs a competent player would: at least solid, never the
+      // promoter's bare minimum (that is how curtained sections happen)
+      const spot = T.SCALES[scale].sweetSpot;
+      const legs = ['kr'].concat(warm.filter(o => o.demand >= spot * T.softBelow)
+        .slice(0, 2).map(o => o.id));
+      KP.planTour(state, { groupId: g.id, scale, legs, pacing: 'humane', setlist: 'hits' });
+    });
+
     // plan the next release for whichever group needs one — debuts and
     // comebacks ride the same studio path. After a debut lands, the bot
     // commits to the direction that worked (v0.6.7) — like a player would
@@ -239,8 +263,12 @@ for (let s = 0; s < SEEDS; s++) {
     const notes = KP.advanceWeek(state);
     if (state.hypeDirective) directiveSeen = true;
     if (state.roster.some(id => (state.people[id].hype || 0) >= 25)) hypeSeen = true;
-    // the war census (v0.6.4)
-    notes.forEach(n => { if (n.ind === 'ambush') totalAmbushes++; });
+    // the war census (v0.6.4) + the road census (v0.6.8)
+    notes.forEach(n => {
+      if (n.ind === 'ambush') totalAmbushes++;
+      if (n.ind === 'tourLeg' && n.soldOut) tourSoldOutSeen = true;
+      if (n.ind === 'tourLeg' && n.soft) tourSoftSeen = true;
+    });
     if (!warAnnounceSeen && state.rivals.some(r => (r.acts || []).some(a => a.announcedWeek != null))) warAnnounceSeen = true;
     state.groups.forEach(g => {
       if (g.prep && g.prep.clash && !g.prep.clash.chosen) warAmbushSeen = true;
@@ -388,6 +416,10 @@ for (let s = 0; s < SEEDS; s++) {
     .filter(g => g.regions).flatMap(g => Object.values(g.regions)).concat([0])));
   if ((state.memory || []).some(n => n.key === 'regionStronghold')) tally.regionStory++;
   if ((state.memory || []).some(n => n.key === 'conceptIdentity')) tally.conceptCanon++;
+  if (state.groups.some(g => (g.toursDone || 0) >= 1 || g.tour)) tally.toured++;
+  if (tourSoldOutSeen) tally.tourSoldOut++;
+  if (tourSoftSeen) tally.tourSoft++;
+  if ((state.discourses || []).some(d => d.kind === 'gaffe')) tally.gaffeSeen++;
 
   // memory census + guards (v0.6.0)
   guard((state.memory || []).length <= KP.C.MEMORY.cap, seed + ' memory over cap');

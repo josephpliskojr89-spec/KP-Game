@@ -20,6 +20,10 @@
     const g = targetGroup(state, plan);
     if (!g) return { ok: false, reason: 'No group to debut. With several groups, say which one.' };
     if (g.prep) return { ok: false, reason: 'A release is already locked.' };
+    if (g.tour) return { ok: false, reason: 'They are on tour. The studio can wait for the road to end.' };
+    if (state.week <= (g.tourRestUntil || 0)) {
+      return { ok: false, reason: 'Post-tour rest is contractual. The calendar reopens ' + KP.weekLabel((g.tourRestUntil || 0) + 1).text + '.' };
+    }
     // v0.4.2 — the calendar closes after a release: promotion, then
     // contractual rest. No new lock until it reopens.
     if (g.debuted) {
@@ -270,10 +274,13 @@
     const memRead = KP.memoryReadsRelease(state, g, isDebut, avg('vocals'));
     const prevReception = (g.releases && g.releases.length)
       ? g.releases[g.releases.length - 1].reception : null;
+    // a new-material tour seeded the next era (v0.6.8) — spent here
+    const tourLift = g.tourHype || 0;
+    delete g.tourHype;
     const reception = KP.clamp(Math.round(
       demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
       groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
-      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod), 1, 100);
+      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift), 1, 100);
     const band = D.receptionBands.find(b => reception >= b.min);
     const centerOvershadowed = !isSolo && breakout.id !== g.roles.center &&
       pulls.find(x => x.m.id === g.roles.center).pull < pulls[0].pull - 8;

@@ -181,6 +181,29 @@
         App.render();
         break;
       }
+      case 'tour-scale': App.tourDraft.scale = t.dataset.scale; App.render(); break;
+      case 'tour-pacing': App.tourDraft.pacing = t.dataset.pacing; App.render(); break;
+      case 'tour-setlist': App.tourDraft.setlist = t.dataset.setlist; App.render(); break;
+      case 'tour-leg': {
+        const td = App.tourDraft, leg = t.dataset.leg;
+        if (td.legs.includes(leg)) td.legs = td.legs.filter(x => x !== leg);
+        else if (td.legs.length < KP.C.TOUR.maxLegs) td.legs.push(leg);
+        else UI.toast('A tour is at most ' + KP.C.TOUR.maxLegs + ' legs. They are humans, not cargo.', true);
+        App.render();
+        break;
+      }
+      case 'tour-book': {
+        const g = KP.UI.studioGroup(s);
+        const td = App.tourDraft;
+        const r = KP.planTour(s, { groupId: g.id, scale: td.scale, legs: td.legs,
+          pacing: td.pacing, setlist: td.setlist });
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.tourDraft = null;
+        App.save();
+        UI.toast('The tour is booked. The road starts now — advance the weeks.');
+        App.render();
+        break;
+      }
       case 'group-concept': {
         const r = KP.setGroupConcept(s, t.dataset.id, t.dataset.concept || null);
         if (!r.ok) { UI.toast(r.reason, true); break; }

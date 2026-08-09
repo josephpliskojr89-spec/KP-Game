@@ -61,6 +61,23 @@
         (clash && !clash.resolved ? '' : ' The date does not move.') + '</div></div>' + clashCard;
     }
 
+    // --- on the road (v0.6.8): the tour owns the calendar
+    if (g.tour) {
+      const T = KP.C.TOUR;
+      const tour = g.tour;
+      const legId = tour.legs[tour.legIdx];
+      const where = legId === 'kr' ? 'Korea' : KP.regionLabel(legId);
+      return switcher + '<div class="group-hero"><div class="g-status">On tour · ' + UI.esc(g.name) + '</div>' +
+        '<div class="g-name" style="font-size:clamp(1.7rem,8vw,2.4rem)">The road<br>has them.</div>' +
+        '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">' +
+        '<span class="chip hot">' + UI.esc(T.SCALES[tour.scale].label) + ' · leg ' + (tour.legIdx + 1) + '/' + tour.legs.length + ' · ' + UI.esc(where) + '</span>' +
+        '<span class="chip">' + UI.esc(T.PACING[tour.pacing].label.toLowerCase()) + ' pacing</span>' +
+        '<span class="chip cool">' + UI.esc(T.SETLISTS[tour.setlist].label.toLowerCase()) + ' setlist</span>' +
+        (tour.soldOut ? '<span class="chip gold">' + tour.soldOut + ' sold out</span>' : '') +
+        '</div>' +
+        '<div style="color:var(--ink-dim);font-size:.84rem;margin-top:12px;line-height:1.5">Every leg reports honestly when it closes. Advance the weeks — the leg letters land on the Desk.</div></div>';
+    }
+
     // --- the calendar is closed: promotion, then contractual rest (v0.4.2)
     if (g.debuted) {
       const opens = (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks;
@@ -189,6 +206,39 @@
 
       html.push('<div class="pad" style="margin-top:20px">' +
         '<button class="btn primary" style="width:100%" data-action="studio-lock"' + (draft.week ? '' : ' disabled') + '>Lock the ' + (g.debuted ? 'comeback' : 'debut') + '</button></div>');
+    }
+
+    // --- the touring desk (v0.6.8): the other thing a calendar is for ---
+    const gate = KP.tourEligible(state, g);
+    if (gate.ok) {
+      const T = KP.C.TOUR;
+      const td = KP.App.tourDraft = KP.App.tourDraft ||
+        { scale: 'clubs', legs: [], pacing: 'humane', setlist: 'hits' };
+      const scale = T.SCALES[td.scale];
+      const cost = Math.round(scale.costPerLeg * Math.max(1, td.legs.length) * T.PACING[td.pacing].costMult);
+      html.push('<div class="kicker" style="margin-top:26px">The touring desk</div>');
+      html.push('<div class="card">' +
+        '<div class="seg" style="margin-bottom:10px">' +
+        Object.keys(T.SCALES).map(s => '<button class="' + (td.scale === s ? 'on' : '') + '" data-action="tour-scale" data-scale="' + s + '">' + UI.esc(T.SCALES[s].label) + '</button>').join('') +
+        '</div>' +
+        '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">' +
+        KP.tourLegOptions(state, g).map(o => {
+          const on = td.legs.includes(o.id);
+          const viable = o.demand >= scale.sweetSpot * T.softBelow * 0.6;
+          return '<button class="chip' + (on ? ' hot' : '') + '" data-action="tour-leg" data-leg="' + o.id + '"' +
+            (viable ? '' : ' style="opacity:.4"') + '>' + UI.esc(o.label) + ' · ' +
+            (o.id === 'kr' ? KP.popularityWord(o.demand) : KP.regionWord(o.demand)) + '</button>';
+        }).join('') +
+        '</div>' +
+        '<div class="seg" style="margin-bottom:10px">' +
+        Object.keys(T.PACING).map(p => '<button class="' + (td.pacing === p ? 'on' : '') + '" data-action="tour-pacing" data-pacing="' + p + '">' + UI.esc(T.PACING[p].label) + '</button>').join('') +
+        '</div>' +
+        '<div class="seg" style="margin-bottom:10px">' +
+        Object.keys(T.SETLISTS).map(sl => '<button class="' + (td.setlist === sl ? 'on' : '') + '" data-action="tour-setlist" data-setlist="' + sl + '">' + UI.esc(T.SETLISTS[sl].label) + '</button>').join('') +
+        '</div>' +
+        '<div style="font-size:.7rem;color:var(--ink-dim);margin-bottom:10px">Legs run ' + T.legWeeks + ' weeks each. Punishing pacing is cheaper and costs the humans; humane costs money. The hits sell, new material seeds the next era, fan service builds devotion. Production: ' + cost + '.</div>' +
+        '<button class="btn primary" style="width:100%" data-action="tour-book"' + (td.legs.length ? '' : ' disabled') + '>Book the tour · ' + cost + '</button>' +
+        '</div>');
     }
     return html.join('');
   };

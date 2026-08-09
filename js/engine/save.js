@@ -459,6 +459,18 @@
     });
   } });
 
+  // v0.6.8 — the road. No structural backfill (tours only exist once
+  // booked); the touring desk and the PR desk's new file announce
+  // themselves.
+  MIGRATIONS.push({ v: '0.6.8', fn: function (state) {
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'Two openings from the desk. The TOURING DESK is live in the Studio: pick a venue scale you can fill, legs the map has earned, a pacing with a human cost, and a setlist with a point — every leg reports honestly, sold out or soft. And the PR desk opened a new file: POSTING INCIDENTS. Idols post. Tired idols post carelessly. When a caption reads wrong in daylight, your options will be on the Feed desk.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

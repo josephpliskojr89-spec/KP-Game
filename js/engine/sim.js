@@ -54,10 +54,16 @@
       }
     });
 
-    // popularity cools once the promotion cycle and its afterglow end;
-    // fan-sign weeks in the rollout stretch the afterglow — per group
+    // 1c. the road (v0.6.8): touring groups grind through their legs
     groups.forEach(g => {
-      if (!g.debuted || g.prep) return;
+      if (g.tour) KP.tourWeek(state, g, rng).forEach(n => inbox.push(n));
+    });
+
+    // popularity cools once the promotion cycle and its afterglow end;
+    // fan-sign weeks in the rollout stretch the afterglow — per group.
+    // A tour counts as activity: the room stays warm on the road.
+    groups.forEach(g => {
+      if (!g.debuted || g.prep || g.tour) return;
       if (state.week > (g.promoUntil || 0) + KP.C.COMEBACK.decayGraceWeeks + (g.promoGrace || 0)) {
         g.popularity = Math.max(0, (g.popularity || 0) - KP.C.COMEBACK.popDecayPerWeek);
       }
@@ -348,8 +354,10 @@
     }
     const promoting = g && g.debuted && state.week <= (g.promoUntil || 0);
     if (promoting) return null;   // the rollout desk runs promo weeks (v0.6.3)
+    if (g && g.tour) return null; // the road runs tour weeks (v0.6.8)
     const resting = g && g.debuted &&
-      state.week <= (g.promoUntil || 0) + CB.restWeeks;
+      (state.week <= (g.promoUntil || 0) + CB.restWeeks ||
+       state.week <= (g.tourRestUntil || 0));
     if (resting) {
       // the contractual rest window: no schedules, real recovery
       p.fatigue = KP.clamp(p.fatigue - CB.restRecovery, 0, 100);

@@ -796,6 +796,21 @@
         const p = state.people[n.personId];
         posts.push({ persona: 'casual', text: 'no because WHO is the ending fairy from this week… ' +
           (p ? KP.displayName(p) : 'her') + ' looked at the camera for three seconds and gained a fandom. I was there. I am the fandom' });
+      } else if (n.ind === 'tourMoment') {
+        const p = state.people[n.personId];
+        posts.push({ persona: 'fan', text: 'the ' + KP.regionLabel(n.region) + ' crowd singing ' +
+          (p ? KP.displayName(p) : 'her') + '’s lines back at her and her face CRUMPLING… I have watched it thirty times. touring matters. bring them everywhere' });
+      } else if (n.ind === 'tourLeg') {
+        const gName = (KP.groupById(state, n.groupId) || { name: 'they' }).name;
+        posts.push(n.soldOut
+          ? { persona: 'stan', text: gName + ' sold out ' + (n.region === 'kr' ? 'the hometown show' : KP.regionLabel(n.region)) + ' in MINUTES. resale is a crime scene. we did this. book a stadium, cowards' }
+          : n.soft
+            ? { persona: 'anti', text: 'the curtained-off sections at the ' + gName + ' show… someone in that company cannot read a map. the fans deserve better routing' }
+            : { persona: 'casual', text: 'went to the ' + gName + ' show on a whim. no notes. whole room on one heartbeat. concerts are just better than everything else' })
+;
+      } else if (n.ind === 'tourEnd') {
+        const gName = (KP.groupById(state, n.groupId) || { name: 'they' }).name;
+        posts.push({ persona: 'fan', text: gName + ' tour wrap vlog: crying in six airports, one (1) perfect encore, and my bank account in witness protection. worth it. do it again' });
       } else if (n.ind === 'conceptPivot') {
         const gName = (KP.groupById(state, n.groupId) || { name: 'they' }).name;
         posts.push(n.landed
