@@ -190,6 +190,21 @@
     });
   } });
 
+  // v0.4.3 — rivals with faces. Existing rival acts gain real member
+  // rosters through the same seeding path; the desk announces its files.
+  MIGRATIONS.push({ v: '0.4.3', fn: function (state) {
+    if (!state.rngState) return;
+    const rng = KP.Rng.fromState(state.rngState);
+    KP.seedIndustry(state, rng);
+    state.rngState = rng.state();
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'industry', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The industry desk finished its artist files: every active group on the scene now has member profiles on record — names, ages, faces. Including, where it stings, the ones who used to be on our board.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

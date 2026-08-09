@@ -30,6 +30,10 @@
     if (App.view && App.view.type === 'dossier') el.innerHTML = UI.renderDossier(s, App.view.id);
     else if (App.view && App.view.type === 'builder') el.innerHTML = UI.renderBuilder(s, App.builderDraft);
     else if (App.view && App.view.type === 'results') el.innerHTML = '<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>' + UI.renderResults(s, App.view.id);
+    else if (App.view && App.view.type === 'rivalact') {
+      el.innerHTML = '<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>' +
+        UI.renderRivalAct(s, App.view.id);
+    }
     else if (App.view && App.view.type === 'grouppage') {
       const gp = KP.groupById(s, App.view.id);
       el.innerHTML = '<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>' +
@@ -108,6 +112,7 @@
       case 'open-dossier': push('dossier', t.dataset.id); break;
       case 'open-results': push('results', t.dataset.id); break;
       case 'open-grouppage': push('grouppage', t.dataset.id); break;
+      case 'open-rivalact': push('rivalact', t.dataset.id); break;
       case 'studio-group': {
         App.studioGroupId = t.dataset.id;
         App.studioDraft.songId = null; App.studioDraft.conceptId = null; App.studioDraft.week = null;

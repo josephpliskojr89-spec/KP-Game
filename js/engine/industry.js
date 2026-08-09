@@ -67,9 +67,58 @@
   };
 
   // ---- rival acts: debuts, comebacks, aging -----------------------------
-  function actQuality(prestige, rng) {
-    return Math.round(KP.clamp(prestige * 0.55 + 28 + rng.normal(0, KP.C.INDUSTRY.actQualityNoise), 20, 92));
+  // Rival lineups are real people (v0.4.3): the trainees a rival signed
+  // off the board debut in the groups it forms, topped up with generated
+  // in-house trainees. Act quality follows who is actually in the room.
+  function newActId(state) {
+    state.nextActId = state.nextActId || 1;
+    return 'ra' + (state.nextActId++);
   }
+  function peakTalent(p) {
+    return Math.max(p.talents.vocals.cur, p.talents.dance.cur, p.talents.rap.cur, p.talents.charisma.cur);
+  }
+  function castMembers(state, rival, rng, ageRange) {
+    const I = KP.C.INDUSTRY;
+    const size = rng.int(I.actSize[0], I.actSize[1]);
+    const inActs = new Set();
+    (state.rivals || []).forEach(r => (r.acts || []).forEach(a =>
+      (a.members || []).forEach(id => inActs.add(id))));
+    // the people they signed — best first; they were signed to be used
+    const signees = Object.values(state.people)
+      .filter(p => p.status === 'rival' && p.company === rival.short && !inActs.has(p.id))
+      .sort((a, b) => peakTalent(b) - peakTalent(a));
+    const members = signees.slice(0, size).map(p => p.id);
+    // fill the lineup from the in-house trainee floor
+    const usedNames = new Set(Object.values(state.people).map(x => x.name.given.toLowerCase()));
+    KP.resetIds(state.nextPersonId || KP.peekNextId());
+    while (members.length < size) {
+      const p = KP.generatePerson(rng, { status: 'rival', source: 'In-house trainee',
+        usedNames, age: rng.int(ageRange[0], ageRange[1]) });
+      p.company = rival.short;
+      p.flags.rivalNative = true;
+      state.people[p.id] = p;
+      members.push(p.id);
+    }
+    state.nextPersonId = KP.peekNextId();
+    rival.rosterCount = Math.max(0, (rival.rosterCount || 0) - size);
+    return members;
+  }
+  function actQualityFromMembers(state, memberIds, prestige, rng) {
+    const I = KP.C.INDUSTRY;
+    const ms = memberIds.map(id => state.people[id]).filter(Boolean);
+    const avg = ms.reduce((s, p) =>
+      s + 0.45 * Math.max(p.talents.vocals.cur, p.talents.dance.cur, p.talents.rap.cur) +
+      0.3 * p.talents.charisma.cur + 0.25 * p.talents.visuals.cur, 0) / Math.max(1, ms.length);
+    return Math.round(KP.clamp(
+      I.memberQualityWeight * avg + I.prestigeQualityWeight * prestige + 14 +
+      rng.normal(0, I.actQualityNoise * 0.7), 20, 92));
+  }
+  KP.rivalActById = function (state, id) {
+    for (const r of (state.rivals || [])) {
+      for (const a of (r.acts || [])) if (a.id === id) return { act: a, rival: r };
+    }
+    return null;
+  };
 
   function rivalRelease(state, rival, act, rng, isDebut) {
     const I = KP.C.INDUSTRY;
@@ -109,24 +158,28 @@
 
       // a scheduled debut, if the trainee room can field one
       if (state.week >= (rival.nextDebutWeek || Infinity) && (rival.rosterCount || 0) >= I.debutTraineeCost) {
-        const used = usedActNames(state);
         const concept = rng.pick(KP.C.CONCEPTS);
+        const members = castMembers(state, rival, rng, I.memberDebutAge);
         const act = {
-          name: KP.genGroupName(rng, used), concept: concept.id,
-          quality: actQuality(rival.prestige, rng), popularity: 0,
+          id: newActId(state),
+          name: KP.genGroupName(rng, usedActNames(state)), concept: concept.id,
+          quality: actQualityFromMembers(state, members, rival.prestige, rng),
+          members, popularity: 0,
           debutWeek: state.week, lastReleaseWeek: state.week,
           cycleWeeks: rng.int(I.cycleWeeks[0], I.cycleWeeks[1]),
           releases: [], retired: false,
         };
         rival.acts.push(act);
-        rival.rosterCount -= I.debutTraineeCost;
         rival.nextDebutWeek = state.week + rng.int(I.debutInterval[0], I.debutInterval[1]) +
           Math.round(Math.max(0, 70 - rival.prestige) / 4);
         const rel = rivalRelease(state, rival, act, rng, true);
         pushMove(rival, 'Debuted ' + act.name);
+        // a face we lost hurts more than a name we never knew
+        const lost = members.map(id => state.people[id]).find(p => p && !p.flags.rivalNative);
         notes.push({ kind: 'industry', ind: 'rivalDebut', actName: act.name, company: rival.short,
           text: rival.short + ' debuted ' + act.name + ' today — ' + concept.label.toLowerCase() +
-            ' concept, leading with “' + rel.title + '”. ' +
+            ' concept, leading with “' + rel.title + '”' +
+            (lost ? ', with ' + KP.displayName(lost) + ' — once on our board — in the lineup' : '') + '. ' +
             (rel.reception >= 64 ? 'The showcase is getting real traction. They will be in our lane by Friday.'
               : rel.reception >= 48 ? 'A competent launch. Watch the follow-up.'
               : 'The launch landed quietly. Even so, the calendar just got more crowded.') });
@@ -215,6 +268,12 @@
         recentMoves: ['Formed from ' + a.short + ' + ' + b.short],
       };
       state.rivals = state.rivals.filter(r => r !== a && r !== b).concat([merged]);
+      // the people go where the company goes (v0.4.3)
+      Object.values(state.people).forEach(p => {
+        if (p.status === 'rival' && (p.company === a.short || p.company === b.short)) {
+          p.company = merged.short;
+        }
+      });
       bump();
       notes.push({ kind: 'industry', ind: 'merge', company: merged.short,
         text: a.name + ' and ' + b.name + ' are merging into ' + merged.name +
@@ -270,9 +329,12 @@
         for (let i = 0; i < n; i++) {
           const concept = rng.pick(KP.C.CONCEPTS);
           const lastRel = state.week - rng.int(2, 12);
+          const members = castMembers(state, r, rng, [17, 24]);
           const act = {
+            id: newActId(state),
             name: KP.genGroupName(rng, usedActNames(state)), concept: concept.id,
-            quality: actQuality(r.prestige, rng),
+            quality: actQualityFromMembers(state, members, r.prestige, rng),
+            members,
             popularity: rng.int(25, 55),
             debutWeek: state.week - rng.int(30, 140),
             lastReleaseWeek: lastRel,
@@ -296,6 +358,14 @@
       }
       if (r.nextDebutWeek == null) r.nextDebutWeek = state.week + rng.int(14, 44);
     });
+    // v0.4.3: every active act has faces — backfill ids and members onto
+    // acts from older saves (their stored quality is their history; keep it)
+    (state.rivals || []).forEach(r => (r.acts || []).forEach(a => {
+      if (!a.id) a.id = newActId(state);
+      if (!a.retired && (!a.members || !a.members.length)) {
+        a.members = castMembers(state, r, rng, [17, 24]);
+      }
+    }));
     KP.chartStamp(state);
     // the feed opens mid-argument, the way it always is
     if (!state.feed.length) {

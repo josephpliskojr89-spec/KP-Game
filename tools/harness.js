@@ -35,6 +35,8 @@ const BANDS = {
   idolsRested:       { lo: 0.50, hi: 1.00, label: 'orgs whose idol weeks average off the fumes (<70, rolling)' },
   overworkSeen:      { lo: 0.05, hi: 1.00, label: 'orgs where medical staff benched somebody' },
   rivalActDebut:     { lo: 0.80, hi: 1.00, label: 'worlds where a rival debuted a new act' },
+  boardLosses:       { lo: 0.50, hi: 1.00, label: 'orgs that lost 3+ board prospects to rivals' },
+  stolenOnStage:     { lo: 0.30, hi: 1.00, label: 'worlds where a lost prospect debuted for a rival' },
   chartAlive:        { lo: 0.40, hi: 1.00, label: 'worlds ending with a living chart (>=3 entries)' },
   lifecycleSeen:     { lo: 0.35, hi: 1.00, label: 'worlds where a company rose/fell/merged/split' },
   feedAlive:         { lo: 0.85, hi: 1.00, label: 'worlds with a full fan feed (>=25 posts)' },
@@ -49,7 +51,7 @@ const tally = {
   multiRelease: 0, chartTopTen: 0, popAlive: 0, secondGroup: 0, fiscalNoticed: 0, fiscalWarned: 0,
   hypeSeen: 0, directiveFired: 0, soloDebuts: 0,
   rivalActDebut: 0, chartAlive: 0, lifecycleSeen: 0, feedAlive: 0, playerTopThree: 0, crowdedRelease: 0,
-  idolsRested: 0, overworkSeen: 0,
+  idolsRested: 0, overworkSeen: 0, boardLosses: 0, stolenOnStage: 0,
 };
 let totalGroups = 0;
 let mediationsRun = 0;
@@ -68,7 +70,8 @@ for (let s = 0; s < SEEDS; s++) {
   let burnoutSeen = false;
 
   const startTalent = avgRosterTalent(state);
-  Object.values(state.people).forEach(p => allAges.push(p.age));
+  // age census measures the scouting pipeline — rival idols run older by design
+  Object.values(state.people).forEach(p => { if (p.status !== 'rival') allAges.push(p.age); });
   let sawFriction = false;
   let pressureSeen = false;
   let pressureWarned = false;
@@ -201,6 +204,14 @@ for (let s = 0; s < SEEDS; s++) {
     });
     state.rivals.forEach(r => (r.acts || []).forEach(a => (a.releases || []).forEach(rel =>
       guard(rel.reception >= 1 && rel.reception <= 100, seed + ' rival reception off the scale'))));
+    // rivals with faces (v0.4.3): every active act is made of real people
+    state.rivals.forEach(r => (r.acts || []).forEach(a => {
+      if (a.retired) return;
+      guard((a.members || []).length >= KP.C.INDUSTRY.actSize[0],
+        seed + ' rival act ' + a.name + ' has no real lineup');
+      (a.members || []).forEach(id => guard(state.people[id] && state.people[id].status === 'rival',
+        seed + ' rival act member ' + id + ' missing or mis-statused'));
+    }));
     if (state.chart.entries.some(e => e.isPlayer && e.pos != null && e.pos <= 3)) playerTop3 = true;
 
     const weekIdols = state.groups.filter(gg => gg.debuted)
@@ -257,6 +268,12 @@ for (let s = 0; s < SEEDS; s++) {
 
   // living-world census (v0.4.0)
   if (state.rivals.some(r => (r.acts || []).some(a => a.debutWeek > 1))) tally.rivalActDebut++;
+  // rivals with faces (v0.4.3)
+  const lostToRivals = Object.values(state.people).filter(p => p.status === 'rival' && !p.flags.rivalNative);
+  if (lostToRivals.length >= 3) tally.boardLosses++;
+  const onStageIds = new Set();
+  state.rivals.forEach(r => (r.acts || []).forEach(a => (a.members || []).forEach(id => onStageIds.add(id))));
+  if (lostToRivals.some(p => onStageIds.has(p.id))) tally.stolenOnStage++;
   if (state.chart.entries.length >= 3) tally.chartAlive++;
   if ((state.lifecycleEvents || 0) >= 1) tally.lifecycleSeen++;
   if (state.feed.length >= 25) tally.feedAlive++;

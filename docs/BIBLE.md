@@ -669,6 +669,27 @@ with history, chart residue and a debut calendar — the scene chart and
 feed open mid-conversation. Migration 0.4.0 runs the same seeding on
 existing saves and announces itself as the industry desk expanding.
 
+**Rivals with faces (v0.4.3, owner: aggressive signing, real lineups,
+all viewable).** Rival acts carry `members[]` of real people in
+`state.people` (status `rival`, `company` set). When a rival debuts, it
+casts its board signings FIRST (best peak-talent forward — the people it
+took from under you actually debut for it, and the wire names them),
+topped up with generated in-house trainees (`flags.rivalNative`,
+debut-aged 16–19; seeded/backfilled acts 17–24). Act quality is now
+member-derived: 0.55 × lineup score (best trained skill / charisma /
+visuals) + 0.35 × prestige — signing talent genuinely builds better
+rival groups, which is why they want it. Aggression: interest shifts
+0.18→0.26 weekly, sign chances 0.05/0.16→0.09/0.25, a `hungerMult` 1.7
+inside 16 weeks of a planned debut ("they are casting"), and target
+picking adds a raw-peak-talent term with sharper top-weighting.
+Mergers move every signed person's company label with the deal. All of
+it viewable: act rows on the Scene tab open an act page — members with
+portraits/ages, "was on your board" flags with a Scout Im sting, and
+the act's discography. The age law (§ GEN) governs the scouting
+pipeline only; rival idols run 16–26 by design and the census scopes
+accordingly. Migration 0.4.3 backfills faces onto existing acts via the
+same seeding path.
+
 ## §20 The fatigue economy (v0.4.2)
 
 > Owner: *"the idols in groups are perpetually running on fumes. is that
@@ -1073,4 +1094,26 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > works everywhere, including on our own tests. Numbers: battery 21/21
 > (suite 021), soak clean (26 bands, idols off the fumes 40/40), e2e
 > 62, lockstep 0.4.2. Rode to main.
+
+> **v0.4.3 — rivals with faces** (owner: *"more aggressive in signing
+> talented trainees… the trainees they DO sign to actually be a part of
+> the groups they form… and all of them viewable"*)
+> Spec grafted into §19. Rival lineups are real people now: board
+> signings debut in the groups their rival forms (cast best-first, named
+> on the wire — "with Kim So-yeon, once on our board, in the lineup"),
+> filled out with generated in-house trainees; act quality derives from
+> the actual members, so the stolen talent shows up in the reception
+> numbers that compete with yours. Signing pressure up (~2× hot-sign
+> rate, hunger surge while casting a debut, talent-seeking target
+> picks); mergers move the people with the company. Scene act rows open
+> a full act page: members, ages, "was on your board" stings, and the
+> discography. Migration backfills faces onto every existing act. Two
+> test-scope corrections, both principled: the age law measures the
+> scouting pipeline (rival idols run 16–26 by design), and suite 012's
+> focus-domain prediction now pins true ceilings first — the old
+> midpoint guess drifted when lazy resolution re-ranked runway.
+> Numbers: battery 22/22 (suite 022, 130 assertions), soak clean (28
+> bands — board bleeds 3+ prospects in 40/40 worlds, a lost face
+> debuted against the player in 40/40), e2e 64, lockstep 0.4.3.
+> Rode to main.
 

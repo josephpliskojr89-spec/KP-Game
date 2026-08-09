@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.4.2',
+    VERSION: '0.4.3',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -83,8 +83,11 @@
       observeCost: 4,             // budget units per targeted look
       maxObservations: 4,
       instinctNoteChance: 0.12,   // rare gut-call scout note on high hidden charisma
-      rivalSignBaseChance: 0.05,  // weekly chance an interested rival signs a prospect
-      rivalSignHotChance: 0.16,   // ...when interest is hot
+      // v0.4.3, owner: "more aggressive in signing talented trainees"
+      rivalSignBaseChance: 0.09,  // weekly chance an interested rival signs a prospect
+      rivalSignHotChance: 0.25,   // ...when interest is hot
+      rivalHungerMult: 1.7,       // ...and hungrier still with a debut to cast
+      rivalHungerWindow: 16,      // weeks before a planned debut that hunger starts
       newProspectChance: 0.3,     // weekly chance a fresh lead appears
     },
 
@@ -296,7 +299,11 @@
     // ---- The living world (v0.4.0): rival acts, lifecycle, crowding -----
     INDUSTRY: {
       minRivals: 2, maxRivals: 6,
-      debutTraineeCost: 4,       // a rival debut consumes this many trainees
+      debutTraineeCost: 4,       // minimum roster a rival needs to field a debut
+      actSize: [4, 5],           // rival lineups are real people now (v0.4.3)
+      memberDebutAge: [16, 19],  // generated fill members debut at plausible ages
+      memberQualityWeight: 0.55, // act quality leans on who is actually in it…
+      prestigeQualityWeight: 0.35, // …with the company machine behind them
       debutInterval: [28, 52],   // weeks between one rival's debuts
       actQualityNoise: 7,        // debut quality = prestige-anchored + noise
       cycleWeeks: [16, 26],      // how often a rival act comes back
@@ -354,7 +361,7 @@
       count: 3,   // v0.4.0: Whitecliff finally activates — the world is full
 
       interestLevels: ['watching', 'interested', 'hot'],
-      weeklyInterestShift: 0.18,  // chance a rival escalates interest in someone
+      weeklyInterestShift: 0.26,  // chance a rival escalates interest (v0.4.3: hungrier)
     },
 
     // ---- Inbox / events -------------------------------------------------

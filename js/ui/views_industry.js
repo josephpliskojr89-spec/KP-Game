@@ -36,9 +36,11 @@
       const interested = Object.keys(r.interest || {}).length;
       const activeActs = (r.acts || []).filter(a => !a.retired);
       const actLines = activeActs.map(a =>
-        '<div class="rv-act"><span class="rv-act-name">' + UI.esc(a.name) + '</span>' +
+        '<div class="rv-act tappable" data-action="open-rivalact" data-id="' + UI.esc(a.id || '') + '">' +
+        '<span class="rv-act-name">' + UI.esc(a.name) + '</span>' +
         '<span class="rv-act-note">' + KP.popularityWord(a.popularity) + ' fanbase · ' +
-        (a.releases || []).length + ' release' + ((a.releases || []).length === 1 ? '' : 's') + '</span></div>').join('');
+        (a.members || []).length + ' members · ' +
+        (a.releases || []).length + ' release' + ((a.releases || []).length === 1 ? '' : 's') + ' ›</span></div>').join('');
       const moves = (r.recentMoves || []).slice(-2).reverse().map(m =>
         '<span class="chip">' + UI.esc(m) + '</span>').join('');
       html.push('<div class="card rival-card">' +
@@ -91,6 +93,58 @@
     html.push('</div>');
     html.push('<div class="pad" style="font-size:.72rem;color:var(--ink-faint);line-height:1.5">Every release enters on impact and cools week by week. Peak positions live in each group’s discography.</div>');
     return html.join('');
+  }
+
+  // ---- Rival act page (v0.4.3): the competition, viewable ---------------
+  UI.renderRivalAct = function (state, actId) {
+    const hit = KP.rivalActById(state, actId);
+    if (!hit) return '<div class="card">That group is no longer on the desk’s files.</div>';
+    const a = hit.act, r = hit.rival;
+    const concept = KP.conceptById(a.concept);
+    const debutLabel = a.debutWeek >= 1 ? KP.weekLabel(a.debutWeek).text : 'before your time';
+    const html = [];
+    html.push('<div class="group-hero"><div class="g-status">' + UI.esc(r.name) + '</div>' +
+      '<div class="g-name" style="font-size:clamp(1.9rem,10vw,2.8rem)">' + UI.esc(a.name) + '</div>' +
+      '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">' +
+      (concept ? '<span class="chip cool">' + UI.esc(concept.label) + '</span>' : '') +
+      (a.retired ? '<span class="chip hot">disbanded</span>'
+        : '<span class="chip">' + KP.popularityWord(a.popularity) + ' fanbase</span>') +
+      '<span class="chip">since ' + UI.esc(debutLabel) + '</span>' +
+      '</div></div>');
+
+    const members = (a.members || []).map(id => state.people[id]).filter(Boolean);
+    if (members.length) {
+      html.push('<div class="kicker">Members</div>');
+      html.push('<div class="member-strip">');
+      members.forEach(m => {
+        const fromBoard = !m.flags.rivalNative;
+        html.push('<div class="member-cell">' +
+          UI.portrait(m, 'md') +
+          '<div class="mc-name">' + UI.esc(m.name.stage || m.name.given) + '</div>' +
+          '<div class="mc-role">' + m.age + (fromBoard ? ' · was on your board' : '') + '</div></div>');
+      });
+      html.push('</div>');
+      const lost = members.filter(m => !m.flags.rivalNative);
+      if (lost.length) {
+        html.push('<div class="note">' + UI.esc(lost.map(m => KP.displayName(m)).join(' and ')) +
+          (lost.length === 1 ? ' was' : ' were') + ' on our scouting board once. ' + UI.esc(r.short) +
+          ' moved faster. Worth remembering how that felt.<span class="n-who">— Scout Im, in passing</span></div>');
+      }
+    }
+
+    const rels = (a.releases || []).slice().reverse();
+    if (rels.length) {
+      html.push('<div class="kicker">Discography</div>');
+      rels.forEach(rel => {
+        html.push('<div class="mail"><span class="m-tag">' + (rel.isDebut ? 'debut' : 'single') + '</span>' +
+          '<div style="flex:1">“' + UI.esc(rel.title) + '” — ' + receptionWord(rel.reception) +
+          '<span class="m-week">' + UI.esc(KP.weekLabel(Math.max(1, rel.week)).text) + '</span></div></div>');
+      });
+    }
+    return html.join('');
+  };
+  function receptionWord(v) {
+    return v >= 75 ? 'a sensation' : v >= 64 ? 'a hit' : v >= 48 ? 'held its own' : v >= 35 ? 'quiet' : 'a miss';
   }
 
   // ---- Feed ------------------------------------------------------------

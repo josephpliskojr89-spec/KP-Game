@@ -73,15 +73,19 @@
     const S = KP.C.SCOUT;
     const notes = [];
     state.rivals.forEach(rival => {
+      // a rival with a debut to cast scouts like it (v0.4.3)
+      const hungry = rival.nextDebutWeek != null &&
+        state.week >= rival.nextDebutWeek - S.rivalHungerWindow;
       // escalate or open interest on prospects fitting the rival's philosophy
-      if (rng.chance(KP.C.RIVALS.weeklyInterestShift)) {
+      const shiftChance = Math.min(0.9, KP.C.RIVALS.weeklyInterestShift * (hungry ? 1.4 : 1));
+      if (rng.chance(shiftChance)) {
         const target = pickRivalTarget(state, rival, rng);
         if (target) {
           const cur = rival.interest[target.id] || 0;
           if (cur < 3) {
             rival.interest[target.id] = cur + 1;
             if (rival.interest[target.id] >= 2) {
-              notes.push({ kind: 'scouting', text: rival.short + ' scouts were seen at ' + KP.displayName(target) + '’s academy. Their interest looks ' + (rival.interest[target.id] === 3 ? 'serious' : 'real') + '.' });
+              notes.push({ kind: 'scouting', text: rival.short + ' scouts were seen at ' + KP.displayName(target) + '’s academy. Their interest looks ' + (rival.interest[target.id] === 3 ? 'serious' : 'real') + (hungry ? ' — and word is they are casting a new group' : '') + '.' });
             }
           }
         }
@@ -91,14 +95,16 @@
         const p = state.people[pid];
         if (!p || p.status !== 'prospect') { delete rival.interest[pid]; return; }
         const lvl = rival.interest[pid];
-        const chance = lvl >= 3 ? S.rivalSignHotChance : lvl === 2 ? S.rivalSignBaseChance : 0;
+        let chance = lvl >= 3 ? S.rivalSignHotChance : lvl === 2 ? S.rivalSignBaseChance : 0;
+        if (hungry) chance = Math.min(0.6, chance * S.rivalHungerMult);
         if (chance && rng.chance(chance)) {
           p.status = 'rival';
           p.company = rival.short;
+          p.history.push({ week: state.week, text: 'Signed to ' + rival.short + ' — off our board.' });
           state.prospects = state.prospects.filter(id => id !== pid);
           state.rivals.forEach(r => { delete r.interest[pid]; });
           rival.rosterCount = (rival.rosterCount || 0) + 1;
-          notes.push({ kind: 'scouting', urgent: true, text: rival.short + ' signed ' + KP.displayName(p) + '. She is off the board.' });
+          notes.push({ kind: 'scouting', urgent: true, text: rival.short + ' signed ' + KP.displayName(p) + '. She is off the board' + (hungry ? ' — and probably in their debut lineup' : '') + '.' });
         }
       });
     });
@@ -127,10 +133,12 @@
       if (rival.philosophy === 'performance') v = p.talents.dance.cur + p.talents.charisma.cur * 0.5;
       else if (rival.philosophy === 'trendChaser') v = p.talents.visuals.cur + p.talents.charisma.cur;
       else v = (p.talents.vocals.cur + p.talents.dance.cur + p.talents.charisma.cur) / 3 + (KP.C.GEN.ageRange[1] - p.age) * 2;
-      return { p, v: v + fog };
+      // raw talent turns every head, whatever the philosophy (v0.4.3)
+      const peak = Math.max(p.talents.vocals.cur, p.talents.dance.cur, p.talents.rap.cur, p.talents.charisma.cur);
+      return { p, v: v + peak * 0.4 + fog };
     }).sort((a, b) => b.v - a.v);
-    // weighted toward the top, not omniscient
-    const idx = Math.min(scored.length - 1, Math.floor(Math.pow(rng.next(), 2) * Math.min(6, scored.length)));
+    // weighted hard toward the top, not omniscient (v0.4.3: sharper)
+    const idx = Math.min(scored.length - 1, Math.floor(Math.pow(rng.next(), 3) * Math.min(6, scored.length)));
     return scored[idx].p;
   }
 })(typeof window !== 'undefined' ? window : globalThis);

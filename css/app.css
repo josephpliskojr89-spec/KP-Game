@@ -350,6 +350,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .rival-card .rv-blurb { font-size: .82rem; color: var(--ink-dim); font-style: italic; line-height: 1.4; }
 .rv-acts { margin-top: 10px; border-top: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
 .rv-act { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 7px 0 0; }
+.rv-act.tappable { cursor: pointer; }
+.rv-act.tappable:active { opacity: .7; }
 .rv-act-name { font-weight: 800; font-size: .86rem; letter-spacing: .02em; }
 .rv-act-note { font-size: .7rem; color: var(--ink-dim); }
 

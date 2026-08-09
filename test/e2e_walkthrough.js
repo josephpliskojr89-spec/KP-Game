@@ -271,6 +271,15 @@ async function main() {
   ok(scene.includes('The other companies'), 'the scene lists the other companies');
   ok(/trainees/.test(scene), 'rival rosters are visible');
   ok(/fanbase/.test(scene), 'rival acts show on their company cards');
+  // --- rivals with faces (v0.4.3): open an act, meet the members ---
+  await tap('.rv-act.tappable');
+  await page.waitForSelector('.member-cell');
+  const actPage = await page.textContent('#screen');
+  ok(await page.$$eval('.member-cell', els => els.length) >= 4, 'the rival lineup is real people');
+  ok(/Members/.test(actPage), 'the act page lists its members');
+  await tap('[data-action=back]');
+  await page.waitForSelector('.rival-card');
+
   await tap('[data-action=industry-sub][data-sub=chart]');
   await page.waitForSelector('.chart-row');
   ok(await page.$$eval('.chart-row', els => els.length) >= 2, 'the scene chart has entries');

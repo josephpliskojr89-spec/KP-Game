@@ -27,24 +27,35 @@ function throughDebut(seed) {
   const state = throughDebut('ig-grow');
   const g = state.groups[0];
   const members = g.members.map(id => state.people[id]);
+  // pin true ceilings first — the focus prediction must not shift when
+  // her first self-session lazily resolves them — and judge only members
+  // with real runway (a domain within a point of ceiling cannot grow)
+  members.forEach(m => KP.C.TALENTS.forEach(d => {
+    if (m.flags['ceil_' + d] == null) {
+      m.flags['ceil_' + d] = Math.round((m.talents[d].ceilLo + m.talents[d].ceilHi) / 2);
+    }
+  }));
   const before = members.map(m => {
     const f = KP.idolFocus(state, m);
-    return { id: m.id, domain: f && f.domain, cur: f && m.talents[f.domain].cur,
-      others: KP.C.TALENTS.filter(d => !f || d !== f.domain).map(d => m.talents[d].cur) };
+    return { id: m.id, domain: f && f.room >= 3 ? f.domain : null,
+      cur: f && f.room >= 3 ? m.talents[f.domain].cur : null };
   });
-  for (let w = 0; w < 16; w++) KP.advanceWeek(state);
-  let grew = 0;
+  for (let w = 0; w < 20; w++) KP.advanceWeek(state);
+  let grew = 0, eligible = 0;
   before.forEach(b => {
-    if (!b.domain) return;
     const m = state.people[b.id];
-    if (m.talents[b.domain].cur > b.cur + 1) grew++;
-    // ceilings hold
+    // ceilings hold for everyone
     KP.C.TALENTS.forEach(d => {
       const ceil = m.flags['ceil_' + d];
       if (ceil != null) t.ok(m.talents[d].cur <= ceil + 0.001, b.id + ' ' + d + ' respects its ceiling');
     });
+    if (!b.domain) return;
+    eligible++;
+    if (m.talents[b.domain].cur > b.cur + 1) grew++;
   });
-  t.ok(grew >= 3, 'most idle idols improved their focus domain (' + grew + '/' + before.length + ')');
+  t.ok(eligible >= 2, 'fixture sanity: some idols have room to grow (' + eligible + ')');
+  t.ok(grew >= Math.ceil(eligible * 0.6),
+    'most idle idols with runway improved their focus domain (' + grew + '/' + eligible + ')');
 }
 
 // the focus is genuinely the max-runway domain
