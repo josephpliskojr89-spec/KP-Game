@@ -855,16 +855,16 @@ better directive than any reception target. Not built yet; noted.
   exist (breakouts, fancams, hype, benchings). Jane's viral moment
   spikes JANE. The least musically important member becoming the
   public's favorite is a feature, not a bug. Writes to memory.
-- **v0.6.2 — Promotion strategy (the centerpiece).** The rollout
-  builder: announcement timing, teasers, pre-release singles,
-  showcases, music shows, variety, radio, dance challenges, fan signs,
-  livestreams — as SLOTTED activity picks per week with money, staff
+- **v0.6.2 — Promotion strategy (the centerpiece) → SHIPPED as
+  v0.6.3 (§25) after the owner reorder.** The rollout builder:
+  music shows, variety, radio, dance challenges, fan signs,
+  livestreams, rest — as SLOTTED activity picks per week with money
   and idol-energy costs riding the v0.4.2 fatigue economy. Overwork
   discourse ("she looks exhausted") flows through the feed and
   sentiment, feeding memory.
 - **v0.6.3 → SHIPPED EARLY as v0.6.2 (owner reorder: "keep leaning
   into social media") — Interactive social media.** See §24. The
-  promotion builder moves to the next slot.
+  promotion builder moved to the next slot and shipped as v0.6.3.
 - **v0.6.4 — Competitive release calendar.** Announced comebacks
   visible in advance; challenge or dodge; rivals occasionally ambush
   a committed date ("Novaline, you absolute motherfuckers" is the
@@ -1037,6 +1037,66 @@ it remains deliberately non-actionable.
 50+, ride positive waves) — storms trend in 40/40 soak worlds, get
 steered successfully in 40/40, and boil only when ignored, which the
 diligent bot never does; the boil path is suite-proven instead.
+
+## §25 The rollout desk (v0.6.3) — promotion is a plan, not a dial
+
+> Owner, in the mandate: *"The thing I'd avoid is turning promotion
+> into twenty sliders where optimal play becomes obvious. Give me
+> constrained choices and opportunity costs… I shouldn't be able to
+> send NUNITE to six music shows, three variety programs, seventeen
+> fan signs, Tokyo, Los Angeles and fucking Mars in the same week."*
+
+**The plan** (`g.prep.rollout` → `g.rollout`, `KP.C.ROLLOUT`): every
+release locks with a 4-week promotion plan, at most **2 bookings a
+week**, chosen from seven activities — music show, variety, radio, fan
+sign, dance challenge, livestream, rest. Each has a cost (billed at
+lock, on top of record + marketing), a fatigue price, and a distinct
+payoff: shows build live reps, popularity and the stage; variety
+builds media reps and faces; radio is cheap breadth; fan signs buy
+morale AND afterglow (`gracePerWeek` → `g.promoGrace` stretches the
+post-promo popularity decay grace); the challenge is cheap follower
+reach; livestreams are free warmth; rest is rest — an under-booked
+week breathes (`emptyWeekRecovery`). Omitting the plan gets the staff
+suggestion (`ROLLOUT.DEFAULT`: hard reps early, faces later).
+Validation rails refuse >2 slots, <4 weeks, unknown activities
+("nobody can book Mars"), and bills the plan before the lock succeeds.
+
+**The week** (`KP.rolloutWeek`, replacing the old single-focus promo in
+`idolWeek`): each promo week applies that week's bookings to every
+member — exp, fatigue (softcapped), morale, group popularity, follower
+spikes — and rolls the SPECIALS that make stories: a scheduled music
+show can produce **the encore moment** (5%/week — the best vocalist at
+60+ vocals "casually murders the vocal": viral evidence, follower
+spike, fancam-wave storm, feed post; the §22 Gaya clip, live), a
+running challenge can **break containment** (10%/week, keyed to
+centerPull), fan signs surface warm clips. Overwork stays a gamble:
+promoting past the fatigue line can bench somebody mid-rollout and
+ignite the benched storm.
+
+**The feed floor** (same release — owner: *"I'm still often only
+seeing 1 or 2 new posts each week"*): `FEED.weeklyMin` (4) is now a
+guarantee, not a hope. After event posts, the ambient pool fills the
+week to at least the floor — and two ambient categories (narrative
+resurfacing, rival-act opinions) were un-gated so a fresh world's pool
+can never run dry. Suite-proven: EVERY week ≥ 4 posts across 40 weeks,
+cap 6 still holds.
+
+**A determinism law, learned the hard way:** the social mint reads
+mutable facts (group popularity, hype), so WHEN it first runs is part
+of the number — the old lazy-on-first-look init meant merely *viewing*
+a profile could fork a save from its unviewed twin. Every door people
+enter the world through now mints on the spot (`KP.mintSocialAll` at
+newGame, fresh leads, rival cast, and in the 0.6.1/0.6.3 migrations);
+the lazy branch in `socialOf` remains only as a safety net. Corollary
+kept from v0.6.1: rng draws must never be gated behind hash-derived
+values.
+
+**Migration:** old `promoFocus`/`prep.focus` converts to a plan in the
+same spirit (musicShows → show+radio weeks, variety → variety+radio,
+fanCare → fanSign+livestream with grace 8) and the desk announces the
+job. **Harness:** the bot books the staff default when flush and a
+thrifty radio-and-livestream plan when tight — a player trims the plan
+before skipping the release, so the bot does too.
 
 ## §18 Watch items
 
@@ -1558,3 +1618,31 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 40/40, steered 40/40), e2e 85 (force a storm, respond, read the
 > verdict), lockstep 0.6.2 (28 modules). Rode to main.
 
+
+> **v0.6.3 — the rollout desk** (owner: *"I'm still often only seeing
+> 1 or 2 new posts each week. really flesh that out with the next
+> pass, and do the promotion rollout builder"* — the §22 centerpiece
+> lands)
+> Full spec in §25. Promotion is now a locked 4-week plan, two
+> bookings a week from seven activities with bills at lock and
+> distinct payoffs — shows build stages, variety builds faces, fan
+> signs buy afterglow, the challenge buys reach, rest is rest — and
+> the specials make stories: the encore moment (the Gaya clip,
+> emergent), the challenge breaking containment, warm fan-sign clips,
+> all writing to memory, followers and the feed. The feed floor is a
+> guarantee now: every week posts at least 4 (two ambient categories
+> un-gated so fresh worlds never run dry). The hard bug of the
+> release: a suite fork diverged only when a migrated save was
+> PROBED before advancing — the social mint reads mutable facts
+> (popularity, hype), so lazy-on-first-look init made LOOKING at a
+> profile part of the world's history. Every door now mints on the
+> spot (newGame, fresh leads, rival cast, migrations); the law joins
+> §25. Fallout fixed honestly: two old fixtures met the new bill
+> (roll-rev funds the full album, the mini cost check includes the
+> plan), suite_009's focus block rewritten against the desk, and the
+> harness bot learned to trim its plan before skipping a release —
+> which also un-wedged 6 soak seeds that starved at the lock.
+> Numbers: battery 29/29 (suite 029, 61 assertions), soak clean (40
+> seeds, every band alive, releases/org 7.3→9.0), e2e 87 (rollout
+> grid rendered, chip toggled), lockstep 0.6.3 (28 modules). Rode to
+> main.

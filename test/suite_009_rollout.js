@@ -9,6 +9,7 @@ const t = makeT('suite_009_rollout');
 
 function throughDebut(seed, planExtra) {
   const state = KP.newGame(seed);
+  if (planExtra && planExtra.budget != null) { state.budget = planExtra.budget; delete planExtra.budget; }
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'ROLL', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   state.demos = KP.generateDemos(state, KP.rngFor(state));
@@ -58,7 +59,11 @@ function throughDebut(seed, planExtra) {
     week: state.week + 8, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
   t.ok(ok.ok, 'a funded mini-album locks');
   const mini = KP.C.DEBUT.FORMATS.find(f => f.id === 'mini');
-  t.eq(state.budget, budgetBefore - mini.cost - KP.C.DEBUT.promoCost.modest, 'cost = record + promotion');
+  // the rollout desk (v0.6.3): the staff plan is billed at lock too
+  const R9 = KP.C.ROLLOUT;
+  const staffPlanCost = R9.DEFAULT.flat().reduce((s, a) => s + R9.ACTIVITIES[a].cost, 0);
+  t.eq(state.budget, budgetBefore - mini.cost - KP.C.DEBUT.promoCost.modest - staffPlanCost,
+    'cost = record + promotion + rollout');
   t.eq(state.groups[0].prep.format, 'mini', 'format stored on the plan');
   let guard = 0;
   while (!state.groups[0].debuted && guard++ < 14) KP.advanceWeek(state);
@@ -69,7 +74,8 @@ function throughDebut(seed, planExtra) {
 // same-world revenue scales with format
 {
   const a = throughDebut('roll-rev', { format: 'single' });
-  const b = throughDebut('roll-rev', { format: 'full', week: undefined });
+  // the rollout desk bills at lock (v0.6.3): full + promo + staff plan = 122
+  const b = throughDebut('roll-rev', { format: 'full', week: undefined, budget: 200 });
   // identical seeds and plans except format; full pays more for the same story
   t.ok(b.groups[0].results.reception === a.groups[0].results.reception ||
        Math.abs(b.groups[0].results.reception - a.groups[0].results.reception) <= 100,
@@ -85,21 +91,30 @@ function throughDebut(seed, planExtra) {
   }
 }
 
-// rollout focus: variety builds media reps, music shows build live reps,
-// fan care preserves the fanbase longer
+// the rollout desk (v0.6.3): a variety month builds media reps, a
+// music-show month builds live reps, and the plan rides on the group
 {
-  const varietyState = throughDebut('roll-focus', { focus: 'variety' });
-  const showsState = throughDebut('roll-focus2', { focus: 'musicShows' });
+  const varietyPlan = [['variety', 'variety'], ['variety', 'variety'], ['variety', 'variety'], ['variety', 'variety']];
+  const showsPlan = [['musicShow', 'musicShow'], ['musicShow', 'musicShow'], ['musicShow', 'musicShow'], ['musicShow', 'musicShow']];
+  const varietyState = throughDebut('roll-focus', { rollout: varietyPlan });
+  const showsState = throughDebut('roll-focus2', { rollout: showsPlan });
   const vm = varietyState.groups[0].members.map(id => varietyState.people[id]);
   const sm = showsState.groups[0].members.map(id => showsState.people[id]);
   const mediaBefore = vm.map(m => m.mediaExp);
   const liveBefore = sm.map(m => m.liveExp);
-  for (let w = 0; w < 4; w++) { KP.advanceWeek(varietyState); KP.advanceWeek(showsState); }
+  const vLive = vm.map(m => m.liveExp);
+  const sMedia = sm.map(m => m.mediaExp);
+  for (let w = 0; w < KP.C.ROLLOUT.weeks; w++) { KP.advanceWeek(varietyState); KP.advanceWeek(showsState); }
   const mediaGain = vm.reduce((s, m, i) => s + m.mediaExp - mediaBefore[i], 0) / vm.length;
   const liveGain = sm.reduce((s, m, i) => s + m.liveExp - liveBefore[i], 0) / sm.length;
-  t.ok(mediaGain >= 4 * KP.C.COMEBACK.FOCUS.variety.mediaExp - 1, 'variety promo builds media experience');
-  t.ok(liveGain >= 4 * KP.C.COMEBACK.FOCUS.musicShows.liveExp - 1, 'music-show promo builds live experience');
-  t.eq(varietyState.groups[0].promoFocus, 'variety', 'focus persists on the group');
+  const vLiveGain = vm.reduce((s, m, i) => s + m.liveExp - vLive[i], 0) / vm.length;
+  const sMediaGain = sm.reduce((s, m, i) => s + m.mediaExp - sMedia[i], 0) / sm.length;
+  t.ok(mediaGain > sMediaGain + 5, 'variety promo builds media experience (' +
+    Math.round(mediaGain) + ' vs ' + Math.round(sMediaGain) + ')');
+  t.ok(liveGain > vLiveGain + 5, 'music-show promo builds live experience (' +
+    Math.round(liveGain) + ' vs ' + Math.round(vLiveGain) + ')');
+  t.eq(JSON.stringify(varietyState.groups[0].rollout), JSON.stringify(varietyPlan),
+    'the plan persists on the group');
 }
 
 // stage names

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.6.2',
+    VERSION: '0.6.3',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -398,6 +398,37 @@
       rivalReleasePerReception: 150,
     },
 
+    // ---- The rollout (v0.6.3): promotion as constrained choices ---------
+    // Owner's rail, verbatim: "I shouldn't be able to send NUNITE to six
+    // music shows, three variety programs, seventeen fan signs, Tokyo,
+    // Los Angeles and fucking Mars in the same week." Two slots. Pick.
+    ROLLOUT: {
+      slotsPerWeek: 2,
+      weeks: 4,                  // the promo window the plan covers
+      emptyWeekRecovery: 4,      // a light week breathes a little
+      encoreChance: 0.05,        // weekly, when a music show is scheduled
+      challengeViralChance: 0.10, // weekly, when the challenge is running
+      ACTIVITIES: {
+        musicShow: { label: 'Music show', cost: 4, fatigue: 6, pop: 0.24,
+          liveExp: 2.5, mediaExp: 0.5, morale: 0, followers: 500 },
+        variety:   { label: 'Variety', cost: 3, fatigue: 4, pop: 0.10,
+          liveExp: 0.3, mediaExp: 3.5, morale: 0, followers: 900 },
+        radio:     { label: 'Radio', cost: 1, fatigue: 2, pop: 0.08,
+          liveExp: 0.5, mediaExp: 1.5, morale: 0, followers: 250 },
+        fanSign:   { label: 'Fan sign', cost: 3, fatigue: 4, pop: 0.08,
+          liveExp: 0.3, mediaExp: 0.8, morale: 2, followers: 400, gracePerWeek: 2 },
+        challenge: { label: 'Dance challenge', cost: 1, fatigue: 3, pop: 0.06,
+          liveExp: 0.2, mediaExp: 0.8, morale: 0, followers: 1400 },
+        livestream:{ label: 'Livestream', cost: 0, fatigue: 2, pop: 0.04,
+          liveExp: 0.2, mediaExp: 1.0, morale: 1, followers: 800 },
+        rest:      { label: 'Rest day', cost: 0, fatigue: -10, pop: 0,
+          liveExp: 0, mediaExp: 0, morale: 1, followers: 0 },
+      },
+      // the staff suggestion: hard reps early, faces later
+      DEFAULT: [['musicShow', 'challenge'], ['musicShow', 'variety'],
+        ['musicShow', 'fanSign'], ['variety', 'livestream']],
+    },
+
     // ---- The discourse (v0.6.2): interactive social media ---------------
     // Trending storms ignite from real events, grow or fade on their own,
     // and boil over if ignored at high heat. The company's response menu
@@ -441,10 +472,11 @@
       datingMinSocial: 50000,
     },
 
-    // ---- The fan feed (v0.4.0→v0.6.2): bigger, still never cruel --------
+    // ---- The fan feed (v0.4.0→v0.6.3): a real feed, never cruel ---------
     FEED: {
       maxPosts: 64,
       weeklyMax: 6,              // livelier, still a digest
+      weeklyMin: 4,              // v0.6.3: the feed never goes quiet again
       ambientChance: 0.55,       // chance of ambient fan chatter in a quiet week
       hypePostMin: 35,           // trainee hype level the feed starts noticing
       viralChance: 0.08,         // a post occasionally escapes containment

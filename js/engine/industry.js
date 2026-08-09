@@ -271,6 +271,7 @@
       p.company = rival.short;
       p.flags.rivalNative = true;
       state.people[p.id] = p;
+      KP.socialOf(state, p);   // minted at the door, not on first look
       members.push(p.id);
     }
     state.nextPersonId = KP.peekNextId();
@@ -747,6 +748,18 @@
         posts.push(m[n.tier] || m[20]);
       } else if (n.ind === 'natRetire') {
         posts.push('the ' + n.company + ' hiatus announcement has me revisiting my entire adolescence. pour one out for the national chart’s old guard');
+      } else if (n.ind === 'encoreMoment') {
+        const p = state.people[n.personId];
+        posts.push({ persona: 'stan', text: (p ? KP.displayName(p) : 'she') +
+          ' really said “no backing track” and ENDED the encore. I have watched the clip eleven times. eleven' });
+      } else if (n.ind === 'challengeViral') {
+        const p = state.people[n.personId];
+        posts.push({ persona: 'casual', text: 'I don’t even follow this group and the ' +
+          (p ? KP.displayName(p) : '') + ' challenge version is all over my page. fine. FINE. following' });
+      } else if (n.ind === 'fanSignWarm') {
+        const p = state.people[n.personId];
+        posts.push({ persona: 'fan', text: 'the fan-sign clip of ' + (p ? KP.displayName(p) : 'her') +
+          ' with the crying fan… this is why we stay. protect her at all costs' });
       } else if (n.ind === 'narrative') {
         // a narrative just FORMED — the fans arrive with receipts (v0.6.0)
         const idolName = () => { const p = state.people[n.narSubjectId]; return p ? KP.displayName(p) : 'her'; };
@@ -779,6 +792,10 @@
     return posts;
   }
 
+  // The ambient pool (rebuilt v0.6.3, owner: "I'm still often only
+  // seeing 1 or 2 new posts each week — really flesh that out"): every
+  // category CONTRIBUTES every week; the fill loop below draws as many
+  // as the week needs. The feed never goes quiet again.
   function ambientPosts(state, rng) {
     const posts = [];
     // a hyped trainee the internet has found
@@ -817,7 +834,7 @@
     // the standing conversation: living narratives resurface (v0.6.0) —
     // the fourth viral fancam reinforces a reputation, it never surprises
     const live = KP.liveNarratives(state);
-    if (live.length && rng.chance(0.35)) {
+    if (live.length) {
       const n = rng.pick(live);
       const idolName = () => { const p = state.people[n.subjectId]; return p ? KP.displayName(p) : 'her'; };
       const groupName = () => (KP.groupById(state, n.subjectId) || { name: 'them' }).name;
@@ -838,7 +855,7 @@
     // rival act opinions — the fans have them, loudly
     const rivalActs = [];
     (state.rivals || []).forEach(r => (r.acts || []).forEach(a => { if (!a.retired) rivalActs.push({ a, r }); }));
-    if (rivalActs.length && rng.chance(0.4)) {
+    if (rivalActs.length) {
       const pick = rng.pick(rivalActs);
       posts.push(rng.pick([
         'I know ' + pick.a.name + ' has their fans but every title track sounds like the same demo with new synths. ' + pick.r.short + ' plays it so safe',
@@ -846,6 +863,47 @@
         'thinking about ' + pick.a.name + '’s first showcase again. they’ve come so far and I’m weirdly proud',
       ]));
     }
+
+    // national-pool stanning: the wider world has fandoms too (v0.6.3)
+    const natTop = KP.nationalPositions(state).slice(0, 8);
+    if (natTop.length) {
+      const e = rng.pick(natTop);
+      posts.push(rng.pick([
+        '“' + e.title + '” has lived at the top of the national chart so long it pays rent. ' + e.act + ' supremacy',
+        'me pretending to be surprised ' + e.act + ' is charting again. the b-side is my roman empire',
+        'national chart check: ' + e.act + ' still there. some things you can rely on in this economy',
+      ]));
+    }
+
+    // trainee-watch culture: the building itself is content (v0.6.3)
+    if (state.roster.length) {
+      posts.push(rng.pick([
+        state.company.short + ' practice-room lights on past 1am again. the pre-debut grind is undefeated content',
+        'the ' + state.company.short + ' trainee showcase clips are circulating in the niche corners again. we see everything',
+        'monthly reminder that trainee-watching is a legitimate hobby and ' + state.company.short + ' is appointment viewing',
+      ]));
+    }
+
+    // discography throwbacks: the catalog is a conversation (v0.6.3)
+    const withReleases = KP.groups(state).filter(g => (g.releases || []).length);
+    if (withReleases.length) {
+      const g = rng.pick(withReleases);
+      const rel = rng.pick(g.releases);
+      posts.push(rng.pick([
+        '“' + rel.songTitle + '” by ' + g.name + ' deserved more. this is a justice account now',
+        'the way “' + rel.songTitle + '” still goes THAT hard. ' + g.name + ' catalog appreciation hours',
+        'first listen of “' + rel.songTitle + '” today. where was everyone hiding ' + g.name,
+      ]));
+    }
+
+    // company-account snark and fandom smalltalk: the timeline breathes
+    posts.push(rng.pick([
+      state.company.short + '’s admin posts once a week like it costs them money. the fans run the promo around here',
+      'chart refresh day tomorrow. hydrate, charge your phones, mind your streaks',
+      'the group chat is arguing about line distribution again. some things are eternal',
+      'no schedule today so I’m rewatching old stages and feeling things. healthy fandom behavior',
+      'the ' + state.company.short + ' lightstick concept thread is 400 replies deep and the company has announced NOTHING. we simply built it ourselves',
+    ]));
     return posts;
   }
 
@@ -871,12 +929,13 @@
     });
     // 2. industry events this week
     candidates.push.apply(candidates, rivalEventPosts(state, weekNotes || [], rng));
-    // 3. ambient chatter fills quiet weeks
+    // 3. ambient chatter fills EVERY week to a real feed (v0.6.3):
+    //    events lead, but the timeline always has at least weeklyMin
     const ambient = ambientPosts(state, rng);
-    if (candidates.length) {
-      if (ambient.length && candidates.length < F.weeklyMax) candidates.push(ambient[0]);
-    } else if (ambient.length && rng.chance(F.ambientChance)) {
-      candidates.push.apply(candidates, ambient.slice(0, 2));
+    const target = Math.min(F.weeklyMax, Math.max(F.weeklyMin, candidates.length + 2));
+    while (candidates.length < target && ambient.length) {
+      const idx = Math.floor(rng.next() * ambient.length);
+      candidates.push(ambient.splice(idx, 1)[0]);
     }
 
     const chosen = candidates.slice(0, F.weeklyMax);

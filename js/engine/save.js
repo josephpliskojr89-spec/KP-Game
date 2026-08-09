@@ -320,15 +320,17 @@
     });
   } });
 
-  // v0.6.1 — the whole world has a story. Social numbers lazy-initialize
-  // from who each person already is (one code path for new games and old
-  // saves alike); rival identities seed through seedIndustry on the same
-  // pass. Only the letter is needed here.
+  // v0.6.1 — the whole world has a story. Social numbers mint from who
+  // each person already is, HERE, at a fixed moment — the mint reads
+  // mutable facts, so leaving it to "first look" would make the number
+  // depend on when somebody looked. Rival identities seed through
+  // seedIndustry on the same pass.
   MIGRATIONS.push({ v: '0.6.1', fn: function (state) {
     if (!state.rngState) return;
     const rng = KP.Rng.fromState(state.rngState);
     KP.seedIndustry(state, rng);   // idempotent; adds rival identity narratives
     state.rngState = rng.state();
+    KP.mintSocialAll(state);
     state.inbox = state.inbox || [];
     state.inbox.unshift({
       kind: 'industry', week: state.week, read: false,
@@ -346,6 +348,33 @@
       kind: 'company', week: state.week, read: false,
       id: 'm' + (state.nextMsgId++),
       text: 'The PR desk is live. When something about your people starts trending — overwork worries, tabloid rumors, styling discourse, a fancam wave — it appears at the top of the Feed with your options. A warning from the desk veterans: most storms die on their own, a statement can feed one, and the internet remembers legal threats. Ignoring things is a skill.',
+    });
+  } });
+
+  // v0.6.3 — the rollout desk. Old single-focus promotion converts to a
+  // plan in the same spirit; mid-flight preps and promos keep moving.
+  MIGRATIONS.push({ v: '0.6.3', fn: function (state) {
+    const map = {
+      musicShows: [['musicShow', 'radio'], ['musicShow', 'radio'], ['musicShow', 'radio'], ['musicShow', 'radio']],
+      variety: [['variety', 'radio'], ['variety', 'radio'], ['variety', 'radio'], ['variety', 'radio']],
+      fanCare: [['fanSign', 'livestream'], ['fanSign', 'livestream'], ['fanSign', 'livestream'], ['fanSign', 'livestream']],
+    };
+    (state.groups || []).forEach(g => {
+      if (g.prep && !g.prep.rollout) {
+        g.prep.rollout = (map[g.prep.focus] || KP.C.ROLLOUT.DEFAULT).map(w => w.slice());
+      }
+      if (g.debuted && !g.rollout) {
+        g.rollout = (map[g.promoFocus] || KP.C.ROLLOUT.DEFAULT).map(w => w.slice());
+        g.promoGrace = g.promoFocus === 'fanCare' ? 8 : 0;
+      }
+    });
+    // 0.6.1/0.6.2 saves may carry never-viewed profiles — mint them now
+    KP.mintSocialAll(state);
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The rollout desk is open: every release now locks with a week-by-week promotion plan — two bookings a week, each with a bill and a payoff. Music shows make stages (and occasionally the encore clip that makes a career), variety makes faces, fan signs make loyalty, the challenge makes reach, and rest makes the next week possible. They cannot be everywhere. That is the job.',
     });
   } });
 

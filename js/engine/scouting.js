@@ -123,6 +123,7 @@
       state.nextPersonId = KP.peekNextId();
       state.people[p.id] = p;
       state.prospects.push(p.id);
+      KP.socialOf(state, p);   // minted at the door, not on first look
       notes.push({ kind: 'scouting', text: 'New lead: ' + KP.displayName(p) + ', ' + p.age + ', via ' + p.source.toLowerCase() + '. First report is on the board.' });
     }
     return notes;

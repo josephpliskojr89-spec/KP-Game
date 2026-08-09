@@ -44,8 +44,27 @@
     const alloc = plan.alloc || { vocals: 25, dance: 25, rap: 25, media: 25 };
     const total = alloc.vocals + alloc.dance + alloc.rap + alloc.media;
     if (Math.round(total) !== 100) return { ok: false, reason: 'Rehearsal allocation must total 100%.' };
-    const cost = D.promoCost[plan.promo || 'standard'] + format.cost;
-    if (state.budget < cost) return { ok: false, reason: 'Budget cannot cover a ' + format.label.toLowerCase() + ' at this promotion level.' };
+
+    // the rollout plan (v0.6.3): 4 promo weeks, 2 slots each, every slot
+    // a real choice with a real bill
+    const R = KP.C.ROLLOUT;
+    const rollout = plan.rollout || R.DEFAULT.map(w => w.slice());
+    if (!Array.isArray(rollout) || rollout.length !== R.weeks) {
+      return { ok: false, reason: 'The rollout covers ' + R.weeks + ' promotion weeks. Plan all of them.' };
+    }
+    let rolloutCost = 0;
+    for (const wk of rollout) {
+      if (!Array.isArray(wk) || wk.length > R.slotsPerWeek) {
+        return { ok: false, reason: 'Two bookings a week is the ceiling. They are humans, not content.' };
+      }
+      for (const a of wk) {
+        if (!R.ACTIVITIES[a]) return { ok: false, reason: 'Nobody on staff knows how to book “' + a + '”.' };
+        rolloutCost += R.ACTIVITIES[a].cost;
+      }
+    }
+
+    const cost = D.promoCost[plan.promo || 'standard'] + format.cost + rolloutCost;
+    if (state.budget < cost) return { ok: false, reason: 'Budget cannot cover the record, the marketing AND this rollout. Trim something.' };
     state.budget -= cost;
 
     g.prep = {
@@ -53,7 +72,7 @@
       conceptId: plan.conceptId || demo.conceptId,
       promo: plan.promo || 'standard',
       format: format.id,
-      focus: KP.C.COMEBACK.FOCUS[plan.focus] ? plan.focus : 'musicShows',
+      rollout,
       alloc,
       scheduledWeek: plan.week,
       progress: 0,
@@ -116,6 +135,72 @@
     }
     return { kind: 'health', urgent: true,
       text: KP.displayName(m) + ' was pulled from ' + where + ' by medical staff this week. The official word is “scheduled rest.” The honest word is exhaustion, and everyone in the building knows whose calendar caused it.' };
+  };
+
+  // Weekly promotion under the rollout plan (v0.6.3): each promo week
+  // runs its booked activities — costs paid at lock, fatigue paid now,
+  // and the stages occasionally make the stories the feed lives for.
+  KP.rolloutWeek = function (state, g, rng) {
+    const R = KP.C.ROLLOUT, CB = KP.C.COMEBACK;
+    const notes = [];
+    const idx = KP.clamp(state.week - (g.lastReleaseWeek || 0) - 1, 0, R.weeks - 1);
+    const plan = (g.rollout && g.rollout[idx]) || ['musicShow'];
+    const members = g.members.map(id => state.people[id]).filter(p => p && p.status === 'idol');
+    const soloMult = g.type === 'solo' ? KP.C.SOLO.promoFatigueMult : 1;
+
+    if (!plan.length) {
+      // an empty week is a breather by design
+      members.forEach(m => {
+        if (!(m.flags.burnout > 0)) m.fatigue = KP.clamp(m.fatigue - R.emptyWeekRecovery, 0, 100);
+      });
+    }
+    plan.forEach(actId => {
+      const A = R.ACTIVITIES[actId];
+      if (!A) return;
+      members.forEach(m => {
+        if (m.flags.burnout > 0) return;   // benched: she rests, whatever the calendar says
+        const softened = (m.fatigue >= CB.promoSoftCap && A.fatigue > 0) ? CB.promoSoftMult : 1;
+        m.fatigue = KP.clamp(m.fatigue + A.fatigue * soloMult * softened, 0, 100);
+        m.liveExp += A.liveExp;
+        m.mediaExp += A.mediaExp;
+        if (A.morale) m.morale = KP.clamp(m.morale + A.morale, 0, 100);
+        if (A.pop) g.popularity = KP.clamp((g.popularity || 0) + A.pop, 0, 100);
+        if (A.followers) KP.socialSpike(state, m, A.followers, 'promo-' + actId);
+        if (A.fatigue > 0 && m.fatigue >= CB.OVERWORK.threshold && rng.chance(CB.OVERWORK.chance)) {
+          notes.push(KP.overworkIncident(state, m, 'promotion', rng));
+        }
+      });
+    });
+
+    // the stages that make stories
+    if (plan.includes('musicShow') && rng.chance(R.encoreChance)) {
+      const voice = members.slice().sort((a, b) => b.talents.vocals.cur - a.talents.vocals.cur)[0];
+      if (voice && voice.talents.vocals.cur >= 60) {
+        KP.socialSpike(state, voice, KP.C.SOCIAL.viralSpike, 'encore');
+        notes.push({ kind: 'public', urgent: false, ind: 'encoreMoment', personId: voice.id, groupId: g.id,
+          text: KP.displayName(voice) + ' took the encore without a backing track and casually murdered the vocal. The clip is everywhere by morning — this is what the music-show grind is FOR.' });
+        const narNote = KP.recordViral(state, voice);
+        if (narNote) notes.push(narNote);
+        const dn = KP.igniteDiscourse(state, rng, 'fancam', 'idol', voice.id, g.id);
+        if (dn) notes.push(dn);
+      }
+    }
+    if (plan.includes('challenge') && rng.chance(R.challengeViralChance)) {
+      const face = members.slice().sort((a, b) => KP.derived(b).centerPull - KP.derived(a).centerPull)[0];
+      if (face) {
+        KP.socialSpike(state, face, KP.C.SOCIAL.viralSpike * 0.7, 'challenge');
+        notes.push({ kind: 'public', ind: 'challengeViral', personId: face.id, groupId: g.id,
+          text: 'The ' + g.name + ' dance challenge broke containment — ' + KP.displayName(face) + '’s version is the template everyone copies now. Cheapest promotion the company ever bought.' });
+        const narNote = KP.recordViral(state, face);
+        if (narNote) notes.push(narNote);
+      }
+    }
+    if (plan.includes('fanSign') && rng.chance(0.25) && members.length) {
+      const m = members[Math.floor(rng.next() * members.length)];
+      notes.push({ kind: 'public', ind: 'fanSignWarm', personId: m.id, groupId: g.id,
+        text: 'A fan-sign clip of ' + KP.displayName(m) + ' comforting a crying fan is doing gentle numbers tonight. Core fandom is built like this — one person at a time.' });
+    }
+    return notes;
   };
 
   // The next group whose locked release is due OR overdue, if any.
@@ -281,7 +366,11 @@
     g.debuted = true;
     g.lastReleaseWeek = state.week;
     g.promoUntil = state.week + KP.C.COMEBACK.promoWeeks;
-    g.promoFocus = g.prep.focus || 'musicShows';
+    // the rollout rides into promotion (v0.6.3); fan-sign weeks buy the
+    // fanbase extra patience after the cycle ends
+    g.rollout = g.prep.rollout || KP.C.ROLLOUT.DEFAULT.map(w => w.slice());
+    g.promoGrace = g.rollout.reduce((s, wk) =>
+      s + wk.filter(a => a === 'fanSign').length * KP.C.ROLLOUT.ACTIVITIES.fanSign.gracePerWeek, 0);
     const label = isDebut ? band.label : KP.C.COMEBACK.bandLabels[band.key];
     g.results = {
       week: state.week,

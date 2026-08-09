@@ -53,6 +53,10 @@ const t = makeT('suite_014_hype_solo');
   const trustBefore = state.trust;
   const ids = state.roster.slice(0, 5);
   t.ok(ids.includes(star.id), 'sanity: she is in the lineup');
+  // the test measures the DIRECTIVE's trust math, not reception luck —
+  // field a lineup good enough that the debut itself cannot miss
+  ids.forEach(id => { const p = state.people[id];
+    p.talents.vocals.cur = 75; p.talents.dance.cur = 75; p.talents.charisma.cur = 70; });
   KP.proposeGroup(state, 'HYPELINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
   g.demos = KP.generateDemos(state, KP.rngFor(state));

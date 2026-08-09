@@ -16,7 +16,7 @@
     view: null,          // pushed view: {type:'dossier'|'builder'|'results', id}
     builderDraft: null,
     studioDraft: { songId: null, conceptId: null, promo: 'standard', week: null,
-      format: 'single', focus: 'musicShows',
+      format: 'single', rollout: null,
       alloc: { vocals: 30, dance: 30, rap: 10, media: 30 } },
   };
 
@@ -436,7 +436,17 @@
       case 'studio-concept': App.studioDraft.conceptId = t.dataset.id; App.render(); break;
       case 'studio-promo': App.studioDraft.promo = t.dataset.promo; App.render(); break;
       case 'studio-format': App.studioDraft.format = t.dataset.format; App.studioDraft.week = null; App.render(); break;
-      case 'studio-focus': App.studioDraft.focus = t.dataset.focus; App.render(); break;
+      case 'studio-rollact': {
+        const d = App.studioDraft;
+        if (!d.rollout) break;
+        const wk = d.rollout[parseInt(t.dataset.week, 10)];
+        const a = t.dataset.act;
+        if (wk.includes(a)) wk.splice(wk.indexOf(a), 1);
+        else if (wk.length < KP.C.ROLLOUT.slotsPerWeek) wk.push(a);
+        else UI.toast('Two bookings a week is the ceiling. They are humans, not content.', true);
+        App.render();
+        break;
+      }
       case 'studio-week': App.studioDraft.week = parseInt(t.dataset.week, 10); App.render(); break;
       case 'studio-lock': {
         const d = App.studioDraft;
@@ -445,7 +455,7 @@
         const sg = UI.studioGroup(s);
         const sel = (sg.demos || []).find(x => x.id === d.songId);
         const r = KP.planDebut(s, { groupId: sg.id, songId: d.songId, conceptId: d.conceptId || sel.conceptId,
-          promo: d.promo, week: d.week, alloc: d.alloc, format: d.format, focus: d.focus });
+          promo: d.promo, week: d.week, alloc: d.alloc, format: d.format, rollout: d.rollout });
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
         if (r.warning) {

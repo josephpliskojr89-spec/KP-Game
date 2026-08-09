@@ -112,6 +112,9 @@
     open.forEach(n => { n.week = 1; n.read = false; n.id = 'm' + (state.nextMsgId++); });
     state.inbox = open;
 
+    // every face gets its public number at the door (v0.6.3)
+    KP.mintSocialAll(state);
+
     state.nextPersonId = KP.peekNextId();
     state.rngState = rng.state();
     return state;

@@ -46,12 +46,19 @@
       if (g.prep) KP.prepWeek(state, rng, g).forEach(n => inbox.push(n));
     });
 
+    // 1b. promotion runs on the rollout plan (v0.6.3): booked activities,
+    //     paid-for stages, and the occasional story they create
+    groups.forEach(g => {
+      if (g.debuted && state.week <= (g.promoUntil || 0) && state.week > (g.lastReleaseWeek || 0)) {
+        KP.rolloutWeek(state, g, rng).forEach(n => inbox.push(n));
+      }
+    });
+
     // popularity cools once the promotion cycle and its afterglow end;
-    // a fan-care rollout stretches the afterglow — per group
+    // fan-sign weeks in the rollout stretch the afterglow — per group
     groups.forEach(g => {
       if (!g.debuted || g.prep) return;
-      const focus = KP.C.COMEBACK.FOCUS[g.promoFocus] || KP.C.COMEBACK.FOCUS.musicShows;
-      if (state.week > (g.promoUntil || 0) + KP.C.COMEBACK.decayGraceWeeks + focus.graceBonus) {
+      if (state.week > (g.promoUntil || 0) + KP.C.COMEBACK.decayGraceWeeks + (g.promoGrace || 0)) {
         g.popularity = Math.max(0, (g.popularity || 0) - KP.C.COMEBACK.popDecayPerWeek);
       }
     });
@@ -328,23 +335,7 @@
       return null;
     }
     const promoting = g && g.debuted && state.week <= (g.promoUntil || 0);
-    if (promoting) {
-      const f = CB.FOCUS[g.promoFocus] || CB.FOCUS.musicShows;
-      const soloMult = g.type === 'solo' ? KP.C.SOLO.promoFatigueMult : 1;
-      // above the soft cap the managers rotate her stages: load halves,
-      // the overwork gamble below does not (v0.4.2)
-      const softened = p.fatigue >= CB.promoSoftCap ? CB.promoSoftMult : 1;
-      p.fatigue = KP.clamp(p.fatigue + f.fatigue * soloMult * softened, 0, 100);
-      p.mediaExp += f.mediaExp;
-      p.liveExp += f.liveExp;
-      if (f.morale) p.morale = KP.clamp(p.morale + f.morale, 0, 100);
-      if (f.pop) g.popularity = KP.clamp((g.popularity || 0) + f.pop, 0, 100);
-      // promoting on empty is legal, and a gamble (v0.4.2)
-      if (p.fatigue >= CB.OVERWORK.threshold && rng.chance(CB.OVERWORK.chance)) {
-        return KP.overworkIncident(state, p, 'promotion', rng);
-      }
-      return null;
-    }
+    if (promoting) return null;   // the rollout desk runs promo weeks (v0.6.3)
     const resting = g && g.debuted &&
       state.week <= (g.promoUntil || 0) + CB.restWeeks;
     if (resting) {

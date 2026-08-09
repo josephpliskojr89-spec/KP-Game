@@ -176,7 +176,14 @@ for (let s = 0; s < SEEDS; s++) {
       }
       const promoAffordable = (!g.debuted || state.budget > 60) ? 'standard' : 'modest';
       const fmtCost = KP.C.DEBUT.FORMATS[0].cost;
-      if (state.budget <= KP.C.DEBUT.promoCost[promoAffordable] + fmtCost) return;
+      // the rollout desk bills at lock (v0.6.3) — a player trims the plan
+      // before skipping the release, so the bot does too
+      const R = KP.C.ROLLOUT;
+      const planCost = p => p.flat().reduce((s, a) => s + R.ACTIVITIES[a].cost, 0);
+      const thrifty = [['radio', 'livestream'], ['radio', 'livestream'], ['radio', 'livestream'], ['rest']];
+      const wantDefault = state.budget > KP.C.DEBUT.promoCost[promoAffordable] + fmtCost + planCost(R.DEFAULT) + 20;
+      const rollout = wantDefault ? R.DEFAULT.map(w => w.slice()) : thrifty;
+      if (state.budget <= KP.C.DEBUT.promoCost[promoAffordable] + fmtCost + planCost(rollout)) return;
       if (!g.demos) {
         const rng = KP.rngFor(state);
         g.demos = KP.generateDemos(state, rng);
@@ -189,7 +196,7 @@ for (let s = 0; s < SEEDS; s++) {
           ? Math.min(state.week + 8, state.objective.deadlineWeek) : state.week + 8);
       KP.planDebut(state, {
         groupId: g.id, songId: demo.id, conceptId: demo.conceptId, promo: promoAffordable,
-        week: targetWeek,
+        week: targetWeek, rollout,
         alloc: { vocals: 30, dance: 30, rap: 10, media: 30 },
       });
     });

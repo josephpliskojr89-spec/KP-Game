@@ -128,16 +128,23 @@
           'data-action="studio-promo" data-promo="' + pl + '">' + pl + ' · ' + KP.C.DEBUT.promoCost[pl] + '</button>').join('') +
         '</div><div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">Plus the record itself (' + fmt.cost + '). Budget: ' + state.budget + '.</div></div>');
 
-      html.push('<div class="kicker">Rollout focus</div>');
-      html.push('<div class="pad">' +
-        Object.keys(KP.C.COMEBACK.FOCUS).map(k => {
-          const f = KP.C.COMEBACK.FOCUS[k];
-          return '<button class="chip ' + (draft.focus === k ? 'hot' : '') + '" style="margin:0 6px 6px 0" ' +
-            'data-action="studio-focus" data-focus="' + k + '">' + UI.esc(f.label) + '</button>';
-        }).join('') +
-        '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:4px">' +
-        UI.esc((KP.C.COMEBACK.FOCUS[draft.focus] || KP.C.COMEBACK.FOCUS.musicShows).desc) +
-        '</div></div>');
+      // the rollout builder (v0.6.3): 4 promo weeks, 2 bookings each —
+      // constrained choices, not sliders
+      const R = KP.C.ROLLOUT;
+      if (!draft.rollout) draft.rollout = R.DEFAULT.map(w => w.slice());
+      const rolloutCost = draft.rollout.reduce((s, wk) =>
+        s + wk.reduce((x, a) => x + (R.ACTIVITIES[a] ? R.ACTIVITIES[a].cost : 0), 0), 0);
+      html.push('<div class="kicker">The rollout · ' + R.slotsPerWeek + ' bookings a week · cost ' + rolloutCost + '</div>');
+      html.push('<div class="card">' + draft.rollout.map((wk, i) =>
+        '<div class="ro-week"><span class="ro-label">Wk ' + (i + 1) + '</span>' +
+        '<div class="ro-chips">' +
+        Object.keys(R.ACTIVITIES).map(a =>
+          '<button class="chip ro-chip' + (wk.includes(a) ? ' on' : '') + '" ' +
+          'data-action="studio-rollact" data-week="' + i + '" data-act="' + a + '">' +
+          UI.esc(R.ACTIVITIES[a].label) + '</button>').join('') +
+        '</div></div>').join('') +
+        '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">Music shows build the stage and the fanbase; variety builds faces; fan signs buy loyalty that outlasts promo; the challenge is cheap reach; rest is rest. They cannot be everywhere — pick.</div>' +
+        '</div>');
 
       const minW = state.week + Math.max(KP.C.DEBUT.prepWeeksMin, fmt.minPrep);
       const options = [];

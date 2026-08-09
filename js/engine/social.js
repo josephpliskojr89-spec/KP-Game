@@ -45,6 +45,15 @@
     return p.social;
   };
 
+  // Eager mint (v0.6.3): the mint reads mutable facts (group popularity,
+  // hype), so WHEN it runs is part of the number. Every door people enter
+  // the world through mints on the spot — the lazy branch above is a
+  // safety net, never the normal path. Otherwise merely LOOKING at a
+  // profile could fork a save from its unviewed twin.
+  KP.mintSocialAll = function (state) {
+    Object.values(state.people || {}).forEach(p => KP.socialOf(state, p));
+  };
+
   // Event spikes — called where the event happens, hash-scaled. Folded
   // into the week's displayed delta by the weekly pass.
   KP.socialSpike = function (state, p, amount, tag) {

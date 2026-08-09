@@ -198,6 +198,15 @@ async function main() {
   await tap('.demo-card');
   await page.waitForSelector('.concept-scroll');
   ok((await page.textContent('#screen')).includes('✦'), 'the demo declares its natural lean');
+  // the rollout builder (v0.6.3): four weeks of constrained bookings
+  await page.waitForSelector('.ro-week');
+  ok(await page.$$eval('.ro-week', els => els.length) === 4, 'the rollout grid shows four promo weeks');
+  const chipSel = '.ro-week [data-action=studio-rollact][data-week="0"][data-act="challenge"]';
+  const wasOn = await page.$eval(chipSel, el => el.classList.contains('on'));
+  await tap(chipSel);
+  await page.waitForTimeout(80);
+  ok(await page.$eval(chipSel, el => el.classList.contains('on')) !== wasOn,
+    'a booking chip toggles on tap');
   await page.waitForSelector('[data-action=studio-week]');
   await tap('[data-action=studio-week]');
   await tap('[data-action=studio-lock]');
