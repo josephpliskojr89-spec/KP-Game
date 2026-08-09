@@ -38,7 +38,8 @@
       UI.portrait(p, 'md') +
       '<div class="t-body">' +
       '<div class="t-name">' + UI.esc(KP.displayName(p)) + '</div>' +
-      '<div class="t-sub">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' + UI.esc(head.text) + '</div>' +
+      '<div class="t-sub">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' +
+      KP.fmtCount(KP.socialOf(state, p)) + ' followers · ' + UI.esc(head.text) + '</div>' +
       '<div class="t-chips">' + UI.condChips(p) +
       (grp ? '<span class="chip gold">' + UI.esc(grp.name) + '</span>' : '') +
       (p.status === 'idol' ? '<span class="chip gold">debuted</span>' : '') +
@@ -136,6 +137,9 @@
       '<div class="bigname">' + nameHtml + '</div>' +
       '<div class="d-meta">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' + UI.esc(p.source) +
       (p.signedWeek ? ' · signed ' + UI.esc(KP.weekLabel(p.signedWeek).text) : '') + '</div>' +
+      '<div class="d-social">' + KP.fmtCount(KP.socialOf(state, p)) + ' followers' +
+      ((p.socialDelta || 0) > 0 ? ' <span class="ds-up">▲' + KP.fmtCount(p.socialDelta) + ' this week</span>' : '') +
+      '</div>' +
       ((p.status === 'idol' || inLineup)
         ? '<div style="margin-top:8px"><button class="btn small ghost" data-action="open-stagename" data-id="' + p.id + '" style="border:1px solid var(--line)">' + (p.name.stage ? 'Change stage name' : 'Give a stage name') + '</button></div>'
         : '') +

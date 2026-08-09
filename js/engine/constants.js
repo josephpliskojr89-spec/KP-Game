@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.6.0',
+    VERSION: '0.6.1',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -353,7 +353,7 @@
     // Narratives form from patterns, strengthen on new evidence, decay
     // when nothing feeds them, and change how later events are read.
     MEMORY: {
-      cap: 24,                 // living narratives per world; weakest pruned
+      cap: 40,                 // v0.6.1: the whole world holds opinions now
       decayPerWeek: 0.35,      // opinions fade without evidence
       pruneBelow: 8,           // forgotten
       reinforceGain: 16,       // each new piece of evidence
@@ -369,6 +369,33 @@
       pedigreeMiss: -3,        // debuting UNDER the company's name
       underperformGap: 12,     // reception drop that becomes a story
       minShowStrength: 22,     // below this, the UI stays quiet about it
+      // v0.6.1 — the world's stories about everyone else
+      poachAt: 3,              // board signings before a rival is "the poachers"
+      streakAt: 3,             // consecutive hits (>=64) before "on a run"
+      flopAt: 2,               // consecutive misses (<40) before "flop era"
+      risingAt: 75,            // prestige crossing this = "rising power"
+      fadingBelow: 35,         // prestige under this at a disband = "fading house"
+    },
+
+    // ---- Social presence (v0.6.1): public numbers on every face ---------
+    // Follower counts are IN-FICTION public numbers (the no-Overall law
+    // bans hidden talent numbers, not the ones the world can see).
+    // Entirely hash-driven — zero rng draws, zero seed drift.
+    SOCIAL: {
+      milestones: [10000, 100000, 500000, 1000000, 5000000],
+      // weekly growth shape (×jitter 0.7–1.3, hash-keyed):
+      idolPromoPerPop: 90,     // promoting idols grow fastest
+      idolIdlePerPop: 12,      // idle idols coast
+      traineePerHype: 25,      // trainees grow only as fast as the internet cares
+      traineeBase: 6,          // plus a trickle — practice clips leak
+      rivalPerPop: 10,         // rival idols coast on act popularity
+      narrativeMult: 1.5,      // fancamStar / itGirl compound growth
+      dormantMult: 0.25,       // nobody follows a silent act
+      // event spikes (×jitter):
+      viralSpike: 22000,
+      breakoutSpike: 15000, breakoutPerReception: 400,
+      debutSpike: 6000,
+      rivalReleasePerReception: 150,
     },
 
     // ---- The fan feed (v0.4.0): curated, world-aware, never cruel -------

@@ -320,6 +320,23 @@
     });
   } });
 
+  // v0.6.1 — the whole world has a story. Social numbers lazy-initialize
+  // from who each person already is (one code path for new games and old
+  // saves alike); rival identities seed through seedIndustry on the same
+  // pass. Only the letter is needed here.
+  MIGRATIONS.push({ v: '0.6.1', fn: function (state) {
+    if (!state.rngState) return;
+    const rng = KP.Rng.fromState(state.rngState);
+    KP.seedIndustry(state, rng);   // idempotent; adds rival identity narratives
+    state.rngState = rng.state();
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'industry', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'Two expansions from the desk: the clippings file now covers the WHOLE scene — what the world says about every company and every group, on their cards — and every artist profile now shows the number everyone else already sees: followers. Watch which of your people the public is actually following. It will not match the org chart.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

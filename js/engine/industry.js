@@ -306,7 +306,26 @@
     act.cycleWeeks = rng.int(I.cycleWeeks[0], I.cycleWeeks[1]);
     act.releases = act.releases || [];
     act.releases.push({ week: state.week, title, reception, isDebut: !!isDebut });
+    // their members' numbers move too (v0.6.1)
+    (act.members || []).forEach(id => {
+      const p = state.people[id];
+      if (p) KP.socialSpike(state, p, reception * KP.C.SOCIAL.rivalReleasePerReception, 'rivalRelease');
+    });
+    // and the world keeps score on THEM as well (v0.6.1)
+    const M = KP.C.MEMORY;
+    const narNotes = [];
+    const keep = n => { if (n) narNotes.push(n); };
+    if (isDebut && reception >= 75) keep(KP.recordEvidence(state, 'rivalMonsterRookies', 'rivalAct', act.id));
+    if (reception >= 64) { act.hitStreak = (act.hitStreak || 0) + 1; act.flopStreak = 0; }
+    else if (reception < 40) { act.flopStreak = (act.flopStreak || 0) + 1; act.hitStreak = 0; }
+    else { act.hitStreak = 0; act.flopStreak = 0; }
+    if (act.hitStreak >= M.streakAt) keep(KP.recordEvidence(state, 'hitStreak', 'rivalAct', act.id));
+    if (act.flopStreak >= M.flopAt) keep(KP.recordEvidence(state, 'flopEra', 'rivalAct', act.id));
+    const prestigeBefore = rival.prestige;
     rival.prestige = KP.clamp(rival.prestige + (reception - 55) * 0.06, 5, 95);
+    if (prestigeBefore < M.risingAt && rival.prestige >= M.risingAt) {
+      keep(KP.recordEvidence(state, 'risingPower', 'rivalCompany', rival.short));
+    }
     const score = reception + act.popularity * 0.2;
     KP.chartEnter(state, {
       title, act: act.name, company: rival.short, isPlayer: false,
@@ -318,7 +337,7 @@
       score, entered: state.week,
     });
     state.rivalReleasesThisWeek = (state.rivalReleasesThisWeek || 0) + 1;
-    return { title, reception };
+    return { title, reception, narNotes };
   }
 
   function pushMove(rival, text) {
@@ -354,6 +373,7 @@
         rival.nextDebutWeek = state.week + rng.int(I.debutInterval[0], I.debutInterval[1]) +
           Math.round(Math.max(0, 70 - rival.prestige) / 4);
         const rel = rivalRelease(state, rival, act, rng, true);
+        (rel.narNotes || []).forEach(n => notes.push(n));
         pushMove(rival, 'Debuted ' + act.name);
         // a face we lost hurts more than a name we never knew
         const lost = members.map(id => state.people[id]).find(p => p && !p.flags.rivalNative);
@@ -372,6 +392,7 @@
         if (act.retired) return;
         if (state.week >= act.lastReleaseWeek + act.cycleWeeks) {
           const rel = rivalRelease(state, rival, act, rng, false);
+          (rel.narNotes || []).forEach(n => notes.push(n));
           pushMove(rival, act.name + ' comeback');
           if (rel.reception >= I.comebackNoteMin) {
             notes.push({ kind: 'industry', ind: 'rivalHit', actName: act.name, company: rival.short,
@@ -385,6 +406,10 @@
           if (act.popularity < I.disbandFloorPop && age > I.disbandMinAgeWeeks && rng.chance(I.disbandChance)) {
             act.retired = true;
             rival.prestige = KP.clamp(rival.prestige - 4, 5, 95);
+            if (rival.prestige < KP.C.MEMORY.fadingBelow) {
+              const nar = KP.recordEvidence(state, 'fadingHouse', 'rivalCompany', rival.short);
+              if (nar) notes.push(nar);
+            }
             pushMove(rival, act.name + ' disbanded');
             notes.push({ kind: 'industry', ind: 'disband', actName: act.name, company: rival.short,
               text: rival.short + ' announced the “conclusion of team activities” for ' + act.name +
@@ -564,6 +589,14 @@
     }));
     // the wider world exists whether or not anyone local looks up (v0.5.0)
     KP.seedNational(state, rng);
+    // rival identities are common knowledge on day one (v0.6.1, silent seed)
+    (state.rivals || []).forEach(r => {
+      const key = { trendChaser: 'trendCopier', performance: 'performanceFactory',
+        patient: 'patientHouse' }[r.philosophy];
+      if (key && !KP.getNarrative(state, key, 'rivalCompany', r.short)) {
+        KP.recordEvidence(state, key, 'rivalCompany', r.short);
+      }
+    });
     KP.chartStamp(state);
     // the feed opens mid-argument, the way it always is
     if (!state.feed.length) {
@@ -672,7 +705,18 @@
         // a narrative just FORMED — the fans arrive with receipts (v0.6.0)
         const idolName = () => { const p = state.people[n.narSubjectId]; return p ? KP.displayName(p) : 'her'; };
         const groupName = () => (KP.groupById(state, n.narSubjectId) || { name: 'them' }).name;
+        const actName = () => { const hit = KP.rivalActById(state, n.narSubjectId); return hit ? hit.act.name : 'them'; };
+        const coName = () => String(n.narSubjectId);
         const m = {
+          poachers: coName() + ' really operates on “your board is my board”. lock your doors, agencies',
+          risingPower: 'the ' + coName() + ' ascension arc is real. remember when they were mid? character development',
+          fadingHouse: 'watching ' + coName() + ' fade in real time is genuinely sad. somebody sign the good ones out of there',
+          rivalMonsterRookies: actName() + ' getting the monster rookies title from the actual PRESS. the bar just moved for everybody',
+          hitStreak: actName() + ' three in a row. no notes. the streak is the personality now',
+          flopEra: 'the ' + actName() + ' flop era discourse is so mean and so funny. they’ll be back. probably',
+          trendCopier: coName() + ' saw one viral concept and preordered the whole aesthetic. never change. (change)',
+          performanceFactory: coName() + ' groups really do all dance like the rent depends on it. respect the machine',
+          patientHouse: coName() + ' debuts once an era and it always slaps. the patience is psychological warfare',
           vocalHouse: 'day one of me saying ' + state.company.short + ' has the best vocal line in the industry and being objectively correct',
           performanceHouse: state.company.short + ' choreo debuts are just built different. this is now canon',
           starMaker: 'not ' + state.company.short + ' quietly becoming THE star factory. the trainee showcase watchers knew first',

@@ -33,13 +33,35 @@
     return mem(state).filter(n => n.strength >= KP.C.MEMORY.minShowStrength)
       .sort((a, b) => b.strength - a.strength);
   };
+  // the conversation about US — rival stories live under their own cards
+  KP.playerNarratives = function (state) {
+    return KP.liveNarratives(state)
+      .filter(n => n.subjectType !== 'rivalCompany' && n.subjectType !== 'rivalAct');
+  };
 
   // The words are rendered live so stage names and renames stay current.
   KP.narrativeText = function (state, n) {
     const M = KP.C.MEMORY;
     const group = () => (KP.groupById(state, n.subjectId) || { name: 'a group' }).name;
     const idol = () => { const p = state.people[n.subjectId]; return p ? KP.displayName(p) : 'her'; };
+    const rivalCo = () => {
+      const r = (state.rivals || []).find(x => x.short === n.subjectId);
+      return r ? r.short : String(n.subjectId);
+    };
+    const rivalAct = () => {
+      const hit = KP.rivalActById(state, n.subjectId);
+      return hit ? hit.act.name : 'that group';
+    };
     switch (n.key) {
+      case 'poachers': return rivalCo() + ' signs off other companies’ boards — including ours. Repeatedly.';
+      case 'risingPower': return rivalCo() + ' is a rising power. The trades say it like a warning.';
+      case 'fadingHouse': return rivalCo() + ' is fading — the roster thins and the hits stopped coming.';
+      case 'trendCopier': return rivalCo() + ' chases every trend, sometimes straight into a wall.';
+      case 'performanceFactory': return rivalCo() + ' groups out-dance everyone. It is their whole identity.';
+      case 'patientHouse': return rivalCo() + ' signs young and waits years. It usually works.';
+      case 'rivalMonsterRookies': return rivalAct() + ' are the monster rookies everyone else gets measured against.';
+      case 'hitStreak': return rivalAct() + ' has not missed in three releases. The streak is the story.';
+      case 'flopEra': return rivalAct() + ' is in its flop era, and the internet is not kind about it.';
       case 'vocalHouse': return state.company.short + ' never misses on vocals.';
       case 'performanceHouse': return state.company.short + ' groups can all dance. It is a house rule.';
       case 'starMaker': return state.company.short + ' finds the ones the public falls for.';
@@ -88,7 +110,21 @@
   function formationLine(state, n) {
     const idol = () => { const p = state.people[n.subjectId]; return p ? KP.displayName(p) : 'her'; };
     const group = () => (KP.groupById(state, n.subjectId) || { name: 'the group' }).name;
+    const rivalCo = () => {
+      const r = (state.rivals || []).find(x => x.short === n.subjectId);
+      return r ? r.short : String(n.subjectId);
+    };
+    const rivalAct = () => {
+      const hit = KP.rivalActById(state, n.subjectId);
+      return hit ? hit.act.name : 'that group';
+    };
     switch (n.key) {
+      case 'poachers': return 'It has a name now: the scouts call ' + rivalCo() + ' “the poachers.” Three of our board leads signed there. Lock the good ones down faster.';
+      case 'risingPower': return 'The trades have promoted ' + rivalCo() + ' to “rising power.” They are not wrong, which is the annoying part.';
+      case 'fadingHouse': return 'The word on ' + rivalCo() + ' is out: fading. Empty practice rooms, quiet releases. Watch their people — fading houses leak talent.';
+      case 'rivalMonsterRookies': return rivalAct() + ' just got the “monster rookies” treatment in every write-up. That is the bar our next debut gets measured against.';
+      case 'hitStreak': return rivalAct() + ' has made it three hits in a row. The coverage stopped calling it luck, which means the pressure is now ours.';
+      case 'flopEra': return 'The internet has declared ' + rivalAct() + ' officially in a “flop era.” Cruel, fast, and — for their company — very expensive.';
       case 'vocalHouse': return 'The trades have started saying it out loud: ' + state.company.short + ' never misses on vocals. That is a reputation now — and an expectation.';
       case 'performanceHouse': return 'A line is forming in the coverage: ' + state.company.short + ' groups can dance, full stop. Reputations like this are free promotion until the day one lineup can’t.';
       case 'starMaker': return 'Industry copy now calls ' + state.company.short + ' a star-maker. Every trainee showcase gets read through that lens from here.';
@@ -98,6 +134,9 @@
       case 'dormant': return 'The fan cafes have started counting: ' + group() + ' has not released in months. Quiet is a story too.';
       case 'fancamStar': return idol() + ' has gone viral enough times that it is not luck anymore — the internet has decided she is the fancam one. Every stage she takes is a camera looking for the next clip.';
       case 'itGirl': return 'Fashion accounts, recap channels, general-public posts: ' + idol() + ' keeps being the one people remember. The phrase “it-girl” is starting to attach.';
+      case 'trendCopier': return rivalCo() + ' has a reputation now: first to every trend, occasionally face-first. The fans mean it affectionately. Mostly.';
+      case 'performanceFactory': return 'The book on ' + rivalCo() + ' is written: their groups can dance before they can talk. Plan concepts accordingly.';
+      case 'patientHouse': return rivalCo() + '’s reputation crystallized: sign young, wait years, rarely miss. The patient ones are the dangerous ones.';
       default: return 'A narrative formed: ' + n.key;
     }
   }
@@ -137,6 +176,17 @@
         ['starMaker', 'starMaker'], ['girlGroup', 'hitFactory']].forEach(([repKey, key]) => {
         if ((rep[repKey] || 0) >= M.repPedigreeAt) {
           const note = KP.recordEvidence(state, key, 'company', 'player');
+          if (note) notes.push(note);
+        }
+      });
+      // rival identities: philosophy is destiny, and the world knows it
+      // (v0.6.1 — seeded silently at world start, reinforced monthly,
+      //  and a company that EMERGES later earns its line in public)
+      (state.rivals || []).forEach(r => {
+        const key = { trendChaser: 'trendCopier', performance: 'performanceFactory',
+          patient: 'patientHouse' }[r.philosophy];
+        if (key) {
+          const note = KP.recordEvidence(state, key, 'rivalCompany', r.short);
           if (note) notes.push(note);
         }
       });

@@ -203,6 +203,11 @@
     const push = n => { if (n) narrativeNotes.push(n); };
     push(KP.recordBreakout(state, breakout));
     if (spark > 0) push(KP.recordViral(state, breakout));
+    // the numbers everyone can see move with the moment (v0.6.1)
+    const SO = KP.C.SOCIAL;
+    members.forEach(m => { if (isDebut) KP.socialSpike(state, m, SO.debutSpike, 'debut'); });
+    KP.socialSpike(state, breakout, SO.breakoutSpike + reception * SO.breakoutPerReception, 'breakout');
+    if (spark > 0) KP.socialSpike(state, breakout, SO.viralSpike, 'spark');
     if (reception >= 75) push(KP.recordEvidence(state, 'monsterRookies', 'group', g.id));
     if (!isDebut && prevReception != null && reception <= prevReception - KP.C.MEMORY.underperformGap) {
       push(KP.recordEvidence(state, 'underperformed', 'group', g.id));

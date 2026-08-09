@@ -370,6 +370,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .cr-move.new { color: var(--gold); letter-spacing: .1em; }
 .cr-weeks { font-size: .64rem; color: var(--ink-faint); flex: none; width: 24px; text-align: right; }
 
+/* social numbers (v0.6.1): the public counts */
+.d-social { font-size: .8rem; font-weight: 800; color: var(--cyan); margin-top: 6px; letter-spacing: .02em; }
+.d-social .ds-up { font-size: .66rem; font-weight: 800; color: var(--gold); margin-left: 6px; }
+
 /* narratives (v0.6.0): what the world remembers */
 .nar-line {
   font-size: .84rem; font-style: italic; line-height: 1.45; color: var(--ink);

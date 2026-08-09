@@ -80,6 +80,7 @@ async function main() {
   const dossierText = await page.textContent('#screen');
   ok(!/\bOVR\b|overall rating|overall[:\s]+\d/i.test(dossierText), 'no Overall rating anywhere in the dossier');
   ok(dossierText.includes('recommendation'), 'overall recommendation note present');
+  ok(/followers/.test(dossierText), 'the profile shows her public following (v0.6.1)');
 
   // --- training plan: focus + intensity ---
   await tap('.focus-chips .chip');
@@ -305,6 +306,8 @@ async function main() {
   ok(scene.includes('The other companies'), 'the scene lists the other companies');
   ok(scene.includes('The conversation'), 'the world has opinions about us (v0.6.0)');
   ok(scene.includes('never misses on vocals'), 'and it remembers the vocal pedigree');
+  ok(/chases every trend|out-dance everyone|signs young and waits/.test(scene),
+    'the rivals carry their own stories now (v0.6.1)');
   ok(/trainees/.test(scene), 'rival rosters are visible');
   ok(/fanbase/.test(scene), 'rival acts show on their company cards');
   // --- rivals with faces (v0.4.3): open an act, meet the members ---

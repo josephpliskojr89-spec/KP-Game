@@ -208,6 +208,9 @@
     // 8c. memory: opinions decay, slow patterns become narratives (v0.6.0)
     KP.memoryWeek(state).forEach(n => inbox.push(n));
 
+    // 8d. the numbers everyone can see move (v0.6.1) — hash-driven, no dice
+    KP.socialWeek(state).forEach(n => inbox.push(n));
+
     // 9. stamp this week's chart positions (all releases are in) — the
     //    national board hands out milestone letters — then let the fans
     //    react to everything that just happened
@@ -248,6 +251,7 @@
           p.hype = KP.clamp(p.hype + H.gainMin + rng.next() * (H.gainMax - H.gainMin), 0, 100);
           const narNote = KP.recordViral(state, p);   // memory counts (v0.6.0)
           if (narNote) notes.push(narNote);
+          KP.socialSpike(state, p, KP.C.SOCIAL.viralSpike, 'viral');   // the numbers move (v0.6.1)
           notes.push({ kind: 'public', text: rng.pick([
             'A dance cover ' + KP.displayName(p) + ' filmed months ago is suddenly trending. The comments all ask the same question: when does she debut?',
             'Street-cast photos of ' + KP.displayName(p) + ' resurfaced overnight and the reposts have not stopped.',

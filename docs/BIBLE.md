@@ -955,6 +955,41 @@ reputation, recorded sensations and remembered breakout counts become
 the narratives the world would have formed by now, narrated as the desk
 opening its file.
 
+**The whole world (v0.6.1).** Memory covers everyone now. Rival
+companies carry identities (philosophy narratives — trendCopier /
+performanceFactory / patientHouse — seeded silently at world start,
+reinforced monthly, EARNED in public by companies that emerge later)
+and event-driven stories: **poachers** (3 board steals — the scouts
+give it the name), **risingPower** (prestige crossing 75),
+**fadingHouse** (a disband under prestige 35). Rival acts carry
+**rivalMonsterRookies** (75+ debut), **hitStreak** (3 consecutive
+64+) and **flopEra** (2 consecutive <40) via per-act streak counters.
+All of it shows on their Scene cards ("what the world says about
+THEM"), on act pages ("The story"), in the wire, and in the feed; the
+player-card "conversation" filters to player subjects so rival stories
+never crowd it. Hungry rivals show a "casting a new group" chip —
+what other companies are doing is now legible at a glance.
+
+**Social presence (v0.6.1, module social.js).** Every person carries a
+PUBLIC follower count — in-fiction numbers the whole world can see
+(the no-Overall law bans hidden talent scales, not these). Design
+rule: entirely hash-driven — initialization, weekly jitter and event
+spikes key off (seed, person, week) and consume ZERO rng draws, so
+the system added no seed drift anywhere. Lazy init mints a plausible
+following from who she already is (status, hype, group popularity,
+breakout/viral history) — one code path covers new games, fresh
+leads, generated rival members and old saves. Weekly growth follows
+what is actually happening: promoting idols surge, idle idols coast,
+trainees grow only as fast as the internet cares, dormant acts stall,
+fancamStar/itGirl narratives compound ×1.5. Spikes: virals, breakouts
+(+reception-scaled), debuts, rival releases. Milestones (100k, 500k,
+1M, 5M) fire once each for roster people, with letters. Visible on
+roster rows, dossiers (with weekly delta), and rival act member
+cells. Jane's viral fancam spikes JANE — the least musically
+important member becoming the public's favorite is now measurable,
+which is the on-ramp to v0.6.2's promotion decisions and the eventual
+brand-deal economy.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -1427,4 +1462,28 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 26/26 (suite 026, 33 assertions), soak clean (34 bands — living
 > narratives 40/40, idol narratives 40/40), e2e 78, lockstep 0.6.0
 > (26 modules). Rode to main.
+
+> **v0.6.1 — the whole world has a story** (owner: *"keep it going and
+> expand it to the whole world. I want to see what other companies are
+> doing too. I want to see social media numbers on all of my idols and
+> trainees profiles. think big"*)
+> Memory covers everyone: rival companies earn identities (philosophy
+> narratives seeded day one, reinforced monthly) and event-driven
+> stories — poachers at 3 board steals, rising power at prestige 75,
+> fading house at a low-prestige disband; rival acts track hit streaks
+> (3) and flop eras (2) through per-act counters, and 75+ debuts get
+> the monster-rookies treatment in print. Their stories live on their
+> Scene cards and act pages; the player conversation filters to player
+> subjects; hungry rivals wear a "casting" chip. And the numbers:
+> every person in the world carries a public follower count — new
+> module social.js, entirely hash-driven (zero rng draws, zero seed
+> drift, proven by the fork suite), lazy-initialized from who she
+> already is, growing with what actually happens (promo surges, viral
+> spikes, breakout moments, narrative compounding at ×1.5), with
+> once-each milestones from 100k up delivering letters. Shown on
+> roster rows, dossiers with weekly delta, and rival member cells.
+> One ordering bug caught at first run (rising-power check before the
+> prestige update it reads). Numbers: battery 27/27 (suite 027), soak
+> clean (36 bands), e2e 80, lockstep 0.6.1 (27 modules). Rode to
+> main.
 

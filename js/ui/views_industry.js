@@ -31,8 +31,9 @@
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">' + repChips(state.company.reputation) + '</div>' +
       '</div>');
 
-    // what the world remembers about us (v0.6.0)
-    const conversation = KP.liveNarratives(state);
+    // what the world remembers about us (v0.6.0; rival stories moved to
+    // their own cards in v0.6.1)
+    const conversation = KP.playerNarratives(state);
     if (conversation.length) {
       html.push('<div class="kicker">The conversation</div>');
       html.push('<div class="card">' + UI.narrativeLines(state, conversation) + '</div>');
@@ -50,10 +51,17 @@
         (a.releases || []).length + ' release' + ((a.releases || []).length === 1 ? '' : 's') + ' ›</span></div>').join('');
       const moves = (r.recentMoves || []).slice(-2).reverse().map(m =>
         '<span class="chip">' + UI.esc(m) + '</span>').join('');
+      // what the world says about THEM (v0.6.1)
+      const rNars = KP.narrativesFor(state, 'rivalCompany', r.short)
+        .concat((r.acts || []).flatMap(a => KP.narrativesFor(state, 'rivalAct', a.id)));
+      const casting = r.nextDebutWeek != null &&
+        state.week >= r.nextDebutWeek - KP.C.SCOUT.rivalHungerWindow;
       html.push('<div class="card rival-card">' +
         '<div class="rv-name">' + UI.esc(r.name) + '</div>' +
-        '<div class="rv-phil">' + philWord(r.philosophy) + ' · ' + prestigeWord(r.prestige) + '</div>' +
+        '<div class="rv-phil">' + philWord(r.philosophy) + ' · ' + prestigeWord(r.prestige) +
+        (casting ? ' · <span style="color:var(--magenta)">casting a new group</span>' : '') + '</div>' +
         '<div class="rv-blurb">' + UI.esc(r.blurb || '') + '</div>' +
+        (rNars.length ? UI.narrativeLines(state, rNars.slice(0, 2)) : '') +
         (actLines ? '<div class="rv-acts">' + actLines + '</div>'
           : '<div class="rv-acts"><div class="rv-act"><span class="rv-act-note">No active act — the trainee floor is all they have.</span></div></div>') +
         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">' +
@@ -131,6 +139,14 @@
       '<span class="chip">since ' + UI.esc(debutLabel) + '</span>' +
       '</div></div>');
 
+    // the world's story about this act (v0.6.1)
+    const aNars = KP.narrativesFor(state, 'rivalAct', a.id)
+      .concat(KP.narrativesFor(state, 'rivalCompany', r.short));
+    if (aNars.length) {
+      html.push('<div class="kicker">The story</div>');
+      html.push('<div class="card">' + UI.narrativeLines(state, aNars) + '</div>');
+    }
+
     const members = (a.members || []).map(id => state.people[id]).filter(Boolean);
     if (members.length) {
       html.push('<div class="kicker">Members</div>');
@@ -140,7 +156,8 @@
         html.push('<div class="member-cell">' +
           UI.portrait(m, 'md') +
           '<div class="mc-name">' + UI.esc(m.name.stage || m.name.given) + '</div>' +
-          '<div class="mc-role">' + m.age + (fromBoard ? ' · was on your board' : '') + '</div></div>');
+          '<div class="mc-role">' + m.age + ' · ' + KP.fmtCount(KP.socialOf(state, m)) +
+          (fromBoard ? ' · was on your board' : '') + '</div></div>');
       });
       html.push('</div>');
       const lost = members.filter(m => !m.flags.rivalNative);
