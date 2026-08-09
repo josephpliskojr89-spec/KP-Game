@@ -155,7 +155,7 @@
     const R = KP.C.ROLLOUT, CB = KP.C.COMEBACK;
     const notes = [];
     const idx = KP.clamp(state.week - (g.lastReleaseWeek || 0) - 1, 0, R.weeks - 1);
-    const plan = (g.rollout && g.rollout[idx]) || ['musicShow'];
+    const plan = (g.rollout && g.rollout[idx]) || ['popWave'];
     const members = g.members.map(id => state.people[id]).filter(p => p && p.status === 'idol');
     const soloMult = g.type === 'solo' ? KP.C.SOLO.promoFatigueMult : 1;
 
@@ -183,19 +183,8 @@
       });
     });
 
-    // the stages that make stories
-    if (plan.includes('musicShow') && rng.chance(R.encoreChance)) {
-      const voice = members.slice().sort((a, b) => b.talents.vocals.cur - a.talents.vocals.cur)[0];
-      if (voice && voice.talents.vocals.cur >= 60) {
-        KP.socialSpike(state, voice, KP.C.SOCIAL.viralSpike, 'encore');
-        notes.push({ kind: 'public', urgent: false, ind: 'encoreMoment', personId: voice.id, groupId: g.id,
-          text: KP.displayName(voice) + ' took the encore without a backing track and casually murdered the vocal. The clip is everywhere by morning — this is what the music-show grind is FOR.' });
-        const narNote = KP.recordViral(state, voice);
-        if (narNote) notes.push(narNote);
-        const dn = KP.igniteDiscourse(state, rng, 'fancam', 'idol', voice.id, g.id);
-        if (dn) notes.push(dn);
-      }
-    }
+    // the stages that make stories — encores moved to the show desk
+    // (v0.6.5): they belong to WINS now, not to bookings
     if (plan.includes('challenge') && rng.chance(R.challengeViralChance)) {
       const face = members.slice().sort((a, b) => KP.derived(b).centerPull - KP.derived(a).centerPull)[0];
       if (face) {

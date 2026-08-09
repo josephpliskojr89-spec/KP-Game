@@ -781,6 +781,21 @@
         const p = state.people[n.personId];
         posts.push({ persona: 'fan', text: 'the fan-sign clip of ' + (p ? KP.displayName(p) : 'her') +
           ' with the crying fan… this is why we stay. protect her at all costs' });
+      } else if (n.ind === 'showWin') {
+        const gName = (KP.groupById(state, n.groupId) || { name: 'they' }).name;
+        posts.push(rng.pick([
+          { persona: 'stan', text: gName + ' WON ' + KP.showLabel(n.showId) + '. the encore. the tears. the trophy. I have watched the announcement clip forty times and I am not done' },
+          { persona: 'fan', text: 'a ' + KP.showLabel(n.showId) + ' trophy for ' + gName + '. every voting guide, every streaming pass — it all mattered. WE did this' },
+          { persona: 'casual', text: 'watched a group win ' + KP.showLabel(n.showId) + ' today and cry like the trophy was a person. ok fine. I get it now' },
+        ]));
+      } else if (n.ind === 'rivalShowWin') {
+        posts.push(n.beatGroupId
+          ? { persona: 'anti', text: n.actName + ' taking ' + KP.showLabel(n.showId) + ' with the other group RIGHT THERE on stage… the camera work was surgical. brutal industry' }
+          : { persona: 'casual', text: n.actName + ' won ' + KP.showLabel(n.showId) + ' again. at this point hand them the timeslot' });
+      } else if (n.ind === 'endingFairy') {
+        const p = state.people[n.personId];
+        posts.push({ persona: 'casual', text: 'no because WHO is the ending fairy from this week… ' +
+          (p ? KP.displayName(p) : 'her') + ' looked at the camera for three seconds and gained a fandom. I was there. I am the fandom' });
       } else if (n.ind === 'comebackAnnounce') {
         posts.push(rng.pick([
           { persona: 'stan', text: n.actName + ' comeback announced. presave, hydrate, clear your schedule, warn your coworkers' },
@@ -848,6 +863,7 @@
           itGirl: idolName() + ' is entering her it-girl era and the brands are going to figure it out any day now',
           dateSniper: coName() + ' has officially made a HOBBY of dropping releases on other people’s dates. the audacity is almost impressive. almost',
           rivalry: 'the ' + actName() + ' rivalry is canon now. every shared release week is a pay-per-view event and I have never been happier',
+          showDarling: groupName() + ' winning the same show AGAIN. the stagehands know their coffee orders at this point. dynasty behavior',
         };
         posts.push(m[n.narKey] || (state.company.short + ' discourse hours. we live here now'));
       }

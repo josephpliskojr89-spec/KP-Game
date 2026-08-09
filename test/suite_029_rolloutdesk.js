@@ -28,14 +28,14 @@ function rideToDebut(state, g) {
 // ---- the rails: slots, unknown bookings, bills ----
 {
   const { state, g } = ready('rd-rails');
-  t.ok(!planWith(state, g, [['musicShow'], ['musicShow']]).ok, 'the plan covers all four weeks');
-  t.ok(!planWith(state, g, [['musicShow', 'variety', 'radio'], [], [], []]).ok,
+  t.ok(!planWith(state, g, [['countdown'], ['countdown']]).ok, 'the plan covers all four weeks');
+  t.ok(!planWith(state, g, [['countdown', 'variety', 'radio'], [], [], []]).ok,
     'two bookings a week is the ceiling');
   t.ok(!planWith(state, g, [['tokyoDome'], [], [], []]).ok, 'nobody can book Mars');
   const budgetBefore = state.budget;
   const R = KP.C.ROLLOUT;
-  const plan = [['musicShow', 'challenge'], ['variety'], ['fanSign'], []];
-  const planCost = R.ACTIVITIES.musicShow.cost + R.ACTIVITIES.challenge.cost +
+  const plan = [['countdown', 'challenge'], ['variety'], ['fanSign'], []];
+  const planCost = R.ACTIVITIES.countdown.cost + R.ACTIVITIES.challenge.cost +
     R.ACTIVITIES.variety.cost + R.ACTIVITIES.fanSign.cost;
   t.ok(planWith(state, g, plan).ok, 'a legal plan locks');
   t.eq(budgetBefore - state.budget,
@@ -64,7 +64,7 @@ function rideToDebut(state, g) {
     for (let w = 0; w < KP.C.ROLLOUT.weeks; w++) KP.advanceWeek(state);
     return { state, g, m0, base };
   };
-  const shows = mk([['musicShow', 'musicShow'], ['musicShow', 'musicShow'], ['musicShow', 'musicShow'], ['musicShow', 'musicShow']], 'rd-shows');
+  const shows = mk([['countdown', 'countdown'], ['countdown', 'countdown'], ['countdown', 'countdown'], ['countdown', 'countdown']], 'rd-shows');
   const rests = mk([['rest'], ['rest'], ['rest'], ['rest']], 'rd-rests');
   t.ok(shows.m0.liveExp - shows.base.live > rests.m0.liveExp - rests.base.live + 10,
     'a music-show month builds live reps a rest month cannot');
@@ -92,8 +92,8 @@ function rideToDebut(state, g) {
   for (let s = 0; s < 30 && !(encoreSeen && challengeSeen); s++) {
     const { state, g } = ready('rd-special-' + s);
     g.members.forEach(id => { state.people[id].talents.vocals.cur = 80; });
-    planWith(state, g, [['musicShow', 'challenge'], ['musicShow', 'challenge'],
-      ['musicShow', 'challenge'], ['musicShow', 'challenge']]);
+    planWith(state, g, [['countdown', 'challenge'], ['countdown', 'challenge'],
+      ['countdown', 'challenge'], ['countdown', 'challenge']]);
     rideToDebut(state, g);
     for (let w = 0; w < KP.C.ROLLOUT.weeks; w++) KP.advanceWeek(state);
     if (state.inbox.some(m => /murdered the vocal/.test(m.text))) encoreSeen = true;
@@ -136,7 +136,7 @@ function rideToDebut(state, g) {
 // ---- determinism ----
 {
   const { state, g } = ready('rd-fork');
-  planWith(state, g, [['musicShow', 'fanSign'], ['challenge'], ['variety', 'radio'], ['rest']]);
+  planWith(state, g, [['countdown', 'fanSign'], ['challenge'], ['variety', 'radio'], ['rest']]);
   rideToDebut(state, g);
   const b = KP.deserialize(KP.serialize(state));
   for (let w = 0; w < 15; w++) { KP.advanceWeek(state); KP.advanceWeek(b); }

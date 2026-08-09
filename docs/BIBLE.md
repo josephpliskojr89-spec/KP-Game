@@ -870,9 +870,10 @@ better directive than any reception target. Not built yet; noted.
   committed dates; head-to-head weeks are scored, remembered, and
   feuded over ("Novaline, you absolute motherfuckers" is the target
   emotional response, verbatim).
-- **v0.6.5 — Music-show ecosystem.** Named shows, stage picks, special
-  stages, encores, ending fairies, wins. The Gaya-encore-goes-viral
-  moment: emergent, memory-fed, feed-amplified.
+- **v0.6.5 — Music-show ecosystem (SHIPPED, §27).** Named shows, stage
+  picks, encores, ending fairies, wins. The Gaya-encore-goes-viral
+  moment: emergent, memory-fed, feed-amplified — and it lives on the
+  WINNING encore now.
 - **v0.6.6 — Regional popularity.** KR / JP / greater-China / SEA / NA
   / LATAM / EU per group and idol; concepts and members resonate
   differently by region. Prerequisite for tours.
@@ -1160,6 +1161,58 @@ dateSniper narrative arrivals.
 10) and dodges when it cannot and the books allow; war census — the
 calendar lives in 40/40 worlds, battles fought 40/40, shared weeks won
 40/40, rivalries canon in ~17/40, ambush average printed per career.
+
+## §27 The music-show ecosystem (v0.6.5) — three stages, one trophy a week
+
+> §22 phase spec: *"Named shows, stage picks, special stages, encores,
+> ending fairies, wins. The Gaya-encore-goes-viral moment: emergent,
+> memory-fed, feed-amplified."*
+
+**The stages** (`KP.C.SHOWS` + three first-class rollout activities,
+module `js/engine/shows.js`): "a music show" was never one thing. **The
+Countdown** is the Sunday institution (fandom-weighted, floor 46 — you
+do not win it by showing up), **Prime Stage** is the performers' show
+(live-command-weighted), **Pop Wave** is the cable upstart
+(freshness-weighted, floor 32 — the underdog door). Booking them is
+the same rollout chip flow with different bills and payoffs; the
+generic `musicShow` activity is gone (old saves rotate through the
+three in migration).
+
+**The win** (`KP.showsWeek`): every week each show computes a winner
+among everyone actually promoting — player groups whose plan books the
+stage, rival acts within 4 weeks of a release, and (on the two
+broadcast shows) the **national pool the week it drops**: a titan
+comeback week is not your week, whoever you are. Scores are fandom /
+live / freshness per the show's weights plus a hash-driven wobble —
+zero rng, the same week always airs the same way. Below the floor,
+nobody wins.
+
+**Winning matters:** trophies on the group page shelf, popularity and
+morale, follower spikes — and the FIRST win in company history is an
+event (trust +3, the members cry through the encore, the CEO puts the
+trophy photo where the board will see it). Six wins on one stage forms
+the **showDarling** narrative ("might as well engrave their name on
+it") — tuned from 3 after the soak showed 39/40 careers hitting it:
+dynasty, not tenure. The **encore moment** moved here from the rollout
+desk: it belongs to WINS now — a real vocalist (65+) on the winning
+encore goes viral through the standard pipeline, and a fandom-vote win
+with a shaky room can ignite the encore storm instead. Every show
+appearance also ends on an **ending fairy** — visuals and pull with a
+weekly wobble, so it rotates onto the one nobody expected — whose
+fifteen-second clip sometimes outperforms the stage.
+
+**Losing matters too:** a rival act taking the trophy with your group
+standing on stage for the announcement is a letter ("Second on
+points. The cameras found our members' faces immediately") and it
+feeds an existing rivalry narrative. Rival wins are only NEWS the
+first time or when they beat you — a hot act re-winning weekly is
+wallpaper, and wallpaper crowds real letters out of the desk (learned
+in review when show-win mail trimmed dormancy and boil-over letters
+out of the inbox).
+
+**Harness:** first trophies in 40/40 soak careers, rival stage wins in
+40/40 worlds, the darling narrative in ~20/40 — a story half of long
+careers earn.
 
 ## §18 Watch items
 
@@ -1739,3 +1792,27 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > soak clean (45 bands — calendar alive 40/40, rivalries canon
 > 17/40), e2e 89 (war strip on the Desk), lockstep 0.6.4 (29
 > modules). Rode to main.
+
+> **v0.6.5 — the music-show ecosystem** (owner: *"let's do it.
+> music-show ecosystem next"* — the §22 phase where the Gaya moment
+> gets a stage to happen on)
+> Full spec in §27. New module shows.js: The Countdown, Prime Stage
+> and Pop Wave replace the generic music-show booking — three
+> first-class rollout chips with personalities, floors and distinct
+> win math (fandom / live command / freshness), resolved weekly among
+> everyone actually promoting: player groups, rival acts inside their
+> release windows, and the national pool on broadcast weeks (a titan
+> comeback week is not your week). Wins mint trophies on the group
+> page, the first in company history is a boardroom event, six on one
+> stage is a dynasty narrative, the encore moment now belongs to WINS
+> (and a fandom-vote win with a shaky room ignites the encore storm
+> instead), and every appearance ends on an ending fairy whose clip
+> sometimes outruns the stage. Losing the announcement moment on your
+> own stage is a letter — and feeds the rivalry file. Tuning stories:
+> darlingAt 3 → 6 after 39/40 soak careers hit it (dynasty, not
+> tenure); rival win letters cut to first-or-beat-us after show mail
+> crowded dormancy and boil-over letters out of the weekly inbox trim
+> (two suites caught it); the version-bump timing fork bit once more
+> and was recognized by its tell. Numbers: battery 31/31 (suite 031,
+> 19 assertions), soak clean (48 bands — first trophies 40/40,
+> darlings 20/40), e2e 89, lockstep 0.6.5 (30 modules). Rode to main.

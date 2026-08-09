@@ -139,6 +139,7 @@
       '<span class="chip">since ' + UI.esc(debutLabel) + '</span>' +
       (a.announcedWeek && a.announcedWeek >= state.week
         ? '<span class="chip clash">comeback · ' + UI.esc(KP.weekLabel(a.announcedWeek).text) + '</span>' : '') +
+      ((a.showWins || 0) > 0 ? '<span class="chip gold">' + a.showWins + ' show win' + (a.showWins === 1 ? '' : 's') + '</span>' : '') +
       '</div></div>');
 
     // the scoreboard (v0.6.4): shared release weeks, counted forever

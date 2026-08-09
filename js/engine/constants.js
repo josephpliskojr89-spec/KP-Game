@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.6.4',
+    VERSION: '0.6.5',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -435,9 +435,15 @@
       emptyWeekRecovery: 4,      // a light week breathes a little
       encoreChance: 0.05,        // weekly, when a music show is scheduled
       challengeViralChance: 0.10, // weekly, when the challenge is running
+      // the three weekly music shows are first-class bookings (v0.6.5):
+      // same generic payoff plumbing, different stages, different wins
       ACTIVITIES: {
-        musicShow: { label: 'Music show', cost: 4, fatigue: 6, pop: 0.24,
-          liveExp: 2.5, mediaExp: 0.5, morale: 0, followers: 500 },
+        countdown: { label: 'The Countdown', cost: 5, fatigue: 6, pop: 0.26,
+          liveExp: 2.5, mediaExp: 0.6, morale: 0, followers: 600, show: true },
+        primeStage:{ label: 'Prime Stage', cost: 4, fatigue: 6, pop: 0.22,
+          liveExp: 2.8, mediaExp: 0.4, morale: 0, followers: 450, show: true },
+        popWave:   { label: 'Pop Wave', cost: 3, fatigue: 5, pop: 0.20,
+          liveExp: 2.2, mediaExp: 0.6, morale: 0, followers: 500, show: true },
         variety:   { label: 'Variety', cost: 3, fatigue: 4, pop: 0.10,
           liveExp: 0.3, mediaExp: 3.5, morale: 0, followers: 900 },
         radio:     { label: 'Radio', cost: 1, fatigue: 2, pop: 0.08,
@@ -451,9 +457,42 @@
         rest:      { label: 'Rest day', cost: 0, fatigue: -10, pop: 0,
           liveExp: 0, mediaExp: 0, morale: 1, followers: 0 },
       },
-      // the staff suggestion: hard reps early, faces later
-      DEFAULT: [['musicShow', 'challenge'], ['musicShow', 'variety'],
-        ['musicShow', 'fanSign'], ['variety', 'livestream']],
+      // the staff suggestion: the friendly stage first, the big one once
+      // the fanbase is counted, faces later
+      DEFAULT: [['popWave', 'challenge'], ['countdown', 'variety'],
+        ['primeStage', 'fanSign'], ['variety', 'livestream']],
+    },
+
+    // ---- The music-show ecosystem (v0.6.5) ------------------------------
+    // Three weekly shows with personalities. A win is computed among
+    // everyone promoting that week — fandom votes, live command, and
+    // freshness weighted per show. Wins mint trophies, encores, and
+    // grudges. The national pool is above cable trophies by design.
+    SHOWS: {
+      // the broadcast stages host the national pool the week it drops —
+      // the summit is defended on TV too. Pop Wave is the underdog door.
+      countdown:  { fandomW: 0.50, liveW: 0.35, freshW: 0.15, floor: 46,
+        nationalGuests: true,
+        line: 'the Sunday institution — fandoms move armies for this one' },
+      primeStage: { fandomW: 0.30, liveW: 0.55, freshW: 0.15, floor: 40,
+        nationalGuests: true,
+        line: 'the performers’ show — the camera does not cut away' },
+      popWave:    { fandomW: 0.30, liveW: 0.30, freshW: 0.40, floor: 32,
+        line: 'the cable upstart — new songs and new faces welcome' },
+    },
+    SHOWWIN: {
+      winPop: 2,               // a trophy moves the fanbase
+      winMorale: 2,
+      winFollowers: 2500,      // per member, hash-jittered
+      firstWinTrust: 3,        // the first trophy reaches the boardroom
+      rivalPromoWeeks: 4,      // how long a rival release keeps them on stages
+      jitter: 12,              // hash-driven weekly wobble in scores
+      encoreChance: 0.35,      // after a WIN: the encore is live, no track
+      encoreVocalsMin: 65,     //   — a real voice makes it a moment
+      shakyEncoreChance: 0.2,  // after a win with a shaky room: a storm
+      shakyLiveMax: 42,
+      fairyChance: 0.12,       // weekly, per appearance: the ending fairy trends
+      darlingAt: 6,            // wins on ONE show before it becomes a story (dynasty, not tenure)
     },
 
     // ---- The discourse (v0.6.2): interactive social media ---------------

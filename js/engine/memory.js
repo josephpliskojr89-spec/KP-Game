@@ -83,6 +83,10 @@
           (feud.wins + '–' + feud.losses) + ' to ' + (feud.wins >= feud.losses ? 'us' : 'them') +
           ' on shared weeks, and both fandoms keep receipts.' : ' has a rivalry the whole scene watches.');
       }
+      case 'showDarling': {
+        const show = KP.showLabel((n.meta && n.meta.show) || 'countdown');
+        return show + ' might as well engrave ' + group() + '’s name on the trophy.';
+      }
       default: return n.key;
     }
   };
@@ -151,6 +155,7 @@
       case 'patientHouse': return rivalCo() + '’s reputation crystallized: sign young, wait years, rarely miss. The patient ones are the dangerous ones.';
       case 'dateSniper': return 'Twice now ' + rivalCo() + ' has parked a release on one of our announced dates. Nobody in this building believes in coincidence anymore. The staff have started calling them what they are.';
       case 'rivalry': return 'The internet has made it official: ' + rivalAct() + ' versus us is a RIVALRY now — capital letters, compilation videos, the works. Every shared release week from here is a scoreboard.';
+      case 'showDarling': return 'Three trophies from the same stage and the coverage found its line: ' + KP.showLabel((n.meta && n.meta.show) || 'countdown') + ' belongs to ' + group() + ' now. Champions get measured harder — enjoy it anyway.';
       default: return 'A narrative formed: ' + n.key;
     }
   }

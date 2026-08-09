@@ -95,7 +95,7 @@ function throughDebut(seed, planExtra) {
 // music-show month builds live reps, and the plan rides on the group
 {
   const varietyPlan = [['variety', 'variety'], ['variety', 'variety'], ['variety', 'variety'], ['variety', 'variety']];
-  const showsPlan = [['musicShow', 'musicShow'], ['musicShow', 'musicShow'], ['musicShow', 'musicShow'], ['musicShow', 'musicShow']];
+  const showsPlan = [['countdown', 'countdown'], ['countdown', 'countdown'], ['countdown', 'countdown'], ['countdown', 'countdown']];
   const varietyState = throughDebut('roll-focus', { rollout: varietyPlan });
   const showsState = throughDebut('roll-focus2', { rollout: showsPlan });
   const vm = varietyState.groups[0].members.map(id => varietyState.people[id]);

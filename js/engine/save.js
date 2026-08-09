@@ -370,6 +370,12 @@
     });
     // 0.6.1/0.6.2 saves may carry never-viewed profiles — mint them now
     KP.mintSocialAll(state);
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The rollout desk is open: every release now locks with a week-by-week promotion plan — two bookings a week, each with a bill and a payoff. Music shows make stages (and occasionally the encore clip that makes a career), variety makes faces, fan signs make loyalty, the challenge makes reach, and rest makes the next week possible. They cannot be everywhere. That is the job.',
+    });
   } });
 
   // v0.6.4 — the release war. Feud ledgers open empty; the calendar desk
@@ -383,11 +389,30 @@
       id: 'm' + (state.nextMsgId++),
       text: 'The calendar desk is live: rival comebacks are announced ahead of time now, and your locked dates go public the moment the teasers cut. Fair warning from the veterans — in this industry, a public date is an invitation. Some companies RSVP.',
     });
+  } });
+
+  // v0.6.5 — the music-show ecosystem. Generic "music show" bookings
+  // become the three named stages, rotated in the staff's spirit; the
+  // trophy shelf starts empty and honest.
+  MIGRATIONS.push({ v: '0.6.5', fn: function (state) {
+    const ROTATION = ['popWave', 'countdown', 'primeStage'];
+    const convert = plan => {
+      if (!Array.isArray(plan)) return;
+      plan.forEach((wk, i) => {
+        if (!Array.isArray(wk)) return;
+        wk.forEach((a, j) => { if (a === 'musicShow') wk[j] = ROTATION[i % ROTATION.length]; });
+      });
+    };
+    (state.groups || []).forEach(g => {
+      convert(g.rollout);
+      if (g.prep) convert(g.prep.rollout);
+      g.trophies = g.trophies || {};
+    });
     state.inbox = state.inbox || [];
     state.inbox.unshift({
       kind: 'company', week: state.week, read: false,
       id: 'm' + (state.nextMsgId++),
-      text: 'The rollout desk is open: every release now locks with a week-by-week promotion plan — two bookings a week, each with a bill and a payoff. Music shows make stages (and occasionally the encore clip that makes a career), variety makes faces, fan signs make loyalty, the challenge makes reach, and rest makes the next week possible. They cannot be everywhere. That is the job.',
+      text: 'The show desk is open: “a music show” was never one thing. The Countdown is the Sunday institution the fandoms move armies for, Prime Stage is where performers get measured, and Pop Wave takes chances on new faces. Book them by name now — and know that every week, ONE act on those stages goes home with the trophy. It is about time it was us.',
     });
   } });
 

@@ -56,6 +56,9 @@ const BANDS = {
   warBattled:        { lo: 0.10, hi: 1.00, label: 'orgs that fought a head-to-head release week' },
   warWon:            { lo: 0.05, hi: 1.00, label: 'orgs that took at least one shared week' },
   warRivalry:        { lo: 0.00, hi: 0.85, label: 'worlds where a rivalry became canon' },
+  showFirstWin:      { lo: 0.20, hi: 1.00, label: 'orgs that won their first music-show trophy' },
+  showRivalWins:     { lo: 0.80, hi: 1.00, label: 'worlds where rival acts took stages' },
+  showDarling:       { lo: 0.00, hi: 0.70, label: 'worlds where a stage became somebody\'s (darling narrative)' },
 };
 
 const tally = {
@@ -70,6 +73,7 @@ const tally = {
   memoryAlive: 0, idolNarrative: 0,
   discourseSeen: 0, discourseHandled: 0, discourseBoiled: 0,
   warAnnounced: 0, warAmbushed: 0, warBattled: 0, warWon: 0, warRivalry: 0,
+  showFirstWin: 0, showRivalWins: 0, showDarling: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -364,6 +368,9 @@ for (let s = 0; s < SEEDS; s++) {
   if (warBattleSeen) tally.warBattled++;
   if (warWonSeen) tally.warWon++;
   if ((state.memory || []).some(n => n.key === 'rivalry')) tally.warRivalry++;
+  if (state.firstShowWinWeek) tally.showFirstWin++;
+  if (state.rivals.some(r => (r.acts || []).some(a => (a.showWins || 0) >= 1))) tally.showRivalWins++;
+  if ((state.memory || []).some(n => n.key === 'showDarling')) tally.showDarling++;
 
   // memory census + guards (v0.6.0)
   guard((state.memory || []).length <= KP.C.MEMORY.cap, seed + ' memory over cap');

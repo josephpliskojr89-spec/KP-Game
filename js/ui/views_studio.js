@@ -161,7 +161,7 @@
           'data-action="studio-rollact" data-week="' + i + '" data-act="' + a + '">' +
           UI.esc(R.ACTIVITIES[a].label) + '</button>').join('') +
         '</div></div>').join('') +
-        '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">Music shows build the stage and the fanbase; variety builds faces; fan signs buy loyalty that outlasts promo; the challenge is cheap reach; rest is rest. They cannot be everywhere — pick.</div>' +
+        '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">The Countdown is the Sunday institution, Prime Stage rewards performers, Pop Wave takes chances on new faces — and every show week, somebody goes home with the trophy. Variety builds faces; fan signs buy loyalty; the challenge is cheap reach; rest is rest. They cannot be everywhere — pick.</div>' +
         '</div>');
 
       const minW = state.week + Math.max(KP.C.DEBUT.prepWeeksMin, fmt.minPrep);

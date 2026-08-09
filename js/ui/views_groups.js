@@ -119,6 +119,16 @@
       html.push('<div class="card">' + UI.narrativeLines(state, gNars) + '</div>');
     }
 
+    // the trophy case (v0.6.5): music-show wins, counted forever
+    const trophies = Object.entries(g.trophies || {}).filter(([, n]) => n > 0);
+    if (trophies.length) {
+      const total = trophies.reduce((s, [, n]) => s + n, 0);
+      html.push('<div class="kicker">The trophy case</div>');
+      html.push('<div class="pad" style="display:flex;gap:7px;flex-wrap:wrap">' +
+        trophies.map(([show, n]) => '<span class="chip gold">' + UI.esc(KP.showLabel(show)) + ' × ' + n + '</span>').join('') +
+        '<span class="chip">' + total + ' win' + (total === 1 ? '' : 's') + ' total</span></div>');
+    }
+
     // the rivalries (v0.6.4): shared release weeks, counted forever
     const feudIds = Object.keys(g.feuds || {});
     if (feudIds.length) {

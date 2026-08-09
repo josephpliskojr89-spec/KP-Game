@@ -111,6 +111,10 @@
     //     crowded week is a crowded week
     KP.industryWeek(state, rng).forEach(n => inbox.push(n));
 
+    // 5b2. the music shows air (v0.6.5): winners computed among everyone
+    //      promoting this week — trophies, encores, ending fairies
+    KP.showsWeek(state, rng).forEach(n => inbox.push(n));
+
     // 6. release resolution — due or overdue, never an exact-date match
     let dueGroup;
     while ((dueGroup = KP.debutDue(state))) {
