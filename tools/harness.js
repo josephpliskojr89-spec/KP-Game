@@ -37,6 +37,8 @@ const BANDS = {
   rivalActDebut:     { lo: 0.80, hi: 1.00, label: 'worlds where a rival debuted a new act' },
   boardLosses:       { lo: 0.50, hi: 1.00, label: 'orgs that lost 3+ board prospects to rivals' },
   stolenOnStage:     { lo: 0.30, hi: 1.00, label: 'worlds where a lost prospect debuted for a rival' },
+  memoryAlive:       { lo: 0.60, hi: 1.00, label: 'worlds holding living narratives (>=2)' },
+  idolNarrative:     { lo: 0.05, hi: 1.00, label: 'worlds where an idol earned a personal narrative' },
   nationalAlive:     { lo: 0.80, hi: 1.00, label: 'worlds with a living national chart (>=12 entries)' },
   natTopTwenty:      { lo: 0.30, hi: 1.00, label: 'orgs that cracked the national top 20' },
   natTopTen:         { lo: 0.10, hi: 1.00, label: 'orgs that reached the national top 10' },
@@ -57,6 +59,7 @@ const tally = {
   rivalActDebut: 0, chartAlive: 0, lifecycleSeen: 0, feedAlive: 0, playerTopThree: 0, crowdedRelease: 0,
   idolsRested: 0, overworkSeen: 0, boardLosses: 0, stolenOnStage: 0,
   nationalAlive: 0, natTopTwenty: 0, natTopTen: 0, natNumberOne: 0,
+  memoryAlive: 0, idolNarrative: 0,
 };
 let totalGroups = 0;
 let totalSaveKB = 0;
@@ -295,6 +298,13 @@ for (let s = 0; s < SEEDS; s++) {
   const sizeKB = KP.saveSizeKB(state);
   guard(sizeKB <= 400, seed + ' save size runaway: ' + sizeKB + ' KB after 140 weeks');
   totalSaveKB += sizeKB;
+
+  // memory census + guards (v0.6.0)
+  guard((state.memory || []).length <= KP.C.MEMORY.cap, seed + ' memory over cap');
+  (state.memory || []).forEach(n => guard(n.strength > 0 && n.strength <= 100 && n.key && n.subjectType,
+    seed + ' malformed narrative ' + (n && n.key)));
+  if (KP.liveNarratives(state).length >= 2) tally.memoryAlive++;
+  if ((state.memory || []).some(n => n.subjectType === 'idol')) tally.idolNarrative++;
 
   // the national chart census (v0.5.0)
   if (state.national.entries.length >= 12) tally.nationalAlive++;

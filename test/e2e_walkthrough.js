@@ -303,6 +303,8 @@ async function main() {
   await page.waitForSelector('.rival-card');
   const scene = await page.textContent('#screen');
   ok(scene.includes('The other companies'), 'the scene lists the other companies');
+  ok(scene.includes('The conversation'), 'the world has opinions about us (v0.6.0)');
+  ok(scene.includes('never misses on vocals'), 'and it remembers the vocal pedigree');
   ok(/trainees/.test(scene), 'rival rosters are visible');
   ok(/fanbase/.test(scene), 'rival acts show on their company cards');
   // --- rivals with faces (v0.4.3): open an act, meet the members ---

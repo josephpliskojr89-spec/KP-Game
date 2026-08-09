@@ -31,6 +31,13 @@
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">' + repChips(state.company.reputation) + '</div>' +
       '</div>');
 
+    // what the world remembers about us (v0.6.0)
+    const conversation = KP.liveNarratives(state);
+    if (conversation.length) {
+      html.push('<div class="kicker">The conversation</div>');
+      html.push('<div class="card">' + UI.narrativeLines(state, conversation) + '</div>');
+    }
+
     html.push('<div class="kicker">The other companies</div>');
     (state.rivals || []).forEach(r => {
       const interested = Object.keys(r.interest || {}).length;

@@ -30,6 +30,15 @@
       '<span class="band ' + key + '">' + UI.esc(bandLabel) + (confident ? '' : ' ?') + '</span></span>';
   };
 
+  // What the world says (v0.6.0): living narratives, rendered with live names
+  UI.narrativeLines = function (state, narratives) {
+    if (!narratives || !narratives.length) return '';
+    return narratives.slice(0, 4).map(n =>
+      '<div class="nar-line">“' + UI.esc(KP.narrativeText(state, n)) + '”' +
+      '<span class="nar-since">since ' + UI.esc(KP.weekLabel(Math.max(1, n.firstWeek)).text) + '</span></div>'
+    ).join('');
+  };
+
   UI.condChips = function (p) {
     const chips = [];
     if (p.flags.burnout > 0) chips.push('<span class="chip hot">recovering</span>');

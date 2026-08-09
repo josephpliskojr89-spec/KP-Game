@@ -825,6 +825,136 @@ executive objectives, media/tour content and the leader-role accretion
 (§16 standing note) — "get me a national top ten by year's end" is a
 better directive than any reception target. Not built yet; noted.
 
+## §22 The company-simulator mandate (v0.6.x line)
+
+> Owner, opening the line: *"This should be the update where the game
+> stops being primarily a roster-builder and becomes an actual K-pop
+> company simulator… the outside world needs enough machinery to react
+> to what you've built."* Full directive on file; the constraints that
+> govern every phase below, in the owner's words:
+> - *"The thing I'd avoid is turning promotion into twenty sliders
+>   where optimal play becomes obvious. Give me constrained choices and
+>   opportunity costs."* No slider-optimization. Slot-limited weeks.
+>   You cannot send a group to six music shows, three variety programs,
+>   seventeen fan signs, Tokyo, Los Angeles and Mars simultaneously.
+> - *"There's one system I'd put above almost everything else: memory.
+>   The simulated public needs to remember things."* Memory is
+>   infrastructure, built FIRST (v0.6.0, §23); every later system reads
+>   it or writes it.
+> - Social media should be fun to read, not a task list: *"don't make
+>   every post actionable. Half the fun is doomscrolling your fictional
+>   fandom and yelling at people."*
+
+### Phases (each a small versioned release; owner feel-reports may
+### reorder or split — this list is a map, not a contract)
+
+- **v0.6.0 — Memory (SHIPPED, §23).** Narratives: form, reinforce,
+  decay, influence. The keystone.
+- **v0.6.1 — Individual popularity & bias data.** Per-idol recognition
+  / core fandom / casual interest, moved by the events that already
+  exist (breakouts, fancams, hype, benchings). Jane's viral moment
+  spikes JANE. The least musically important member becoming the
+  public's favorite is a feature, not a bug. Writes to memory.
+- **v0.6.2 — Promotion strategy (the centerpiece).** The rollout
+  builder: announcement timing, teasers, pre-release singles,
+  showcases, music shows, variety, radio, dance challenges, fan signs,
+  livestreams — as SLOTTED activity picks per week with money, staff
+  and idol-energy costs riding the v0.4.2 fatigue economy. Overwork
+  discourse ("she looks exhausted") flows through the feed and
+  sentiment, feeding memory.
+- **v0.6.3 — Interactive social media.** Posts from fans, antis,
+  journalists, company stans, casuals reacting to real events (line
+  distribution, styling, dating rumors, bad encores, injuries).
+  Limited company responses: ignore / statement / clarification /
+  apology / legal threat / lean into meme / member livestream. MOST
+  POSTS NOT ACTIONABLE by design.
+- **v0.6.4 — Competitive release calendar.** Announced comebacks
+  visible in advance; challenge or dodge; rivals occasionally ambush
+  a committed date ("Novaline, you absolute motherfuckers" is the
+  target emotional response, verbatim).
+- **v0.6.5 — Music-show ecosystem.** Named shows, stage picks, special
+  stages, encores, ending fairies, wins. The Gaya-encore-goes-viral
+  moment: emergent, memory-fed, feed-amplified.
+- **v0.6.6 — Regional popularity.** KR / JP / greater-China / SEA / NA
+  / LATAM / EU per group and idol; concepts and members resonate
+  differently by region. Prerequisite for tours.
+- **v0.6.7 — Tour planning.** Cities, venue sizes, pricing, dates,
+  rest days, production budget, setlists. Undersell/oversell both
+  visible and narrated. Tours grow regional fandom and prestige, not
+  just cash. Leader role gets tour-leg work (§16 standing note pays off).
+- **v0.6.8 — Fandom identity.** Fandom name, colors/lightstick, size
+  vs intensity, fanclub membership, spending power. Casual-huge vs
+  small-and-devout behave differently in everything above.
+- **v0.6.9 — Brand deals & ambassadorships.** Group and individual;
+  visuals become an economy; individual recognition feeds back into
+  the group. "Justice for the visual role."
+- **v0.6.10 — Festival & award circuit.** Invitations from reputation
+  and relationships; schedule interruptions; award season as campaign
+  — nominations, wins, snubs, fandom warfare. Reads memory hard.
+- **v0.6.11 — Variety/personality careers.** Variety monsters, actors,
+  MCs, OST singers, producers; secondary strengths become careers;
+  writes heavily to individual popularity + memory.
+- **v0.6.12 — Creative teams.** Producers, songwriters, choreographers,
+  stylists, MV directors with reputations and artist chemistry; losing
+  yours to Aurum should hurt.
+- **v0.6.13 — Member participation.** Songwriting/producing/choreo/
+  styling credits shift public perception from performer to artist.
+- **v0.6.14 — Hiatus as strategy.** Deliberate disappearance: cooling
+  risk vs full restoration and anticipation. The v0.6.0 dormancy
+  narrative + return bonus is the seed; this phase makes it a chosen
+  tool with bigger stakes.
+- **v0.6.15 — Contracts & leverage.** Individual fame gets a seat at
+  the negotiating table. Keeping stars happy becomes a system. Late on
+  purpose — it needs everything above to matter.
+
+Company reputation by category and media narratives are NOT separate
+phases: they live inside memory (§23) and deepen with every phase.
+
+## §23 Memory (v0.6.0) — the world remembers
+
+> Owner: *"If Jane has three viral fancams, the fourth should reinforce
+> an existing Jane fancam reputation rather than being treated like a
+> random event… the world develops opinions about your company, your
+> groups, and individual idols — and remembers why it has them."*
+
+**The narrative** (`state.memory`, module `js/engine/memory.js`) is a
+structured opinion: `{ key, subjectType (company/group/idol),
+subjectId, strength, evidence, firstWeek, lastWeek, meta }`. It FORMS
+when a pattern crosses a threshold, STRENGTHENS (+16) on each new piece
+of evidence, DECAYS (−0.35/wk) without any, is pruned below 8, capped
+at 24 living opinions per world. Everything deterministic — memory
+never rolls dice. Words are rendered live (`KP.narrativeText`) so stage
+names stay current; the structure is the memory, the phrasing is not.
+
+**Current narrative keys:** company identity from sustained reputation
+(vocalHouse / performanceHouse / starMaker / hitFactory, monthly check
+≥68 rep — note HCG's founding rep forms vocalHouse in week 1, because
+six years of history walked in with you); monsterRookies (≥75
+reception); underperformed (comeback ≥12 under the last); dormant (40
+silent weeks, nagged every 8); fancamStar (2nd viral moment — the
+first is luck); itGirl (3rd breakout).
+
+**Influence — memory changes how events are read (all deterministic):**
+long-awaited return +4 reception and the dormancy narrative resolves;
+vocal-pedigree debuts read ±(+2/−3) against expectation; a second
+debut under the pedigree draws a comparison to the previous main vocal
+BY NAME in the public notes (the owner's Ha-eun/Hyunseo/Gaya example,
+mechanized). The trades' monthly headline pulls from live narratives
+half the time; the fan feed reacts to formations and resurfaces living
+narratives ambiently ("the Jane fancam industrial complex remains
+undefeated").
+
+**Where it shows:** Industry → Scene "The conversation" (all living
+narratives), group page "The narrative", dossier "The public knows
+her" — each line stamped with when it formed. One evidence door
+(`KP.recordEvidence` + `recordViral`/`recordBreakout` thresholds) so
+every future system writes memory the same way.
+
+**Migration:** the clippings file opens ALREADY FULL — standing
+reputation, recorded sensations and remembered breakout counts become
+the narratives the world would have formed by now, narrated as the desk
+opening its file.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -1270,4 +1400,31 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > feel-loop. Numbers: battery 25/25 (suite 025), soak clean, e2e 76
 > (title flow, overwrite guard, Continue restore, export box),
 > lockstep 0.5.1. Rode to main.
+
+> **v0.6.0 — the world remembers** (owner opened the company-simulator
+> mandate — full phase map in §22 — and put one system above almost
+> everything else: *"the simulated public needs to remember things"*)
+> Memory shipped first because everything else in the mandate reads it
+> or writes it. New module memory.js (§23): narratives form at
+> thresholds, strengthen +16 per evidence, decay 0.35/week, prune,
+> cap at 24 — deterministic throughout, words rendered live so stage
+> names stay current. Keys: company identity from sustained rep
+> (vocalHouse forms week 1 — six years of history walked in with
+> you), monster rookies, underperformed, dormant (with nag cadence),
+> fancamStar (2nd viral — the first is luck), itGirl (3rd breakout).
+> Influence is real and modest: long-awaited returns land +4 and
+> resolve the complaint, pedigree debuts read ±2/−3 against
+> expectation, and a second debut under the vocal-house name draws a
+> BY-NAME comparison to the previous main vocal. The trades feature
+> live narratives; the fans react to formations and resurface
+> reputations ambiently. UI: "The conversation" on Scene, "The
+> narrative" on group pages, "The public knows her" on dossiers.
+> Migration opens the clippings file already full from existing
+> history. Two cadence bugs caught by the suite (monthly check missing
+> the first advance; dormancy forming only on exact multiples). Titan
+> megahits nudged 1.3→1.38 after memory's reception bonuses pushed
+> the national summit to 17/40 (back to 13/40). Numbers: battery
+> 26/26 (suite 026, 33 assertions), soak clean (34 bands — living
+> narratives 40/40, idol narratives 40/40), e2e 78, lockstep 0.6.0
+> (26 modules). Rode to main.
 

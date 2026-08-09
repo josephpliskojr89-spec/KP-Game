@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.5.1',
+    VERSION: '0.6.0',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -337,7 +337,7 @@
       decay: 0.93,                 // national songs have longevity the scene lacks
       titanDecay: 0.965,           // titan hits linger — the summit is defended
       megaChance: 0.55,            // a titan release is often a cultural moment…
-      megaMult: 1.3,               // …that parks on top for a season
+      megaMult: 1.38,              // …that parks on top for a season
       dropBelow: 14,               // and the floor is higher
       maxEntries: 48,
       showTop: 25,
@@ -347,6 +347,28 @@
       retireChance: 0.25,          // …and a fresh riser takes the slot
       milestones: [20, 10, 3, 1],  // the ladders worth a letter
       firstTopTenTrust: 3,         // the CEO notices the national top 10
+    },
+
+    // ---- Memory (v0.6.0): the world develops opinions and keeps them ----
+    // Narratives form from patterns, strengthen on new evidence, decay
+    // when nothing feeds them, and change how later events are read.
+    MEMORY: {
+      cap: 24,                 // living narratives per world; weakest pruned
+      decayPerWeek: 0.35,      // opinions fade without evidence
+      pruneBelow: 8,           // forgotten
+      reinforceGain: 16,       // each new piece of evidence
+      formStrength: 26,        // a fresh narrative's opening strength
+      dormantWeeks: 40,        // a debuted group silent this long goes noticed
+      dormantNagWeeks: 8,      // fans repeat the complaint on this cadence
+      viralFormAt: 2,          // viral moments before "the fancam one" sticks
+      breakoutFormAt: 3,       // breakouts before "it-girl" sticks
+      repPedigreeAt: 68,       // company rep that reads as identity
+      // memory changes interpretation — modest, deterministic
+      returnBonus: 4,          // a long-awaited comeback lands warmer
+      pedigreeMeet: 2,         // living up to the company's name
+      pedigreeMiss: -3,        // debuting UNDER the company's name
+      underperformGap: 12,     // reception drop that becomes a story
+      minShowStrength: 22,     // below this, the UI stays quiet about it
     },
 
     // ---- The fan feed (v0.4.0): curated, world-aware, never cruel -------

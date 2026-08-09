@@ -286,6 +286,40 @@
     });
   } });
 
+  // v0.6.0 — the world remembers. Memory switches on, and the clippings
+  // file opens ALREADY FULL: existing reputation, sensations and breakout
+  // histories become the narratives the world would have formed by now.
+  MIGRATIONS.push({ v: '0.6.0', fn: function (state) {
+    state.memory = state.memory || [];
+    const M = KP.C.MEMORY;
+    // company identity from standing reputation
+    const rep = (state.company && state.company.reputation) || {};
+    [['vocal', 'vocalHouse'], ['performance', 'performanceHouse'],
+      ['starMaker', 'starMaker'], ['girlGroup', 'hitFactory']].forEach(([repKey, key]) => {
+      if ((rep[repKey] || 0) >= M.repPedigreeAt) KP.recordEvidence(state, key, 'company', 'player');
+    });
+    // sensations already on the record
+    (state.groups || []).forEach(g => {
+      (g.releases || []).forEach(rel => {
+        if (rel.reception >= 75) KP.recordEvidence(state, 'monsterRookies', 'group', g.id);
+      });
+    });
+    // breakout histories → counts → it-girl where earned
+    Object.values(state.people || {}).forEach(p => {
+      const n = (p.history || []).filter(h => /Named the breakout/.test(h.text)).length;
+      if (n > 0) {
+        p.breakoutCount = Math.max(p.breakoutCount || 0, n);
+        if (p.breakoutCount >= M.breakoutFormAt) KP.recordEvidence(state, 'itGirl', 'idol', p.id);
+      }
+    });
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'industry', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The desk opened a clippings file: what the public says about this company, its groups, and its artists — and why it says it. Reputations now persist, strengthen with evidence, fade without it, and change how the next release is read. The current conversation is on the Industry page. It was not empty on day one; you have been building it for years.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

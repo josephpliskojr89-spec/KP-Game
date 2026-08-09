@@ -175,10 +175,15 @@
     }
     // a crowded release week splits the public's attention (v0.4.0)
     const crowd = KP.crowdPenalty(state);
+    // memory reads the release before the public does (v0.6.0):
+    // long-awaited returns land warmer, pedigree cuts both ways
+    const memRead = KP.memoryReadsRelease(state, g, isDebut, avg('vocals'));
+    const prevReception = (g.releases && g.releases.length)
+      ? g.releases[g.releases.length - 1].reception : null;
     const reception = KP.clamp(Math.round(
       demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
       groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
-      popLift + hypeLift + soloEdge + spark + luck - crowd), 1, 100);
+      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod), 1, 100);
     const band = D.receptionBands.find(b => reception >= b.min);
     const centerOvershadowed = !isSolo && breakout.id !== g.roles.center &&
       pulls.find(x => x.m.id === g.roles.center).pull < pulls[0].pull - 8;
@@ -191,6 +196,17 @@
     });
     breakout.personality.confidence = KP.clamp(breakout.personality.confidence + 8, 0, 100);
     breakout.history.push({ week: state.week, text: 'Named the breakout of the ' + (isDebut ? 'debut' : 'comeback') + ' by nearly every recap.' });
+
+    // memory takes notes (v0.6.0): breakouts and virals accumulate into
+    // reputations; sensations and stumbles become stories
+    const narrativeNotes = [];
+    const push = n => { if (n) narrativeNotes.push(n); };
+    push(KP.recordBreakout(state, breakout));
+    if (spark > 0) push(KP.recordViral(state, breakout));
+    if (reception >= 75) push(KP.recordEvidence(state, 'monsterRookies', 'group', g.id));
+    if (!isDebut && prevReception != null && reception <= prevReception - KP.C.MEMORY.underperformGap) {
+      push(KP.recordEvidence(state, 'underperformed', 'group', g.id));
+    }
 
     // trust + objective resolution, by what the executive actually asked
     // for — an objective only resolves if it concerns THIS group
@@ -262,8 +278,10 @@
       crowd: Math.round(crowd),
       benched: benched.map(m => m.id),
       execLine: execDebutLine(band.key, centerOvershadowed, state),
-      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut, crowd, benched, fatigueAvg, natPeak),
+      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut, crowd, benched, fatigueAvg, natPeak)
+        .concat(memRead.notes),
     };
+    g.results.narrativeNotes = narrativeNotes;   // sim forwards these to the inbox
     g.releases = g.releases || [];
     g.releases.push({
       week: state.week, songTitle: demo.title, conceptId: concept.id,

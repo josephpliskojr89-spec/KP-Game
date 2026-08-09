@@ -146,6 +146,13 @@
     }
 
     // evaluations: blurb per domain with restrained band + confidence
+    // what the public calls her (v0.6.0)
+    const pNars = KP.narrativesFor(state, 'idol', p.id);
+    if (pNars.length) {
+      html.push('<div class="kicker">The public knows her</div>');
+      html.push('<div class="card">' + UI.narrativeLines(state, pNars) + '</div>');
+    }
+
     html.push('<div class="kicker">Evaluations</div>');
     evl.domains.forEach(d => {
       const val = KP.perceived(state, p, d.domain, d.evaluator);

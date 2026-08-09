@@ -107,6 +107,9 @@
       inbox.push({ kind: 'debut', urgent: true, groupId: dueGroup.id,
         text: dueGroup.name + (res.isDebut ? ' debuted with “' : ' came back with “') +
           res.songTitle + '”. ' + res.receptionLabel + '. Full report in the Studio.' });
+      // narratives born at the release (v0.6.0) reach the desk too
+      (res.narrativeNotes || []).forEach(n => inbox.push(n));
+      delete res.narrativeNotes;
     }
 
     // 7. deadline check — self-healing: fires when overdue, once
@@ -187,12 +190,23 @@
       state.fiscal.monthSignings = 0;
 
       if (rng.chance(0.6)) {
-        inbox.push({ kind: 'industry', text: KP.genHeadline(rng) });
+        // the trades write about what the world actually believes (v0.6.0)
+        const live = KP.liveNarratives(state);
+        if (live.length && rng.chance(0.5)) {
+          const n = live[rng.int(0, live.length - 1)];
+          inbox.push({ kind: 'industry', text: 'Trade feature this month: “' +
+            KP.narrativeText(state, n) + '” The coverage writes itself now.' });
+        } else {
+          inbox.push({ kind: 'industry', text: KP.genHeadline(rng) });
+        }
       }
 
       // companies rise, fall, merge and split on the month boundary (v0.4.0)
       KP.industryLifecycle(state, rng).forEach(n => inbox.push(n));
     }
+
+    // 8c. memory: opinions decay, slow patterns become narratives (v0.6.0)
+    KP.memoryWeek(state).forEach(n => inbox.push(n));
 
     // 9. stamp this week's chart positions (all releases are in) — the
     //    national board hands out milestone letters — then let the fans
@@ -232,6 +246,8 @@
         if (rng.chance(H.eventBase * KP.clamp(pull, 20, 90) / 60)) {
           eventFired = true;
           p.hype = KP.clamp(p.hype + H.gainMin + rng.next() * (H.gainMax - H.gainMin), 0, 100);
+          const narNote = KP.recordViral(state, p);   // memory counts (v0.6.0)
+          if (narNote) notes.push(narNote);
           notes.push({ kind: 'public', text: rng.pick([
             'A dance cover ' + KP.displayName(p) + ' filmed months ago is suddenly trending. The comments all ask the same question: when does she debut?',
             'Street-cast photos of ' + KP.displayName(p) + ' resurfaced overnight and the reposts have not stopped.',

@@ -668,6 +668,22 @@
         posts.push(m[n.tier] || m[20]);
       } else if (n.ind === 'natRetire') {
         posts.push('the ' + n.company + ' hiatus announcement has me revisiting my entire adolescence. pour one out for the national chart’s old guard');
+      } else if (n.ind === 'narrative') {
+        // a narrative just FORMED — the fans arrive with receipts (v0.6.0)
+        const idolName = () => { const p = state.people[n.narSubjectId]; return p ? KP.displayName(p) : 'her'; };
+        const groupName = () => (KP.groupById(state, n.narSubjectId) || { name: 'them' }).name;
+        const m = {
+          vocalHouse: 'day one of me saying ' + state.company.short + ' has the best vocal line in the industry and being objectively correct',
+          performanceHouse: state.company.short + ' choreo debuts are just built different. this is now canon',
+          starMaker: 'not ' + state.company.short + ' quietly becoming THE star factory. the trainee showcase watchers knew first',
+          hitFactory: state.company.short + ' girl groups do not miss. write it down, frame it',
+          monsterRookies: groupName() + ' monster rookies confirmed. I was here before it was obvious — screenshot this post',
+          underperformed: 'still think ' + groupName() + '’s last one deserved better numbers. the public was wrong and I’m patient',
+          dormant: groupName() + ' has not released in MONTHS. blink twice if you’re being held hostage in the practice room',
+          fancamStar: 'another ' + idolName() + ' viral moment. at this point it’s not luck, it’s a genre. the fancam one strikes again',
+          itGirl: idolName() + ' is entering her it-girl era and the brands are going to figure it out any day now',
+        };
+        posts.push(m[n.narKey] || (state.company.short + ' discourse hours. we live here now'));
       }
     });
     return posts;
@@ -708,6 +724,27 @@
         ]));
       }
     }
+    // the standing conversation: living narratives resurface (v0.6.0) —
+    // the fourth viral fancam reinforces a reputation, it never surprises
+    const live = KP.liveNarratives(state);
+    if (live.length && rng.chance(0.35)) {
+      const n = rng.pick(live);
+      const idolName = () => { const p = state.people[n.subjectId]; return p ? KP.displayName(p) : 'her'; };
+      const groupName = () => (KP.groupById(state, n.subjectId) || { name: 'them' }).name;
+      const m = {
+        vocalHouse: '“who does vocal lines like ' + state.company.short + '” nobody. that’s the post',
+        performanceHouse: 'putting on old ' + state.company.short + ' stage cams to feel something. the sync is medicinal',
+        starMaker: state.company.short + ' really keeps finding The One every cycle. scouting team raise NOW',
+        hitFactory: 'thinking about how ' + state.company.short + ' just… doesn’t miss with girl groups. unmatched',
+        monsterRookies: 'remember when ' + groupName() + ' debuted and immediately ate. monster rookie behavior only',
+        underperformed: 'the ' + groupName() + ' underperformance discourse is BACK on my timeline. let them cook',
+        dormant: 'day ' + Math.max(1, (state.week - ((n.meta && n.meta.since) || state.week)) * 7) + ' of no ' + groupName() + ' comeback. I am but a shell',
+        fancamStar: 'the ' + idolName() + ' fancam industrial complex remains undefeated',
+        itGirl: idolName() + ' walked through ONE airport and my whole feed is fashion analysis. it-girl gravity is real',
+      };
+      if (m[n.key]) posts.push(m[n.key]);
+    }
+
     // rival act opinions — the fans have them, loudly
     const rivalActs = [];
     (state.rivals || []).forEach(r => (r.acts || []).forEach(a => { if (!a.retired) rivalActs.push({ a, r }); }));

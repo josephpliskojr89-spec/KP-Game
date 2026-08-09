@@ -370,6 +370,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .cr-move.new { color: var(--gold); letter-spacing: .1em; }
 .cr-weeks { font-size: .64rem; color: var(--ink-faint); flex: none; width: 24px; text-align: right; }
 
+/* narratives (v0.6.0): what the world remembers */
+.nar-line {
+  font-size: .84rem; font-style: italic; line-height: 1.45; color: var(--ink);
+  padding: 8px 0 8px 12px; border-left: 2px solid var(--gold);
+  margin: 6px 0;
+}
+.nar-line .nar-since { display: block; font-style: normal; font-size: .6rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); margin-top: 3px; }
+
 /* title screen (v0.5.1) */
 .title-wrap { display: flex; flex-direction: column; justify-content: center; min-height: 78vh; }
 .title-mark {

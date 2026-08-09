@@ -111,6 +111,14 @@
     }
 
     // chemistry observations + frictions with their handles
+    // what the public remembers about this group (v0.6.0)
+    const gNars = KP.narrativesFor(state, 'group', g.id)
+      .concat(g.members.flatMap(id => KP.narrativesFor(state, 'idol', id)));
+    if (gNars.length) {
+      html.push('<div class="kicker">The narrative</div>');
+      html.push('<div class="card">' + UI.narrativeLines(state, gNars) + '</div>');
+    }
+
     html.push('<div class="kicker">Room report</div>');
     KP.chemistryNotes(state, members).forEach(n => html.push('<div class="note">' + UI.esc(n) + '</div>'));
     KP.frictionPairs(state, g.members).forEach(f => html.push(UI.frictionCard(state, f)));
