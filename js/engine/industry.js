@@ -656,9 +656,16 @@
     const text = typeof entry === 'string' ? entry : entry.text;
     const persona = (typeof entry === 'object' && entry.persona) || pickPersona(rng);
     const viral = rng.chance(KP.C.FEED.viralChance);
+    // the regulars (v0.7.1): a share of the feed is voiced by the
+    // recurring cast everyone recognizes — the fandom has PEOPLE in it
+    let handle = null;
+    if (rng.chance(KP.C.LIFE.regularShare)) {
+      const reg = KP.regularFor(state, persona, state.week);
+      if (reg && !usedHandles.has(reg)) { handle = reg; usedHandles.add(reg); }
+    }
     return {
       week: state.week,
-      handle: KP.genFanHandle(rng, usedHandles),
+      handle: handle || KP.genFanHandle(rng, usedHandles),
       persona,
       text,
       likes: viral ? rng.int(400, 6000) : rng.int(2, 60),
@@ -1069,6 +1076,8 @@
     });
     // 2. industry events this week
     candidates.push.apply(candidates, rivalEventPosts(state, weekNotes || [], rng));
+    // the bubble (v0.7.1): her side of the screen, screenshotted
+    candidates.push.apply(candidates, KP.bubblePosts(state));
     // 3. ambient chatter fills EVERY week to a real feed (v0.6.3):
     //    events lead, but the timeline always has at least weeklyMin
     const ambient = ambientPosts(state, rng);

@@ -234,6 +234,10 @@
     //     47 — computed from the year that actually happened, rng-free
     KP.awardsWeek(state).forEach(n => inbox.push(n));
 
+    // 7e. the Monday meeting (v0.7.1): the exec asks, the claim goes on
+    //     the record, and the record gets checked — rng-free
+    KP.meetingWeek(state).forEach(n => inbox.push(n));
+
     // 8c. memory: opinions decay, slow patterns become narratives (v0.6.0)
     KP.memoryWeek(state).forEach(n => inbox.push(n));
 

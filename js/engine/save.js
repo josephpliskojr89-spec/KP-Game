@@ -494,6 +494,21 @@
     });
   } });
 
+  // v0.7.1 — the inner life. Debuted groups get their room charts (the
+  // dorm always existed; the files now show it); the Monday meeting
+  // calendar starts; everything else is hash-truth needing no backfill.
+  MIGRATIONS.push({ v: '0.7.1', fn: function (state) {
+    (state.groups || []).forEach(g => { if (g.debuted) KP.assignRooms(state, g); });
+    state.execNotes = state.execNotes || [];
+    state.nextMeetingWeek = state.nextMeetingWeek || (state.week + 4);
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'A quieter update from the desk, maybe the most important one: the files finally show WHO these people are. Dossiers carry what they do off the clock and what each of them actually wants. The dorm room charts are posted (roommates shape chemistry — and can be reshuffled, for a price). The fans’ recurring accounts now sign their posts. Idols’ paid-message screenshots reach the feed — read them; they tell you how she really is. And the executive has started holding a Monday meeting. What you say there goes on the record. The record gets checked.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

@@ -198,6 +198,16 @@
           if (actId === 'fanSign') KP.fandomGain(g, KP.C.FANDOM.gainFanSign);
           if (actId === 'livestream') KP.fandomGain(g, KP.C.FANDOM.gainLivestream);
         }
+        // variety weeks feed the variety dream (v0.7.1) — different
+        // schedules mean different things to different members
+        if (actId === 'variety' && KP.ambitionOf(state, m) === 'variety') {
+          m.morale = KP.clamp(m.morale + KP.C.LIFE.ambitionTouchBonus, 0, 100);
+          m.varietyWeeks = (m.varietyWeeks || 0) + 1;
+          if (m.varietyWeeks >= KP.C.LIFE.varietyAmbitionAt) {
+            const amb = KP.ambitionTouch(state, m, 'variety');
+            if (amb) notes.push(amb);
+          }
+        }
         if (A.fatigue > 0 && m.fatigue >= CB.OVERWORK.threshold && rng.chance(CB.OVERWORK.chance)) {
           notes.push(KP.overworkIncident(state, m, 'promotion', rng));
         }
@@ -417,7 +427,11 @@
     const natPeak = 1 + KP.nationalPositions(state).filter(e => e.score > score).length;
     const weeksOn = 1;
 
-    if (isDebut) { g.debutWeek = state.week; }
+    if (isDebut) {
+      g.debutWeek = state.week;
+      KP.assignRooms(state, g);   // the dorm gets its room chart (v0.7.1)
+      if (isSolo) push(KP.ambitionTouch(state, members[0], 'solo'));
+    }
     g.debuted = true;
     g.lastReleaseWeek = state.week;
     g.promoUntil = state.week + KP.C.COMEBACK.promoWeeks;

@@ -41,6 +41,17 @@
         '</div></div>');
     }
 
+    // the Monday meeting (v0.7.1): the question on the table
+    if (state.execQuestion) {
+      const q = state.execQuestion;
+      html.push('<div class="kicker">The Monday meeting</div>');
+      html.push('<div class="war-card held"><div class="w-flag">' + UI.esc(state.executive.name) + ' is waiting</div>' +
+        '<div class="w-text">“' + UI.esc(q.text) + '” Your answer goes on the record — and the record gets checked.</div>' +
+        '<div class="w-actions" style="flex-wrap:wrap">' +
+        q.options.map((o, i) => '<button class="btn" data-action="meeting-answer" data-opt="' + i + '">' + UI.esc(o.label) + '</button>').join('') +
+        '</div></div>');
+    }
+
     // the deals desk (v0.7.0): offers wait for an answer, briefly
     const dealOffers = KP.openDealOffers(state);
     if (dealOffers.length) {

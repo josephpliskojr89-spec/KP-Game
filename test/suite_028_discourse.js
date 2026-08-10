@@ -66,12 +66,14 @@ function ignite(state, kind, subjectType, subjectId, groupId) {
   const d2 = KP.liveDiscourses(state2)[0];
   d2.heat = 84;
   const popBefore = g2.popularity;
-  const moraleBefore = state2.people[g2.members[0]].morale;
-  let guard2 = 0;
-  while (d2.status === 'live' && guard2++ < 10) KP.advanceWeek(state2);
+  let guard2 = 0, moralePreBoil = state2.people[g2.members[0]].morale;
+  while (d2.status === 'live' && guard2++ < 10) {
+    moralePreBoil = state2.people[g2.members[0]].morale;   // snapshot before the boil week
+    KP.advanceWeek(state2);
+  }
   t.eq(d2.status, 'boiled', 'an ignored hot storm boils over');
   t.ok(g2.popularity < popBefore, 'the group pays (' + popBefore + ' → ' + g2.popularity + ')');
-  t.ok(state2.people[g2.members[0]].morale < moraleBefore, 'so does she');
+  t.ok(state2.people[g2.members[0]].morale < moralePreBoil, 'so does she');
   t.ok(state2.inbox.some(m => /boiled over/.test(m.text)), 'and the desk says so');
 }
 

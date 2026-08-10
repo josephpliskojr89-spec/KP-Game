@@ -93,6 +93,7 @@
         members.forEach(m => {
           m.morale = KP.clamp(m.morale + W.winMorale, 0, 100);
           KP.socialSpike(state, m, W.winFollowers, 'showwin-' + showId);
+          keep(KP.ambitionTouch(state, m, 'trophy'));   // somebody's dream (v0.7.1)
         });
         KP.fandomGain(g, KP.C.SHOWWIN.winMorale ? KP.C.FANDOM.gainShowWin : 0);   // shared trophies bind (v0.7.0)
         const runnerUp = field[1];

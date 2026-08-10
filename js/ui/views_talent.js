@@ -168,6 +168,20 @@
       }
     }
 
+    // off the clock + what she wants (v0.7.1) — the person in the file
+    if (p.status === 'idol' || p.status === 'trainee') {
+      const facts = KP.factsOf(state, p);
+      html.push('<div class="note">Off the clock: she ' + UI.esc(facts[0]) + ', and ' + UI.esc(facts[1]) +
+        '.<span class="n-who">— the staff, fondly</span></div>');
+      if (p.status === 'idol') {
+        const amb = KP.ambitionOf(state, p);
+        html.push('<div class="note">' + (p.flags.ambitionMet
+          ? 'She got the thing she wanted — ' + UI.esc(KP.C.LIFE.AMBITIONS[amb].label) + ' — and it shows in how she carries the rest.'
+          : 'What she wants, if you watch closely: ' + UI.esc(KP.C.LIFE.AMBITIONS[amb].line)) +
+          '<span class="n-who">— a staff observation, not a metric</span></div>');
+      }
+    }
+
     html.push('<div class="kicker">Evaluations</div>');
     evl.domains.forEach(d => {
       const val = KP.perceived(state, p, d.domain, d.evaluator);

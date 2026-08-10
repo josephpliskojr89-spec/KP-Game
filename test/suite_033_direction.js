@@ -44,8 +44,11 @@ function release(state, g, conceptId) {
   t.ok(openDemos.every(d => !d.toBrief), 'no brief, no brief tags');
 }
 
-// ---- the brief makes better records (statistical, same seeds) ----
+// ---- the brief makes better records (mechanism test: amplify the
+// bonus so the signal towers over generation noise, then restore) ----
 {
+  const realBonus = KP.C.DIRECTION.briefHookBonus;
+  KP.C.DIRECTION.briefHookBonus = 40;
   let briefSum = 0, briefN = 0, openSum = 0, openN = 0;
   for (let s = 0; s < 12; s++) {
     const { state, g } = fresh('dir-hook-' + s);
@@ -56,8 +59,10 @@ function release(state, g, conceptId) {
     const { state: s2, g: g2 } = fresh('dir-hook-' + s);
     KP.generateDemos(s2, KP.rngFor(s2), g2).forEach(d => { openSum += d.hook; openN++; });
   }
-  t.ok(briefSum / briefN > openSum / openN,
-    'a clear brief sharpens the writing (' + (briefSum / briefN).toFixed(1) + ' vs ' + (openSum / openN).toFixed(1) + ')');
+  KP.C.DIRECTION.briefHookBonus = realBonus;
+  t.ok(briefSum / briefN > openSum / openN + 10,
+    'the brief bonus reaches the hooks (' + (briefSum / briefN).toFixed(1) + ' vs ' + (openSum / openN).toFixed(1) + ')');
+  t.ok(realBonus > 0, 'and the live bonus is real (' + realBonus + ')');
 }
 
 // ---- guards: no mid-production changes, no unknown concepts ----

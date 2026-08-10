@@ -181,6 +181,22 @@
         App.render();
         break;
       }
+      case 'meeting-answer': {
+        const r = KP.answerMeeting(s, parseInt(t.dataset.opt, 10));
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast(r.note.slice(0, 120));
+        App.render();
+        break;
+      }
+      case 'dorm-shuffle': {
+        const r = KP.shuffleRooms(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast(r.note.slice(0, 120));
+        App.render();
+        break;
+      }
       case 'fandom-name': {
         const r = KP.nameFandom(s, t.dataset.id, parseInt(t.dataset.choice, 10));
         if (!r.ok) { UI.toast(r.reason, true); break; }

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.7.0',
+    VERSION: '0.7.1',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -694,6 +694,60 @@
       jitter: 6,                // hash-driven ceremony-night wobble
       categories: ['rookie', 'song', 'artist'],
       LABELS: { rookie: 'Rookie of the Year', song: 'Song of the Year', artist: 'Artist of the Year' },
+    },
+
+    // ---- The inner life (v0.7.1) ----------------------------------------
+    // Expert consult, distilled: the feed had no people in it, the idols
+    // never spoke and wanted nothing, and knowing your own roster was
+    // never tested. Facts are hash-truth; the Bubble leaks the numbers
+    // the sim already computes; the regulars remember; the dorm makes
+    // chemistry domestic; ambitions make morale psychology; the Monday
+    // meeting makes reading your people the job.
+    LIFE: {
+      bubbleChance: 0.07,        // weekly, per idol — screenshots travel
+      roomDriftMult: 1.5,        // roommates amplify chemistry both ways
+      roomShuffleCost: 2,
+      roomShuffleCooldown: 8,
+      regularShare: 0.35,        // feed posts voiced by the recurring cast
+      varietyAmbitionAt: 8,      // variety weeks before that dream is real
+      ambitionMoraleBonus: 8,    // the day the dream lands
+      ambitionTouchBonus: 1,     // weeks that feed the dream feel different
+      FACTS: [
+        'has a small dog the entire fandom knows by name',
+        'is a menace in online games under an alias nobody has cracked',
+        'cooks for the dorm every Sunday without being asked',
+        'collects film cameras and shoots the members constantly',
+        'keeps plants on the dorm windowsill and names all of them',
+        'is one of four siblings and calls home after every stage',
+        'can win any crane game in one try, witnesses confirm',
+        'reads webtoons until 3am and reviews them at breakfast',
+        'goes to the aquarium alone on rest days',
+        'was a church-choir kid and still hums harmonies in vans',
+        'is the dorm’s unofficial barista with strong opinions',
+        'does thousand-piece puzzles during comeback prep to stay calm',
+      ],
+      AMBITIONS: {
+        solo:    { label: 'a stage of her own',       line: 'she wants a solo. Everyone who has watched her rehearse alone after practice knows it.' },
+        trophy:  { label: 'a music-show trophy',      line: 'she wants a trophy in her hands — she has rewatched other groups’ win announcements more than their stages.' },
+        stage:   { label: 'a sold-out room',          line: 'she wants a sold-out room singing her lines back. The bigger the better.' },
+        variety: { label: 'a seat at the variety table', line: 'she wants to be the funny one on the panel shows — and she is right about being good at it.' },
+      },
+      REGULARS: [
+        { handle: '@fromthebarricade', persona: 'fan' },
+        { handle: '@chartseyes_kr',    persona: 'press' },
+        { handle: '@biaswrecked_gg',   persona: 'stan' },
+        { handle: '@formerstan_txt',   persona: 'anti' },
+        { handle: '@fourthgenfiles',   persona: 'casual' },
+        { handle: '@lightstickrepair', persona: 'fan' },
+      ],
+    },
+    MEETING: {
+      everyWeeks: 10,            // the Monday meeting cadence
+      claimWindow: 40,           // "closest to ready" gets this long
+      quarterWeeks: 12,          // "this quarter" means this quarter
+      payoffTrust: 2, missTrust: -2, silenceTrust: -1,
+      ignoreAfterWeeks: 4,       // an unanswered question is an answer
+      maxNotes: 6,
     },
 
     // ---- Executives & trust ---------------------------------------------

@@ -70,6 +70,9 @@ const BANDS = {
   dealSigned:        { lo: 0.10, hi: 1.00, label: 'orgs that signed a brand deal' },
   awardWon:          { lo: 0.05, hi: 1.00, label: 'orgs that took a year-end award home' },
   awardSnubbed:      { lo: 0.00, hi: 0.90, label: 'orgs that watched someone else win (the radicalizer)' },
+  bubbleSeen:        { lo: 0.50, hi: 1.00, label: 'worlds where bubble screenshots reached the feed' },
+  meetingKept:       { lo: 0.05, hi: 1.00, label: 'orgs that kept a Monday-meeting promise on the record' },
+  ambitionMet:       { lo: 0.05, hi: 1.00, label: 'worlds where somebody got the thing she always wanted' },
 };
 
 const tally = {
@@ -88,6 +91,7 @@ const tally = {
   regionLoud: 0, regionStory: 0, conceptCanon: 0,
   toured: 0, tourSoldOut: 0, tourSoft: 0, gaffeSeen: 0,
   fandomNamed: 0, dealSigned: 0, awardWon: 0, awardSnubbed: 0,
+  bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -208,6 +212,20 @@ for (let s = 0; s < SEEDS; s++) {
       if (KP.fandomEligible(state, g)) KP.nameFandom(state, g.id, 0);
     });
     KP.openDealOffers(state).forEach(o => KP.respondDeal(state, o.id, true));
+
+    // the Monday meeting (v0.7.1): the bot answers with its best read —
+    // and promises comebacks like someone who knows their own calendar
+    if (state.execQuestion) {
+      const q = state.execQuestion;
+      if (q.type === 'comebackPromise') {
+        const g = KP.groupById(state, q.groupId);
+        const reopens = g ? Math.max((g.promoUntil || 0) + KP.C.COMEBACK.restWeeks, g.tourRestUntil || 0) : state.week;
+        const canThisQuarter = reopens + 6 <= state.week + KP.C.MEETING.quarterWeeks;
+        KP.answerMeeting(state, canThisQuarter ? 0 : 1);
+      } else {
+        KP.answerMeeting(state, 0);
+      }
+    }
 
     // the touring desk (v0.6.8): when the calendar is open and the map
     // is warm, the bot takes the road — scale by fanbase, legs by warmth
@@ -437,6 +455,9 @@ for (let s = 0; s < SEEDS; s++) {
   if ((state.deals || []).length || Object.values(state.people).some(p => (p.dealCount || 0) > 0)) tally.dealSigned++;
   if ((state.awardHistory || []).some(a => a.isPlayer)) tally.awardWon++;
   if (awardSnubSeen) tally.awardSnubbed++;
+  if (state.feed.some(p => /bubble/.test(p.text))) tally.bubbleSeen++;
+  if ((state.execNotes || []).some(c => c.resolved === 'met')) tally.meetingKept++;
+  if (Object.values(state.people).some(p => p.flags && p.flags.ambitionMet)) tally.ambitionMet++;
 
   // memory census + guards (v0.6.0)
   guard((state.memory || []).length <= KP.C.MEMORY.cap, seed + ' memory over cap');

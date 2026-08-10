@@ -102,7 +102,8 @@
         if (p.social >= m && !p.socialMilestones.includes(m)) {
           p.socialMilestones.push(m);
           if (m >= 100000) {
-            notes.push({ kind: 'public', ind: 'socialMilestone', personId: p.id, milestone: m,
+            // 100k is a career event — it survives a crowded week's trim
+            notes.push({ kind: 'public', urgent: true, ind: 'socialMilestone', personId: p.id, milestone: m,
               text: KP.displayName(p) + ' crossed ' + KP.fmtCount(m) + ' followers. ' +
                 (m >= 1000000 ? 'A million people chose her. The company account has a tenth of that — nobody upstairs finds it funny.'
                   : 'The comment section is already organizing her birthday support.') });

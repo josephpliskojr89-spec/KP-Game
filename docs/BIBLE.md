@@ -1418,6 +1418,63 @@ band floor was set to 0 on the same principle as un-boiled storms and
 un-soft tour legs: risk mechanics may read zero under a competent
 bot; they exist for human misplay, and the suites prove they bite.
 
+## §32 The inner life (v0.7.1) — depth, not width
+
+> Owner: *"interactive social media is still bare bones. individual
+> idols still feel like sets of attributes more than people with
+> lives. the CEO and executive above the player are pretty abstract…
+> maybe bring in an expert on the industry to help make it deeper,
+> rather than wider?"* An industry-expert consult was run against the
+> Bible and the engine; its diagnosis: the feed was a broadcast with
+> no people in it, the idols never spoke and wanted nothing, and
+> reading your own roster was never tested. Six of its twelve
+> proposals shipped as one release (modules life.js, meeting.js);
+> board season and the executive pet project are the natural sequel.
+
+**Off the clock** (`KP.factsOf`, hash-truth, zero save bytes): two
+personal facts per person — the dog, the crane games, the film
+cameras, the four siblings — stable forever, rendered on the dossier
+("— the staff, fondly") and read by the Bubble. **What she wants**
+(`KP.ambitionOf`): one ambition each (a solo / a trophy / a sold-out
+room / the variety table), seeded by archetype and personality;
+weeks that feed the dream feel different (+morale on variety weeks
+for the variety dreamer), and the day it lands — through the single
+`ambitionTouch` door wired into show wins, sold-out legs, variety
+accumulation and solo debuts — pays +8 morale, a history line, and a
+letter ("she called home first, then cried in the practice room, in
+that order"). Morale becomes psychology, not weather.
+
+**The Bubble** (`KP.bubblePosts`, hash-gated weekly): idols' paid-
+message screenshots reach the feed, and the tone reads her TRUE
+state — fatigue ≥70 leaks tired-honest 3am messages, high morale
+leaks lunch photos and laughter, rest weeks leak day-off diaries
+built from her facts. The feed shows interiority instead of asserting
+it — and a player who reads the bubbles knows the roster. **The
+regulars** (`KP.C.LIFE.REGULARS`): six persistent handles
+(@fromthebarricade, @chartseyes_kr, @formerstan_txt…) voice ~35% of
+fan posts, persona-consistent — the fandom has PEOPLE in it now.
+
+**The dorm** (`g.rooms`): room charts assigned at debut; roommates
+amplify relationship drift ×1.5 in BOTH directions; the reshuffle
+lever (bill, cooldown, greedy re-pair by warmth) is the sit-down's
+domestic twin, on the group page.
+
+**The Monday meeting** (`state.execQuestion` / `state.execNotes`,
+rng-free): every ten weeks the executive asks one question with
+constrained answers — "Which trainee is closest to ready?" (your
+named pick is checked when she debuts: deliver and the exec remembers
+warmly; release her or miss the window and she quotes your own words
+back with the date) or "When does GroupX come back?" (this quarter /
+next / no promises — promises are checked against the actual
+calendar). Ignoring the question for a month is also an answer, and
+it is noted. The sim's core skill — reading people through the fog —
+finally has a witness.
+
+**Suite catch on the way in:** the comeback-promise predicate
+originally accepted a release made the same week the promise was —
+`>=` vs `>` on one comparison; the suite's broken-promise fixture
+caught the free pass.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2126,3 +2183,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > battery 35/35 (suite 035, 34 assertions), soak clean (59 bands —
 > fandoms named 40/40, deals 40/40, awards won 40/40, snubs 21/40),
 > e2e 89, lockstep 0.7.0 (35 modules). Rode to main.
+\n
+> **v0.7.1 — the inner life** (owner: *"…maybe bring in an expert on
+> the industry to help make it deeper, rather than wider?"* — so one
+> was brought in; six of its twelve proposals shipped)
+> Full spec in §32, consult summarized there. Facts and ambitions
+> are hash-truth (like §28 strongholds — zero rng, zero save bytes);
+> the Bubble leaks true fatigue/morale to the feed weekly; six
+> recurring fan handles voice a third of the feed; the dorm gives
+> chemistry an address and a lever; ambitions make identical
+> schedules mean different things per member and pay out through one
+> door wired into wins, sold-out legs, variety weeks and solo
+> debuts; the Monday meeting puts the player's roster-reads on the
+> record and checks them by predicate — the executive remembers,
+> quotes back, and notices silence. Fixture economy: the busier
+> inbox promoted 100k milestones to urgent (they were getting
+> trimmed); the direction suite's hook test became a mechanism test
+> (amplified constant) after the smaller live bonus sank under
+> generation noise; one real predicate bug (>= vs > let a same-week
+> release satisfy a comeback promise). Numbers: battery 36/36 (suite
+> 036, 51 assertions), soak clean (62 bands — bubbles 40/40,
+> promises kept 38/40, dreams landed 40/40), e2e 89, lockstep 0.7.1
+> (37 modules). Rode to main.

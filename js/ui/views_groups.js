@@ -207,6 +207,17 @@
       });
     }
 
+    // the dorm (v0.7.1): chemistry has an address
+    if (g.debuted && g.rooms && g.rooms.length) {
+      html.push('<div class="kicker">The dorm</div>');
+      html.push('<div class="pad"><div style="display:flex;gap:7px;flex-wrap:wrap">' +
+        g.rooms.map((r, i) => '<span class="chip">Room ' + (i + 1) + ': ' +
+          r.map(id => UI.esc(KP.publicGiven(state.people[id]))).join(' · ') + '</span>').join('') +
+        '</div><div style="margin-top:8px"><button class="btn" data-action="dorm-shuffle" data-id="' + g.id + '">' +
+        'Reassign rooms · ' + KP.C.LIFE.roomShuffleCost + '</button></div>' +
+        '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:6px">Roommates shape chemistry both ways. A reshuffle separates the coldest pair — the sit-down’s domestic twin.</div></div>');
+    }
+
     html.push('<div class="kicker">Room report</div>');
     KP.chemistryNotes(state, members).forEach(n => html.push('<div class="note">' + UI.esc(n) + '</div>'));
     KP.frictionPairs(state, g.members).forEach(f => html.push(UI.frictionCard(state, f)));

@@ -45,6 +45,9 @@
         let drift = compatibility(a, b) * 0.35;
         const shared = (a.training.focus || []).some(f => (b.training.focus || []).includes(f));
         if (shared) drift += R.sharedFocusBonus * (compatibility(a, b) >= 0 ? 1 : -0.25);
+        // the dorm (v0.7.1): roommates amplify chemistry in BOTH directions
+        const gA = KP.groupOf(state, a.id);
+        if (gA && KP.roommates(gA, a.id, b.id)) drift *= KP.C.LIFE.roomDriftMult;
         drift += (rng.next() - 0.5) * R.weeklyDrift;
         rel.score = KP.clamp(rel.score + drift, -100, 100);
         // repair forces (v0.1.2): professionals let grudges go, and time
