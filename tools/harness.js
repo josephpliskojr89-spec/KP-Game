@@ -74,6 +74,9 @@ const BANDS = {
   meetingKept:       { lo: 0.05, hi: 1.00, label: 'orgs that kept a Monday-meeting promise on the record' },
   ambitionMet:       { lo: 0.05, hi: 1.00, label: 'worlds where somebody got the thing she always wanted' },
   peopleFelt:        { lo: 0.95, hi: 1.00, label: 'orgs where the people were felt weekly (person-moments most weeks)' },
+  soloCredit:        { lo: 0.50, hi: 1.00, label: 'orgs that put a member\'s first solo on a record' },
+  unitCredit:        { lo: 0.05, hi: 1.00, label: 'orgs that cut a unit track (full albums open the second slot)' },
+  sleeperHeard:      { lo: 0.30, hi: 1.00, label: 'orgs where a b-side outgrew its record (the truthers organize)' },
   // floor 0 by ruling: going quiet needs morale under 38, and the bot
   // rests, mediates, and wins its way out of that hole — a risk
   // mechanic reading zero under a competent bot is working (see
@@ -99,6 +102,7 @@ const tally = {
   fandomNamed: 0, dealSigned: 0, awardWon: 0, awardSnubbed: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
+  soloCredit: 0, unitCredit: 0, sleeperHeard: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -272,7 +276,11 @@ for (let s = 0; s < SEEDS; s++) {
         if (avgF >= 45) return;
       }
       const promoAffordable = (!g.debuted || state.budget > 60) ? 'standard' : 'modest';
-      const fmtCost = KP.C.DEBUT.FORMATS[0].cost;
+      // the format ladder (v0.7.5): a healthy company ships minis, a rich
+      // one ships albums — and the bigger formats open the credit slots
+      const FMT = KP.C.DEBUT.FORMATS;
+      const fmt = state.budget > 320 ? FMT[2] : state.budget > 160 ? FMT[1] : FMT[0];
+      const fmtCost = fmt.cost;
       // the rollout desk bills at lock (v0.6.3) — a player trims the plan
       // before skipping the release, so the bot does too
       const R = KP.C.ROLLOUT;
@@ -287,15 +295,31 @@ for (let s = 0; s < SEEDS; s++) {
         state.rngState = rng.state();
       }
       const demo = g.demos.slice().sort((a, b) => b.hook - a.hook)[0];
-      const targetWeek = g.debuted
+      const baseTarget = g.debuted
         ? state.week + 5   // comebacks ride short runways — long preps grind people (v0.4.2)
         : (state.objective.type === 'debutGirlGroup' && state.objective.status === 'open'
           ? Math.min(state.week + 8, state.objective.deadlineWeek) : state.week + 8);
+      // a bigger record needs the runway it needs
+      const targetWeek = Math.max(baseTarget, state.week + Math.max(KP.C.DEBUT.prepWeeksMin, fmt.minPrep));
       KP.planDebut(state, {
         groupId: g.id, songId: demo.id, conceptId: demo.conceptId, promo: promoAffordable,
-        week: targetWeek, rollout,
+        week: targetWeek, rollout, format: fmt.id,
         alloc: { vocals: 30, dance: 30, rap: 10, media: 30 },
       });
+      // the A&R pass (v0.7.5): the internet's favorite gets the solo slot,
+      // the next two most-followed get the unit — public numbers only
+      if (g.prep && g.prep.tracks) {
+        const open = g.prep.tracks.filter(tk => tk.slot && !tk.credit);
+        if (open.length) {
+          const byFollowers = g.members.map(id => state.people[id])
+            .sort((a, b) => KP.socialOf(state, b) - KP.socialOf(state, a));
+          KP.assignTrack(state, g.id, open[0].n, { type: 'solo', memberId: byFollowers[0].id });
+          if (open[1] && byFollowers.length >= 3) {
+            KP.assignTrack(state, g.id, open[1].n,
+              { type: 'unit', memberIds: [byFollowers[1].id, byFollowers[2].id] });
+          }
+        }
+      }
     });
 
     const notes = KP.advanceWeek(state);
@@ -474,6 +498,12 @@ for (let s = 0; s < SEEDS; s++) {
   if (Object.values(state.people).some(p => p.flags && p.flags.ambitionMet)) tally.ambitionMet++;
   if (personMomentWeeks >= 140 * 0.7) tally.peopleFelt++;
   if (quietWeekSeen) tally.quietWeekCaught++;
+  // the tracklist census (v0.7.5)
+  const allReleases = state.groups.flatMap(gg => gg.releases || []);
+  const credits = allReleases.flatMap(r => (r.tracklist || []).filter(tk => tk.credit));
+  if (credits.some(tk => tk.credit.type === 'solo')) tally.soloCredit++;
+  if (credits.some(tk => tk.credit.type === 'unit')) tally.unitCredit++;
+  if (allReleases.some(r => r.sleeperTitle)) tally.sleeperHeard++;
 
   // memory census + guards (v0.6.0)
   guard((state.memory || []).length <= KP.C.MEMORY.cap, seed + ' memory over cap');

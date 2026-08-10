@@ -244,12 +244,27 @@
       html.push('<div class="kicker">Discography</div>');
       g.releases.slice().reverse().forEach(r => {
         const fmt = KP.C.DEBUT.FORMATS.find(f => f.id === r.format);
+        // the record inside the record (v0.7.5): credits and the sleeper
+        const creditBits = [];
+        (r.tracklist || []).forEach(tr => {
+          if (!tr.credit) return;
+          if (tr.credit.type === 'solo') {
+            const p = state.people[tr.credit.memberId];
+            creditBits.push((p ? UI.esc(KP.publicGiven(p)) : '?') + '’s solo “' + UI.esc(tr.title) + '”');
+          } else {
+            creditBits.push('the ' + tr.credit.memberIds.map(id => {
+              const p = state.people[id]; return p ? UI.esc(KP.publicGiven(p)) : '?';
+            }).join(' & ') + ' unit “' + UI.esc(tr.title) + '”');
+          }
+        });
+        if (r.sleeperTitle) creditBits.push('b-side hit “' + UI.esc(r.sleeperTitle) + '”');
         html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(r.week).text) + '</span>' +
           '<div><b>“' + UI.esc(r.songTitle) + '”</b> · ' + UI.esc(KP.conceptById(r.conceptId).label) +
           (fmt ? ' · ' + UI.esc(fmt.label.toLowerCase()) : '') +
           '<span class="m-week">' + (r.isDebut ? 'debut · ' : '') + 'peaked #' + r.chartPeak +
           (r.nationalPeak != null ? ' · national #' + r.nationalPeak : '') +
-          (r.chartWeeks ? ' · ' + r.chartWeeks + ' weeks charting' : ' · missed the charts') + '</span></div></div>');
+          (r.chartWeeks ? ' · ' + r.chartWeeks + ' weeks charting' : ' · missed the charts') +
+          (creditBits.length ? '<br>' + creditBits.join(' · ') : '') + '</span></div></div>');
       });
       html.push('<div class="pad" style="margin-top:8px"><button class="btn small" data-action="open-results" data-id="' + g.id + '">Latest full report</button></div>');
     }

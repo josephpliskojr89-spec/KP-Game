@@ -236,6 +236,47 @@
         App.render();
         break;
       }
+      // the tracklist credits (v0.7.5): whose name goes on track 3
+      case 'track-open': {
+        App.trackDraft = { groupId: t.dataset.id, n: parseInt(t.dataset.n, 10), unit: [] };
+        trackSheet(s);
+        break;
+      }
+      case 'track-set-group': {
+        const d = App.trackDraft;
+        const r = KP.assignTrack(s, d.groupId, d.n, { type: 'group' });
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        UI.closeModal(); App.trackDraft = null; App.save();
+        UI.toast('The track goes back to the full group.');
+        App.render();
+        break;
+      }
+      case 'track-set-solo': {
+        const d = App.trackDraft;
+        const r = KP.assignTrack(s, d.groupId, d.n, { type: 'solo', memberId: t.dataset.mid });
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        UI.closeModal(); App.trackDraft = null; App.save();
+        if (r.note) UI.toast(r.note);
+        App.render();
+        break;
+      }
+      case 'track-unit-toggle': {
+        const d = App.trackDraft;
+        const i = d.unit.indexOf(t.dataset.mid);
+        if (i >= 0) d.unit.splice(i, 1);
+        else if (d.unit.length < KP.C.TRACKS.unitSize[1]) d.unit.push(t.dataset.mid);
+        trackSheet(s);
+        break;
+      }
+      case 'track-set-unit': {
+        const d = App.trackDraft;
+        const r = KP.assignTrack(s, d.groupId, d.n, { type: 'unit', memberIds: d.unit });
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        UI.closeModal(); App.trackDraft = null; App.save();
+        if (r.note) UI.toast(r.note);
+        App.render();
+        break;
+      }
       case 'group-concept': {
         const r = KP.setGroupConcept(s, t.dataset.id, t.dataset.concept || null);
         if (!r.ok) { UI.toast(r.reason, true); break; }
@@ -567,6 +608,43 @@
   });
 
   // ---- system sheet: saves ---------------------------------------------
+  // the credit sheet (v0.7.5): a solo, a unit, or back to the group
+  function trackSheet(s) {
+    const d = App.trackDraft;
+    const g = KP.groupById(s, d.groupId);
+    if (!g || !g.prep || !g.prep.tracks) { UI.closeModal(); return; }
+    const tr = g.prep.tracks.find(x => x.n === d.n);
+    if (!tr) { UI.closeModal(); return; }
+    const T = KP.C.TRACKS;
+    const credited = {};
+    g.prep.tracks.forEach(x => {
+      if (x.n !== tr.n && x.credit) (x.credit.memberIds || [x.credit.memberId]).forEach(id => { credited[id] = true; });
+    });
+    const members = g.members.map(id => s.people[id]).filter(Boolean);
+    const unitOk = d.unit.length >= T.unitSize[0] && d.unit.length <= T.unitSize[1] && d.unit.length < members.length;
+    UI.modal('Track ' + tr.n + ' · “' + UI.esc(tr.title) + '”',
+      '<div class="pad" style="font-size:.82rem;color:var(--ink-dim);margin-bottom:10px">Whose name goes on this one? The fans will have opinions either way. One special credit per member per record.</div>' +
+      '<div class="pad"><button class="btn" style="width:100%" data-action="track-set-group">Full group' + (tr.credit ? ' (clear the credit)' : '') + '</button></div>' +
+      '<div class="pad kicker" style="margin-top:8px">A solo</div>' +
+      '<div class="pad" style="display:flex;gap:7px;flex-wrap:wrap">' +
+      members.map(p => '<button class="chip' + (credited[p.id] ? '' : ' cool') + '"' +
+        (credited[p.id] ? ' disabled style="opacity:.4"' : ' data-action="track-set-solo" data-mid="' + p.id + '"') + '>' +
+        UI.esc(KP.publicGiven(p)) + (credited[p.id] ? ' · credited' : '') + '</button>').join('') +
+      '</div>' +
+      (members.length >= T.minMembersForUnits
+        ? '<div class="pad kicker" style="margin-top:8px">A unit · pick ' + T.unitSize[0] + '–' + T.unitSize[1] + '</div>' +
+          '<div class="pad" style="display:flex;gap:7px;flex-wrap:wrap">' +
+          members.map(p => '<button class="chip' + (d.unit.includes(p.id) ? ' hot' : '') + '"' +
+            (credited[p.id] ? ' disabled style="opacity:.4"' : ' data-action="track-unit-toggle" data-mid="' + p.id + '"') + '>' +
+            UI.esc(KP.publicGiven(p)) + '</button>').join('') +
+          '</div>'
+        : ''),
+      '<button class="btn" data-action="close-modal" style="flex:1">Close</button>' +
+      (members.length >= T.minMembersForUnits
+        ? '<button class="btn primary" data-action="track-set-unit" style="flex:1"' + (unitOk ? '' : ' disabled') + '>Set the unit</button>'
+        : ''));
+  }
+
   function systemSheet() {
     const s = App.state;
     const slots = [];

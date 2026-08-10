@@ -532,6 +532,17 @@
     });
   } });
 
+  // v0.7.5 — the tracklist. Old releases keep their track COUNT only
+  // (no invented history); every record from here carries a real list.
+  MIGRATIONS.push({ v: '0.7.5', fn: function (state) {
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'A&R restructure, effective immediately: records now ship with FULL tracklists. Singles ride on the title; minis open one credit slot, full albums two — a b-side that belongs to one member alone, or to a unit small enough to have chemistry. The staff notes on every artist file got a rewrite too (the old boilerplate was showing its seams). Whose name goes on track 3 is now a decision, and the fans will treat it like one.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

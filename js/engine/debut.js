@@ -81,6 +81,14 @@
       scheduledWeek: plan.week,
       progress: 0,
     };
+    // the tracklist (v0.7.5): the record gets its full run of songs at
+    // lock — an action-time draw. Open slots stay assignable until the
+    // release week (KP.assignTrack).
+    {
+      const trng = KP.rngFor(state);
+      g.prep.tracks = KP.buildTracklist(state, trng, g, demo, format);
+      state.rngState = trng.state();
+    }
     // locking onto an announced rival week is a CHOICE — the challenge
     // half of "challenge or dodge" (v0.6.4). The desk assumes intent.
     const foes = KP.announcedAt(state, plan.week)
@@ -440,6 +448,11 @@
     g.rollout = g.prep.rollout || KP.C.ROLLOUT.DEFAULT.map(w => w.slice());
     g.promoGrace = g.rollout.reduce((s, wk) =>
       s + wk.filter(a => a === 'fanSign').length * KP.C.ROLLOUT.ACTIVITIES.fanSign.gracePerWeek, 0);
+    // the tracklist becomes consequences (v0.7.5): solos touch
+    // ambitions, units read chemistry, one b-side may outgrow the record
+    const tl = KP.tracklistResolve(state, g, rng, reception);
+    tl.notes.forEach(push);
+
     const label = isDebut ? band.label : KP.C.COMEBACK.bandLabels[band.key];
     g.results = {
       week: state.week,
@@ -450,6 +463,7 @@
       performance: Math.round(performance),
       reception, receptionBand: band.key, receptionLabel: label,
       breakoutId: breakout.id,
+      tracklist: tl.tracks, sleeperTitle: tl.sleeperTitle || null,
       centerOvershadowed,
       chem, groupFit: Math.round(groupFit),
       trustDelta, revenue,
@@ -468,6 +482,7 @@
       reception, receptionBand: band.key, chartPeak: peak, chartWeeks: weeksOn,
       nationalPeak: natPeak, nationalWeeks: weeksOn,
       isDebut, format: format.id, tracks: format.tracks,
+      tracklist: tl.tracks, sleeperTitle: tl.sleeperTitle || null,
     });
     // the release enters BOTH boards: the scene, and the national chart
     // the whole industry fights over

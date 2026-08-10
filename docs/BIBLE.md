@@ -1606,6 +1606,50 @@ cannot flood, and now files at high: 40/40 orgs feel the people in
 timeline (`personMoment` reaction, registry); trainee weeks stay desk
 notes.
 
+## §36 The tracklist (v0.7.5) — the record is more than its title
+
+> Owner: *"keep building the idols. they need to be the stars… build
+> track lists for singles, mini albums, and albums that the fans can
+> react to. this gives us opportunities to actually give the idols
+> opportunities at solos, units, etc."* Plus: *"more flavor in the
+> artist file — I'm seeing a lot of repeats in all three categories."*
+
+**The build** (`KP.buildTracklist`, action-time rng at lock): formats
+have carried a track count since v0.2.1; now the count is songs.
+Track 1 is the chosen demo; b-sides get generated titles, producers,
+and a hidden hook. Open credit slots sit mid-record — none on a
+single, track 3 on a mini, tracks 3 and 6 on a full album. Solo acts
+and duos open none.
+
+**The A&R pass** (`KP.assignTrack`, until release week): an open slot
+takes a solo (one member), a unit (2–3, fewer than the group), or
+stays with the group. One special credit per member per record —
+spread the light. The Studio prep card shows the full tracklist with
+a credit sheet per open slot.
+
+**Release week** (`KP.tracklistResolve`, from resolveDebut): a solo
+credit is a career event — social spike, +6 hype carried into the
+NEXT cycle (hype is otherwise zeroed at release), +5 morale, a
+permanent history line, and the `solo` ambition door opens: a solo
+b-side IS the solo she wanted. Units read REAL chemistry from the
+relationship ledger — a close pair reads as "not acting" (+4 morale
+both), a tense pair gets clocked ("professional on the record" —
+snark lands on whoever paired them, never on the people). After a
+record with reception ≥55, a 22% sleeper: the highest-hook b-side
+outgrows the single (+2 popularity, the truthers organize). All three
+inds (`soloTrack`, `unitTrack`, `bsideSleeper`) render through the
+kernel registry. The dossier gains a discography-margin note; the
+group page discography lists credits and sleepers per release.
+
+**The variety pass**: FACTS 12→36; every ambition gets 3 phrasings;
+the stronghold margin note gets 5 framings and 3 attributions; the
+off-the-clock note 4 framings and 4 attributions — all hash-picked
+per person, so two dossiers never read as the same form with the
+names swapped. Bot upgrade: the harness ships minis past 160 budget
+and albums past 320, then assigns the most-followed member the solo
+and the next two the unit (public numbers only). Census: solos 40/40,
+units 40/40, sleepers 30/40.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2394,3 +2438,24 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > competent-bot ruling (the bot never lets morale crater; mechanism
 > suite-forced). Numbers: battery 39/39 (suite 039, 44 assertions),
 > soak clean, e2e 89, lockstep 0.7.4 (39 modules). Rode to main.
+\n
+> **v0.7.5 — the tracklist** (owner: *"keep building the idols. they
+> need to be the stars… build track lists… opportunities at solos,
+> units, etc"* + *"more flavor in the artist file — I'm seeing a lot
+> of repeats"*)
+> Full spec in §36. Records ship as real tracklists (action-time rng
+> at lock): generated b-sides with producers and hidden hooks, open
+> credit slots (0/1/2 by format) the player assigns until release
+> week — a member's first solo (career event: spike, carried hype,
+> the solo ambition door OPENS on a solo b-side), or a 2–3 member
+> unit that reads real chemistry (close pairs read as truth, tense
+> pairs get clocked). 22% sleeper b-side after a record people
+> played. Three new inds through the kernel registry; Studio credit
+> sheet; discography credits on the group page; a discography-margin
+> note in the dossier. The variety pass: FACTS 12→36, 3 phrasings
+> per ambition, 5×3 framings on the stronghold note, 4×4 on the
+> off-the-clock note — all hash-picked, repeats gone. Bot ships
+> minis/albums by budget and runs its own A&R pass on public
+> numbers. Numbers: battery 40/40 (suite 040, 50 assertions), soak
+> clean (solos 40/40, units 40/40, sleepers 30/40), e2e 89, lockstep
+> 0.7.5 (40 modules). Rode to main.

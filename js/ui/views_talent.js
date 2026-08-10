@@ -157,29 +157,62 @@
       html.push('<div class="card">' + UI.narrativeLines(state, pNars) + '</div>');
     }
 
-    // her corners of the map (v0.6.6) — visible once she is on stages
+    // her corners of the map (v0.6.6) — visible once she is on stages.
+    // v0.7.5: every framing hash-picked per person, so two dossiers
+    // never read like the same form with the names swapped
+    const pick = (key, arr) => arr[Math.floor(KP.hash01([state.seed, p.id, key].join('|')) * arr.length)];
     if (p.status === 'idol') {
       const gOf = KP.groupOf(state, p.id);
       if (gOf && gOf.debuted) {
-        const homes = KP.strongholdsOf(state, p).map(KP.regionLabel);
-        html.push('<div class="note">Overseas desk margin note: her clips travel best in ' +
-          UI.esc(homes[0]) + ' and ' + UI.esc(homes[1]) +
-          '. Nobody assigned that. Some corners of the map just decide.<span class="n-who">— audience analytics, informally</span></div>');
+        const homes = KP.strongholdsOf(state, p).map(KP.regionLabel).map(UI.esc);
+        const homeNote = pick('homeNote', [
+          'Overseas desk margin note: her clips travel best in ' + homes[0] + ' and ' + homes[1] + '. Nobody assigned that. Some corners of the map just decide.',
+          'The analytics team flags it every quarter: ' + homes[0] + ' and ' + homes[1] + ' move first on anything with her face in the thumbnail. No campaign has ever run there.',
+          'Fan-mail routing says ' + homes[0] + ' and ' + homes[1] + ' found her before the company did. The overseas desk has stopped calling it a fluke.',
+          'When her clips go up, ' + homes[0] + ' wakes up first — then ' + homes[1] + ', an hour later, like clockwork nobody wound.',
+          'Two markets pre-order anything she fronts: ' + homes[0] + ' and ' + homes[1] + '. The desk keeps trying to explain it, and keeps writing “just is” in the margin.',
+        ]);
+        html.push('<div class="note">' + homeNote + '<span class="n-who">' +
+          pick('homeWho', ['— audience analytics, informally', '— the overseas desk, quarterly report', '— fan-mail routing, of all places']) +
+          '</span></div>');
       }
     }
 
     // off the clock + what she wants (v0.7.1) — the person in the file
     if (p.status === 'idol' || p.status === 'trainee') {
-      const facts = KP.factsOf(state, p);
-      html.push('<div class="note">Off the clock: she ' + UI.esc(facts[0]) + ', and ' + UI.esc(facts[1]) +
-        '. In the room, she ' + UI.esc(KP.VOICES[KP.voiceOf(state, p)].label) +
-        '.<span class="n-who">— the staff, fondly</span></div>');
+      const facts = KP.factsOf(state, p).map(UI.esc);
+      const voiceLine = 'In the room, she ' + UI.esc(KP.VOICES[KP.voiceOf(state, p)].label) + '.';
+      const factNote = pick('factNote', [
+        'Off the clock: she ' + facts[0] + ', and ' + facts[1] + '. ' + voiceLine,
+        'The staff profile, unofficial edition: she ' + facts[0] + '. Also ' + facts[1] + ' — ask anyone. ' + voiceLine,
+        'Two true things the cameras keep missing: she ' + facts[0] + ', and she ' + facts[1] + '. ' + voiceLine,
+        'What the fans would trade anything to confirm (the staff can): she ' + facts[0] + ', and ' + facts[1] + '. ' + voiceLine,
+      ]);
+      html.push('<div class="note">' + factNote + '<span class="n-who">' +
+        pick('factWho', ['— the staff, fondly', '— the managers’ group chat, leaked internally', '— her roommate, under mild duress', '— the stylists, between fittings']) +
+        '</span></div>');
       if (p.status === 'idol') {
         const amb = KP.ambitionOf(state, p);
+        const A = KP.C.LIFE.AMBITIONS[amb];
         html.push('<div class="note">' + (p.flags.ambitionMet
-          ? 'She got the thing she wanted — ' + UI.esc(KP.C.LIFE.AMBITIONS[amb].label) + ' — and it shows in how she carries the rest.'
-          : 'What she wants, if you watch closely: ' + UI.esc(KP.C.LIFE.AMBITIONS[amb].line)) +
+          ? 'She got the thing she wanted — ' + UI.esc(A.label) + ' — and it shows in how she carries the rest.'
+          : 'What she wants, if you watch closely: ' + UI.esc(pick('ambLine', A.lines))) +
           '<span class="n-who">— a staff observation, not a metric</span></div>');
+      }
+      // her career inside the career (v0.7.5) — credits from tracklists
+      const credits = KP.trackCreditsOf(state, p.id);
+      if (credits.length) {
+        const first = credits.find(c => c.type === 'solo');
+        const parts = [];
+        if (first) parts.push('first solo on record: “' + UI.esc(first.trackTitle) + '” (' + UI.esc(KP.weekLabel(first.week).text) + ')');
+        const units = credits.filter(c => c.type === 'unit');
+        if (units.length) {
+          const u = units[units.length - 1];
+          const withNames = u.withIds.map(id => state.people[id]).filter(Boolean).map(x => UI.esc(KP.publicGiven(x))).join(' & ');
+          parts.push('unit work with ' + withNames + ' on “' + UI.esc(u.trackTitle) + '”');
+        }
+        html.push('<div class="note">Discography margin, the part she checks: ' + parts.join('; ') +
+          '.<span class="n-who">— A&R, keeping receipts</span></div>');
       }
     }
 

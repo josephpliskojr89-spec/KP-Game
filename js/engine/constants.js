@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.7.4',
+    VERSION: '0.7.5',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -725,12 +725,53 @@
         'was a church-choir kid and still hums harmonies in vans',
         'is the dorm’s unofficial barista with strong opinions',
         'does thousand-piece puzzles during comeback prep to stay calm',
+        'learned to skateboard in the company parking garage at night',
+        'keeps a running ranking of every convenience-store snack, updated weekly',
+        'writes letters to her future self and mails them to her mom for safekeeping',
+        'can identify any song from the first second, a party trick with a 94% record',
+        'sews and has quietly repaired half the group’s stage outfits',
+        'is terrified of butterflies and completely unashamed about it',
+        'memorizes the staff’s birthdays and is never wrong',
+        'has a green belt in judo she brings up exactly once per interview',
+        'narrates nature documentaries over muted broadcasts, voices and all',
+        'buys two of every book — one to annotate, one to keep clean',
+        'is banned from the claw machine at one specific arcade, by name',
+        'does the group’s taxes conceptually, for fun, and is worryingly good',
+        'has never once lost at rock-paper-scissors on a broadcast',
+        'keeps a jar of bad-day notes from fans and reads one when she needs it',
+        'grew up on an island and can gut a fish faster than the cooks',
+        'speaks three languages and eavesdrops in all of them',
+        'has adopted every stray cat within a block of the company building, socially',
+        'runs at 6am and has a route named after her by the neighborhood aunties',
+        'collects hotel key cards from every tour city, labeled and dated',
+        'once fixed the practice-room speaker with a hairpin and refuses to explain',
+        'draws caricatures of the members that are too accurate to publish',
+        'knows the bus network of the entire capital by heart and misses riding it',
       ],
+      // v0.7.5: one ambition, several ways the staff have noticed it —
+      // the note hash-picks a phrasing per person, so two idols who
+      // want the same thing do not read as the same person
       AMBITIONS: {
-        solo:    { label: 'a stage of her own',       line: 'she wants a solo. Everyone who has watched her rehearse alone after practice knows it.' },
-        trophy:  { label: 'a music-show trophy',      line: 'she wants a trophy in her hands — she has rewatched other groups’ win announcements more than their stages.' },
-        stage:   { label: 'a sold-out room',          line: 'she wants a sold-out room singing her lines back. The bigger the better.' },
-        variety: { label: 'a seat at the variety table', line: 'she wants to be the funny one on the panel shows — and she is right about being good at it.' },
+        solo:    { label: 'a stage of her own', lines: [
+          'she wants a solo. Everyone who has watched her rehearse alone after practice knows it.',
+          'she keeps a private playlist labeled only with her own initials. The A&R team has theories. The theories are correct.',
+          'when the members divide up lines, she counts hers twice — not out of greed. Out of wanting a song where the count is all of them.',
+        ] },
+        trophy:  { label: 'a music-show trophy', lines: [
+          'she wants a trophy in her hands — she has rewatched other groups’ win announcements more than their stages.',
+          'she practices an acceptance-speech face in the van window when she thinks no one can see. Everyone can see.',
+          'she knows the exact broadcast-point formula of every music show, from memory, unprompted. Nobody studies that for fun. She would say it is for fun.',
+        ] },
+        stage:   { label: 'a sold-out room', lines: [
+          'she wants a sold-out room singing her lines back. The bigger the better.',
+          'venues are the only numbers she remembers — capacities, not chart positions. Ask her what the biggest room in any city is. Go on.',
+          'at other artists’ concerts she watches the crowd, not the stage. Staff stopped asking why.',
+        ] },
+        variety: { label: 'a seat at the variety table', lines: [
+          'she wants to be the funny one on the panel shows — and she is right about being good at it.',
+          'she times her jokes to the second in dorm conversations and studies which ones land. This is a professional practice regimen wearing pajamas.',
+          'she can name every fixed panelist on television and which chair they sit in. She has a chair picked out.',
+        ] },
       },
       REGULARS: [
         { handle: '@fromthebarricade', persona: 'fan' },
@@ -757,6 +798,21 @@
       birthdayAdIntensity: 50,   // a devoted fandom funds the subway ad
       liveClipChance: 0.35,      // a livestream week leaves a clip behind
       biasBreakupWeeks: 8,       // a heartbroken regular stays unbiased a while
+    },
+    // ---- The tracklist (v0.7.5) — the record is more than its title ----
+    TRACKS: {
+      openSlots: { single: 0, mini: 1, full: 2 },   // credit slots the player assigns
+      minMembersForUnits: 3,     // a duo's "unit" is just the group
+      unitSize: [2, 3],          // members per unit track
+      maxCreditsPerMember: 1,    // one special credit per record — spread the light
+      soloSocialSpike: 2600,     // her name on her own track travels
+      soloHype: 6,
+      soloMorale: 5,
+      unitMorale: 3,             // both/all unit members feel seen
+      unitCloseBonus: 4,         // a close pair's unit cuts DEEPER (morale, both)
+      sleeperChance: 0.22,       // one b-side may quietly outgrow the record
+      sleeperPop: 2,             // the truthers move the number a little
+      sleeperReceptionMin: 55,   // nobody digs into a record nobody played
     },
     MEETING: {
       everyWeeks: 10,            // the Monday meeting cadence

@@ -25,6 +25,44 @@
         '<div class="g-name" style="font-size:clamp(1.7rem,8vw,2.4rem)">No artist,<br>no record.</div>' +
         '<div style="color:var(--ink-dim);font-size:.86rem;margin-top:8px;line-height:1.5">Form a group first. The demos will be waiting.</div></div>';
     }
+    // the tracklist (v0.7.5): the record in production, credit slots and
+    // all. Open slots are the A&R decision the fans will react to.
+    function tracklistCard(state, g) {
+      const tracks = g.prep && g.prep.tracks;
+      if (!tracks) return '';
+      const rows = tracks.map(tr => {
+        let chip;
+        if (tr.kind === 'title') chip = '<span class="chip gold">TITLE</span>';
+        else if (tr.credit && tr.credit.type === 'solo') {
+          const p = state.people[tr.credit.memberId];
+          chip = '<span class="chip hot">solo · ' + UI.esc(p ? KP.publicGiven(p) : '?') + '</span>';
+        } else if (tr.credit && tr.credit.type === 'unit') {
+          chip = '<span class="chip cool">unit · ' + tr.credit.memberIds.map(id => {
+            const p = state.people[id]; return UI.esc(p ? KP.publicGiven(p) : '?');
+          }).join(' & ') + '</span>';
+        } else if (tr.slot) chip = '<span class="chip">open slot</span>';
+        else chip = '<span class="chip" style="opacity:.55">group</span>';
+        const assignable = tr.slot
+          ? ' data-action="track-open" data-id="' + g.id + '" data-n="' + tr.n + '"'
+          : '';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)"' + assignable + '>' +
+          '<span style="color:var(--ink-dim);font-size:.8rem;width:16px">' + tr.n + '</span>' +
+          '<span style="flex:1;font-size:.9rem">' + UI.esc(tr.title) + '</span>' + chip +
+          (tr.slot ? '<span style="color:var(--ink-dim)">›</span>' : '') +
+          '</div>';
+      }).join('');
+      const openLeft = tracks.filter(tr => tr.slot && !tr.credit).length;
+      return '<div class="kicker" style="margin-top:14px">The tracklist' +
+        (openLeft ? ' · ' + openLeft + ' credit' + (openLeft === 1 ? '' : 's') + ' to assign' : '') + '</div>' +
+        '<div class="card">' + rows +
+        '<div style="color:var(--ink-dim);font-size:.78rem;padding-top:9px;line-height:1.5">' +
+        (tracks.some(tr => tr.slot)
+          ? 'Open slots take a solo or a unit until release week. Whose name goes on track ' +
+            tracks.filter(tr => tr.slot).map(tr => tr.n).join(' and ') + ' is an A&R decision the fans WILL have opinions about.'
+          : 'A single rides on its title. The bigger formats open credit slots.') +
+        '</div></div>';
+    }
+
     const switcher = groups.length > 1
       ? '<div class="pad" style="margin-bottom:8px"><div class="seg">' +
         groups.map(x => '<button class="' + (x.id === g.id ? 'on' : '') + '" data-action="studio-group" data-id="' + x.id + '">' + UI.esc(x.name) + '</button>').join('') +
@@ -58,7 +96,8 @@
         '<span class="chip">' + UI.esc(g.prep.promo) + ' promotion</span>' +
         '<span class="chip hot">' + (inW <= 0 ? 'this week' : inW + ' week' + (inW === 1 ? '' : 's') + ' to ' + (g.debuted ? 'comeback' : 'debut')) + '</span></div>' +
         '<div style="color:var(--ink-dim);font-size:.84rem;margin-top:12px;line-height:1.5">Rehearsal split — vocals ' + g.prep.alloc.vocals + '%, dance ' + g.prep.alloc.dance + '%, rap ' + g.prep.alloc.rap + '%, media ' + g.prep.alloc.media + '%. Advance the weeks.' +
-        (clash && !clash.resolved ? '' : ' The date does not move.') + '</div></div>' + clashCard;
+        (clash && !clash.resolved ? '' : ' The date does not move.') + '</div></div>' + clashCard +
+        tracklistCard(state, g);
     }
 
     // --- on the road (v0.6.8): the tour owns the calendar
