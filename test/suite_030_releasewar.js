@@ -148,6 +148,13 @@ function firstAct(state) { return state.rivals[0].acts[0]; }
   lock(state, g, week);
   act.quality = 15; act.popularity = 30;
   act.lastReleaseWeek = week - act.cycleWeeks;
+  // hermetic: nobody ELSE lands that week — the rivalry must meet ITS act
+  state.rivals.forEach(r => {
+    r.nextDebutWeek = week + 60;
+    (r.acts || []).forEach(a => {
+      if (a.id !== act.id) { a.lastReleaseWeek = state.week - 1; a.cycleWeeks = 26; }
+    });
+  });
   let guard = 0;
   while (!g.debuted && guard++ < 10) KP.advanceWeek(state);
   const nar = KP.getNarrative(state, 'rivalry', 'rivalAct', act.id);

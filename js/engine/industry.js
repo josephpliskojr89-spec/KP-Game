@@ -954,6 +954,18 @@
   // as the week needs. The feed never goes quiet again.
   function ambientPosts(state, rng) {
     const posts = [];
+    // always-on timeline chatter (v0.7.3): the scene talks even on the
+    // quietest week — these two guarantee the raised floor holds
+    posts.push(rng.pick([
+      { persona: 'casual', text: 'weekly reminder that following this industry is a part-time job with no pay and I keep showing up early' },
+      { persona: 'fan', text: 'cleaning my camera roll and it is 90% stage screenshots. no regrets. some archives curate themselves' },
+      { persona: 'casual', text: 'the group chat is arguing about title tracks again. day ' + (state.week % 100) + '. nobody has been right yet' },
+    ]));
+    posts.push(rng.pick([
+      { persona: 'stan', text: 'streaming schedule posted. hydration schedule posted. we are ORGANIZED this comeback season' },
+      { persona: 'press', text: 'Weekly desk note: the fourth-generation calendar has no quiet weeks anymore. The scene simply does not stop.' },
+      { persona: 'fan', text: 'thinking about the trainee era clips again. they were BABIES. growth makes me emotional on a schedule' },
+    ]));
     // a hyped trainee the internet has found
     const hyped = state.roster.map(id => state.people[id])
       .filter(p => p.status === 'trainee' && (p.hype || 0) >= KP.C.FEED.hypePostMin)
@@ -1087,6 +1099,8 @@
     candidates.push.apply(candidates, rivalEventPosts(state, weekNotes || [], rng));
     // the bubble (v0.7.1): her side of the screen, screenshotted
     candidates.push.apply(candidates, KP.bubblePosts(state));
+    // the timeline (v0.7.3): selca days, biased regulars, idol moments
+    candidates.push.apply(candidates, KP.lifePosts(state));
     // 3. ambient chatter fills EVERY week to a real feed (v0.6.3):
     //    events lead, but the timeline always has at least weeklyMin
     const ambient = ambientPosts(state, rng);

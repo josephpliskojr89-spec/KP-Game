@@ -123,4 +123,139 @@
     members.forEach(m => { m.morale = KP.clamp(m.morale - 1, 0, 100); });   // moving is moving
     return { ok: true, note: 'Rooms reassigned. The first night is quiet — new roommates negotiating the thermostat treaty. The tour manager approves of the new seating chart energy.' };
   };
+
+  // ======================================================================
+  // The timeline (v0.7.3) — the feed becomes something you check weekly.
+  // Built ON the kernel: a registered weekly phase, registered feed
+  // reactions, zero edits to the drivers or the frozen chain.
+  // ======================================================================
+
+  // ---- regulars with biases: the accounts develop taste ------------------
+  function cast(state) { return state.feedCast = state.feedCast || {}; }
+  KP.regularBias = function (state, handle) {
+    const c = cast(state)[handle];
+    return c && c.biasId ? c : null;
+  };
+  // called from the recordViral door: an unbiased fan/stan regular
+  // adopts her — deterministically, because parasociality is destiny
+  KP.regularsNotice = function (state, person) {
+    if (!person || person.status !== 'idol') return;
+    const free = KP.C.LIFE.REGULARS.filter(r =>
+      (r.persona === 'fan' || r.persona === 'stan') && !cast(state)[r.handle]);
+    if (!free.length) return;
+    const pick = free[Math.floor(KP.hash01([state.seed, person.id, 'adopt'].join('|')) * free.length)];
+    cast(state)[pick.handle] = { biasId: person.id, since: state.week };
+  };
+  KP.biasFor = function (state, personId) {
+    return Object.keys(cast(state)).filter(h => cast(state)[h].biasId === personId);
+  };
+
+  // ---- her side of the screen, expanded ---------------------------------
+  KP.lifePosts = function (state) {
+    const L = KP.C.LIFE;
+    const posts = [];
+
+    // biased regulars post about their person weekly-ish
+    Object.entries(cast(state)).forEach(([handle, c]) => {
+      if (!c.biasId) return;
+      const p = state.people[c.biasId];
+      if (!p || p.status !== 'idol') return;
+      if (KP.hash01([state.seed, handle, state.week, 'biaspost'].join('|')) >= 0.22) return;
+      const fact = KP.factsOf(state, p)[state.week % 2];
+      const reg = L.REGULARS.find(r => r.handle === handle);
+      posts.push({ persona: (reg && reg.persona) || 'fan', handle, text: KP.hash01([state.seed, handle, state.week, 'v'].join('|')) < 0.5
+        ? 'daily reminder that ' + KP.displayName(p) + ' ' + fact + '. this account remains correct about her'
+        : 'thinking about how ' + KP.displayName(p) + ' carried that last stage again. no reason. (there is a reason. watch the fancam)' });
+    });
+
+    // monthly selca day: one member per debuted group takes the timeline
+    if ((state.week - 1) % L.selcaEveryWeeks === 2) {
+      KP.groups(state).forEach(g => {
+        if (!g.debuted || !g.members.length) return;
+        const idx = Math.floor(KP.hash01([state.seed, g.id, state.week, 'selca'].join('|')) * g.members.length);
+        const p = state.people[g.members[idx]];
+        if (!p) return;
+        KP.socialSpike(state, p, L.selcaSpike, 'selca');
+        posts.push({ persona: 'fan', text: 'SELCA DAY and ' + KP.publicGiven(p) +
+          ' posted FOUR. the camera roll generosity. saving all of them like they owe me money' });
+      });
+    }
+    return posts;
+  };
+
+  // ---- the life-moments weekly phase (kernel-registered) ----------------
+  // birthdays, live clips, bias breakups — notes flow to the inbox and
+  // their inds render as feed posts through the registry
+  function birthWeekOf(state, p) {
+    return 1 + Math.floor(KP.hash01([state.seed, p.id, 'bday'].join('|')) * KP.C.WEEKS_PER_YEAR);
+  }
+  KP.registerWeekly('lifeMoments', 855, function (state, rng, inbox, roster, groups) {
+    const L = KP.C.LIFE;
+    const woy = ((state.week - 1) % KP.C.WEEKS_PER_YEAR) + 1;
+
+    groups.forEach(g => {
+      if (!g.debuted) return;
+      g.members.forEach(id => {
+        const p = state.people[id];
+        if (!p || p.status !== 'idol') return;
+        // her birthday week: the timeline celebrates, the members post,
+        // a devoted fandom funds the subway ad
+        if (birthWeekOf(state, p) === woy) {
+          p.morale = KP.clamp(p.morale + L.birthdayMorale, 0, 100);
+          KP.socialSpike(state, p, L.birthdaySpike, 'bday');
+          inbox.push({ kind: 'public', ind: 'idolBirthday', priority: 'flavor', personId: p.id,
+            funded: KP.fandomIntensity(g) >= L.birthdayAdIntensity,
+            text: 'It is ' + KP.displayName(p) + '’s birthday week. The members got to her cake before the fans got to the hashtag — barely. ' +
+              (KP.fandomIntensity(g) >= L.birthdayAdIntensity
+                ? 'The fandom funded a subway station ad. She went to see it in a mask and cried anyway.'
+                : 'The fan cafés ran the countdown at midnight, as is law.') });
+        }
+      });
+      // a livestream week leaves a clip the timeline keeps
+      const promoting = !g.prep && state.week <= (g.promoUntil || 0) && state.week > (g.lastReleaseWeek || 0);
+      if (promoting && g.rollout) {
+        const idx = KP.clamp(state.week - (g.lastReleaseWeek || 0) - 1, 0, KP.C.ROLLOUT.weeks - 1);
+        if ((g.rollout[idx] || []).includes('livestream') && rng.chance(L.liveClipChance)) {
+          const m = state.people[g.members[Math.floor(KP.hash01([state.seed, g.id, state.week, 'clip'].join('|')) * g.members.length)]];
+          if (m) inbox.push({ kind: 'public', ind: 'liveClip', priority: 'flavor', personId: m.id,
+            text: 'Clip from last night’s live: ' + KP.publicGiven(m) + ' — who ' + KP.factsOf(state, m)[0] +
+              ' — spent six unbroken minutes on the subject. The fandom has already made it a lore page.' });
+        }
+      }
+    });
+
+    // heartbreak: a boiled storm on a regular's bias breaks the parasocial
+    // contract — the account goes quiet on her, publicly
+    Object.entries(cast(state)).forEach(([handle, c]) => {
+      if (!c.biasId) return;
+      const boiled = (state.discourses || []).some(d => d.status === 'boiled' &&
+        d.subjectType === 'idol' && String(d.subjectId) === String(c.biasId) && d.week >= c.since);
+      if (boiled) {
+        const p = state.people[c.biasId];
+        inbox.push({ kind: 'public', ind: 'biasBreakup', priority: 'flavor', personId: c.biasId,
+          text: 'The account everyone knows — ' + handle + ' — posted a quiet “taking a step back from ' +
+            (p ? KP.displayName(p) : 'her') + ' content for a while.” No drama, no thread. Somehow worse than a thread.' });
+        delete cast(state)[handle];
+      }
+    });
+  });
+
+  // ---- the new inds render through the kernel registry ------------------
+  KP.onFeedEvent('idolBirthday', (state, n, rng) => {
+    const p = state.people[n.personId];
+    return rng.pick([
+      { persona: 'fan', text: 'HAPPY BIRTHDAY ' + (p ? KP.displayName(p).toUpperCase() : '') + '. the hashtag hit trending before sunrise because we are PROFESSIONALS' },
+      { persona: 'stan', text: (p ? KP.publicGiven(p) : 'she') + ' birthday content: the members’ posts are out and the maknae’s one is unhinged in the best way. family behavior' },
+      n.funded ? { persona: 'casual', text: 'walked past a whole subway station of birthday ads for an idol today. fandom infrastructure is genuinely impressive. happy birthday, stranger' }
+        : { persona: 'fan', text: 'midnight birthday countdown complete. year captured. the café banner is already updated. we run a tight ship' },
+    ]);
+  });
+  KP.onFeedEvent('liveClip', (state, n) => {
+    const p = state.people[n.personId];
+    return { persona: 'casual', text: 'the clip of ' + (p ? KP.publicGiven(p) : 'her') +
+      ' going full documentary mode on her own hobby mid-live… idols are just people with better lighting and I love that for them' };
+  });
+  KP.onFeedEvent('biasBreakup', (state, n) => ({
+    persona: 'casual', text: 'the ' + '“stepping back” post from a big fan account has the quote posts doing sociology today. parasocial weather: cloudy',
+  }));
 })(typeof window !== 'undefined' ? window : globalThis);

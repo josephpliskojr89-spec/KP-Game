@@ -1516,6 +1516,42 @@ Three fixture repairs on the way through — one of which (fandom
 intensity ≥60 changing storm physics changing reception) was the
 audit accidentally proving the systems interlock for real.
 
+## §34 The timeline (v0.7.3) — a feed you check every week
+
+> Owner: *"more persistent accounts, more templates for posts, more
+> ways for idols to post. the social feed should be something you
+> check every week."* Built entirely on the §33 kernel — a registered
+> weekly phase and registered feed reactions, zero edits to the
+> drivers. The foundation's first customer.
+
+**Regulars with taste** (`state.feedCast`): the recurring cast grew
+to 14 handles, and they develop BIASES — a viral moment gets an idol
+adopted by an unattached fan/stan account (through the single
+`recordViral` door, deterministically; parasociality is destiny), and
+the adopted account posts about her in its own recognizable voice,
+reading her §32 facts. The heartbreak clause: a boiled storm on their
+person and the account posts a quiet "taking a step back" — no
+drama, no thread, somehow worse than a thread — and stays unattached.
+
+**Idol posting moments** (all hash-calendar, all wholesome): monthly
+**selca day** (one member per group takes the timeline, follower
+spike); **birthday weeks** from a hash-derived birth week per person —
+morale, spike, the members' posts, and a fandom past intensity 50
+funds the subway-station ad she visits in a mask and cries at anyway;
+**livestream clips** that turn a booked livestream into timeline lore
+built from her facts. The Bubble (§32) continues alongside.
+
+**Volume**: weeklyMax 6→8, floor 4→5, kept posts 64→80, plus two
+always-on ambient chatter slots so the raised floor holds in the
+quietest fresh world. Suite-proven: every week ≥5 for 40 weeks.
+
+**Quality-of-trim ruling** (kernel dividend): narrative FORMATION
+letters are now priority-high — the birth of a public narrative is
+news and stops losing inbox races to louder weeks, permanently. The
+louder timeline also surfaced honest fixture truths: two members
+crossing 100k in the same week is a feature, and the boil random-walk
+needed a pinned-decay mechanism test (the physics stay soak-proven).
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2268,3 +2304,21 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > (suite 037: kernel contracts, 19 assertions), soak clean with the
 > validator armed, e2e 89, lockstep 0.7.2 (38 modules). Rode to
 > main.
+\n
+> **v0.7.3 — the timeline** (owner: *"let's expand on social media.
+> more persistent accounts, more templates for posts, more ways for
+> idols to post. the social feed should be something you check every
+> week"*)
+> Full spec in §34. The kernel's first customer: the whole release is
+> one registered weekly phase (lifeMoments, order 855) plus three
+> registered feed reactions — sim.js and the frozen chain untouched,
+> exactly as §33 promised. The cast grew to 14 regulars who develop
+> biases at viral moments and quietly drop them after boiled storms;
+> selca day runs monthly; birthday weeks trend from hash-derived
+> birth weeks with fandom-funded subway ads past intensity 50;
+> livestream weeks leave lore clips; the feed runs 8/week over a
+> floor of 5 with 80 kept. Kernel dividend on the way through:
+> narrative formation letters promoted to priority-high (the birth
+> of a narrative is news — the trim-race bug class closes for good).
+> Numbers: battery 38/38 (suite 038, 58 assertions), soak clean,
+> e2e 89, lockstep 0.7.3 (38 modules). Rode to main.

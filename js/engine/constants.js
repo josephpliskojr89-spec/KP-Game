@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.7.2',
+    VERSION: '0.7.3',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -645,9 +645,9 @@
 
     // ---- The fan feed (v0.4.0→v0.6.3): a real feed, never cruel ---------
     FEED: {
-      maxPosts: 64,
-      weeklyMax: 6,              // livelier, still a digest
-      weeklyMin: 4,              // v0.6.3: the feed never goes quiet again
+      maxPosts: 80,
+      weeklyMax: 8,              // a timeline you check every week (v0.7.3)
+      weeklyMin: 5,              // v0.6.3 floor, raised with the v0.7.3 volume
       ambientChance: 0.55,       // chance of ambient fan chatter in a quiet week
       hypePostMin: 35,           // trainee hype level the feed starts noticing
       viralChance: 0.08,         // a post occasionally escapes containment
@@ -739,7 +739,24 @@
         { handle: '@formerstan_txt',   persona: 'anti' },
         { handle: '@fourthgenfiles',   persona: 'casual' },
         { handle: '@lightstickrepair', persona: 'fan' },
+        // the timeline grows (v0.7.3) — a fandom is mostly its regulars
+        { handle: '@subwayadfund',     persona: 'fan' },
+        { handle: '@dawnpatrol_gg',    persona: 'fan' },
+        { handle: '@voteguide_arch',   persona: 'stan' },
+        { handle: '@encorewatcher',    persona: 'stan' },
+        { handle: '@idontevenstan',    persona: 'casual' },
+        { handle: '@heardinhongdae',   persona: 'casual' },
+        { handle: '@quietlyunwell',    persona: 'anti' },
+        { handle: '@deskwatch_ent',    persona: 'press' },
       ],
+      // idol posting moments (v0.7.3) — all hash-gated, all wholesome
+      selcaEveryWeeks: 4,        // monthly selca day, industry-wide
+      selcaSpike: 1200,
+      birthdaySpike: 3000,
+      birthdayMorale: 2,
+      birthdayAdIntensity: 50,   // a devoted fandom funds the subway ad
+      liveClipChance: 0.35,      // a livestream week leaves a clip behind
+      biasBreakupWeeks: 8,       // a heartbroken regular stays unbiased a while
     },
     MEETING: {
       everyWeeks: 10,            // the Monday meeting cadence

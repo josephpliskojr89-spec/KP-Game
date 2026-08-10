@@ -129,7 +129,7 @@
       state.memory = mem(state).slice(0, M.cap);
     }
     return {
-      kind: 'public', ind: 'narrative', narKey: key,
+      kind: 'public', ind: 'narrative', narKey: key, priority: 'high',
       narSubjectType: subjectType, narSubjectId: subjectId,
       text: formationLine(state, n),
     };
@@ -185,6 +185,8 @@
     person.viralCount = (person.viralCount || 0) + 1;
     // viral moments cross borders (v0.6.6) — hardest where she is loved
     if (KP.regionsOnViral) KP.regionsOnViral(state, person);
+    // and the timeline's regulars notice (v0.7.3) — one adopts her
+    if (KP.regularsNotice) KP.regularsNotice(state, person);
     if (person.viralCount >= KP.C.MEMORY.viralFormAt) {
       return KP.recordEvidence(state, 'fancamStar', 'idol', person.id);
     }

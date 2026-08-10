@@ -66,11 +66,16 @@ function ignite(state, kind, subjectType, subjectId, groupId) {
   const d2 = KP.liveDiscourses(state2)[0];
   d2.heat = 84;
   const popBefore = g2.popularity;
+  // mechanism test: pin the decay so the boil is arithmetic, not a coin
+  // flip — the burn PHYSICS are proven statistically by the soak
+  const realDecay = KP.C.DISCOURSE.weeklyDecay;
+  KP.C.DISCOURSE.weeklyDecay = 0;
   let guard2 = 0, moralePreBoil = state2.people[g2.members[0]].morale;
-  while (d2.status === 'live' && guard2++ < 10) {
+  while (d2.status === 'live' && guard2++ < 12) {
     moralePreBoil = state2.people[g2.members[0]].morale;   // snapshot before the boil week
     KP.advanceWeek(state2);
   }
+  KP.C.DISCOURSE.weeklyDecay = realDecay;
   t.eq(d2.status, 'boiled', 'an ignored hot storm boils over');
   t.ok(g2.popularity < popBefore, 'the group pays (' + popBefore + ' → ' + g2.popularity + ')');
   t.ok(state2.people[g2.members[0]].morale < moralePreBoil, 'so does she');

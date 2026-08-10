@@ -509,6 +509,18 @@
     });
   } });
 
+  // v0.7.3 — the timeline. The feed cast opens its ledger; everything
+  // else (selca days, birthdays, clips) is calendar hash-truth.
+  MIGRATIONS.push({ v: '0.7.3', fn: function (state) {
+    state.feedCast = state.feedCast || {};
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The social desk’s weekly briefing got thicker: the recurring fan accounts now pick FAVORITES (a viral moment gets a girl adopted by an account with reach — and a scandal gets her quietly dropped, which stings more). Selca day runs monthly, industry-wide. Birthday weeks trend on their own schedule — a devoted fandom funds the subway ad. Livestream weeks leave clips the timeline keeps. Check the Feed every week; it is where the era actually lives.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

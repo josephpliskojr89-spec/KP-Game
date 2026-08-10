@@ -125,10 +125,11 @@ function debuted(seed) {
   KP.socialSpike(state, p, 50000, 'push');
   KP.advanceWeek(state);
   t.ok(p.socialMilestones.includes(100000), 'the 100k milestone is recorded');
-  t.ok(state.inbox.some(m => /crossed 100k followers/.test(m.text)), 'and celebrated');
-  const before = state.inbox.filter(m => /crossed 100k/.test(m.text)).length;
+  const herLetter = m => m.text.includes(KP.displayName(p)) && /crossed 100k/.test(m.text);
+  t.ok(state.inbox.some(herLetter), 'and celebrated');
+  const before = state.inbox.filter(herLetter).length;
   KP.advanceWeek(state);
-  t.eq(state.inbox.filter(m => /crossed 100k/.test(m.text)).length, before, 'once means once');
+  t.eq(state.inbox.filter(herLetter).length, before, 'once means once — for HER (others may cross too)');
 }
 
 // ---- zero seed drift: social is hash-driven, not dice-driven ----
