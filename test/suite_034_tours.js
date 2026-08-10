@@ -120,7 +120,7 @@ function ride(state, g, weeks) {
     });
     for (let w = 0; w < 6 && !seen; w++) {
       KP.advanceWeek(state);
-      const d = (state.discourses || []).find(x => x.kind === 'gaffe');
+      const d = (state.discourses || []).find(x => x.kind === 'gaffe' && x.status === 'live');
       if (d) seen = { state, d };
       g.members.forEach(id => { state.people[id].fatigue = 85; });
     }

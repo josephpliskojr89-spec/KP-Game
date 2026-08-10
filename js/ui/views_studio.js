@@ -103,11 +103,15 @@
     }
 
     // --- planning mode ---
+    // render never draws rng (kernel law, v0.7.2): demos are generated
+    // at formation and by the weekly tick. If they are not here yet,
+    // the producers are literally still writing — say so and wait.
     if (!g.demos) {
-      const rng = KP.rngFor(state);
-      g.demos = KP.generateDemos(state, rng, g);
-      state.rngState = rng.state();
-      KP.App.save();
+      return switcher + '<div class="group-hero"><div class="g-status">The pitch meeting · ' + UI.esc(g.name) + '</div>' +
+        '<div class="g-name" style="font-size:clamp(1.7rem,8vw,2.4rem)">The producers<br>are writing.</div>' +
+        '<div style="color:var(--ink-dim);font-size:.86rem;margin-top:8px;line-height:1.5">Fresh pitches land next week' +
+        (g.concept ? ' — written to the ' + UI.esc((KP.conceptById(g.concept) || {}).label || '') + ' brief' : '') +
+        '. Advance the week; the demos will be on the desk.</div></div>';
     }
     const members = g.members.map(id => state.people[id]);
     const sel = g.demos.find(s => s.id === draft.songId) || null;

@@ -105,6 +105,13 @@
       releases: [],
     };
     state.groups.push(group);
+    // the first pitch meeting happens the day the lineup forms (v0.7.2)
+    // — an action-time draw, so render never has to (kernel law)
+    {
+      const rng = KP.rngFor(state);
+      group.demos = KP.generateDemos(state, rng, group);
+      state.rngState = rng.state();
+    }
     members.forEach(m => {
       m.history.push({ week: state.week, text: 'Selected for the debut lineup of ' + name + '.' });
     });

@@ -1475,6 +1475,47 @@ originally accepted a release made the same week the promise was —
 `>=` vs `>` on one comparison; the suite's broken-promise fixture
 caught the free pass.
 
+## §33 The foundation (v0.7.2) — architecture for the Living Industry era
+
+> Owner: *"audit the architecture for the next several years of
+> simulation complexity. Do not change frameworks unless necessary.
+> Identify where state, simulation systems, UI rendering, persistence,
+> and event generation are too tightly coupled, then build the
+> architectural foundation required."*
+
+Full audit and the extension recipe live in **docs/ARCHITECTURE.md**;
+this section is the summary of record. The framework stays framework-
+free — nothing ahead requires more than discipline, made structural.
+Five findings, every one backed by a shipped-and-fixed bug from this
+project's own ledger; four fixed by the new kernel (js/engine/
+kernel.js), one (persistence) found sound and left alone:
+
+1. **The weekly tick** — 26 hand-numbered sections → an explicit
+   named pipeline (CORE_PHASES); new systems insert phases via
+   `KP.registerWeekly` and never edit the driver again.
+2. **Notes** — two lifecycles, boolean urgency, arrival-order trim →
+   ONE bus: `KP.note` (validated; malformed notes throw at the
+   source) and a priority-aware trim (critical/high never trimmed,
+   flavor first). The v0.6.5/v0.7.1 silent-trim bugs and the v0.6.8
+   null-note crash are structurally impossible now.
+3. **Feed reactions** — a 34-branch magic-string chain → the
+   `KP.onFeedEvent` registry, consulted first, duplicate-safe; the
+   old chain is frozen legacy.
+4. **Render purity** — the studio view was drawing rng during render
+   (the v0.6.3 social-mint bug class, back through another door):
+   demos now generate at proposeGroup (action) and restock via the
+   tick; PROMOTED TO LAW: rng draws happen in the tick and in player
+   actions, never in render.
+5. **The validator** — `KP.validateState` (ghosts, NaNs, room-chart
+   partitions, deal references) runs as a hard guard EVERY WEEK of
+   every soak seed.
+
+The determinism suite-property held through the refactor (the
+pipeline preserves exact phase order; suite 037 forks it 30 weeks).
+Three fixture repairs on the way through — one of which (fandom
+intensity ≥60 changing storm physics changing reception) was the
+audit accidentally proving the systems interlock for real.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2205,3 +2246,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 036, 51 assertions), soak clean (62 bands — bubbles 40/40,
 > promises kept 38/40, dreams landed 40/40), e2e 89, lockstep 0.7.1
 > (37 modules). Rode to main.
+\n
+> **v0.7.2 — the foundation** (owner: *"audit the architecture for
+> the next several years of simulation complexity… then build the
+> architectural foundation required for the planned Living Industry
+> systems"*)
+> Full audit in docs/ARCHITECTURE.md, summary in §33. New module
+> kernel.js: the validated one-lifecycle note bus with priorities;
+> the feed-reaction registry (34-branch frozen chain gets a lid);
+> the weekly tick restructured into an explicitly named 28-phase
+> pipeline extendable by KP.registerWeekly without editing sim.js;
+> KP.validateState run weekly by every soak seed as a hard guard.
+> One real determinism hazard found and fixed: the studio view drew
+> rng during RENDER (demo generation) — a player who opened the
+> studio had a different world than one who didn't, the v0.6.3
+> social-mint bug class through another door; demos now generate at
+> formation and restock via the tick, and "rng in tick and actions
+> only, never render" is law. Persistence audited sound and left
+> alone. Framework unchanged — the vm-loadable classic-script
+> property is load-bearing for the battery. Numbers: battery 37/37
+> (suite 037: kernel contracts, 19 assertions), soak clean with the
+> validator armed, e2e 89, lockstep 0.7.2 (38 modules). Rode to
+> main.

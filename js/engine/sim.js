@@ -21,247 +21,294 @@
   function saveRng(state, rng) { state.rngState = rng.state(); }
 
   // ---- The advance ------------------------------------------------------
+  // ---- The weekly pipeline (v0.7.2) ------------------------------------
+  // Every phase is named and explicitly ordered; section bodies are the
+  // same code that always ran, in the same order. Future Living Industry
+  // systems insert phases via KP.registerWeekly WITHOUT editing this
+  // file. Ordering bugs get names now.
+  const CORE_PHASES = [
+    { name: 'develop', order: 100, fn: (state, rng, inbox, roster, groups) => {
+      // 1. development (or release prep, which replaces training for members);
+      //    idols live on the promotion/recovery cycle, not the training room
+      const prepIds = [];
+      groups.forEach(g => { if (g.prep) g.members.forEach(id => prepIds.push(id)); });
+      roster.forEach(p => {
+        if (prepIds.includes(p.id)) return;
+        if (p.status === 'idol') {
+          const n = idolWeek(state, p, rng);
+          if (n) inbox.push(n);
+          return;
+        }
+        KP.developWeek(state, p, rng).forEach(n => inbox.push(n));
+      });
+      groups.forEach(g => {
+        if (g.prep) KP.prepWeek(state, rng, g).forEach(n => inbox.push(n));
+      });
+    } },
+    { name: 'demos', order: 150, fn: (state, rng, inbox, roster, groups) => {
+      // pitch meetings happen on company time (v0.7.2): demos exist
+      // BEFORE anyone opens the studio — render never draws rng (law)
+      groups.forEach(g => {
+        if (g.demos || g.prep || g.tour) return;
+        const calendarOpen = !g.debuted ||
+          (state.week > (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks &&
+           state.week > (g.tourRestUntil || 0));
+        if (calendarOpen) g.demos = KP.generateDemos(state, rng, g);
+      });
+    } },
+    { name: 'rollout', order: 200, fn: (state, rng, inbox, roster, groups) => {
+      // 1b. promotion runs on the rollout plan (v0.6.3): booked activities,
+      //     paid-for stages, and the occasional story they create
+      groups.forEach(g => {
+        if (g.debuted && state.week <= (g.promoUntil || 0) && state.week > (g.lastReleaseWeek || 0)) {
+          KP.rolloutWeek(state, g, rng).forEach(n => inbox.push(n));
+        }
+      });
+    } },
+    { name: 'tour', order: 250, fn: (state, rng, inbox, roster, groups) => {
+      // 1c. the road (v0.6.8): touring groups grind through their legs
+      groups.forEach(g => {
+        if (g.tour) KP.tourWeek(state, g, rng).forEach(n => inbox.push(n));
+      });
+    } },
+    { name: 'popularityDecay', order: 280, fn: (state, rng, inbox, roster, groups) => {
+      // popularity cools once the promotion cycle and its afterglow end;
+      // fan-sign weeks in the rollout stretch the afterglow — per group.
+      // A tour counts as activity: the room stays warm on the road.
+      groups.forEach(g => {
+        if (!g.debuted || g.prep || g.tour) return;
+        if (state.week > (g.promoUntil || 0) + KP.C.COMEBACK.decayGraceWeeks + (g.promoGrace || 0)) {
+          g.popularity = Math.max(0, (g.popularity || 0) - KP.C.COMEBACK.popDecayPerWeek);
+        }
+      });
+    } },
+    { name: 'showcase', order: 300, fn: (state, rng, inbox, roster, groups) => {
+      // 2. showcase cadence (live reps for everyone, sharper reads)
+      if (state.week % KP.C.TRAIN.showcaseEveryWeeks === 0 && roster.length) {
+        KP.showcaseWeek(state, roster, rng).forEach(n => inbox.push(n));
+      }
+    } },
+    { name: 'project', order: 320, fn: (state, rng, inbox, roster, groups) => {
+      // 2b. the project: the building talks about it
+      if (state.project) {
+        if (!state.project.announced) {
+          state.project.announced = true;
+          const seeking = state.project.seeking.map(d => KP.C.TALENT_LABELS[d].toLowerCase()).join(' and ');
+          inbox.push({ kind: 'company', text: 'Word is out about the new group project. ' +
+            state.project.locked.length + ' spot' + (state.project.locked.length === 1 ? ' is' : 's are') + ' already locked' +
+            (seeking ? ', and the practice rooms have heard we need ' + seeking : '') +
+            '. Every free trainee in the building is suddenly working late.' });
+        } else if (rng.chance(KP.C.PROJECT.standoutNoteChance)) {
+          const hopefuls = KP.freeTrainees(state).filter(id => !state.project.locked.includes(id))
+            .map(id => state.people[id]);
+          if (hopefuls.length) {
+            const star = hopefuls.slice().sort((a, b) =>
+              (b.personality.workEthic + b.personality.competitiveness) -
+              (a.personality.workEthic + a.personality.competitiveness))[0];
+            inbox.push({ kind: 'development', text: 'Since the project was announced, ' +
+              KP.displayName(star) + ' has barely left the practice rooms. The spot is not hers yet — she is training like it is.' });
+          }
+        }
+      }
+    } },
+    { name: 'hype', order: 340, fn: (state, rng, inbox, roster, groups) => {
+      // 2c. pre-debut hype: the internet finds people on its own schedule
+      hypeWeek(state, rng).forEach(n => inbox.push(n));
+    } },
+    { name: 'relations', order: 400, fn: (state, rng, inbox, roster, groups) => {
+      // 3. relationships
+      KP.relationsWeek(state, roster, rng).forEach(n => inbox.push(n));
+    } },
+    { name: 'rivalScouting', order: 450, fn: (state, rng, inbox, roster, groups) => {
+      // 4. rival scouting + board churn
+      KP.rivalScoutingWeek(state, rng).forEach(n => inbox.push(n));
+    } },
+    { name: 'events', order: 500, fn: (state, rng, inbox, roster, groups) => {
+      // 5. table events
+      KP.eventsWeek(state, rng).forEach(n => inbox.push(n));
+    } },
+    { name: 'deals', order: 520, fn: (state, rng, inbox, roster, groups) => {
+      // 5a2. the deals desk (v0.7.0): offers arrive, contracts pay, scandal
+      //      clauses bite
+      KP.dealsWeek(state, rng).forEach(n => inbox.push(n));
+    } },
+    { name: 'releaseWar', order: 540, fn: (state, rng, inbox, roster, groups) => {
+      // 5b-pre. the release war (v0.6.4): comebacks go public, locked dates
+      //     leak, and rivals with a motive park releases on them
+      KP.calendarWeek(state, rng).forEach(n => inbox.push(n));
+    } },
+    { name: 'industry', order: 560, fn: (state, rng, inbox, roster, groups) => {
+      // 5b. the rest of the industry works too (v0.4.0): chart cools, rival
+      //     acts debut and come back — BEFORE our releases resolve, so a
+      //     crowded week is a crowded week
+      KP.industryWeek(state, rng).forEach(n => inbox.push(n));
+    } },
+    { name: 'shows', order: 580, fn: (state, rng, inbox, roster, groups) => {
+      // 5b2. the music shows air (v0.6.5): winners computed among everyone
+      //      promoting this week — trophies, encores, ending fairies
+      KP.showsWeek(state, rng).forEach(n => inbox.push(n));
+    } },
+    { name: 'releases', order: 600, fn: (state, rng, inbox, roster, groups) => {
+      // 6. release resolution — due or overdue, never an exact-date match
+      let dueGroup;
+      while ((dueGroup = KP.debutDue(state))) {
+        const res = KP.resolveDebut(state, rng, dueGroup);
+        inbox.push({ kind: 'debut', urgent: true, groupId: dueGroup.id,
+          text: dueGroup.name + (res.isDebut ? ' debuted with “' : ' came back with “') +
+            res.songTitle + '”. ' + res.receptionLabel + '. Full report in the Studio.' });
+        // narratives born at the release (v0.6.0) reach the desk too
+        (res.narrativeNotes || []).forEach(n => inbox.push(n));
+        delete res.narrativeNotes;
+      }
+    } },
+    { name: 'deadline', order: 700, fn: (state, rng, inbox, roster, groups) => {
+      // 7. deadline check — self-healing: fires when overdue, once
+      if (state.objective.status === 'open' && state.week > state.objective.deadlineWeek) {
+        state.objective.status = 'missed';
+        const isComeback = state.objective.type === 'comeback';
+        const penalty = isComeback ? KP.C.COMEBACK.missedDeadlinePenalty : KP.C.EXEC.missedDeadlinePenalty;
+        state.trust = KP.clamp(state.trust + penalty, 0, 100);
+        inbox.push({ kind: 'executive', urgent: true,
+          text: isComeback
+            ? state.executive.name + ': “The comeback window closed with nothing in it. Momentum does not wait for us, and neither does the board.”'
+            : state.executive.name + ': “The deadline has passed without a debut. I defended this division at the board today. I will not do it twice.”' });
+      }
+    } },
+    { name: 'objectiveLadder', order: 720, fn: (state, rng, inbox, roster, groups) => {
+      // 7b. the ladder: a finished objective summons the next directive
+      if (KP.objectiveSuccessionDue(state)) {
+        inbox.push(KP.issueNextObjective(state, rng));
+      }
+    } },
+    { name: 'hypeDirective', order: 740, fn: (state, rng, inbox, roster, groups) => {
+      // 7c. the hype directive resolves — met when she debuted, missed when
+      // the window closed on your desk (self-healing, fires once)
+      const hd = state.hypeDirective;
+      if (hd && hd.status === 'open') {
+        const person = state.people[hd.personId];
+        if (person && person.status === 'idol') {
+          hd.status = 'met';
+          state.trust = KP.clamp(state.trust + KP.C.HYPE.directiveMetTrust, 0, 100);
+          inbox.push({ kind: 'executive', text: state.executive.name + ': “' + KP.displayName(person) +
+            ' debuted while the internet still cared. That is how this business is supposed to work. Noted.”' });
+        } else if (state.week > hd.deadlineWeek) {
+          hd.status = 'missed';
+          state.trust = KP.clamp(state.trust + KP.C.HYPE.directiveMissTrust, 0, 100);
+          if (person) {
+            person.hype = Math.min(person.hype || 0, KP.C.HYPE.collapseTo);
+            person.morale = KP.clamp(person.morale - 10, 0, 100);
+          }
+          inbox.push({ kind: 'executive', urgent: true, text: state.executive.name + ': “The internet moved on from ' +
+            (person ? KP.displayName(person) : 'her') + ' while we held meetings. I gave you a direct instruction. Remember that I remember.”' });
+        }
+        if (hd.status !== 'open') {
+          state.objectiveHistory = state.objectiveHistory || [];
+          state.objectiveHistory.push({ type: 'hypeDebut', status: hd.status, week: state.week, personId: hd.personId });
+          state.hypeDirective = null;
+        }
+      }
+    } },
+    { name: 'monthBoundary', order: 760, fn: (state, rng, inbox, roster, groups) => {
+      // 8. month boundary: stipend + costs, the CEO's read of the books,
+      //    and a headline
+      if ((state.week - 1) % KP.C.WEEKS_PER_MONTH === 0) {
+        const upkeep = Math.round(state.roster.length * KP.C.ECON.weeklyTrainingCostPerTrainee * KP.C.WEEKS_PER_MONTH);
+        state.budget = Math.max(0, state.budget + KP.C.ECON.monthlyStipend - upkeep);
+
+        // fiscal pressure (v0.2.3): once the signing cap lifts, the CEO
+        // reads the books on a rolling quarter — one big album month is
+        // business, a quarter of red ink gets noticed, a red half-year
+        // costs trust
+        state.fiscal = state.fiscal || { monthStartBudget: state.budget, pressure: 0, monthSignings: 0 };
+        const net = state.budget - state.fiscal.monthStartBudget;
+        state.fiscal.recentNets = (state.fiscal.recentNets || []).concat([net]).slice(-3);
+        if (!KP.signingsCapped(state)) {
+          const P = KP.C.ECON.PRESSURE;
+          const quarterNet = state.fiscal.recentNets.reduce((a, b) => a + b, 0);
+          if (quarterNet < -P.quarterBurnWarn) {
+            state.fiscal.pressure = Math.min(3, (state.fiscal.pressure || 0) + 1);
+            const spree = state.fiscal.monthSignings >= 3;
+            const lvl = state.fiscal.pressure;
+            if (lvl >= 3) state.trust = KP.clamp(state.trust + P.trustHitL3, 0, 100);
+            else if (lvl === 2) state.trust = KP.clamp(state.trust + P.trustHitL2, 0, 100);
+            inbox.push({ kind: 'executive', urgent: lvl >= 2, text: pressureLetter(state, lvl, quarterNet, spree) });
+          } else if (quarterNet >= 0 && state.fiscal.pressure > 0) {
+            state.fiscal.pressure--;
+            if (state.fiscal.pressure === 0) {
+              inbox.push({ kind: 'executive', text: state.executive.name + '’s office, briefly: “The books look like a business again. Carry on.”' });
+            }
+          }
+        }
+        state.fiscal.monthStartBudget = state.budget;
+        state.fiscal.monthSignings = 0;
+
+        if (rng.chance(0.6)) {
+          // the trades write about what the world actually believes (v0.6.0)
+          const live = KP.liveNarratives(state);
+          if (live.length && rng.chance(0.5)) {
+            const n = live[rng.int(0, live.length - 1)];
+            inbox.push({ kind: 'industry', text: 'Trade feature this month: “' +
+              KP.narrativeText(state, n) + '” The coverage writes itself now.' });
+          } else {
+            inbox.push({ kind: 'industry', text: KP.genHeadline(rng) });
+          }
+        }
+
+        // companies rise, fall, merge and split on the month boundary (v0.4.0)
+        KP.industryLifecycle(state, rng).forEach(n => inbox.push(n));
+      }
+    } },
+    { name: 'awards', order: 780, fn: (state, rng, inbox, roster, groups) => {
+      // 7d. award season (v0.7.0): nominations at week 44, the ceremony at
+      //     47 — computed from the year that actually happened, rng-free
+      KP.awardsWeek(state).forEach(n => inbox.push(n));
+    } },
+    { name: 'meeting', order: 790, fn: (state, rng, inbox, roster, groups) => {
+      // 7e. the Monday meeting (v0.7.1): the exec asks, the claim goes on
+      //     the record, and the record gets checked — rng-free
+      KP.meetingWeek(state).forEach(n => inbox.push(n));
+    } },
+    { name: 'memory', order: 800, fn: (state, rng, inbox, roster, groups) => {
+      // 8c. memory: opinions decay, slow patterns become narratives (v0.6.0)
+      KP.memoryWeek(state).forEach(n => inbox.push(n));
+    } },
+    { name: 'social', order: 820, fn: (state, rng, inbox, roster, groups) => {
+      // 8d. the numbers everyone can see move (v0.6.1) — hash-driven, no dice
+      KP.socialWeek(state).forEach(n => inbox.push(n));
+    } },
+    { name: 'regions', order: 840, fn: (state, rng, inbox, roster, groups) => {
+      // 8d2. the map breathes (v0.6.6): borderless promo spreads, idle
+      //      regions cool slowly — rng-free
+      KP.regionsWeek(state);
+    } },
+    { name: 'fandom', order: 850, fn: (state, rng, inbox, roster, groups) => {
+      // 8d3. devotion cools without care (v0.7.0) — rng-free
+      KP.fandomWeek(state);
+    } },
+    { name: 'discourse', order: 860, fn: (state, rng, inbox, roster, groups) => {
+      // 8e. the discourse burns (v0.6.2): storms ignite, grow, fade, boil
+      KP.discourseWeek(state, rng).forEach(n => inbox.push(n));
+    } },
+    { name: 'chartAndFeed', order: 900, fn: (state, rng, inbox, roster, groups) => {
+      // 9. stamp this week's chart positions (all releases are in) — the
+      //    national board hands out milestone letters — then let the fans
+      //    react to everything that just happened
+      KP.chartStamp(state).forEach(n => inbox.push(n));
+      KP.feedWeek(state, rng, inbox);
+    } },
+  ];
+
   KP.advanceWeek = function (state) {
     const rng = KP.rngFor(state);
     const inbox = [];
     state.week++;
-
     const roster = state.roster.map(id => state.people[id]);
     const groups = KP.groups(state);
 
-    // 1. development (or release prep, which replaces training for members);
-    //    idols live on the promotion/recovery cycle, not the training room
-    const prepIds = [];
-    groups.forEach(g => { if (g.prep) g.members.forEach(id => prepIds.push(id)); });
-    roster.forEach(p => {
-      if (prepIds.includes(p.id)) return;
-      if (p.status === 'idol') {
-        const n = idolWeek(state, p, rng);
-        if (n) inbox.push(n);
-        return;
-      }
-      KP.developWeek(state, p, rng).forEach(n => inbox.push(n));
-    });
-    groups.forEach(g => {
-      if (g.prep) KP.prepWeek(state, rng, g).forEach(n => inbox.push(n));
-    });
+    KP.weeklyPipeline(CORE_PHASES).forEach(p => p.fn(state, rng, inbox, roster, groups));
 
-    // 1b. promotion runs on the rollout plan (v0.6.3): booked activities,
-    //     paid-for stages, and the occasional story they create
-    groups.forEach(g => {
-      if (g.debuted && state.week <= (g.promoUntil || 0) && state.week > (g.lastReleaseWeek || 0)) {
-        KP.rolloutWeek(state, g, rng).forEach(n => inbox.push(n));
-      }
-    });
-
-    // 1c. the road (v0.6.8): touring groups grind through their legs
-    groups.forEach(g => {
-      if (g.tour) KP.tourWeek(state, g, rng).forEach(n => inbox.push(n));
-    });
-
-    // popularity cools once the promotion cycle and its afterglow end;
-    // fan-sign weeks in the rollout stretch the afterglow — per group.
-    // A tour counts as activity: the room stays warm on the road.
-    groups.forEach(g => {
-      if (!g.debuted || g.prep || g.tour) return;
-      if (state.week > (g.promoUntil || 0) + KP.C.COMEBACK.decayGraceWeeks + (g.promoGrace || 0)) {
-        g.popularity = Math.max(0, (g.popularity || 0) - KP.C.COMEBACK.popDecayPerWeek);
-      }
-    });
-
-    // 2. showcase cadence (live reps for everyone, sharper reads)
-    if (state.week % KP.C.TRAIN.showcaseEveryWeeks === 0 && roster.length) {
-      KP.showcaseWeek(state, roster, rng).forEach(n => inbox.push(n));
-    }
-
-    // 2b. the project: the building talks about it
-    if (state.project) {
-      if (!state.project.announced) {
-        state.project.announced = true;
-        const seeking = state.project.seeking.map(d => KP.C.TALENT_LABELS[d].toLowerCase()).join(' and ');
-        inbox.push({ kind: 'company', text: 'Word is out about the new group project. ' +
-          state.project.locked.length + ' spot' + (state.project.locked.length === 1 ? ' is' : 's are') + ' already locked' +
-          (seeking ? ', and the practice rooms have heard we need ' + seeking : '') +
-          '. Every free trainee in the building is suddenly working late.' });
-      } else if (rng.chance(KP.C.PROJECT.standoutNoteChance)) {
-        const hopefuls = KP.freeTrainees(state).filter(id => !state.project.locked.includes(id))
-          .map(id => state.people[id]);
-        if (hopefuls.length) {
-          const star = hopefuls.slice().sort((a, b) =>
-            (b.personality.workEthic + b.personality.competitiveness) -
-            (a.personality.workEthic + a.personality.competitiveness))[0];
-          inbox.push({ kind: 'development', text: 'Since the project was announced, ' +
-            KP.displayName(star) + ' has barely left the practice rooms. The spot is not hers yet — she is training like it is.' });
-        }
-      }
-    }
-
-    // 2c. pre-debut hype: the internet finds people on its own schedule
-    hypeWeek(state, rng).forEach(n => inbox.push(n));
-
-    // 3. relationships
-    KP.relationsWeek(state, roster, rng).forEach(n => inbox.push(n));
-
-    // 4. rival scouting + board churn
-    KP.rivalScoutingWeek(state, rng).forEach(n => inbox.push(n));
-
-    // 5. table events
-    KP.eventsWeek(state, rng).forEach(n => inbox.push(n));
-
-    // 5a2. the deals desk (v0.7.0): offers arrive, contracts pay, scandal
-    //      clauses bite
-    KP.dealsWeek(state, rng).forEach(n => inbox.push(n));
-
-    // 5b-pre. the release war (v0.6.4): comebacks go public, locked dates
-    //     leak, and rivals with a motive park releases on them
-    KP.calendarWeek(state, rng).forEach(n => inbox.push(n));
-
-    // 5b. the rest of the industry works too (v0.4.0): chart cools, rival
-    //     acts debut and come back — BEFORE our releases resolve, so a
-    //     crowded week is a crowded week
-    KP.industryWeek(state, rng).forEach(n => inbox.push(n));
-
-    // 5b2. the music shows air (v0.6.5): winners computed among everyone
-    //      promoting this week — trophies, encores, ending fairies
-    KP.showsWeek(state, rng).forEach(n => inbox.push(n));
-
-    // 6. release resolution — due or overdue, never an exact-date match
-    let dueGroup;
-    while ((dueGroup = KP.debutDue(state))) {
-      const res = KP.resolveDebut(state, rng, dueGroup);
-      inbox.push({ kind: 'debut', urgent: true, groupId: dueGroup.id,
-        text: dueGroup.name + (res.isDebut ? ' debuted with “' : ' came back with “') +
-          res.songTitle + '”. ' + res.receptionLabel + '. Full report in the Studio.' });
-      // narratives born at the release (v0.6.0) reach the desk too
-      (res.narrativeNotes || []).forEach(n => inbox.push(n));
-      delete res.narrativeNotes;
-    }
-
-    // 7. deadline check — self-healing: fires when overdue, once
-    if (state.objective.status === 'open' && state.week > state.objective.deadlineWeek) {
-      state.objective.status = 'missed';
-      const isComeback = state.objective.type === 'comeback';
-      const penalty = isComeback ? KP.C.COMEBACK.missedDeadlinePenalty : KP.C.EXEC.missedDeadlinePenalty;
-      state.trust = KP.clamp(state.trust + penalty, 0, 100);
-      inbox.push({ kind: 'executive', urgent: true,
-        text: isComeback
-          ? state.executive.name + ': “The comeback window closed with nothing in it. Momentum does not wait for us, and neither does the board.”'
-          : state.executive.name + ': “The deadline has passed without a debut. I defended this division at the board today. I will not do it twice.”' });
-    }
-
-    // 7b. the ladder: a finished objective summons the next directive
-    if (KP.objectiveSuccessionDue(state)) {
-      inbox.push(KP.issueNextObjective(state, rng));
-    }
-
-    // 7c. the hype directive resolves — met when she debuted, missed when
-    // the window closed on your desk (self-healing, fires once)
-    const hd = state.hypeDirective;
-    if (hd && hd.status === 'open') {
-      const person = state.people[hd.personId];
-      if (person && person.status === 'idol') {
-        hd.status = 'met';
-        state.trust = KP.clamp(state.trust + KP.C.HYPE.directiveMetTrust, 0, 100);
-        inbox.push({ kind: 'executive', text: state.executive.name + ': “' + KP.displayName(person) +
-          ' debuted while the internet still cared. That is how this business is supposed to work. Noted.”' });
-      } else if (state.week > hd.deadlineWeek) {
-        hd.status = 'missed';
-        state.trust = KP.clamp(state.trust + KP.C.HYPE.directiveMissTrust, 0, 100);
-        if (person) {
-          person.hype = Math.min(person.hype || 0, KP.C.HYPE.collapseTo);
-          person.morale = KP.clamp(person.morale - 10, 0, 100);
-        }
-        inbox.push({ kind: 'executive', urgent: true, text: state.executive.name + ': “The internet moved on from ' +
-          (person ? KP.displayName(person) : 'her') + ' while we held meetings. I gave you a direct instruction. Remember that I remember.”' });
-      }
-      if (hd.status !== 'open') {
-        state.objectiveHistory = state.objectiveHistory || [];
-        state.objectiveHistory.push({ type: 'hypeDebut', status: hd.status, week: state.week, personId: hd.personId });
-        state.hypeDirective = null;
-      }
-    }
-
-    // 8. month boundary: stipend + costs, the CEO's read of the books,
-    //    and a headline
-    if ((state.week - 1) % KP.C.WEEKS_PER_MONTH === 0) {
-      const upkeep = Math.round(state.roster.length * KP.C.ECON.weeklyTrainingCostPerTrainee * KP.C.WEEKS_PER_MONTH);
-      state.budget = Math.max(0, state.budget + KP.C.ECON.monthlyStipend - upkeep);
-
-      // fiscal pressure (v0.2.3): once the signing cap lifts, the CEO
-      // reads the books on a rolling quarter — one big album month is
-      // business, a quarter of red ink gets noticed, a red half-year
-      // costs trust
-      state.fiscal = state.fiscal || { monthStartBudget: state.budget, pressure: 0, monthSignings: 0 };
-      const net = state.budget - state.fiscal.monthStartBudget;
-      state.fiscal.recentNets = (state.fiscal.recentNets || []).concat([net]).slice(-3);
-      if (!KP.signingsCapped(state)) {
-        const P = KP.C.ECON.PRESSURE;
-        const quarterNet = state.fiscal.recentNets.reduce((a, b) => a + b, 0);
-        if (quarterNet < -P.quarterBurnWarn) {
-          state.fiscal.pressure = Math.min(3, (state.fiscal.pressure || 0) + 1);
-          const spree = state.fiscal.monthSignings >= 3;
-          const lvl = state.fiscal.pressure;
-          if (lvl >= 3) state.trust = KP.clamp(state.trust + P.trustHitL3, 0, 100);
-          else if (lvl === 2) state.trust = KP.clamp(state.trust + P.trustHitL2, 0, 100);
-          inbox.push({ kind: 'executive', urgent: lvl >= 2, text: pressureLetter(state, lvl, quarterNet, spree) });
-        } else if (quarterNet >= 0 && state.fiscal.pressure > 0) {
-          state.fiscal.pressure--;
-          if (state.fiscal.pressure === 0) {
-            inbox.push({ kind: 'executive', text: state.executive.name + '’s office, briefly: “The books look like a business again. Carry on.”' });
-          }
-        }
-      }
-      state.fiscal.monthStartBudget = state.budget;
-      state.fiscal.monthSignings = 0;
-
-      if (rng.chance(0.6)) {
-        // the trades write about what the world actually believes (v0.6.0)
-        const live = KP.liveNarratives(state);
-        if (live.length && rng.chance(0.5)) {
-          const n = live[rng.int(0, live.length - 1)];
-          inbox.push({ kind: 'industry', text: 'Trade feature this month: “' +
-            KP.narrativeText(state, n) + '” The coverage writes itself now.' });
-        } else {
-          inbox.push({ kind: 'industry', text: KP.genHeadline(rng) });
-        }
-      }
-
-      // companies rise, fall, merge and split on the month boundary (v0.4.0)
-      KP.industryLifecycle(state, rng).forEach(n => inbox.push(n));
-    }
-
-    // 7d. award season (v0.7.0): nominations at week 44, the ceremony at
-    //     47 — computed from the year that actually happened, rng-free
-    KP.awardsWeek(state).forEach(n => inbox.push(n));
-
-    // 7e. the Monday meeting (v0.7.1): the exec asks, the claim goes on
-    //     the record, and the record gets checked — rng-free
-    KP.meetingWeek(state).forEach(n => inbox.push(n));
-
-    // 8c. memory: opinions decay, slow patterns become narratives (v0.6.0)
-    KP.memoryWeek(state).forEach(n => inbox.push(n));
-
-    // 8d. the numbers everyone can see move (v0.6.1) — hash-driven, no dice
-    KP.socialWeek(state).forEach(n => inbox.push(n));
-
-    // 8d2. the map breathes (v0.6.6): borderless promo spreads, idle
-    //      regions cool slowly — rng-free
-    KP.regionsWeek(state);
-
-    // 8d3. devotion cools without care (v0.7.0) — rng-free
-    KP.fandomWeek(state);
-
-    // 8e. the discourse burns (v0.6.2): storms ignite, grow, fade, boil
-    KP.discourseWeek(state, rng).forEach(n => inbox.push(n));
-
-    // 9. stamp this week's chart positions (all releases are in) — the
-    //    national board hands out milestone letters — then let the fans
-    //    react to everything that just happened
-    KP.chartStamp(state).forEach(n => inbox.push(n));
-    KP.feedWeek(state, rng, inbox);
-
-    // trim + stamp inbox
-    const kept = inbox.slice(0, KP.C.EVENTS.maxInboxPerWeek + inbox.filter(n => n.urgent).length);
+    // trim + stamp through the kernel: priorities, one lifecycle
+    const kept = KP.trimWeekNotes(inbox, KP.C.EVENTS.maxInboxPerWeek);
     kept.forEach(n => { n.week = state.week; n.read = false; n.id = 'm' + (state.nextMsgId++); });
     state.inbox = kept.concat(state.inbox).slice(0, 60);
 

@@ -45,15 +45,13 @@
     const name = opts[idx];
     const color = KP.fandomColor(state, g);
     g.fandom = { name, color, since: state.week, intensity: 20 };
-    const note = {
-      kind: 'public', ind: 'fandomNamed', groupId: g.id, urgent: true,
-      week: state.week, read: false, id: 'm' + (state.nextMsgId++),
+    const note = KP.note(state, {
+      kind: 'public', ind: 'fandomNamed', groupId: g.id, priority: 'high',
       text: 'It is official: ' + g.name + '’s fandom has a name — ' + name + ' — and a color: ' +
         color + '. The fan cafés ratified it ' + (choiceIdx >= 0 && choiceIdx < opts.length
           ? 'after the company backed the option.' : 'by open vote, which they will bring up forever.') +
         ' Lightstick mockups appeared within the hour. Membership means something now.',
-    };
-    state.inbox.unshift(note);
+    });
     return { ok: true, name, color, note };
   };
 

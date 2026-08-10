@@ -160,10 +160,7 @@
     }
     return { ok: false, reason: 'Hold or slip. There is no third door.' };
   };
-  function pushNote(state, n) {
-    n.week = state.week; n.read = false; n.id = 'm' + (state.nextMsgId++);
-    state.inbox.unshift(n);
-  }
+  function pushNote(state, n) { KP.note(state, n); }   // one lifecycle (v0.7.2)
 
   // ---- the battle: two releases, one week, one winner -------------------
   // Called from resolveDebut once the player's score exists. Rival
@@ -196,7 +193,7 @@
         g.popularity = KP.clamp(g.popularity + W.winPop, 0, 100);
         members.forEach(m => { m.morale = KP.clamp(m.morale + W.winMorale, 0, 100); });
         if (hit) hit.act.popularity = Math.max(0, hit.act.popularity - W.loseActPop);
-        keep({ kind: 'public', ind: 'battleWin', groupId: g.id, actName: foe.actName, company: foe.company,
+        keep({ kind: 'public', ind: 'battleWin', priority: 'high', groupId: g.id, actName: foe.actName, company: foe.company,
           text: 'Head-to-head week, and the numbers are in: ' + g.name + ' over ' + foe.actName +
             '. ' + foe.company + ' picked this fight' + (clash && clash.resolved !== 'slip' ? ' — on our date —' : '') +
             ' and the recaps are calling the winner by name. ' + state.executive.name + ' read the coverage twice.' });
@@ -204,7 +201,7 @@
         feud.losses++;
         g.popularity = KP.clamp(g.popularity - W.losePop, 0, 100);
         members.forEach(m => { m.morale = KP.clamp(m.morale - W.loseMorale, 0, 100); });
-        keep({ kind: 'public', ind: 'battleLoss', groupId: g.id, actName: foe.actName, company: foe.company,
+        keep({ kind: 'public', ind: 'battleLoss', priority: 'high', groupId: g.id, actName: foe.actName, company: foe.company,
           text: foe.actName + ' took the week. Same release day, and every chart shows them a rung above ' + g.name +
             '. ' + foe.company + '’s floor manager told the trades: “We were not aware anyone else released this week.” They were aware.' });
       }

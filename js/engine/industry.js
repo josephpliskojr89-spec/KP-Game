@@ -754,6 +754,15 @@
   function rivalEventPosts(state, weekNotes, rng) {
     const posts = [];
     weekNotes.forEach(n => {
+      // the registry first (v0.7.2): Living Industry systems register
+      // feed reactions via KP.onFeedEvent — they never edit this chain.
+      // The chain below is FROZEN legacy; new inds go through the kernel.
+      const reg = n.ind && KP.feedReactionFor(n.ind);
+      if (reg) {
+        const out = reg(state, n, rng);
+        if (out) posts.push(out);
+        return;
+      }
       if (n.ind === 'rivalDebut') {
         posts.push(rng.pick([
           n.company + ' debuted ' + n.actName + ' today. verdict: actually?? kind of good?? watch this space',

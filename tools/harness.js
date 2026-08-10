@@ -315,6 +315,9 @@ for (let s = 0; s < SEEDS; s++) {
     });
 
     // --- hard invariant guards every week ---
+    // the kernel validator (v0.7.2): structural soundness, weekly
+    const structural = KP.validateState(state);
+    guard(structural.length === 0, seed + ' state invariants: ' + structural.join('; '));
     Object.values(state.people).forEach(p => {
       KP.C.TALENTS.forEach(d => {
         const t = p.talents[d];

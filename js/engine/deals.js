@@ -105,14 +105,12 @@
       p.dealCount = (p.dealCount || 0) + 1;
       if (p.dealCount >= D.brandDarlingAt) {
         const nar = KP.recordEvidence(state, 'brandDarling', 'idol', p.id);
-        if (nar) { nar.week = state.week; nar.read = false; nar.id = 'm' + (state.nextMsgId++); state.inbox.unshift(nar); }
+        if (nar) KP.note(state, nar);
       }
     }
-    const note = { kind: 'company', ind: 'dealSigned', personId: o.personId,
-      week: state.week, read: false, id: 'm' + (state.nextMsgId++),
+    const note = KP.note(state, { kind: 'company', ind: 'dealSigned', personId: o.personId,
       text: 'Signed: ' + (p ? KP.displayName(p) : 'she') + ' is the new face of ' + o.brand + '. ' +
-        o.lump + ' hits the account today, ' + o.weekly + ' a week follows. The campaign shots are already better than our album covers, which stings.' };
-    state.inbox.unshift(note);
+        o.lump + ' hits the account today, ' + o.weekly + ' a week follows. The campaign shots are already better than our album covers, which stings.' });
     return { ok: true, note: note.text };
   };
 })(typeof window !== 'undefined' ? window : globalThis);

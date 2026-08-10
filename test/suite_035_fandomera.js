@@ -68,7 +68,10 @@ function debuted(seed) {
   while (state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) KP.advanceWeek(state);
   const json = KP.serialize(state);
   const hot = KP.deserialize(json), cold = KP.deserialize(json);
-  hot.groups[0].fandom.intensity = 90; cold.groups[0].fandom.intensity = 0;
+  // both below the storm-defense threshold: intensity ≥60 changes storm
+  // physics, which changes popularity, which changes reception — the
+  // systems interlock for real. This fixture isolates the revenue leg.
+  hot.groups[0].fandom.intensity = 55; cold.groups[0].fandom.intensity = 0;
   [hot, cold].forEach(s => {
     const sg = s.groups[0];
     sg.demos = KP.generateDemos(s, KP.rngFor(s), sg);
