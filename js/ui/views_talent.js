@@ -172,6 +172,7 @@
     if (p.status === 'idol' || p.status === 'trainee') {
       const facts = KP.factsOf(state, p);
       html.push('<div class="note">Off the clock: she ' + UI.esc(facts[0]) + ', and ' + UI.esc(facts[1]) +
+        '. In the room, she ' + UI.esc(KP.VOICES[KP.voiceOf(state, p)].label) +
         '.<span class="n-who">— the staff, fondly</span></div>');
       if (p.status === 'idol') {
         const amb = KP.ambitionOf(state, p);

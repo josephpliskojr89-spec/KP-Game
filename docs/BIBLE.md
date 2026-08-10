@@ -1552,6 +1552,60 @@ louder timeline also surfaced honest fixture truths: two members
 crossing 100k in the same week is a feature, and the boil random-walk
 needed a pinned-decay mechanism test (the physics stay soak-proven).
 
+## §35 The people (v0.7.4) — personalities you feel weekly
+
+> Owner: *"and now let's give the idols real personalities. I want to
+> feel their existence every single week."* The stats already existed
+> (§32 gave facts and ambitions); this release makes them BREATHE.
+> Second full customer of the §33 kernel: one registered phase
+> (`personhood`, order 856) plus one registered feed reaction —
+> drivers untouched.
+
+**The voice** (`KP.voiceOf`): every person gets one of seven stable
+voices — blunt, sunshine, deadpan, gremlin, softspoken, earnest, wry —
+derived from personality thresholds (dominant+confident → blunt,
+warm+confident → sunshine, professional+cool → deadpan, creative
+chaos → gremlin, gentle+warm → softspoken, workhorse → earnest), with
+a hash fallback so middle-of-everything people still get a real one.
+Never stored, never drifts. The dossier's "Off the clock" note now
+ends with how she talks in the room.
+
+**The mood** (`KP.moodOf`): her week in one honest word — benched /
+running on fumes / glowing / quietly off / worn / steady — derived
+live from burnout, fatigue, and morale. `UI.condChips` now renders
+this single word everywhere the old two-chip fatigue/morale readout
+lived: one-truth law applied (two derivations of the same vitals sat
+adjacent on every roster card).
+
+**The spotlight** (`personhood`, order 856): one person per week (two
+when the roster tops six) hash-rotates through the roster and her
+week becomes a specific scene read from REAL state: the workhorse
+logged out of the practice building at 1am, the competitor rewatching
+a lost battle's stages (−1 morale, only within 4 weeks of the loss),
+the warm one engineering a food run that thaws a tense pair (+2 rel),
+the leader rearranging van seating around a tired member, ambition
+glimpses, close-friend scenes, and per-voice fallback moments — with
+separate practice-room texts for trainees. Effects stay tiny:
+presence, not power.
+
+**The staff scan**: going quiet is not a rotation event — morale
+under 38 with resilience under 50 gets flagged whoever the spotlight
+is on, one person per week (the worst off), 10-week cooldown so
+concern reads as concern, not nagging. Priority high: "worth a look
+before it becomes a number" is a warning, and warnings survive trim.
+Soak ruling: 0/40 under the bot (it rests, mediates, and wins its way
+out of the hole) — the fiscalNoticed precedent applies; mechanism
+suite-forced.
+
+**Priority ruling — the spotlight is high**: at flavor the person
+survived the trim in only 5/40 soak orgs; at normal, 20/40. The trim
+was silently deleting the release's entire mandate in loud mature
+worlds. The spotlight is capped at 1–2 notes weekly by construction,
+cannot flood, and now files at high: 40/40 orgs feel the people in
+≥70% of weeks. Public/private line: only debuted idols echo on the
+timeline (`personMoment` reaction, registry); trainee weeks stay desk
+notes.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2322,3 +2376,21 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > of a narrative is news — the trim-race bug class closes for good).
 > Numbers: battery 38/38 (suite 038, 58 assertions), soak clean,
 > e2e 89, lockstep 0.7.3 (38 modules). Rode to main.
+\n
+> **v0.7.4 — the people** (owner: *"and now let's give the idols real
+> personalities. I want to feel their existence every single week"*)
+> Full spec in §35. Seven stable derived voices with a per-voice line
+> in the dossier; a one-word derived mood replacing the two-chip
+> vitals readout everywhere (one-truth law); a weekly spotlight
+> (personhood, order 856 — kernel registered, drivers untouched) that
+> turns real state into one or two specific scenes per week, with
+> trainee practice-room variants and tiny effects (sting −1 morale,
+> glue +2 rel); a roster-wide staff scan that flags whoever is going
+> quiet, cooldown 10 weeks, priority high. The load-bearing ruling:
+> the spotlight files at HIGH priority — at flavor it survived the
+> trim in 5/40 soak orgs, at normal 20/40; the trim was deleting the
+> mandate itself in loud worlds. Capped at 1–2 notes/week by
+> construction, it cannot flood. quietWeek census floored at 0 by the
+> competent-bot ruling (the bot never lets morale crater; mechanism
+> suite-forced). Numbers: battery 39/39 (suite 039, 44 assertions),
+> soak clean, e2e 89, lockstep 0.7.4 (39 modules). Rode to main.

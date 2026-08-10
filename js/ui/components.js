@@ -39,15 +39,14 @@
     ).join('');
   };
 
+  // one mood word per person (v0.7.4) — KP.moodOf is the single truth
+  // for "how is she doing"; the two-chip fatigue/morale readout it
+  // replaced was a second derivation of the same numbers
   UI.condChips = function (p) {
-    const chips = [];
-    if (p.flags.burnout > 0) chips.push('<span class="chip hot">recovering</span>');
-    else if (p.fatigue >= 70) chips.push('<span class="chip hot">running on fumes</span>');
-    else if (p.fatigue >= 45) chips.push('<span class="chip">tired</span>');
-    else chips.push('<span class="chip cool">fresh</span>');
-    if (p.morale >= 70) chips.push('<span class="chip cool">in good spirits</span>');
-    else if (p.morale < 38) chips.push('<span class="chip hot">low</span>');
-    return chips.join('');
+    const mood = KP.moodOf(p);
+    const cls = { benched: 'hot', 'running on fumes': 'hot', 'quietly off': 'hot',
+      worn: '', glowing: 'cool', steady: 'cool' }[mood] || '';
+    return '<span class="chip' + (cls ? ' ' + cls : '') + '">' + mood + '</span>';
   };
 
   UI.heatChips = function (state, personId) {

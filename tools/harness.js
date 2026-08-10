@@ -73,6 +73,12 @@ const BANDS = {
   bubbleSeen:        { lo: 0.50, hi: 1.00, label: 'worlds where bubble screenshots reached the feed' },
   meetingKept:       { lo: 0.05, hi: 1.00, label: 'orgs that kept a Monday-meeting promise on the record' },
   ambitionMet:       { lo: 0.05, hi: 1.00, label: 'worlds where somebody got the thing she always wanted' },
+  peopleFelt:        { lo: 0.95, hi: 1.00, label: 'orgs where the people were felt weekly (person-moments most weeks)' },
+  // floor 0 by ruling: going quiet needs morale under 38, and the bot
+  // rests, mediates, and wins its way out of that hole — a risk
+  // mechanic reading zero under a competent bot is working (see
+  // fiscalNoticed). The mechanism itself is suite-tested.
+  quietWeekCaught:   { lo: 0.00, hi: 1.00, label: 'orgs where the staff flagged somebody going quiet' },
 };
 
 const tally = {
@@ -92,6 +98,7 @@ const tally = {
   toured: 0, tourSoldOut: 0, tourSoft: 0, gaffeSeen: 0,
   fandomNamed: 0, dealSigned: 0, awardWon: 0, awardSnubbed: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
+  peopleFelt: 0, quietWeekCaught: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -121,6 +128,7 @@ for (let s = 0; s < SEEDS; s++) {
   let hypeSeen = false, directiveSeen = false, soloProposed = false;
   let playerTop3 = false;
   let warAnnounceSeen = false, warAmbushSeen = false, warBattleSeen = false, warWonSeen = false;
+  let personMomentWeeks = 0, quietWeekSeen = false;
   let tourSoldOutSeen = false, tourSoftSeen = false, awardSnubSeen = false;
   const fatigueTrace = [];   // weekly avg fatigue of debuted idols (v0.4.2)
 
@@ -300,6 +308,9 @@ for (let s = 0; s < SEEDS; s++) {
       if (n.ind === 'tourLeg' && n.soft) tourSoftSeen = true;
       if (n.ind === 'awardSnub') awardSnubSeen = true;
     });
+    // the people census (v0.7.4): the spotlight lands most weeks
+    if (notes.some(n => n.moment)) personMomentWeeks++;
+    if (notes.some(n => n.moment === 'quietWeek')) quietWeekSeen = true;
     if (!warAnnounceSeen && state.rivals.some(r => (r.acts || []).some(a => a.announcedWeek != null))) warAnnounceSeen = true;
     state.groups.forEach(g => {
       if (g.prep && g.prep.clash && !g.prep.clash.chosen) warAmbushSeen = true;
@@ -461,6 +472,8 @@ for (let s = 0; s < SEEDS; s++) {
   if (state.feed.some(p => /bubble/.test(p.text))) tally.bubbleSeen++;
   if ((state.execNotes || []).some(c => c.resolved === 'met')) tally.meetingKept++;
   if (Object.values(state.people).some(p => p.flags && p.flags.ambitionMet)) tally.ambitionMet++;
+  if (personMomentWeeks >= 140 * 0.7) tally.peopleFelt++;
+  if (quietWeekSeen) tally.quietWeekCaught++;
 
   // memory census + guards (v0.6.0)
   guard((state.memory || []).length <= KP.C.MEMORY.cap, seed + ' memory over cap');

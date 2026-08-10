@@ -521,6 +521,17 @@
     });
   } });
 
+  // v0.7.4 — the people. Voices and moods are hash/state-derived, so
+  // nothing structural to backfill: the letter is the migration.
+  MIGRATIONS.push({ v: '0.7.4', fn: function (state) {
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'A memo from the staff floor, unsigned: “We spend more hours with these girls than their families do. We know who talks bluntly and who talks in jokes, who stays late because the chorus isn’t right yet and who goes quiet before anything shows in a number. Starting this week, that goes in the file.” Expect one or two moments from inside their week, every week — and a mood word on every roster card that reads the person, not just the schedule.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {
