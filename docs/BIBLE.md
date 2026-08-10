@@ -2459,3 +2459,13 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > numbers. Numbers: battery 40/40 (suite 040, 50 assertions), soak
 > clean (solos 40/40, units 40/40, sleepers 30/40), e2e 89, lockstep
 > 0.7.5 (40 modules). Rode to main.
+\n
+> **v0.7.6 — off the road** (owner: *"after a tour, the studio
+> remains open... doesn't show the mandatory rest date"*)
+> UI bug fix. The engine has always refused to lock a release inside
+> post-tour rest (debut.js checks g.tourRestUntil, v0.6.8), but the
+> Studio's rest card only knew the PROMO rest window — after a tour
+> it rendered the full planning room with a locked door at the end.
+> New "Home from the road" card: reopen date, room fatigue read, and
+> a gold chip when a new-material setlist seeded the next era.
+> Numbers: battery 40/40, e2e 89, lockstep 0.7.6. Rode to main.

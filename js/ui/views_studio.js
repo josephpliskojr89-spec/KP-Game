@@ -117,6 +117,22 @@
         '<div style="color:var(--ink-dim);font-size:.84rem;margin-top:12px;line-height:1.5">Every leg reports honestly when it closes. Advance the weeks — the leg letters land on the Desk.</div></div>';
     }
 
+    // --- off the road (v0.7.6): post-tour rest is contractual too — the
+    // engine always refused to lock inside it (debut.js); now the desk
+    // SAYS so instead of rendering a planning room with a locked door
+    if (g.debuted && state.week <= (g.tourRestUntil || 0)) {
+      const members = g.members.map(id => state.people[id]);
+      const avgF = Math.round(members.reduce((s, m) => s + m.fatigue, 0) / members.length);
+      return switcher + '<div class="group-hero"><div class="g-status">Post-tour rest · ' + UI.esc(g.name) + '</div>' +
+        '<div class="g-name" style="font-size:clamp(1.7rem,8vw,2.4rem)">Home from<br>the road.</div>' +
+        '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">' +
+        '<span class="chip cool">calendar reopens ' + UI.esc(KP.weekLabel((g.tourRestUntil || 0) + 1).text) + '</span>' +
+        '<span class="chip' + (avgF >= 70 ? ' hot' : '') + '">the room is ' + (avgF >= 70 ? 'running on fumes' : avgF >= 45 ? 'tired' : 'recovering well') + '</span>' +
+        ((g.tourHype || 0) > 0 ? '<span class="chip gold">the road seeded the next era</span>' : '') +
+        '</div>' +
+        '<div style="color:var(--ink-dim);font-size:.84rem;margin-top:12px;line-height:1.5">Post-tour rest is contractual — no release locks until the calendar reopens. The laundry alone takes a week. The producers are writing.</div></div>';
+    }
+
     // --- the calendar is closed: promotion, then contractual rest (v0.4.2)
     if (g.debuted) {
       const opens = (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks;
