@@ -3502,3 +3502,18 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > (top-three 40/40) — contested, not capped. Battery 50/50 (suite
 > 050), soak clean first-try, e2e 90, lockstep 0.9.8 (49 modules).
 > Rode to main.
+\n
+> **build 0.9.8.1 — the born leader** (owner, after finding the
+> leadership line on a week-old signee the builder passed over:
+> *"they're all trainees. none of them have stages or experience, so
+> why is it acting like they do?"*; four-part build)
+> Caught: internal showcases feed liveExp, and the derived-leadership
+> formula's live term (up to +14) let years-in-the-building outrank
+> a genuinely higher leadership trait in the builder's leader pick —
+> while the exec's verdict and the tour bar read the raw trait. One
+> truth restored: derived leadership is now the trait steadied by
+> professionalism and warmth (0.5/0.3/0.2), no live term; polish
+> stays in stagePresence where it belongs. The builder, the exec,
+> the tour manager, and the staff-read line now all point at the
+> same person. Battery 50/50 (suite 050 now 15), soak clean, e2e
+> 90, lockstep 0.9.8.1. Rode to main.

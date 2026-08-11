@@ -194,8 +194,14 @@
     return {
       stagePresence: KP.clamp(
         0.38 * t.charisma.cur + 0.22 * t.dance.cur + 0.22 * per.confidence + live * 0.6, 0, 100),
+      // 0.9.8.1 (owner: "they're all trainees... why is it acting like
+      // they [have experience]?") — showcase reps made the live term
+      // dominate the leader pick, so years-in-the-building beat the born
+      // leader. Polish is stagePresence's business; leadership is the
+      // trait, steadied by professionalism and warmth. One truth: the
+      // builder, the exec's verdict, and the tour bar now agree.
       leadership: KP.clamp(
-        0.45 * per.leadership + 0.25 * per.professionalism + 0.15 * per.warmth + live * 0.35, 0, 100),
+        0.5 * per.leadership + 0.3 * per.professionalism + 0.2 * per.warmth, 0, 100),
       varietySkill: KP.clamp(
         0.35 * t.charisma.cur + 0.3 * per.warmth + 0.2 * per.confidence + media * 0.8, 0, 100),
       liveReliability: KP.clamp(

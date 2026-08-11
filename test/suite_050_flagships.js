@@ -125,6 +125,27 @@ function debuted(seed) {
   }
 }
 
+// ---- the born leader beats the building veteran (0.9.8.1) ----
+{
+  const state = KP.newGame('fl-leader');
+  const a = state.people[state.roster[0]];
+  const b = state.people[state.roster[1]];
+  // the veteran: years of showcases, middling trait
+  b.liveExp = 80;
+  b.personality.leadership = 50; b.personality.professionalism = 60; b.personality.warmth = 60;
+  // the rookie: walked in last week with the line
+  a.liveExp = 0;
+  a.personality.leadership = 72; a.personality.professionalism = 55; a.personality.warmth = 55;
+  t.ok(KP.derived(a).leadership > KP.derived(b).leadership,
+    'the room looks at the born leader, not the longest tenure');
+  const hints = KP.roleHints(state, [a, b, state.people[state.roster[2]], state.people[state.roster[3]]]);
+  t.eq(hints.leader, a.id, 'and the builder now says so');
+  // live experience still counts where it belongs
+  const presBefore = KP.derived(a).stagePresence;
+  a.liveExp = 40;
+  t.ok(KP.derived(a).stagePresence > presBefore, 'stages still build stage presence — polish is polish');
+}
+
 // ---- determinism ----
 {
   const { state: a } = debuted('fl-fork');
