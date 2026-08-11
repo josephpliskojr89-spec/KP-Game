@@ -104,9 +104,16 @@ function debuted(seed) {
     if (((w2 - 1) % KP.C.WEEKS_PER_YEAR) + 1 === bw) crossings.push(w2);
   }
   t.eq(crossings.length, 1, 'each birthday comes exactly once a year');
-  // a trainee birthday is a practice-room cake, not a hashtag
-  t.ok(state.inbox.some(n => /cake with suspicious speed/.test(n.text)) ||
-    !state.roster.some(id => state.people[id].status === 'trainee'),
+  // a trainee birthday is a practice-room cake, not a hashtag — flavor
+  // priority, so busy weeks can trim any one of them; ride until one
+  // lands in a week with room (the ages above prove the mechanism)
+  let cakeSeen = state.inbox.some(n => /cake with suspicious speed/.test(n.text));
+  let cakeGuard = 0;
+  while (!cakeSeen && cakeGuard++ < 96 && state.roster.some(id => state.people[id].status === 'trainee')) {
+    KP.advanceWeek(state);
+    cakeSeen = state.inbox.some(n => /cake with suspicious speed/.test(n.text));
+  }
+  t.ok(cakeSeen || !state.roster.some(id => state.people[id].status === 'trainee'),
     'the building notices a trainee birthday');
   // determinism: fork before a birthday, ages agree after
   const a = KP.deserialize(KP.serialize(state));

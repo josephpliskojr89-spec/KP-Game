@@ -100,6 +100,7 @@
       }
       case 'brandDarling': return idol() + ' is who the brands call first. The visual role sends invoices now.';
       case 'genreShift': return group() + ' invented ' + ((n.meta && n.meta.mash) || 'a sound') + ' and the industry is still catching up.';
+      case 'signatureSound': return group() + ' and ' + ((n.meta && n.meta.producer) || 'one producer') + ' have a sound the public can name blind.';
       default: return n.key;
     }
   };
@@ -176,6 +177,7 @@
       }
       case 'brandDarling': return 'Second campaign signed, and the industry noticed: ' + idol() + ' is who the brands call first now. Somewhere, every visual who was told the role “doesn’t monetize” is smiling.';
       case 'genreShift': return 'The history books opened a new entry: ' + group() + ' made ' + ((n.meta && n.meta.mash) || 'a sound nobody had a name for') + ' real, on record, first. Every A&R meeting in the industry now contains the phrase “something like that.” Being copied is the sincerest form of panic.';
+      case 'signatureSound': return 'Three records deep with ' + ((n.meta && n.meta.producer) || 'the same producer') + ', and the reviews stopped naming the producer because everyone already knows: ' + group() + ' has a SOUND now — recognizable from the first four bars, imitated within the quarter. A signature is an asset. It is also a cage with excellent acoustics.';
       default: return 'A narrative formed: ' + n.key;
     }
   }

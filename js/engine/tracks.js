@@ -29,20 +29,32 @@
     const slots = (g.type === 'solo' || (g.members || []).length < 2)
       ? 0 : (T.openSlots[format.id] || 0);
     const tracks = [];
+    // the pen in the room (v0.9.7): members with producer minds or real
+    // creative reach may co-write b-sides — capped, name in the booklet
+    const CR = KP.C.CREDITS;
+    const writers = (g.members || []).map(id => state.people[id]).filter(p => p &&
+      ((p.archetypes || []).includes('producerMinded') ||
+        p.personality.creativity >= CR.writeCreativityAt));
+    let penned = 0;
     for (let n = 1; n <= format.tracks; n++) {
       if (n === 1) {
         tracks.push({ n: 1, title: demo.title, kind: 'title',
-          producer: demo.producer, hook: demo.hook, slot: false, credit: null });
+          producer: demo.producer, producerId: demo.producerId || null,
+          hook: demo.hook, slot: false, credit: null });
         continue;
       }
       const title = KP.genSongTitle(rng, used);
       used[title] = true;
       // open slots sit mid-record — track 3, then track 6 on a full
       const slot = (slots >= 1 && n === 3) || (slots >= 2 && n === 6);
+      const bpr = KP.pickProducer(state, rng, (g.concept || demo.conceptId));
+      const writtenBy = (writers.length && penned < CR.writeCapPerRecord &&
+        rng.chance(CR.writeChance))
+        ? (penned++, writers[rng.int(0, writers.length - 1)].id) : null;
       tracks.push({ n, title, kind: 'bside',
-        producer: KP.genProducer(rng),
+        producer: bpr.name, producerId: bpr.id,
         hook: KP.clamp(Math.round(rng.normal(S.qualityMean - 6, S.qualitySd)), 10, 95),
-        slot, credit: null });
+        slot, credit: null, writtenBy });
     }
     return tracks;
   };

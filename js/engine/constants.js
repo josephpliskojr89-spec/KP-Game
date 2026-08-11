@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.6.1',
+    VERSION: '0.9.7',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -693,6 +693,24 @@
       ambientChance: 0.55,       // chance of ambient fan chatter in a quiet week
       hypePostMin: 35,           // trainee hype level the feed starts noticing
       viralChance: 0.08,         // a post occasionally escapes containment
+      quoteChance: 0.3,          // the timeline talks to itself (v0.9.7)
+    },
+
+    // ---- The credits (v0.9.7) -------------------------------------------
+    CREDITS: {
+      producerCount: 6,          // the persistent pool: the scene's writers' room
+      laneStickiness: 0.6,       // producers mostly pitch their home lane
+      worksCap: 12,              // track record depth per producer
+      signatureAt: 3,            // releases together = a signature sound
+      ghostHookMin: 62,          // a rejected demo this good gets shopped
+      ghostCap: 6,
+      ghostAgeWeeks: 10,         // the shopped demo takes time to resurface
+      ghostChance: 0.25,         // per week, per eligible rival hit
+      ghostHitAt: 60,            // it only becomes the ghost story if it HITS
+      writeChance: 0.22,         // per b-side, when a writer is in the room
+      writeCreativityAt: 70,     // creativity that reaches for a pen
+      writeCapPerRecord: 2,
+      gradMoraleBonus: 2,        // school milestones: the gown photo
     },
 
     // ---- The fandom era (v0.7.0) ----------------------------------------

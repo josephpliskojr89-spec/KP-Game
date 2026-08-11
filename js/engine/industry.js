@@ -1129,8 +1129,39 @@
     const chosen = candidates.slice(0, F.weeklyMax);
     const usedHandles = new Set();
     // newest first, but keep this week's posts in build order
+    const thisWeek = [];
     for (let i = chosen.length - 1; i >= 0; i--) {
-      state.feed.unshift(fanPost(state, rng, usedHandles, chosen[i]));
+      const p = fanPost(state, rng, usedHandles, chosen[i]);
+      thisWeek.push(p);
+      state.feed.unshift(p);
+    }
+    // quote chains (v0.9.7, §32): the timeline talks to itself — some
+    // weeks a post gets picked up and quoted, and the reply rides above
+    // the original with its handle attached
+    if (thisWeek.length >= 2 && thisWeek.length < F.weeklyMax &&
+        rng.chance(KP.C.FEED.quoteChance)) {
+      const src = thisWeek[rng.int(0, thisWeek.length - 1)];
+      const QUOTES = {
+        fan: ['this post is doing numbers for a REASON. anyway quote-posting so my whole timeline sees it',
+          'the replies under this are a community event. bring snacks'],
+        stan: ['quoting to say: correct. louder for the general public in the back',
+          'this post walked so my seventeen-tweet thread could run'],
+        casual: ['saw this quoted five times before I saw the original. that is how you know it is true',
+          'the quote-posts on this are funnier than the post and the post is already funny'],
+        press: ['Screenshotted and circulating well beyond fandom spaces now.',
+          'This is the post the recap accounts will cite tomorrow.'],
+        anti: ['not the quote-posts acting like this is news. we been said this'],
+      };
+      const qp = pickPersona(rng);
+      const pool = QUOTES[qp] || QUOTES.casual;
+      state.feed.unshift({
+        week: state.week,
+        handle: KP.genFanHandle(rng, usedHandles),
+        persona: qp,
+        quotes: src.handle,
+        text: pool[rng.int(0, pool.length - 1)],
+        likes: Math.max(2, Math.round((src.likes || 10) * (0.4 + rng.next()))),
+      });
     }
     if (state.feed.length > F.maxPosts) state.feed.length = F.maxPosts;
     return chosen.length;

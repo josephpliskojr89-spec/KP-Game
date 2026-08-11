@@ -267,14 +267,34 @@
           }
         });
         if (r.sleeperTitle) creditBits.push('b-side hit “' + UI.esc(r.sleeperTitle) + '”');
+        // the pen credits (v0.9.7): names inside the booklet
+        (r.tracklist || []).forEach(tr => {
+          if (!tr.writtenBy) return;
+          const p = state.people[tr.writtenBy];
+          if (p) creditBits.push('“' + UI.esc(tr.title) + '” co-written by ' + UI.esc(KP.publicGiven(p)));
+        });
         html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(r.week).text) + '</span>' +
           '<div><b>“' + UI.esc(r.songTitle) + '”</b> · ' + UI.esc(KP.conceptById(r.conceptId).label) +
           (fmt ? ' · ' + UI.esc(fmt.label.toLowerCase()) : '') +
+          (r.producer ? ' · prod. ' + UI.esc(r.producer) : '') +
           '<span class="m-week">' + (r.isDebut ? 'debut · ' : '') + 'peaked #' + r.chartPeak +
           (r.nationalPeak != null ? ' · national #' + r.nationalPeak : '') +
           (r.chartWeeks ? ' · ' + r.chartWeeks + ' weeks charting' : ' · missed the charts') +
           (creditBits.length ? '<br>' + creditBits.join(' · ') : '') + '</span></div></div>');
       });
+      // the writers' room (v0.9.7): the producers behind the records,
+      // with track records in words — one truth read off their works
+      const worked = KP.producersOf(state).filter(pr =>
+        pr.works.some(w => w.groupId === g.id));
+      if (worked.length) {
+        html.push('<div class="kicker">The credits</div>');
+        html.push('<div class="pad" style="display:flex;gap:7px;flex-wrap:wrap">' +
+          worked.map(pr => {
+            const n = pr.works.filter(w => w.groupId === g.id).length;
+            return '<span class="chip">' + UI.esc(pr.name) + ' · ' + n + ' record' + (n > 1 ? 's' : '') +
+              ' · ' + UI.esc(KP.producerHeat(pr)) + '</span>';
+          }).join('') + '</div>');
+      }
       html.push('<div class="pad" style="margin-top:8px"><button class="btn small" data-action="open-results" data-id="' + g.id + '">Latest full report</button></div>');
     }
     return html.join('');

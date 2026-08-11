@@ -42,6 +42,23 @@
         text: 'January in the industry: the year-end stages are struck, the award shows are hung over, and nobody sane releases anything. The building runs on leftovers and planning meetings. It is, quietly, everyone’s favorite month.' });
     }
 
+    // school milestones (v0.9.7, §32): February belongs to the gowns —
+    // the young ones who kept studying through all of this graduate,
+    // and the whole internet behaves for a day
+    if (woy === 6) {
+      let gowns = 0;
+      roster.forEach(p => {
+        if (gowns >= 2) return;
+        if ((p.status !== 'trainee' && p.status !== 'idol') || p.age !== 19 || p.flags.gradNoted) return;
+        p.flags.gradNoted = 1;
+        gowns++;
+        p.morale = KP.clamp(p.morale + KP.C.CREDITS.gradMoraleBonus, 0, 100);
+        p.history.push({ week: state.week, text: 'Graduated high school. The gown photo, the flowers, the whole building in attendance.' });
+        inbox.push({ kind: 'public', ind: 'graduation', priority: 'high', personId: p.id,
+          text: KP.fillPro(KP.displayName(p) + ' graduated high school this week — gown, flowers, the members screaming from the second row like proud aunts. {She} did every practice schedule AND the homework. The staff who covered for {her} exam weeks got a handwritten note each.', p) });
+      });
+    }
+
     // spring: the university festival circuit calls the mid-tier
     if (woy >= S.festWeeks[0] && woy <= S.festWeeks[1]) {
       groups.forEach(g => {

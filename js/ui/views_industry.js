@@ -58,7 +58,8 @@
           '<div class="fp-head"><span class="fp-handle">@' + UI.esc(p.handle) + '</span>' +
           (p.persona ? '<span class="fp-persona ' + UI.esc(p.persona) + '">' + UI.esc(PERSONA_LABELS[p.persona] || p.persona) + '</span>' : '') +
           '<span class="fp-week">' + UI.esc(KP.weekLabel(p.week).text) + '</span></div>' +
-          '<div class="fp-text">' + UI.esc(p.text) + '</div>' +
+          (p.quotes ? '<div class="fp-text" style="color:var(--ink-dim);font-size:.72rem">\u21b3 quoting @' + UI.esc(p.quotes) + '</div>' : '') +
+        '<div class="fp-text">' + UI.esc(p.text) + '</div>' +
           '<div class="fp-likes">♥ ' + formatLikes(p.likes) + '</div>' +
           '</div>');
       });
@@ -288,6 +289,7 @@
         '<div class="fp-head"><span class="fp-handle">@' + UI.esc(p.handle) + '</span>' +
         (p.persona ? '<span class="fp-persona ' + UI.esc(p.persona) + '">' + UI.esc(PERSONA_LABELS[p.persona] || p.persona) + '</span>' : '') +
         '<span class="fp-week">' + UI.esc(KP.weekLabel(p.week).text) + '</span></div>' +
+        (p.quotes ? '<div class="fp-text" style="color:var(--ink-dim);font-size:.72rem">\u21b3 quoting @' + UI.esc(p.quotes) + '</div>' : '') +
         '<div class="fp-text">' + UI.esc(p.text) + '</div>' +
         '<div class="fp-likes">♥ ' + formatLikes(p.likes) + '</div>' +
         '</div>');

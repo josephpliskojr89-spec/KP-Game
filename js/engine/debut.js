@@ -541,6 +541,7 @@
       isDebut, format: format.id, tracks: format.tracks,
       tracklist: tl.tracks, sleeperTitle: tl.sleeperTitle || null,
       mash, fusionOutcome, acclaim: fusionOutcome === 'acclaim' || undefined,
+      producerId: demo.producerId || null, producer: demo.producer,
     });
     // the mash verdict (v0.9.6): every fusion outcome is narrated with
     // its consequences attached — the gamble was the player's, the

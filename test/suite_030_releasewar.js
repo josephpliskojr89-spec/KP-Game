@@ -203,7 +203,9 @@ function firstAct(state) { return state.rivals[0].acts[0]; }
     thief.nextDebutWeek = state.week + 1;
     thief.rosterCount = 6;
     let guard = 0, reveal = null;
-    while (guard++ < 6 && !reveal) {
+    // the rival's casting-to-debut runway varies with the stream — give
+    // the reveal the weeks it actually needs, not six of them
+    while (guard++ < 16 && !reveal) {
       KP.advanceWeek(state);
       reveal = state.inbox.find(m => /The stylists know what they saw/.test(m.text));
     }

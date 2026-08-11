@@ -103,11 +103,18 @@ function debuted(seed) {
   const others = g.members.filter(id => id !== breakout.id).map(id => state.people[id]);
   t.ok(others.every(o => breakout.social > (o.social || 0)),
     'the breakout out-follows her members — HER moment moved HER number');
-  // promoting weeks grow faster than idle weeks
+  // promoting weeks grow faster than idle weeks. Spikes (birthdays,
+  // viral moments, writer credits — the v0.9.x calendar) are heavy-tail
+  // events on BOTH sides; a trimmed mean isolates the baseline drift
+  // the mechanism actually claims.
   const during = [];
   for (let w = 0; w < 12; w++) { KP.advanceWeek(state); during.push(breakout.socialDelta || 0); }
-  const promoGain = during[0];
-  const idleGain = during[during.length - 1];
+  const trimmed = arr => {
+    const s2 = arr.slice().sort((a, b) => a - b).slice(0, -1);   // drop the max
+    return s2.reduce((a, b) => a + b, 0) / s2.length;
+  };
+  const promoGain = trimmed(during.slice(0, 5));
+  const idleGain = trimmed(during.slice(7));
   t.ok(promoGain > idleGain, 'promotion grows the number faster than idle weeks (' +
     promoGain + ' vs ' + idleGain + ')');
   // a viral spike is visible and large

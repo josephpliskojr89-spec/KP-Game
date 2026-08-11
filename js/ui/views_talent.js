@@ -228,6 +228,12 @@
             UI.esc(KP.standingOf(state, p)), p) +
             '.<span class="n-who">— the road staff, off the record</span></div>');
         }
+        // the credits (v0.9.7): the pen record
+        if ((p.flags.writerCredits || 0) > 0) {
+          html.push('<div class="note">' + KP.fillPro('Songwriting credits on record: ' + p.flags.writerCredits +
+            '. The word “artist” has started replacing “performer” in {pos} coverage, which was the whole point of the pen.', p) +
+            '<span class="n-who">— the liner notes, cumulatively</span></div>');
+        }
         // the society (v0.9.4): friendships across company lines
         const friends = (KP.friendsOf ? KP.friendsOf(state, p.id) : [])
           .map(f => state.people[f.a === p.id ? f.b : f.a]).filter(Boolean);

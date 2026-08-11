@@ -27,10 +27,14 @@
         concept = rng.pick(KP.C.CONCEPTS);                     // the wildcard
       }
       const toBrief = !!(direction && concept.id === direction.id);
+      // the credits (v0.9.7): pitches come from the persistent pool —
+      // names with track records, not strings
+      const pr = KP.pickProducer(state, rng, concept.id);
       demos.push({
         id: 'song' + (i + 1),
         title,
-        producer: KP.genProducer(rng),
+        producer: pr.name,
+        producerId: pr.id,
         conceptId: concept.id,
         toBrief,
         hook: KP.clamp(q(rng) + (toBrief ? D.briefHookBonus : 0), 10, 95),

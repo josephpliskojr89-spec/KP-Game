@@ -2290,6 +2290,48 @@ could change the industry. all on the table."* Plus §39 consult #5.
   ocean is one color now). All three on the group page beside the
   fandom card.
 
+## §48 The credits (v0.9.7) — the names behind the songs
+
+§39 consult #8. Owner: *"0.9.7 approved."* The songs stop coming from
+strings and start coming from people.
+
+**The writers' room** (credits.js): six persistent hash-named
+producers per world (`KP.producersOf`), each with a home lane they
+mostly pitch (`laneStickiness` .6) and a works ledger capped at 12.
+Every demo and b-side carries a `producerId`; every release stamps
+its producer's track record. The desk reads the record in words
+(`KP.producerHeat`: unproven / cold streak / workmanlike / reliable
+/ in demand) on the discography's new "The credits" chips. Three
+records with the same producer → the **signatureSound** narrative:
+"a signature is an asset. It is also a cage with excellent
+acoustics."
+
+**The ghost story**: at lock, the best rejected demo with a real
+hook (≥62) gets shopped (`state.ghostDemos`, capped 6). Ten-plus
+weeks later, when a rival lands a hit (reception ≥60), a coin: the
+hit turns out to be the demo this company passed on — retooled,
+retitled, unmistakable. The A&R meeting about it will be very quiet.
+
+**The pen** (tracks.js): members with a producer's mind (archetype)
+or real creative reach (creativity ≥70) co-write b-sides —
+`writeChance` .22, ≤2 per record. The booklet says so: first credit
+is a history line, a priority-high note, a social spike, and the
+liner-notes chip in the discography; the dossier counts the pen
+record ("the word 'artist' has started replacing 'performer'").
+
+**The timeline talks to itself** (§32): some weeks a post gets
+quoted — a real reply riding above a real post, handle attached,
+inside the weekly cap.
+
+**The gowns** (§32, year.js): February (week 6) graduates the
+19-year-olds who kept studying through all of this — gown photo,
+flowers, the members screaming from the second row, a history line,
+and the one day a year the whole internet behaves.
+
+**Deferred to Phase C**: the named choreographer/stylist with
+poaching (the §39 line item) — the producer pool proved the pattern;
+the wardrobe department joins when variety careers land.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3366,3 +3408,27 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > with a strange one. K-pop × metalcore is now literally on the menu
 > (and suite-asserted, literally). 19 genres total. Battery 48/48,
 > soak clean, e2e 91, lockstep 0.9.6.1. Rode to main.
+\n
+> **v0.9.7 — the credits** (owner: *"0.9.7 approved"* — §39 consult
+> #8, the last Phase B release)
+> Full spec in §48. The songs come from people now: a persistent
+> six-producer writers' room with home lanes and track records the
+> desk reads in words; three records together harden into a
+> signature-sound narrative; the demo the company passed on gets
+> shopped and comes back as a rival hit (the A&R meeting will be
+> very quiet); members with producer minds co-write b-sides and the
+> booklet says so — performer to artist, one liner note at a time;
+> the timeline quotes itself inside the weekly cap; and February
+> graduates the 19-year-olds in gowns. Choreographer/stylist
+> poaching deferred to Phase C, on the record. Fixture repairs from
+> the producer-pool stream shift: truck coins pinned (suite 048),
+> the copycat reveal given its real runway (suite 030), the
+> trainee-cake check made trim-tolerant (suite 038), the
+> promo-vs-idle social check moved to trimmed means (suite 027 —
+> spikes are heavy-tail on both sides now), the ghost fixture
+> pinned past rival chart luck. New module credits.js (49 total).
+> Numbers: battery 49/49 (suite 049, 27 assertions), soak clean,
+> e2e 90 (one conditional lock-warning check untriggered this
+> stream), lockstep 0.9.7 (49 modules). Rode to main. Phase B
+> closes; Phase C — careers entire — is next, under owner-watched
+> version numbers.

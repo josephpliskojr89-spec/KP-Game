@@ -99,8 +99,13 @@ function openCal(state, g) {
   organize(g);
   const p = state.people[g.members[0]];
   p.flags.burnout = 3;   // worked onto the medical bench
+  // pin the coin: the mechanism is the truck, not the odds (the bench
+  // clears in 3 weeks, so an unpinned coin can simply miss the window)
+  const oldTruck = KP.C.CONSTITUENCY.truckChance;
+  KP.C.CONSTITUENCY.truckChance = 1;
   let sc = null, guard = 0;
   while (!sc && guard++ < 15) { KP.advanceWeek(state); sc = (state.scenes || []).find(x => x.kind === 'fanTruck'); }
+  KP.C.CONSTITUENCY.truckChance = oldTruck;
   t.ok(sc && sc.grievance === 'overwork', 'the truck parks over the benched member');
   t.ok(state.inbox.some(n => n.ind === 'fanTruck' && /spreadsheet/.test(n.text)), 'and the fandom made a spreadsheet');
   const cash = state.budget;
@@ -112,6 +117,8 @@ function openCal(state, g) {
   const { state, g } = debuted('ct-hold2');
   organize(g);
   state.people[g.members[0]].flags.burnout = 3;
+  const oldTruck2 = KP.C.CONSTITUENCY.truckChance;
+  KP.C.CONSTITUENCY.truckChance = 1;   // pinned — mechanism, not odds
   let sc = null, guard = 0;
   while (!sc && guard++ < 15) { KP.advanceWeek(state); sc = (state.scenes || []).find(x => x.kind === 'fanTruck'); }
   t.ok(sc, 'fixture: the truck');
@@ -124,6 +131,7 @@ function openCal(state, g) {
   state.truckQuietUntil = 0;
   let sc2 = null; guard = 0;
   while (!sc2 && guard++ < 10) { KP.advanceWeek(state); sc2 = (state.scenes || []).find(x => x.kind === 'fanTruck'); }
+  KP.C.CONSTITUENCY.truckChance = oldTruck2;
   t.ok(sc2, 'the next truck was already funded');
   t.ok(/loyalty discount/.test(KP.sceneDef('fanTruck').body(state, sc2)), 'the body reads the grudge');
 }
