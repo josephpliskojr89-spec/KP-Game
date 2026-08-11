@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.8.2',
+    VERSION: '0.8.3',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -819,6 +819,19 @@
       maxResolvedClaims: 10,     // settled promises kept for the record
       directedCap: 40,           // per-person ledger of what YOU did
       directedHalfLifeWeeks: 48, // kindnesses fade, wounds heal — slowly
+    },
+    // ---- Standing & scars (v0.8.3) --------------------------------------
+    SCAR: {
+      weeks: 8,                  // a boiled storm shadows her this long
+      recoveryMorale: 4,         // the loud welcome-back
+      quietRecoveryMorale: 2,    // the quiet one — smaller, still real
+      sincerityGate: 0.08,       // standing moves whether apologies READ as real
+      leaderEase: 1,             // a trusted leader absorbs promo grind for the room
+      leaderEaseStanding: 3,     // ...if her standing has earned the followership
+    },
+    ANNIV: {
+      morale: 2,                 // the anniversary vlive does everyone good
+      spike: 1800,               // N-years hashtags travel
     },
     // ---- The office door (v0.8.2) — idols initiate ----------------------
     DOOR: {

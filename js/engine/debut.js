@@ -189,13 +189,19 @@
         if (!(m.flags.burnout > 0)) m.fatigue = KP.clamp(m.fatigue - R.emptyWeekRecovery * 0.5, 0, 100);
       });
     }
+    // a trusted leader absorbs promo grind for the room (v0.8.3):
+    // standing gates what morale can't buy — followership under load
+    const leader = state.people[g.roles && g.roles.leader];
+    const leaderEases = leader && (leader.personality.leadership || 0) >= 55 &&
+      KP.standingScore(state, leader) >= KP.C.SCAR.leaderEaseStanding;
     plan.forEach(actId => {
       const A = R.ACTIVITIES[actId];
       if (!A) return;
       members.forEach(m => {
         if (m.flags.burnout > 0) return;   // benched: she rests, whatever the calendar says
         const softened = (m.fatigue >= CB.promoSoftCap && A.fatigue > 0) ? CB.promoSoftMult : 1;
-        m.fatigue = KP.clamp(m.fatigue + A.fatigue * soloMult * softened, 0, 100);
+        const eased = (leaderEases && m.id !== leader.id && A.fatigue > 0) ? KP.C.SCAR.leaderEase : 0;
+        m.fatigue = KP.clamp(m.fatigue + A.fatigue * soloMult * softened - eased, 0, 100);
         m.liveExp += A.liveExp;
         m.mediaExp += A.mediaExp;
         if (A.morale) m.morale = KP.clamp(m.morale + A.morale, 0, 100);

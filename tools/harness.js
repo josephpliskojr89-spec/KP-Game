@@ -80,6 +80,10 @@ const BANDS = {
   momentChoiceSeen:  { lo: 0.10, hi: 1.00, label: 'orgs where a person-moment put the call on the desk' },
   // floor 0 by ruling (competent bot answers every knock — see quietWeek)
   doorLeftWaiting:   { lo: 0.00, hi: 0.60, label: 'orgs that left somebody waiting at the door' },
+  annivFelt:         { lo: 0.80, hi: 1.00, label: 'orgs that celebrated a debut anniversary (the calendar knows the date)' },
+  // floor 0 by ruling: scars require a BOILED storm, and the bot steers
+  // every storm before the boil (discourseBoiled runs 0 — same physics)
+  scarCarried:       { lo: 0.00, hi: 0.80, label: 'orgs where somebody carried a boiled storm for weeks' },
   unitCredit:        { lo: 0.05, hi: 1.00, label: 'orgs that cut a unit track (full albums open the second slot)' },
   sleeperHeard:      { lo: 0.30, hi: 1.00, label: 'orgs where a b-side outgrew its record (the truthers organize)' },
   // floor 0 by ruling: going quiet needs morale under 38, and the bot
@@ -109,6 +113,7 @@ const tally = {
   peopleFelt: 0, quietWeekCaught: 0,
   soloCredit: 0, unitCredit: 0, sleeperHeard: 0,
   doorKnocked: 0, askPromiseKept: 0, momentChoiceSeen: 0, doorLeftWaiting: 0,
+  annivFelt: 0, scarCarried: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -140,6 +145,7 @@ for (let s = 0; s < SEEDS; s++) {
   let warAnnounceSeen = false, warAmbushSeen = false, warBattleSeen = false, warWonSeen = false;
   let personMomentWeeks = 0, quietWeekSeen = false;
   let doorKnockSeen = false, momentChoiceWasSeen = false, doorWaitSeen = false;
+  let annivSeen = false, scarSeen = false;
   let tourSoldOutSeen = false, tourSoftSeen = false, awardSnubSeen = false;
   const fatigueTrace = [];   // weekly avg fatigue of debuted idols (v0.4.2)
 
@@ -362,6 +368,8 @@ for (let s = 0; s < SEEDS; s++) {
     if (notes.some(n => /asked for a minute of your time/.test(n.text))) doorKnockSeen = true;
     if (notes.some(n => n.choice)) momentChoiceWasSeen = true;
     if (notes.some(n => /stopped waiting|stopped asking for that minute/.test(n.text))) doorWaitSeen = true;
+    if (notes.some(n => n.ind === 'anniversary')) annivSeen = true;
+    if (state.roster.some(id => (state.people[id].flags || {}).scar > 0)) scarSeen = true;
     if (!warAnnounceSeen && state.rivals.some(r => (r.acts || []).some(a => a.announcedWeek != null))) warAnnounceSeen = true;
     state.groups.forEach(g => {
       if (g.prep && g.prep.clash && !g.prep.clash.chosen) warAmbushSeen = true;
@@ -529,6 +537,8 @@ for (let s = 0; s < SEEDS; s++) {
   if ((state.claims || []).some(c => c.type === 'ambitionPromise' && c.resolved === 'met')) tally.askPromiseKept++;
   if (momentChoiceWasSeen) tally.momentChoiceSeen++;
   if (doorWaitSeen) tally.doorLeftWaiting++;
+  if (annivSeen) tally.annivFelt++;
+  if (scarSeen) tally.scarCarried++;
   // the tracklist census (v0.7.5)
   const allReleases = state.groups.flatMap(gg => gg.releases || []);
   const credits = allReleases.flatMap(r => (r.tracklist || []).filter(tk => tk.credit));

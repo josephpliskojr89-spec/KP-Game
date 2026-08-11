@@ -45,7 +45,7 @@
   UI.condChips = function (p) {
     const mood = KP.moodOf(p);
     const cls = { benched: 'hot', 'running on fumes': 'hot', 'quietly off': 'hot',
-      worn: '', glowing: 'cool', steady: 'cool' }[mood] || '';
+      'carrying it': '', worn: '', glowing: 'cool', steady: 'cool' }[mood] || '';
     return '<span class="chip' + (cls ? ' ' + cls : '') + '">' + mood + '</span>';
   };
 

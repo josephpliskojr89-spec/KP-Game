@@ -22,7 +22,15 @@
     earnest: 'She has notes. She apologizes for having notes. She uses the notes.',
     wry: 'She leans on the doorframe like she has all day, which you both know she does not.',
   };
-  function opener(state, p) { return OPENERS[KP.voiceOf(state, p)] || OPENERS.earnest; }
+  function opener(state, p) {
+    const base = OPENERS[KP.voiceOf(state, p)] || OPENERS.earnest;
+    // standing colors the doorway (v0.8.3): the same knock reads
+    // differently from someone who trusts this office — or doesn't
+    const st = KP.standingScore(state, p);
+    if (st >= 3) return base + ' She came to you first, before her manager, before the group chat — which tells you more than the ask will.';
+    if (st <= -3) return base + ' She almost took this to her manager instead. You can see the decision still sitting in her shoulders.';
+    return base;
+  }
 
   // ---- the weekly knock (order 787: after stageDoor, before meeting) ----
   KP.registerWeekly('officeDoor', 787, function (state, rng, inbox, roster, groups) {

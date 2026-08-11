@@ -1934,6 +1934,42 @@ choices seen 38/40, leftWaiting floored 0 by the competent-bot
 ruling. suite_039 repointed at the classic fallback path (still
 live); suite_042 owns the choice path.
 
+## §41 Standing & scars (v0.8.3) — trust with teeth, wounds with shadows
+
+> §39 Phase A continues. The critic: *"a world that remembers your
+> chart positions but not your scars feels like a press archive, not
+> a life"* and *"morale is a currency, not a memory."*
+
+**Standing surfaces**: the dossier reads it in words from the road
+staff, off the record — only once a directed-acts history exists.
+And it GATES what morale can't buy:
+- **Sincerity** (`respondDiscourse`): statements and livestreams from
+  an idol with standing ≥3 read as real (+8% steer); from one
+  counting the days, they don't (−8%). The public can hear it.
+- **The leader's pull** (`rolloutWeek`): a leader with leadership
+  ≥55 AND standing ≥3 absorbs promo grind for the room (−1 fatigue
+  per booking for the others). Followership is earned off-stage.
+- **The doorway** (`door.js` opener): standing colors how she walks
+  in — "she came to you first, before her manager" vs "she almost
+  took this to her manager instead."
+
+**Scars** (`scars.js`): a boiled storm on an idol sets an 8-week
+shadow — mood word "carrying it", bubble reduced to two messages and
+a photo of the sky (the fans reply "take your time" and mean it).
+When it lifts: the RECOVERY scene — first real laugh at practice —
+and the tone of her return is the player's call: loud (+4 morale,
+front-and-center content, `scarBack` on the timeline, +2 directed)
+or quiet (+2, her own pace, +1). Ignored, time does what time does —
+with a little guilt on the record. Census floored 0 under the bot
+(scars require a boil; the bot steers every storm — same physics as
+discourseBoiled).
+
+**Anniversaries** (`life.js`): debut anniversaries every 48 weeks —
+café banner changes at midnight, N-years hashtags, the members'
+practice-room live, +2 morale, social spikes, and the §23 memory
+system's stories retold on schedule. The timeline shows up for it
+(three-voice feed reaction). 40/40 soak orgs celebrated one.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2799,3 +2835,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > assertions) owns the door. Census: knocks 40/40, promises kept
 > 20/40, choices 38/40. Numbers: battery 42/42, soak clean, e2e 89,
 > lockstep 0.8.2 (42 modules). Rode to main.
+\n
+> **v0.8.3 — standing & scars** (owner: *"approved for next step"*)
+> Full spec in §41. Standing surfaces in the dossier (road staff,
+> off the record) and gates three things morale can't buy: apology
+> sincerity in storms (±8%), the leader's promo pull (−1 fatigue/
+> booking for the room), and how she walks through your door. Scars:
+> boiled storms shadow an idol for 8 weeks — "carrying it" mood,
+> sky-photo bubble — ending in a recovery scene where the tone of
+> her return is the player's call, loud or quiet, both remembered.
+> Debut anniversaries every 48 weeks with café banners, memory
+> retellings, and a three-voice timeline reaction. suite_043 (28
+> assertions incl. a pinned-gate sincerity mechanism test and a
+> deterministic leader-ease comparison). Census: anniversaries
+> 40/40, scars floored 0 by the boil ruling. Numbers: battery
+> 43/43, soak clean, e2e 89, lockstep 0.8.3 (43 modules). Rode to
+> main.

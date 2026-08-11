@@ -580,6 +580,16 @@
     });
   } });
 
+  // v0.8.3 — standing & scars. Derived truths, nothing to backfill.
+  MIGRATIONS.push({ v: '0.8.3', fn: function (state) {
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'Three additions to the files, per the staff floor. One: where each girl STANDS with this office is now written down — the road staff always knew; now the dossier says it, and it decides things morale never could (whether her apology reads as real; whether the room follows its leader through a hard week). Two: a storm that boils over leaves a mark that outlasts the morale hit — she will be carrying it for a while, and how her return gets played will be your call. Three: debut anniversaries are on the calendar now, which they always should have been. The café banners change at midnight.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

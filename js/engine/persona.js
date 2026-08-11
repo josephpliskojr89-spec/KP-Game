@@ -35,6 +35,7 @@
   KP.moodOf = function (p) {
     if (p.flags.burnout > 0) return 'benched';
     if (p.fatigue >= 75) return 'running on fumes';
+    if (p.flags.scar > 0) return 'carrying it';
     if (p.morale >= 72 && p.fatigue < 50) return 'glowing';
     if (p.morale < 38) return 'quietly off';
     if (p.fatigue >= 55) return 'worn';

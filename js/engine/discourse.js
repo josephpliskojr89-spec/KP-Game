@@ -141,7 +141,12 @@
         const g = d.groupId && KP.groupById(state, d.groupId);
         if (g) g.popularity = KP.clamp((g.popularity || 0) - D.boilPopHit, 0, 100);
         const p = d.subjectType === 'idol' && state.people[d.subjectId];
-        if (p) p.morale = KP.clamp(p.morale - D.boilMoraleHit, 0, 100);
+        if (p) {
+          p.morale = KP.clamp(p.morale - D.boilMoraleHit, 0, 100);
+          // the scar (v0.8.3): a boiled storm shadows her for weeks —
+          // mood word, bubble tone, and a recovery scene when it lifts
+          p.flags.scar = KP.C.SCAR.weeks;
+        }
         notes.push({ kind: 'public', urgent: true, ind: 'discourseBoiled', discourseId: d.id,
           text: 'The ' + KP.C.DISCOURSE.KINDS[d.kind].label + ' around ' + subjectName(state, d) +
             ' boiled over before it burned out. The narrative set without us' +
@@ -172,6 +177,14 @@
     let chance = D.baseSuccess[action] || 0.5;
     if (action === 'statement' && p) chance += (p.personality.professionalism - 50) / 250;
     if (action === 'livestream' && p) chance += (p.personality.warmth - 50) / 200;
+    // standing gates sincerity (v0.8.3): the public can hear whether an
+    // apology or a live comes from somewhere real — a girl who trusts
+    // the office sells the company line; one counting the days cannot
+    if ((action === 'statement' || action === 'livestream') && p) {
+      const st = KP.standingScore(state, p);
+      if (st >= KP.C.SCAR.leaderEaseStanding) chance += KP.C.SCAR.sincerityGate;
+      else if (st <= -3) chance -= KP.C.SCAR.sincerityGate;
+    }
     if (action === 'meme' && d.subjectType === 'idol' &&
       KP.getNarrative(state, 'fancamStar', 'idol', d.subjectId)) chance += 0.15;
     chance -= Math.max(0, d.heat - 55) / 220;   // hotter storms are harder to steer

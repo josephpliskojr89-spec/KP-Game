@@ -52,7 +52,9 @@
         const fact = KP.factsOf(state, p)[state.week % 2];
         const name = KP.publicGiven(p);
         let text;
-        if (p.fatigue >= 70) {
+        if (p.flags.scar > 0) {
+          text = name + '’s bubble this week was two messages and a photo of the sky. no caption. we are all replying “take your time” and meaning it. she reads them. we know she reads them';
+        } else if (p.fatigue >= 70) {
           text = 'bubble from ' + name + ' at 3am: “still at the company. eat well tomorrow, promise me.” she is comforting US. someone protect her';
         } else if (p.morale >= 72) {
           text = name + '’s bubble today was 14 messages, 9 of them photos of her lunch, and one voice note of her laughing at her own joke. subscription justified forever';
@@ -211,6 +213,22 @@
                 : 'The fan cafés ran the countdown at midnight, as is law.') });
         }
       });
+      // the debut anniversary (v0.8.3): the most ritualized date in
+      // fandom — café banners, N-years hashtags, and the memory system's
+      // stories resurfacing on schedule
+      if (g.debuted && state.week > g.debutWeek &&
+          (state.week - g.debutWeek) % KP.C.WEEKS_PER_YEAR === 0) {
+        const years = (state.week - g.debutWeek) / KP.C.WEEKS_PER_YEAR;
+        g.members.forEach(id => {
+          const m = state.people[id];
+          if (m) { m.morale = KP.clamp(m.morale + KP.C.ANNIV.morale, 0, 100); KP.socialSpike(state, m, KP.C.ANNIV.spike, 'anniv'); }
+        });
+        const story = KP.liveNarratives(state).find(n => n.subjectType === 'group' && n.subjectId === g.id);
+        inbox.push({ kind: 'public', ind: 'anniversary', priority: 'high', groupId: g.id, years,
+          text: 'It is ' + g.name + '’s ' + years + '-year anniversary week. The café banner changed at midnight, the members did the anniversary live in the practice room where it started' +
+            (story ? ', and the timeline is retelling the whole story — ' + KP.narrativeText(state, story).toLowerCase() : '') +
+            '. Somewhere in the building, someone who was in that first meeting got quietly emotional about a spreadsheet.' });
+      }
       // a livestream week leaves a clip the timeline keeps
       const promoting = !g.prep && state.week <= (g.promoUntil || 0) && state.week > (g.lastReleaseWeek || 0);
       if (promoting && g.rollout) {
@@ -248,6 +266,15 @@
       { persona: 'stan', text: (p ? KP.publicGiven(p) : 'she') + ' birthday content: the members’ posts are out and the maknae’s one is unhinged in the best way. family behavior' },
       n.funded ? { persona: 'casual', text: 'walked past a whole subway station of birthday ads for an idol today. fandom infrastructure is genuinely impressive. happy birthday, stranger' }
         : { persona: 'fan', text: 'midnight birthday countdown complete. year captured. the café banner is already updated. we run a tight ship' },
+    ]);
+  });
+  KP.onFeedEvent('anniversary', (state, n, rng) => {
+    const g = KP.groupById(state, n.groupId);
+    if (!g) return null;
+    return rng.pick([
+      { persona: 'fan', text: n.years + ' YEARS OF ' + g.name.toUpperCase() + '. the anniversary hashtag hit trending before the members even woke up because we scheduled it. happy anniversary to the group and to us' },
+      { persona: 'stan', text: 'the ' + g.name + ' anniversary live: they went back to the FIRST practice room. the maknae cried first. then the leader. then me. then everyone. tradition intact' },
+      { persona: 'casual', text: 'apparently it’s ' + g.name + '’s anniversary because my entire feed is baby photos of idols and long threads that start with “' + n.years + ' years ago today.” fandom memory is a beautiful thing' },
     ]);
   });
   KP.onFeedEvent('liveClip', (state, n) => {

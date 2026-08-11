@@ -199,6 +199,13 @@
           : 'What she wants, if you watch closely: ' + UI.esc(pick('ambLine', A.lines))) +
           '<span class="n-who">— a staff observation, not a metric</span></div>');
       }
+      // standing (v0.8.3): what the file says about her and THIS office —
+      // words, never a meter, and only once there is a history to read
+      if ((p.directed || []).length) {
+        html.push('<div class="note">Where she stands with the company, if you ask the people who drive the vans: ' +
+          UI.esc(KP.standingOf(state, p)) +
+          '.<span class="n-who">— the road staff, off the record</span></div>');
+      }
       // her career inside the career (v0.7.5) — credits from tracklists
       const credits = KP.trackCreditsOf(state, p.id);
       if (credits.length) {
