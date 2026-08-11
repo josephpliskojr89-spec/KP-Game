@@ -191,9 +191,23 @@
   function birthWeekOf(state, p) {
     return 1 + Math.floor(KP.hash01([state.seed, p.id, 'bday'].join('|')) * KP.C.WEEKS_PER_YEAR);
   }
+  KP.birthWeekOf = birthWeekOf;   // one truth per date — UI and tests read this
   KP.registerWeekly('lifeMoments', 855, function (state, rng, inbox, roster, groups) {
     const L = KP.C.LIFE;
     const woy = ((state.week - 1) % KP.C.WEEKS_PER_YEAR) + 1;
+
+    // the clock, personally (v0.9.1): a birthday adds a year — for
+    // everyone in the world, on the same hash-truth week the timeline
+    // already celebrates. Trainees get the practice-room version; rivals,
+    // prospects, and the departed age quietly, because time does.
+    Object.values(state.people).forEach(p => {
+      if (birthWeekOf(state, p) !== woy) return;
+      p.age += 1;
+      if (p.status === 'trainee' && state.roster.includes(p.id)) {
+        inbox.push({ kind: 'company', priority: 'flavor', personId: p.id,
+          text: KP.fillPro(KP.displayName(p) + ' turned ' + p.age + ' this week. The practice room produced a cake with suspicious speed, the vocal coach allowed exactly one hour of nobody working, and the trainees sang the birthday song in full harmony because they physically cannot not.', p) });
+      }
+    });
 
     groups.forEach(g => {
       if (!g.debuted) return;
@@ -207,7 +221,7 @@
           KP.socialSpike(state, p, L.birthdaySpike, 'bday');
           inbox.push({ kind: 'public', ind: 'idolBirthday', priority: 'flavor', personId: p.id,
             funded: KP.fandomIntensity(g) >= L.birthdayAdIntensity,
-            text: KP.fillPro('It is ' + KP.displayName(p) + '’s birthday week. The members got to {pos} cake before the fans got to the hashtag — barely. ' +
+            text: KP.fillPro('It is ' + KP.displayName(p) + '’s birthday week — {she} turns ' + p.age + '. The members got to {pos} cake before the fans got to the hashtag — barely. ' +
               (KP.fandomIntensity(g) >= L.birthdayAdIntensity
                 ? 'The fandom funded a subway station ad. {She} went to see it in a mask and cried anyway.'
                 : 'The fan cafés ran the countdown at midnight, as is law.'), p) });

@@ -79,6 +79,41 @@ function debuted(seed) {
   }
   t.ok(hit, 'a birthday week arrives inside a year');
   t.ok(state.feed.some(x => /BIRTHDAY|birthday/.test(x.text)), 'and the timeline shows up for it');
+  t.ok(/turns \d+/.test(hit.text), 'and the note says the number of the year');
+}
+
+// ---- time passes (v0.9.1): birthdays add a year, for everyone ----
+{
+  const { state } = debuted('tl-aging');
+  const before = {};
+  Object.values(state.people).forEach(p => { before[p.id] = p.age; });
+  const startWeek = state.week;
+  for (let w = 0; w < KP.C.WEEKS_PER_YEAR; w++) KP.advanceWeek(state);
+  // exactly one full year: every person alive since the start is one
+  // year older — no more, no less, whatever their status
+  const cohort = Object.values(state.people).filter(p => before[p.id] != null);
+  t.ok(cohort.every(p => p.age === before[p.id] + 1),
+    'one year on the calendar is one year on every file');
+  const rival = cohort.find(p => p.status === 'rival');
+  t.ok(!rival || rival.age === before[rival.id] + 1, 'rivals age on their own timelines too');
+  // the increment lands ON the hash-truth birthday week — one truth
+  const p0 = cohort[0];
+  const bw = KP.birthWeekOf(state, p0);
+  const crossings = [];
+  for (let w2 = startWeek + 1; w2 <= state.week; w2++) {
+    if (((w2 - 1) % KP.C.WEEKS_PER_YEAR) + 1 === bw) crossings.push(w2);
+  }
+  t.eq(crossings.length, 1, 'each birthday comes exactly once a year');
+  // a trainee birthday is a practice-room cake, not a hashtag
+  t.ok(state.inbox.some(n => /cake with suspicious speed/.test(n.text)) ||
+    !state.roster.some(id => state.people[id].status === 'trainee'),
+    'the building notices a trainee birthday');
+  // determinism: fork before a birthday, ages agree after
+  const a = KP.deserialize(KP.serialize(state));
+  const b = KP.deserialize(KP.serialize(state));
+  for (let w3 = 0; w3 < 50; w3++) { KP.advanceWeek(a); KP.advanceWeek(b); }
+  t.ok(Object.values(a.people).every(p => p.age === b.people[p.id].age),
+    'the clock forks clean');
 }
 
 // ---- volume: the feed is worth checking weekly, still capped ----

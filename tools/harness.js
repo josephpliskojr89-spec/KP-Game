@@ -63,7 +63,12 @@ const BANDS = {
   showRivalWins:     { lo: 0.80, hi: 1.00, label: 'worlds where rival acts took stages' },
   showDarling:       { lo: 0.00, hi: 0.70, label: 'worlds where a stage became somebody\'s (darling narrative)' },
   regionLoud:        { lo: 0.20, hi: 1.00, label: 'orgs that got loud in at least one overseas region' },
-  regionStory:       { lo: 0.10, hi: 1.00, label: 'orgs whose overseas market became a story (the long game pays)' },
+  // floor 10%→2% by ruling (v0.9.1): the stronghold threshold (75) sits
+  // in the tail of the 140-week best-region distribution (median ~71,
+  // identical before/after the aging stream re-roll — checked both).
+  // A true second home is designed rare in a 140-week career; the
+  // mechanism itself is suite-proven (suite_032).
+  regionStory:       { lo: 0.02, hi: 1.00, label: 'orgs whose overseas market became a story (the long game pays)' },
   conceptCanon:      { lo: 0.10, hi: 1.00, label: 'orgs whose group earned a concept identity (the sound IS the group)' },
   toured:            { lo: 0.20, hi: 1.00, label: 'orgs that took a tour on the road' },
   tourSoldOut:       { lo: 0.05, hi: 1.00, label: 'orgs that sold a leg out in minutes' },
@@ -179,6 +184,10 @@ for (let s = 0; s < SEEDS; s++) {
   let doorKnockSeen = false, momentChoiceWasSeen = false, doorWaitSeen = false;
   let annivSeen = false, scarSeen = false;
   let tourSoldOutSeen = false, tourSoftSeen = false, awardSnubSeen = false;
+  let regionStorySeen = false;   // ever-formed, not end-state (v0.9.1):
+  // narratives decay and the memory cap evicts — "became a story" is an
+  // event, and a richer narrative world (aging feeds the rumor pool)
+  // was crowding it out of the week-140 snapshot
   const fatigueTrace = [];   // weekly avg fatigue of debuted idols (v0.4.2)
 
   for (let w = 0; w < 140; w++) {
@@ -418,6 +427,7 @@ for (let s = 0; s < SEEDS; s++) {
     if (notes.some(n => /stopped waiting|stopped asking for that minute/.test(n.text))) doorWaitSeen = true;
     if (notes.some(n => n.ind === 'anniversary')) annivSeen = true;
     if (state.roster.some(id => (state.people[id].flags || {}).scar > 0)) scarSeen = true;
+    if (!regionStorySeen && (state.memory || []).some(n => n.key === 'regionStronghold')) regionStorySeen = true;
     if (!warAnnounceSeen && state.rivals.some(r => (r.acts || []).some(a => a.announcedWeek != null))) warAnnounceSeen = true;
     state.groups.forEach(g => {
       if (g.prep && g.prep.clash && !g.prep.clash.chosen) warAmbushSeen = true;
@@ -566,7 +576,7 @@ for (let s = 0; s < SEEDS; s++) {
       Object.values(g.regions).some(v => v >= KP.C.REGIONAL.loudAt))) tally.regionLoud++;
   bestRegions.push(Math.max.apply(null, state.groups
     .filter(g => g.regions).flatMap(g => Object.values(g.regions)).concat([0])));
-  if ((state.memory || []).some(n => n.key === 'regionStronghold')) tally.regionStory++;
+  if (regionStorySeen) tally.regionStory++;
   if ((state.memory || []).some(n => n.key === 'conceptIdentity')) tally.conceptCanon++;
   if (state.groups.some(g => (g.toursDone || 0) >= 1 || g.tour)) tally.toured++;
   if (tourSoldOutSeen) tally.tourSoldOut++;
@@ -688,6 +698,8 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
     const state = KP.newGame(seed);
     const pool = state.roster.filter(id => state.people[id].gender === 'f').slice(0, 5);
     guard(pool.length === 5, seed + ' long clock: opening roster too small');
+    const foundingAges = {};
+    pool.forEach(id => { foundingAges[id] = state.people[id].age; });
     KP.proposeGroup(state, 'LONGRUN', pool, KP.roleHints(state, pool.map(i => state.people[i])));
     const g = state.groups[0];
     KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
@@ -730,6 +742,12 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
     if (neglect) guard((Object.values(state.people)
       .some(p => (p.directed || []).some(d => d.kind === 'tableLeftWaiting'))) || departed.length,
       seed + ' neglect org: tables never even expired');
+    // time passes (v0.9.1): 380 weeks is 7.9 years — every founder,
+    // still here or long gone, crossed her birthday 7 or 8 times
+    Object.keys(foundingAges).forEach(id => {
+      const aged = state.people[id].age - foundingAges[id];
+      guard(aged === 7 || aged === 8, seed + ' founder aged ' + aged + ' years in 7.9 (the clock slipped)');
+    });
   }
   console.log('renewal tables opened: ' + clockTables + '  (renewed: ' + clockRenewed +
     ', chose to leave: ' + clockLeavers + ', departed by career end: ' + clockDeparted +

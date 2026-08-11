@@ -360,7 +360,10 @@
       if (identity) {
         identity.strength = Math.round(identity.strength * DIR.pivotStrengthMult);
         const oldLabel = (KP.conceptById(prevConcept) || { label: 'the old sound' }).label;
-        push({ kind: 'public', ind: 'conceptPivot', groupId: g.id,
+        // priority ruling (v0.9.1): a group with an established identity
+        // changing lanes is era-defining news — never trimmed (the
+        // milestone precedent; surfaced by an aging-shifted stream)
+        push({ kind: 'public', ind: 'conceptPivot', priority: 'high', groupId: g.id,
           landed: reception >= DIR.reinventionAt,
           text: reception >= DIR.reinventionAt
             ? 'The pivot LANDED. ' + g.name + ' walked away from the sound everyone knew them for, and the reinvention ate — the recaps are already calling it an era.'

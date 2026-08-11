@@ -2095,6 +2095,12 @@ pass, not the 140-week census — by construction, not by ruling.
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
 
+- **regionStory band floor lowered 10%→2% (v0.9.1)** — the stronghold
+  threshold (75) sits in the tail of the 140-week best-region
+  distribution (median ~71, unchanged by aging — verified against the
+  v0.9.0 baseline). If human play never sees a second-home story in a
+  long career, consider lowering `strongholdNarrativeAt` instead.
+
 - **Burnout census runs cold** (0/40 orgs with the cautious auto-player;
   band top 45%). The mechanism triggers under sustained heavy load (suite
   003 forces it), but a sensible policy never sees it. Watch whether human
@@ -3027,3 +3033,27 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 70 assertions — the longest yet), soak clean + long clock (10
 > tables, 10 re-signs, contractStamped 40/40), e2e 90, lockstep
 > 0.9.0 (45 modules). Rode to main.
+\n
+> **v0.9.1 — time passes** (owner: *"I just realized this... nobody
+> is getting older"*)
+> The calendar celebrated birthdays nobody actually had: birthday
+> weeks were already hash-truth (`KP.birthWeekOf`, the celebrations,
+> the subway ads) but `p.age` never incremented anywhere. Now a
+> birthday adds a year — for everyone in the world, on the same
+> hash-truth week the timeline celebrates. Idol notes say the turned
+> age; trainees get the practice-room cake (flavor); rivals,
+> prospects, and the departed age quietly, because time does. Ages
+> now feed back into everything that reads them: the dating-rumor
+> pool fills as members cross 19, maknae math stays live, scout
+> valuations of aging leads soften. The §39 map shifts one number
+> down (society becomes v0.9.2). Rulings on the way through:
+> conceptPivot notes promoted to priority-high (an identity changing
+> lanes is era-defining news — surfaced when the aging stream shift
+> cost it its inbox seat); regionStory census re-counted as
+> ever-formed rather than week-140 memory snapshot, and its floor
+> lowered 10%→2% with a §18 watch item (threshold 75 rides the tail
+> of the distribution — median ~71, verified unchanged against the
+> v0.9.0 baseline). Long-clock guard: every founder ages exactly 7-8
+> years across 380 weeks, departed or not. Numbers: battery 45/45
+> (suite 038 now 64), soak clean, e2e 90, lockstep 0.9.1 (45
+> modules). Rode to main.
