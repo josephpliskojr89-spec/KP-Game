@@ -343,7 +343,9 @@
           if (narNote) notes.push(narNote);
           KP.socialSpike(state, p, KP.C.SOCIAL.viralSpike, 'viral');   // the numbers move (v0.6.1)
           if (rng.chance(KP.C.DISCOURSE.fancamChance)) {               // a wave you can ride (v0.6.2)
-            const dn = KP.igniteDiscourse(state, rng, 'fancam', 'idol', p.id, null);
+            // 0.9.8.2: a trainee's viral clip is a cover, not a fancam —
+            // she has no stages to film ("fancams of what, exactly?")
+            const dn = KP.igniteDiscourse(state, rng, 'coverClip', 'idol', p.id, null);
             if (dn) notes.push(dn);
           }
           notes.push({ kind: 'public', text: rng.pick([

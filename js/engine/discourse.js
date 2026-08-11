@@ -49,6 +49,9 @@
       case 'encore': return 'A shaky encore clip of ' + who + ' is making the rounds. The tone is split between concern and cruelty.';
       case 'benched': return who + ' being pulled from the schedule set off a wave of health-worry posts aimed at the company.';
       case 'fancam': return KP.fillPro('A ' + who + ' fancam is having a MOMENT. The algorithm has chosen {her}, and the window is open.', p);
+      // 0.9.8.2: pre-debut virality has no stages to film — the clip is
+      // a cover, a showcase leak, a resurfaced photo. Different story.
+      case 'coverClip': return KP.fillPro('An old ' + who + ' cover clip is having a MOMENT — {she} has not even debuted, which is somehow making it bigger. The algorithm found {her} before the company could.', p);
       case 'gaffe': return who + ' posted something at 2am that reads very differently in daylight — a caption, a like, a reply. Screenshots outlive deletions, and the quote-posts are rolling in.';
       default: return 'Something about ' + who + ' is trending.';
     }

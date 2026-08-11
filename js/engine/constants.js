@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.8.1',
+    VERSION: '0.9.8.2',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -606,6 +606,10 @@
         benched:   { label: 'health worry', negative: true, start: [25, 45],
           actions: ['statement', 'apology'] },
         fancam:    { label: 'fancam wave', negative: false, start: [30, 55],
+          actions: ['meme', 'livestream'] },
+        // 0.9.8.2: pre-debut virality is covers and leaked clips, not
+        // fancams — she has no stages to film
+        coverClip: { label: 'cover-clip wave', negative: false, start: [30, 55],
           actions: ['meme', 'livestream'] },
         // v0.6.8 — the posting incident: an idol's post reads wrong.
         // Delete-and-apologize, add context, or lean into the joke.

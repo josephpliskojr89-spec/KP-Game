@@ -70,6 +70,7 @@
       case 'underperformed': return group() + '’s last comeback underperformed, and people noticed.';
       case 'dormant': return group() + ' has gone quiet — ' + Math.max(1, state.week - (n.meta && n.meta.since || state.week)) + ' weeks and counting.';
       case 'fancamStar': return idol() + ' is the fancam one. Everyone knows a clip.';
+      case 'oneToWatch': return 'The internet keeps finding ' + idol() + ' before the debut does.';
       case 'itGirl': return KP.fillPro(idol() + ' is becoming an it-{girl}.', state.people[n.subjectId]);
       case 'dateSniper': {
         const r = (state.rivals || []).find(x => x.short === n.subjectId);
@@ -163,6 +164,7 @@
       case 'underperformed': return 'The narrative has settled: ' + group() + '’s comeback underperformed. Fair or not, the next release answers for it.';
       case 'dormant': return 'The fan cafes have started counting: ' + group() + ' has not released in months. Quiet is a story too.';
       case 'fancamStar': return KP.fillPro(idol() + ' has gone viral enough times that it is not luck anymore — the internet has decided {she} is the fancam one. Every stage {she} takes is a camera looking for the next clip.', state.people[n.subjectId]);
+      case 'oneToWatch': return KP.fillPro(idol() + ' has gone viral enough times — covers, clips, resurfaced photos — that it stopped being luck. {She} has not debuted. The internet has decided that is the company’s scheduling error, and the phrase “one to watch” is attaching to {her} name. A debut is a deadline now.', state.people[n.subjectId]);
       case 'itGirl': return KP.fillPro('Fashion accounts, recap channels, general-public posts: ' + idol() + ' keeps being the one people remember. The phrase “it-{girl}” is starting to attach.', state.people[n.subjectId]);
       case 'trendCopier': return rivalCo() + ' has a reputation now: first to every trend, occasionally face-first. The fans mean it affectionately. Mostly.';
       case 'performanceFactory': return 'The book on ' + rivalCo() + ' is written: their groups can dance before they can talk. Plan concepts accordingly.';
@@ -192,7 +194,11 @@
     // and the timeline's regulars notice (v0.7.3) — one adopts her
     if (KP.regularsNotice) KP.regularsNotice(state, person);
     if (person.viralCount >= KP.C.MEMORY.viralFormAt) {
-      return KP.recordEvidence(state, 'fancamStar', 'idol', person.id);
+      // 0.9.8.2 (owner: "fancams of what, exactly?") — a trainee has no
+      // stages, so her virality is a different story: covers and clips,
+      // the internet arriving before the debut does
+      return KP.recordEvidence(state,
+        person.status === 'idol' ? 'fancamStar' : 'oneToWatch', 'idol', person.id);
     }
     return null;
   };

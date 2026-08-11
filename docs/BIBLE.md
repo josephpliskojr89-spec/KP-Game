@@ -3517,3 +3517,18 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > the tour manager, and the staff-read line now all point at the
 > same person. Battery 50/50 (suite 050 now 15), soak clean, e2e
 > 90, lockstep 0.9.8.1. Rode to main.
+\n
+> **build 0.9.8.2 — fancams need stages** (owner: *"I have trainees
+> getting viral fancams all the time... fancams of what, exactly?"*;
+> four-part build, same disease as 0.9.8.1)
+> Pre-debut virality was real (dance covers, street-cast photos,
+> showcase leaks — those notes were always coherent) but the counter
+> behind it formed the fancamStar narrative ("every stage she takes
+> is a camera...") and ignited literal fancam storms on people with
+> no stages. Split: a viral trainee now becomes **the one to watch**
+> (new narrative — "she has not debuted. The internet has decided
+> that is the company's scheduling error. A debut is a deadline
+> now."), and her storm is a **cover-clip wave**, not a fancam wave.
+> Idols with stages keep the fancam story. suite_026's trainee
+> fixture updated to the new law; the idol path proven in suite 050.
+> Battery 50/50, soak clean, e2e 90, lockstep 0.9.8.2. Rode to main.

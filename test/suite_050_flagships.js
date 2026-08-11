@@ -146,6 +146,30 @@ function debuted(seed) {
   t.ok(KP.derived(a).stagePresence > presBefore, 'stages still build stage presence — polish is polish');
 }
 
+// ---- fancams need stages (0.9.8.2) ----
+{
+  const state = KP.newGame('fl-cover');
+  const p = state.people[state.roster[0]];
+  t.eq(p.status, 'trainee', 'fixture: a trainee');
+  p.viralCount = KP.C.MEMORY.viralFormAt - 1;
+  KP.recordViral(state, p);
+  t.ok(KP.getNarrative(state, 'oneToWatch', 'idol', p.id), 'a viral trainee is the one to watch');
+  t.ok(!KP.getNarrative(state, 'fancamStar', 'idol', p.id), 'not the fancam one — fancams need stages');
+  const { state: s2, g: g2 } = debuted('fl-cover2');
+  const idol = s2.people[g2.members[0]];
+  idol.viralCount = KP.C.MEMORY.viralFormAt - 1;
+  KP.recordViral(s2, idol);
+  t.ok(KP.getNarrative(s2, 'fancamStar', 'idol', idol.id), 'an idol with stages earns the fancam story');
+  // the trainee storm reads as a cover clip, never a fancam
+  const opener = (function () {
+    const rng = KP.rngFor(state);
+    const dn = KP.igniteDiscourse(state, rng, 'coverClip', 'idol', p.id, null);
+    state.rngState = rng.state();
+    return (state.discourses || []).find(d => d.kind === 'coverClip');
+  })();
+  t.ok(opener, 'the cover-clip storm ignites');
+}
+
 // ---- determinism ----
 {
   const { state: a } = debuted('fl-fork');

@@ -50,9 +50,13 @@ function debuted(seed) {
   const p = state.people[state.roster[0]];
   t.ok(KP.recordViral(state, p) === null, 'one viral moment is luck');
   const note = KP.recordViral(state, p);
-  t.ok(note && /fancam/.test(note.text), 'the second makes her the fancam one');
+  // 0.9.8.2: a trainee's virality is covers and clips — she becomes the
+  // one to watch; the fancam story needs stages (suite 050 proves the
+  // idol path)
+  t.ok(note && !/fancam/i.test(note.text), 'the second makes her a story — but not a fancam story');
   t.ok(KP.recordViral(state, p) === null, 'the third reinforces silently');
-  t.eq(KP.getNarrative(state, 'fancamStar', 'idol', p.id).evidence, 2, 'and is counted');
+  t.eq(KP.getNarrative(state, 'oneToWatch', 'idol', p.id).evidence, 2, 'and is counted');
+  t.ok(!KP.getNarrative(state, 'fancamStar', 'idol', p.id), 'fancams of what, exactly? — nothing, correctly');
   const q = state.people[state.roster[1]];
   KP.recordBreakout(state, q); KP.recordBreakout(state, q);
   t.ok(!KP.getNarrative(state, 'itGirl', 'idol', q.id), 'two breakouts is a hot streak');
