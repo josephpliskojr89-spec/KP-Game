@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.7.1',
+    VERSION: '0.9.8',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -369,6 +369,17 @@
     // ---- The living world (v0.4.0): rival acts, lifecycle, crowding -----
     INDUSTRY: {
       minRivals: 2, maxRivals: 6,
+      // the flagships (v0.9.8, owner: "the game in general feels easy") —
+      // each rival company puts its machine behind its best act, which
+      // PURSUES the scene ceiling instead of mean-reverting under it:
+      // weekly investment drift when behind, hungrier releases when
+      // behind, and a hunting note when they pull within reach
+      FLAGSHIP: {
+        catchUp: 0.025,          // weekly pop drift toward the scene ceiling
+        punchFactor: 0.25,       // release reception lift per point behind…
+        punchCap: 10,            // …capped: hunger, not magic
+        huntNoteAt: 8,           // gap at which the trades notice the pursuit
+      },
       debutTraineeCost: 4,       // minimum roster a rival needs to field a debut
       actSize: [4, 5],           // rival lineups are real people now (v0.4.3)
       boyActShare: 0.35,         // the industry runs both markets (v0.8.4)
@@ -760,6 +771,9 @@
         daesang: 'DAESANG — Grand Prize of the Year' },
       daesangTrust: 5, daesangPop: 5, daesangFandom: 6,
       snubAgainMult: 2,         // "a bonsang, again" — the radicalizer, doubled
+      // v0.9.8: a debut-year act must be UNDENIABLE to take the grand
+      // prize — inside this margin the jury defaults to a body of work
+      rookieDaesangMargin: 8,
     },
 
     // ---- The year (v0.9.5): the calendar has a shape --------------------

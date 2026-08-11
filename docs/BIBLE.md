@@ -2332,6 +2332,47 @@ and the one day a year the whole internet behaves.
 poaching (the §39 line item) — the producer pool proved the pattern;
 the wardrobe department joins when variety careers land.
 
+## §49 The flagships (v0.9.8) — the era gets contested
+
+Owner: *"the game in general feels easy. every release is straight to
+#1 on the scene chart. never lost a head to head."* Diagnosis by
+measurement: an idle org gets beaten fine (peak #2, out-recepted) —
+but under active play the popularity flywheel compounds to 85+ while
+rival acts MEAN-REVERT to a ~70 ceiling by construction
+(`pop×0.55 + reception×0.5` with receptions capped by quality). The
+world's stars had a glass ceiling; the player's didn't. Difficulty
+was never about judging — it was about the market not producing
+peers.
+
+**The flagship dynamic** (industry.js, `INDUSTRY.FLAGSHIP`):
+- `KP.sceneCeiling(state)` — the player's hottest debuted act sets
+  the bar the market plays at. No debuted act, no ceiling, no chase.
+- Each rival company's best living act is its **flagship**. Weekly,
+  the machine invests: `pop += gap × catchUp (.025)` toward the
+  ceiling — a 40-point gap closes ~1/wk, pursuit on the scale of
+  eras, not weeks.
+- **The punch-up**: a flagship releasing from behind gets
+  `+min(punchCap 10, gap × .25)` reception — hunger, not magic; the
+  cap holds. Head-to-head weeks and chart #1 stay symmetric
+  arithmetic — the rivals simply arrive at the player's weight class
+  now.
+- **The hunting note** (`flagshipHunt`, high): when a flagship pulls
+  within 8 of the ceiling, the trades call the chase — the player
+  learns the era is contested BEFORE losing a week to it.
+
+**The tenure margin** (awards.js, `rookieDaesangMargin` 8): a
+debut-year act — player or rival — must beat the runner-up by a real
+margin to take the daesang; inside it, the jury defaults to a body
+of work, with the envelope-debate note on the record. The rookie
+grand slam survives only when the year survives every argument
+against it (follows the owner's LUMI sweep question).
+
+**Census** (all first-try): warLost 30/40 (the owner's "never lost a
+head-to-head" is now impossible as a typical career), peakDenied
+38/40 (releases miss #1 routinely), flagshipHunt 23/40 — while
+chartTopTen and playerTopThree stay 40/40: great careers still reach
+the summit; they just stop living there rent-free.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3444,3 +3485,20 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > the record, in the credit notes, and in the liner-note chips.
 > Battery 49/49 (suite 049 now 33), soak clean, e2e 90, lockstep
 > 0.9.7.1. Rode to main.
+\n
+> **v0.9.8 — the flagships** (owner: *"the game in general feels
+> easy. every release is straight to #1 on the scene chart. never
+> lost a head to head"*)
+> Full spec in §49. Measured truth: rival acts mean-reverted to a
+> ~70 popularity ceiling while active play compounds past 85 — the
+> market never produced peers. Now every rival company's flagship
+> PURSUES the scene ceiling (weekly investment drift), punches up
+> when releasing from behind (capped — hunger, not magic), and the
+> trades narrate the chase before it costs the player a week. Plus
+> the daesang tenure margin from the LUMI sweep question: a
+> debut-year act must be undeniable, or the envelope's debate goes
+> to the body of work. Census: careers now lose head-to-heads
+> (30/40) and miss #1 (38/40) while still reaching the summit
+> (top-three 40/40) — contested, not capped. Battery 50/50 (suite
+> 050), soak clean first-try, e2e 90, lockstep 0.9.8 (49 modules).
+> Rode to main.

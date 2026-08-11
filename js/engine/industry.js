@@ -305,12 +305,31 @@
     return null;
   };
 
+  // the scene ceiling (v0.9.8): the height the market is playing at —
+  // the player's hottest debuted act sets the bar the flagships chase
+  KP.sceneCeiling = function (state) {
+    return KP.groups(state).filter(g => g.debuted)
+      .reduce((m, g) => Math.max(m, g.popularity || 0), 0);
+  };
+  function flagshipOf(rival) {
+    return (rival.acts || []).filter(a => !a.retired)
+      .sort((x, y) => (y.popularity || 0) - (x.popularity || 0))[0] || null;
+  }
+
   function rivalRelease(state, rival, act, rng, isDebut) {
     const I = KP.C.INDUSTRY;
     const title = KP.genSongTitle(rng, usedTitles(state));
     const statureBefore = act.popularity;   // battle-worthiness is who they WERE (v0.6.4)
-    const reception = Math.round(KP.clamp(
+    let reception = Math.round(KP.clamp(
       act.quality * 0.85 + act.popularity * 0.15 + rng.normal(0, I.releaseNoiseSd) - 6, 1, 100));
+    // the flagship punches up (v0.9.8): behind the scene leader, the
+    // release comes hungrier — the machine spends when it is chasing
+    const ceiling = KP.sceneCeiling(state);
+    if (!isDebut && ceiling > 0 && act === flagshipOf(rival) && statureBefore < ceiling) {
+      const F = I.FLAGSHIP;
+      reception = Math.round(KP.clamp(
+        reception + Math.min(F.punchCap, (ceiling - statureBefore) * F.punchFactor), 1, 100));
+    }
     act.popularity = isDebut
       ? KP.clamp(Math.round(10 + reception * 0.7), 0, 100)
       : KP.clamp(Math.round(act.popularity * 0.55 + reception * 0.5), 0, 100);
@@ -459,6 +478,27 @@
           }
         }
       });
+
+      // the flagship pursues (v0.9.8): the company's machine gets behind
+      // its best act and closes on the scene ceiling — the market does
+      // not politely stay a weight class below a dominant era
+      {
+        const F = I.FLAGSHIP;
+        const ceiling = KP.sceneCeiling(state);
+        const flag = ceiling > 0 ? flagshipOf(rival) : null;
+        if (flag) {
+          const gap = ceiling - flag.popularity;
+          if (gap > 0) {
+            flag.popularity = KP.clamp(flag.popularity + gap * F.catchUp, 0, 100);
+            if (!flag.huntNoted && ceiling - flag.popularity <= F.huntNoteAt) {
+              flag.huntNoted = 1;
+              notes.push({ kind: 'industry', ind: 'flagshipHunt', priority: 'high',
+                actName: flag.name, company: rival.short,
+                text: rival.short + ' has made it policy: ' + flag.name + ' goes wherever the top of the scene goes. Bigger budgets, better slots, a release cadence that mirrors ours a little too precisely. The trades are calling it a chase. The trades are right.' });
+            }
+          }
+        }
+      }
     });
     return notes;
   };

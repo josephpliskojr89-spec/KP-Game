@@ -83,6 +83,7 @@
       // symmetric with the rival read — no fandom term the rivals can't
       // have; devotion already lives inside popularity and trophies
       list.push({ name: g.name, company: state.company.short, isPlayer: true, groupId: g.id,
+        debutWeek: g.debutWeek || 0,
         score: (g.popularity || 0) * 1.2 + trophies * 2.5 +
           yearRels.reduce((s, r) => s + r.reception, 0) * 0.12 + jitter(g.id) });
     });
@@ -91,6 +92,7 @@
       const yearRels = (a.releases || []).filter(r => r.week >= from);
       if (!yearRels.length) return;
       list.push({ name: a.name, company: rv.short, isPlayer: false,
+        debutWeek: a.debutWeek || 0,
         score: (a.popularity || 0) * 1.2 + (a.showWins || 0) * 2.5 +
           yearRels.reduce((s, r) => s + r.reception, 0) * 0.12 + jitter(a.id) });
     }));
@@ -175,7 +177,20 @@
       // ---- the daesang: one grand prize, and the room holds its breath --
       const dNoms = state.awardSeason.noms.daesang || [];
       if (dNoms.length) {
-        const dWinner = dNoms[0];
+        let dWinner = dNoms[0];
+        // the tenure margin (v0.9.8): a debut-year act must be UNDENIABLE
+        // to take the grand prize. Inside the margin, the jury defaults
+        // to a body of work — the rookie grand slam survives only when
+        // the year survives every argument against it.
+        const yFrom = yearStart(state);
+        const isRookie = n => n.debutWeek != null && n.debutWeek >= yFrom;
+        if (isRookie(dWinner) && dNoms[1] &&
+            dWinner.score - dNoms[1].score < A.rookieDaesangMargin) {
+          const passed = dWinner;
+          dWinner = dNoms[1];
+          notes.push({ kind: 'public', ind: 'daesangTenure', priority: 'high',
+            text: 'The daesang envelope had a debate inside it: ' + passed.name + '’s debut year was the loudest in the room — and the jury still went with ' + dWinner.name + '. Grand prizes answer a body of work, went the reasoning, and a rookie’s body of work is eight months old. Nobody believes that conversation is finished.' });
+        }
         results.push({ year: state.awardSeason.year, category: 'daesang',
           name: dWinner.name, company: dWinner.company, isPlayer: !!dWinner.isPlayer });
         if (dWinner.isPlayer) {

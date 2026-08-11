@@ -135,6 +135,12 @@ const BANDS = {
   truckParked:       { lo: 0.00, hi: 0.80, label: 'orgs that found a protest truck outside' },
   fanMeetingHeld:    { lo: 0.30, hi: 1.00, label: 'orgs that held a fan meeting' },
   lightstickOut:     { lo: 0.30, hi: 1.00, label: 'orgs that launched the lightstick' },
+  // v0.9.8 — the flagships. The owner's report ("every release straight
+  // to #1, never lost a head to head") becomes a censused guarantee:
+  // a real share of careers must lose weeks and miss the top slot.
+  warLost:           { lo: 0.25, hi: 1.00, label: 'orgs that LOST a head-to-head week (the era is contested)' },
+  flagshipHunt:      { lo: 0.30, hi: 1.00, label: 'worlds where a flagship openly hunted the leader' },
+  peakDenied:        { lo: 0.25, hi: 1.00, label: 'orgs with a release that missed #1 on the scene chart' },
 };
 
 const tally = {
@@ -165,6 +171,7 @@ const tally = {
   festPlayed: 0, gayoStaged: 0, daesangWon: 0, daesangSnubbed: 0,
   fusionTried: 0, fusionShift: 0, fusionAcclaim: 0, fusionFlop: 0,
   truckParked: 0, fanMeetingHeld: 0, lightstickOut: 0,
+  warLost: 0, flagshipHunt: 0, peakDenied: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -221,6 +228,7 @@ for (let s = 0; s < SEEDS; s++) {
   let festSeen = false, gayoSeen = false, daesangSeen = false, daesangSnubSeen = false;
   let fusionTrySeen = false, fusionShiftSeen = false, fusionAcclaimSeen = false,
     fusionFlopSeen = false, truckSeen2 = false, meetingSeen = false;
+  let warLostSeen = false, huntSeen = false;
   let regionStorySeen = false;   // ever-formed, not end-state (v0.9.1):
   // narratives decay and the memory cap evicts — "became a story" is an
   // event, and a richer narrative world (aging feeds the rumor pool)
@@ -489,6 +497,9 @@ for (let s = 0; s < SEEDS; s++) {
         if (n.outcome === 'flop') fusionFlopSeen = true;
       }
       if (n.ind === 'fanTruck') truckSeen2 = true;
+      // the flagships (v0.9.8): difficulty is measurable
+      if (n.ind === 'battleLoss') warLostSeen = true;
+      if (n.ind === 'flagshipHunt') huntSeen = true;
       // the year (v0.9.5)
       if (n.ind === 'festival') festSeen = true;
       if (n.ind === 'gayoStage') gayoSeen = true;
@@ -692,6 +703,10 @@ for (let s = 0; s < SEEDS; s++) {
   if (state.groups.some(g => g.debuted) &&
       state.groups.filter(g => g.debuted).every(g =>
         g.members.every(id => state.people[id] && state.people[id].contract))) tally.contractStamped++;
+  // the flagships census (v0.9.8): the era is contested now
+  if (warLostSeen) tally.warLost++;
+  if (huntSeen) tally.flagshipHunt++;
+  if (state.groups.some(g => (g.releases || []).some(r => (r.chartPeak || 1) > 1))) tally.peakDenied++;
   // the constituency + the gamble census (v0.9.6)
   if (fusionTrySeen) tally.fusionTried++;
   if (fusionShiftSeen) tally.fusionShift++;
