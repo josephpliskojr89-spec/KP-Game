@@ -41,15 +41,21 @@
         '</div></div>');
     }
 
-    // the Monday meeting (v0.7.1): the question on the table
-    if (state.execQuestion) {
-      const q = state.execQuestion;
-      html.push('<div class="kicker">The Monday meeting</div>');
-      html.push('<div class="war-card held"><div class="w-flag">' + UI.esc(state.executive.name) + ' is waiting</div>' +
-        '<div class="w-text">“' + UI.esc(q.text) + '” Your answer goes on the record — and the record gets checked.</div>' +
-        '<div class="w-actions" style="flex-wrap:wrap">' +
-        q.options.map((o, i) => '<button class="btn" data-action="meeting-answer" data-opt="' + i + '">' + UI.esc(o.label) + '</button>').join('') +
-        '</div></div>');
+    // the stage door (v0.8.0): EVERY held scene renders through this one
+    // rail — the meeting today, the office door and the renewal table
+    // tomorrow. New conversations never add cards here again.
+    const scenes = state.scenes || [];
+    if (scenes.length) {
+      html.push('<div class="kicker">Waiting on your answer</div>');
+      scenes.forEach(sc => {
+        const def = KP.sceneDef(sc.kind);
+        if (!def) return;
+        html.push('<div class="war-card held"><div class="w-flag">' + UI.esc(def.title(state, sc)) + '</div>' +
+          '<div class="w-text">' + UI.esc(def.body(state, sc)) + '</div>' +
+          '<div class="w-actions" style="flex-wrap:wrap">' +
+          def.options(state, sc).map(o => '<button class="btn" data-action="scene-opt" data-scene="' + sc.id + '" data-opt="' + UI.esc(o.id) + '">' + UI.esc(o.label) + '</button>').join('') +
+          '</div></div>');
+      });
     }
 
     // the deals desk (v0.7.0): offers wait for an answer, briefly

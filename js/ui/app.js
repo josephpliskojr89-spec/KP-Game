@@ -181,6 +181,15 @@
         App.render();
         break;
       }
+      // the stage door (v0.8.0): ONE dispatcher path for every held scene
+      case 'scene-opt': {
+        const r = KP.resolveScene(s, t.dataset.scene, t.dataset.opt);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        if (r.toast) UI.toast(r.toast);
+        App.render();
+        break;
+      }
       case 'meeting-answer': {
         const r = KP.answerMeeting(s, parseInt(t.dataset.opt, 10));
         if (!r.ok) { UI.toast(r.reason, true); break; }

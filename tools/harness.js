@@ -227,8 +227,8 @@ for (let s = 0; s < SEEDS; s++) {
 
     // the Monday meeting (v0.7.1): the bot answers with its best read —
     // and promises comebacks like someone who knows their own calendar
-    if (state.execQuestion) {
-      const q = state.execQuestion;
+    if (KP.execScene(state)) {
+      const q = KP.execScene(state).q;
       if (q.type === 'comebackPromise') {
         const g = KP.groupById(state, q.groupId);
         const reopens = g ? Math.max((g.promoUntil || 0) + KP.C.COMEBACK.restWeeks, g.tourRestUntil || 0) : state.week;
@@ -494,7 +494,7 @@ for (let s = 0; s < SEEDS; s++) {
   if ((state.awardHistory || []).some(a => a.isPlayer)) tally.awardWon++;
   if (awardSnubSeen) tally.awardSnubbed++;
   if (state.feed.some(p => /bubble/.test(p.text))) tally.bubbleSeen++;
-  if ((state.execNotes || []).some(c => c.resolved === 'met')) tally.meetingKept++;
+  if ((state.claims || []).some(c => c.resolved === 'met')) tally.meetingKept++;
   if (Object.values(state.people).some(p => p.flags && p.flags.ambitionMet)) tally.ambitionMet++;
   if (personMomentWeeks >= 140 * 0.7) tally.peopleFelt++;
   if (quietWeekSeen) tally.quietWeekCaught++;

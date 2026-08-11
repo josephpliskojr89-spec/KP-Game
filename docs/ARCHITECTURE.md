@@ -83,6 +83,16 @@ standing answer to state growth.
    never by editing drivers or frozen chains.
 5. **Determinism is suite-property #1.** Every system ships a
    serialize-fork test; the battery is the court of appeal.
+6. **Conversations through the stage door** (v0.8.0). Anything that
+   waits on the player's answer is a registered scene
+   (`KP.registerScene` → `openScene` → the Desk rail → `resolveScene`);
+   any promise checked later is a registered claim with a subject
+   (`KP.registerClaim`/`openClaim`). New conversations never add
+   bespoke cards, state slots, or dispatcher cases.
+7. **Player-directed acts through one door** (v0.8.0).
+   `KP.recordDirected` is the only write path for "she remembers what
+   YOU did"; standing (`KP.standingOf`) is derived with a half-life,
+   never stored, spoken in words never meters.
 
 ## Adding a Living Industry system (the recipe)
 

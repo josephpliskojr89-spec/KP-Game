@@ -92,7 +92,81 @@
     return all.sort((a, b) => a.order - b.order || a.seq - b.seq);
   };
 
-  // ---- 4. the state validator -------------------------------------------
+  // ---- 4. the scene registry (v0.8.0) -----------------------------------
+  // A scene is a held decision: someone waiting on the player's answer.
+  // Systems register a KIND (title/body/options/resolve, optional
+  // expire); state.scenes is the pending queue; the Desk renders every
+  // pending scene through ONE rail and ONE dispatcher. This is the
+  // interaction-side twin of the weekly pipeline: new conversations
+  // never add bespoke cards or dispatcher cases again.
+  const sceneDefs = {};
+  KP.registerScene = function (kind, def) {
+    if (sceneDefs[kind]) throw new Error('kernel: duplicate scene kind "' + kind + '"');
+    if (!def || typeof def.title !== 'function' || typeof def.body !== 'function' ||
+        typeof def.options !== 'function' || typeof def.resolve !== 'function') {
+      throw new Error('kernel: registerScene(kind, {title, body, options, resolve})');
+    }
+    sceneDefs[kind] = def;
+  };
+  KP.sceneDef = function (kind) { return sceneDefs[kind] || null; };
+  KP.sceneKinds = function () { return Object.keys(sceneDefs); };
+  KP.openScene = function (state, sc) {
+    if (!sc || !sceneDefs[sc.kind]) {
+      throw new Error('kernel: openScene for unregistered kind "' + (sc && sc.kind) + '"');
+    }
+    state.scenes = state.scenes || [];
+    state.nextSceneId = (state.nextSceneId || 0) + 1;
+    sc.id = 'sc' + state.nextSceneId;
+    sc.week = state.week;
+    state.scenes.push(sc);
+    return sc;
+  };
+  KP.sceneById = function (state, id) {
+    return (state.scenes || []).find(x => x.id === id) || null;
+  };
+  // ONE resolution door — an action, so it may draw rng and note
+  KP.resolveScene = function (state, sceneId, optionId) {
+    const sc = KP.sceneById(state, sceneId);
+    if (!sc) return { ok: false, reason: 'That moment has passed.' };
+    const def = sceneDefs[sc.kind];
+    const opt = def.options(state, sc).find(o => o.id === optionId);
+    if (!opt) return { ok: false, reason: 'That is not one of the options on the table.' };
+    const rng = KP.rngFor(state);
+    const r = def.resolve(state, sc, optionId, rng) || {};
+    state.rngState = rng.state();
+    state.scenes = state.scenes.filter(x => x.id !== sc.id);
+    (r.notes || []).forEach(n => KP.note(state, n));
+    if (r.note) KP.note(state, r.note);
+    return { ok: true, toast: r.toast || null };
+  };
+
+  // ---- 5. the claims registry (v0.8.0) ----------------------------------
+  // A claim is a promise on the record, checked later by predicate.
+  // Generalized from the exec's ledger (v0.7.1): the SUBJECT says who
+  // holds the receipt — the executive today; an idol, a fandom, or a
+  // staffer tomorrow. Predicates are registered by type and run weekly
+  // (scenes.js phase); claims are plain data, so they serialize.
+  const claimChecks = {};
+  KP.registerClaim = function (type, fn) {
+    if (claimChecks[type]) throw new Error('kernel: duplicate claim type "' + type + '"');
+    claimChecks[type] = fn;
+  };
+  KP.claimCheckFor = function (type) { return claimChecks[type] || null; };
+  KP.openClaim = function (state, c) {
+    if (!c || !claimChecks[c.type]) {
+      throw new Error('kernel: openClaim for unregistered type "' + (c && c.type) + '"');
+    }
+    if (!c.subject || !c.subject.kind) throw new Error('kernel: a claim needs a subject');
+    state.claims = state.claims || [];
+    state.nextClaimId = (state.nextClaimId || 0) + 1;
+    c.id = 'cl' + state.nextClaimId;
+    c.week = c.week || state.week;
+    c.resolved = null;
+    state.claims.push(c);
+    return c;
+  };
+
+  // ---- 6. the state validator -------------------------------------------
   // Structural invariants only — cheap enough for the harness to run
   // weekly. Returns a list of violations; empty means sound.
   KP.validateState = function (state) {
@@ -120,6 +194,14 @@
     if (!isFinite(state.budget)) bad('budget NaN');
     if (!isFinite(state.trust)) bad('trust NaN');
     (state.deals || []).forEach(d => { if (!state.people[d.personId]) bad('deal ghost ' + d.personId); });
+    (state.scenes || []).forEach(sc => {
+      if (!sc.id || !sc.kind) bad('malformed scene ' + JSON.stringify(sc && sc.kind));
+      else if (!sceneDefs[sc.kind]) bad('scene of unregistered kind ' + sc.kind);
+    });
+    (state.claims || []).forEach(c => {
+      if (!c.id || !c.type || !c.subject || !c.subject.kind) bad('malformed claim ' + JSON.stringify(c && c.type));
+      else if (!claimChecks[c.type]) bad('claim of unregistered type ' + c.type);
+    });
     return v;
   };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -543,6 +543,32 @@
     });
   } });
 
+  // v0.8.0 — the stage door. The exec's private ledger becomes the
+  // general claims store; a pending Monday question re-opens as a
+  // scene. Nothing is lost; everything is re-addressed.
+  MIGRATIONS.push({ v: '0.8.0', fn: function (state) {
+    state.claims = state.claims || [];
+    (state.execNotes || []).forEach(c => {
+      state.nextClaimId = (state.nextClaimId || 0) + 1;
+      state.claims.push(Object.assign({ id: 'cl' + state.nextClaimId,
+        subject: { kind: 'exec' }, resolved: c.resolved || null }, c));
+    });
+    delete state.execNotes;
+    state.scenes = state.scenes || [];
+    if (state.execQuestion) {
+      const q = state.execQuestion;
+      KP.openScene(state, { kind: 'execQuestion', q,
+        expiresWeek: state.week + KP.C.MEETING.ignoreAfterWeeks - 1 });
+      delete state.execQuestion;
+    }
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'Facilities memo, filed without comment: the frosted-glass door to your office has been replaced with one that opens. Anything waiting on your answer — the executive today; other people soon — now holds on the Desk under one rail, and every promise you make goes into one ledger that gets checked, whoever holds the receipt. The staff have started calling it the stage door. Nobody remembers who started it.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

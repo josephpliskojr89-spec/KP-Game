@@ -114,31 +114,32 @@ function debuted(seed) {
 {
   const { state } = debuted('il-meeting');
   let guard = 0;
-  while (!state.execQuestion && guard++ < 30) KP.advanceWeek(state);
-  t.ok(state.execQuestion, 'the executive eventually asks');
-  const q = state.execQuestion;
+  while (!KP.execScene(state) && guard++ < 30) KP.advanceWeek(state);
+  t.ok(KP.execScene(state), 'the executive eventually asks');
+  const q = KP.execScene(state).q;
   t.ok(q.options.length >= 2, 'with constrained answers');
   const r = KP.answerMeeting(state, 0);
   t.ok(r.ok && /On the record|pen did not move/.test(r.note), 'the answer goes on the record');
-  t.ok(!state.execQuestion, 'the table clears');
-  // a broken promise gets quoted back
+  t.ok(!KP.execScene(state), 'the table clears');
+  // a broken promise gets quoted back (v0.8.0: injected via the scene door)
   const { state: s2 } = debuted('il-promise');
-  s2.execQuestion = { type: 'comebackPromise', week: s2.week, groupId: s2.groups[0].id,
-    text: 'When does LIFELINE come back?',
-    options: [{ id: 'q1', label: 'This quarter' }, { id: 'q2', label: 'Next quarter' }, { id: 'none', label: 'No promises' }] };
+  KP.openScene(s2, { kind: 'execQuestion', expiresWeek: s2.week + 3,
+    q: { type: 'comebackPromise', week: s2.week, groupId: s2.groups[0].id,
+      text: 'When does LIFELINE come back?',
+      options: [{ id: 'q1', label: 'This quarter' }, { id: 'q2', label: 'Next quarter' }, { id: 'none', label: 'No promises' }] } });
   KP.answerMeeting(s2, 0);   // promise this quarter — the rest rail makes it a lie
   for (let w = 0; w < KP.C.MEETING.quarterWeeks + 2; w++) KP.advanceWeek(s2);
-  t.ok((s2.execNotes || []).some(c => c.resolved === 'missed'),
+  t.ok((s2.claims || []).some(c => c.resolved === 'missed'),
     'a broken promise is on the record as broken');
   t.ok(s2.inbox.some(m => /I do not enjoy being a person who checks dates/.test(m.text)),
     'and the executive quotes the calendar back');
   // silence is also an answer
   const { state: s3 } = debuted('il-silence');
   let g3 = 0;
-  while (!s3.execQuestion && g3++ < 30) KP.advanceWeek(s3);
+  while (!KP.execScene(s3) && g3++ < 30) KP.advanceWeek(s3);
   const t3 = s3.trust;
   for (let w = 0; w < KP.C.MEETING.ignoreAfterWeeks + 1; w++) KP.advanceWeek(s3);
-  t.ok(!s3.execQuestion, 'an ignored question expires');
+  t.ok(!KP.execScene(s3), 'an ignored question expires');
   t.ok(s3.trust < t3, 'and the silence was noted');
 }
 
@@ -159,8 +160,8 @@ function debuted(seed) {
   const b = KP.deserialize(KP.serialize(state));
   for (let w = 0; w < 25; w++) {
     KP.advanceWeek(state); KP.advanceWeek(b);
-    if (state.execQuestion) KP.answerMeeting(state, 0);
-    if (b.execQuestion) KP.answerMeeting(b, 0);
+    if (KP.execScene(state)) KP.answerMeeting(state, 0);
+    if (KP.execScene(b)) KP.answerMeeting(b, 0);
   }
   t.eq(KP.serialize(state), KP.serialize(b), 'the inner life forks clean');
 }

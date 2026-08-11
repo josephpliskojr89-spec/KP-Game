@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.7.6',
+    VERSION: '0.8.0',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -813,6 +813,12 @@
       sleeperChance: 0.22,       // one b-side may quietly outgrow the record
       sleeperPop: 2,             // the truthers move the number a little
       sleeperReceptionMin: 55,   // nobody digs into a record nobody played
+    },
+    // ---- The stage door (v0.8.0) — scenes, claims, directed acts --------
+    SCENES: {
+      maxResolvedClaims: 10,     // settled promises kept for the record
+      directedCap: 40,           // per-person ledger of what YOU did
+      directedHalfLifeWeeks: 48, // kindnesses fade, wounds heal — slowly
     },
     MEETING: {
       everyWeeks: 10,            // the Monday meeting cadence

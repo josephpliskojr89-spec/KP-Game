@@ -1694,6 +1694,46 @@ verb an HR form.
 **Recommendation on record**: ship #1+#2 as one arc ("the door opens,
 and eventually the clock runs"). Everything else composes on top.
 
+## §38 The stage door (v0.8.0) — the interaction foundation
+
+> Owner, after Audit II: *"approved."* The foundation release the
+> audit required before the reciprocity arc. No features — RAILS,
+> plus the Monday meeting migrated onto them as the proving customer,
+> exactly as sim.js proved the weekly pipeline in §33.
+
+**Scenes** (kernel): a scene is a held decision — someone waiting on
+the player's answer. `KP.registerScene(kind, {title, body, options,
+resolve, expire?})`; `openScene` queues on `state.scenes`;
+`resolveScene` is the ONE action door (draws rng, notes through the
+bus, removes). Unanswered scenes expire through the weekly
+`stageDoor` phase (order 786) — and expiry is narrated, because in
+this house silence is content. The Desk renders every pending scene
+through ONE "Waiting on your answer" rail; app.js dispatches every
+option through ONE `scene-opt` case. Duplicate kinds, malformed
+defs, and unregistered opens all throw at the door.
+
+**Claims** (kernel): the exec's promise ledger, generalized. A claim
+is plain data with a SUBJECT (`exec` today; `idol`, `fandom`,
+`staff` tomorrow) and a registered predicate that runs weekly, fires
+once, and stamps `resolvedWeek`. Settled claims keep a bounded tail
+(10). `state.execNotes` and `state.execQuestion` migrated over and
+deleted; `KP.answerMeeting` survives as a one-line shim.
+
+**The directed-acts door**: `KP.recordDirected(state, personId,
+kind, weight)` — the single write path for what the PLAYER did to a
+specific person. Bounded ledger (40), half-life 48 weeks (kindnesses
+fade, wounds heal — slowly). `KP.standingOf` derives words, never
+meters: "she would run through a wall for this company" → "counting
+the days". First writers wired: solo credit +3, unit credit +1,
+successful mediation +2 both, releasing her close friend −3 to the
+one left behind. No UI surface yet — the standing FEATURE is the
+next release; this is its substrate, filling from today so the
+door's first scenes open against real history.
+
+**Validator**: scenes and claims are structurally checked weekly in
+the soak (unregistered kinds, missing subjects → hard violations).
+Laws 6 and 7 added to ARCHITECTURE.md.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2513,3 +2553,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > New "Home from the road" card: reopen date, room fatigue read, and
 > a gold chip when a new-material setlist seeded the next era.
 > Numbers: battery 40/40, e2e 89, lockstep 0.7.6. Rode to main.
+\n
+> **v0.8.0 — the stage door** (owner: *"approved"* on Audit II)
+> Full spec in §38. The interaction foundation: scenes (registered
+> held decisions, ONE Desk rail, ONE dispatcher case, narrated
+> expiry), claims (the exec ledger generalized to subjects, weekly
+> registered predicates, bounded settled tail), and the
+> directed-acts door (recordDirected → derived standing in words,
+> half-life 48wk; first writers: solo/unit credits, mediation,
+> releasing a close friend). The Monday meeting migrated as proving
+> customer — bespoke card, dispatcher case, and inline predicate
+> loop deleted; behavior parity held by suite_036 unchanged in
+> spirit. Validator extended to scenes/claims. Laws 6–7 added.
+> This is the chassis for §37: the office door, the ambition ask,
+> renewals, fan trucks — all assembly now. Numbers: battery 41/41
+> (suite 041, 39 assertions), soak clean, e2e 89, lockstep 0.8.0
+> (41 modules). Rode to main.

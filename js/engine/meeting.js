@@ -1,80 +1,31 @@
-/* The Monday meeting (v0.7.1) — the executive finally asks questions.
-   Expert consult: "trust is a number that moves without a single scene
-   where the player answers to anyone." Every ten weeks the exec asks
-   one question with constrained answers; the claim goes on the record
-   (state.execNotes) and is CHECKED later by predicate — deliver and
-   she remembers warmly; miss and she quotes you back. Reading your own
-   roster — the sim's core skill — becomes a social stake. */
+/* The Monday meeting (v0.7.1, re-railed v0.8.0) — the executive asks
+   questions with constrained answers; the claim goes on the record and
+   is CHECKED later by predicate — deliver and she remembers warmly;
+   miss and she quotes you back. As of v0.8.0 this is the FIRST
+   CUSTOMER of the stage-door foundation: the question is a registered
+   scene, the promise is a registered claim with subject {kind:'exec'},
+   and the bespoke card, dispatcher case, and inline predicate loop are
+   gone. The proof that the next ten conversations are assembly. */
 (function (root) {
   'use strict';
   const KP = root.KP = root.KP || {};
 
-  function notes(state) { return state.execNotes = state.execNotes || []; }
-
+  // ---- the weekly cadence: pose the question ----------------------------
   KP.meetingWeek = function (state) {
     const M = KP.C.MEETING;
     const out = [];
     state.nextMeetingWeek = state.nextMeetingWeek || (M.everyWeeks + 1);
-
-    // an unanswered question is an answer
-    if (state.execQuestion && state.week - state.execQuestion.week >= M.ignoreAfterWeeks) {
-      state.execQuestion = null;
-      state.trust = KP.clamp(state.trust + M.silenceTrust, 0, 100);
-      out.push({ kind: 'executive',
-        text: state.executive.name + '’s office, after the skipped agenda item: “No answer is also information. Noted.”' });
-    }
-
-    // pose the next question
-    if (!state.execQuestion && state.week >= state.nextMeetingWeek) {
+    const pending = (state.scenes || []).some(sc => sc.kind === 'execQuestion');
+    if (!pending && state.week >= state.nextMeetingWeek) {
       state.nextMeetingWeek = state.week + M.everyWeeks;
       const q = buildQuestion(state);
       if (q) {
-        state.execQuestion = q;
+        KP.openScene(state, { kind: 'execQuestion', q,
+          expiresWeek: state.week + M.ignoreAfterWeeks - 1 });
         out.push({ kind: 'executive', urgent: true,
           text: state.executive.name + ', Monday meeting: “' + q.text + '” Your answer goes on the record. The options are on the Desk.' });
       }
     }
-
-    // check standing claims — self-healing predicates, fire once
-    notes(state).forEach(c => {
-      if (c.resolved) return;
-      if (c.type === 'readyTrainee') {
-        const p = state.people[c.personId];
-        if (p && p.status === 'idol') {
-          const g = KP.groupOf(state, p.id);
-          const rec = g && g.results ? g.results.reception : 0;
-          c.resolved = rec >= 55 ? 'met' : 'metPoorly';
-          state.trust = KP.clamp(state.trust + (rec >= 55 ? M.payoffTrust : 0), 0, 100);
-          out.push({ kind: 'executive', text: state.executive.name + ': “' +
-            (rec >= 55
-              ? 'You told me ' + KP.displayName(p) + ' was the one, and then she was. I remember the people who read talent correctly.'
-              : 'She debuted, as you said. The debut itself we will discuss another day.') + '”' });
-        } else if (!p || p.status === 'released' || state.week > c.byWeek) {
-          c.resolved = 'missed';
-          state.trust = KP.clamp(state.trust + M.missTrust, 0, 100);
-          out.push({ kind: 'executive', urgent: true, text: state.executive.name + ': “You told me in ' +
-            KP.weekLabel(c.week).text + ' that ' + c.personName + ' was closest to ready. ' +
-            (p && p.status === 'released' ? 'You then released her.' : 'The window has closed.') +
-            ' I keep my notes, ' + 'and I reread them.”' });
-        }
-      } else if (c.type === 'comebackPromise') {
-        const g = KP.groupById(state, c.groupId);
-        if (g && (g.lastReleaseWeek || 0) > c.week) {
-          c.resolved = 'met';
-          state.trust = KP.clamp(state.trust + M.payoffTrust, 0, 100);
-          out.push({ kind: 'executive', text: state.executive.name + ': “' + g.name +
-            ' came back inside the window you promised. A calendar that means something — refreshing.”' });
-        } else if (state.week > c.byWeek) {
-          c.resolved = 'missed';
-          state.trust = KP.clamp(state.trust + M.missTrust, 0, 100);
-          out.push({ kind: 'executive', urgent: true, text: state.executive.name + ': “You promised the ' +
-            (g ? g.name : '') + ' comeback by ' + KP.weekLabel(c.byWeek).text +
-            '. It is ' + KP.weekLabel(state.week).text + '. I do not enjoy being a person who checks dates. And yet.”' });
-        }
-      }
-    });
-    state.execNotes = notes(state).filter(c => !c.resolved).concat(
-      notes(state).filter(c => c.resolved).slice(-KP.C.MEETING.maxNotes));
     return out;
   };
 
@@ -106,28 +57,96 @@
     return null;
   }
 
-  KP.answerMeeting = function (state, optionIdx) {
-    const M = KP.C.MEETING;
-    const q = state.execQuestion;
-    if (!q) return { ok: false, reason: 'There is no question on the table.' };
-    const opt = q.options[optionIdx];
-    if (!opt) return { ok: false, reason: 'That was not one of the options.' };
-    state.execQuestion = null;
-    if (q.type === 'readyTrainee') {
-      const p = state.people[opt.id];
-      notes(state).push({ type: 'readyTrainee', week: q.week, personId: opt.id,
-        personName: p ? KP.displayName(p) : opt.label, byWeek: state.week + M.claimWindow });
-      return { ok: true, note: 'On the record: ' + opt.label + ' is closest to ready. The executive wrote it down without looking away from you.' };
-    }
-    if (q.type === 'comebackPromise') {
-      if (opt.id === 'none') {
-        return { ok: true, note: 'No promises. The executive’s pen did not move, which somehow was worse.' };
+  // ---- the scene: the question on the table -----------------------------
+  KP.registerScene('execQuestion', {
+    title: (state) => state.executive.name + ' is waiting',
+    body: (state, sc) => '“' + sc.q.text + '” Your answer goes on the record — and the record gets checked.',
+    options: (state, sc) => sc.q.options,
+    resolve: (state, sc, optionId) => {
+      const M = KP.C.MEETING;
+      const q = sc.q;
+      const opt = q.options.find(o => o.id === optionId);
+      if (q.type === 'readyTrainee') {
+        const p = state.people[opt.id];
+        KP.openClaim(state, { type: 'readyTrainee', subject: { kind: 'exec' },
+          personId: opt.id, personName: p ? KP.displayName(p) : opt.label,
+          byWeek: state.week + M.claimWindow });
+        return { toast: 'On the record: ' + opt.label + ' is closest to ready. The executive wrote it down without looking away from you.' };
       }
-      const weeks = opt.id === 'q1' ? M.quarterWeeks : M.quarterWeeks * 2;
-      notes(state).push({ type: 'comebackPromise', week: q.week, groupId: q.groupId,
-        byWeek: state.week + weeks });
-      return { ok: true, note: 'On the record: the comeback lands by ' + KP.weekLabel(state.week + weeks).text + '. The executive underlined the date.' };
+      if (q.type === 'comebackPromise') {
+        if (optionId === 'none') {
+          return { toast: 'No promises. The executive’s pen did not move, which somehow was worse.' };
+        }
+        const weeks = optionId === 'q1' ? M.quarterWeeks : M.quarterWeeks * 2;
+        KP.openClaim(state, { type: 'comebackPromise', subject: { kind: 'exec' },
+          groupId: q.groupId, byWeek: state.week + weeks });
+        return { toast: 'On the record: the comeback lands by ' + KP.weekLabel(state.week + weeks).text + '. The executive underlined the date.' };
+      }
+      return {};
+    },
+    // an unanswered question is an answer
+    expire: (state, sc) => {
+      const M = KP.C.MEETING;
+      state.trust = KP.clamp(state.trust + M.silenceTrust, 0, 100);
+      return { kind: 'executive',
+        text: state.executive.name + '’s office, after the skipped agenda item: “No answer is also information. Noted.”' };
+    },
+  });
+
+  // ---- the claims: promises checked by predicate, fire once -------------
+  KP.registerClaim('readyTrainee', (state, c) => {
+    const M = KP.C.MEETING;
+    const p = state.people[c.personId];
+    if (p && p.status === 'idol') {
+      const g = KP.groupOf(state, p.id);
+      const rec = g && g.results ? g.results.reception : 0;
+      const met = rec >= 55;
+      state.trust = KP.clamp(state.trust + (met ? M.payoffTrust : 0), 0, 100);
+      return { resolved: met ? 'met' : 'metPoorly',
+        notes: [{ kind: 'executive', text: state.executive.name + ': “' +
+          (met
+            ? 'You told me ' + KP.displayName(p) + ' was the one, and then she was. I remember the people who read talent correctly.'
+            : 'She debuted, as you said. The debut itself we will discuss another day.') + '”' }] };
     }
-    return { ok: false, reason: 'Unknown question.' };
+    if (!p || p.status === 'released' || state.week > c.byWeek) {
+      state.trust = KP.clamp(state.trust + M.missTrust, 0, 100);
+      return { resolved: 'missed',
+        notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “You told me in ' +
+          KP.weekLabel(c.week).text + ' that ' + c.personName + ' was closest to ready. ' +
+          (p && p.status === 'released' ? 'You then released her.' : 'The window has closed.') +
+          ' I keep my notes, and I reread them.”' }] };
+    }
+    return null;
+  });
+  KP.registerClaim('comebackPromise', (state, c) => {
+    const M = KP.C.MEETING;
+    const g = KP.groupById(state, c.groupId);
+    if (g && (g.lastReleaseWeek || 0) > c.week) {
+      state.trust = KP.clamp(state.trust + M.payoffTrust, 0, 100);
+      return { resolved: 'met',
+        notes: [{ kind: 'executive', text: state.executive.name + ': “' + g.name +
+          ' came back inside the window you promised. A calendar that means something — refreshing.”' }] };
+    }
+    if (state.week > c.byWeek) {
+      state.trust = KP.clamp(state.trust + M.missTrust, 0, 100);
+      return { resolved: 'missed',
+        notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “You promised the ' +
+          (g ? g.name : '') + ' comeback by ' + KP.weekLabel(c.byWeek).text +
+          '. It is ' + KP.weekLabel(state.week).text + '. I do not enjoy being a person who checks dates. And yet.”' }] };
+    }
+    return null;
+  });
+
+  // ---- compat shim: the old action, now one line of scene plumbing ------
+  KP.execScene = function (state) {
+    return (state.scenes || []).find(sc => sc.kind === 'execQuestion') || null;
+  };
+  KP.answerMeeting = function (state, optionIdx) {
+    const sc = KP.execScene(state);
+    if (!sc) return { ok: false, reason: 'There is no question on the table.' };
+    const opt = sc.q.options[optionIdx];
+    if (!opt) return { ok: false, reason: 'That was not one of the options.' };
+    const r = KP.resolveScene(state, sc.id, opt.id);
+    return r.ok ? { ok: true, note: r.toast } : r;
   };
 })(typeof window !== 'undefined' ? window : globalThis);

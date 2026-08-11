@@ -109,6 +109,7 @@
         KP.socialSpike(state, p, T.soloSocialSpike, 'soloTrack');
         p.hype = (p.hype || 0) + T.soloHype;   // her name carries into the next cycle
         p.morale = KP.clamp(p.morale + T.soloMorale, 0, 100);
+        KP.recordDirected(state, p.id, 'soloCredit', 3);   // you put her name on it (v0.8.0)
         p.history.push({ week: state.week, text: 'First solo on record: “' + tr.title + '”.' });
         const amb = KP.ambitionTouch(state, p, 'solo');
         if (amb) notes.push(amb);
@@ -123,6 +124,7 @@
         const members = tr.credit.memberIds.map(id => state.people[id]).filter(Boolean);
         if (members.length < 2) return;
         members.forEach(m => { m.morale = KP.clamp(m.morale + T.unitMorale, 0, 100); });
+        members.forEach(m => KP.recordDirected(state, m.id, 'unitCredit', 1));   // (v0.8.0)
         // the unit reads REAL chemistry — the fans always can
         let closest = null, worst = null;
         for (let i = 0; i < members.length; i++) {
