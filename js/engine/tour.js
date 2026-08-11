@@ -155,7 +155,7 @@
       if (local) {
         KP.socialSpike(state, local, KP.C.SOCIAL.viralSpike * 0.6, 'tour-' + regionId);
         notes.push({ kind: 'public', ind: 'tourMoment', personId: local.id, groupId: g.id, region: regionId,
-          text: 'The ' + where + ' crowd sang ' + KP.publicGiven(local) + '’s lines FOR her and the clip of her face is everywhere. This is her market and tonight it said so out loud.' });
+          text: KP.fillPro('The ' + where + ' crowd sang ' + KP.publicGiven(local) + '’s lines FOR {her} and the clip of {pos} face is everywhere. This is {pos} market and tonight it said so out loud.', local) });
         const narNote = KP.recordViral(state, local);
         if (narNote) notes.push(narNote);
       }

@@ -67,7 +67,7 @@
 
     if (credit.type === 'solo') {
       const p = state.people[credit.memberId];
-      if (!p || !g.members.includes(credit.memberId)) return { ok: false, reason: 'She is not in this lineup.' };
+      if (!p || !g.members.includes(credit.memberId)) return { ok: false, reason: KP.fillPro('{She} is not in this lineup.', p || null) };
       if (credited[credit.memberId]) return { ok: false, reason: KP.publicGiven(p) + ' already has a credit on this record. Spread the light.' };
       tr.credit = { type: 'solo', memberId: p.id };
       return { ok: true, note: '“' + tr.title + '” is now ' + KP.displayName(p) + '’s solo. The producers are re-cutting the guide vocal tonight.' };
@@ -115,10 +115,10 @@
         if (amb) notes.push(amb);
         notes.push({ kind: 'public', ind: 'soloTrack', priority: 'normal',
           personId: p.id, groupId: g.id, trackTitle: tr.title,
-          text: 'Track ' + tr.n + ', “' + tr.title + '”, is ' + KP.displayName(p) + ' alone — her first solo on record. ' +
+          text: KP.fillPro('Track ' + tr.n + ', “' + tr.title + '”, is ' + KP.displayName(p) + ' alone — {pos} first solo on record. ' +
             (reception >= 60
               ? 'The song is getting its own paragraphs in the album reviews, which is exactly what a first solo is for.'
-              : 'The record around it is quieter than it deserves, but the people who found it are not letting it go.') });
+              : 'The record around it is quieter than it deserves, but the people who found it are not letting it go.'), p) });
       }
       if (tr.credit.type === 'unit') {
         const members = tr.credit.memberIds.map(id => state.people[id]).filter(Boolean);
@@ -194,7 +194,7 @@
     if (!p) return null;
     return rng.pick([
       { persona: 'stan', text: KP.displayName(p) + ' SOLO. ON RECORD. track ' + '“' + n.trackTitle + '”' + ' on loop since midnight and I am not okay in a way I fully endorse' },
-      { persona: 'fan', text: 'the way they gave ' + KP.publicGiven(p) + ' a whole solo b-side and she ATE it. this is what believing in your artist looks like, take notes industry' },
+      { persona: 'fan', text: KP.fillPro('the way they gave ' + KP.publicGiven(p) + ' a whole solo b-side and {she} ATE it. this is what believing in your artist looks like, take notes industry', p) },
       { persona: 'press', text: 'Album cut worth your time: “' + n.trackTitle + '” — a first solo that sounds like it was waiting, not auditioning.' },
     ]);
   });

@@ -674,8 +674,9 @@
 
   // live storms post themselves (v0.6.2) — sentiment-colored, persona-true
   function discoursePost(state, d, rng) {
+    const pSub = d.subjectType === 'idol' ? (state.people[d.subjectId] || null) : null;
     const who = d.subjectType === 'idol'
-      ? (state.people[d.subjectId] ? KP.displayName(state.people[d.subjectId]) : 'her')
+      ? (pSub ? KP.displayName(pSub) : 'her')
       : ((KP.groupById(state, d.subjectId) || { name: 'them' }).name);
     const co = state.company.short;
     const m = {
@@ -696,7 +697,7 @@
         { persona: 'anti', text: 'encore discourse day two: half concern, half “this is why we can’t have nice things.” the clip does not improve on rewatch' },
       ],
       benched: [
-        { persona: 'fan', text: who + ' pulled from schedules… hope she is actually resting and not just hidden. companies lie about this constantly' },
+        { persona: 'fan', text: KP.fillPro(who + ' pulled from schedules… hope {she} is actually resting and not just hidden. companies lie about this constantly', pSub) },
         { persona: 'stan', text: 'get well soon ' + who + '. and ' + co + '— maybe fewer 5am send-offs going forward? just a thought. from all of us' },
       ],
       fancam: [
@@ -735,15 +736,15 @@
     }
     if (bn) {
       posts.push(rng.pick([
-        'new bias alert: ' + bn + '. the way she owns the second chorus of “' + demoTitle + '”… I’ve watched the fancam nine times',
-        bn + ' smiled at the camera for 0.8 seconds during the “' + demoTitle + '” encore and I’ve been thinking about it all day. hope she’s getting enough rest',
+        KP.fillPro('new bias alert: ' + bn + '. the way {she} owns the second chorus of “' + demoTitle + '”… I’ve watched the fancam nine times', breakout),
+        KP.fillPro(bn + ' smiled at the camera for 0.8 seconds during the “' + demoTitle + '” encore and I’ve been thinking about it all day. hope {she}’s getting enough rest', breakout),
         'day one of ' + bn + ' being my favorite and it is already going great',
       ]));
     }
     if (r.centerOvershadowed && bn) {
       const center = state.people[g.roles.center];
-      posts.push('the company keeps centering ' + (center ? KP.displayName(center) : 'her') +
-        ' but the public voted with the fancam views. eyes on ' + bn + ', ' + state.company.short + '. we see her even if you don’t.');
+      posts.push(KP.fillPro('the company keeps centering ' + (center ? KP.displayName(center) : 'her') +
+        ' but the public voted with the fancam views. eyes on ' + bn + ', ' + state.company.short + '. we see {her} even if you don’t.', breakout));
     }
     if ((r.crowd || 0) >= 5) {
       posts.push(g.name + ' really dropped the same week as half the industry. my streaming schedule is a two-front war');
@@ -802,8 +803,8 @@
           (p ? KP.displayName(p) : '') + ' challenge version is all over my page. fine. FINE. following' });
       } else if (n.ind === 'fanSignWarm') {
         const p = state.people[n.personId];
-        posts.push({ persona: 'fan', text: 'the fan-sign clip of ' + (p ? KP.displayName(p) : 'her') +
-          ' with the crying fan… this is why we stay. protect her at all costs' });
+        posts.push({ persona: 'fan', text: KP.fillPro('the fan-sign clip of ' + (p ? KP.displayName(p) : 'her') +
+          ' with the crying fan… this is why we stay. protect {her} at all costs', p || null) });
       } else if (n.ind === 'showWin') {
         const gName = (KP.groupById(state, n.groupId) || { name: 'they' }).name;
         posts.push(rng.pick([
@@ -828,7 +829,7 @@
         const p = state.people[n.personId];
         posts.push(rng.pick([
           { persona: 'stan', text: (p ? KP.displayName(p) : 'she') + ' brand ambassador announcement. the campaign shots are ILLEGAL. buying products I cannot pronounce' },
-          { persona: 'casual', text: 'saw ' + (p ? KP.displayName(p) : 'an idol') + ' on a billboard today and pointed like she knows me. advertising works, I am the proof' },
+          { persona: 'casual', text: KP.fillPro('saw ' + (p ? KP.displayName(p) : 'an idol') + ' on a billboard today and pointed like {she} knows me. advertising works, I am the proof', p || null) },
         ]));
       } else if (n.ind === 'dealCancelled') {
         posts.push({ persona: 'press', text: 'Brand watch: a conduct-clause cancellation this week. Agencies keep learning that ambassadorships are weather-dependent. The weather is the internet.' });
@@ -843,8 +844,8 @@
         posts.push({ persona: 'stan', text: 'the ' + (g ? g.name : '') + ' snub is a CRIME and I have the receipts thread to prove it. rigged ceremony. anyway streaming doubled, spite is fuel' });
       } else if (n.ind === 'tourMoment') {
         const p = state.people[n.personId];
-        posts.push({ persona: 'fan', text: 'the ' + KP.regionLabel(n.region) + ' crowd singing ' +
-          (p ? KP.displayName(p) : 'her') + '’s lines back at her and her face CRUMPLING… I have watched it thirty times. touring matters. bring them everywhere' });
+        posts.push({ persona: 'fan', text: KP.fillPro('the ' + KP.regionLabel(n.region) + ' crowd singing ' +
+          (p ? KP.displayName(p) : 'her') + '’s lines back at {her} and {pos} face CRUMPLING… I have watched it thirty times. touring matters. bring them everywhere', p || null) });
       } else if (n.ind === 'tourLeg') {
         const gName = (KP.groupById(state, n.groupId) || { name: 'they' }).name;
         posts.push(n.soldOut
@@ -935,14 +936,15 @@
           underperformed: 'still think ' + groupName() + '’s last one deserved better numbers. the public was wrong and I’m patient',
           dormant: groupName() + ' has not released in MONTHS. blink twice if you’re being held hostage in the practice room',
           fancamStar: 'another ' + idolName() + ' viral moment. at this point it’s not luck, it’s a genre. the fancam one strikes again',
-          itGirl: idolName() + ' is entering her it-girl era and the brands are going to figure it out any day now',
+          itGirl: idolName() + ' is entering {pos} it-{girl} era and the brands are going to figure it out any day now',
           dateSniper: coName() + ' has officially made a HOBBY of dropping releases on other people’s dates. the audacity is almost impressive. almost',
           rivalry: 'the ' + actName() + ' rivalry is canon now. every shared release week is a pay-per-view event and I have never been happier',
           showDarling: groupName() + ' winning the same show AGAIN. the stagehands know their coffee orders at this point. dynasty behavior',
           regionStronghold: groupName() + ' really has a whole second home market now. the fan-sub accounts post before the company does. globalization won',
           conceptIdentity: groupName() + ' hearing one synth note and knowing EXACTLY what era it is… consistency is a superpower and they have it',
         };
-        posts.push(m[n.narKey] || (state.company.short + ' discourse hours. we live here now'));
+        posts.push(KP.fillPro(m[n.narKey] || (state.company.short + ' discourse hours. we live here now'),
+          state.people[n.narSubjectId] || null));
       }
     });
     return posts;
@@ -973,7 +975,7 @@
     if (hyped && rng.chance(0.6)) {
       posts.push(rng.pick([
         'who IS the trainee in ' + state.company.short + '’s latest practice clip. I need a name, a debut date, and a fancam, in that order',
-        KP.displayName(hyped) + ' from ' + state.company.short + '’s trainee showcase is all over my timeline. debut her. today.',
+        KP.fillPro(KP.displayName(hyped) + ' from ' + state.company.short + '’s trainee showcase is all over my timeline. debut {her}. today.', hyped),
         'I saw one 12-second clip of ' + KP.displayName(hyped) + ' and now I check ' + state.company.short + '’s account daily. this is fine.',
       ]));
     }

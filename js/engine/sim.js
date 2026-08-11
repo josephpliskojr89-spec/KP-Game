@@ -105,8 +105,8 @@
             const star = hopefuls.slice().sort((a, b) =>
               (b.personality.workEthic + b.personality.competitiveness) -
               (a.personality.workEthic + a.personality.competitiveness))[0];
-            inbox.push({ kind: 'development', text: 'Since the project was announced, ' +
-              KP.displayName(star) + ' has barely left the practice rooms. The spot is not hers yet — she is training like it is.' });
+            inbox.push({ kind: 'development', text: KP.fillPro('Since the project was announced, ' +
+              KP.displayName(star) + ' has barely left the practice rooms. The spot is not {hers} yet — {she} is training like it is.', star) });
           }
         }
       }
@@ -347,9 +347,9 @@
             if (dn) notes.push(dn);
           }
           notes.push({ kind: 'public', text: rng.pick([
-            'A dance cover ' + KP.displayName(p) + ' filmed months ago is suddenly trending. The comments all ask the same question: when does she debut?',
+            KP.fillPro('A dance cover ' + KP.displayName(p) + ' filmed months ago is suddenly trending. The comments all ask the same question: when does {she} debut?', p),
             'Street-cast photos of ' + KP.displayName(p) + ' resurfaced overnight and the reposts have not stopped.',
-            'A showcase clip of ' + KP.displayName(p) + ' escaped containment. Her name is in search trends next to artists who have albums.',
+            KP.fillPro('A showcase clip of ' + KP.displayName(p) + ' escaped containment. {Pos} name is in search trends next to artists who have albums.', p),
           ]) });
         }
       }
@@ -364,9 +364,9 @@
           personId: hot.id, issuedWeek: state.week,
           deadlineWeek: state.week + H.directiveWeeks, status: 'open',
         };
-        notes.push({ kind: 'executive', urgent: true, text: state.executive.name + ': “The internet has decided about ' +
-          KP.displayName(hot) + ' and I agree with it. Debut her by ' + KP.weekLabel(state.week + H.directiveWeeks).text +
-          ' — in a group, alone, I do not care which. Do not make me watch her fade on our payroll.”' });
+        notes.push({ kind: 'executive', urgent: true, text: KP.fillPro(state.executive.name + ': “The internet has decided about ' +
+          KP.displayName(hot) + ' and I agree with it. Debut {her} by ' + KP.weekLabel(state.week + H.directiveWeeks).text +
+          ' — in a group, alone, I do not care which. Do not make me watch {her} fade on our payroll.”', hot) });
       }
     }
     return notes;
@@ -451,8 +451,8 @@
     t.cur = Math.min(ceil, t.cur + g);
     p.fatigue = KP.clamp(p.fatigue + A.fatigueCost, 0, 100);
     if (rng.chance(0.015)) {
-      return { kind: 'development', text: KP.displayName(p) + ' has been booking extra ' +
-        KP.C.TALENT_LABELS[focus.domain].toLowerCase() + '-room time on her own between schedules. Nobody asked her to. That is rather the point.' };
+      return { kind: 'development', text: KP.fillPro(KP.displayName(p) + ' has been booking extra ' +
+        KP.C.TALENT_LABELS[focus.domain].toLowerCase() + '-room time on {pos} own between schedules. Nobody asked {her} to. That is rather the point.', p) };
     }
     return null;
   }
@@ -462,7 +462,7 @@
     const p = state.people[personId];
     if (!p) return { ok: false };
     if (p.flags.burnout > 0 && intensity !== 'rest' && intensity !== 'light') {
-      return { ok: false, reason: 'Medical staff have capped her load for now.' };
+      return { ok: false, reason: KP.fillPro('Medical staff have capped {pos} load for now.', p) };
     }
     p.training.focus = (focus || []).slice(0, 2);
     p.training.intensity = KP.C.TRAIN.intensities.includes(intensity) ? intensity : 'standard';
@@ -473,9 +473,9 @@
   KP.releaseTrainee = function (state, personId) {
     const p = state.people[personId];
     if (!p || !state.roster.includes(personId)) return { ok: false, reason: 'Not on the roster.' };
-    if (p.status === 'idol') return { ok: false, reason: 'She has debuted. Terminating an active artist is above your pay grade.' };
+    if (p.status === 'idol') return { ok: false, reason: KP.fillPro('{She} has debuted. Terminating an active artist is above your pay grade.', p) };
     if (KP.groupOf(state, personId)) {
-      return { ok: false, reason: 'She is in a lineup. The lineup would have to change first.' };
+      return { ok: false, reason: KP.fillPro('{She} is in a lineup. The lineup would have to change first.', p) };
     }
     state.roster = state.roster.filter(id => id !== personId);
     p.status = 'released';

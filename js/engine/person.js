@@ -58,14 +58,14 @@
   // resolves them. For a female subject the output is byte-identical
   // to the original text — the kit costs the girls nothing.
   const PRO_F = { she: 'she', her: 'her', pos: 'her', hers: 'hers', herself: 'herself',
-    girl: 'girl', She: 'She', Her: 'Her', Pos: 'Her', Girl: 'Girl' };
+    girl: 'girl', She: 'She', Her: 'Her', Pos: 'Her', Girl: 'Girl', Hers: 'Hers' };
   const PRO_M = { she: 'he', her: 'him', pos: 'his', hers: 'his', herself: 'himself',
-    girl: 'boy', She: 'He', Her: 'Him', Pos: 'His', Girl: 'Boy' };
+    girl: 'boy', She: 'He', Her: 'Him', Pos: 'His', Girl: 'Boy', Hers: 'His' };
   KP.pro = function (p) { return p && p.gender === 'm' ? PRO_M : PRO_F; };
   KP.fillPro = function (text, p) {
     if (!text || text.indexOf('{') === -1) return text;
     const pr = KP.pro(p);
-    return text.replace(/\{(she|her|pos|hers|herself|girl|She|Her|Pos|Girl)\}/g,
+    return text.replace(/\{(she|her|pos|hers|herself|girl|She|Her|Pos|Girl|Hers)\}/g,
       (m, k) => pr[k] !== undefined ? pr[k] : m);
   };
 

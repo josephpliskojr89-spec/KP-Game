@@ -161,7 +161,7 @@
       raw: {
         whole: ['The camera keeps looking for someone else.', 'Blends into a group photo of four.'],
         open: ['The test shots came back ordinary.', 'Lighting does not rescue much.'],
-        detail: ['Styling will work hard here.', 'Not every role needs a face. Hers needs a stage.',
+        detail: ['Styling will work hard here.', 'Not every role needs a face. {Hers} needs a stage.',
           'The camera is honest. So am I.'],
       },
       developing: {

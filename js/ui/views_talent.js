@@ -97,7 +97,7 @@
         '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:.95rem">' + UI.esc(KP.displayName(p)) + '</div>' +
         '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">' + UI.condChips(p) + '</div></div></div>');
       if (inPrep) {
-        html.push('<div style="font-size:.76rem;color:var(--ink-dim);font-style:italic;margin-top:9px">In debut rehearsals — the comeback schedule owns her week.</div>');
+        html.push('<div style="font-size:.76rem;color:var(--ink-dim);font-style:italic;margin-top:9px">' + KP.fillPro('In debut rehearsals — the comeback schedule owns {pos} week.', p) + '</div>');
       } else {
         html.push('<div class="focus-chips" style="margin-top:10px">' +
           KP.C.TALENTS.map(d => '<button class="chip ' + ((p.training.focus || []).includes(d) ? 'on' : '') + '" ' +
@@ -173,7 +173,7 @@
       // what the public calls her (v0.6.0)
       const pNars = KP.narrativesFor(state, 'idol', p.id);
       if (pNars.length) {
-        html.push('<div class="kicker">The public knows her</div>');
+        html.push('<div class="kicker">' + KP.fillPro('The public knows {her}', p) + '</div>');
         html.push('<div class="card">' + UI.narrativeLines(state, pNars) + '</div>');
       }
       const pick = (key, arr) => arr[Math.floor(KP.hash01([state.seed, p.id, key].join('|')) * arr.length)];
@@ -182,40 +182,40 @@
         if (gOf && gOf.debuted) {
           const homes = KP.strongholdsOf(state, p).map(KP.regionLabel).map(UI.esc);
           const homeNote = pick('homeNote', [
-            'Overseas desk margin note: her clips travel best in ' + homes[0] + ' and ' + homes[1] + '. Nobody assigned that. Some corners of the map just decide.',
-            'The analytics team flags it every quarter: ' + homes[0] + ' and ' + homes[1] + ' move first on anything with her face in the thumbnail. No campaign has ever run there.',
-            'Fan-mail routing says ' + homes[0] + ' and ' + homes[1] + ' found her before the company did. The overseas desk has stopped calling it a fluke.',
-            'When her clips go up, ' + homes[0] + ' wakes up first — then ' + homes[1] + ', an hour later, like clockwork nobody wound.',
-            'Two markets pre-order anything she fronts: ' + homes[0] + ' and ' + homes[1] + '. The desk keeps trying to explain it, and keeps writing “just is” in the margin.',
+            'Overseas desk margin note: {pos} clips travel best in ' + homes[0] + ' and ' + homes[1] + '. Nobody assigned that. Some corners of the map just decide.',
+            'The analytics team flags it every quarter: ' + homes[0] + ' and ' + homes[1] + ' move first on anything with {pos} face in the thumbnail. No campaign has ever run there.',
+            'Fan-mail routing says ' + homes[0] + ' and ' + homes[1] + ' found {her} before the company did. The overseas desk has stopped calling it a fluke.',
+            'When {pos} clips go up, ' + homes[0] + ' wakes up first — then ' + homes[1] + ', an hour later, like clockwork nobody wound.',
+            'Two markets pre-order anything {she} fronts: ' + homes[0] + ' and ' + homes[1] + '. The desk keeps trying to explain it, and keeps writing “just is” in the margin.',
           ]);
-          html.push('<div class="note">' + homeNote + '<span class="n-who">' +
+          html.push('<div class="note">' + KP.fillPro(homeNote, p) + '<span class="n-who">' +
             pick('homeWho', ['— audience analytics, informally', '— the overseas desk, quarterly report', '— fan-mail routing, of all places']) +
             '</span></div>');
         }
       }
       if (p.status === 'idol' || p.status === 'trainee') {
         const facts = KP.factsOf(state, p).map(UI.esc);
-        const voiceLine = 'In the room, she ' + UI.esc(KP.VOICES[KP.voiceOf(state, p)].label) + '.';
+        const voiceLine = 'In the room, {she} ' + UI.esc(KP.VOICES[KP.voiceOf(state, p)].label) + '.';
         const factNote = pick('factNote', [
-          'Off the clock: she ' + facts[0] + ', and ' + facts[1] + '. ' + voiceLine,
-          'The staff profile, unofficial edition: she ' + facts[0] + '. Also ' + facts[1] + ' — ask anyone. ' + voiceLine,
-          'Two true things the cameras keep missing: she ' + facts[0] + ', and she ' + facts[1] + '. ' + voiceLine,
-          'What the fans would trade anything to confirm (the staff can): she ' + facts[0] + ', and ' + facts[1] + '. ' + voiceLine,
+          'Off the clock: {she} ' + facts[0] + ', and ' + facts[1] + '. ' + voiceLine,
+          'The staff profile, unofficial edition: {she} ' + facts[0] + '. Also ' + facts[1] + ' — ask anyone. ' + voiceLine,
+          'Two true things the cameras keep missing: {she} ' + facts[0] + ', and {she} ' + facts[1] + '. ' + voiceLine,
+          'What the fans would trade anything to confirm (the staff can): {she} ' + facts[0] + ', and ' + facts[1] + '. ' + voiceLine,
         ]);
-        html.push('<div class="note">' + factNote + '<span class="n-who">' +
-          pick('factWho', ['— the staff, fondly', '— the managers’ group chat, leaked internally', '— her roommate, under mild duress', '— the stylists, between fittings']) +
+        html.push('<div class="note">' + KP.fillPro(factNote, p) + '<span class="n-who">' +
+          KP.fillPro(pick('factWho', ['— the staff, fondly', '— the managers’ group chat, leaked internally', '— {pos} roommate, under mild duress', '— the stylists, between fittings']), p) +
           '</span></div>');
         if (p.status === 'idol') {
           const amb = KP.ambitionOf(state, p);
           const A = KP.C.LIFE.AMBITIONS[amb];
-          html.push('<div class="note">' + (p.flags.ambitionMet
-            ? 'She got the thing she wanted — ' + UI.esc(A.label) + ' — and it shows in how she carries the rest.'
-            : 'What she wants, if you watch closely: ' + UI.esc(pick('ambLine', A.lines))) +
+          html.push('<div class="note">' + KP.fillPro(p.flags.ambitionMet
+            ? '{She} got the thing {she} wanted — ' + UI.esc(A.label) + ' — and it shows in how {she} carries the rest.'
+            : 'What {she} wants, if you watch closely: ' + UI.esc(pick('ambLine', A.lines)), p) +
             '<span class="n-who">— a staff observation, not a metric</span></div>');
         }
         if ((p.directed || []).length) {
-          html.push('<div class="note">Where she stands with the company, if you ask the people who drive the vans: ' +
-            UI.esc(KP.standingOf(state, p)) +
+          html.push('<div class="note">' + KP.fillPro('Where {she} stands with the company, if you ask the people who drive the vans: ' +
+            UI.esc(KP.standingOf(state, p)), p) +
             '.<span class="n-who">— the road staff, off the record</span></div>');
         }
         const credits = KP.trackCreditsOf(state, p.id);
@@ -229,7 +229,7 @@
             const withNames = u.withIds.map(id => state.people[id]).filter(Boolean).map(x => UI.esc(KP.publicGiven(x))).join(' & ');
             parts.push('unit work with ' + withNames + ' on “' + UI.esc(u.trackTitle) + '”');
           }
-          html.push('<div class="note">Discography margin, the part she checks: ' + parts.join('; ') +
+          html.push('<div class="note">' + KP.fillPro('Discography margin, the part {she} checks: ', p) + parts.join('; ') +
             '.<span class="n-who">— A&R, keeping receipts</span></div>');
         }
       }
@@ -249,20 +249,20 @@
         const notes = derivedNotes(p);
         if (p.status === 'trainee' && (p.hype || 0) >= 35) {
           notes.unshift((p.hype >= KP.C.HYPE.directiveThreshold
-            ? 'Her clip counts read like a mid-tier idol’s and she has not debuted. The building is not the only one that noticed.'
-            : 'Her socials are moving on their own. The public is early — or we are late.'));
+            ? '{Pos} clip counts read like a mid-tier idol’s and {she} has not debuted. The building is not the only one that noticed.'
+            : '{Pos} socials are moving on their own. The public is early — or we are late.'));
         }
         if (p.status === 'idol') {
           const grp = KP.groupOf(state, p.id);
           const idle = !(grp && (grp.prep || state.week <= (grp.promoUntil || 0)));
           const auto = idle ? KP.idolFocus(state, p) : null;
-          if (auto) notes.unshift('Between schedules she drills ' + KP.C.TALENT_LABELS[auto.domain].toLowerCase() +
-            ' on her own. After a debut, everyone knows the gap — including her.');
-          else if (idle) notes.unshift('Her coaches have little left to teach. What remains now is stages.');
+          if (auto) notes.unshift('Between schedules {she} drills ' + KP.C.TALENT_LABELS[auto.domain].toLowerCase() +
+            ' on {pos} own. After a debut, everyone knows the gap — including {her}.');
+          else if (idle) notes.unshift('{Pos} coaches have little left to teach. What remains now is stages.');
         }
         if (notes.length) {
           html.push('<div class="kicker">Staff observations</div>');
-          notes.forEach(n => html.push('<div class="note">' + UI.esc(n) + '</div>'));
+          notes.forEach(n => html.push('<div class="note">' + UI.esc(KP.fillPro(n, p)) + '</div>'));
         }
       }
       return html.join('');
@@ -320,7 +320,7 @@
       const inGroup = !!KP.groupOf(state, p.id);
       html.push('<div class="pad" style="margin-top:18px">' +
         '<button class="btn danger small" data-action="release" data-id="' + p.id + '"' + (inGroup ? ' disabled' : '') + '>Release from contract</button>' +
-        (inGroup ? '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">She is in a lineup.</div>' : '') +
+        (inGroup ? '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">' + KP.fillPro('{She} is in a lineup.', p) + '</div>' : '') +
         '</div>');
     }
     return html.join('');
@@ -330,12 +330,12 @@
     const d = KP.derived(p);
     const notes = [];
     if (p.liveExp >= 15) {
-      if (d.stagePresence >= 68) notes.push('On stage she becomes larger than the practice room ever suggested. Presence is real, and it is hers.');
-      else if (d.stagePresence <= 38) notes.push('The stage still shrinks her. More live reps, or the right concept, may change that.');
+      if (d.stagePresence >= 68) notes.push('On stage {she} becomes larger than the practice room ever suggested. Presence is real, and it is {hers}.');
+      else if (d.stagePresence <= 38) notes.push('The stage still shrinks {her}. More live reps, or the right concept, may change that.');
     }
-    if (d.leadership >= 66) notes.push('Staff and trainees both drift toward her when something needs deciding. Leadership is emerging on its own.');
-    if (d.liveReliability >= 68) notes.push('Whatever else happens, she delivers live. The broadcast staff love her.');
-    if (p.mediaExp >= 12 && d.varietySkill >= 62) notes.push('Cameras and interviews come easily. Variety would take her tomorrow.');
+    if (d.leadership >= 66) notes.push('Staff and trainees both drift toward {her} when something needs deciding. Leadership is emerging on its own.');
+    if (d.liveReliability >= 68) notes.push('Whatever else happens, {she} delivers live. The broadcast staff love {her}.');
+    if (p.mediaExp >= 12 && d.varietySkill >= 62) notes.push('Cameras and interviews come easily. Variety would take {her} tomorrow.');
     if (p.flags.privateNote) notes.push('Has a life outside the building. It has not been a work matter, and it is not our business unless it becomes one.');
     return notes;
   }

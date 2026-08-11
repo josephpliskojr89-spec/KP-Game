@@ -41,13 +41,14 @@
 
   KP.discourseHeadline = function (state, d) {
     const who = subjectName(state, d);
+    const p = d.subjectType === 'idol' ? (state.people[d.subjectId] || null) : null;
     switch (d.kind) {
       case 'exhausted': return 'Fans are worried: “' + who + ' looks exhausted.” Clips of tired stages are being compared side by side.';
       case 'dating': return 'A tabloid ran blurry café photos and invented a story about ' + who + '. It is false. It is also everywhere.';
       case 'styling': return 'The styling discourse found ' + who + ' — the outfits are being roasted, the stylist is being subpoenaed by the group chat.';
       case 'encore': return 'A shaky encore clip of ' + who + ' is making the rounds. The tone is split between concern and cruelty.';
       case 'benched': return who + ' being pulled from the schedule set off a wave of health-worry posts aimed at the company.';
-      case 'fancam': return 'A ' + who + ' fancam is having a MOMENT. The algorithm has chosen her, and the window is open.';
+      case 'fancam': return KP.fillPro('A ' + who + ' fancam is having a MOMENT. The algorithm has chosen {her}, and the window is open.', p);
       case 'gaffe': return who + ' posted something at 2am that reads very differently in daylight — a caption, a like, a reply. Screenshots outlive deletions, and the quote-posts are rolling in.';
       default: return 'Something about ' + who + ' is trending.';
     }
@@ -221,14 +222,14 @@
         apology: 'The apology conceded the point cleanly. It costs a little pride and a little shine — and it closed the story.',
         legal: 'Legal’s letter landed quietly and the accounts that mattered deleted. The rumor died the boring death it deserved.',
         meme: 'The company account leaned all the way in. The joke landed, the quote tweets flipped, and the algorithm rewarded shamelessness.',
-        livestream: who + ' went live for two hours — no script, mostly snacks. You cannot stay mad at a person who shows you her dog.',
+        livestream: KP.fillPro(who + ' went live for two hours — no script, mostly snacks. You cannot stay mad at a person who shows you {pos} dog.', p),
       }[action];
       feedText = {
         statement: 'okay the ' + state.company.short + ' statement was actually… fine? direct? growth',
         apology: 'they APOLOGIZED apologized. no lawyer voice. noted and respected',
         legal: 'the ' + who + ' rumor accounts went quiet overnight. good riddance',
         meme: state.company.short + '’s admin posting the meme themselves. a coward would have issued a statement. legends',
-        livestream: who + ' live for two hours and now I physically cannot be mad about anything. she showed the DOG',
+        livestream: KP.fillPro(who + ' live for two hours and now I physically cannot be mad about anything. {she} showed the DOG', p),
       }[action];
     } else {
       outcome = 'miss';
@@ -245,7 +246,7 @@
         apology: 'that apology apologized for the WEATHER. address the actual thing next time',
         legal: 'lawyering up over THAT? interesting choice. interesting…',
         meme: 'the admin tried to be funny and I need them to log off immediately. immediately',
-        livestream: 'she went live and she is clearly exhausted, this made it worse actually. let her SLEEP',
+        livestream: KP.fillPro('{she} went live and {she} is clearly exhausted, this made it worse actually. let {her} SLEEP', p),
       }[action];
     }
 
