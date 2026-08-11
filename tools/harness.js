@@ -75,6 +75,11 @@ const BANDS = {
   ambitionMet:       { lo: 0.05, hi: 1.00, label: 'worlds where somebody got the thing she always wanted' },
   peopleFelt:        { lo: 0.95, hi: 1.00, label: 'orgs where the people were felt weekly (person-moments most weeks)' },
   soloCredit:        { lo: 0.50, hi: 1.00, label: 'orgs that put a member\'s first solo on a record' },
+  doorKnocked:       { lo: 0.60, hi: 1.00, label: 'orgs where an idol knocked on the office door' },
+  askPromiseKept:    { lo: 0.05, hi: 1.00, label: 'orgs that kept a promise made across the desk to an idol' },
+  momentChoiceSeen:  { lo: 0.10, hi: 1.00, label: 'orgs where a person-moment put the call on the desk' },
+  // floor 0 by ruling (competent bot answers every knock — see quietWeek)
+  doorLeftWaiting:   { lo: 0.00, hi: 0.60, label: 'orgs that left somebody waiting at the door' },
   unitCredit:        { lo: 0.05, hi: 1.00, label: 'orgs that cut a unit track (full albums open the second slot)' },
   sleeperHeard:      { lo: 0.30, hi: 1.00, label: 'orgs where a b-side outgrew its record (the truthers organize)' },
   // floor 0 by ruling: going quiet needs morale under 38, and the bot
@@ -103,6 +108,7 @@ const tally = {
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
   soloCredit: 0, unitCredit: 0, sleeperHeard: 0,
+  doorKnocked: 0, askPromiseKept: 0, momentChoiceSeen: 0, doorLeftWaiting: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -133,6 +139,7 @@ for (let s = 0; s < SEEDS; s++) {
   let playerTop3 = false;
   let warAnnounceSeen = false, warAmbushSeen = false, warBattleSeen = false, warWonSeen = false;
   let personMomentWeeks = 0, quietWeekSeen = false;
+  let doorKnockSeen = false, momentChoiceWasSeen = false, doorWaitSeen = false;
   let tourSoldOutSeen = false, tourSoftSeen = false, awardSnubSeen = false;
   const fatigueTrace = [];   // weekly avg fatigue of debuted idols (v0.4.2)
 
@@ -227,17 +234,33 @@ for (let s = 0; s < SEEDS; s++) {
 
     // the Monday meeting (v0.7.1): the bot answers with its best read —
     // and promises comebacks like someone who knows their own calendar
-    if (KP.execScene(state)) {
-      const q = KP.execScene(state).q;
-      if (q.type === 'comebackPromise') {
-        const g = KP.groupById(state, q.groupId);
-        const reopens = g ? Math.max((g.promoUntil || 0) + KP.C.COMEBACK.restWeeks, g.tourRestUntil || 0) : state.week;
-        const canThisQuarter = reopens + 6 <= state.week + KP.C.MEETING.quarterWeeks;
-        KP.answerMeeting(state, canThisQuarter ? 0 : 1);
-      } else {
-        KP.answerMeeting(state, 0);
+    // the scenes desk (v0.8.2): the bot answers every held scene the way
+    // a decent boss would — exec reads its own calendar, idol asks get
+    // promised only when the bot's own play can plausibly deliver
+    (state.scenes || []).slice().forEach(sc => {
+      if (sc.kind === 'execQuestion') {
+        const q = sc.q;
+        if (q.type === 'comebackPromise') {
+          const g = KP.groupById(state, q.groupId);
+          const reopens = g ? Math.max((g.promoUntil || 0) + KP.C.COMEBACK.restWeeks, g.tourRestUntil || 0) : state.week;
+          const canThisQuarter = reopens + 6 <= state.week + KP.C.MEETING.quarterWeeks;
+          KP.answerMeeting(state, canThisQuarter ? 0 : 1);
+        } else {
+          KP.answerMeeting(state, 0);
+        }
+        return;
       }
-    }
+      if (sc.kind === 'idolAsk') {
+        const p = state.people[sc.personId];
+        const amb = p ? KP.ambitionOf(state, p) : 'trophy';
+        // solos come from the bot's own credit slots; trophies from its
+        // show wins — promise those, be honest about the rest
+        KP.resolveScene(state, sc.id, (amb === 'solo' || amb === 'trophy') ? 'promise' : 'honest');
+        return;
+      }
+      const def = KP.sceneDef(sc.kind);
+      if (def) KP.resolveScene(state, sc.id, def.options(state, sc)[0].id);
+    });
 
     // the touring desk (v0.6.8): when the calendar is open and the map
     // is warm, the bot takes the road — scale by fanbase, legs by warmth
@@ -335,6 +358,10 @@ for (let s = 0; s < SEEDS; s++) {
     // the people census (v0.7.4): the spotlight lands most weeks
     if (notes.some(n => n.moment)) personMomentWeeks++;
     if (notes.some(n => n.moment === 'quietWeek')) quietWeekSeen = true;
+    // the door census (v0.8.2)
+    if (notes.some(n => /asked for a minute of your time/.test(n.text))) doorKnockSeen = true;
+    if (notes.some(n => n.choice)) momentChoiceWasSeen = true;
+    if (notes.some(n => /stopped waiting|stopped asking for that minute/.test(n.text))) doorWaitSeen = true;
     if (!warAnnounceSeen && state.rivals.some(r => (r.acts || []).some(a => a.announcedWeek != null))) warAnnounceSeen = true;
     state.groups.forEach(g => {
       if (g.prep && g.prep.clash && !g.prep.clash.chosen) warAmbushSeen = true;
@@ -498,6 +525,10 @@ for (let s = 0; s < SEEDS; s++) {
   if (Object.values(state.people).some(p => p.flags && p.flags.ambitionMet)) tally.ambitionMet++;
   if (personMomentWeeks >= 140 * 0.7) tally.peopleFelt++;
   if (quietWeekSeen) tally.quietWeekCaught++;
+  if (doorKnockSeen) tally.doorKnocked++;
+  if ((state.claims || []).some(c => c.type === 'ambitionPromise' && c.resolved === 'met')) tally.askPromiseKept++;
+  if (momentChoiceWasSeen) tally.momentChoiceSeen++;
+  if (doorWaitSeen) tally.doorLeftWaiting++;
   // the tracklist census (v0.7.5)
   const allReleases = state.groups.flatMap(gg => gg.releases || []);
   const credits = allReleases.flatMap(r => (r.tracklist || []).filter(tk => tk.credit));

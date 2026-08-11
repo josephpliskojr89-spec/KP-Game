@@ -143,34 +143,173 @@
       } },
   ];
 
+  // ---- the choices (v0.8.2): some moments put the call on YOUR desk ----
+  // The critic's finding: a spotlight that provably never matters gets
+  // skimmed, and a skimmed person is an attribute set with better
+  // prose. The three moments that already carried effects now carry a
+  // decision instead — resolve it and the effect is yours; let it
+  // expire and the week resolves the old way without you.
+  const CHOICES = {
+    competitiveSting: {
+      options: [{ id: 'fuel', label: 'Let it fuel her' }, { id: 'coach', label: 'Send the vocal coach over' }],
+      resolve: (state, p, optionId) => {
+        const D = KP.C.DOOR;
+        if (optionId === 'coach') {
+          if (state.budget >= D.coachOverCost) state.budget -= D.coachOverCost;
+          p.morale = KP.clamp(p.morale + D.coachOverMorale, 0, 100);
+          KP.recordDirected(state, p.id, 'stingCoached', 1);
+          return { toast: 'The vocal coach "happened to be passing" the practice room at 11pm. They broke the rival stage down bar by bar until it stopped being a wound and became homework.' };
+        }
+        p.morale = KP.clamp(p.morale - 1, 0, 100);
+        KP.recordDirected(state, p.id, 'stingRespected', 1);
+        return { toast: 'You let her burn on it. Some engines run on exactly this fuel, and she is one of them — the notes she is taking nobody asked for are getting sharper.' };
+      },
+      expire: (state, p) => { p.morale = KP.clamp(p.morale - 1, 0, 100); },
+    },
+    warmthGlue: {
+      options: [{ id: 'quiet', label: 'Let her handle it her way' }, { id: 'shuffle', label: 'Make it official — reshuffle the rooms' }],
+      resolve: (state, p, optionId) => {
+        const g = KP.groupOf(state, p.id);
+        const applyGlue = () => {
+          if (!g) return;
+          const pair = KP.frictionPairs(state, g.members).find(f => f.state === 'tense' || f.state === 'conflict');
+          if (pair) {
+            const rel = (state.relationships || {})[KP.pairKey(pair.a, pair.b)];
+            if (rel) rel.score = KP.clamp(rel.score + 2, -100, 100);
+          }
+        };
+        if (optionId === 'shuffle' && g) {
+          const r = KP.shuffleRooms(state, g.id);
+          if (!r.ok) { applyGlue(); KP.recordDirected(state, p.id, 'glueSeen', 1);
+            return { toast: r.reason + ' Her food-run diplomacy carries the week instead — and you saw it.' }; }
+          applyGlue();
+          KP.recordDirected(state, p.id, 'glueSeen', 1);
+          return { toast: 'The room chart changed the same week she was quietly fixing things by hand. Between her food runs and your furniture, the cold air is losing.' };
+        }
+        applyGlue();
+        KP.recordDirected(state, p.id, 'glueSeen', 1);
+        return { toast: 'You let her work. The staff know exactly who is holding that room together, and now the file says you know too.' };
+      },
+      expire: (state, p) => {
+        const g = KP.groupOf(state, p.id);
+        if (!g) return;
+        const pair = KP.frictionPairs(state, g.members).find(f => f.state === 'tense' || f.state === 'conflict');
+        if (pair) {
+          const rel = (state.relationships || {})[KP.pairKey(pair.a, pair.b)];
+          if (rel) rel.score = KP.clamp(rel.score + 2, -100, 100);
+        }
+      },
+    },
+    leaderCarry: {
+      options: [{ id: 'restday', label: 'Give the leader a rest day too' }, { id: 'file', label: 'Put it in her file' }],
+      resolve: (state, p, optionId) => {
+        const D = KP.C.DOOR;
+        if (optionId === 'restday') {
+          if (state.budget >= D.restDayCost) state.budget -= D.restDayCost;
+          p.fatigue = KP.clamp(p.fatigue + D.restDayFatigue, 0, 100);
+          KP.recordDirected(state, p.id, 'carrySeen', 2);
+          return { toast: 'Somebody rearranged the van seating so SHE gets the window this time. She pretended not to notice who ordered it. She noticed.' };
+        }
+        KP.recordDirected(state, p.id, 'carrySeen', 1);
+        p.history.push({ week: state.week, text: 'Carried the group through a tired week. The company put it on the record.' });
+        return { toast: 'It went in her file, in writing, where renewal negotiations live. Invisible work stops being invisible the day someone writes it down.' };
+      },
+      expire: () => {},
+    },
+  };
+
+  KP.registerScene('momentChoice', {
+    title: (state, sc) => {
+      const p = state.people[sc.personId];
+      return (p ? KP.displayName(p) : 'She') + ' · this week';
+    },
+    body: (state, sc) => {
+      const p = state.people[sc.personId];
+      const m = MOMENTS.find(x => x.key === sc.momentKey);
+      return p && m ? m.text(state, p) + ' The call is yours.' : '';
+    },
+    options: (state, sc) => CHOICES[sc.momentKey].options,
+    resolve: (state, sc, optionId) => {
+      const p = state.people[sc.personId];
+      return p ? CHOICES[sc.momentKey].resolve(state, p, optionId) : {};
+    },
+    expire: (state, sc) => {
+      const p = state.people[sc.personId];
+      if (!p) return null;
+      CHOICES[sc.momentKey].expire(state, p);
+      return { kind: 'development', moment: sc.momentKey, priority: 'normal', personId: p.id,
+        text: 'The week moved on before you weighed in — ' + KP.displayName(p) + '’s moment resolved itself the way these things do when the office stays quiet.' };
+    },
+  });
+
+  // ---- the pressure read (v0.8.2): the spotlight follows the fire -------
+  // Round-robin coverage was metronomic fairness; lives that are
+  // actually on fire kept waiting their turn. Score the roster by
+  // drama pressure and follow the top of it; the rota stays as the
+  // boredom fallback so quiet stretches still give everyone a week.
+  function pressureOf(state, p) {
+    let s = 0;
+    if (p.morale < 42) s += (42 - p.morale) / 6;
+    if (p.fatigue >= 58) s += (p.fatigue - 58) / 11;
+    const g = KP.groupOf(state, p.id);
+    if (g && g.results && g.results.battle && !g.results.battle.won &&
+        state.week - (g.lastReleaseWeek || 0) <= 4) s += 2;
+    if (p.status === 'idol' && !p.flags.ambitionMet && g && g.debuted &&
+        state.week - g.debutWeek >= 40) s += 1;
+    if (g && p.personality.warmth >= 68 &&
+        KP.frictionPairs(state, g.members).some(f => f.state === 'tense' || f.state === 'conflict')) s += 2;
+    return s;
+  }
+
   KP.registerWeekly('personhood', 856, function (state, rng, inbox, roster, groups) {
     if (!roster.length) return;
-    // the spotlight: hash-rotate through the roster, one or two a week
     const count = roster.length > 6 ? 2 : 1;
-    for (let k = 0; k < count; k++) {
-      const idx = (state.week * count + k) % roster.length;
-      const p = roster[idx];
-      if (!p || p.status === 'released') continue;
-      // quietWeek is not in the rotation — the staff scan below owns it
-      const ROT = MOMENTS.slice(1);
+    // pressure first: whoever's life is on fire, recent features excluded
+    const fresh = roster.filter(p => p && p.status !== 'released' &&
+      state.week - (p.flags.spotWeek || -99) >= 4);
+    const byPressure = fresh
+      .map(p => ({ p, s: pressureOf(state, p) }))
+      .filter(x => x.s >= 1.5)
+      .sort((a, b) => b.s - a.s ||
+        KP.hash01([state.seed, a.p.id, state.week].join('|')) - KP.hash01([state.seed, b.p.id, state.week].join('|')));
+    const picks = byPressure.slice(0, count).map(x => x.p);
+    // the rota fills the quiet weeks — everyone still gets her turn
+    for (let k = 0; picks.length < count && k < roster.length; k++) {
+      const p = roster[(state.week * count + k) % roster.length];
+      if (p && p.status !== 'released' && !picks.includes(p) &&
+          state.week - (p.flags.spotWeek || -99) >= 4) picks.push(p);
+    }
+    picks.forEach(p => {
+      p.flags.spotWeek = state.week;
+      const ROT = MOMENTS.slice(1);   // quietWeek belongs to the staff scan below
       const offset = Math.floor(KP.hash01([state.seed, p.id, state.week, 'moment'].join('|')) * ROT.length);
       for (let i = 0; i < ROT.length; i++) {
         const pick = ROT[(offset + i) % ROT.length];
         if (!pick.when(state, p)) continue;
+        // a moment with a CHOICE goes to the desk as a held scene — one
+        // at a time, so the desk never becomes a form to clear
+        if (CHOICES[pick.key] &&
+            !(state.scenes || []).some(sc => sc.kind === 'momentChoice')) {
+          KP.openScene(state, { kind: 'momentChoice', momentKey: pick.key,
+            personId: p.id, expiresWeek: state.week + 2 });
+          inbox.push({ kind: 'development', moment: pick.key, choice: true,
+            priority: 'high', personId: p.id,
+            text: pick.text(state, p) + ' The call is on the Desk.' });
+          break;
+        }
         if (pick.effect) pick.effect(state, p);
         // only debuted idols echo on the public timeline — a trainee's
         // week stays a desk note. Priority 'high': the spotlight IS the
-        // mandate ("feel their existence every single week") — at any
-        // lower priority a loud comeback week trims the person right
-        // back out of the game. Capped at one or two notes weekly by
-        // construction, so it cannot flood.
+        // mandate — at any lower priority a loud comeback week trims
+        // the person right back out of the game. Capped at 1–2 weekly
+        // by construction, so it cannot flood.
         inbox.push({ kind: 'development', moment: pick.key,
           ind: (pick.public && p.status === 'idol') ? 'personMoment' : undefined,
           priority: pick.priority || 'high', personId: p.id,
           text: pick.text(state, p) });
         break;
       }
-    }
+    });
 
     // going quiet is not a rotation event — the staff flag whoever is
     // doing worst, whoever the spotlight is on this week. One person

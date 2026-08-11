@@ -569,6 +569,17 @@
     });
   } });
 
+  // v0.8.2 — the office door opens. Nothing structural: the door
+  // reads state that already exists. The letter announces the era.
+  MIGRATIONS.push({ v: '0.8.2', fn: function (state) {
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The road manager mentions it in passing, like it is nothing: “The girls know your door opens now.” Expect knocks — a request, a confession, a challenge, and sooner or later the one they all rehearse: is there a plan for me? What you say goes on HER record, and she checks it the way the executive checks yours. Some of the weekly moments will put a call on your desk now too. The staff notes were always watching the roster. Now the roster watches back.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

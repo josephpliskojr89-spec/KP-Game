@@ -122,8 +122,19 @@ function runSpotlight(state) {
 }
 
 // ---- warmthGlue: the warm one quietly fixes a cold room ----
+// v0.8.2: glue normally puts a CHOICE on the desk (suite_042 owns that
+// path). Holding another choice open forces the classic fallback —
+// the week resolves itself, effect and all, exactly as before.
+function blockChoices(state) {
+  KP.openScene(state, { kind: 'momentChoice', momentKey: 'leaderCarry',
+    personId: state.roster[0], expiresWeek: state.week + 999 });
+}
+function freshSpots(state) {
+  state.roster.forEach(id => { state.people[id].flags.spotWeek = -99; });
+}
 {
   const { state, g } = debuted('people-glue');
+  blockChoices(state);
   state.roster.forEach(id => {
     const p = state.people[id];
     p.morale = 60; p.fatigue = 20; p.personality.warmth = 75;
@@ -134,6 +145,7 @@ function runSpotlight(state) {
   let glued = null;
   for (let w = 0; w < 40 && !glued; w++) {
     state.week++;
+    freshSpots(state);
     state.relationships[key].score = -20;          // re-arm each probe
     glued = runSpotlight(state).find(n => n.moment === 'warmthGlue');
   }
@@ -144,6 +156,7 @@ function runSpotlight(state) {
 // ---- competitiveSting: a lost battle sits badly, then stops sitting ----
 {
   const { state, g } = debuted('people-sting');
+  blockChoices(state);
   g.members.forEach(id => {
     const p = state.people[id];
     p.morale = 60; p.fatigue = 20; p.personality.competitiveness = 75;
@@ -156,6 +169,7 @@ function runSpotlight(state) {
   g.members.forEach(id => { before[id] = state.people[id].morale; });
   for (let w = 0; w < 4 && !sting; w++) {
     state.week++;
+    freshSpots(state);
     sting = runSpotlight(state).find(n => n.moment === 'competitiveSting');
   }
   t.ok(sting, 'losing the shared week gets rewatched');
@@ -165,6 +179,7 @@ function runSpotlight(state) {
   let late = null;
   for (let w = 0; w < 20 && !late; w++) {
     state.week++;
+    freshSpots(state);
     late = runSpotlight(state).find(n => n.moment === 'competitiveSting');
   }
   t.ok(!late, 'an old loss stops firing — the sting is about THIS week');

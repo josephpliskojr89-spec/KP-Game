@@ -1882,6 +1882,57 @@ new architecture; Audit II stands.
   ritual; each is playable and pushed the day it lands. Reorder on
   owner's word at any time — the plan serves the feel reports, not
   the other way around.
+- **Version labels are provisional past Phase B** (owner ruling,
+  post-plan): "let's watch the version numbers because I don't know
+  when we'll hit 1.0." Phase C ships under whatever number the line
+  has reached; 1.0 is DECLARED by the owner when the game earns it,
+  never reached by counting.
+
+## §40 The office door (v0.8.2) — the idols initiate
+
+> §37's unanimous #1, built on §38 rails. Owner: *"approved to get
+> started with 0.8.2."* For the first time, the people the player
+> manages can SEE the player: they knock, they ask, they remember
+> the answer, and they check the receipts.
+
+**The knock** (`officeDoor` phase, order 787): condition-gated,
+voice-true (seven per-voice openers — the blunt one is already
+sitting down; the gremlin has walked past your office four times),
+paced to stay memorable: one open idol scene at a time, ~5-week
+global cooldown, 16-week per-person cooldown, 55% weekly chance
+when someone is eligible. Four doors:
+- **The ASK** — the ambition meeting, once per career per person
+  ("she wants to know if there is a plan for her"). PROMISE mints an
+  `ambitionPromise` claim, subject:idol, 48-week window: delivered,
+  she thanks you for meaning it (+3 directed); missed, she uses her
+  minute for one sentence — "It has been a year since [date]" — and
+  it would be easier if she were angry (−4 directed, −6 morale).
+  HONEST is filed, not dropped (+1 directed, no claim). DEFLECT is
+  the smile they teach for music-show losses (−2 directed).
+- **The REQUEST** — running on fumes, she asks for a real week.
+  Grant: −14 fatigue, the van is quieter and everyone hates it.
+- **The CONFESSION** — the RESILIENT one struggling (the staff scan
+  catches the fragile; the tough ones knock). Lighten quietly /
+  coach talk / "the comeback needs her" — all remembered.
+- **The CHALLENGE** — confident + bad personal concept-fit: she can
+  name the exact bars where the lane fails her. Retool sends the
+  producers back in with her notes (demos regenerate); holding the
+  line is respected and filed.
+Silence: scenes expire in 3 weeks — she stops waiting, −2 directed,
+"she is fine. That word is doing a lot of work."
+
+**Persona teeth** (the critic's #6): the spotlight now follows
+DRAMA PRESSURE (low morale, high fatigue, fresh battle losses,
+starved ambitions, warm members near friction), 4-week per-person
+feature cooldown, rota as the boredom fallback. The three effect
+moments (sting / glue / leaderCarry) put a CHOICE on the desk (one
+at a time; 2-week expiry resolves the old way without you, on the
+record). "Presence, not power" is amended: presence WITH teeth.
+
+**Census**: knocks 40/40 orgs, promises kept 20/40 (real stakes),
+choices seen 38/40, leftWaiting floored 0 by the competent-bot
+ruling. suite_039 repointed at the classic fallback path (still
+live); suite_042 owns the choice path.
 
 ## §18 Watch items
 
@@ -2732,3 +2783,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > stack. Verified with a live-browser probe on all three reported
 > flows. Numbers: battery 41/41, e2e 89, lockstep 0.8.1. Rode to
 > main.
+\n
+> **v0.8.2 — the office door** (owner: *"approved to get started
+> with 0.8.2"* on the §39 map; §37's unanimous #1)
+> Full spec in §40. The idols initiate: four condition-gated,
+> voice-true doors (ask / request / confession / challenge) on §38
+> rails, paced to stay memorable; the ambition ask mints a
+> subject:idol claim she checks — kept promises thank you for
+> meaning it, broken ones quote the date back; every answer and
+> every silence writes the directed-acts ledger. Persona teeth: the
+> spotlight follows drama pressure with the rota as fallback, and
+> sting/glue/leaderCarry put a real choice on the desk with an
+> expire-to-classic fallback. Doctrine amended: presence WITH teeth.
+> suite_039 repointed at the fallback path; suite_042 (49
+> assertions) owns the door. Census: knocks 40/40, promises kept
+> 20/40, choices 38/40. Numbers: battery 42/42, soak clean, e2e 89,
+> lockstep 0.8.2 (42 modules). Rode to main.

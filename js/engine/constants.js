@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.8.1',
+    VERSION: '0.8.2',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -819,6 +819,25 @@
       maxResolvedClaims: 10,     // settled promises kept for the record
       directedCap: 40,           // per-person ledger of what YOU did
       directedHalfLifeWeeks: 48, // kindnesses fade, wounds heal — slowly
+    },
+    // ---- The office door (v0.8.2) — idols initiate ----------------------
+    DOOR: {
+      globalCooldownWeeks: 5,    // at most one knock every ~5 weeks — memorable, not inbox
+      personCooldownWeeks: 16,   // she does not knock twice a season
+      expireWeeks: 3,            // how long she waits for an answer
+      knockChance: 0.55,         // weekly, when someone is eligible and the door is quiet
+      askAfterWeeks: 30,         // ambition unmet this long past debut → she asks
+      askPromiseWeeks: 48,       // "within the year" — the claim window
+      promiseMorale: 6,          // a plan means everything
+      deflectMorale: -3,
+      expireMorale: -2,          // waiting and hearing nothing
+      breatherFatigue: -14,      // the granted rest week actually rests
+      breatherCost: 5,           // the schedule shuffle has a price
+      coachTalkMorale: 4,
+      pushThroughMorale: -3,
+      // moment-choice scenes (persona teeth): small, honest effects
+      restDayFatigue: -8, restDayCost: 3,
+      coachOverCost: 2, coachOverMorale: 3,
     },
     MEETING: {
       everyWeeks: 10,            // the Monday meeting cadence
