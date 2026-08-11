@@ -530,7 +530,9 @@
 
     // fall: a starved company folds (never below the floor — the scene survives)
     if (rivals.length > I.minRivals && rng.chance(I.collapseChance)) {
-      const starved = rivals.find(r => r.prestige < I.collapsePrestige && !(r.acts || []).some(a => !a.retired));
+      // the founder's old house never quietly exits the story (v0.9.9)
+      const starved = rivals.find(r => !r.founderGrudge &&
+        r.prestige < I.collapsePrestige && !(r.acts || []).some(a => !a.retired));
       if (starved) {
         (starved.acts || []).forEach(a => { a.retired = true; });
         state.rivals = rivals.filter(r => r !== starved);
@@ -541,8 +543,10 @@
     }
 
     // merge: two struggling companies pool what is left
-    if ((state.rivals || []).length >= 4 && rng.chance(I.mergeChance)) {
-      const sorted = state.rivals.slice().sort((a, b) => a.prestige - b.prestige);
+    if ((state.rivals || []).length >= 4 && rng.chance(I.mergeChance) &&
+        state.rivals.filter(r => !r.founderGrudge).length >= 2) {
+      const sorted = state.rivals.slice().filter(r => !r.founderGrudge)
+        .sort((a, b) => a.prestige - b.prestige);
       const b = sorted[0], a = sorted[1];
       const named = KP.genCompanyName(rng, usedCompanyShorts(state));
       const merged = {

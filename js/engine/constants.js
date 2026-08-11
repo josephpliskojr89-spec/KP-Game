@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.8.3',
+    VERSION: '0.9.9',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -823,6 +823,24 @@
       acclaimTrust: 2,
       shiftPop: 8, shiftFandomGain: 8,
       flopMorale: 3,
+    },
+
+    // ---- The founding (v0.9.9, Phase C opens) ---------------------------
+    // Owner: "I'm not the CEO, I work below them... option, after your
+    // reputation is high enough, to leave and start your own label.
+    // completely fresh start, going up against what you built."
+    FOUNDING: {
+      trustAt: 70,             // the exec must trust you this much to make leaving mean something
+      minYears: 2,             // nobody funds a rookie A&R's label
+      seedBase: 60,            // what any credible founder raises
+      seedPerDaesang: 50,      // the war chest is your career, liquidated
+      seedPerBonsang: 15,
+      seedPerNatOne: 25,
+      seedPerTrophy: 1.5,
+      seedPerYear: 6,
+      seedCap: 320,
+      newTrust: 55,            // investors believe in you — provisionally
+      deadlineWeeks: 72,       // prove it again: first debut inside 18 months
     },
 
     // ---- The constituency (v0.9.6) — the fandom acts on YOUR decisions --

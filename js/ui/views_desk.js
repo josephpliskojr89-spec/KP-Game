@@ -110,6 +110,32 @@
         '</div>');
     }
 
+    // the founding (v0.9.9): the door out — shown once the career could
+    // plausibly open it, locked with honest reasons until it does
+    if (!state.founded && KP.foundingEligible) {
+      const gate = KP.foundingEligible(state);
+      const worth = gate.ok || (gate.honors && gate.honors.years >= KP.C.FOUNDING.minYears &&
+        KP.groups(state).some(g => g.debuted));
+      if (worth) {
+        if (gate.ok) {
+          html.push('<div class="kicker" style="margin-top:18px">The door</div>');
+          html.push('<div class="war-card held"><div class="w-flag">Your name is worth money now</div>' +
+            '<div class="w-text">Investors will back a label with you on the letterhead: a war chest of <b>' + gate.warChest + '</b>, raised on ' +
+            (gate.honors.daesangs ? gate.honors.daesangs + ' daesang' + (gate.honors.daesangs > 1 ? 's' : '') + ', ' : '') +
+            (gate.honors.bonsangs ? gate.honors.bonsangs + ' bonsang' + (gate.honors.bonsangs > 1 ? 's' : '') + ', ' : '') +
+            gate.honors.trophies + ' trophies and ' + gate.honors.years + ' years of your work. Walk, and everything you built stays behind — as the competition. This is not reversible.</div>' +
+            '<div style="display:flex;gap:6px;margin-top:10px">' +
+            '<input id="label-name-input" maxlength="14" placeholder="Name the label…" value="' + UI.esc((KP.App || {}).labelName || '') + '" ' +
+            'style="flex:1;background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:6px 10px;font-size:.85rem">' +
+            '<button class="btn primary" data-action="found-label">Sign the papers</button></div></div>');
+        } else {
+          html.push('<div class="kicker" style="margin-top:18px">The door</div>');
+          html.push('<div class="card" style="color:var(--ink-dim);font-size:.8rem;line-height:1.5">There is a version of your career where you leave and start your own label. Not yet: ' +
+            UI.esc(gate.reasons[0]) + '</div>');
+        }
+      }
+    }
+
     // inbox
     html.push('<div class="kicker">Inbox</div>');
     if (!state.inbox.length) {

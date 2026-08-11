@@ -138,6 +138,9 @@
       App.trackRenames = App.trackRenames || {};
       App.trackRenames[e.target.dataset.n] = e.target.value;
     }
+    if (e.target.id === 'label-name-input') {
+      App.labelName = e.target.value;
+    }
   });
 
   document.addEventListener('click', (e) => {
@@ -636,6 +639,24 @@
         break;
       }
       case 'studio-week': App.studioDraft.week = parseInt(t.dataset.week, 10); App.render(); break;
+      case 'found-label': {
+        const nm = (App.labelName || '').trim();
+        if (!nm) { UI.toast('Name the label first. It goes on a building.', true); break; }
+        if (!App.foundArmed) {
+          App.foundArmed = true;
+          UI.toast('Tap again to sign. Everything you built stays behind — as the competition.', true);
+          setTimeout(() => { App.foundArmed = false; }, 6000);
+          break;
+        }
+        App.foundArmed = false;
+        const r = KP.foundLabel(s, nm);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.labelName = '';
+        App.save();
+        UI.toast(nm + ' exists. War chest: ' + r.warChest + '. Eighteen months.');
+        App.render();
+        break;
+      }
       case 'rename-track': {
         const val = (App.trackRenames || {})[t.dataset.n] || '';
         const r = KP.renameTrack(s, t.dataset.id, t.dataset.n, val);

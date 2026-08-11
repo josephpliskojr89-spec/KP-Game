@@ -8,7 +8,7 @@ const vm = require('vm');
 const ENGINE_FILES = [
   'constants.js', 'kernel.js', 'rng.js', 'data.js', 'person.js', 'blurbs.js',
   'development.js', 'relationships.js', 'scouting.js', 'songs.js',
-  'group.js', 'debut.js', 'events.js', 'career.js', 'gen.js', 'memory.js', 'social.js', 'discourse.js', 'industry.js', 'calendar.js', 'shows.js', 'regions.js', 'tour.js', 'fandom.js', 'deals.js', 'awards.js', 'life.js', 'scenes.js', 'meeting.js', 'persona.js', 'door.js', 'scars.js', 'staff.js', 'contracts.js', 'society.js', 'year.js', 'constituency.js', 'credits.js', 'tracks.js', 'sim.js', 'newgame.js', 'save.js',
+  'group.js', 'debut.js', 'events.js', 'career.js', 'gen.js', 'memory.js', 'social.js', 'discourse.js', 'industry.js', 'calendar.js', 'shows.js', 'regions.js', 'tour.js', 'fandom.js', 'deals.js', 'awards.js', 'life.js', 'scenes.js', 'meeting.js', 'persona.js', 'door.js', 'scars.js', 'staff.js', 'contracts.js', 'society.js', 'year.js', 'constituency.js', 'credits.js', 'founding.js', 'tracks.js', 'sim.js', 'newgame.js', 'save.js',
 ];
 
 function loadEngine() {

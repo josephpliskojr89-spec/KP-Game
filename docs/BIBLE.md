@@ -2373,6 +2373,50 @@ head-to-head" is now impossible as a typical career), peakDenied
 chartTopTen and playerTopThree stay 40/40: great careers still reach
 the summit; they just stop living there rent-free.
 
+## §50 The founding (v0.9.9) — Phase C opens
+
+Owner: *"I'm not the CEO, I work below them. how about an option,
+after your reputation is high enough, to leave and start your own
+label? completely fresh start, going up against what you built.
+would require cash and rep."* The player's career was always the
+one career the game didn't simulate. Now it is.
+
+**The door** (`KP.foundingEligible`): exec trust ≥70 (the trust IS
+the collateral — investors call her first), ≥2 full years served, at
+least one real honor (award or national #1), and at least one debut
+to your name. Shown on the Desk once the career could plausibly open
+it — locked with the honest reason until it does.
+
+**The war chest**: your career, liquidated. `seedBase` 60 +50/daesang
++15/bonsang +25/national-#1 +1.5/trophy +6/year, capped 320. It is
+the new label's entire opening budget.
+
+**The walk** (`KP.foundLabel(state, name)` — typed name, double-tap
+confirm, irreversible, once per save):
+- The old company becomes a RIVAL: prestige from your honors,
+  `founderGrudge: true` (protected from lifecycle fold/merge — the
+  founder's old house never quietly exits the story), and every
+  debuted group converted to a rival act — same name, same members,
+  same popularity, discography carried, trophies as showWins.
+- The people stay people: files forever, status `rival`, contracts
+  void, and a history line each — those with real standing "kept the
+  door pass as a bookmark."
+- The world keeps its book: group narratives retarget to the rival
+  acts; company narratives drop (that reputation belonged to the old
+  house); chart entries de-flagged; scenes/claims/deals/grievances/
+  ghosts settle or clear.
+- The fresh start: typed letterhead, new hash-picked executive,
+  trust 55, fresh fiscal/staff/board, a regenerated scouting board
+  (the scene knows your name now), and the founding objective:
+  first debut inside 18 months. The world clock never stops.
+- The fight: the flagship system (§49) means your old group — now
+  the legacy's flagship — pursues and punches at YOUR new ceiling.
+  Going up against what you built is mechanical, not flavor.
+
+**§39 Phase C amendment**: Phase C ("Careers Entire") opens with the
+founding — the player's own career entire. Remaining: variety
+careers, hiatus & returns, the deep map, the wardrobe department.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3546,3 +3590,23 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > ate itself / it worked") so the answer sits where the question
 > does. Battery 50/50, soak clean, e2e 90, lockstep 0.9.8.3. Rode
 > to main.
+\n
+> **v0.9.9 — the founding** (owner: *"I'm not the CEO, I work below
+> them... leave and start your own label. completely fresh start,
+> going up against what you built. would require cash and rep"* —
+> Phase C opens)
+> Full spec in §50. The Desk grows a door: trust ≥70, two years
+> served, an honor on the pitch deck — and a war chest liquidated
+> from your daesangs, bonsangs, national #1s, trophies, and years.
+> Walking through it converts the company you built into a rival
+> (founderGrudge — protected from the lifecycle, hunted by the §49
+> flagship physics), your groups into its acts with everything they
+> earned, your idols into its idols (files forever, the ones with
+> standing keep the door pass as a bookmark), and hands you a typed
+> letterhead, a new investor, a fresh board, and eighteen months to
+> prove it was you all along. The world clock never stops. New
+> module founding.js (50 total). One lifecycle guard added: the
+> founder's old house never quietly folds or merges out of the
+> story. Numbers: battery 51/51 (suite 051, 32 assertions — the
+> whole second act ridden 80 weeks + a new debut), soak clean, e2e
+> 90, lockstep 0.9.9 (50 modules). Rode to main. Phase C is open.
