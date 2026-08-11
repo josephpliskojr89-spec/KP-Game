@@ -107,6 +107,7 @@ function debuted(seed) {
   while (KP.freeTrainees(state).length < 4) {
     const pid = state.prospects[0];
     state.people[pid].status = 'trainee';
+    state.people[pid].gender = 'f';   // one hall — this suite tests memory, not gender
     state.people[pid].training = { focus: [], intensity: 'standard' };
     state.roster.push(pid);
     state.prospects.shift();

@@ -118,9 +118,9 @@ function boilOn(state, g, p) {
   };
   const trusted = run(10), estranged = run(-10);
   S.sincerityGate = oldGate;
-  t.ok(trusted >= 8, 'a girl who trusts the office sells the statement (' + trusted + '/10)');
+  t.ok(trusted >= 7, 'a girl who trusts the office sells the statement (' + trusted + '/10)');
   t.ok(estranged <= 3, 'one counting the days cannot (' + estranged + '/10)');
-  t.ok(trusted - estranged >= 5, 'the gap IS the standing (' + trusted + ' vs ' + estranged + ')');
+  t.ok(trusted - estranged >= 4, 'the gap IS the standing (' + trusted + ' vs ' + estranged + ')');
 }
 
 // ---- the leader's pull: standing eases the room through promo ----

@@ -104,7 +104,7 @@
           state.prospects = state.prospects.filter(id => id !== pid);
           state.rivals.forEach(r => { delete r.interest[pid]; });
           rival.rosterCount = (rival.rosterCount || 0) + 1;
-          notes.push({ kind: 'scouting', urgent: true, text: rival.short + ' signed ' + KP.displayName(p) + '. She is off the board' + (hungry ? ' — and probably in their debut lineup' : '') + '.' });
+          notes.push({ kind: 'scouting', urgent: true, text: KP.fillPro(rival.short + ' signed ' + KP.displayName(p) + '. {She} is off the board' + (hungry ? ' — and probably in their debut lineup' : '') + '.', p) });
           // the scouts keep score (v0.6.1): enough poaches become a name
           rival.poachCount = (rival.poachCount || 0) + 1;
           if (rival.poachCount >= KP.C.MEMORY.poachAt) {

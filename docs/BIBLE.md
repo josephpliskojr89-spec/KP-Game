@@ -1970,6 +1970,54 @@ practice-room live, +2 morale, social spikes, and the §23 memory
 system's stories retold on schedule. The timeline shows up for it
 (three-voice feed reaction). 40/40 soak orgs celebrated one.
 
+## §42 The building, the boys, and the company's own names (v0.8.4)
+
+> Phase A closes, plus two owner adds: *"0.8.4. also, let's find a way
+> to get boy groups in here, and I'd like the option to name my groups
+> and songs myself, along with the generated options."*
+
+**The building** (`staff.js`): every debuted group gets a NAMED road
+manager (hash-stable) who commits the van seating chart and coffee
+orders to memory within two days; rivals poach the good ones off hot
+groups (counter-offer scene: pay 25 or say goodbye — leaving costs
+the members morale and the seating chart starts from zero; ignoring
+the window loses her to the group chat). The head vocal coach has a
+name. The exec has TASTE (hash-derived favorite concept): her kind
+of hit earns the un-hidden smile and +1 trust; other wins get "good
+result" in the tone of someone whose favorite genre this is not.
+BOARD SEASON yearly (week 46): own the slow build / promise growth
+(a claim with a number, read back aloud in one year) / point at the
+artists. The PET PROJECT, once per career: a solo debut inside the
+year, hers personally — delivered, the favor is banked permanently.
+New exec question: the second lineup, with a claim. The quietWeek
+staff scan now carries the manager's byline.
+
+**Boy groups**: gender at generation; male given-name and stage-name
+pools; the opening board leans female (25% male — the mandate is a
+girl group) with weekly leads closer to even (35%); ONE GROUP, ONE
+GENDER (proposeGroup law, "the exec was very clear"); rival acts
+gendered too (35% boy acts), cast around their best signees' gender.
+THE PROSE: ~370 pronoun placeholders across 15 files on a fillPro
+kit ({she}/{her}/{pos}/{hers}/{herself}/{girl} + capitals) — female
+output byte-identical to before, male output grammatically reviewed;
+verified by a full boy-group-career scan: 0 strays, 0 unresolved
+placeholders across every note, scene body, option, and toast.
+Two conversion agents ran the bulk; strays they flagged (scouting,
+social, standingOf) fixed in integration.
+
+**Naming rights**: free-text group names in the builder (typed name
+beats the marketing team's chips) and record-title renaming at the
+studio before lock (`KP.renameDemo`, uniqueness-checked against
+every discography — the archive keeps receipts).
+
+**Rulings on the way through**: solo/unit credit notes promoted to
+priority-high (career events — the milestone precedent); exec-taste
+notes high (the exec speaking about a release is executive news);
+soloDebuts census ceiling 0.60→0.75 (the pet project now DEMANDS
+solos by design — 39/40 careers get assigned one). Census: boys
+signed 33/40, boy second acts 10/40, managers named 40/40, board
+faced 40/40.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2866,3 +2914,22 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > devoted (adopted accounts with their since-dates), and the
 > home-crowd slice of the timeline. e2e updated to walk the tabs
 > (now 90 checks); all surfaces browser-probed. Rode to main.
+\n
+> **v0.8.4 — the building, the boys, and the company's own names**
+> (owner: *"0.8.4. also, let's find a way to get boy groups in here,
+> and I'd like the option to name my groups and songs myself"*)
+> Full spec in §42. Phase A closes: named poachable road managers,
+> the coach on the record, exec taste, board season with growth
+> claims, the once-per-career pet project, the second-lineup
+> question. Boy groups end-to-end: gendered generation, male name
+> pools, one-group-one-gender, gendered rival acts cast around
+> their signees, and the ~370-placeholder pronoun conversion
+> (fillPro kit; female output byte-identical, male career scanned
+> clean — 0 strays). Naming rights: typed group names and record
+> titles with uniqueness receipts. Fixture-luck repairs from the
+> stream shift (rd-soft show wins, rr-steal mixed steal, mixed-room
+> suites pinned to one hall) and two latent id-claim fixture bugs
+> found by the male scan. Numbers: battery 44/44 (suite 044, 40
+> assertions), soak clean (boys 33/40, boy acts 10/40, managers
+> 40/40, board 40/40, pet 39/40), e2e 90, lockstep 0.8.4 (44
+> modules). Rode to main.

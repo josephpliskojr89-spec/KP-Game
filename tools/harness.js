@@ -30,7 +30,10 @@ const BANDS = {
   fiscalNoticed:     { lo: 0.00, hi: 0.85, label: 'orgs whose books got noticed (mature economies stay solvent)' },
   hypeSeen:          { lo: 0.30, hi: 1.00, label: 'orgs where the internet found someone' },
   directiveFired:    { lo: 0.02, hi: 0.80, label: 'orgs that drew a hype directive' },
-  soloDebuts:        { lo: 0.02, hi: 0.60, label: 'orgs that debuted a solo act' },
+  // ceiling raised 0.60→0.75 in v0.8.4: the executive pet project now
+  // DEMANDS a solo debut in most careers (39/40 assigned) — more solos
+  // is the designed consequence, not drift
+  soloDebuts:        { lo: 0.02, hi: 0.75, label: 'orgs that debuted a solo act' },
   fiscalWarned:      { lo: 0.00, hi: 0.35, label: 'orgs warned at trust-hitting level (2+)' },
   idolsRested:       { lo: 0.50, hi: 1.00, label: 'orgs whose idol weeks average off the fumes (<70, rolling)' },
   overworkSeen:      { lo: 0.05, hi: 1.00, label: 'orgs where medical staff benched somebody' },

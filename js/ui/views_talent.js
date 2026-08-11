@@ -67,7 +67,8 @@
     return '<div class="talent-row">' +
       '<div data-action="open-dossier" data-id="' + p.id + '">' + UI.portrait(p, 'md') + '</div>' +
       '<div class="t-body" data-action="open-dossier" data-id="' + p.id + '">' +
-      '<div class="t-name">' + UI.esc(p.name.display) + '</div>' +
+      '<div class="t-name">' + UI.esc(p.name.display) +
+      (p.gender === 'm' ? ' <span class="chip" style="font-size:.6rem;vertical-align:middle">boy</span>' : '') + '</div>' +
       '<div class="t-sub">' + p.age + ' · ' + UI.esc(p.source) + ' · ' + looksWord(p) + '</div>' +
       '<div class="t-read">“' + UI.esc(best.line) + '”</div>' +
       '<div class="t-chips">' + UI.heatChips(state, p.id) + '</div>' +

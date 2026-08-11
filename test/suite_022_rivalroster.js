@@ -36,6 +36,7 @@ const t = makeT('suite_022_rivalroster');
   const stolen = state.prospects.slice(0, 2).map(id => state.people[id]);
   stolen.forEach(p => {
     p.status = 'rival'; p.company = rival.short;
+    p.gender = 'f';   // one group, one gender (v0.8.4): the fixture steals from one hall
     p.talents.vocals.cur = 90;
     state.prospects = state.prospects.filter(id => id !== p.id);
     rival.rosterCount = (rival.rosterCount || 0) + 1;

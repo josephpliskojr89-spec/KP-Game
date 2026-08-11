@@ -13,6 +13,8 @@ function debutFirstGroup(seed) {
   const scout = KP.DATA.evaluators[2];
   state.budget = 400;
   for (let i = 0; i < 3; i++) KP.signProspect(state, state.prospects[0]);
+  // this suite tests multigroup mechanics, not gender — one hall only
+  state.roster.forEach(id => { state.people[id].gender = 'f'; });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'FIRSTLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];

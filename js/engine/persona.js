@@ -328,7 +328,12 @@
     if (flagged) {
       flagged.flags.quietFlagged = state.week;
       inbox.push({ kind: 'development', moment: 'quietWeek', priority: 'high',
-        personId: flagged.id, text: quiet.text(state, flagged) });
+        personId: flagged.id, text: quiet.text(state, flagged) +
+          (function () {   // the byline (v0.8.4): "the staff" have names now
+            const g2 = KP.groupOf(state, flagged.id);
+            const mgr = g2 && KP.managerOf && KP.managerOf(state, g2);
+            return mgr ? ' — flagged by ' + mgr.name + ', who notices these things first.' : '';
+          })() });
     }
   });
 

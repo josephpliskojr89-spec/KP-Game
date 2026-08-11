@@ -113,7 +113,7 @@
         p.history.push({ week: state.week, text: 'First solo on record: “' + tr.title + '”.' });
         const amb = KP.ambitionTouch(state, p, 'solo');
         if (amb) notes.push(amb);
-        notes.push({ kind: 'public', ind: 'soloTrack', priority: 'normal',
+        notes.push({ kind: 'public', ind: 'soloTrack', priority: 'high',
           personId: p.id, groupId: g.id, trackTitle: tr.title,
           text: KP.fillPro('Track ' + tr.n + ', “' + tr.title + '”, is ' + KP.displayName(p) + ' alone — {pos} first solo on record. ' +
             (reception >= 60
@@ -139,7 +139,7 @@
         const names = members.map(m => KP.publicGiven(m)).join(' & ');
         members.forEach(m => m.history.push({ week: state.week, text: 'Unit track with ' +
           members.filter(x => x.id !== m.id).map(x => KP.publicGiven(x)).join(' & ') + ': “' + tr.title + '”.' }));
-        notes.push({ kind: 'public', ind: 'unitTrack', priority: 'normal',
+        notes.push({ kind: 'public', ind: 'unitTrack', priority: 'high',
           groupId: g.id, trackTitle: tr.title, memberIds: members.map(m => m.id),
           close: !!closest, strained: !!worst && !closest,
           text: 'Track ' + tr.n + ', “' + tr.title + '”, is the ' + names + ' unit. ' +

@@ -76,10 +76,10 @@
       const cLabel = (KP.conceptById(g.results.conceptId) || {}).label || '';
       if (g.results.conceptId === taste) {
         state.trust = KP.clamp(state.trust + 1, 0, 100);
-        inbox.push({ kind: 'executive', text: state.executive.name + ', passing the numbers back across the desk: “' +
+        inbox.push({ kind: 'executive', priority: 'high', text: state.executive.name + ', passing the numbers back across the desk: “' +
           cLabel + '. Finally somebody in this building understands what we should sound like.” She does not hide the smile. Trust ticks up on taste alone.' });
       } else {
-        inbox.push({ kind: 'executive', text: state.executive.name + ' reviews the ' + g.name + ' numbers, nods once, and says “good result” in the tone of someone whose favorite genre this is not. A win is a win. Hers would have been ' +
+        inbox.push({ kind: 'executive', priority: 'high', text: state.executive.name + ' reviews the ' + g.name + ' numbers, nods once, and says “good result” in the tone of someone whose favorite genre this is not. A win is a win. Hers would have been ' +
           ((KP.conceptById(taste) || {}).label || '').toLowerCase() + '.' });
       }
     });

@@ -82,11 +82,11 @@
     }, 0);
   };
 
-  // words, never a meter (house style) — how she carries the company
+  // words, never a meter (house style) — how they carry the company
   KP.standingOf = function (state, p) {
     const s = KP.standingScore(state, p);
-    if (s >= 8) return 'she would run through a wall for this company';
-    if (s >= 3) return 'she trusts the office';
+    if (s >= 8) return KP.fillPro('{she} would run through a wall for this company', p);
+    if (s >= 3) return KP.fillPro('{she} trusts the office', p);
     if (s > -3) return 'professional, nothing more';
     if (s > -8) return 'guarded around the office';
     return 'counting the days';

@@ -56,6 +56,11 @@ function ride(state, g, weeks) {
 
   const { state: s2, g: g2 } = debuted('rd-soft');
   g2.popularity = 32;  // demand 32 vs arenas sweet spot 60 → curtained sections
+  // fixture-luck repair (v0.8.4 stream shift): this seed started WINNING
+  // music shows mid-tour, and the trophy morale outran the empty seats.
+  // The mechanism under test is soft-leg morale — let the rivals own
+  // the stages, exactly as the old stream had it.
+  s2.rivals.forEach(r => (r.acts || []).forEach(a => { a.popularity = 95; }));
   KP.regionsOf(g2);
   KP.planTour(s2, { groupId: g2.id, scale: 'arenas', legs: ['kr'] });
   const morale0 = s2.people[g2.members[0]].morale;

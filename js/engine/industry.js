@@ -251,15 +251,18 @@
   function peakTalent(p) {
     return Math.max(p.talents.vocals.cur, p.talents.dance.cur, p.talents.rap.cur, p.talents.charisma.cur);
   }
-  function castMembers(state, rival, rng, ageRange) {
+  function castMembers(state, rival, rng, ageRange, gender) {
     const I = KP.C.INDUSTRY;
+    gender = gender || 'f';
     const size = rng.int(I.actSize[0], I.actSize[1]);
     const inActs = new Set();
     (state.rivals || []).forEach(r => (r.acts || []).forEach(a =>
       (a.members || []).forEach(id => inActs.add(id))));
-    // the people they signed — best first; they were signed to be used
+    // the people they signed — best first; they were signed to be used.
+    // One group, one gender applies to everyone's market (v0.8.4)
     const signees = Object.values(state.people)
-      .filter(p => p.status === 'rival' && p.company === rival.short && !inActs.has(p.id))
+      .filter(p => p.status === 'rival' && p.company === rival.short && !inActs.has(p.id) &&
+        (p.gender || 'f') === gender)
       .sort((a, b) => peakTalent(b) - peakTalent(a));
     const members = signees.slice(0, size).map(p => p.id);
     // fill the lineup from the in-house trainee floor
@@ -267,7 +270,7 @@
     KP.resetIds(state.nextPersonId || KP.peekNextId());
     while (members.length < size) {
       const p = KP.generatePerson(rng, { status: 'rival', source: 'In-house trainee',
-        usedNames, age: rng.int(ageRange[0], ageRange[1]) });
+        usedNames, gender, age: rng.int(ageRange[0], ageRange[1]) });
       p.company = rival.short;
       p.flags.rivalNative = true;
       state.people[p.id] = p;
@@ -377,9 +380,19 @@
         // our hits debuts its next group wearing OUR concept
         const stolen = rival.copyConcept ? KP.conceptById(rival.copyConcept.conceptId) : null;
         const concept = stolen || rng.pick(KP.C.CONCEPTS);
-        const members = castMembers(state, rival, rng, I.memberDebutAge);
+        // the act forms around the people they signed to use (v0.4.3):
+        // gender follows the best available signee; a clean floor rolls
+        const inActs0 = new Set();
+        (state.rivals || []).forEach(r0 => (r0.acts || []).forEach(a0 =>
+          (a0.members || []).forEach(id0 => inActs0.add(id0))));
+        const bestSignee = Object.values(state.people)
+          .filter(p0 => p0.status === 'rival' && p0.company === rival.short && !inActs0.has(p0.id))
+          .sort((a0, b0) => peakTalent(b0) - peakTalent(a0))[0];
+        const actGender = bestSignee ? (bestSignee.gender || 'f')
+          : (rng.chance(I.boyActShare) ? 'm' : 'f');
+        const members = castMembers(state, rival, rng, I.memberDebutAge, actGender);
         const act = {
-          id: newActId(state),
+          id: newActId(state), gender: actGender,
           name: KP.genGroupName(rng, usedActNames(state)), concept: concept.id,
           quality: actQualityFromMembers(state, members, rival.prestige, rng),
           members, popularity: 0,
@@ -424,7 +437,7 @@
           (rel.narNotes || []).forEach(n => notes.push(n));
           pushMove(rival, act.name + ' comeback');
           if (rel.reception >= I.comebackNoteMin) {
-            notes.push({ kind: 'industry', ind: 'rivalHit', actName: act.name, company: rival.short,
+            notes.push({ kind: 'industry', ind: 'rivalHit', actName: act.name, company: rival.short, actGender: act.gender || 'f',
               songTitle: rel.title,
               text: act.name + '’s “' + rel.title + '” is everywhere this week. ' + rival.short +
                 ' will be insufferable about it, and the music shows just got harder to win.' });
@@ -579,9 +592,10 @@
         for (let i = 0; i < n; i++) {
           const concept = rng.pick(KP.C.CONCEPTS);
           const lastRel = state.week - rng.int(2, 12);
-          const members = castMembers(state, r, rng, [17, 24]);
+          const actGender2 = rng.chance(I.boyActShare) ? 'm' : 'f';
+          const members = castMembers(state, r, rng, [17, 24], actGender2);
           const act = {
-            id: newActId(state),
+            id: newActId(state), gender: actGender2,
             name: KP.genGroupName(rng, usedActNames(state)), concept: concept.id,
             quality: actQualityFromMembers(state, members, r.prestige, rng),
             members,
@@ -772,7 +786,7 @@
         ]));
       } else if (n.ind === 'rivalHit') {
         posts.push(rng.pick([
-          n.actName + '’s new one is everywhere and I’m not even mad. a win for girl groups is a win for girl groups',
+          n.actName + '’s new one is everywhere and I’m not even mad. a win for ' + (n.actGender === 'm' ? 'boy groups is a win for boy groups' : 'girl groups is a win for girl groups') + ',',
           'you can dislike ' + n.company + ' as a company and still admit ' + n.actName + ' ate. both things are true',
         ]));
       } else if (n.ind === 'disband') {

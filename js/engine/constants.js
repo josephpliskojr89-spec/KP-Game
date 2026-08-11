@@ -364,6 +364,7 @@
       minRivals: 2, maxRivals: 6,
       debutTraineeCost: 4,       // minimum roster a rival needs to field a debut
       actSize: [4, 5],           // rival lineups are real people now (v0.4.3)
+      boyActShare: 0.35,         // the industry runs both markets (v0.8.4)
       memberDebutAge: [16, 19],  // generated fill members debut at plausible ages
       memberQualityWeight: 0.55, // act quality leans on who is actually in it…
       prestigeQualityWeight: 0.35, // …with the company machine behind them

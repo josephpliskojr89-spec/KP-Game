@@ -72,6 +72,7 @@ function debuted(seed) {
     state.people[b.id] = b; state.roster.push(b.id); boys.push(b.id);
   }
   state.rngState = rng.state();
+  state.nextPersonId = KP.peekNextId();   // generated people must claim their ids
   const r = KP.proposeGroup(state, 'ATLAS', boys, KP.roleHints(state, boys.map(i => state.people[i])));
   t.ok(r.ok, 'a boy-group lineup proposes clean');
   const g = state.groups.find(x => x.name === 'ATLAS');
@@ -214,6 +215,15 @@ function debuted(seed) {
 // ---- the second-lineup question ----
 {
   const { state } = debuted('bldg-second');
+  // a full trainee room is the question's other half
+  const rng2 = KP.rngFor(state);
+  for (let i = 0; i < 4; i++) {
+    const tr = KP.generatePerson(rng2, { status: 'trainee', gender: 'f' });
+    tr.signedWeek = state.week;
+    state.people[tr.id] = tr; state.roster.push(tr.id);
+  }
+  state.rngState = rng2.state();
+  state.nextPersonId = KP.peekNextId();
   state.nextMeetingWeek = state.week + 1;
   let sc = null, guard = 0;
   while (!sc && guard++ < 30) {
