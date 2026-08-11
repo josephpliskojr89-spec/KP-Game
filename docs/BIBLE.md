@@ -1734,6 +1734,155 @@ door's first scenes open against real history.
 the soak (unregistered kinds, missing subjects → hard violations).
 Laws 6 and 7 added to ARCHITECTURE.md.
 
+## §39 The whole industry (master plan, post-v0.8.1)
+
+> Owner: *"I want to make a plan to literally add every single thing
+> the experts pointed out along with anything we had left from our
+> roadmap we were working on previously."* This section is that plan
+> — every §37 consult item (both expert reports, deduped), every §32
+> first-consult leftover, every unshipped §22 far-map phase, and the
+> mechanical debt, sequenced so each release stands on the one before
+> it. Append-only like everything here; reorder on owner's word, the
+> way §22 was reordered twice.
+
+**Sequencing logic**: Phase A makes the player real to the people
+(the consult's unanimous #1) — it must come first because Phase B's
+biggest system (contracts) READS everything Phase A writes: standing,
+kept promises, answered doors. Phase C is careers-entire and world
+texture that composes on top. All of it runs on §38 rails: every new
+conversation is a registered scene, every promise a subject claim,
+every directed act through the one door. No release below requires
+new architecture; Audit II stands.
+
+### Phase A — The Reciprocity Era (v0.8.x): the player becomes real
+
+- **v0.8.2 — The office door.** Idols initiate scenes toward the
+  player: the REQUEST (rest, a room change, a stage-name talk), the
+  CONFESSION (she's struggling before it's a number), the CHALLENGE
+  (she disagrees with the concept), and the ASK — the ambition
+  meeting ("she wants to know if there's a plan for her"), minting
+  predicate-checked claims with subject:idol; kept ones put your
+  fingerprints on the ambition letter, broken ones get your date
+  quoted back by the person it devastates. Scene text voice-true
+  (blunt opens your door differently than softspoken); answers write
+  the directed-acts ledger. ALSO IN: the persona rework the critic
+  demanded — spotlight follows DRAMA PRESSURE (morale extremes,
+  fresh losses, ambition proximity, friction) with the rota as
+  boredom fallback only; MOMENTS gain an optional choices field
+  (competitiveSting / warmthGlue / leaderCarry become small scenes);
+  roughly one moment in five carries a real hinge. Revises the
+  "presence, not power" doctrine: presence WITH teeth.
+- **v0.8.3 — Standing & scars.** Standing surfaces (dossier words,
+  never meters) and starts gating what morale can't buy: apology
+  sincerity in storms, leader carry effort, what she says at the
+  door. Aftermath states: a boiled storm on an idol leaves a
+  weeks-long shadow (subdued bubble tone, changed mood word, one
+  recovery scene) instead of a one-week delta. Group debut
+  ANNIVERSARIES (the most ritualized date in real fandom): café
+  banners, N-years hashtags, memory callbacks on the timeline —
+  birthday-week infrastructure reused wholesale.
+- **v0.8.4 — The building.** Named staff, generated per career like
+  the executive: a road manager per debuted group and a head vocal
+  coach, with hash-stable voices, who SIGN the notes they currently
+  narrate anonymously, disagree occasionally, buffer tour fatigue
+  slightly — and can be poached by a rival (a scene; her departure
+  is a morale event, a feed event, and a directed-acts entry).
+  Execs with taste (§32): the executive develops favorites and
+  concept opinions; 3–4 new exec question types reading real state
+  (the trust nadir, the fandom name, the dodged head-to-head).
+  Board season (§32): the yearly review as a scene. The executive
+  pet project (§32): an assignment you didn't choose.
+
+### Phase B — The Living Industry (v0.9.x): time, society, loss
+
+- **v0.9.0 — Contracts & the clock** (§22 v0.6.15 + consult #2).
+  Contract years stamped at signing/debut; the standard seven-year
+  shape; renewal opens ~2 years out as a SCENE whose tone reads the
+  whole ledger — standing, ambitions fed or starved, promises kept,
+  quietWeeks answered or ignored, years of fatigue. Outcomes: full
+  renewal / renegotiated terms (leverage: her individual fame — §22's
+  "seat at the negotiating table") / renewal-minus-one (the group
+  survives as four; the files and fans remember) / graduation into
+  solo management / the farewell tour everyone knows is the last.
+  Rare fully-narrated departures of the genuinely neglected — §9's
+  no-exit rail rewritten; departures mostly WARM (the content law
+  already writes bittersweet). One departure per career is enough;
+  the possibility charges every quiet week with meaning.
+- **v0.9.1 — The society** (consult #3). Your idols meet the
+  industry: music-show waiting rooms roll hash-stable cross-company
+  friendships (personality-gated — sunshine befriends everyone);
+  friendships generate feed content, coffee trucks on tour weeks,
+  public congratulations on first wins; debut-class cohorts get
+  named by fans and resurface at award season; a senior publicly
+  stans your rookie. Presence, not power — aimed outward.
+- **v0.9.2 — The year** (consult #4 + §22 v0.6.10 festivals).
+  Annual tentpoles on the calendar strip: year-end gayo stages
+  (invitation by popularity; special-stage collabs that feed the
+  society layer), spring university festival circuit (mid-tier
+  money and live reps), summer-song seasonality (bright concepts
+  spike in season), holiday variety specials, the January dead
+  zone. Awards ladder rework: bonsang (several, attainable) vs ONE
+  daesang (brutal); the first-daesang arc gets the full first-win
+  treatment — history line, ambition door, a speech that names the
+  fandom; the §31 snub-radicalization mechanic doubled ("a bonsang,
+  again").
+- **v0.9.3 — The constituency** (consult #5). The organized fandom
+  acts on YOUR decisions: protest trucks and joint statements
+  (intensity-gated scenes — concede, hold, or half-measure, and the
+  fandom remembers like the exec does) over center changes, missing
+  credit slots, overworked schedules. The company gets a voice: the
+  official café notice and the fan meeting as player verbs; the
+  lightstick launch as a real event instead of flavor text.
+- **v0.9.4 — The credits** (consult #8 + §22 v0.6.12/v0.6.13 +
+  §32 leftovers). Producers become a small persistent pool with
+  track records visible in the discography; repeat collaboration
+  forms a signature-sound narrative through §23 memory; the
+  rejected demo resurfaces as a rival hit (the industry's favorite
+  ghost story). Creative teams widen: a named choreographer and
+  stylist with chemistry, poachable (losing yours to a rival should
+  hurt). Member participation: songwriting/production credits shift
+  perception from performer to artist, feeding the variety of §36
+  tracklists. Quote-chain threads (§32): feed posts that reply to
+  each other. School milestones (§32): graduation and entrance
+  ceremonies for the young trainees.
+
+### Phase C — Careers Entire (v1.0.x): the long game
+
+- **v1.0.0 — The second job** (§22 v0.6.11). Variety careers:
+  fixed-panelist arcs, MC gigs, OST features — secondary strengths
+  become real careers that write to individual popularity and
+  memory, and collide with the group calendar (the scheduling
+  tension IS the system). The variety ambition finally pays in full.
+- **v1.0.1 — The disappearance** (§22 v0.6.14). Hiatus as strategy:
+  chosen dormancy with cooling risk vs full restoration and
+  anticipation; the §23 dormancy narrative and return bonus become
+  a deliberate tool with bigger stakes.
+- **v1.0.2 — The deep map.** The §28 regions grow verbs: region-
+  targeted promotion, localized releases, the overseas fan meeting —
+  the map stops being a readout and becomes a board.
+
+### The debt rider (any release, when touched)
+
+- Migrate the frozen 34-branch feed chain to the registry,
+  branch-by-branch as releases touch those inds.
+- §18 watch items stand every soak: feed tone freshness, chart
+  easiness, overwork under human play, fiscal solvency ruling.
+- Capacitor wrap stays parked until the owner calls for stores.
+
+### The honest constraints
+
+- **Content is the budget.** Scenes × 7 voices × options is the
+  real cost of Phases A–B; the proven mitigation (voice-neutral
+  option text, per-voice opener lines) is doctrine.
+- **The bot must learn every verb** or the soak goes blind — each
+  release ships its bot policy and bands, same as always.
+- **Departure mechanics touch every invariant** (rooms, roles,
+  credits, deals); v0.9.0 gets the longest suite of the plan.
+- Eleven releases at the established cadence. Each ships the full
+  ritual; each is playable and pushed the day it lands. Reorder on
+  owner's word at any time — the plan serves the feel reports, not
+  the other way around.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
