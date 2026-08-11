@@ -19,12 +19,15 @@
     body: (state, sc) => {
       const p = state.people[sc.personId];
       if (!p) return '';
-      return 'The storm around ' + KP.displayName(p) + ' burned out weeks ago, but she has been carrying it — quieter on camera, careful in a way she never used to be. This week, for the first time, she laughed at practice like nobody was filming. The staff want to know how to play her return.';
+      return KP.fillPro('The storm around ' + KP.displayName(p) + ' burned out weeks ago, but {she} has been carrying it — quieter on camera, careful in a way {she} never used to be. This week, for the first time, {she} laughed at practice like nobody was filming. The staff want to know how to play {pos} return.', p);
     },
-    options: () => [
-      { id: 'loud', label: 'Welcome her back loudly' },
-      { id: 'quiet', label: 'Let it be quiet' },
-    ],
+    options: (state, sc) => {
+      const p = state.people[sc.personId] || null;
+      return [
+        { id: 'loud', label: KP.fillPro('Welcome {her} back loudly', p) },
+        { id: 'quiet', label: 'Let it be quiet' },
+      ];
+    },
     resolve: (state, sc, optionId) => {
       const S = KP.C.SCAR;
       const p = state.people[sc.personId];
@@ -32,22 +35,22 @@
       if (optionId === 'loud') {
         p.morale = KP.clamp(p.morale + S.recoveryMorale, 0, 100);
         KP.recordDirected(state, p.id, 'welcomedBack', 2);
-        p.history.push({ week: state.week, text: 'Came back from the hardest stretch to a company that made sure everyone saw her.' });
-        return { toast: 'The next content schedule is suddenly full of her — center of the selca, first out of the van, her verse in the fancam edit. The message, to her and to everyone watching, is unambiguous: we never went anywhere.',
+        p.history.push({ week: state.week, text: KP.fillPro('Came back from the hardest stretch to a company that made sure everyone saw {her}.', p) });
+        return { toast: KP.fillPro('The next content schedule is suddenly full of {her} — center of the selca, first out of the van, {pos} verse in the fancam edit. The message, to {her} and to everyone watching, is unambiguous: we never went anywhere.', p),
           note: { kind: 'public', ind: 'scarBack', priority: 'normal', personId: p.id,
-            text: KP.displayName(p) + ' is BACK back — the company put her front and center this week and the fandom noticed the noticing.' } };
+            text: KP.fillPro(KP.displayName(p) + ' is BACK back — the company put {her} front and center this week and the fandom noticed the noticing.', p) } };
       }
       p.morale = KP.clamp(p.morale + S.quietRecoveryMorale, 0, 100);
       KP.recordDirected(state, p.id, 'welcomedBack', 1);
-      p.history.push({ week: state.week, text: 'Came back from the hardest stretch quietly, the way she asked.' });
-      return { toast: 'No announcement, no push. She just started being herself again on schedule, and the people who watched closely — the ones who matter to her — saw it happen at her own pace.' };
+      p.history.push({ week: state.week, text: KP.fillPro('Came back from the hardest stretch quietly, the way {she} asked.', p) });
+      return { toast: KP.fillPro('No announcement, no push. {She} just started being {herself} again on schedule, and the people who watched closely — the ones who matter to {her} — saw it happen at {pos} own pace.', p) };
     },
     expire: (state, sc) => {
       const p = state.people[sc.personId];
       if (!p) return null;
       p.morale = KP.clamp(p.morale + KP.C.SCAR.quietRecoveryMorale, 0, 100);
       return { kind: 'development', priority: 'normal', personId: p.id,
-        text: KP.displayName(p) + ' found her own way back this week — no plan, no meeting, just time doing what time does. The staff note it with relief and a little guilt about the unopened question on your desk.' };
+        text: KP.fillPro(KP.displayName(p) + ' found {pos} own way back this week — no plan, no meeting, just time doing what time does. The staff note it with relief and a little guilt about the unopened question on your desk.', p) };
     },
   });
 
@@ -56,8 +59,8 @@
     const p = state.people[n.personId];
     if (!p) return null;
     return rng.pick([
-      { persona: 'fan', text: KP.displayName(p) + ' in the center of every photo this week after everything… the company said with its whole chest that she is THEIRS. this is what protection looks like' },
-      { persona: 'stan', text: 'her first full-volume laugh on camera since the whole thing. I have watched it nine times. welcome back. we kept your seat' },
+      { persona: 'fan', text: KP.fillPro(KP.displayName(p) + ' in the center of every photo this week after everything… the company said with its whole chest that {she} is THEIRS. this is what protection looks like', p) },
+      { persona: 'stan', text: KP.fillPro('{pos} first full-volume laugh on camera since the whole thing. I have watched it nine times. welcome back. we kept your seat', p) },
     ]);
   });
 
@@ -74,11 +77,11 @@
           KP.openScene(state, { kind: 'scarRecovery', personId: p.id,
             expiresWeek: state.week + 2 });
           inbox.push({ kind: 'development', priority: 'high', personId: p.id,
-            text: KP.displayName(p) + ' laughed at practice today like nobody was filming — first time since the storm. How her return gets played is on the Desk.' });
+            text: KP.fillPro(KP.displayName(p) + ' laughed at practice today like nobody was filming — first time since the storm. How {pos} return gets played is on the Desk.', p) });
         } else {
           p.morale = KP.clamp(p.morale + KP.C.SCAR.quietRecoveryMorale, 0, 100);
           inbox.push({ kind: 'development', priority: 'normal', personId: p.id,
-            text: KP.displayName(p) + ' is coming back to herself — quieter than before, steadier than expected. Time did most of it. It usually does.' });
+            text: KP.fillPro(KP.displayName(p) + ' is coming back to {herself} — quieter than before, steadier than expected. Time did most of it. It usually does.', p) });
         }
       }
     });

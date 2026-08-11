@@ -44,6 +44,20 @@
         text: 'Which trainee is closest to ready?',
         options: opts.map(p => ({ id: p.id, label: KP.displayName(p) })) };
     }
+    // the second lineup (v0.8.4): one debuted group + a full trainee
+    // room = a question the exec was always going to ask
+    const debutedCount = KP.groups(state).filter(g => g.debuted).length;
+    if (debutedCount === 1 && KP.freeTrainees(state).length >= KP.C.GROUP.minMembers &&
+        !state.secondGroupAsked &&
+        KP.hash01([state.seed, 'meeting2', state.week].join('|')) < 0.5) {
+      state.secondGroupAsked = true;
+      return { type: 'secondGroup', week: state.week,
+        text: 'The trainee room is full and the first group stands. When does the second lineup form?',
+        options: [
+          { id: 'year', label: 'Inside the year' },
+          { id: 'depends', label: 'When the room is ready' },
+        ] };
+    }
     if (debutedGroups.length) {
       const g = debutedGroups.sort((a, b) => (a.lastReleaseWeek || 0) - (b.lastReleaseWeek || 0))[0];
       return { type: 'comebackPromise', week: state.week, groupId: g.id,
@@ -81,6 +95,14 @@
         KP.openClaim(state, { type: 'comebackPromise', subject: { kind: 'exec' },
           groupId: q.groupId, byWeek: state.week + weeks });
         return { toast: 'On the record: the comeback lands by ' + KP.weekLabel(state.week + weeks).text + '. The executive underlined the date.' };
+      }
+      if (q.type === 'secondGroup') {
+        if (optionId === 'year') {
+          KP.openClaim(state, { type: 'secondGroup', subject: { kind: 'exec' },
+            baseline: KP.groups(state).length, byWeek: state.week + KP.C.WEEKS_PER_YEAR });
+          return { toast: 'A second lineup inside the year, on the record. The executive looked at the trainee-room door like she could already hear the debut stage.' };
+        }
+        return { toast: '“When the room is ready.” She accepted it the way people accept weather forecasts — noted, not believed, checked against the sky later.' };
       }
       return {};
     },
@@ -133,6 +155,21 @@
         notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “You promised the ' +
           (g ? g.name : '') + ' comeback by ' + KP.weekLabel(c.byWeek).text +
           '. It is ' + KP.weekLabel(state.week).text + '. I do not enjoy being a person who checks dates. And yet.”' }] };
+    }
+    return null;
+  });
+
+  KP.registerClaim('secondGroup', (state, c) => {
+    const M = KP.C.MEETING;
+    if (KP.groups(state).length > c.baseline) {
+      state.trust = KP.clamp(state.trust + M.payoffTrust, 0, 100);
+      return { resolved: 'met',
+        notes: [{ kind: 'executive', text: state.executive.name + ': “A second lineup, inside the window. This building is starting to look like a company.”' }] };
+    }
+    if (state.week > c.byWeek) {
+      state.trust = KP.clamp(state.trust + M.missTrust, 0, 100);
+      return { resolved: 'missed',
+        notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “A year ago the trainee room was full and you said a second lineup was coming. The room is still full. Rooms do not debut, ' + 'unfortunately.”' }] };
     }
     return null;
   });

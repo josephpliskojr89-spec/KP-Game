@@ -52,11 +52,28 @@
   }
   function addAll(p, amt) { eachTalent(p, t => { t.cur = KP.clamp(t.cur + amt, 8, 90); }); }
 
+  // ---- the pronoun kit (v0.8.4, boy groups) -----------------------------
+  // Prose is written with {she}/{her}/{pos}/{hers}/{herself}/{girl}
+  // placeholders where it refers to a specific person; KP.fillPro
+  // resolves them. For a female subject the output is byte-identical
+  // to the original text — the kit costs the girls nothing.
+  const PRO_F = { she: 'she', her: 'her', pos: 'her', hers: 'hers', herself: 'herself',
+    girl: 'girl', She: 'She', Her: 'Her', Pos: 'Her', Girl: 'Girl' };
+  const PRO_M = { she: 'he', her: 'him', pos: 'his', hers: 'his', herself: 'himself',
+    girl: 'boy', She: 'He', Her: 'Him', Pos: 'His', Girl: 'Boy' };
+  KP.pro = function (p) { return p && p.gender === 'm' ? PRO_M : PRO_F; };
+  KP.fillPro = function (text, p) {
+    if (!text || text.indexOf('{') === -1) return text;
+    const pr = KP.pro(p);
+    return text.replace(/\{(she|her|pos|hers|herself|girl|She|Her|Pos|Girl)\}/g,
+      (m, k) => pr[k] !== undefined ? pr[k] : m);
+  };
+
   KP.generatePerson = function (rng, opts) {
     opts = opts || {};
     const G = C().GEN;
     const family = rng.pick(KP.DATA.familyNames);
-    const given = KP.genGivenName(rng, opts.usedNames);
+    const given = KP.genGivenName(rng, opts.usedNames, opts.gender);
     const age = opts.age != null ? opts.age : sampleAge(rng);
     const youth = (G.ageRange[1] - age) / (G.ageRange[1] - G.ageRange[0]); // 1 = youngest
 
@@ -102,6 +119,7 @@
     const p = {
       id: 'p' + (nextId++),
       name: { family, given, display: family + ' ' + given },
+      gender: opts.gender || 'f',
       age,
       status: opts.status || 'prospect',
       source: opts.source || rng.pick(C().SOURCES),
@@ -223,7 +241,7 @@
     if (parts.length > 1) out.push(parts[1].charAt(0).toUpperCase() + parts[1].slice(1));
     const used = new Set(Object.values(state.people)
       .map(p => p.name.stage && p.name.stage.toLowerCase()).filter(Boolean));
-    const pool = KP.DATA.stageNames;
+    const pool = person.gender === 'm' ? KP.DATA.stageNamesM : KP.DATA.stageNames;
     let i = KP.hashStr(state.seed + person.id) % pool.length;
     while (out.length < 4) {
       const cand = pool[i % pool.length];

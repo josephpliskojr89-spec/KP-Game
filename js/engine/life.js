@@ -13,7 +13,7 @@
     const F = KP.C.LIFE.FACTS;
     const a = Math.floor(KP.hash01([state.seed, p.id, 'fact1'].join('|')) * F.length);
     const b = (a + 1 + Math.floor(KP.hash01([state.seed, p.id, 'fact2'].join('|')) * (F.length - 1))) % F.length;
-    return [F[a], F[b]];
+    return [KP.fillPro(F[a], p), KP.fillPro(F[b], p)];
   };
 
   // ---- what she wants: one ambition, seeded by who she is ---------------
@@ -30,11 +30,11 @@
     if (KP.ambitionOf(state, p) !== kind || p.flags.ambitionMet) return null;
     p.flags.ambitionMet = state.week;
     p.morale = KP.clamp(p.morale + KP.C.LIFE.ambitionMoraleBonus, 0, 100);
-    p.history.push({ week: state.week, text: 'The thing she always wanted — ' +
-      KP.C.LIFE.AMBITIONS[kind].label + ' — actually happened.' });
+    p.history.push({ week: state.week, text: KP.fillPro('The thing {she} always wanted — ' +
+      KP.C.LIFE.AMBITIONS[kind].label + ' — actually happened.', p) });
     return { kind: 'company', ind: 'ambitionMet', personId: p.id,
-      text: KP.displayName(p) + ' got the thing she always wanted: ' + KP.C.LIFE.AMBITIONS[kind].label +
-        '. The staff say she called home first, then cried in the practice room, in that order. Some numbers do not show this. Morale does.' };
+      text: KP.fillPro(KP.displayName(p) + ' got the thing {she} always wanted: ' + KP.C.LIFE.AMBITIONS[kind].label +
+        '. The staff say {she} called home first, then cried in the practice room, in that order. Some numbers do not show this. Morale does.', p) };
   };
 
   // ---- the bubble: her side of the screen, finally ----------------------
@@ -53,17 +53,17 @@
         const name = KP.publicGiven(p);
         let text;
         if (p.flags.scar > 0) {
-          text = name + '’s bubble this week was two messages and a photo of the sky. no caption. we are all replying “take your time” and meaning it. she reads them. we know she reads them';
+          text = name + '’s bubble this week was two messages and a photo of the sky. no caption. we are all replying “take your time” and meaning it. {she} reads them. we know {she} reads them';
         } else if (p.fatigue >= 70) {
-          text = 'bubble from ' + name + ' at 3am: “still at the company. eat well tomorrow, promise me.” she is comforting US. someone protect her';
+          text = 'bubble from ' + name + ' at 3am: “still at the company. eat well tomorrow, promise me.” {she} is comforting US. someone protect {her}';
         } else if (p.morale >= 72) {
-          text = name + '’s bubble today was 14 messages, 9 of them photos of her lunch, and one voice note of her laughing at her own joke. subscription justified forever';
+          text = name + '’s bubble today was 14 messages, 9 of them photos of {pos} lunch, and one voice note of {her} laughing at {pos} own joke. subscription justified forever';
         } else if (state.week <= (g.tourRestUntil || 0) || state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks && state.week > (g.promoUntil || 0)) {
           text = 'day-off bubble: ' + name + ' — who ' + fact + ' — sent a full photo diary of it. rest era content is the BEST content';
         } else {
-          text = name + ' casually mentioned in bubble that she ' + fact + '. the fandom wiki was updated within four minutes';
+          text = name + ' casually mentioned in bubble that {she} ' + fact + '. the fandom wiki was updated within four minutes';
         }
-        posts.push({ persona: 'fan', text });
+        posts.push({ persona: 'fan', text: KP.fillPro(text, p) });
       });
     });
     return posts;
@@ -165,9 +165,9 @@
       if (KP.hash01([state.seed, handle, state.week, 'biaspost'].join('|')) >= 0.22) return;
       const fact = KP.factsOf(state, p)[state.week % 2];
       const reg = L.REGULARS.find(r => r.handle === handle);
-      posts.push({ persona: (reg && reg.persona) || 'fan', handle, text: KP.hash01([state.seed, handle, state.week, 'v'].join('|')) < 0.5
-        ? 'daily reminder that ' + KP.displayName(p) + ' ' + fact + '. this account remains correct about her'
-        : 'thinking about how ' + KP.displayName(p) + ' carried that last stage again. no reason. (there is a reason. watch the fancam)' });
+      posts.push({ persona: (reg && reg.persona) || 'fan', handle, text: KP.fillPro(KP.hash01([state.seed, handle, state.week, 'v'].join('|')) < 0.5
+        ? 'daily reminder that ' + KP.displayName(p) + ' ' + fact + '. this account remains correct about {her}'
+        : 'thinking about how ' + KP.displayName(p) + ' carried that last stage again. no reason. (there is a reason. watch the fancam)', p) });
     });
 
     // monthly selca day: one member per debuted group takes the timeline
@@ -207,10 +207,10 @@
           KP.socialSpike(state, p, L.birthdaySpike, 'bday');
           inbox.push({ kind: 'public', ind: 'idolBirthday', priority: 'flavor', personId: p.id,
             funded: KP.fandomIntensity(g) >= L.birthdayAdIntensity,
-            text: 'It is ' + KP.displayName(p) + '’s birthday week. The members got to her cake before the fans got to the hashtag — barely. ' +
+            text: KP.fillPro('It is ' + KP.displayName(p) + '’s birthday week. The members got to {pos} cake before the fans got to the hashtag — barely. ' +
               (KP.fandomIntensity(g) >= L.birthdayAdIntensity
-                ? 'The fandom funded a subway station ad. She went to see it in a mask and cried anyway.'
-                : 'The fan cafés ran the countdown at midnight, as is law.') });
+                ? 'The fandom funded a subway station ad. {She} went to see it in a mask and cried anyway.'
+                : 'The fan cafés ran the countdown at midnight, as is law.'), p) });
         }
       });
       // the debut anniversary (v0.8.3): the most ritualized date in
@@ -251,8 +251,8 @@
       if (boiled) {
         const p = state.people[c.biasId];
         inbox.push({ kind: 'public', ind: 'biasBreakup', priority: 'flavor', personId: c.biasId,
-          text: 'The account everyone knows — ' + handle + ' — posted a quiet “taking a step back from ' +
-            (p ? KP.displayName(p) : 'her') + ' content for a while.” No drama, no thread. Somehow worse than a thread.' });
+          text: KP.fillPro('The account everyone knows — ' + handle + ' — posted a quiet “taking a step back from ' +
+            (p ? KP.displayName(p) : '{her}') + ' content for a while.” No drama, no thread. Somehow worse than a thread.', p) });
         delete cast(state)[handle];
       }
     });
@@ -263,7 +263,7 @@
     const p = state.people[n.personId];
     return rng.pick([
       { persona: 'fan', text: 'HAPPY BIRTHDAY ' + (p ? KP.displayName(p).toUpperCase() : '') + '. the hashtag hit trending before sunrise because we are PROFESSIONALS' },
-      { persona: 'stan', text: (p ? KP.publicGiven(p) : 'she') + ' birthday content: the members’ posts are out and the maknae’s one is unhinged in the best way. family behavior' },
+      { persona: 'stan', text: KP.fillPro((p ? KP.publicGiven(p) : '{she}') + ' birthday content: the members’ posts are out and the maknae’s one is unhinged in the best way. family behavior', p) },
       n.funded ? { persona: 'casual', text: 'walked past a whole subway station of birthday ads for an idol today. fandom infrastructure is genuinely impressive. happy birthday, stranger' }
         : { persona: 'fan', text: 'midnight birthday countdown complete. year captured. the café banner is already updated. we run a tight ship' },
     ]);
@@ -279,8 +279,8 @@
   });
   KP.onFeedEvent('liveClip', (state, n) => {
     const p = state.people[n.personId];
-    return { persona: 'casual', text: 'the clip of ' + (p ? KP.publicGiven(p) : 'her') +
-      ' going full documentary mode on her own hobby mid-live… idols are just people with better lighting and I love that for them' };
+    return { persona: 'casual', text: KP.fillPro('the clip of ' + (p ? KP.publicGiven(p) : '{her}') +
+      ' going full documentary mode on {pos} own hobby mid-live… idols are just people with better lighting and I love that for them', p) };
   });
   KP.onFeedEvent('biasBreakup', (state, n) => ({
     persona: 'casual', text: 'the ' + '“stepping back” post from a big fan account has the quote posts doing sociology today. parasocial weather: cloudy',

@@ -11,12 +11,12 @@
 
   // ---- the voice: how she talks, forever --------------------------------
   KP.VOICES = {
-    blunt:      { label: 'says exactly what she thinks, at any volume' },
-    sunshine:   { label: 'talks like the room is already her friend' },
+    blunt:      { label: 'says exactly what {she} thinks, at any volume' },
+    sunshine:   { label: 'talks like the room is already {pos} friend' },
     deadpan:    { label: 'delivers everything at one perfect flat pitch' },
     gremlin:    { label: 'is three jokes deep before anyone catches the first' },
     softspoken: { label: 'speaks quietly and means every word of it' },
-    earnest:    { label: 'answers every question like it matters, because to her it does' },
+    earnest:    { label: 'answers every question like it matters, because to {her} it does' },
     wry:        { label: 'has a raised eyebrow where other people keep opinions' },
   };
   KP.voiceOf = function (state, p) {
@@ -48,9 +48,9 @@
   // reaches the desk.
   const MOMENTS = [
     { key: 'quietWeek', priority: 'high', when: (s, p) => p.morale < 38 && p.personality.resilience < 50,
-      text: (s, p) => KP.displayName(p) + ' has been quieter than usual this week — earlier to the van, earlier to her room. The staff mention it carefully, the way you carry something breakable. Worth a look before it becomes a number.' },
+      text: (s, p) => KP.fillPro(KP.displayName(p) + ' has been quieter than usual this week — earlier to the van, earlier to {pos} room. The staff mention it carefully, the way you carry something breakable. Worth a look before it becomes a number.', p) },
     { key: 'afterHours', when: (s, p) => p.fatigue > 55 && p.personality.workEthic >= 65,
-      text: (s, p) => 'Security logged ' + KP.displayName(p) + ' out of the practice building at 1am again. Nobody scheduled that. ' + (KP.voiceOf(s, p) === 'earnest' ? '“The chorus wasn’t right yet,” she said, like that settles it. For her it does.' : 'She shrugged it off in one sentence and slept in the van.') },
+      text: (s, p) => KP.fillPro('Security logged ' + KP.displayName(p) + ' out of the practice building at 1am again. Nobody scheduled that. ' + (KP.voiceOf(s, p) === 'earnest' ? '“The chorus wasn’t right yet,” {she} said, like that settles it. For {her} it does.' : '{She} shrugged it off in one sentence and slept in the van.'), p) },
     { key: 'competitiveSting', when: (s, p) => {
         const g = KP.groupOf(s, p.id);
         return g && g.results && g.results.battle && !g.results.battle.won &&
@@ -58,7 +58,7 @@
       },
       effect: (s, p) => { p.morale = KP.clamp(p.morale - 1, 0, 100); },
       text: (s, p) => { const g = KP.groupOf(s, p.id);
-        return KP.displayName(p) + ' has rewatched the ' + (g.results.battle.actName) + ' stages from the shared week three times, taking notes nobody asked her to take. Losing sits badly with her. That is not entirely a flaw.'; } },
+        return KP.fillPro(KP.displayName(p) + ' has rewatched the ' + (g.results.battle.actName) + ' stages from the shared week three times, taking notes nobody asked {her} to take. Losing sits badly with {her}. That is not entirely a flaw.', p); } },
     { key: 'warmthGlue', when: (s, p) => {
         if (p.personality.warmth < 68) return false;
         const g = KP.groupOf(s, p.id);
@@ -81,18 +81,18 @@
       },
       text: (s, p) => { const g = KP.groupOf(s, p.id);
         const tired = s.people[g.members.find(id => s.people[id].fatigue >= 70)];
-        return KP.displayName(p) + ' rearranged the van seating so ' + (tired ? KP.publicGiven(tired) : 'the tired one') + ' gets the window and the extra twenty minutes of sleep, then took the early interviews herself. Nobody upstairs will ever see this work. It is the job anyway.'; } },
+        return KP.fillPro(KP.displayName(p) + ' rearranged the van seating so ' + (tired ? KP.publicGiven(tired) : 'the tired one') + ' gets the window and the extra twenty minutes of sleep, then took the early interviews {herself}. Nobody upstairs will ever see this work. It is the job anyway.', p); } },
     { key: 'ambitionGlimpse', when: (s, p) => p.status === 'idol' && !p.flags.ambitionMet,
       public: true,
       text: (s, p) => {
         const amb = KP.ambitionOf(s, p);
         const lines = {
-          solo: KP.displayName(p) + ' stayed at the company alone on her day off, working on something on the practice-room piano. She closed the lid when staff came in. Everyone knows anyway.',
-          trophy: KP.displayName(p) + ' watches other groups’ win announcements the way scholars read primary sources. She thinks nobody has noticed the folder of encore speeches. Everyone has noticed the folder.',
-          stage: KP.displayName(p) + ' asked the tour manager, casually, what the biggest venue in ' + KP.regionLabel(KP.strongholdsOf(s, p)[0]) + ' is called. Then she looked it up herself. Then she saved the photo.',
-          variety: KP.displayName(p) + ' rehearses variety-show reaction timing in the dorm mirror. Her roommate confirmed it. Her roommate was sworn to secrecy. Her roommate lasted one day.',
+          solo: KP.displayName(p) + ' stayed at the company alone on {pos} day off, working on something on the practice-room piano. {She} closed the lid when staff came in. Everyone knows anyway.',
+          trophy: KP.displayName(p) + ' watches other groups’ win announcements the way scholars read primary sources. {She} thinks nobody has noticed the folder of encore speeches. Everyone has noticed the folder.',
+          stage: KP.displayName(p) + ' asked the tour manager, casually, what the biggest venue in ' + KP.regionLabel(KP.strongholdsOf(s, p)[0]) + ' is called. Then {she} looked it up {herself}. Then {she} saved the photo.',
+          variety: KP.displayName(p) + ' rehearses variety-show reaction timing in the dorm mirror. {Pos} roommate confirmed it. {Pos} roommate was sworn to secrecy. {Pos} roommate lasted one day.',
         };
-        return lines[amb] || lines.trophy;
+        return KP.fillPro(lines[amb] || lines.trophy, p);
       } },
     { key: 'friendScene', when: (s, p) => {
         const g = KP.groupOf(s, p.id);
@@ -121,26 +121,26 @@
         const v = KP.voiceOf(s, p);
         if (p.status !== 'idol') {
           const tr = {
-            blunt: KP.displayName(p) + ' told the vocal coach, mid-evaluation, exactly which key change was not working. She was right, which is the only reason the room survived it.',
-            sunshine: KP.displayName(p) + ' knows the building’s cleaning crew by name and leaves the practice room spotless with a thank-you note taped to the mirror. The facilities staff have unofficially adopted her.',
-            deadpan: KP.displayName(p) + ' answered the monthly evaluation question “what is your dream?” with “Tuesday off,” at her usual flat pitch. The panel wrote down “grounded.”',
-            gremlin: KP.displayName(p) + ' set the practice-room speaker to play trot at full volume when the lights come on. Three days of investigation found nothing. She sat on the investigating committee.',
+            blunt: KP.displayName(p) + ' told the vocal coach, mid-evaluation, exactly which key change was not working. {She} was right, which is the only reason the room survived it.',
+            sunshine: KP.displayName(p) + ' knows the building’s cleaning crew by name and leaves the practice room spotless with a thank-you note taped to the mirror. The facilities staff have unofficially adopted {her}.',
+            deadpan: KP.displayName(p) + ' answered the monthly evaluation question “what is your dream?” with “Tuesday off,” at {pos} usual flat pitch. The panel wrote down “grounded.”',
+            gremlin: KP.displayName(p) + ' set the practice-room speaker to play trot at full volume when the lights come on. Three days of investigation found nothing. {She} sat on the investigating committee.',
             softspoken: KP.displayName(p) + ' stayed behind to walk a homesick younger trainee through the choreography at half volume until it stuck. Neither of them has mentioned it to anyone.',
-            earnest: KP.displayName(p) + ' keeps a notebook of every correction any coach has ever given her, indexed by month. The coaches have started checking their own notes against it.',
+            earnest: KP.displayName(p) + ' keeps a notebook of every correction any coach has ever given {her}, indexed by month. The coaches have started checking their own notes against it.',
             wry: KP.displayName(p) + ' listened to the new evaluation rubric in complete silence and asked one question that sent it back for a second draft.',
           };
-          return tr[v];
+          return KP.fillPro(tr[v], p);
         }
         const m = {
           blunt: KP.displayName(p) + ' was asked a polite filler question in a radio pre-interview and answered it honestly, at length, with numbers. The host is still recovering. The clip is doing well.',
-          sunshine: KP.displayName(p) + ' learned every staffer’s coffee order this month, including the new intern nobody introduces. The building runs two degrees warmer when she is in it.',
-          deadpan: KP.displayName(p) + ' delivered a flawless joke in a fan call at her signature flat pitch, waited out the three-second delay, and moved on before the laugh landed. The compilation channels feast.',
-          gremlin: KP.displayName(p) + ' has been hiding a rubber duck in a different member’s bag every day this week. No one has caught her. She has photos of all of it. The reveal is being saved for something.',
+          sunshine: KP.displayName(p) + ' learned every staffer’s coffee order this month, including the new intern nobody introduces. The building runs two degrees warmer when {she} is in it.',
+          deadpan: KP.displayName(p) + ' delivered a flawless joke in a fan call at {pos} signature flat pitch, waited out the three-second delay, and moved on before the laugh landed. The compilation channels feast.',
+          gremlin: KP.displayName(p) + ' has been hiding a rubber duck in a different member’s bag every day this week. No one has caught {her}. {She} has photos of all of it. The reveal is being saved for something.',
           softspoken: KP.displayName(p) + ' said maybe eleven words at the team dinner, and two of them fixed an argument nobody knew how to end. The room went quiet in the good way.',
-          earnest: KP.displayName(p) + ' wrote thank-you notes to the session musicians from the last record. By hand. They have started asking to be booked on her songs specifically.',
+          earnest: KP.displayName(p) + ' wrote thank-you notes to the session musicians from the last record. By hand. They have started asking to be booked on {pos} songs specifically.',
           wry: KP.displayName(p) + ' watched the marketing meeting propose a concept in complete silence, raised one eyebrow at the exactly correct moment, and the deck was revised by Friday.',
         };
-        return m[v];
+        return KP.fillPro(m[v], p);
       } },
   ];
 
@@ -152,7 +152,7 @@
   // expire and the week resolves the old way without you.
   const CHOICES = {
     competitiveSting: {
-      options: [{ id: 'fuel', label: 'Let it fuel her' }, { id: 'coach', label: 'Send the vocal coach over' }],
+      options: [{ id: 'fuel', label: 'Let it fuel {her}' }, { id: 'coach', label: 'Send the vocal coach over' }],
       resolve: (state, p, optionId) => {
         const D = KP.C.DOOR;
         if (optionId === 'coach') {
@@ -163,12 +163,12 @@
         }
         p.morale = KP.clamp(p.morale - 1, 0, 100);
         KP.recordDirected(state, p.id, 'stingRespected', 1);
-        return { toast: 'You let her burn on it. Some engines run on exactly this fuel, and she is one of them — the notes she is taking nobody asked for are getting sharper.' };
+        return { toast: KP.fillPro('You let {her} burn on it. Some engines run on exactly this fuel, and {she} is one of them — the notes {she} is taking nobody asked for are getting sharper.', p) };
       },
       expire: (state, p) => { p.morale = KP.clamp(p.morale - 1, 0, 100); },
     },
     warmthGlue: {
-      options: [{ id: 'quiet', label: 'Let her handle it her way' }, { id: 'shuffle', label: 'Make it official — reshuffle the rooms' }],
+      options: [{ id: 'quiet', label: 'Let {her} handle it {pos} way' }, { id: 'shuffle', label: 'Make it official — reshuffle the rooms' }],
       resolve: (state, p, optionId) => {
         const g = KP.groupOf(state, p.id);
         const applyGlue = () => {
@@ -182,14 +182,14 @@
         if (optionId === 'shuffle' && g) {
           const r = KP.shuffleRooms(state, g.id);
           if (!r.ok) { applyGlue(); KP.recordDirected(state, p.id, 'glueSeen', 1);
-            return { toast: r.reason + ' Her food-run diplomacy carries the week instead — and you saw it.' }; }
+            return { toast: KP.fillPro(r.reason + ' {Pos} food-run diplomacy carries the week instead — and you saw it.', p) }; }
           applyGlue();
           KP.recordDirected(state, p.id, 'glueSeen', 1);
-          return { toast: 'The room chart changed the same week she was quietly fixing things by hand. Between her food runs and your furniture, the cold air is losing.' };
+          return { toast: KP.fillPro('The room chart changed the same week {she} was quietly fixing things by hand. Between {pos} food runs and your furniture, the cold air is losing.', p) };
         }
         applyGlue();
         KP.recordDirected(state, p.id, 'glueSeen', 1);
-        return { toast: 'You let her work. The staff know exactly who is holding that room together, and now the file says you know too.' };
+        return { toast: KP.fillPro('You let {her} work. The staff know exactly who is holding that room together, and now the file says you know too.', p) };
       },
       expire: (state, p) => {
         const g = KP.groupOf(state, p.id);
@@ -202,18 +202,18 @@
       },
     },
     leaderCarry: {
-      options: [{ id: 'restday', label: 'Give the leader a rest day too' }, { id: 'file', label: 'Put it in her file' }],
+      options: [{ id: 'restday', label: 'Give the leader a rest day too' }, { id: 'file', label: 'Put it in {pos} file' }],
       resolve: (state, p, optionId) => {
         const D = KP.C.DOOR;
         if (optionId === 'restday') {
           if (state.budget >= D.restDayCost) state.budget -= D.restDayCost;
           p.fatigue = KP.clamp(p.fatigue + D.restDayFatigue, 0, 100);
           KP.recordDirected(state, p.id, 'carrySeen', 2);
-          return { toast: 'Somebody rearranged the van seating so SHE gets the window this time. She pretended not to notice who ordered it. She noticed.' };
+          return { toast: KP.fillPro('Somebody rearranged the van seating so ' + KP.pro(p).she.toUpperCase() + ' gets the window this time. {She} pretended not to notice who ordered it. {She} noticed.', p) };
         }
         KP.recordDirected(state, p.id, 'carrySeen', 1);
         p.history.push({ week: state.week, text: 'Carried the group through a tired week. The company put it on the record.' });
-        return { toast: 'It went in her file, in writing, where renewal negotiations live. Invisible work stops being invisible the day someone writes it down.' };
+        return { toast: KP.fillPro('It went in {pos} file, in writing, where renewal negotiations live. Invisible work stops being invisible the day someone writes it down.', p) };
       },
       expire: () => {},
     },
@@ -229,7 +229,10 @@
       const m = MOMENTS.find(x => x.key === sc.momentKey);
       return p && m ? m.text(state, p) + ' The call is yours.' : '';
     },
-    options: (state, sc) => CHOICES[sc.momentKey].options,
+    options: (state, sc) => {
+      const p = state.people[sc.personId] || null;
+      return CHOICES[sc.momentKey].options.map(o => ({ id: o.id, label: KP.fillPro(o.label, p) }));
+    },
     resolve: (state, sc, optionId) => {
       const p = state.people[sc.personId];
       return p ? CHOICES[sc.momentKey].resolve(state, p, optionId) : {};
@@ -334,7 +337,7 @@
     const p = state.people[n.personId];
     if (!p) return null;
     return rng.pick([
-      { persona: 'fan', text: 'the ' + KP.displayName(p) + ' story from this week’s staff-adjacent accounts… she is exactly who we thought she was and BETTER. protect this one' },
+      { persona: 'fan', text: KP.fillPro('the ' + KP.displayName(p) + ' story from this week’s staff-adjacent accounts… {she} is exactly who we thought {she} was and BETTER. protect this one', p) },
       { persona: 'casual', text: 'every week I learn one (1) new fact about ' + KP.displayName(p) + ' and every week it improves my quality of life measurably' },
     ]);
   });

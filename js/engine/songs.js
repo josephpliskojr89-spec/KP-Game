@@ -64,6 +64,28 @@
     return { ok: true, note };
   };
 
+  // Renaming a demo (v0.8.4, owner request): the producers pitch the
+  // working title; the company names the record. Locked in at the
+  // studio before the release is scheduled.
+  KP.renameDemo = function (state, groupId, songId, title) {
+    const g = KP.groupById(state, groupId);
+    const demo = ((g && g.demos) || []).find(d => d.id === songId);
+    if (!demo) return { ok: false, reason: 'No such demo on the board.' };
+    title = String(title || '').trim().slice(0, 24);
+    if (!title.length) return { ok: false, reason: 'A title needs letters.' };
+    const used = {};
+    KP.groups(state).forEach(x => (x.releases || []).forEach(r => {
+      used[r.songTitle.toLowerCase()] = true;
+      (r.tracklist || []).forEach(tr => { used[tr.title.toLowerCase()] = true; });
+    }));
+    if (used[title.toLowerCase()]) {
+      return { ok: false, reason: 'That title is already in a discography. The archive keeps receipts.' };
+    }
+    demo.title = title;
+    demo.renamed = true;
+    return { ok: true };
+  };
+
   KP.conceptById = function (id) {
     return KP.C.CONCEPTS.find(c => c.id === id);
   };

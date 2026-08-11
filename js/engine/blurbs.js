@@ -35,20 +35,20 @@
   const LINES = {
     vocals: {
       raw: {
-        whole: ['Pitch wanders the moment she stops concentrating.',
+        whole: ['Pitch wanders the moment {she} stops concentrating.',
           'The instrument is there. The control is not.',
-          'Fine in unison. Exposed the second she is alone on a line.'],
+          'Fine in unison. Exposed the second {she} is alone on a line.'],
         open: ['Flat by the second chorus.', 'The breath support gives out early.',
-          'She sings at notes rather than through them.', 'Tone is thin and she knows it.'],
+          '{She} sings at notes rather than through them.', 'Tone is thin and {she} knows it.'],
         detail: ['Fixable, with years.', 'The coaches are patient. The key changes are not.',
-          'Right now we write around her.', 'Hide her in the harmonies for now.'],
+          'Right now we write around {her}.', 'Hide {her} in the harmonies for now.'],
       },
       developing: {
         whole: ['Big voice, good instincts. Technique is still raw.',
           'You can hear where the voice is going. It is not there yet.'],
-        open: ['Stays on pitch when she trusts herself.', 'There is a real voice under the caution.',
+        open: ['Stays on pitch when {she} trusts {herself}.', 'There is a real voice under the caution.',
           'The good notes are real, but rationed.'],
-        detail: ['The high notes are still a negotiation.', 'She improves every month, quietly.',
+        detail: ['The high notes are still a negotiation.', '{She} improves every month, quietly.',
           'The coaching is landing — give it time.', 'Trust the trajectory, not the take.'],
       },
       capable: {
@@ -57,32 +57,32 @@
         open: ['Solid in the practice room.', 'The mid-range is genuinely pleasant.',
           'On pitch, on schedule, unremarkable.'],
         detail: ['Untested under lights.', 'Another year of coaching shows up here.',
-          'Give her the safe lines and she keeps them safe.', 'The chorus can rely on her.'],
+          'Give {her} the safe lines and {she} keeps them safe.', 'The chorus can rely on {her}.'],
       },
       strong: {
-        whole: ['Clean tone, reliable pitch. You can build lines around her.',
+        whole: ['Clean tone, reliable pitch. You can build lines around {her}.',
           'Handles key changes like they are not there.'],
-        open: ['Studio-ready today.', 'The engineers stopped correcting her weeks ago.',
-          'Her live pitch barely moves.', 'Warm tone, real control.'],
-        detail: ['Live, she is close.', 'Give her the bridge and stop worrying.',
-          'The vocal line can lean on her.', 'She makes the demo sound expensive.'],
+        open: ['Studio-ready today.', 'The engineers stopped correcting {her} weeks ago.',
+          '{Pos} live pitch barely moves.', 'Warm tone, real control.'],
+        detail: ['Live, {she} is close.', 'Give {her} the bridge and stop worrying.',
+          'The vocal line can lean on {her}.', '{She} makes the demo sound expensive.'],
       },
       exceptional: {
-        whole: ['A natural vocalist. Just don’t ask her to dance.',
+        whole: ['A natural vocalist. Just don’t ask {her} to dance.',
           'Stop the search — this is the main vocal.',
-          'The room went quiet when she sang. Rooms don’t do that.'],
-        open: ['The voice is simply there, whole.', 'She sight-read the demo and improved it.',
+          'The room went quiet when {she} sang. Rooms don’t do that.'],
+        open: ['The voice is simply there, whole.', '{She} sight-read the demo and improved it.',
           'Whatever we paid, it was not enough.'],
-        detail: ['Build the line around her and thank me later.',
+        detail: ['Build the line around {her} and thank me later.',
           'I have coached for years. This is not coaching.', 'Protect that throat like company property.'],
       },
     },
     rap: {
       raw: {
-        whole: ['Reads lyrics like a school announcement.', 'Rhythm arrives slightly after she does.'],
+        whole: ['Reads lyrics like a school announcement.', 'Rhythm arrives slightly after {she} does.'],
         open: ['The flow keeps tripping over the beat.', 'Diction is mush past mid-tempo.',
-          'She rushes every fourth bar.'],
-        detail: ['Keep her verses short.', 'It is not her language yet.',
+          '{She} rushes every fourth bar.'],
+        detail: ['Keep {pos} verses short.', 'It is not {pos} language yet.',
           'Nothing a concept needs to depend on.', 'We give those lines to someone else.'],
       },
       developing: {
@@ -91,70 +91,70 @@
         open: ['The flow works at practice tempo.', 'Some bars land; some are homework.',
           'The words arrive on time. The swagger is en route.'],
         detail: ['Attitude arrives when confidence does.', 'Short parts only, for now.',
-          'The writers keep it simple for her.', 'Improving faster than anyone expected.'],
+          'The writers keep it simple for {her}.', 'Improving faster than anyone expected.'],
       },
       capable: {
         whole: ['Capable when needed. I would not build the concept around it.',
           'Serviceable flow. No signature yet.'],
         open: ['Keeps time, lands the words.', 'The delivery is clean if careful.',
-          'She can carry eight bars respectably.'],
+          '{She} can carry eight bars respectably.'],
         detail: ['Enough for a bridge, not a verse.', 'The demo will not suffer.',
           'No signature yet — craft first.', 'Room-tested. The stage is next.'],
       },
       strong: {
-        whole: ['Sharp diction, real bounce. Give her the second verse.',
+        whole: ['Sharp diction, real bounce. Give {her} the second verse.',
           'Delivery has attitude the demo deserves.'],
-        open: ['The pocket is real.', 'Her tone cuts through the mix.',
-          'She swings the rhythm instead of surviving it.'],
-        detail: ['Give her the second verse.', 'Producers ask for her by name now.',
+        open: ['The pocket is real.', '{Pos} tone cuts through the mix.',
+          '{She} swings the rhythm instead of surviving it.'],
+        detail: ['Give {her} the second verse.', 'Producers ask for {her} by name now.',
           'The writers can get ambitious.', 'That confidence reads on camera too.'],
       },
       exceptional: {
-        whole: ['Writes her own bars and they are better than ours.',
+        whole: ['Writes {pos} own bars and they are better than ours.',
           'The flow is the concept. Build around it.'],
-        open: ['She rewrote the guide verse without asking.', 'The delivery is a fingerprint already.'],
+        open: ['{She} rewrote the guide verse without asking.', 'The delivery is a fingerprint already.'],
         detail: ['It was better. That is the problem and the gift.',
-          'Book the writers around her schedule.', 'Concepts should bend toward this, not away.'],
+          'Book the writers around {pos} schedule.', 'Concepts should bend toward this, not away.'],
       },
     },
     dance: {
       raw: {
         whole: ['Works hard. The feet remain unconvinced.', 'Counts out loud. We can all hear it.'],
         open: ['Half a beat behind the mirror.', 'The arms and the legs disagree.',
-          'Choreography survives her rather than lives in her.'],
+          'Choreography survives {her} rather than lives in {her}.'],
         detail: ['Back line, for now.', 'Effort is not the problem. Wiring is.',
-          'Simple formations only.', 'The practice logs say she is trying. The video says keep trying.'],
+          'Simple formations only.', 'The practice logs say {she} is trying. The video says keep trying.'],
       },
       developing: {
         whole: ['Clean on slow tempo, scrambles on double-time.',
-          'The routine lives in her head. Her body is still reading it.'],
-        open: ['The shapes are right; the sharpness is not.', 'Counts under her breath and mostly wins.',
+          'The routine lives in {pos} head. {Pos} body is still reading it.'],
+        open: ['The shapes are right; the sharpness is not.', 'Counts under {pos} breath and mostly wins.',
           'A move behind on anything new.'],
         detail: ['Double-time still wins.', 'The gap is closing, slowly.',
-          'The drilling is doing its slow work.', 'Keep the choreography honest and she survives it.'],
+          'The drilling is doing its slow work.', 'Keep the choreography honest and {she} survives it.'],
       },
       capable: {
         whole: ['Keeps up with the back line. The front is another matter.',
-          'Dependable mid-formation. Nobody watches her; nobody worries about her.'],
+          'Dependable mid-formation. Nobody watches {her}; nobody worries about {her}.'],
         open: ['Learns a routine in a reasonable week.', 'Follows well, leads nowhere yet.',
           'Clean enough at full speed.'],
-        detail: ['Six months of drilling shows.', 'You can place her mid-formation with confidence.',
-          'Formation changes do not scare her.', 'The choreographer trusts her with the middle.'],
+        detail: ['Six months of drilling shows.', 'You can place {her} mid-formation with confidence.',
+          'Formation changes do not scare {her}.', 'The choreographer trusts {her} with the middle.'],
       },
       strong: {
         whole: ['Learns choreography frighteningly fast.',
-          'Precise, controlled, watchable. The mirror likes her.'],
-        open: ['Hits accents the track only implies.', 'Her lines are clean at full speed.',
-          'One demonstration and she has it.'],
-        detail: ['The mirror likes her.', 'Front line, no argument.',
-          'Choreographers relax when she is in the room.', 'She makes the count look optional.'],
+          'Precise, controlled, watchable. The mirror likes {her}.'],
+        open: ['Hits accents the track only implies.', '{Pos} lines are clean at full speed.',
+          'One demonstration and {she} has it.'],
+        detail: ['The mirror likes {her}.', 'Front line, no argument.',
+          'Choreographers relax when {she} is in the room.', '{She} makes the count look optional.'],
       },
       exceptional: {
-        whole: ['She makes the choreographer look better than he is.',
+        whole: ['{She} makes the choreographer look better than he is.',
           'Full-out every run. Full-out at 2 a.m.'],
-        open: ['The routine looks designed on her body.', 'She dances the silence between beats.'],
-        detail: ['Center the formation on her and film it.',
-          'The trainees copy her copies.', 'We stopped teaching and started editing.'],
+        open: ['The routine looks designed on {pos} body.', '{She} dances the silence between beats.'],
+        detail: ['Center the formation on {her} and film it.',
+          'The trainees copy {pos} copies.', 'We stopped teaching and started editing.'],
       },
     },
     visuals: {
@@ -166,9 +166,9 @@
       },
       developing: {
         whole: ['A specific face. The right concept could make that an asset.',
-          'The camera has not made up its mind about her yet.'],
+          'The camera has not made up its mind about {her} yet.'],
         open: ['Reads better in motion than in stills.', 'An interesting face rather than a pretty one.',
-          'Some test shots argue for her; some do not.'],
+          'Some test shots argue for {her}; some do not.'],
         detail: ['The right concept unlocks it.', 'One era with the right hair changes this conversation.',
           'Styling will decide this one.', 'Give makeup a real budget and revisit.'],
       },
@@ -177,21 +177,21 @@
           'A pleasant, dependable face for the middle of the frame.'],
         open: ['Good bones, quiet presence.', 'The test shots came back perfectly usable.',
           'Comfortable on camera, easy to place.'],
-        detail: ['Stylists have opinions, all workable.', 'Group photos love her; solo shots shrug.',
-          'No concept is closed to her.', 'The teaser committee has no complaints.'],
+        detail: ['Stylists have opinions, all workable.', 'Group photos love {her}; solo shots shrug.',
+          'No concept is closed to {her}.', 'The teaser committee has no complaints.'],
       },
       strong: {
-        whole: ['The test shots came back and everyone kept scrolling back to hers.',
-          'Camera finds her without being told.'],
-        open: ['The frame organizes itself around her.', 'Every stylist wants her fitting first.'],
+        whole: ['The test shots came back and everyone kept scrolling back to {hers}.',
+          'Camera finds {her} without being told.'],
+        open: ['The frame organizes itself around {her}.', 'Every stylist wants {pos} fitting first.'],
         detail: ['Teaser committee already asked.', 'Print, screen, stage — it all works.',
-          'She wastes no lighting.'],
+          '{She} wastes no lighting.'],
       },
       exceptional: {
-        whole: ['Marketing asked who she was before the evaluation ended.',
-          'One teaser frame of her will carry the announcement.'],
+        whole: ['Marketing asked who {she} was before the evaluation ended.',
+          'One teaser frame of {her} will carry the announcement.'],
         open: ['The stills look retouched. They are not.', 'Brands will call before the debut does.'],
-        detail: ['Plan the concept photos around her and save money.',
+        detail: ['Plan the concept photos around {her} and save money.',
           'That face is a budget line now.', 'The announcement writes itself.'],
       },
     },
@@ -199,70 +199,70 @@
       raw: {
         whole: ['Disappears in a room of three.',
           'Polite, prepared, and instantly forgettable. That is fixable. Maybe.'],
-        open: ['Eyes drop when the attention arrives.', 'She performs at the floor.'],
+        open: ['Eyes drop when the attention arrives.', '{She} performs at the floor.'],
         detail: ['Stage time may wake it. May.', 'Presence is the one thing we cannot drill.',
-          'Watch her after her first real crowd.'],
+          'Watch {her} after {pos} first real crowd.'],
       },
       developing: {
-        whole: ['There is something there when she forgets she is being watched.',
+        whole: ['There is something there when {she} forgets {she} is being watched.',
           'Flickers of presence. Inconsistent, but real.'],
-        open: ['Moments — real ones — then gone.', 'The room notices her, then loses her.'],
+        open: ['Moments — real ones — then gone.', 'The room notices {her}, then loses {her}.'],
         detail: ['Inconsistent, but real.', 'Confidence would finish this sentence.',
-          'A good stage could flip the switch.', 'Keep putting her in front of people.'],
+          'A good stage could flip the switch.', 'Keep putting {her} in front of people.'],
       },
       capable: {
         whole: ['Comfortable in front of people. Memorable is the next step.',
-          'Holds attention when she has a reason to. Stars manufacture the reason.'],
+          'Holds attention when {she} has a reason to. Stars manufacture the reason.'],
         open: ['Easy on camera, easy in a room.', 'The presence is steady, never startling.',
           'Interviews will be perfectly fine.'],
-        detail: ['Variety shows could sharpen this.', 'She will not be the story — or the problem.',
-          'The fancams will be kind, not viral.', 'Give her lines and she lands them.'],
+        detail: ['Variety shows could sharpen this.', '{She} will not be the story — or the problem.',
+          'The fancams will be kind, not viral.', 'Give {her} lines and {she} lands them.'],
       },
       strong: {
-        whole: ['People stop talking when she starts.',
-          'Holds the room a beat longer than she should be able to.'],
-        open: ['The attention lands on her and stays.', 'She fills a pause like it was written for her.'],
-        detail: ['That is not trainable. That is hers.', 'Cameras are going to love this.',
-          'Give her a fancam and stand back.'],
+        whole: ['People stop talking when {she} starts.',
+          'Holds the room a beat longer than {she} should be able to.'],
+        open: ['The attention lands on {her} and stays.', '{She} fills a pause like it was written for {her}.'],
+        detail: ['That is not trainable. That is {hers}.', 'Cameras are going to love this.',
+          'Give {her} a fancam and stand back.'],
       },
       exceptional: {
-        whole: ['I cannot explain it. Everyone in the room kept watching her.',
-          'Whatever "it" is — she has it, and she knows it.'],
+        whole: ['I cannot explain it. Everyone in the room kept watching {her}.',
+          'Whatever "it" is — {she} has it, and {she} knows it.'],
         open: ['The evaluation stopped being about the material.', 'Staff found reasons to stay in the room.'],
         detail: ['I have no metric for this. I am reporting it anyway.',
-          'Whoever debuts her first wins.', 'The public will do our marketing.'],
+          'Whoever debuts {her} first wins.', 'The public will do our marketing.'],
       },
     },
   };
 
   const RECOMMEND = {
-    exceptional: ['Debut her before someone else does.', 'Sign her today. Argue later.',
+    exceptional: ['Debut {her} before someone else does.', 'Sign {her} today. Argue later.',
       'If the budget says no, change the budget.', 'This is why the job exists. Move.'],
     strong: ['Worth the money. I would move.', 'Recommend signing — the upside is real.',
-      'She raises the floor of any lineup we put her in.', 'Sign, and thank the calendar we saw her first.'],
+      '{She} raises the floor of any lineup we put {her} in.', 'Sign, and thank the calendar we saw {her} first.'],
     capable: ['A solid signing, if the price stays sensible.',
-      'She makes a lineup deeper, not brighter. We need both.',
-      'Yes — for the right role. Do not bid against anyone for her.',
-      'Dependable is underrated. Sign her for the room.'],
+      '{She} makes a lineup deeper, not brighter. We need both.',
+      'Yes — for the right role. Do not bid against anyone for {her}.',
+      'Dependable is underrated. Sign {her} for the room.'],
     developing: ['A project, but projects are the job.', 'Watch again before committing.',
       'Two years and good coaching. Whether we have both is your call.',
       'Interesting, unfinished. Priced accordingly.'],
     raw: ['Pass unless something changes.', 'I have seen this story before. It ends in a cut.',
-      'The board has better uses for this signing.', 'Someone will sign her. It does not have to be us.'],
+      'The board has better uses for this signing.', 'Someone will sign {her}. It does not have to be us.'],
   };
 
   // the market missed one (v0.3.2): an older prospect this polished being
   // available is a mistake somebody else made — say so, urgently
   const OVERLOOKED_NOTES = [
     'This polished, this age, still unsigned? Somebody upstream made a mistake. Move before they correct it.',
-    'Everyone assumed someone else had already signed her. Nobody had. These windows close on their own.',
-    'I checked twice why she is still available. The answer is luck. Ours — if we hurry.',
+    'Everyone assumed someone else had already signed {her}. Nobody had. These windows close on their own.',
+    'I checked twice why {she} is still available. The answer is luck. Ours — if we hurry.',
   ];
 
   const INSTINCT_NOTES = [
-    'I don’t have objective evidence for this. Don’t let another company sign her.',
-    'On paper she is ordinary. In the room she is not. Trust me once.',
-    'Every kid in that academy watched her instead of the mirror. That means something.',
+    'I don’t have objective evidence for this. Don’t let another company sign {her}.',
+    'On paper {she} is ordinary. In the room {she} is not. Trust me once.',
+    'Every kid in that academy watched {her} instead of the mirror. That means something.',
     'My reports say average. My gut has been doing this longer than my reports.',
     'I have signed two stars in my career. The hair on my arms remembers both. It just did it again.',
   ];
@@ -295,8 +295,8 @@
         : domain === 'dance' || domain === 'visuals' ? evs[1] : evs[2];
       const val = KP.perceived(state, person, domain, ev);
       const band = bandKey(val);
-      const line = composeLine(LINES[domain][band],
-        [state.seed, person.id, domain, band, 'line'].join('|'));
+      const line = KP.fillPro(composeLine(LINES[domain][band],
+        [state.seed, person.id, domain, band, 'line'].join('|')), person);
       return { domain, evaluator: ev, band, line,
         confident: KP.readWidth(person, ev) <= 9 };
     });
@@ -306,18 +306,18 @@
     const perceivedAll = KP.C.TALENTS.map(d => KP.perceived(state, person, d, scout))
       .sort((a, b) => b - a);
     const topTwo = (perceivedAll[0] + perceivedAll[1]) / 2;
-    const rec = pickLine(RECOMMEND[bandKey(topTwo)],
-      [state.seed, person.id, 'rec'].join('|'));
+    const rec = KP.fillPro(pickLine(RECOMMEND[bandKey(topTwo)],
+      [state.seed, person.id, 'rec'].join('|')), person);
 
     // rare instinct note: senior scout smells hidden charisma the numbers
     // miss — or flags the overlooked older find the market forgot
     let instinct = null;
     if (person.flags && person.flags.overlooked && person.status === 'prospect') {
-      instinct = pickLine(OVERLOOKED_NOTES, [state.seed, person.id, 'overlooked'].join('|'));
+      instinct = KP.fillPro(pickLine(OVERLOOKED_NOTES, [state.seed, person.id, 'overlooked'].join('|')), person);
     } else {
       const hiddenGap = person.talents.charisma.ceilHi - KP.perceived(state, person, 'charisma', scout);
       if (hiddenGap > 22 && KP.hash01([state.seed, person.id, 'instinct'].join('|')) < KP.C.SCOUT.instinctNoteChance * 3) {
-        instinct = pickLine(INSTINCT_NOTES, [state.seed, person.id, 'instinctLine'].join('|'));
+        instinct = KP.fillPro(pickLine(INSTINCT_NOTES, [state.seed, person.id, 'instinctLine'].join('|')), person);
       }
     }
 

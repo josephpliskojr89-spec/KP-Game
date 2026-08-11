@@ -81,6 +81,11 @@ const BANDS = {
   // floor 0 by ruling (competent bot answers every knock — see quietWeek)
   doorLeftWaiting:   { lo: 0.00, hi: 0.60, label: 'orgs that left somebody waiting at the door' },
   annivFelt:         { lo: 0.80, hi: 1.00, label: 'orgs that celebrated a debut anniversary (the calendar knows the date)' },
+  boysSigned:        { lo: 0.60, hi: 1.00, label: 'orgs that signed a male trainee (both halls run)' },
+  boyGroupFormed:    { lo: 0.02, hi: 0.80, label: 'orgs whose second act was a boy group' },
+  staffNamed:        { lo: 0.90, hi: 1.00, label: 'orgs whose groups have a named road manager' },
+  boardFaced:        { lo: 0.80, hi: 1.00, label: 'orgs that faced board season' },
+  petAssigned:       { lo: 0.10, hi: 1.00, label: 'orgs handed the executive pet project' },
   // floor 0 by ruling: scars require a BOILED storm, and the bot steers
   // every storm before the boil (discourseBoiled runs 0 — same physics)
   scarCarried:       { lo: 0.00, hi: 0.80, label: 'orgs where somebody carried a boiled storm for weeks' },
@@ -114,6 +119,7 @@ const tally = {
   soloCredit: 0, unitCredit: 0, sleeperHeard: 0,
   doorKnocked: 0, askPromiseKept: 0, momentChoiceSeen: 0, doorLeftWaiting: 0,
   annivFelt: 0, scarCarried: 0,
+  boysSigned: 0, boyGroupFormed: 0, staffNamed: 0, boardFaced: 0, petAssigned: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -198,9 +204,17 @@ for (let s = 0; s < SEEDS; s++) {
       state.week >= 70 && KP.freeTrainees(state).length >= 4 && state.budget > 120;
     if ((!state.groups.length && state.week >= 20 && state.roster.length >= 5) || wantSecond) {
       const size = state.groups.length ? 4 : 5;
-      const pool = KP.freeTrainees(state).map(id => state.people[id])
-        .map(p => ({ p, v: KP.C.TALENTS.reduce((sum, d) => sum + KP.perceived(state, p, d, scout), 0) }))
-        .sort((a, b) => b.v - a.v).slice(0, size).map(x => x.p);
+      // one group, one gender (v0.8.4): the bot fields the strongest
+      // SAME-GENDER lineup — its second act is a boy group when the
+      // boys outrank the remaining girls
+      const ranked = KP.freeTrainees(state).map(id => state.people[id])
+        .map(p => ({ p, v: KP.C.TALENTS.reduce((sum, d) => sum + KP.perceived(state, p, d, scout), 0) }));
+      const byGender = gdr => ranked.filter(x => (x.p.gender || 'f') === gdr)
+        .sort((a, b) => b.v - a.v).slice(0, size);
+      const fPool = byGender('f'), mPool = byGender('m');
+      const sum = pool2 => pool2.reduce((s2, x) => s2 + x.v, 0);
+      const pool = (mPool.length >= 4 && (fPool.length < 4 || sum(mPool) > sum(fPool)) ? mPool : fPool)
+        .map(x => x.p);
       if (pool.length >= 4) {
         const hints = KP.roleHints(state, pool);
         const name = KP.suggestGroupNames(state, KP.rngFor(state))[0] + (state.groups.length ? ' II' : '');
@@ -539,6 +553,13 @@ for (let s = 0; s < SEEDS; s++) {
   if (doorWaitSeen) tally.doorLeftWaiting++;
   if (annivSeen) tally.annivFelt++;
   if (scarSeen) tally.scarCarried++;
+  // the building + boy groups census (v0.8.4)
+  if (state.roster.some(id => state.people[id].gender === 'm')) tally.boysSigned++;
+  if (state.groups.some(g => g.gender === 'm')) tally.boyGroupFormed++;
+  if (state.groups.filter(g => g.debuted).every(g => KP.managerOf(state, g)) &&
+      state.groups.some(g => g.debuted)) tally.staffNamed++;
+  if ((state.convoLog || []).some(e => e.kind === 'boardSeason')) tally.boardFaced++;
+  if (state.petProjectDone) tally.petAssigned++;
   // the tracklist census (v0.7.5)
   const allReleases = state.groups.flatMap(gg => gg.releases || []);
   const credits = allReleases.flatMap(r => (r.tracklist || []).filter(tk => tk.credit));

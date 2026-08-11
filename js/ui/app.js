@@ -124,6 +124,17 @@
   }
 
   // ---- action dispatch -------------------------------------------------
+  // typed names survive re-renders (v0.8.4): keep drafts synced without
+  // re-rendering on every keystroke
+  document.addEventListener('input', (e) => {
+    if (e.target.id === 'builder-name-input' && App.builderDraft) {
+      App.builderDraft.customName = e.target.value;
+    }
+    if (e.target.id === 'title-name-input' && App.studioDraft) {
+      App.studioDraft.customTitle = e.target.value;
+    }
+  });
+
   document.addEventListener('click', (e) => {
     const t = e.target.closest('[data-action],[data-nav]');
     if (!t) return;
@@ -548,7 +559,7 @@
         App.render();
         break;
       }
-      case 'builder-name': App.builderDraft.name = t.dataset.name; App.render(); break;
+      case 'builder-name': App.builderDraft.name = t.dataset.name; App.builderDraft.customName = ''; App.render(); break;
       case 'builder-propose-solo': {
         const soloist = s.people[t.dataset.id];
         let actName = KP.displayName(soloist);
@@ -566,7 +577,9 @@
       }
       case 'builder-propose': {
         const d = App.builderDraft;
-        const r = KP.proposeGroup(s, d.name, d.members, d.roles);
+        const typed = (document.getElementById('builder-name-input') || {}).value || '';
+        const finalName = typed.trim() || d.name;
+        const r = KP.proposeGroup(s, finalName, d.members, d.roles);
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
         App.view = null; App.stack.length = 0; App.tab = 'groups';
@@ -606,6 +619,13 @@
         if (total !== 100) { UI.toast('Allocation totals ' + total + '% — make it 100.', true); break; }
         const sg = UI.studioGroup(s);
         const sel = (sg.demos || []).find(x => x.id === d.songId);
+        // the company names the record (v0.8.4): a typed title replaces
+        // the producers' working title before the lock
+        if ((d.customTitle || '').trim()) {
+          const rn = KP.renameDemo(s, sg.id, d.songId, d.customTitle);
+          if (!rn.ok) { UI.toast(rn.reason, true); break; }
+          d.customTitle = '';
+        }
         const r = KP.planDebut(s, { groupId: sg.id, songId: d.songId, conceptId: d.conceptId || sel.conceptId,
           promo: d.promo, week: d.week, alloc: d.alloc, format: d.format, rollout: d.rollout });
         if (!r.ok) { UI.toast(r.reason, true); break; }

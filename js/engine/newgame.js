@@ -89,7 +89,10 @@
     const count = rng.int(KP.C.GEN.prospectCount[0], KP.C.GEN.prospectCount[1]);
     let mostCharismatic = null;
     for (let i = 0; i < count; i++) {
-      const p = KP.generatePerson(rng, { status: 'prospect', usedNames });
+      // the opening board leans female (the mandate is a girl group) but
+      // is not exclusively so — the second act starts on day one (v0.8.4)
+      const gender = rng.chance(KP.C.GEN.maleBoardShare) ? 'm' : 'f';
+      const p = KP.generatePerson(rng, { status: 'prospect', usedNames, gender });
       state.people[p.id] = p;
       state.prospects.push(p.id);
       if (!mostCharismatic || p.talents.charisma.cur > mostCharismatic.talents.charisma.cur) mostCharismatic = p;

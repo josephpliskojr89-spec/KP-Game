@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.8.3.2',
+    VERSION: '0.8.4',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -67,6 +67,10 @@
       personalityMean: 50, personalitySd: 17,
       archetypeChance: 0.65,       // chance a person carries >= 1 hidden archetype
       secondArchetypeChance: 0.2,
+      // boy groups (v0.8.4): the opening board leans female (the mandate
+      // is a girl group); the weekly leads run closer to even
+      maleBoardShare: 0.25,
+      maleLeadShare: 0.35,
     },
 
     ARCHETYPES: [
@@ -727,22 +731,22 @@
         'does thousand-piece puzzles during comeback prep to stay calm',
         'learned to skateboard in the company parking garage at night',
         'keeps a running ranking of every convenience-store snack, updated weekly',
-        'writes letters to her future self and mails them to her mom for safekeeping',
+        'writes letters to {pos} future self and mails them to {pos} mom for safekeeping',
         'can identify any song from the first second, a party trick with a 94% record',
         'sews and has quietly repaired half the group’s stage outfits',
         'is terrified of butterflies and completely unashamed about it',
         'memorizes the staff’s birthdays and is never wrong',
-        'has a green belt in judo she brings up exactly once per interview',
+        'has a green belt in judo {she} brings up exactly once per interview',
         'narrates nature documentaries over muted broadcasts, voices and all',
         'buys two of every book — one to annotate, one to keep clean',
         'is banned from the claw machine at one specific arcade, by name',
         'does the group’s taxes conceptually, for fun, and is worryingly good',
         'has never once lost at rock-paper-scissors on a broadcast',
-        'keeps a jar of bad-day notes from fans and reads one when she needs it',
+        'keeps a jar of bad-day notes from fans and reads one when {she} needs it',
         'grew up on an island and can gut a fish faster than the cooks',
         'speaks three languages and eavesdrops in all of them',
         'has adopted every stray cat within a block of the company building, socially',
-        'runs at 6am and has a route named after her by the neighborhood aunties',
+        'runs at 6am and has a route named after {her} by the neighborhood aunties',
         'collects hotel key cards from every tour city, labeled and dated',
         'once fixed the practice-room speaker with a hairpin and refuses to explain',
         'draws caricatures of the members that are too accurate to publish',
@@ -752,25 +756,25 @@
       // the note hash-picks a phrasing per person, so two idols who
       // want the same thing do not read as the same person
       AMBITIONS: {
-        solo:    { label: 'a stage of her own', lines: [
-          'she wants a solo. Everyone who has watched her rehearse alone after practice knows it.',
-          'she keeps a private playlist labeled only with her own initials. The A&R team has theories. The theories are correct.',
-          'when the members divide up lines, she counts hers twice — not out of greed. Out of wanting a song where the count is all of them.',
+        solo:    { label: 'a stage of {pos} own', lines: [
+          '{she} wants a solo. Everyone who has watched {her} rehearse alone after practice knows it.',
+          '{she} keeps a private playlist labeled only with {pos} own initials. The A&R team has theories. The theories are correct.',
+          'when the members divide up lines, {she} counts {hers} twice — not out of greed. Out of wanting a song where the count is all of them.',
         ] },
         trophy:  { label: 'a music-show trophy', lines: [
-          'she wants a trophy in her hands — she has rewatched other groups’ win announcements more than their stages.',
-          'she practices an acceptance-speech face in the van window when she thinks no one can see. Everyone can see.',
-          'she knows the exact broadcast-point formula of every music show, from memory, unprompted. Nobody studies that for fun. She would say it is for fun.',
+          '{she} wants a trophy in {pos} hands — {she} has rewatched other groups’ win announcements more than their stages.',
+          '{she} practices an acceptance-speech face in the van window when {she} thinks no one can see. Everyone can see.',
+          '{she} knows the exact broadcast-point formula of every music show, from memory, unprompted. Nobody studies that for fun. {She} would say it is for fun.',
         ] },
         stage:   { label: 'a sold-out room', lines: [
-          'she wants a sold-out room singing her lines back. The bigger the better.',
-          'venues are the only numbers she remembers — capacities, not chart positions. Ask her what the biggest room in any city is. Go on.',
-          'at other artists’ concerts she watches the crowd, not the stage. Staff stopped asking why.',
+          '{she} wants a sold-out room singing {pos} lines back. The bigger the better.',
+          'venues are the only numbers {she} remembers — capacities, not chart positions. Ask {her} what the biggest room in any city is. Go on.',
+          'at other artists’ concerts {she} watches the crowd, not the stage. Staff stopped asking why.',
         ] },
         variety: { label: 'a seat at the variety table', lines: [
-          'she wants to be the funny one on the panel shows — and she is right about being good at it.',
-          'she times her jokes to the second in dorm conversations and studies which ones land. This is a professional practice regimen wearing pajamas.',
-          'she can name every fixed panelist on television and which chair they sit in. She has a chair picked out.',
+          '{she} wants to be the funny one on the panel shows — and {she} is right about being good at it.',
+          '{she} times {pos} jokes to the second in dorm conversations and studies which ones land. This is a professional practice regimen wearing pajamas.',
+          '{she} can name every fixed panelist on television and which chair they sit in. {She} has a chair picked out.',
         ] },
       },
       REGULARS: [
@@ -832,6 +836,18 @@
     ANNIV: {
       morale: 2,                 // the anniversary vlive does everyone good
       spike: 1800,               // N-years hashtags travel
+    },
+    // ---- The building (v0.8.4) — staff, taste, board season -------------
+    BUILDING: {
+      poachPopMin: 45,           // rivals hire from winners
+      poachTenureMin: 20,        // a manager worth poaching has history
+      poachChance: 0.04,         // weekly, when a target exists
+      poachCooldown: 30,         // rare enough to hurt
+      counterCost: 25,           // keeping her costs real money
+      poachMorale: 3,            // losing her costs the members
+      boardWeek: 46,             // the year answers for itself
+      petAfterWeek: 60,          // the pet project waits for a real company
+      petChance: 0.06,           // weekly, once eligible — once per career
     },
     // ---- The office door (v0.8.2) — idols initiate ----------------------
     DOOR: {

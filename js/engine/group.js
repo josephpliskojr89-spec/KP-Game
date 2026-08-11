@@ -73,9 +73,17 @@
     const members = memberIds.map(id => state.people[id]);
     if (members.some(m => !m || m.status !== 'trainee')) return { ok: false, reason: 'Every member must be a signed trainee.' };
     if (memberIds.some(id => KP.groupOf(state, id))) return { ok: false, reason: 'Someone in this lineup already belongs to a group.' };
+    // one group, one gender (v0.8.4) — the market the company sells into
+    // does not sign mixed idol groups, and neither does the exec
+    const genders = new Set(members.map(m => m.gender || 'f'));
+    if (genders.size > 1) {
+      return { ok: false, reason: 'A mixed lineup is a different business plan. One group, one gender — the exec was very clear.' };
+    }
     if (KP.groups(state).some(g => g.name.toLowerCase() === String(name).toLowerCase())) {
       return { ok: false, reason: 'That name is taken in this building.' };
     }
+    name = String(name || '').trim().slice(0, 18);
+    if (!name.length) return { ok: false, reason: 'A group needs a name before it needs anything else.' };
     if (isSolo) {
       roles = { leader: memberIds[0], center: memberIds[0] };
     }
@@ -93,6 +101,7 @@
     const group = {
       id: 'g' + (state.nextGroupId++),
       type: isSolo ? 'solo' : 'group',
+      gender: members[0].gender || 'f',
       name,
       members: memberIds.slice(),
       roles: Object.assign({}, roles),

@@ -119,7 +119,9 @@
       // person ids come from state, never from module memory — saves depend on it
       KP.resetIds(state.nextPersonId || KP.peekNextId());
       const usedNames = new Set(Object.values(state.people).map(x => x.name.given.toLowerCase()));
-      const p = KP.generatePerson(rng, { status: 'prospect', usedNames });
+      // boys walk into open auditions too (v0.8.4)
+      const gender = rng.chance(KP.C.GEN.maleLeadShare) ? 'm' : 'f';
+      const p = KP.generatePerson(rng, { status: 'prospect', usedNames, gender });
       state.nextPersonId = KP.peekNextId();
       state.people[p.id] = p;
       state.prospects.push(p.id);

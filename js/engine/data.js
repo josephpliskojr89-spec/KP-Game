@@ -16,6 +16,11 @@
       'Aria', 'Bit', 'Dawn', 'Elle', 'Haze', 'Ivy', 'June', 'Kai', 'Lume',
       'Mars', 'Nova', 'Onyx', 'Prism', 'Rae', 'Sol', 'Vera', 'Wren', 'Yuri', 'Zia',
     ],
+    // the boys' register (v0.8.4) — shares the unisex middle with the list above
+    stageNamesM: [
+      'Ace', 'Bex', 'Cade', 'Dae', 'Eon', 'Flint', 'Gray', 'Haan', 'Jett', 'Kai',
+      'Knox', 'Leo', 'Mars', 'Nine', 'Onyx', 'Rook', 'Sol', 'Vann', 'Wolf', 'Zeph',
+    ],
     // Evaluator staff: id, name, role, voice, favored domain, accuracy (read width mult)
     evaluators: [
       { id: 'ev_vocal', name: 'Coach Baek', role: 'Head Vocal Coach', bias: 'vocals', accuracy: 0.85,

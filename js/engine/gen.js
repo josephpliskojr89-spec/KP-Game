@@ -15,12 +15,23 @@
     'ji', 'mi', 'rae', 'in', 'a', 'young', 'byul', 'ha', 'yul', 'gyeong',
     'seul', 'som', 'wol', 'dam', 'ryeong', 'chae', 'hyang'];
 
+  // male given-name syllables (v0.8.4, boy groups) — the same two-part
+  // shape, a different register
+  const GIVEN_MA = ['Ji', 'Min', 'Do', 'Tae', 'Seung', 'Hyun', 'Jae', 'Woo', 'Sung',
+    'Young', 'Dong', 'Kyung', 'Sang', 'Jin', 'Ho', 'Chan', 'Beom', 'Kang',
+    'Se', 'Won', 'Joon', 'Myung', 'In', 'Hwan', 'Gun', 'Yeon', 'Si', 'Han'];
+  const GIVEN_MB = ['ho', 'joon', 'woo', 'hyun', 'seok', 'min', 'gyu', 'jae', 'sung',
+    'hwan', 'tae', 'young', 'bin', 'chul', 'kyu', 'wook', 'jun', 'san',
+    'gun', 'yeol', 'sik', 'won', 'hak', 'beom', 'chan', 'il', 'kwon'];
+
   // A generated given name: "Ji-woo" shape, never twice in one world when
   // a used-set is provided (collisions retry, then yield to reality —
   // real buildings have two Ji-woos sometimes, after 20 tries).
-  KP.genGivenName = function (rng, used) {
+  KP.genGivenName = function (rng, used, gender) {
+    const A = gender === 'm' ? GIVEN_MA : GIVEN_A;
+    const B = gender === 'm' ? GIVEN_MB : GIVEN_B;
     for (let attempt = 0; attempt < 20; attempt++) {
-      const a = rng.pick(GIVEN_A), b = rng.pick(GIVEN_B);
+      const a = rng.pick(A), b = rng.pick(B);
       if (a.toLowerCase() === b.toLowerCase()) continue;   // no "Byul-byul"
       const name = a + '-' + b;
       if (!used || !used.has(name.toLowerCase())) {
@@ -28,7 +39,7 @@
         return name;
       }
     }
-    return rng.pick(GIVEN_A) + '-' + rng.pick(GIVEN_B);
+    return rng.pick(A) + '-' + rng.pick(B);
   };
 
   const TITLE_ADJ = ['Neon', 'Midnight', 'Glass', 'Velvet', 'Paper', 'Electric',

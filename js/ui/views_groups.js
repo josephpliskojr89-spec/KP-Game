@@ -348,11 +348,15 @@
       KP.frictionPairs(state, draft.members).forEach(f => html.push(UI.frictionCard(state, f)));
 
       html.push('<div class="kicker">Name</div>');
-      html.push('<div class="pad" style="display:flex;gap:8px;flex-wrap:wrap">' +
-        draft.nameOptions.map(n => '<button class="chip ' + (draft.name === n ? 'on' : '') + '" style="' +
-          (draft.name === n ? 'background:color-mix(in srgb,var(--era1) 26%,var(--surface2));color:var(--ink);border-color:var(--era1)' : '') + '" ' +
+      // your own name, or one of the pitches (v0.8.4, owner request)
+      html.push('<div class="pad"><input class="nc-input" id="builder-name-input" maxlength="18" ' +
+        'placeholder="Name the group yourself…" value="' + UI.esc(draft.customName || '') + '"></div>');
+      html.push('<div class="pad" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">' +
+        draft.nameOptions.map(n => '<button class="chip ' + (draft.name === n && !draft.customName ? 'on' : '') + '" style="' +
+          (draft.name === n && !draft.customName ? 'background:color-mix(in srgb,var(--era1) 26%,var(--surface2));color:var(--ink);border-color:var(--era1)' : '') + '" ' +
           'data-action="builder-name" data-name="' + UI.esc(n) + '">' + UI.esc(n) + '</button>').join('') +
         '</div>');
+      html.push('<div class="pad" style="font-size:.68rem;color:var(--ink-dim);margin-top:4px">Typed name wins over the chips. The marketing team pitched the chips; the marketing team also knows better than to argue.</div>');
 
       html.push('<div class="pad" style="margin-top:20px">' +
         '<button class="btn primary" data-action="builder-propose" style="width:100%">Propose to ' + UI.esc(state.executive.name.split(' ')[0]) + ' ' + UI.esc(state.executive.name.split(' ')[1] || '') + '</button></div>');

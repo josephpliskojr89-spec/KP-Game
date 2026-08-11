@@ -590,6 +590,20 @@
     });
   } });
 
+  // v0.8.4 — the building, boy groups, and the company's own names.
+  MIGRATIONS.push({ v: '0.8.4', fn: function (state) {
+    // everyone who exists predates the boys — stamp the record
+    Object.values(state.people || {}).forEach(p => { if (!p.gender) p.gender = 'f'; });
+    (state.groups || []).forEach(g => { if (!g.gender) g.gender = 'f'; });
+    (state.rivals || []).forEach(r => (r.acts || []).forEach(a => { if (!a.gender) a.gender = 'f'; }));
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'Structural memo, long overdue, three items. One: the building gets NAMES — a road manager per group (rivals can and will poach the good ones), the head vocal coach on the record, and an executive who, it turns out, has taste and a board to answer to; expect board season yearly and, someday, a project of her own. Two: the open auditions now run both halls — boys are on the scouting board, and a second lineup can be a BOY group (one group, one gender; the exec was very clear). Three: naming rights come home — group names and record titles can be yours, typed by hand, with the marketing team’s pitches demoted to suggestions.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

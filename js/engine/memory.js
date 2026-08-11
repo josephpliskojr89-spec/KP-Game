@@ -70,7 +70,7 @@
       case 'underperformed': return group() + '’s last comeback underperformed, and people noticed.';
       case 'dormant': return group() + ' has gone quiet — ' + Math.max(1, state.week - (n.meta && n.meta.since || state.week)) + ' weeks and counting.';
       case 'fancamStar': return idol() + ' is the fancam one. Everyone knows a clip.';
-      case 'itGirl': return idol() + ' is becoming an it-girl.';
+      case 'itGirl': return KP.fillPro(idol() + ' is becoming an it-{girl}.', state.people[n.subjectId]);
       case 'dateSniper': {
         const r = (state.rivals || []).find(x => x.short === n.subjectId);
         const count = (r && r.ambushCount) || n.evidence + 1;
@@ -160,8 +160,8 @@
       case 'monsterRookies': return 'The verdict is in: ' + group() + ' are being called monster rookies. The public will hold them to it.';
       case 'underperformed': return 'The narrative has settled: ' + group() + '’s comeback underperformed. Fair or not, the next release answers for it.';
       case 'dormant': return 'The fan cafes have started counting: ' + group() + ' has not released in months. Quiet is a story too.';
-      case 'fancamStar': return idol() + ' has gone viral enough times that it is not luck anymore — the internet has decided she is the fancam one. Every stage she takes is a camera looking for the next clip.';
-      case 'itGirl': return 'Fashion accounts, recap channels, general-public posts: ' + idol() + ' keeps being the one people remember. The phrase “it-girl” is starting to attach.';
+      case 'fancamStar': return KP.fillPro(idol() + ' has gone viral enough times that it is not luck anymore — the internet has decided {she} is the fancam one. Every stage {she} takes is a camera looking for the next clip.', state.people[n.subjectId]);
+      case 'itGirl': return KP.fillPro('Fashion accounts, recap channels, general-public posts: ' + idol() + ' keeps being the one people remember. The phrase “it-{girl}” is starting to attach.', state.people[n.subjectId]);
       case 'trendCopier': return rivalCo() + ' has a reputation now: first to every trend, occasionally face-first. The fans mean it affectionately. Mostly.';
       case 'performanceFactory': return 'The book on ' + rivalCo() + ' is written: their groups can dance before they can talk. Plan concepts accordingly.';
       case 'patientHouse': return rivalCo() + '’s reputation crystallized: sign young, wait years, rarely miss. The patient ones are the dangerous ones.';

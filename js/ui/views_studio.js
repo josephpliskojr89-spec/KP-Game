@@ -192,6 +192,11 @@
     });
 
     if (sel) {
+      // the company names the record (v0.8.4, owner request)
+      html.push('<div class="kicker">The title</div>');
+      html.push('<div class="pad"><input class="nc-input" id="title-name-input" maxlength="24" ' +
+        'placeholder="Rename “' + UI.esc(sel.title) + '”… (optional)" value="' + UI.esc(draft.customTitle || '') + '">' +
+        '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:5px">The producers pitch working titles. The company names records. Leave it blank to keep theirs.</div></div>');
       html.push('<div class="kicker">Concept direction</div>');
       html.push('<div class="concept-scroll">' +
         KP.C.CONCEPTS.map(c => '<button class="chip concept-pill ' + (conceptId === c.id ? 'on' : '') + '" ' +
