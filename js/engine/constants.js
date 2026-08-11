@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.4',
+    VERSION: '0.9.5',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -730,8 +730,31 @@
       winTrust: 3,
       winPop: 3,
       jitter: 6,                // hash-driven ceremony-night wobble
+      // the ladder (v0.9.5): the categories are bonsangs — several, and
+      // genuinely attainable. Above them sits ONE daesang, and it is
+      // brutal: the whole year, weighed once.
       categories: ['rookie', 'song', 'artist'],
-      LABELS: { rookie: 'Rookie of the Year', song: 'Song of the Year', artist: 'Artist of the Year' },
+      LABELS: { rookie: 'Rookie of the Year', song: 'Song of the Year', artist: 'Artist of the Year',
+        daesang: 'DAESANG — Grand Prize of the Year' },
+      daesangTrust: 5, daesangPop: 5, daesangFandom: 6,
+      snubAgainMult: 2,         // "a bonsang, again" — the radicalizer, doubled
+    },
+
+    // ---- The year (v0.9.5): the calendar has a shape --------------------
+    SEASON: {
+      deadZoneWeeks: [1, 4],     // January: the industry sleeps
+      deadZoneMod: -3,
+      festWeeks: [16, 20],       // spring university festival circuit
+      festPopRange: [25, 62],    // mid-tier acts get the calls
+      festPayBase: 10, festPayPerPop: 0.2,
+      festLiveExp: 2, festFatigue: 3,
+      summerWeeks: [24, 33],     // song-of-the-summer season
+      summerBrightLift: 4,       // bright concepts, in season
+      gayoInviteWeek: 46,        // year-end gayo invitations land
+      gayoStageWeek: 48,         // the stages themselves
+      gayoPopAt: 55,             // invitation is by popularity, period
+      gayoMorale: 2,
+      gayoCollabChance: 0.5,     // a friendship becomes year-end television
     },
 
     // ---- The inner life (v0.7.1) ----------------------------------------

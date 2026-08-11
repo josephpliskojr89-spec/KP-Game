@@ -117,6 +117,12 @@ const BANDS = {
   seniorStan:        { lo: 0.30, hi: 1.00, label: 'orgs whose rookie a senior publicly stanned' },
   debutClass:        { lo: 0.20, hi: 1.00, label: 'orgs whose debut class the fans lined up at award season' },
   industryCongrats:  { lo: 0.02, hi: 1.00, label: 'orgs whose idol congratulated a friend in public' },
+  // v0.9.5 — the year (floors provisional on first soak)
+  festPlayed:        { lo: 0.50, hi: 1.00, label: 'orgs that played the university festival circuit' },
+  gayoStaged:        { lo: 0.20, hi: 1.00, label: 'orgs that closed a year on the gayo stage' },
+  // the summit stays rare — same law as natNumberOne
+  daesangWon:        { lo: 0.00, hi: 0.45, label: 'orgs that took the daesang home' },
+  daesangSnubbed:    { lo: 0.00, hi: 0.90, label: 'orgs shortlisted that watched the daesang go elsewhere' },
 };
 
 const tally = {
@@ -144,6 +150,7 @@ const tally = {
   contractStamped: 0,
   homeCircuit: 0, encoreEarned: 0, friendMade: 0, coffeeTruck: 0,
   seniorStan: 0, debutClass: 0, industryCongrats: 0,
+  festPlayed: 0, gayoStaged: 0, daesangWon: 0, daesangSnubbed: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -197,6 +204,7 @@ for (let s = 0; s < SEEDS; s++) {
   let tourSoldOutSeen = false, tourSoftSeen = false, awardSnubSeen = false;
   let circuitSeen = false, encoreSeen = false, truckSeen = false,
     stanSeen = false, classSeen = false, congratsSeen = false;
+  let festSeen = false, gayoSeen = false, daesangSeen = false, daesangSnubSeen = false;
   let regionStorySeen = false;   // ever-formed, not end-state (v0.9.1):
   // narratives decay and the memory cap evicts — "became a story" is an
   // event, and a richer narrative world (aging feeds the rumor pool)
@@ -430,6 +438,11 @@ for (let s = 0; s < SEEDS; s++) {
       if (n.ind === 'tourLeg' && n.soldOut) tourSoldOutSeen = true;
       if (n.ind === 'tourLeg' && n.soft) tourSoftSeen = true;
       if (n.ind === 'awardSnub') awardSnubSeen = true;
+      // the year (v0.9.5)
+      if (n.ind === 'festival') festSeen = true;
+      if (n.ind === 'gayoStage') gayoSeen = true;
+      if (n.ind === 'daesang') daesangSeen = true;
+      if (n.ind === 'daesangSnub') daesangSnubSeen = true;
       // the home circuit + the society (v0.9.4)
       if (n.ind === 'tourCircuit') circuitSeen = true;
       if (n.ind === 'tourCircuit' && n.encores > 0) encoreSeen = true;
@@ -628,6 +641,11 @@ for (let s = 0; s < SEEDS; s++) {
   if (state.groups.some(g => g.debuted) &&
       state.groups.filter(g => g.debuted).every(g =>
         g.members.every(id => state.people[id] && state.people[id].contract))) tally.contractStamped++;
+  // the year census (v0.9.5)
+  if (festSeen) tally.festPlayed++;
+  if (gayoSeen) tally.gayoStaged++;
+  if (daesangSeen) tally.daesangWon++;
+  if (daesangSnubSeen) tally.daesangSnubbed++;
   // the home circuit + the society census (v0.9.4)
   if (circuitSeen) tally.homeCircuit++;
   if (encoreSeen) tally.encoreEarned++;

@@ -148,15 +148,18 @@
       // 5) award season: the debut class resurfaces
       const woy = ((state.week - 1) % KP.C.WEEKS_PER_YEAR) + 1;
       if (woy === S.cohortWeek && g.debutWeek != null) {
-        const year = Math.floor((g.debutWeek - 1) / KP.C.WEEKS_PER_YEAR) + 1;
-        if ((g.cohortNotedYear || 0) < Math.floor((state.week - 1) / KP.C.WEEKS_PER_YEAR)) {
+        const debutYear = Math.floor((g.debutWeek - 1) / KP.C.WEEKS_PER_YEAR) + 1;
+        const curYear = Math.floor((state.week - 1) / KP.C.WEEKS_PER_YEAR) + 1;
+        // guard on the 1-based year — a 0-based compare read 0 < 0 in
+        // year one and the first award season skipped its own class
+        if ((g.cohortNotedYear || 0) < curYear) {
           const classmates = allActs(state).filter(({ act }) =>
             act.debutWeek > 0 &&
-            Math.floor((act.debutWeek - 1) / KP.C.WEEKS_PER_YEAR) + 1 === year).map(x => x.act.name);
+            Math.floor((act.debutWeek - 1) / KP.C.WEEKS_PER_YEAR) + 1 === debutYear).map(x => x.act.name);
           if (classmates.length) {
-            g.cohortNotedYear = Math.floor((state.week - 1) / KP.C.WEEKS_PER_YEAR);
-            inbox.push({ kind: 'public', ind: 'debutClass', priority: 'flavor', groupId: g.id,
-              text: 'Award season did the thing it does every year: the fan accounts lined up the Year ' + year +
+            g.cohortNotedYear = curYear;
+            inbox.push({ kind: 'public', ind: 'debutClass', groupId: g.id,
+              text: 'Award season did the thing it does every year: the fan accounts lined up the Year ' + debutYear +
                 ' debut class — ' + g.name + ', ' + classmates.slice(0, 3).join(', ') +
                 ' — side by side, then and now. Same starting line, very different roads. The quote-posts are a whole genre tonight.' });
           }

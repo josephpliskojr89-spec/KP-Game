@@ -139,6 +139,11 @@ function openCalendar(state, g) {
 // ---- award season: the debut class lines up ----
 {
   const { state, g } = debuted('soc-class');
+  // sculpt the classmate: a rival act on the same starting line (stream
+  // luck used to provide one; the v0.9.5 shift taught us not to gamble)
+  const mate = state.rivals[0].acts[0];
+  mate.retired = false;
+  mate.debutWeek = g.debutWeek;
   let guard = 0;
   while (!state.inbox.some(n => n.ind === 'debutClass') && guard++ < 120) KP.advanceWeek(state);
   const note = state.inbox.find(n => n.ind === 'debutClass');

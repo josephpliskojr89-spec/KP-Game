@@ -67,6 +67,48 @@
     return list.sort((x, y) => y.score - x.score);
   }
 
+  // the daesang field (v0.9.5): the whole year, weighed once. Brutal by
+  // construction — a year of releases, trophies, and a devoted fandom,
+  // against every act in the industry at once.
+  function daesangField(state) {
+    const A = KP.C.AWARDS;
+    const from = yearStart(state);
+    const list = [];
+    const jitter = key => KP.hash01([state.seed, 'daesang', yearOf(state), key].join('|')) * A.jitter;
+    KP.groups(state).forEach(g => {
+      if (!g.debuted) return;
+      const yearRels = (g.releases || []).filter(r => r.week >= from);
+      if (!yearRels.length) return;
+      const trophies = Object.values(g.trophies || {}).reduce((s, n) => s + n, 0);
+      // symmetric with the rival read — no fandom term the rivals can't
+      // have; devotion already lives inside popularity and trophies
+      list.push({ name: g.name, company: state.company.short, isPlayer: true, groupId: g.id,
+        score: (g.popularity || 0) * 1.2 + trophies * 2.5 +
+          yearRels.reduce((s, r) => s + r.reception, 0) * 0.12 + jitter(g.id) });
+    });
+    (state.rivals || []).forEach(rv => (rv.acts || []).forEach(a => {
+      if (a.retired) return;
+      const yearRels = (a.releases || []).filter(r => r.week >= from);
+      if (!yearRels.length) return;
+      list.push({ name: a.name, company: rv.short, isPlayer: false,
+        score: (a.popularity || 0) * 1.2 + (a.showWins || 0) * 2.5 +
+          yearRels.reduce((s, r) => s + r.reception, 0) * 0.12 + jitter(a.id) });
+    }));
+    // the wider market weighs in: the national chart's year-defining
+    // acts sit at this table too. The scene's best act still has to
+    // beat the nation's giants — that is what makes ONE daesang brutal.
+    const seen = new Set();
+    ((state.national && state.national.entries) || []).forEach(e => {
+      if (!e.pool || e.isPlayer || seen.has(e.act)) return;
+      seen.add(e.act);
+      if ((e.peakPos || 99) > 5) return;
+      list.push({ name: e.act, company: 'the open market', isPlayer: false,
+        score: 130 - ((e.peakPos || 1) - 1) * 6 +
+          Math.min(30, e.weeksOn || 0) * 0.4 + jitter(e.act) });
+    });
+    return list.sort((x, y) => y.score - x.score);
+  }
+
   KP.awardsWeek = function (state) {
     const A = KP.C.AWARDS;
     const notes = [];
@@ -79,6 +121,10 @@
         noms[cat] = fieldFor(state, cat).slice(0, A.nomineeCount);
         noms[cat].forEach(n => { if (n.isPlayer) mine.push(A.LABELS[cat] + ' (' + n.name + ')'); });
       });
+      // the daesang shortlist (v0.9.5): ONE grand prize, the whole year
+      // weighed once — popularity, trophies, the fandom, every release
+      noms.daesang = daesangField(state).slice(0, A.nomineeCount);
+      noms.daesang.forEach(n => { if (n.isPlayer) mine.push(A.LABELS.daesang + ' (' + n.name + ')'); });
       state.awardSeason = { year: yearOf(state), noms };
       if (mine.length) {
         notes.push({ kind: 'public', urgent: true, ind: 'awardNoms',
@@ -93,6 +139,7 @@
 
     if (woy === A.ceremonyWeek && state.awardSeason && state.awardSeason.year === yearOf(state)) {
       const results = [];
+      let bonsangTonight = 0;   // the ladder: bonsangs first, then the one that matters
       A.categories.forEach(cat => {
         const noms = state.awardSeason.noms[cat] || [];
         if (!noms.length) return;
@@ -108,9 +155,10 @@
             g.honors.push({ year: state.awardSeason.year + 1, category: cat });
             KP.fandomGain(g, 3);
           }
+          bonsangTonight++;
           notes.push({ kind: 'public', urgent: true, ind: 'awardWin', groupId: winner.groupId,
             category: cat,
-            text: A.LABELS[cat].toUpperCase() + ': ' + winner.name + '. The speech thanked the fans first and the company fourth, which is the correct order. ' +
+            text: A.LABELS[cat].toUpperCase() + ' — a bonsang: ' + winner.name + '. The speech thanked the fans first and the company fourth, which is the correct order. ' +
               state.executive.name + ' has already had the trophy photographed for the lobby.' });
         } else {
           // the snub: we were shortlisted and watched someone else walk
@@ -124,6 +172,61 @@
           }
         }
       });
+      // ---- the daesang: one grand prize, and the room holds its breath --
+      const dNoms = state.awardSeason.noms.daesang || [];
+      if (dNoms.length) {
+        const dWinner = dNoms[0];
+        results.push({ year: state.awardSeason.year, category: 'daesang',
+          name: dWinner.name, company: dWinner.company, isPlayer: !!dWinner.isPlayer });
+        if (dWinner.isPlayer) {
+          const g = KP.groupById(state, dWinner.groupId);
+          state.trust = KP.clamp(state.trust + A.daesangTrust, 0, 100);
+          const first = !state.daesangWonYear;
+          if (g) {
+            g.popularity = KP.clamp((g.popularity || 0) + A.daesangPop, 0, 100);
+            g.honors = g.honors || [];
+            g.honors.push({ year: state.awardSeason.year + 1, category: 'daesang' });
+            KP.fandomGain(g, A.daesangFandom);
+            const fandomName = (g.fandom && g.fandom.name) ? g.fandom.name : 'the fans';
+            if (first) {
+              // the first daesang gets the full first-win treatment:
+              // the history line, the ambition door, a speech that
+              // names the fandom
+              // stored 1-based (awardSeason.year is 0-based): a year-1
+              // daesang must not read falsy, or the "first" repeats
+              state.daesangWonYear = state.awardSeason.year + 1;
+              g.members.forEach(id => {
+                const m = state.people[id];
+                if (!m) return;
+                m.morale = KP.clamp(m.morale + 5, 0, 100);
+                m.history.push({ week: state.week, text: 'Won the daesang. The first one. Stood in the line on that stage and heard the fandom’s name said out loud on year-end television.' });
+                const amb = KP.ambitionTouch(state, m, 'trophy');
+                if (amb) notes.push(amb);
+              });
+              notes.push({ kind: 'public', urgent: true, priority: 'critical', ind: 'daesang',
+                groupId: g.id, first: true,
+                text: 'DAESANG. ' + g.name + '. The grand prize, the real one, the one the whole ladder exists for. The leader took the microphone, steadied it, and named ' + fandomName +
+                  ' before anyone else — “this belongs to ' + fandomName + ', who believed it first.” The members cried in a line. The building will never fully recover, and should not.' });
+            } else {
+              notes.push({ kind: 'public', urgent: true, ind: 'daesang', groupId: g.id,
+                text: 'DAESANG, again: ' + g.name + '. The second one lands differently — less lightning, more law. The speech was calmer. ' + fandomName + ' was still named first, because some orders are permanent.' });
+            }
+          }
+        } else {
+          // the ladder's cruelty: bonsangs in hand, the big one elsewhere
+          const shortlisted = dNoms.find(n => n.isPlayer);
+          if (shortlisted) {
+            const g = KP.groupById(state, shortlisted.groupId);
+            if (g) KP.fandomGain(g, KP.C.FANDOM.snubGain *
+              (bonsangTonight ? A.snubAgainMult : 1));
+            notes.push({ kind: 'public', ind: 'daesangSnub', priority: 'high',
+              groupId: shortlisted.groupId, bonsangTonight,
+              text: bonsangTonight
+                ? 'The daesang went to ' + dWinner.name + ' (' + dWinner.company + '). ' + g.name + ' left with a bonsang. Again. The fandom’s reaction moved through grief to administration in under an hour — spreadsheets, streaming schedules, a pinned post that just says NEXT YEAR. Nothing radicalizes like almost.'
+                : 'The daesang went to ' + dWinner.name + ' (' + dWinner.company + ') — with ' + g.name + ' on the shortlist. Being in the room where it happens is its own kind of homework. The fandom took notes.' });
+          }
+        }
+      }
       state.awardHistory = (state.awardHistory || []).concat(results).slice(-24);
       state.awardSeason = null;
     }

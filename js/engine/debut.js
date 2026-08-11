@@ -318,10 +318,13 @@
     // a new-material tour seeded the next era (v0.6.8) — spent here
     const tourLift = g.tourHype || 0;
     delete g.tourHype;
+    // the calendar has a shape (v0.9.5): January sleeps, summer favors
+    // the bright — one read supplies the number and the words
+    const season = KP.seasonRead ? KP.seasonRead(state, concept.id) : { mod: 0, line: null };
     const reception = KP.clamp(Math.round(
       demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
       groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
-      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift), 1, 100);
+      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod), 1, 100);
     const band = D.receptionBands.find(b => reception >= b.min);
     const centerOvershadowed = !isSolo && breakout.id !== g.roles.center &&
       pulls.find(x => x.m.id === g.roles.center).pull < pulls[0].pull - 8;
@@ -347,6 +350,7 @@
     KP.socialSpike(state, breakout, SO.breakoutSpike + reception * SO.breakoutPerReception, 'breakout');
     if (spark > 0) KP.socialSpike(state, breakout, SO.viralSpike, 'spark');
     if (reception >= 75) push(KP.recordEvidence(state, 'monsterRookies', 'group', g.id));
+    if (season.line) push({ kind: 'company', groupId: g.id, text: season.line });
     if (!isDebut && prevReception != null && reception <= prevReception - KP.C.MEMORY.underperformGap) {
       push(KP.recordEvidence(state, 'underperformed', 'group', g.id));
     }

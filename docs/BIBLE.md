@@ -2184,6 +2184,58 @@ way: the fandom-intensity "identical releases" fixture sat at 55,
 above the birthday-ad funding threshold (50) — different feed
 content is different rng; pinned to 45.
 
+## §46 The year (v0.9.5) — the calendar has a shape
+
+§39 consult #4. Owner: *"0.9.5 approved."* Before this, week 30 felt
+like week 7. Now the year has seasons, tentpoles, and one prize that
+is genuinely hard to win.
+
+**The season read** (`KP.seasonRead(state, conceptId)`, year.js —
+one truth for number and words, consumed by the release driver):
+January (weeks 1–4) is the dead zone, −3 to every reception, "brave,
+or badly scheduled"; a bright record in the summer window (24–33)
+gets +4, "the season did some of the promotion for free." Ordinary
+weeks read 0 and say nothing.
+
+**The tentpoles** (weekly phase `theYear`, order 750):
+- *Spring festivals* (16–20): every debuted act with a real fanbase
+  plays the university circuit once a year — mid-tier FEE (capped
+  24), live reps, a field, students screaming b-sides. Big acts
+  headline ("the dean asked nicely"); a pop ceiling here was dead
+  content under a competent org (2/40) and the fee cap carries the
+  mid-tier flavor instead.
+- *Summer* (wk 24): the song-of-the-summer race opens as atmosphere;
+  the reception lift does the mechanical work.
+- *Gayo December* (invites wk 46, stages wk 48): invitation is by
+  popularity (≥55), period. The stage pays morale and fandom; a
+  waiting-room friendship can become the special-stage collab
+  (society layer feeding year-end television, `gayoCollabChance`).
+  Groups that released this year but missed the bar get the quiet
+  December — "someone said 'next year' in a voice that made it a
+  plan."
+- *January* (wk 1): one atmospheric note. Everyone's favorite month.
+
+**The ladder** (awards.js): the three categories are bonsangs —
+several, attainable, unchanged mechanics. Above them, ONE
+**daesang**: the whole year weighed once — popularity ×1.2, trophies
+×2.5, the year's receptions, symmetric between player and rivals (the
+asymmetric fandom term removed) — and the field now seats the
+NATIONAL chart's year-defining acts ("the open market," scored from
+peak position and chart tenure). The scene's best act still has to
+beat the nation's giants; that is what makes it brutal (census:
+16/40 win it, vs 31/40 before the giants sat down). The **first
+daesang** gets the full treatment: morale, a history line on every
+file, the ambition door touched, and a speech that names the fandom
+before anyone else. Later ones land "less lightning, more law."
+Shortlisted with a bonsang in hand while the daesang goes elsewhere
+= **"a bonsang. Again."** — snub gain doubled (`snubAgainMult`);
+nothing radicalizes like almost.
+
+**Bugs caught by the build**: daesangWonYear stored 1-based (a
+year-one daesang read falsy and the "first" would have repeated);
+the v0.9.4 debut-class cohort had the same 0-based guard (year one's
+award season skipped its own class — fixed, band 20/40→38/40).
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3207,3 +3259,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > senior stans 39/40, classes 20/40, congrats 31/40. Numbers:
 > battery 46/46 (suite 046, 32 assertions), soak clean, e2e 91,
 > lockstep 0.9.4 (46 modules). Rode to main.
+\n
+> **v0.9.5 — the year** (owner: *"0.9.5 approved"* — §39 consult #4)
+> Full spec in §46. The calendar gets its shape: the January dead
+> zone (−3 and a note with an opinion), the spring university
+> festival circuit (annual, mid-tier fee, headliner variant — the
+> pop ceiling was dead content and the fee cap carries the flavor),
+> the song-of-the-summer window (+4 for bright records in season),
+> and gayo December — invitation by popularity period, quiet
+> Decembers on the record, and waiting-room friendships becoming
+> special-stage collabs on year-end television. Above the bonsangs
+> now sits ONE daesang, brutal for real: symmetric scoring plus the
+> national chart's giants seated at the table (16/40 vs 31/40
+> before them); the first win gets the full treatment — history on
+> every file, the ambition door, a speech that names the fandom
+> first — and the near-miss with a bonsang in hand doubles the snub
+> ("a bonsang. Again."). Two 0-based year bugs caught: daesangWonYear
+> falsy in year one (the "first" would repeat), and v0.9.4's cohort
+> guard skipping year one's own debut class (38/40 after). New
+> module year.js (47 total). Numbers: battery 47/47 (suite 047, 26
+> assertions), soak clean (fest 40/40, gayo 40/40, daesang 16/40,
+> snubbed 14/40), e2e 91, lockstep 0.9.5 (47 modules). Rode to
+> main.
