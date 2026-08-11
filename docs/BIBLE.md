@@ -3432,3 +3432,15 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > stream), lockstep 0.9.7 (49 modules). Rode to main. Phase B
 > closes; Phase C — careers entire — is next, under owner-watched
 > version numbers.
+\n
+> **build 0.9.7.1 — names somebody chose** (owner: *"the option to
+> change names of solos on the tracklist. I want them to be
+> memorable rather than feel generated"*; four-part build)
+> `KP.renameTrack`: credited tracks (solos and units) in production
+> get a rename field right on the tracklist card — 24 chars,
+> uniqueness against every discography, the archive keeps receipts;
+> the title track still renames on the demo board where it always
+> did. Renamed tracks wear a small ✎ and the chosen name ships on
+> the record, in the credit notes, and in the liner-note chips.
+> Battery 49/49 (suite 049 now 33), soak clean, e2e 90, lockstep
+> 0.9.7.1. Rode to main.

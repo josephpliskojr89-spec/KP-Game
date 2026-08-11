@@ -45,11 +45,20 @@
         const assignable = tr.slot
           ? ' data-action="track-open" data-id="' + g.id + '" data-n="' + tr.n + '"'
           : '';
-        return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)"' + assignable + '>' +
+        // renaming (0.9.7.1): credited songs deserve names somebody chose
+        const renamable = tr.kind !== 'title' && tr.credit;
+        const renameRow = renamable
+          ? '<div style="display:flex;gap:6px;padding:2px 0 8px 26px;border-bottom:1px solid var(--line)">' +
+            '<input class="track-rename-input" data-n="' + tr.n + '" maxlength="24" ' +
+            'style="flex:1;background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:4px 8px;font-size:.78rem" ' +
+            'placeholder="Rename “' + UI.esc(tr.title) + '”… (make it memorable)" value="' + UI.esc((KP.App.trackRenames || {})[tr.n] || '') + '">' +
+            '<button class="btn small ghost" data-action="rename-track" data-id="' + g.id + '" data-n="' + tr.n + '">✓</button></div>'
+          : '';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;' + (renamable ? '' : 'border-bottom:1px solid var(--line)') + '"' + assignable + '>' +
           '<span style="color:var(--ink-dim);font-size:.8rem;width:16px">' + tr.n + '</span>' +
-          '<span style="flex:1;font-size:.9rem">' + UI.esc(tr.title) + '</span>' + chip +
+          '<span style="flex:1;font-size:.9rem">' + UI.esc(tr.title) + (tr.renamed ? ' <span style="color:var(--magenta);font-size:.7rem">✎</span>' : '') + '</span>' + chip +
           (tr.slot ? '<span style="color:var(--ink-dim)">›</span>' : '') +
-          '</div>';
+          '</div>' + renameRow;
       }).join('');
       const openLeft = tracks.filter(tr => tr.slot && !tr.credit).length;
       return '<div class="kicker" style="margin-top:14px">The tracklist' +

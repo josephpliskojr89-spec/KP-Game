@@ -133,6 +133,11 @@
     if (e.target.id === 'title-name-input' && App.studioDraft) {
       App.studioDraft.customTitle = e.target.value;
     }
+    // track renames in production (0.9.7.1) — drafts keyed by track number
+    if (e.target.classList && e.target.classList.contains('track-rename-input')) {
+      App.trackRenames = App.trackRenames || {};
+      App.trackRenames[e.target.dataset.n] = e.target.value;
+    }
   });
 
   document.addEventListener('click', (e) => {
@@ -631,6 +636,14 @@
         break;
       }
       case 'studio-week': App.studioDraft.week = parseInt(t.dataset.week, 10); App.render(); break;
+      case 'rename-track': {
+        const val = (App.trackRenames || {})[t.dataset.n] || '';
+        const r = KP.renameTrack(s, t.dataset.id, t.dataset.n, val);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        if (App.trackRenames) delete App.trackRenames[t.dataset.n];
+        App.save(); UI.toast('Renamed. The booklet will say so.'); App.render();
+        break;
+      }
       case 'mash-a': App.studioDraft.mashA = App.studioDraft.mashA === t.dataset.genre ? null : t.dataset.genre; App.render(); break;
       case 'mash-b': App.studioDraft.mashB = App.studioDraft.mashB === t.dataset.genre ? null : t.dataset.genre; App.render(); break;
       case 'studio-lock': {

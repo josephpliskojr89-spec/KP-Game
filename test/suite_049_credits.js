@@ -130,6 +130,27 @@ function release(state, g, format) {
     'every credits ind answers through the registry');
 }
 
+// ---- renaming the tracklist (0.9.7.1): memorable, not generated ----
+{
+  const { state, g } = debuted('cr-rename');
+  state.week = Math.max(state.week, (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks + 1);
+  g.demos = KP.generateDemos(state, KP.rngFor(state), g);
+  KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest', format: 'mini',
+    week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
+  const slotTrack = g.prep.tracks.find(tk => tk.slot);
+  KP.assignTrack(state, g.id, slotTrack.n, { type: 'solo', memberId: g.members[0] });
+  const r = KP.renameTrack(state, g.id, slotTrack.n, 'Glass Cathedral');
+  t.ok(r.ok, 'her solo gets a name somebody chose');
+  t.eq(g.prep.tracks.find(tk => tk.n === slotTrack.n).title, 'Glass Cathedral', 'and it sticks');
+  t.ok(!KP.renameTrack(state, g.id, 1, 'Whatever').ok, 'the title track renames on the demo board, not here');
+  t.ok(!KP.renameTrack(state, g.id, slotTrack.n, '  ').ok, 'a title needs letters');
+  t.ok(!KP.renameTrack(state, g.id, slotTrack.n, g.prep.tracks[0].title).ok, 'the archive keeps receipts');
+  let guard = 0;
+  while (g.prep && guard++ < 10) KP.advanceWeek(state);
+  const rel = g.releases[g.releases.length - 1];
+  t.ok((rel.tracklist || []).some(tk => tk.title === 'Glass Cathedral'), 'the chosen name ships on the record');
+}
+
 // ---- the quote chain: the timeline talks to itself ----
 {
   const state = KP.newGame('cr-quote');

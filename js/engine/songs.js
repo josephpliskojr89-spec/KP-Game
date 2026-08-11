@@ -97,6 +97,31 @@
     return { ok: true };
   };
 
+  // renaming a track in production (0.9.7.1, owner: "I want them to be
+  // memorable rather than feel generated") — the credited songs
+  // especially: her first solo deserves a name somebody chose
+  KP.renameTrack = function (state, groupId, trackN, title) {
+    const g = KP.groupById(state, groupId);
+    const tracks = g && g.prep && g.prep.tracks;
+    const tr = (tracks || []).find(x => x.n === Number(trackN));
+    if (!tr) return { ok: false, reason: 'No such track in production.' };
+    if (tr.kind === 'title') return { ok: false, reason: 'The title track is renamed on the demo board, before the lock.' };
+    title = String(title || '').trim().slice(0, 24);
+    if (!title.length) return { ok: false, reason: 'A title needs letters.' };
+    const used = {};
+    KP.groups(state).forEach(x => (x.releases || []).forEach(r => {
+      used[r.songTitle.toLowerCase()] = true;
+      (r.tracklist || []).forEach(t2 => { used[t2.title.toLowerCase()] = true; });
+    }));
+    tracks.forEach(t2 => { if (t2 !== tr) used[t2.title.toLowerCase()] = true; });
+    if (used[title.toLowerCase()]) {
+      return { ok: false, reason: 'That title is already in a discography. The archive keeps receipts.' };
+    }
+    tr.title = title;
+    tr.renamed = true;
+    return { ok: true };
+  };
+
   KP.conceptById = function (id) {
     return KP.C.CONCEPTS.find(c => c.id === id);
   };
