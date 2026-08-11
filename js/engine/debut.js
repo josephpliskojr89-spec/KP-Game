@@ -566,7 +566,9 @@
         push({ kind: 'public', priority: 'high', ind: 'fusionVerdict', outcome: 'flop', groupId: g.id, mashLabel: label,
           text: 'The ' + label + ' experiment on “' + demo.title + '” ate itself. The two genres met, fought, and both lost; the comment sections are being creative about it. The members are taking it professionally, which is to say badly, quietly. The gamble was real — so was the floor.' });
       } else {
-        push({ kind: 'public', ind: 'fusionVerdict', outcome: 'worked', groupId: g.id, mashLabel: label,
+        // priority high (0.9.8.3): the verdict on a gamble the PLAYER
+        // placed is never trimmable — a sensation week buried this one
+        push({ kind: 'public', ind: 'fusionVerdict', outcome: 'worked', priority: 'high', groupId: g.id, mashLabel: label,
           text: '“' + demo.title + '” made ' + label + ' work — genuinely work. Not a revolution, not a casualty: a good record with a strange engine, and the public took the ride. The producers are already asking what to collide next.' });
       }
     }

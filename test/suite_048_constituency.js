@@ -54,7 +54,10 @@ function openCal(state, g) {
   let guard = 0;
   while (g.prep && guard++ < 10) KP.advanceWeek(state);
   t.ok(g.results.fusionOutcome, 'the mash rolls a verdict (' + g.results.fusionOutcome + ')');
-  t.ok(state.inbox.some(n => n.ind === 'fusionVerdict'), 'and the verdict is narrated');
+  const verdictNote = state.inbox.find(n => n.ind === 'fusionVerdict');
+  t.ok(verdictNote, 'and the verdict is narrated');
+  t.ok(['high', 'critical'].includes(verdictNote.priority),
+    'the verdict on a player-placed gamble is never trimmable (0.9.8.3)');
   t.ok(g.releases[g.releases.length - 1].mash, 'the discography remembers the collision');
 }
 

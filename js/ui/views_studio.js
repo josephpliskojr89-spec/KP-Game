@@ -367,6 +367,12 @@
       '<div class="r-title">' + UI.esc(r.receptionLabel) + '</div>' +
       '<div class="r-song">' + UI.esc(g.name) + ' — “' + UI.esc(r.songTitle) + '” · ' + UI.esc(KP.conceptById(r.conceptId).label) +
       (r.mash ? ' · <span style="color:var(--magenta)">' + UI.esc(KP.mashLabel(r.mash)) + '</span>' : '') + '</div>' +
+      // the verdict lives where the question does (0.9.8.3)
+      (r.fusionOutcome ? '<div style="margin-top:6px"><span class="chip ' +
+        (r.fusionOutcome === 'shift' ? 'gold' : r.fusionOutcome === 'acclaim' ? 'cool' : r.fusionOutcome === 'flop' ? 'clash' : 'hot') + '">the mash: ' +
+        (r.fusionOutcome === 'shift' ? 'CHANGED THE INDUSTRY'
+          : r.fusionOutcome === 'acclaim' ? 'critics’ shrine, public shrug'
+          : r.fusionOutcome === 'flop' ? 'ate itself' : 'it worked') + '</span></div>' : '') +
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px">' +
       '<span class="chip">stage: ' + perfWord(r.performance) + '</span>' +
       '<span class="chip">room: ' + chemWord(r.chem) + '</span>' +

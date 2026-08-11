@@ -3532,3 +3532,17 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Idols with stages keep the fancam story. suite_026's trainee
 > fixture updated to the new law; the idol path proven in suite 050.
 > Battery 50/50, soak clean, e2e 90, lockstep 0.9.8.2. Rode to main.
+\n
+> **build 0.9.8.3 — the verdict lives where the question does**
+> (owner, after a sensation K-pop × metalcore debut: *"didn't see
+> any of those inbox items"*; four-part build)
+> The "it worked" mash verdict was the one outcome left at normal
+> priority — and a sensation week is exactly when the inbox budget
+> trims normals, so the player's own gamble resolved invisibly.
+> Ruling: the verdict on a player-placed bet is NEVER trimmable —
+> all four outcomes now high (shift stays critical), suite-asserted.
+> And the release report card itself now wears the verdict chip
+> ("the mash: CHANGED THE INDUSTRY / critics' shrine, public shrug /
+> ate itself / it worked") so the answer sits where the question
+> does. Battery 50/50, soak clean, e2e 90, lockstep 0.9.8.3. Rode
+> to main.
