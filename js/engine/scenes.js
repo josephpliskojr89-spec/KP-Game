@@ -19,15 +19,18 @@
     (state.scenes || []).forEach(sc => {
       if (sc.expiresWeek != null && state.week > sc.expiresWeek) {
         const def = KP.sceneDef(sc.kind);
+        let n = null;
         if (def && def.expire) {
-          const n = def.expire(state, sc);
+          n = def.expire(state, sc);
           if (n) inbox.push(n);
         }
-        // the conversation record keeps the silences too
+        // the conversation record keeps the silences too — including
+        // what the silence did
         state.convoLog = state.convoLog || [];
         state.convoLog.unshift({ week: state.week, kind: sc.kind,
           personId: sc.personId || null,
-          title: def ? def.title(state, sc) : sc.kind, answer: '(went unanswered)' });
+          title: def ? def.title(state, sc) : sc.kind, answer: '(went unanswered)',
+          reply: n ? n.text : null });
         if (state.convoLog.length > 40) state.convoLog.length = 40;
         return;
       }
@@ -43,6 +46,9 @@
       if (!r) return;
       c.resolved = r.resolved;
       c.resolvedWeek = state.week;
+      // her words at settlement are kept on the claim — the record
+      // shows how she took it, not just the verdict chip
+      if (r.notes && r.notes.length) c.replyText = r.notes[0].text;
       (r.notes || []).forEach(n => inbox.push(n));
     });
     // the ledger keeps every open claim and a bounded tail of settled ones

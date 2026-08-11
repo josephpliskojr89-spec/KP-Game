@@ -157,7 +157,9 @@
           : c.resolved === 'metPoorly' ? '<span class="chip">kept, barely</span>'
           : '<span class="chip hot">broken</span>';
         html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(c.resolvedWeek || c.week).text) + '</span>' +
-          '<div><b>' + UI.esc(who(c)) + '</b>: ' + what(c) + ' ' + chip + '</div></div>');
+          '<div><b>' + UI.esc(who(c)) + '</b>: ' + what(c) + ' ' + chip +
+          (c.replyText ? '<div style="font-size:.78rem;font-style:italic;color:var(--ink-dim);margin-top:5px;line-height:1.45">' + UI.esc(c.replyText) + '</div>' : '') +
+          '</div></div>');
       });
     }
     html.push('<div class="kicker">Conversations</div>');
@@ -165,7 +167,9 @@
     if (log.length) {
       log.forEach(e => {
         html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(e.week).text) + '</span>' +
-          '<div><b>' + UI.esc(e.title) + '</b><span class="m-week">your answer: ' + UI.esc(e.answer) + '</span></div></div>');
+          '<div><b>' + UI.esc(e.title) + '</b><span class="m-week">your answer: ' + UI.esc(e.answer) + '</span>' +
+          (e.reply ? '<div style="font-size:.78rem;font-style:italic;color:var(--ink-dim);margin-top:5px;line-height:1.45">' + UI.esc(e.reply) + '</div>' : '') +
+          '</div></div>');
       });
     } else {
       html.push('<div class="card" style="color:var(--ink-dim);font-style:italic">No conversations on the record yet. The record starts the next time someone is waiting on your answer.</div>');
