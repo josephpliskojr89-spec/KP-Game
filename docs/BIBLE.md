@@ -1650,6 +1650,50 @@ and albums past 320, then assigns the most-followed member the solo
 and the next two the unit (public numbers only). Census: solos 40/40,
 units 40/40, sleepers 30/40.
 
+## §37 The second consult (post-v0.7.6) — the reciprocity diagnosis
+
+> Owner: *"it feels like something is missing. I can't put my finger
+> on it. maybe an expert can take a look at the immersion side?"*
+> Two independent expert audits (industry/fandom lens + sim-design
+> lens) plus in-house analysis, all three converging on the same #1.
+> Ideas only — nothing here is built until the owner picks.
+
+**The diagnosis**: every release since v0.7.1 made the idols more
+VISIBLE; none made them RESPONSIVE. They cannot see the player, want
+anything from the player, remember the player, or be lost by the
+player. The game models parasociality for NPC fan accounts while
+modeling no relationship at all between player and roster. Tells:
+"Worth a conversation" notes with no conversation verb; the promise
+ledger (meeting.js) pointing only UP at the exec; every idol-directed
+verb an HR form.
+
+**Ranked proposals** (machinery notes in parens):
+1. **The office door** — idols initiate scenes toward the player;
+   constrained voice-true replies; answers minted as predicate-checked
+   promises on HER ledger (meeting.js promise pattern + persona.js
+   scene pattern; both proven).
+2. **Contracts & renewal** — the seven-year clock; renewal as a scene
+   reading the whole ledger; rare fully-narrated departures. Ends §9's
+   no-exit rail for idols the player failed.
+3. **Standing with the company** — per-idol memory of DIRECTED player
+   acts, in words never meters; gates renewal tone, apology sincerity,
+   leader effort. (Morale stays weather; this is the psychology.)
+4. **Presence with teeth** — spotlight follows drama pressure instead
+   of round-robin; ~1 in 5 moments carries a hinge or choice. Revises
+   the "presence, not power" doctrine (persona.js header): skimmed
+   flavor is how idols regress to attribute sets.
+5. **The industry as society** — cross-company friendships from
+   music-show weeks, coffee trucks, debut-class cohorts; the shaped
+   year (year-end gayo stages, festival circuit, summer-song season).
+6. **Sharp smalls**: bonsang/daesang ladder (first-daesang arc; snub
+   mechanic doubled); named staff w/ bylines, poachable; fan trucks
+   (the fandom protests YOUR decisions); persistent producers (the
+   rejected demo becomes a rival hit); group debut anniversaries;
+   aftermath states (wounds with shadows, not one-week deltas).
+
+**Recommendation on record**: ship #1+#2 as one arc ("the door opens,
+and eventually the clock runs"). Everything else composes on top.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
