@@ -2851,3 +2851,18 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 40/40, scars floored 0 by the boil ruling. Numbers: battery
 > 43/43, soak clean, e2e 89, lockstep 0.8.3 (43 modules). Rode to
 > main.
+\n
+> **build 0.8.3.1 — UI pass** (owner: three layout requests, "no
+> need for a version update... things I should've implemented long
+> ago"; four-part build number = cache bust only, the §39 map's
+> numbering is undisturbed)
+> Desk gains Today | The record — the record shows promises on the
+> clock, settled verdicts, and a conversation log (state.convoLog,
+> capped 40, written by resolveScene and by expiry — the silences
+> are kept too). Dossiers gain Profile | The file | History —
+> attributes and actions on the working card, every written blurb
+> on the file, the full record on history (40 entries, up from 8).
+> Industry gains a Fandom sub-tab: fandom identity cards, the
+> devoted (adopted accounts with their since-dates), and the
+> home-crowd slice of the timeline. e2e updated to walk the tabs
+> (now 90 checks); all surfaces browser-probed. Rode to main.

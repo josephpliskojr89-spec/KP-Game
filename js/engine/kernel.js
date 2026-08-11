@@ -135,6 +135,12 @@
     const r = def.resolve(state, sc, optionId, rng) || {};
     state.rngState = rng.state();
     state.scenes = state.scenes.filter(x => x.id !== sc.id);
+    // the conversation record: what was asked, what you said (capped)
+    state.convoLog = state.convoLog || [];
+    state.convoLog.unshift({ week: state.week, kind: sc.kind,
+      personId: sc.personId || null,
+      title: def.title(state, sc), answer: opt.label });
+    if (state.convoLog.length > 40) state.convoLog.length = 40;
     (r.notes || []).forEach(n => KP.note(state, n));
     if (r.note) KP.note(state, r.note);
     return { ok: true, toast: r.toast || null };

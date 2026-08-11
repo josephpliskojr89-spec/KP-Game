@@ -120,9 +120,13 @@
   function bandRank(b) { return KP.C.BANDS.findIndex(x => x.key === b); }
 
   // ---- dossier ---------------------------------------------------------
-  UI.renderDossier = function (state, id) {
+  // ---- dossier (tabbed, owner request: "so it's not so much scrolling")
+  // Profile = the working card (attributes, plan, actions). The file =
+  // every written blurb and staff note. History = the whole record.
+  UI.renderDossier = function (state, id, tab) {
     const p = state.people[id];
     if (!p) return '<div class="card">File missing.</div>';
+    tab = tab || 'profile';
     const evl = KP.evaluate(state, p);
     const isTrainee = p.status === 'trainee' || p.status === 'idol';
     const html = [];
@@ -149,119 +153,129 @@
       html.push('<div class="pad" style="margin-top:10px"><div class="cond">' + UI.condChips(p) + '</div></div>');
     }
 
-    // evaluations: blurb per domain with restrained band + confidence
-    // what the public calls her (v0.6.0)
-    const pNars = KP.narrativesFor(state, 'idol', p.id);
-    if (pNars.length) {
-      html.push('<div class="kicker">The public knows her</div>');
-      html.push('<div class="card">' + UI.narrativeLines(state, pNars) + '</div>');
-    }
+    html.push('<div class="pad" style="margin-top:8px"><div class="seg">' +
+      [['profile', 'Profile'], ['notes', 'The file'], ['history', 'History']].map(tb =>
+        '<button class="' + (tab === tb[0] ? 'on' : '') + '" data-action="dossier-tab" data-tab="' + tb[0] + '">' + tb[1] + '</button>').join('') +
+      '</div></div>');
 
-    // her corners of the map (v0.6.6) — visible once she is on stages.
-    // v0.7.5: every framing hash-picked per person, so two dossiers
-    // never read like the same form with the names swapped
-    const pick = (key, arr) => arr[Math.floor(KP.hash01([state.seed, p.id, key].join('|')) * arr.length)];
-    if (p.status === 'idol') {
-      const gOf = KP.groupOf(state, p.id);
-      if (gOf && gOf.debuted) {
-        const homes = KP.strongholdsOf(state, p).map(KP.regionLabel).map(UI.esc);
-        const homeNote = pick('homeNote', [
-          'Overseas desk margin note: her clips travel best in ' + homes[0] + ' and ' + homes[1] + '. Nobody assigned that. Some corners of the map just decide.',
-          'The analytics team flags it every quarter: ' + homes[0] + ' and ' + homes[1] + ' move first on anything with her face in the thumbnail. No campaign has ever run there.',
-          'Fan-mail routing says ' + homes[0] + ' and ' + homes[1] + ' found her before the company did. The overseas desk has stopped calling it a fluke.',
-          'When her clips go up, ' + homes[0] + ' wakes up first — then ' + homes[1] + ', an hour later, like clockwork nobody wound.',
-          'Two markets pre-order anything she fronts: ' + homes[0] + ' and ' + homes[1] + '. The desk keeps trying to explain it, and keeps writing “just is” in the margin.',
-        ]);
-        html.push('<div class="note">' + homeNote + '<span class="n-who">' +
-          pick('homeWho', ['— audience analytics, informally', '— the overseas desk, quarterly report', '— fan-mail routing, of all places']) +
-          '</span></div>');
+    if (tab === 'history') {
+      if (p.history && p.history.length) {
+        p.history.slice().reverse().slice(0, 40).forEach(h => {
+          html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(Math.max(1, h.week)).text) + '</span><div>' + UI.esc(h.text) + '</div></div>');
+        });
+      } else {
+        html.push('<div class="card" style="color:var(--ink-dim);font-style:italic">The file is new. The stories come with the weeks.</div>');
       }
+      return html.join('');
     }
 
-    // off the clock + what she wants (v0.7.1) — the person in the file
-    if (p.status === 'idol' || p.status === 'trainee') {
-      const facts = KP.factsOf(state, p).map(UI.esc);
-      const voiceLine = 'In the room, she ' + UI.esc(KP.VOICES[KP.voiceOf(state, p)].label) + '.';
-      const factNote = pick('factNote', [
-        'Off the clock: she ' + facts[0] + ', and ' + facts[1] + '. ' + voiceLine,
-        'The staff profile, unofficial edition: she ' + facts[0] + '. Also ' + facts[1] + ' — ask anyone. ' + voiceLine,
-        'Two true things the cameras keep missing: she ' + facts[0] + ', and she ' + facts[1] + '. ' + voiceLine,
-        'What the fans would trade anything to confirm (the staff can): she ' + facts[0] + ', and ' + facts[1] + '. ' + voiceLine,
-      ]);
-      html.push('<div class="note">' + factNote + '<span class="n-who">' +
-        pick('factWho', ['— the staff, fondly', '— the managers’ group chat, leaked internally', '— her roommate, under mild duress', '— the stylists, between fittings']) +
-        '</span></div>');
+    if (tab === 'notes') {
+      // what the public calls her (v0.6.0)
+      const pNars = KP.narrativesFor(state, 'idol', p.id);
+      if (pNars.length) {
+        html.push('<div class="kicker">The public knows her</div>');
+        html.push('<div class="card">' + UI.narrativeLines(state, pNars) + '</div>');
+      }
+      const pick = (key, arr) => arr[Math.floor(KP.hash01([state.seed, p.id, key].join('|')) * arr.length)];
       if (p.status === 'idol') {
-        const amb = KP.ambitionOf(state, p);
-        const A = KP.C.LIFE.AMBITIONS[amb];
-        html.push('<div class="note">' + (p.flags.ambitionMet
-          ? 'She got the thing she wanted — ' + UI.esc(A.label) + ' — and it shows in how she carries the rest.'
-          : 'What she wants, if you watch closely: ' + UI.esc(pick('ambLine', A.lines))) +
-          '<span class="n-who">— a staff observation, not a metric</span></div>');
-      }
-      // standing (v0.8.3): what the file says about her and THIS office —
-      // words, never a meter, and only once there is a history to read
-      if ((p.directed || []).length) {
-        html.push('<div class="note">Where she stands with the company, if you ask the people who drive the vans: ' +
-          UI.esc(KP.standingOf(state, p)) +
-          '.<span class="n-who">— the road staff, off the record</span></div>');
-      }
-      // her career inside the career (v0.7.5) — credits from tracklists
-      const credits = KP.trackCreditsOf(state, p.id);
-      if (credits.length) {
-        const first = credits.find(c => c.type === 'solo');
-        const parts = [];
-        if (first) parts.push('first solo on record: “' + UI.esc(first.trackTitle) + '” (' + UI.esc(KP.weekLabel(first.week).text) + ')');
-        const units = credits.filter(c => c.type === 'unit');
-        if (units.length) {
-          const u = units[units.length - 1];
-          const withNames = u.withIds.map(id => state.people[id]).filter(Boolean).map(x => UI.esc(KP.publicGiven(x))).join(' & ');
-          parts.push('unit work with ' + withNames + ' on “' + UI.esc(u.trackTitle) + '”');
+        const gOf = KP.groupOf(state, p.id);
+        if (gOf && gOf.debuted) {
+          const homes = KP.strongholdsOf(state, p).map(KP.regionLabel).map(UI.esc);
+          const homeNote = pick('homeNote', [
+            'Overseas desk margin note: her clips travel best in ' + homes[0] + ' and ' + homes[1] + '. Nobody assigned that. Some corners of the map just decide.',
+            'The analytics team flags it every quarter: ' + homes[0] + ' and ' + homes[1] + ' move first on anything with her face in the thumbnail. No campaign has ever run there.',
+            'Fan-mail routing says ' + homes[0] + ' and ' + homes[1] + ' found her before the company did. The overseas desk has stopped calling it a fluke.',
+            'When her clips go up, ' + homes[0] + ' wakes up first — then ' + homes[1] + ', an hour later, like clockwork nobody wound.',
+            'Two markets pre-order anything she fronts: ' + homes[0] + ' and ' + homes[1] + '. The desk keeps trying to explain it, and keeps writing “just is” in the margin.',
+          ]);
+          html.push('<div class="note">' + homeNote + '<span class="n-who">' +
+            pick('homeWho', ['— audience analytics, informally', '— the overseas desk, quarterly report', '— fan-mail routing, of all places']) +
+            '</span></div>');
         }
-        html.push('<div class="note">Discography margin, the part she checks: ' + parts.join('; ') +
-          '.<span class="n-who">— A&R, keeping receipts</span></div>');
       }
+      if (p.status === 'idol' || p.status === 'trainee') {
+        const facts = KP.factsOf(state, p).map(UI.esc);
+        const voiceLine = 'In the room, she ' + UI.esc(KP.VOICES[KP.voiceOf(state, p)].label) + '.';
+        const factNote = pick('factNote', [
+          'Off the clock: she ' + facts[0] + ', and ' + facts[1] + '. ' + voiceLine,
+          'The staff profile, unofficial edition: she ' + facts[0] + '. Also ' + facts[1] + ' — ask anyone. ' + voiceLine,
+          'Two true things the cameras keep missing: she ' + facts[0] + ', and she ' + facts[1] + '. ' + voiceLine,
+          'What the fans would trade anything to confirm (the staff can): she ' + facts[0] + ', and ' + facts[1] + '. ' + voiceLine,
+        ]);
+        html.push('<div class="note">' + factNote + '<span class="n-who">' +
+          pick('factWho', ['— the staff, fondly', '— the managers’ group chat, leaked internally', '— her roommate, under mild duress', '— the stylists, between fittings']) +
+          '</span></div>');
+        if (p.status === 'idol') {
+          const amb = KP.ambitionOf(state, p);
+          const A = KP.C.LIFE.AMBITIONS[amb];
+          html.push('<div class="note">' + (p.flags.ambitionMet
+            ? 'She got the thing she wanted — ' + UI.esc(A.label) + ' — and it shows in how she carries the rest.'
+            : 'What she wants, if you watch closely: ' + UI.esc(pick('ambLine', A.lines))) +
+            '<span class="n-who">— a staff observation, not a metric</span></div>');
+        }
+        if ((p.directed || []).length) {
+          html.push('<div class="note">Where she stands with the company, if you ask the people who drive the vans: ' +
+            UI.esc(KP.standingOf(state, p)) +
+            '.<span class="n-who">— the road staff, off the record</span></div>');
+        }
+        const credits = KP.trackCreditsOf(state, p.id);
+        if (credits.length) {
+          const first = credits.find(c => c.type === 'solo');
+          const parts = [];
+          if (first) parts.push('first solo on record: “' + UI.esc(first.trackTitle) + '” (' + UI.esc(KP.weekLabel(first.week).text) + ')');
+          const units = credits.filter(c => c.type === 'unit');
+          if (units.length) {
+            const u = units[units.length - 1];
+            const withNames = u.withIds.map(id => state.people[id]).filter(Boolean).map(x => UI.esc(KP.publicGiven(x))).join(' & ');
+            parts.push('unit work with ' + withNames + ' on “' + UI.esc(u.trackTitle) + '”');
+          }
+          html.push('<div class="note">Discography margin, the part she checks: ' + parts.join('; ') +
+            '.<span class="n-who">— A&R, keeping receipts</span></div>');
+        }
+      }
+      // the written evaluations, in the evaluators' own words
+      html.push('<div class="kicker">In their words</div>');
+      evl.domains.forEach(d => {
+        html.push('<div class="domain-quote">“' + UI.esc(d.line) + '”' +
+          '<span class="q-who">— ' + UI.esc(d.evaluator.name) + ', ' + UI.esc(d.evaluator.role) + ' · ' + UI.esc(KP.C.TALENT_LABELS[d.domain]) + '</span></div>');
+      });
+      html.push('<div class="note" style="margin-top:12px">“' + UI.esc(evl.recommendation) + '”' +
+        '<span class="n-who">— overall recommendation</span></div>');
+      if (evl.instinct) {
+        html.push('<div class="note urgent">“' + UI.esc(evl.instinct) + '”' +
+          '<span class="n-who">— Scout Im, off the record</span></div>');
+      }
+      if (isTrainee) {
+        const notes = derivedNotes(p);
+        if (p.status === 'trainee' && (p.hype || 0) >= 35) {
+          notes.unshift((p.hype >= KP.C.HYPE.directiveThreshold
+            ? 'Her clip counts read like a mid-tier idol’s and she has not debuted. The building is not the only one that noticed.'
+            : 'Her socials are moving on their own. The public is early — or we are late.'));
+        }
+        if (p.status === 'idol') {
+          const grp = KP.groupOf(state, p.id);
+          const idle = !(grp && (grp.prep || state.week <= (grp.promoUntil || 0)));
+          const auto = idle ? KP.idolFocus(state, p) : null;
+          if (auto) notes.unshift('Between schedules she drills ' + KP.C.TALENT_LABELS[auto.domain].toLowerCase() +
+            ' on her own. After a debut, everyone knows the gap — including her.');
+          else if (idle) notes.unshift('Her coaches have little left to teach. What remains now is stages.');
+        }
+        if (notes.length) {
+          html.push('<div class="kicker">Staff observations</div>');
+          notes.forEach(n => html.push('<div class="note">' + UI.esc(n) + '</div>'));
+        }
+      }
+      return html.join('');
     }
 
+    // ---- profile: the working card — attributes, plan, actions ----------
     html.push('<div class="kicker">Evaluations</div>');
     evl.domains.forEach(d => {
       const val = KP.perceived(state, p, d.domain, d.evaluator);
       const band = KP.band(val);
       html.push('<div class="domain-row"><span class="dm-name">' + UI.esc(KP.C.TALENT_LABELS[d.domain]) + '</span>' +
-        UI.bandChip(band.label, d.confident) + '</div>' +
-        '<div class="domain-quote">“' + UI.esc(d.line) + '”' +
-        '<span class="q-who">— ' + UI.esc(d.evaluator.name) + ', ' + UI.esc(d.evaluator.role) + '</span></div>');
+        UI.bandChip(band.label, d.confident) + '</div>');
     });
-
-    // recommendation + instinct
-    html.push('<div class="note" style="margin-top:12px">“' + UI.esc(evl.recommendation) + '”' +
-      '<span class="n-who">— overall recommendation</span></div>');
-    if (evl.instinct) {
-      html.push('<div class="note urgent">“' + UI.esc(evl.instinct) + '”' +
-        '<span class="n-who">— Scout Im, off the record</span></div>');
-    }
-
-    // staff observations on derived qualities, once observed enough
-    if (isTrainee) {
-      const notes = derivedNotes(p);
-      if (p.status === 'trainee' && (p.hype || 0) >= 35) {
-        notes.unshift((p.hype >= KP.C.HYPE.directiveThreshold
-          ? 'Her clip counts read like a mid-tier idol’s and she has not debuted. The building is not the only one that noticed.'
-          : 'Her socials are moving on their own. The public is early — or we are late.'));
-      }
-      if (p.status === 'idol') {
-        const grp = KP.groupOf(state, p.id);
-        const idle = !(grp && (grp.prep || state.week <= (grp.promoUntil || 0)));
-        const auto = idle ? KP.idolFocus(state, p) : null;
-        if (auto) notes.unshift('Between schedules she drills ' + KP.C.TALENT_LABELS[auto.domain].toLowerCase() +
-          ' on her own. After a debut, everyone knows the gap — including her.');
-        else if (idle) notes.unshift('Her coaches have little left to teach. What remains now is stages.');
-      }
-      if (notes.length) {
-        html.push('<div class="kicker">Staff observations</div>');
-        notes.forEach(n => html.push('<div class="note">' + UI.esc(n) + '</div>'));
-      }
-    }
 
     // relationships seen so far — frictions come with their handle
     if (isTrainee) {
@@ -308,14 +322,6 @@
         '<button class="btn danger small" data-action="release" data-id="' + p.id + '"' + (inGroup ? ' disabled' : '') + '>Release from contract</button>' +
         (inGroup ? '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">She is in a lineup.</div>' : '') +
         '</div>');
-    }
-
-    // history
-    if (p.history && p.history.length) {
-      html.push('<div class="kicker">File history</div>');
-      p.history.slice().reverse().slice(0, 8).forEach(h => {
-        html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(Math.max(1, h.week)).text) + '</span><div>' + UI.esc(h.text) + '</div></div>');
-      });
     }
     return html.join('');
   };

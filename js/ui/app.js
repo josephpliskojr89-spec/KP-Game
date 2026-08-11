@@ -11,6 +11,8 @@
     mode: 'title',       // 'title' | 'newcareer' | 'game' (v0.5.1)
     tab: 'desk',
     talentSub: 'roster',
+    deskSub: 'today',
+    dossierTab: 'profile',
     industrySub: 'scene',
     industryChart: 'scene',
     view: null,          // pushed view: {type:'dossier'|'builder'|'results', id}
@@ -34,7 +36,7 @@
     setChrome(true);
 
     if (!App.view || !App.view.type) UI.setEra(null);
-    if (App.view && App.view.type === 'dossier') el.innerHTML = UI.renderDossier(s, App.view.id);
+    if (App.view && App.view.type === 'dossier') el.innerHTML = UI.renderDossier(s, App.view.id, App.dossierTab);
     else if (App.view && App.view.type === 'builder') el.innerHTML = UI.renderBuilder(s, App.builderDraft);
     else if (App.view && App.view.type === 'results') el.innerHTML = '<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>' + UI.renderResults(s, App.view.id);
     else if (App.view && App.view.type === 'rivalact') {
@@ -46,7 +48,7 @@
       el.innerHTML = '<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>' +
         (gp ? UI.renderGroupPage(s, gp) : '<div class="card">Group not found.</div>');
     }
-    else if (App.tab === 'desk') el.innerHTML = UI.renderDesk(s);
+    else if (App.tab === 'desk') el.innerHTML = UI.renderDesk(s, App.deskSub);
     else if (App.tab === 'talent') el.innerHTML = UI.renderTalent(s, App.talentSub);
     else if (App.tab === 'groups') el.innerHTML = UI.renderGroups(s);
     else if (App.tab === 'studio') el.innerHTML = UI.renderStudio(s, App.studioDraft);
@@ -195,6 +197,8 @@
       case 'nav-studio': go('studio'); break;
       case 'open-system': systemSheet(); break;
       case 'talent-sub': App.talentSub = t.dataset.sub; App.render(); break;
+      case 'desk-sub': App.deskSub = t.dataset.sub; App.render(); break;
+      case 'dossier-tab': App.dossierTab = t.dataset.tab; App.render(); break;
       case 'industry-sub': App.industrySub = t.dataset.sub; App.render(); break;
       case 'industry-chart': App.industryChart = t.dataset.chart; App.render(); break;
       case 'discourse-respond': {
@@ -329,7 +333,7 @@
         App.render();
         break;
       }
-      case 'open-dossier': push('dossier', t.dataset.id); break;
+      case 'open-dossier': App.dossierTab = 'profile'; push('dossier', t.dataset.id); break;
       case 'open-results': push('results', t.dataset.id); break;
       case 'open-grouppage': push('grouppage', t.dataset.id); break;
       case 'open-rivalact': push('rivalact', t.dataset.id); break;

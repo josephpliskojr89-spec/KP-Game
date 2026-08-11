@@ -75,11 +75,20 @@ async function main() {
 
   // --- dossier: blurbs, no numbers ---
   await tap('.talent-row');
+  await page.waitForSelector('.domain-row');
+  ok(await page.$$eval('.domain-row', els => els.length) === 5, 'five attribute rows on the profile tab');
+  // the written blurbs live on their own tab now (0.8.3.1 UI pass)
+  await tap('[data-action=dossier-tab][data-tab=notes]');
   await page.waitForSelector('.domain-quote');
-  ok(await page.$$eval('.domain-quote', els => els.length) === 5, 'five domain blurbs in the dossier');
+  ok(await page.$$eval('.domain-quote', els => els.length) === 5, 'five domain blurbs on the file tab');
+  const notesText = await page.textContent('#screen');
+  ok(notesText.includes('recommendation'), 'overall recommendation note present on the file tab');
+  await tap('[data-action=dossier-tab][data-tab=history]');
+  await page.waitForTimeout(80);
+  await tap('[data-action=dossier-tab][data-tab=profile]');
+  await page.waitForTimeout(80);
   const dossierText = await page.textContent('#screen');
   ok(!/\bOVR\b|overall rating|overall[:\s]+\d/i.test(dossierText), 'no Overall rating anywhere in the dossier');
-  ok(dossierText.includes('recommendation'), 'overall recommendation note present');
   ok(/followers/.test(dossierText), 'the profile shows her public following (v0.6.1)');
 
   // --- training plan: focus + intensity ---

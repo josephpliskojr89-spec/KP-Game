@@ -23,6 +23,12 @@
           const n = def.expire(state, sc);
           if (n) inbox.push(n);
         }
+        // the conversation record keeps the silences too
+        state.convoLog = state.convoLog || [];
+        state.convoLog.unshift({ week: state.week, kind: sc.kind,
+          personId: sc.personId || null,
+          title: def ? def.title(state, sc) : sc.kind, answer: '(went unanswered)' });
+        if (state.convoLog.length > 40) state.convoLog.length = 40;
         return;
       }
       keep.push(sc);

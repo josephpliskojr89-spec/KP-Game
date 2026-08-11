@@ -13,12 +13,60 @@
       '<button class="' + (sub === 'scene' ? 'on' : '') + '" data-action="industry-sub" data-sub="scene">Scene</button>' +
       '<button class="' + (sub === 'chart' ? 'on' : '') + '" data-action="industry-sub" data-sub="chart">Charts</button>' +
       '<button class="' + (sub === 'feed' ? 'on' : '') + '" data-action="industry-sub" data-sub="feed">Feed</button>' +
+      '<button class="' + (sub === 'fandom' ? 'on' : '') + '" data-action="industry-sub" data-sub="fandom">Fandom</button>' +
       '</div></div>');
     if (sub === 'chart') html.push(renderChart(state, chartWhich));
     else if (sub === 'feed') html.push(renderFeed(state));
+    else if (sub === 'fandom') html.push(renderFandom(state));
     else html.push(renderScene(state));
     return html.join('');
   };
+
+  // ---- Fandom (owner request: "what our biggest fans are saying — for
+  // a sense of community"): the adopted accounts, and the home-crowd
+  // slice of the timeline (our devoted regulars + the stans)
+  function renderFandom(state) {
+    const html = [];
+    const groups = KP.groups(state).filter(g => g.debuted);
+    groups.forEach(g => {
+      if (g.fandom) {
+        html.push('<div class="card"><b>' + UI.esc(g.fandom.name) + '</b> · ' + UI.esc(g.name) + '’s people' +
+          '<div style="font-size:.78rem;color:var(--ink-dim);margin-top:4px">' +
+          UI.esc(KP.intensityWord(g.fandom.intensity)) + ' · they were here before the numbers and they will be here after</div></div>');
+      }
+    });
+    const cast = state.feedCast || {};
+    const adopted = Object.entries(cast).filter(([h, c]) => c.biasId && state.people[c.biasId]);
+    if (adopted.length) {
+      html.push('<div class="kicker">The devoted</div>');
+      adopted.forEach(([handle, c]) => {
+        const p = state.people[c.biasId];
+        html.push('<div class="card" style="padding:12px"><b>' + UI.esc(handle) + '</b>' +
+          '<div style="font-size:.8rem;color:var(--ink-dim);margin-top:3px">' +
+          UI.esc(KP.displayName(p)) + '’s account since ' + UI.esc(KP.weekLabel(c.since).text) +
+          ' · the kind of fan every career needs exactly one hundred of</div></div>');
+      });
+    }
+    // the home-crowd timeline: adopted handles + the stan register
+    const handles = new Set(adopted.map(([h]) => h));
+    const ours = (state.feed || []).filter(post =>
+      (post.handle && handles.has(post.handle)) || post.persona === 'stan').slice(0, 25);
+    html.push('<div class="kicker">From the barricade</div>');
+    if (ours.length) {
+      ours.forEach(p => {
+        html.push('<div class="feed-post">' +
+          '<div class="fp-head"><span class="fp-handle">@' + UI.esc(p.handle) + '</span>' +
+          (p.persona ? '<span class="fp-persona ' + UI.esc(p.persona) + '">' + UI.esc(PERSONA_LABELS[p.persona] || p.persona) + '</span>' : '') +
+          '<span class="fp-week">' + UI.esc(KP.weekLabel(p.week).text) + '</span></div>' +
+          '<div class="fp-text">' + UI.esc(p.text) + '</div>' +
+          '<div class="fp-likes">♥ ' + formatLikes(p.likes) + '</div>' +
+          '</div>');
+      });
+    } else {
+      html.push('<div class="card" style="color:var(--ink-dim);font-style:italic">Quiet in the fan cafés this week. Debut somebody. Give them a reason.</div>');
+    }
+    return html.join('');
+  }
 
   // ---- Scene -----------------------------------------------------------
   function renderScene(state) {

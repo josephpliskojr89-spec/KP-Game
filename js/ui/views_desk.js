@@ -5,10 +5,16 @@
   const KP = root.KP = root.KP || {};
   const UI = KP.UI;
 
-  UI.renderDesk = function (state) {
+  UI.renderDesk = function (state, sub) {
+    sub = sub || 'today';
     const wl = KP.weekLabel(state.week);
     const monthsLeft = KP.monthsUntil(state.week, state.objective.deadlineWeek);
     const html = [];
+    html.push('<div class="pad" style="margin-top:2px"><div class="seg">' +
+      '<button class="' + (sub === 'today' ? 'on' : '') + '" data-action="desk-sub" data-sub="today">Today</button>' +
+      '<button class="' + (sub === 'record' ? 'on' : '') + '" data-action="desk-sub" data-sub="record">The record</button>' +
+      '</div></div>');
+    if (sub === 'record') return html.join('') + renderRecord(state);
 
     // objective banner
     html.push('<div class="objective">' +
@@ -117,6 +123,55 @@
 
     return html.join('');
   };
+
+  // the record (owner request): past conversations and every promise —
+  // open ones with their clocks, settled ones with their verdicts
+  function renderRecord(state) {
+    const html = [];
+    const claims = state.claims || [];
+    const who = c => c.subject.kind === 'exec' ? state.executive.name
+      : c.subject.kind === 'idol' ? (state.people[c.subject.id || c.personId] ? KP.displayName(state.people[c.subject.id || c.personId]) : 'her')
+      : c.subject.kind;
+    const what = c => {
+      if (c.type === 'readyTrainee') return '“' + UI.esc(c.personName || '') + ' is closest to ready” — a debut that lands';
+      if (c.type === 'comebackPromise') { const g = KP.groupById(state, c.groupId); return 'the ' + (g ? UI.esc(g.name) : '') + ' comeback, on the calendar'; }
+      if (c.type === 'ambitionPromise') { const A = KP.C.LIFE.AMBITIONS[c.ambition]; return (A ? A.label : 'the thing she wanted') + ', within the year'; }
+      return c.type;
+    };
+    const open = claims.filter(c => !c.resolved);
+    html.push('<div class="kicker">Promises on the clock</div>');
+    if (open.length) {
+      open.forEach(c => {
+        html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(c.week).text) + '</span>' +
+          '<div><b>' + UI.esc(who(c)) + '</b> holds the receipt: ' + what(c) +
+          '<span class="m-week">due ' + UI.esc(KP.weekLabel(c.byWeek).text) + '</span></div></div>');
+      });
+    } else {
+      html.push('<div class="card" style="color:var(--ink-dim);font-style:italic">Nothing on the clock. Either you promise carefully or not at all — both are strategies.</div>');
+    }
+    const settled = claims.filter(c => c.resolved).slice().reverse();
+    if (settled.length) {
+      html.push('<div class="kicker">Settled</div>');
+      settled.forEach(c => {
+        const chip = c.resolved === 'met' ? '<span class="chip cool">kept</span>'
+          : c.resolved === 'metPoorly' ? '<span class="chip">kept, barely</span>'
+          : '<span class="chip hot">broken</span>';
+        html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(c.resolvedWeek || c.week).text) + '</span>' +
+          '<div><b>' + UI.esc(who(c)) + '</b>: ' + what(c) + ' ' + chip + '</div></div>');
+      });
+    }
+    html.push('<div class="kicker">Conversations</div>');
+    const log = state.convoLog || [];
+    if (log.length) {
+      log.forEach(e => {
+        html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(e.week).text) + '</span>' +
+          '<div><b>' + UI.esc(e.title) + '</b><span class="m-week">your answer: ' + UI.esc(e.answer) + '</span></div></div>');
+      });
+    } else {
+      html.push('<div class="card" style="color:var(--ink-dim);font-style:italic">No conversations on the record yet. The record starts the next time someone is waiting on your answer.</div>');
+    }
+    return html.join('');
+  }
 
   function trustWord(t) {
     return t >= 80 ? 'trusted' : t >= 60 ? 'solid' : t >= 40 ? 'watched' : t >= 20 ? 'thin' : 'gone';
