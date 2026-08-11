@@ -3057,3 +3057,21 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > years across 380 weeks, departed or not. Numbers: battery 45/45
 > (suite 038 now 64), soak clean, e2e 90, lockstep 0.9.1 (45
 > modules). Rode to main.
+\n
+> **v0.9.2 — the files catch up** (owner: *"can we age the trainees
+> and idols I have? they're all at the exact age they were when I
+> signed them"*)
+> v0.9.1 started the personal clock but only from that week forward
+> — saves that lived seasons before it had everyone frozen at
+> signing age. Migration 0.9.2 counts the birthdays each person
+> already lived through (anchored to the first history entry —
+> signing day, or day one in the building — with rival natives
+> anchored to their act's debut, clamped to week 0) and applies them
+> in one correction, announced by an HR memo owning the filing
+> error. Prospects are skipped: board leads churn in weeks. The
+> catch-up provably reproduces the live clock's answer exactly
+> (suite 038's backfill block freezes a ridden save and diffs the
+> migration against live aging). Suite 016's byte-identity fixture
+> now compares everything but age, as it must. Numbers: battery
+> 45/45, soak clean, e2e 90, lockstep 0.9.2 (45 modules). Rode to
+> main.

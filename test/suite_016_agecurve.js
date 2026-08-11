@@ -10,16 +10,29 @@ const t = makeT('suite_016_agecurve');
 // the migration: an old save's board is reborn, its roster is not
 {
   const state = KP.newGame('age-mig');
+  const atCreation = {};
+  Object.values(state.people).forEach(p => { atCreation[p.id] = p.age; });
   for (let w = 0; w < 8; w++) KP.advanceWeek(state);
-  // fake a pre-0.3.1 save: age the prospects like the old curve did
-  const rosterSnapshot = JSON.stringify(state.roster.map(id => state.people[id]));
+  // fake a pre-0.3.1 save: age the prospects like the old curve did —
+  // and freeze everyone back to signing age, because a genuinely old
+  // save never lived the v0.9.1 personal clock (its backfill migration
+  // re-ages them; the snapshot compares everything BUT age)
+  const liveAges = {};
+  state.roster.forEach(id => { liveAges[id] = state.people[id].age; });
+  Object.values(state.people).forEach(p => {
+    if (atCreation[p.id] != null) p.age = atCreation[p.id];
+  });
+  const strip = p => { const c = JSON.parse(JSON.stringify(p)); delete c.age; return c; };
+  const rosterSnapshot = JSON.stringify(state.roster.map(id => strip(state.people[id])));
   const oldProspectIds = state.prospects.slice();
   oldProspectIds.forEach((id, i) => { state.people[id].age = 19 + (i % 5); });
   state.version = '0.3.0';
   const back = KP.deserialize(KP.serialize(state));
 
-  t.eq(JSON.stringify(back.roster.map(id => back.people[id])), rosterSnapshot,
+  t.eq(JSON.stringify(back.roster.map(id => strip(back.people[id]))), rosterSnapshot,
     'the signed roster is untouched — those people are the story');
+  t.ok(state.roster.every(id => back.people[id].age === liveAges[id]),
+    '— except the ages, which catch up to the live clock exactly');
   t.ok(back.prospects.length >= KP.C.GEN.prospectCount[0], 'the board is restocked');
   t.ok(back.prospects.every(id => !oldProspectIds.includes(id)), 'every old prospect is gone');
   t.ok(oldProspectIds.every(id => !back.people[id]), 'old prospect files removed');

@@ -116,6 +116,35 @@ function debuted(seed) {
     'the clock forks clean');
 }
 
+// ---- the files catch up (v0.9.2): pre-clock saves get their years ----
+{
+  const { state } = debuted('tl-backfill');
+  const atCreation = {};
+  Object.values(state.people).forEach(p => { atCreation[p.id] = p.age; });
+  for (let w = 0; w < 100; w++) KP.advanceWeek(state);
+  // the live clock's answer is the truth the migration must reproduce
+  const liveAges = {};
+  state.roster.forEach(id => { liveAges[id] = state.people[id].age; });
+  // simulate a save from before the clock existed: freeze everyone back
+  // to signing age and stamp the old version
+  Object.values(state.people).forEach(p => {
+    if (atCreation[p.id] != null) p.age = atCreation[p.id];
+  });
+  state.version = '0.9.0';
+  const m = KP.deserialize(KP.serialize(state));
+  t.ok(state.roster.every(id => m.people[id].age === liveAges[id]),
+    'the migration re-lives every birthday the live clock counted');
+  const rival = Object.values(m.people).find(p => p.status === 'rival' && atCreation[p.id] != null);
+  t.ok(!rival || rival.age >= atCreation[rival.id], 'rival files catch up too');
+  const prospect = Object.values(m.people).find(p => p.status === 'prospect');
+  t.ok(!prospect || prospect.age === atCreation[prospect.id] || atCreation[prospect.id] == null,
+    'board leads are left alone — they churn in weeks');
+  t.ok(m.inbox.some(n => /filing error nobody wants to own/.test(n.text)), 'HR owns up in writing');
+  // and it never runs twice: a second load adds nothing
+  const m2 = KP.deserialize(KP.serialize(m));
+  t.ok(state.roster.every(id => m2.people[id].age === liveAges[id]), 'the correction is one-time');
+}
+
 // ---- volume: the feed is worth checking weekly, still capped ----
 {
   const state = KP.newGame('tl-volume');

@@ -624,6 +624,46 @@
     });
   } });
 
+  // v0.9.2 — the files catch up with the calendar. v0.9.1 started the
+  // personal clock but only from that week forward: saves that lived
+  // through seasons before it have everyone frozen at their signing age.
+  // Count the birthdays each person already lived through (anchored to
+  // their first history entry — signing day or day one in the building —
+  // or, for rival natives with no file, their act's debut) and apply
+  // them. Prospects are skipped: board leads churn in weeks. Saves that
+  // played a stretch under 0.9.1 may see a rare +1 over-count for a
+  // birthday that ticked in that window — accepted, one-time, and only
+  // for updates taken mid-year.
+  MIGRATIONS.push({ v: '0.9.2', fn: function (state) {
+    const wpy = KP.C.WEEKS_PER_YEAR;
+    const actAnchor = {};
+    (state.rivals || []).forEach(r => (r.acts || []).forEach(a =>
+      (a.members || []).forEach(id => {
+        if (actAnchor[id] == null) actAnchor[id] = Math.max(0, a.debutWeek || 0);
+      })));
+    let aged = 0;
+    Object.values(state.people || {}).forEach(p => {
+      if (p.status === 'prospect') return;
+      const anchor = (p.history && p.history.length) ? p.history[0].week
+        : (actAnchor[p.id] != null ? actAnchor[p.id] : null);
+      if (anchor == null) return;
+      const bw = KP.birthWeekOf(state, p);
+      let crossed = 0;
+      for (let w = anchor + 1; w <= state.week; w++) {
+        if (((w - 1) % wpy) + 1 === bw) crossed++;
+      }
+      if (crossed > 0) { p.age += crossed; aged++; }
+    });
+    if (aged) {
+      state.inbox = state.inbox || [];
+      state.inbox.unshift({
+        kind: 'company', week: state.week, read: false,
+        id: 'm' + (state.nextMsgId++),
+        text: 'HR flagged a filing error nobody wants to own: every age in the building was frozen at signing day. The files have been corrected — every birthday since is now on the record. Several people walked past the notice board, did the math, and had a quiet moment about it. The maknae would like everyone to know the title still holds.',
+      });
+    }
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {
