@@ -2569,3 +2569,17 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > renewals, fan trucks — all assembly now. Numbers: battery 41/41
 > (suite 041, 39 assertions), soak clean, e2e 89, lockstep 0.8.0
 > (41 modules). Rode to main.
+\n
+> **v0.8.1 — the way back** (owner: three navigation bugs — back
+> from a group-page dossier dumped to the groups list; back on the
+> talent and industry tabs reset scroll to top; wanted the row you
+> came from highlighted)
+> Push-view navigation got a real stack: each push saves the current
+> view + scroll position; Back pops to exactly where you were —
+> group page, scroll offset and all — and the row you came from
+> glows for ~2 seconds (.nav-here, cyan fade) so you never lose
+> your place in a long list. Forward navigation still opens at the
+> top. Tab switches and action-jumps (signing, proposing) clear the
+> stack. Verified with a live-browser probe on all three reported
+> flows. Numbers: battery 41/41, e2e 89, lockstep 0.8.1. Rode to
+> main.

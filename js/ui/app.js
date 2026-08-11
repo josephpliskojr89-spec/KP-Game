@@ -58,7 +58,21 @@
     const wl = KP.weekLabel(s.week);
     document.getElementById('tb-week').textContent = wl.text;
     document.getElementById('tb-budget').textContent = '₩ ' + s.budget;
-    window.scrollTo(0, 0);
+    // Back restores where you were; forward navigation starts at the top
+    if (App._restore) {
+      const f = App._restore;
+      App._restore = null;
+      window.scrollTo(0, f.scroll || 0);
+      if (f.mark) {
+        const hit = el.querySelector('[data-id="' + f.mark + '"]');
+        if (hit) {
+          hit.classList.add('nav-here');
+          setTimeout(() => hit.classList.remove('nav-here'), 2400);
+        }
+      }
+    } else {
+      window.scrollTo(0, 0);
+    }
   };
 
   function setChrome(on) {
@@ -66,9 +80,16 @@
     document.getElementById('advance-btn').hidden = !on;
   }
 
-  function go(tab) { App.tab = tab; App.view = null; App.render(); }
-  function push(type, id) { App.view = { type, id }; App.render(); }
-
+  // push-view navigation (v0.8.1): a real stack, so Back returns to the
+  // page you were ON — group page, scroll position and all — with the
+  // row you came from briefly marked so you never lose your place
+  App.stack = App.stack || [];
+  function go(tab) { App.tab = tab; App.view = null; App.stack.length = 0; App.render(); }
+  function push(type, id) {
+    App.stack.push({ view: App.view, scroll: window.scrollY, mark: id || null });
+    App.view = { type, id };
+    App.render();
+  }
   function startCareer() {
     const name = (document.getElementById('nc-name').value || '').trim() || 'A&R Manager';
     const seedRaw = (document.getElementById('nc-seed').value || '').trim();
@@ -164,7 +185,13 @@
       case 'advance': advance(); break;
       case 'noop': break;   // sheet body: swallow so the scrim doesn't close
       case 'close-modal': UI.closeModal(); break;
-      case 'back': App.view = null; App.render(); break;
+      case 'back': {
+        const frame = App.stack.pop() || { view: null, scroll: 0, mark: null };
+        App.view = frame.view;
+        App._restore = frame;
+        App.render();
+        break;
+      }
       case 'nav-studio': go('studio'); break;
       case 'open-system': systemSheet(); break;
       case 'talent-sub': App.talentSub = t.dataset.sub; App.render(); break;
@@ -334,7 +361,7 @@
       case 'sign-confirm': {
         const r = KP.signProspect(s, t.dataset.id);
         UI.closeModal();
-        if (r.ok) { UI.toast(s.people[t.dataset.id].name.display + ' is ours.'); App.save(); App.view = null; App.render(); }
+        if (r.ok) { UI.toast(s.people[t.dataset.id].name.display + ' is ours.'); App.save(); App.view = null; App.stack.length = 0; App.render(); }
         else UI.toast(r.reason, true);
         break;
       }
@@ -441,7 +468,7 @@
         UI.closeModal();
         if (r.ok) {
           App.save();
-          App.view = null; App.tab = 'talent';
+          App.view = null; App.stack.length = 0; App.tab = 'talent';
           UI.toast(KP.displayName(p) + ' has left the building.');
           App.render();
         } else UI.toast(r.reason, true);
@@ -493,7 +520,7 @@
         const r = KP.openProject(s, d.members, d.seeking);
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
-        App.view = null; App.tab = 'groups';
+        App.view = null; App.stack.length = 0; App.tab = 'groups';
         UI.toast('The project is open. The building will know by morning.');
         App.render();
         break;
@@ -525,7 +552,7 @@
         const r = KP.proposeGroup(s, actName, [soloist.id], {});
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
-        App.view = null; App.tab = 'groups';
+        App.view = null; App.stack.length = 0; App.tab = 'groups';
         UI.modal('The executive reviews the solo',
           r.review.map(line => '<div class="note">' + UI.esc(line) +
             '<span class="n-who">— ' + UI.esc(s.executive.name) + '</span></div>').join(''),
@@ -538,7 +565,7 @@
         const r = KP.proposeGroup(s, d.name, d.members, d.roles);
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
-        App.view = null; App.tab = 'groups';
+        App.view = null; App.stack.length = 0; App.tab = 'groups';
         UI.modal('The executive reviews the lineup',
           r.review.map(line => '<div class="note">' + UI.esc(line) +
             '<span class="n-who">— ' + UI.esc(s.executive.name) + '</span></div>').join(''),
@@ -697,7 +724,7 @@
     if (t.dataset.action === 'abandon-confirm') {
       localStorage.removeItem(KP.C.SAVE_KEY + '_auto');
       localStorage.removeItem(KP.C.SAVE_KEY + '_auto_meta');
-      App.state = null; App.view = null; App.mode = 'title';
+      App.state = null; App.view = null; App.stack.length = 0; App.mode = 'title';
       UI.closeModal(); App.render();
     }
     // export (v0.5.1): the career as a file or a clipboard string
