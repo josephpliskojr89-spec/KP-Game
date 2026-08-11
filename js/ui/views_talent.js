@@ -287,6 +287,15 @@
         UI.bandChip(band.label, d.confident) + '</div>');
     });
 
+    // the staff read (v0.9.3): personality in words, from the live
+    // numbers — prospects excluded on purpose: the coaches read
+    // character in the building, not from a scouting clip
+    if (p.status === 'trainee' || p.status === 'idol') {
+      html.push('<div class="kicker">' + UI.esc(KP.fillPro('How the staff read {her}', p)) + '</div>');
+      KP.staffRead(state, p).forEach(l =>
+        html.push('<div class="note">' + UI.esc(l) + '<span class="n-who">— the coaching staff, when asked directly</span></div>'));
+    }
+
     // relationships seen so far — frictions come with their handle
     if (isTrainee) {
       const rels = relationshipLines(state, p);

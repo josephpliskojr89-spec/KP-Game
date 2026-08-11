@@ -346,4 +346,59 @@
       { persona: 'casual', text: 'every week I learn one (1) new fact about ' + KP.displayName(p) + ' and every week it improves my quality of life measurably' },
     ]);
   });
+
+  // ---- the staff read (v0.9.3) ------------------------------------------
+  // Personality in words, derived from the SAME live numbers that
+  // chemistry, coaching, discourse, and the renewal table already read —
+  // one truth, finally spoken. Only genuine edges get a line (≥65 high,
+  // ≤35 low); the three sharpest edges are the read. Words, never meters.
+  const READ_AXES = [
+    ['leadership',
+      'when plans change mid-run, the room looks at {her} first',
+      'happy to follow a good plan — {she} has never once reached for the wheel'],
+    ['workEthic',
+      'first in, last out — the practice-room log keeps {pos} receipts',
+      'does exactly what is asked, to the minute, and not a minute more'],
+    ['coachability',
+      'corrections stick the first time; the coaches have started saying things once',
+      'takes every note politely and then does it {pos} way anyway'],
+    ['warmth',
+      'new trainees find {her} first — nobody tells them to',
+      'keeps a distance the room can feel; what {she} offers is respect, not warmth'],
+    ['dominance',
+      '{she} fills a room without asking it to move',
+      'gives ground easily — sometimes before anyone asked {her} to'],
+    ['confidence',
+      'walks into evaluations like they were {pos} idea',
+      'needs a win proven to {her} twice before {she} believes it'],
+    ['professionalism',
+      'grudges do not survive a schedule — {she} lets things go by Monday',
+      'feelings ride shotgun on working days, and they reach for the wheel'],
+    ['competitiveness',
+      'reads every chart like a scoreboard and keeps the losses',
+      'runs {pos} own race; rankings bounce off {her}'],
+    ['resilience',
+      'bad weeks do not follow {her} into the next one',
+      'carries a hard week longer than {she} admits'],
+    ['adaptability',
+      'hand {her} a changed plan mid-run and {she} is already inside it',
+      'wants the plan three days before the plan'],
+    ['creativity',
+      'keeps pitching ideas nobody scheduled — an alarming number are good',
+      null],
+  ];
+  KP.staffRead = function (state, p) {
+    const t = p.personality;
+    const hits = [];
+    READ_AXES.forEach(ax => {
+      const v = t[ax[0]];
+      if (v >= 65 && ax[1]) hits.push({ w: v - 50, line: ax[1] });
+      else if (v <= 35 && ax[2]) hits.push({ w: 50 - v, line: ax[2] });
+    });
+    hits.sort((a, b) => b.w - a.w);
+    if (!hits.length) {
+      return [KP.fillPro('still forming — {she} has not shown the room {pos} edges yet', p)];
+    }
+    return hits.slice(0, 3).map(h => KP.fillPro(h.line, p));
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

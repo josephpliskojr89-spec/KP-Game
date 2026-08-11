@@ -205,17 +205,36 @@
       return ['It is her, a stage, and nowhere to hide. Solo acts do not get a room to blame.'];
     }
     const chem = KP.groupChemistry(state, members);
+    const quiet = [];
     for (let i = 0; i < members.length; i++) {
       for (let j = i + 1; j < members.length; j++) {
         const rel = (state.relationships || {})[pairKey(members[i], members[j])];
         if (!rel) continue;
         const st = KP.relState(rel.score);
         if (st.key === 'close') notes.push(KP.publicGiven(members[i]) + ' + ' + KP.publicGiven(members[j]) + ': trusted partners.');
+        // the quiet pairs (v0.9.3): the gap between "everyone gets along"
+        // and "this room works" lives here — name it next to its handle
+        // (frictions render separately, with sit-downs attached)
+        else if (st.key === 'friendly') quiet.push({ s: rel.score, t: KP.publicGiven(members[i]) + ' + ' + KP.publicGiven(members[j]) + ': friendly, not yet trusted.' });
+        else if (st.key === 'neutral') quiet.push({ s: rel.score, t: KP.publicGiven(members[i]) + ' + ' + KP.publicGiven(members[j]) + ': cordial, not close yet.' });
       }
+    }
+    // only worth naming once some pairs ARE close — an all-quiet room is
+    // already covered by the consensus line; cap three, coldest first
+    if (notes.length && quiet.length) {
+      quiet.sort((a, b) => a.s - b.s).slice(0, 3).forEach(q => notes.push(q.t));
     }
     const leaders = members.filter(m => m.personality.leadership > 65);
     if (leaders.length > 1) notes.push('More than one member expects to lead. That will surface.');
     if (leaders.length === 0) notes.push('No obvious leader in this lineup yet.');
+    // the mix, in words (v0.9.3): the half of the consensus that is who
+    // they are, not how they get along — it can hold a warm room at
+    // "workable" and the player deserves to see it
+    const domAvg = members.reduce((s, m) => s + m.personality.dominance, 0) / members.length;
+    const warmAvg = members.reduce((s, m) => s + m.personality.warmth, 0) / members.length;
+    if (domAvg > 62) notes.push('A lot of strong wills sharing one dorm. The thermostat reads it.');
+    if (warmAvg >= 60) notes.push('The room runs warm — chemistry has a tailwind here.');
+    else if (warmAvg <= 42) notes.push('The room runs cool. Whatever chemistry this lineup gets will be built on purpose.');
     if (chem >= 66) notes.unshift('Staff consensus: this room works. They move like they already know each other.');
     else if (chem <= 38) notes.unshift('Staff consensus: talented individuals, cold room. Chemistry is not there yet.');
     else notes.unshift('Staff consensus: a workable room. Chemistry will be built, not found.');

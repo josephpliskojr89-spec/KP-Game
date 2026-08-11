@@ -2091,6 +2091,43 @@ and `validateState` stays green every single week. Census band:
 `contractStamped` 40/40. Renewal/departure bands live in the long
 pass, not the 140-week census — by construction, not by ruling.
 
+## §44 The staff read (v0.9.3) — personality made legible
+
+Owner feel report: *"it's really difficult to gauge personalities."*
+The audit agreed with the feeling exactly: twelve engine systems read
+the eleven personality numbers (chemistry, coaching, discourse,
+tours, the renewal table), while the artist file's blurbs are hash
+flavor and the UI never says the numbers at all. Personality was
+consequence-only — you learned who someone was after she cost or
+saved you.
+
+**KP.staffRead(state, p)** (persona.js): the same live numbers, in
+words. Each of the eleven axes has a high line (fires ≥65) and most
+a low line (≤35) — "when plans change mid-run, the room looks at
+{her} first" / "takes every note politely and then does it {pos} way
+anyway." Only genuine edges speak; the three sharpest are the read,
+sharpest first; a person with no edges reads *still forming — she
+has not shown the room her edges yet.* No rng, no hash, no state
+touched (render law — suite-proven by serialize-compare). Rendered
+on the dossier's working card under "How the staff read her,"
+attributed to the coaching staff. Prospects are excluded on purpose:
+character is read in the building, not from a scouting clip.
+
+**The room report grows two truths** (relationships.js):
+- *Quiet pairs.* The report used to list only close pairs, so a
+  hub-and-spoke room (everyone trusts the center, nobody else close)
+  looked finished while the consensus said "workable." Now the
+  non-close, non-friction pairs are named — "friendly, not yet
+  trusted" / "cordial, not close yet" — capped at three, coldest
+  first, and only when some pair IS close (an all-quiet room is
+  already covered by the consensus line). Frictions still render
+  separately with sit-downs attached.
+- *The mix, in words.* The personality half of the chemistry blend
+  can hold a warm room at "workable" and was invisible: stacked
+  dominance ("the thermostat reads it"), warm rooms ("tailwind"),
+  cool rooms ("built on purpose") now get named beside the leader
+  lines.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3075,3 +3112,17 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > now compares everything but age, as it must. Numbers: battery
 > 45/45, soak clean, e2e 90, lockstep 0.9.2 (45 modules). Rode to
 > main.
+\n
+> **v0.9.3 — the staff read** (owner: *"I feel like it's really
+> difficult to gauge personalities"*)
+> Full spec in §44. Twelve systems read the personality numbers;
+> zero surfaces said them — personality was consequence-only.
+> KP.staffRead turns the live numbers into the three sharpest edges
+> in staff language on the dossier's working card (no rng, no state
+> touched, prospects excluded — character is read in the building).
+> The room report names the quiet pairs (the hub-and-spoke gap the
+> owner hit: three trusted pairs, all through one member, and a
+> "workable" consensus nobody could explain) and the personality
+> mix in words (stacked dominance, warm/cool rooms). Numbers:
+> battery 45/45 (suite 039 now 58), soak clean, e2e 91, lockstep
+> 0.9.3 (45 modules). Rode to main.

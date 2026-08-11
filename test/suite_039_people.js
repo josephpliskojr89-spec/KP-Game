@@ -227,4 +227,67 @@ function freshSpots(state) {
   t.eq(KP.serialize(a), KP.serialize(b), 'the people fork clean');
 }
 
+// ---- the staff read (v0.9.3): the numbers finally speak ----
+{
+  const { state } = debuted('people-read');
+  const p = state.people[state.roster[0]];
+  // sculpted edges: the read names the three sharpest, sharpest first
+  Object.keys(p.personality).forEach(k => { p.personality[k] = 50; });
+  p.personality.leadership = 80;   // edge 30 — sharpest
+  p.personality.warmth = 28;       // edge 22
+  p.personality.workEthic = 70;    // edge 20
+  p.personality.confidence = 66;   // edge 16 — fourth, cut
+  const read = KP.staffRead(state, p);
+  t.eq(read.length, 3, 'three edges, no more');
+  t.ok(/looks at her first/.test(read[0]), 'the sharpest edge leads');
+  t.ok(read.some(l => /respect, not warmth/.test(l)), 'low edges read too');
+  t.ok(!read.some(l => /evaluations like they were/.test(l)), 'the fourth edge stays unspoken');
+  // no edges: the read admits it instead of inventing one
+  Object.keys(p.personality).forEach(k => { p.personality[k] = 50; });
+  t.ok(/still forming/.test(KP.staffRead(state, p)[0]), 'a person without edges reads as still forming');
+  // reading is not acting: no rng, no state change (render law)
+  p.personality.leadership = 80;
+  const before = KP.serialize(state);
+  KP.staffRead(state, p); KP.staffRead(state, p);
+  t.eq(KP.serialize(state), before, 'the read never touches the state');
+  // pronouns hold for the boys
+  p.gender = 'm';
+  t.ok(/looks at him first/.test(KP.staffRead(state, p)[0]), 'the read speaks his pronouns');
+  p.gender = 'f';
+}
+
+// ---- the room report: quiet pairs and the mix in words (v0.9.3) ----
+{
+  const { state } = debuted('people-room');
+  const g = state.groups[0];
+  const members = g.members.map(id => state.people[id]);
+  // sculpt a hub-and-spoke room: everyone trusts m0, nobody else is close
+  members.forEach(m => { m.personality.dominance = 50; m.personality.warmth = 50; m.personality.leadership = 50; });
+  for (let i = 0; i < members.length; i++) {
+    for (let j = i + 1; j < members.length; j++) {
+      state.relationships[KP.pairKey(members[i], members[j])] =
+        { score: i === 0 ? 70 : 5, state: null };
+    }
+  }
+  const notes = KP.chemistryNotes(state, members);
+  t.ok(notes.some(n => /trusted partners/.test(n)), 'fixture: the warm spokes read');
+  t.ok(notes.some(n => /cordial, not close yet/.test(n)), 'and the quiet pairs are named beside them');
+  t.ok(notes.filter(n => /cordial|not yet trusted/.test(n)).length <= 3, 'capped — a report, not a census');
+  // an all-quiet room stays quiet: the consensus line already covers it
+  for (let i = 0; i < members.length; i++) {
+    for (let j = i + 1; j < members.length; j++) {
+      state.relationships[KP.pairKey(members[i], members[j])].score = 5;
+    }
+  }
+  t.ok(!KP.chemistryNotes(state, members).some(n => /cordial, not close yet/.test(n)),
+    'no close pairs, no quiet-pair list');
+  // the mix speaks: strong wills and warm rooms get named
+  members.forEach(m => { m.personality.dominance = 75; m.personality.warmth = 65; });
+  const mixNotes = KP.chemistryNotes(state, members);
+  t.ok(mixNotes.some(n => /thermostat reads it/.test(n)), 'stacked dominance is named');
+  t.ok(mixNotes.some(n => /tailwind/.test(n)), 'a warm room is named');
+  members.forEach(m => { m.personality.warmth = 30; });
+  t.ok(KP.chemistryNotes(state, members).some(n => /built on purpose/.test(n)), 'a cool room is warned');
+}
+
 t.finish();

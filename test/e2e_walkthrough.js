@@ -90,6 +90,7 @@ async function main() {
   const dossierText = await page.textContent('#screen');
   ok(!/\bOVR\b|overall rating|overall[:\s]+\d/i.test(dossierText), 'no Overall rating anywhere in the dossier');
   ok(/followers/.test(dossierText), 'the profile shows her public following (v0.6.1)');
+  ok(/How the staff read/.test(dossierText), 'the staff read is on the working card (v0.9.3)');
 
   // --- training plan: focus + intensity ---
   await tap('.focus-chips .chip');
