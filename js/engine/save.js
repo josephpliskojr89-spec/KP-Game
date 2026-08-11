@@ -604,6 +604,26 @@
     });
   } });
 
+  // v0.9.0 — contracts & the clock. Existing idols get their sevens
+  // backdated to their debut; the calendar finally has an end of it.
+  MIGRATIONS.push({ v: '0.9.0', fn: function (state) {
+    (state.groups || []).forEach(g => {
+      if (!g.debuted) return;
+      (g.members || []).forEach(id => {
+        const p = state.people[id];
+        if (p && p.status === 'idol' && !p.contract) {
+          p.contract = { start: g.debutWeek || 1, years: 7, term: 1 };
+        }
+      });
+    });
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'company', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'Legal circulated a one-page memo that changes the weight of everything: the exclusive contracts now have DATES on them. Seven years from debut, renewal window at five — and the renewal is a conversation, not a form. It reads the whole ledger: the doors you answered, the promises you kept, the ones you did not. Most will re-sign. Some will name a price. And someone this company truly failed can, for the first time, decide to leave. Every quiet week just started counting.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

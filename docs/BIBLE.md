@@ -2018,6 +2018,79 @@ solos by design — 39/40 careers get assigned one). Census: boys
 signed 33/40, boy second acts 10/40, managers named 40/40, board
 faced 40/40.
 
+## §43 Contracts & the clock (v0.9.0) — the seven-year shape
+
+Phase B opens (§39). Every career now has the shape the real industry
+gave the genre: the exclusive contract, seven years from the debut
+stage, and the one conversation at year five that decides how the
+years get used. This is the system the whole ledger was built to feed
+— renewal is where every answered door, kept promise, and quiet week
+of neglect finally becomes arithmetic.
+
+**The clock** (`js/engine/contracts.js`, weekly order 784).
+`p.contract = { start: debutWeek, years: 7, term }`, stamped
+idempotently the week a group debuts. `KP.contractYear` reads it in
+years; the dossier head shows it plainly ("Exclusive contract · year
+N of 7 · term T" — "final term" in magenta when she is leaving).
+Migration backdates existing idols to their group's debut week, with
+a memo that lands the weight: *every quiet week just started
+counting.*
+
+**The read** (`KP.renewalRead`). One function turns the ledger into
+a table disposition: standing (×1.5, half-life 48wk), ambition met
+or ignored, promises kept and broken, doors left waiting, a
+warm room (group pop ≥55), morale. Bands: **devoted** (≥6),
+**professional** (≥0), **strained** (≥−5), **gone**. Fame
+(`social/150k`, capped 4) is leverage — it prices the signature but
+never decides the band. Words at the table, numbers never shown.
+
+**The table** (scene kind `renewal`, one at a time, spaced 6wk,
+expires in 3). Per-band bodies; per-band doors:
+- *devoted*: sign, or sign-and-sweeten (30 — she was signing anyway;
+  the sweetener was for the years).
+- *professional*: meet the terms (40 + fame×12, charged in full) or
+  offer the standard paper (−1 directed; her representation files
+  the silence).
+- *strained*: give real terms, or hold the company line — a coin
+  (`holdLeaveChance` .5) between a grudging re-sign and a dated
+  seventh year.
+- *gone*: write the ending right (farewell lap, warm, `endingHonored`
+  +2) or try to change the arithmetic (`changeMindChance` .25, +.15
+  at standing ≥3 — some saves happen in rooms with no cameras).
+Renewal resets the clock (`start = week`, `term++`) — the reset is
+itself the gate; the next table is five years out. An expired table
+is `tableLeftWaiting` (−3) and comes back colder.
+
+**The departure** (`KP.departIdol`, warm/cold). Roles reassigned
+inside the lineup (leader by leadership, center by centerPull with
+centerHistory), rooms re-partitioned, deals wound down, her open
+claims settled void, every scene holding her name off the desk with
+her, close friends grieve (−3 + `friendDeparted` directed), pop hit
+4 warm / 9 cold, morale 4/7. The status is `departed`, the file
+stays open **forever**. Warm goodbyes are handwritten letters; cold
+ones are three sentences the fandom reads everything into. The
+group continues as N — suite-proven through a full post-departure
+comeback cycle.
+
+**The anti-immortality rule.** Ignoring the table is not a strategy:
+half a year past the seventh with the read at gone, she departs cold
+on her own — the silence was the answer. (Found by the harness's
+long-horizon pass: without it, a neglected roster simply never left.)
+
+**Graduation** (`KP.graduateToSolo`): leaves the lineup, stays an
+idol, gets an undebuted solo act — plannable like any other. Offered
+by the renewal flow in a later pass; the door exists and is
+suite-tested now.
+
+**The long clock in the harness.** Renewal opens at ~week 246 —
+beyond the 140-week census — so the soak gains a second pass: 3
+seeds × 380 weeks (two attentive orgs sharing the bot's renewal
+policy, one neglect org that never answers a scene), guarding that
+tables open, re-signs happen, the neglect org actually loses people,
+and `validateState` stays green every single week. Census band:
+`contractStamped` 40/40. Renewal/departure bands live in the long
+pass, not the 140-week census — by construction, not by ruling.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2933,3 +3006,24 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > assertions), soak clean (boys 33/40, boy acts 10/40, managers
 > 40/40, board 40/40, pet 39/40), e2e 90, lockstep 0.8.4 (44
 > modules). Rode to main.
+\n
+> **v0.9.0 — contracts & the clock** (owner: *"approved for
+> 0.9.0"* — §39 Phase B opens)
+> Full spec in §43. The seven-year exclusive contract, stamped at
+> debut and backdated by migration; the renewal table at year five
+> that turns the whole directed-acts ledger into one of four
+> dispositions (devoted / professional / strained / gone), each with
+> its own doors — sweeteners, fame-priced terms, held lines on a
+> coin, farewells written right, and pleas that occasionally change
+> the arithmetic. Departures handle every invariant: roles, rooms,
+> deals, claims, desk scenes, grieving friends, and a file that
+> stays open forever; the group provably continues as N through a
+> full comeback cycle. The anti-immortality rule (paper runs out at
+> 7.5y when the read is gone) came out of the harness's new
+> long-horizon pass — 3 seeds × 380 weeks proving tables open,
+> re-signs happen, and a neglect org actually loses people (it lost
+> 2). Graduation to solo exists and is suite-tested; the renewal
+> flow offers it in a later pass. Numbers: battery 45/45 (suite 045,
+> 70 assertions — the longest yet), soak clean + long clock (10
+> tables, 10 re-signs, contractStamped 40/40), e2e 90, lockstep
+> 0.9.0 (45 modules). Rode to main.

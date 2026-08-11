@@ -145,6 +145,15 @@
       '<div class="d-social">' + KP.fmtCount(KP.socialOf(state, p)) + ' followers' +
       ((p.socialDelta || 0) > 0 ? ' <span class="ds-up">▲' + KP.fmtCount(p.socialDelta) + ' this week</span>' : '') +
       '</div>' +
+      (p.contract && p.status === 'idol'
+        ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:5px">Exclusive contract · year ' +
+          KP.contractYear(state, p) + ' of ' + p.contract.years +
+          (p.contract.term > 1 ? ' · term ' + p.contract.term : '') +
+          (p.contract.leaving ? ' · <span style="color:var(--magenta)">final term</span>' : '') + '</div>'
+        : '') +
+      (p.status === 'departed'
+        ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:5px">Departed ' + UI.esc(KP.weekLabel(p.flags.departedWeek || 1).text) + ' · the file stays open forever</div>'
+        : '') +
       ((p.status === 'idol' || inLineup)
         ? '<div style="margin-top:8px"><button class="btn small ghost" data-action="open-stagename" data-id="' + p.id + '" style="border:1px solid var(--line)">' + (p.name.stage ? 'Change stage name' : 'Give a stage name') + '</button></div>'
         : '') +

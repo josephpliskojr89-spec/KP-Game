@@ -99,6 +99,10 @@ const BANDS = {
   // mechanic reading zero under a competent bot is working (see
   // fiscalNoticed). The mechanism itself is suite-tested.
   quietWeekCaught:   { lo: 0.00, hi: 1.00, label: 'orgs where the staff flagged somebody going quiet' },
+  // v0.9.0 — the clock stamps at debut, every debut. Renewal/departure
+  // bands do NOT live here: the window opens at year five (week ~246),
+  // beyond this census's horizon — the long-horizon pass below owns them.
+  contractStamped:   { lo: 0.90, hi: 1.00, label: 'orgs whose debuted idols all carry a stamped contract' },
 };
 
 const tally = {
@@ -123,6 +127,7 @@ const tally = {
   doorKnocked: 0, askPromiseKept: 0, momentChoiceSeen: 0, doorLeftWaiting: 0,
   annivFelt: 0, scarCarried: 0,
   boysSigned: 0, boyGroupFormed: 0, staffNamed: 0, boardFaced: 0, petAssigned: 0,
+  contractStamped: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -136,6 +141,24 @@ const allAges = [];
 let violations = [];
 
 function guard(cond, msg) { if (!cond) violations.push(msg); }
+
+// the renewal table policy (v0.9.0), shared by the census bot and the
+// long-horizon pass: a decent boss pays real terms when the books allow,
+// never signs into the red, and writes endings right when the read says
+// gone. Returns the resolved option id (or null when the table was empty).
+function botRenewal(state, sc) {
+  const p = state.people[sc.personId];
+  if (!p) { KP.resolveScene(state, sc.id, 'ok'); return null; }
+  const C = KP.C.CONTRACT;
+  const read = KP.renewalRead(state, p);
+  const cost = C.termsCostBase + read.fame * C.termsCostPerFame;
+  const pick = read.band === 'devoted' ? 'sign'
+    : read.band === 'professional' ? (state.budget >= cost ? 'terms' : 'standard')
+    : read.band === 'strained' ? (state.budget >= cost ? 'terms' : 'hold')
+    : 'farewell';
+  KP.resolveScene(state, sc.id, pick);
+  return pick;
+}
 
 for (let s = 0; s < SEEDS; s++) {
   const seed = 'soak-' + s;
@@ -279,6 +302,14 @@ for (let s = 0; s < SEEDS; s++) {
         // solos come from the bot's own credit slots; trophies from its
         // show wins — promise those, be honest about the rest
         KP.resolveScene(state, sc.id, (amb === 'solo' || amb === 'trophy') ? 'promise' : 'honest');
+        return;
+      }
+      if (sc.kind === 'renewal') {
+        // the renewal table (v0.9.0): pay real terms when the books allow,
+        // never sign into the red, and write endings right when the read
+        // says gone (dormant in the 140-week census — the window opens at
+        // year five — but live in the long-horizon pass below)
+        botRenewal(state, sc);
         return;
       }
       const def = KP.sceneDef(sc.kind);
@@ -563,6 +594,10 @@ for (let s = 0; s < SEEDS; s++) {
       state.groups.some(g => g.debuted)) tally.staffNamed++;
   if ((state.convoLog || []).some(e => e.kind === 'boardSeason')) tally.boardFaced++;
   if (state.petProjectDone) tally.petAssigned++;
+  // the clock census (v0.9.0): every debuted idol carries the stamp
+  if (state.groups.some(g => g.debuted) &&
+      state.groups.filter(g => g.debuted).every(g =>
+        g.members.every(id => state.people[id] && state.people[id].contract))) tally.contractStamped++;
   // the tracklist census (v0.7.5)
   const allReleases = state.groups.flatMap(gg => gg.releases || []);
   const credits = allReleases.flatMap(r => (r.tracklist || []).filter(tk => tk.credit));
@@ -633,6 +668,76 @@ console.log('best overseas region at career end: ' + bestRegions.map(v => Math.r
 console.log('save size after 140 weeks: ' + Math.round(totalSaveKB / SEEDS) + ' KB average (quota ~5 MB)');
 console.log('avg roster talent growth over the run: ' +
   (growths.reduce((a, b) => a + b, 0) / Math.max(1, growths.length)).toFixed(1) + ' pts');
+
+// ---- the long clock (v0.9.0): 3 seeds × 380 weeks -----------------------
+// The renewal window opens at year five (~week 246) and the seventh year
+// ends at ~week 336 — both far beyond the 140-week census. This pass rides
+// the clock the whole way: tables must open, the bot answers them with the
+// shared renewal policy, departures resolve without breaking a single
+// invariant, and the files stay open forever.
+console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks) ---');
+{
+  let clockTables = 0, clockRenewed = 0, clockLeavers = 0, clockDeparted = 0;
+  let neglectDeparted = 0;
+  for (let s = 0; s < 3; s++) {
+    const seed = 'clock-' + s;
+    // seed 2 is the neglect org: it debuts a group and then never answers
+    // a single scene again — tables expire, the ledger goes cold, and the
+    // paper itself must run out (the anti-immortality rule)
+    const neglect = s === 2;
+    const state = KP.newGame(seed);
+    const pool = state.roster.filter(id => state.people[id].gender === 'f').slice(0, 5);
+    guard(pool.length === 5, seed + ' long clock: opening roster too small');
+    KP.proposeGroup(state, 'LONGRUN', pool, KP.roleHints(state, pool.map(i => state.people[i])));
+    const g = state.groups[0];
+    KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
+      week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
+    let seedTables = 0;
+    for (let w = 0; w < 380; w++) {
+      if (!neglect) (state.scenes || []).slice().forEach(sc => {
+        if (sc.kind === 'execQuestion') {
+          // honest and boring: never promise what this slim bot won't ship
+          KP.answerMeeting(state, sc.q && sc.q.type === 'comebackPromise' ? 1 : 0);
+          return;
+        }
+        if (sc.kind === 'renewal') {
+          clockTables++; seedTables++;
+          const p = state.people[sc.personId];
+          botRenewal(state, sc);
+          if (p && p.contract && !p.contract.leaving) clockRenewed++;
+          else if (p) clockLeavers++;
+          return;
+        }
+        const def = KP.sceneDef(sc.kind);
+        if (def) {
+          const opts = def.options(state, sc);
+          if (opts && opts.length) KP.resolveScene(state, sc.id, opts[0].id);
+        }
+      });
+      KP.advanceWeek(state);
+      const errs = KP.validateState(state);
+      guard(errs.length === 0, seed + ' long clock wk' + state.week + ': ' + errs[0]);
+    }
+    guard(neglect || seedTables >= 1, seed + ' long clock: no renewal table ever opened');
+    const departed = Object.values(state.people).filter(p => p.status === 'departed');
+    clockDeparted += departed.length;
+    if (neglect) neglectDeparted = departed.length;
+    departed.forEach(p => {
+      guard(!state.roster.includes(p.id), seed + ' departed idol still on roster');
+      guard(state.groups.every(gg => !gg.members.includes(p.id)), seed + ' departed idol still in a lineup');
+      guard(!!p.flags.departedWeek, seed + ' departed file missing its date');
+    });
+    if (neglect) guard((Object.values(state.people)
+      .some(p => (p.directed || []).some(d => d.kind === 'tableLeftWaiting'))) || departed.length,
+      seed + ' neglect org: tables never even expired');
+  }
+  console.log('renewal tables opened: ' + clockTables + '  (renewed: ' + clockRenewed +
+    ', chose to leave: ' + clockLeavers + ', departed by career end: ' + clockDeparted +
+    '; the neglect org lost ' + neglectDeparted + ')');
+  guard(clockTables >= 6, 'long clock: fewer than 6 renewal tables across the attentive careers');
+  guard(clockRenewed >= 1, 'long clock: nobody ever re-signed');
+  guard(neglectDeparted >= 1, 'long clock: the neglect org kept everyone — the paper never runs out');
+}
 
 // age census: 15-16 the norm, 14 a hard floor (owner's law, v0.3.1)
 const ageMean = allAges.reduce((a, b) => a + b, 0) / allAges.length;

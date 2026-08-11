@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.8.4',
+    VERSION: '0.9.0',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -837,6 +837,22 @@
     ANNIV: {
       morale: 2,                 // the anniversary vlive does everyone good
       spike: 1800,               // N-years hashtags travel
+    },
+    // ---- Contracts & the clock (v0.9.0) ---------------------------------
+    CONTRACT: {
+      years: 7,                  // the standard exclusive term, from debut
+      renewalAtYears: 5,         // the table opens two years out
+      spacingWeeks: 6,           // one renewal conversation at a time
+      sweetenCost: 30,           // making the devoted feel it
+      termsCostBase: 40,         // real terms for the professional
+      termsCostPerFame: 12,      // leverage: her fame prices her signature
+      holdLeaveChance: 0.5,      // holding the line on the strained is a coin
+      changeMindChance: 0.25,    // the gone rarely turn back — standing helps
+      departPopHitWarm: 4,       // a warm goodbye still costs the room
+      departPopHitCold: 9,       // a cold one costs more
+      departMoraleWarm: 4,
+      departMoraleCold: 7,
+      friendGrief: 3,            // close friends take departures hardest
     },
     // ---- The building (v0.8.4) — staff, taste, board season -------------
     BUILDING: {
