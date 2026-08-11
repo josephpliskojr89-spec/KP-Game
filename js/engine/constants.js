@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.6',
+    VERSION: '0.9.6.1',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -766,8 +766,12 @@
     // extremely high risk high reward. could be critically acclaimed but
     // unpopular, could flop, could change the industry. all on the table."
     FUSION: {
-      GENRES: ['metalcore', 'trot', 'EDM', 'jazz', 'drill', 'city pop',
-        'hardcore punk', 'R&B', 'folk', 'industrial', 'orchestral',
+      // the standards first (0.9.6.1 — "we overlooked the obvious
+      // genres lol"): half the point is mashing a standard K-pop genre
+      // with a strange one. K-pop × metalcore is now literally on the menu.
+      GENRES: ['pop', 'hip-hop', 'dance', 'rock', 'ballad', 'R&B', 'EDM',
+        'metalcore', 'trot', 'jazz', 'drill', 'city pop',
+        'hardcore punk', 'folk', 'industrial', 'orchestral',
         'disco', 'shoegaze', 'bossa nova'],
       // outcome weights, tilted by the room's creativity (avg/100):
       // creative rooms shift weight from flop toward acclaim and shift

@@ -46,6 +46,11 @@ function openCal(state, g) {
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 }, mash: ['metalcore', 'trot'] });
   t.ok(real.ok && g.prep.mash.join() === 'metalcore,trot', 'K-metalcore lives');
   t.eq(KP.mashLabel(['metalcore', 'trot']), 'K-metalcore × trot', 'and reads like the owner asked');
+  // 0.9.6.1: the standards are on the menu — a standard genre with a
+  // strange one is half the point
+  ['pop', 'hip-hop', 'dance', 'rock', 'ballad'].forEach(std =>
+    t.ok(KP.C.FUSION.GENRES.includes(std), std + ' is a genre the producers have heard of'));
+  t.eq(KP.mashLabel(['pop', 'metalcore']), 'K-pop × metalcore', 'K-pop × metalcore, literally');
   let guard = 0;
   while (g.prep && guard++ < 10) KP.advanceWeek(state);
   t.ok(g.results.fusionOutcome, 'the mash rolls a verdict (' + g.results.fusionOutcome + ')');

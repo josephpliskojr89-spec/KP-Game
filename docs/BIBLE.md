@@ -3357,3 +3357,12 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > bug caught by e2e (mash panel shadowing the demo selection).
 > Numbers: battery 48/48 (suite 048, 37 assertions), soak clean, e2e
 > 91, lockstep 0.9.6 (48 modules). Rode to main.
+\n
+> **build 0.9.6.1 — the standards** (owner: *"we overlooked the
+> obvious genres lol. Pop, hip hop, dance... standard kpop genres to
+> mash with a unique one"*; four-part build = cache bust only)
+> The mash menu gains the standards — pop, hip-hop, dance, rock,
+> ballad — because half the point is a standard K-pop genre colliding
+> with a strange one. K-pop × metalcore is now literally on the menu
+> (and suite-asserted, literally). 19 genres total. Battery 48/48,
+> soak clean, e2e 91, lockstep 0.9.6.1. Rode to main.
