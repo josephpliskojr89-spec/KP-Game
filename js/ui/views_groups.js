@@ -127,6 +127,15 @@
         '<span class="chip gold">' + UI.esc(f.name) + '</span>' +
         '<span class="chip cool">' + UI.esc(f.color) + '</span>' +
         '<span class="chip">' + UI.esc(KP.popularityWord(g.popularity)) + ' · ' + UI.esc(KP.intensityWord(f.intensity)) + '</span>' +
+        ((g.fandomGrudge || 0) >= 1 ? '<span class="chip clash">keeping receipts</span>' : '') +
+        (g.lightstickWeek ? '<span class="chip">lightstick era</span>' : '') +
+        '</div>');
+      // the constituency (v0.9.6): the company gets a voice back
+      const C = KP.C.CONSTITUENCY;
+      html.push('<div class="pad" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:6px">' +
+        '<button class="btn small ghost" data-action="cafe-notice" data-id="' + g.id + '">Café notice</button>' +
+        '<button class="btn small ghost" data-action="fan-meeting" data-id="' + g.id + '">Fan meeting · ' + C.fanMeetingCost + '</button>' +
+        (!g.lightstickWeek ? '<button class="btn small ghost" data-action="lightstick" data-id="' + g.id + '">Launch the lightstick · ' + C.lightstickCost + '</button>' : '') +
         '</div>');
     } else if (KP.fandomEligible(state, g)) {
       const opts = KP.fandomNameOptions(state, g);

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.5',
+    VERSION: '0.9.6',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -212,6 +212,10 @@
       { id: 'hiphop',      label: 'Hip-hop / Swagger',   weights: { vocals: 0.7, dance: 1.0, charisma: 1.2, visuals: 0.85, rap: 1.5 }, personality: { confidence: 1.3, competitiveness: 0.9 } },
       { id: 'retro',       label: 'Retro',               weights: { vocals: 1.15, dance: 1.0, charisma: 1.15, visuals: 1.0, rap: 0.6 }, personality: { creativity: 0.9, warmth: 0.8 } },
       { id: 'dreamy',      label: 'Dreamy / Ethereal',   weights: { vocals: 1.25, dance: 0.8, charisma: 1.0, visuals: 1.2, rap: 0.4 }, personality: { creativity: 1.0, warmth: 0.9 } },
+      // genre-bending (v0.9.6, owner's request): the concept that mashes.
+      // Locking a release under this brief opens a second option — pick
+      // the two genres to collide. Extremely high risk, high reward.
+      { id: 'fusion',      label: 'Genre-Bending',       weights: { vocals: 1.0, dance: 1.0, charisma: 1.2, visuals: 0.9, rap: 1.0 }, personality: { creativity: 1.5, confidence: 0.8 } },
     ],
 
     // ---- Regional popularity (v0.6.6): the map opens --------------------
@@ -755,6 +759,46 @@
       gayoPopAt: 55,             // invitation is by popularity, period
       gayoMorale: 2,
       gayoCollabChance: 0.5,     // a friendship becomes year-end television
+    },
+
+    // ---- Genre-bending (v0.9.6, owner's request) ------------------------
+    // "if I want a k-metalcore group, I should be able to do it...
+    // extremely high risk high reward. could be critically acclaimed but
+    // unpopular, could flop, could change the industry. all on the table."
+    FUSION: {
+      GENRES: ['metalcore', 'trot', 'EDM', 'jazz', 'drill', 'city pop',
+        'hardcore punk', 'R&B', 'folk', 'industrial', 'orchestral',
+        'disco', 'shoegaze', 'bossa nova'],
+      // outcome weights, tilted by the room's creativity (avg/100):
+      // creative rooms shift weight from flop toward acclaim and shift
+      shiftBase: 0.06, shiftPerCreativity: 0.06,   // changed the industry
+      acclaimBase: 0.18, acclaimPerCreativity: 0.10, // critics' darling, public shrug
+      flopBase: 0.30, flopLessPerCreativity: 0.12,   // the mash ate itself
+      // "worked" takes the remainder — the gamble pays modestly
+      shiftReceptionMin: 84,     // an industry-shift lands at least here
+      acclaimReceptionCap: 45,   // acclaimed-but-unpopular caps the charts
+      flopReceptionCap: 26,
+      workedLift: 6,
+      acclaimFandomGain: 6,      // the devoted love being right early
+      acclaimTrust: 2,
+      shiftPop: 8, shiftFandomGain: 8,
+      flopMorale: 3,
+    },
+
+    // ---- The constituency (v0.9.6) — the fandom acts on YOUR decisions --
+    CONSTITUENCY: {
+      intensityAt: 55,           // organized enough to rent a truck
+      truckChance: 0.5,          // per grievance, when organized
+      quietWeeks: 10,            // between actions — outrage has logistics
+      grievanceWindow: 3,        // weeks a grievance stays truck-worthy
+      concedeCost: 20,           // catering, statements, the walked-back plan
+      fanMeetingCost: 25,        // the fan meeting: a real event
+      fanMeetingFandomGain: 5,
+      fanMeetingMorale: 2,
+      lightstickPopAt: 45,       // the launch: a fandom this warm sells one
+      lightstickCost: 35,
+      lightstickRevenue: 60,     // it sells out — that is what lightsticks do
+      lightstickFandomGain: 6,
     },
 
     // ---- The inner life (v0.7.1) ----------------------------------------

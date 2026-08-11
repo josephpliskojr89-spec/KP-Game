@@ -273,6 +273,27 @@
         '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">Announced rival weeks are marked. A clean week keeps the public’s attention whole; a shared week is a head-to-head the recaps will score.</div>' +
         '</div>');
 
+      // genre-bending (v0.9.6): under the fusion brief, the second option
+      // — pick the two genres to collide. Extremely high risk, high
+      // reward, and the desk says so out loud.
+      // `sel` is the selected demo from the enclosing scope
+      if (g.concept === 'fusion' || (sel && sel.conceptId === 'fusion') || draft.conceptId === 'fusion') {
+        const FU = KP.C.FUSION;
+        const mashOn = draft.mashA && draft.mashB && draft.mashA !== draft.mashB;
+        html.push('<div class="kicker" style="margin-top:20px">The collision</div>');
+        html.push('<div class="card">' +
+          '<div style="font-size:.78rem;color:var(--ink-dim);margin-bottom:8px">Genre-bending brief detected. Pick two genres to mash — or pick none and release it straight. ' +
+          (mashOn ? '<span style="color:var(--magenta)">Locked in: ' + UI.esc(KP.mashLabel([draft.mashA, draft.mashB])) + '. All outcomes are on the table — the flop, the critics’ shrine, the textbook entry.</span>' : 'The mash is the gamble: it can flop, it can be acclaimed and ignored, it can change the industry.') + '</div>' +
+          '<div style="font-size:.68rem;color:var(--ink-dim);margin-bottom:4px">First genre</div>' +
+          '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">' +
+          FU.GENRES.map(ge => '<button class="chip' + (draft.mashA === ge ? ' hot' : '') + '" data-action="mash-a" data-genre="' + UI.esc(ge) + '">' + UI.esc(ge) + '</button>').join('') +
+          '</div>' +
+          '<div style="font-size:.68rem;color:var(--ink-dim);margin-bottom:4px">Second genre</div>' +
+          '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+          FU.GENRES.map(ge => '<button class="chip' + (draft.mashB === ge ? ' hot' : '') + '" data-action="mash-b" data-genre="' + UI.esc(ge) + '">' + UI.esc(ge) + '</button>').join('') +
+          '</div></div>');
+      }
+
       html.push('<div class="pad" style="margin-top:20px">' +
         '<button class="btn primary" style="width:100%" data-action="studio-lock"' + (draft.week ? '' : ' disabled') + '>Lock the ' + (g.debuted ? 'comeback' : 'debut') + '</button></div>');
     }
@@ -335,7 +356,8 @@
     html.push('<div class="result-hero">' +
       '<div class="r-band">' + (r.isDebut === false ? 'Comeback report' : 'Debut report') + ' · ' + UI.esc(KP.weekLabel(r.week).text) + '</div>' +
       '<div class="r-title">' + UI.esc(r.receptionLabel) + '</div>' +
-      '<div class="r-song">' + UI.esc(g.name) + ' — “' + UI.esc(r.songTitle) + '” · ' + UI.esc(KP.conceptById(r.conceptId).label) + '</div>' +
+      '<div class="r-song">' + UI.esc(g.name) + ' — “' + UI.esc(r.songTitle) + '” · ' + UI.esc(KP.conceptById(r.conceptId).label) +
+      (r.mash ? ' · <span style="color:var(--magenta)">' + UI.esc(KP.mashLabel(r.mash)) + '</span>' : '') + '</div>' +
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px">' +
       '<span class="chip">stage: ' + perfWord(r.performance) + '</span>' +
       '<span class="chip">room: ' + chemWord(r.chem) + '</span>' +

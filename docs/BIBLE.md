@@ -2236,6 +2236,60 @@ year-one daesang read falsy and the "first" would have repeated);
 the v0.9.4 debut-class cohort had the same 0-based guard (year one's
 award season skipped its own class — fixed, band 20/40→38/40).
 
+## §47 The constituency + genre-bending (v0.9.6)
+
+Owner: *"0.9.6 approved. and I have a personal request... if I want a
+k-metalcore group, I should be able to do it... extremely high risk
+high reward. could be critically acclaimed but unpopular, could flop,
+could change the industry. all on the table."* Plus §39 consult #5.
+
+**Genre-bending** (concept `fusion`, the mash):
+- A ninth creative direction: **Genre-Bending** (creativity-heavy
+  brief; producers pitch to it like any other). Under the brief, the
+  studio's lock panel opens *the collision*: pick two of fourteen
+  genres (metalcore, trot, EDM, jazz, drill, city pop, hardcore
+  punk, R&B, folk, industrial, orchestral, disco, shoegaze, bossa
+  nova) — or none, and release it straight. Reads as
+  `K-metalcore × trot` (`KP.mashLabel`).
+- At release, the mash rolls the whole table (rng in tick, weights
+  in `FUSION`, tilted by the room's average creativity):
+  **industry shift** (~6%+, reception floored at 84, `genreShift`
+  narrative — "every A&R meeting now contains the phrase 'something
+  like that'" — pop +8, fandom +8, critical-priority note),
+  **acclaimed** (~18%+, reception CAPPED at 45 — best-reviewed
+  record the company ever made and almost nobody bought it; fandom
+  +6, trust +2, morale +2, `acclaim` asterisk in the discography),
+  **flop** (~30%−, reception capped at 26, morale −3, snark at the
+  SONG per content law), **worked** (remainder, +6 — a good record
+  with a strange engine). Census first soak: 14/40 orgs mashed
+  (bot runs ~1/3 of second groups under the brief), 4 shifts, 6
+  acclaims, 10 flops — the whole table lives.
+
+**The constituency** (constituency.js, weekly order 860):
+- **Grievances watched**: a moved center (departure reassignments
+  excluded — the fandom knows the difference), a five-plus-track
+  record shipped with zero member credits, a member worked onto the
+  medical bench. Grievances age out in ~3 weeks; outrage has
+  logistics.
+- **The truck** (scene `fanTruck`): intensity ≥55 + fresh grievance
+  + spacing → an LED truck parks outside, with the facts (they are
+  never wrong about the facts; that is what makes them the
+  constituency). Doors: **concede** (cost 20, fandom +4, trust −1,
+  grudge −1 — barricades sell albums), **half-measure** (a statement
+  that says nothing beautifully; grudge +0.5), **hold** (grudge +1,
+  intensity −2 — the next truck is already funded). Expiry = the
+  worst answer. The grudge counter raises future truck odds
+  (+0.15/point), colors the scene body, and shows as a "keeping
+  receipts" chip on the group page.
+- **The company's voice**: `KP.cafeNotice` (free, cooldown 6wk,
+  cools the freshest grievance — talking first is a strategy),
+  `KP.fanMeeting` (25, cooldown 16wk, clear calendar; fandom +5,
+  morale +2, grudge −0.5, the cake incident is canon),
+  `KP.launchLightstick` (once per group, needs a named fandom and
+  pop ≥45; costs 35, sells 60 — that is what lightsticks do; the
+  ocean is one color now). All three on the group page beside the
+  fandom card.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3281,3 +3335,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > assertions), soak clean (fest 40/40, gayo 40/40, daesang 16/40,
 > snubbed 14/40), e2e 91, lockstep 0.9.5 (47 modules). Rode to
 > main.
+\n
+> **v0.9.6 — the constituency + genre-bending** (owner: *"0.9.6
+> approved. and I have a personal request... if I want a k-metalcore
+> group, I should be able to do it... extremely high risk high
+> reward... all on the table."* + §39 consult #5)
+> Full spec in §47. The Genre-Bending brief is the ninth creative
+> direction: under it, the lock panel opens the collision — two of
+> fourteen genres, K-metalcore × trot on the record sleeve — and the
+> release rolls the whole table, creativity-tilted: industry shift
+> (genreShift narrative, the textbook entry), acclaimed-but-unpopular
+> (the discography keeps the asterisk), the flop, or it just works.
+> And the organized fandom becomes a constituency: grievances watched
+> (moved centers, empty credit slots, the medical bench), LED trucks
+> parked outside with the facts, three doors (concede / half-measure
+> / hold) and a grudge counter with teeth — plus the company's voice
+> back: café notices, fan meetings (the cake incident is canon), and
+> the lightstick launch. New module constituency.js (48 total).
+> Census first soak: mashes 14/40 with 4 shifts / 6 acclaims / 10
+> flops, trucks 8/40, meetings 40/40, lightsticks 40/40. One UI TDZ
+> bug caught by e2e (mash panel shadowing the demo selection).
+> Numbers: battery 48/48 (suite 048, 37 assertions), soak clean, e2e
+> 91, lockstep 0.9.6 (48 modules). Rode to main.

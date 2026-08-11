@@ -99,6 +99,7 @@
         return group() + ' and the ' + (c ? c.label.toLowerCase() : 'signature') + ' concept are inseparable now. The sound IS the group.';
       }
       case 'brandDarling': return idol() + ' is who the brands call first. The visual role sends invoices now.';
+      case 'genreShift': return group() + ' invented ' + ((n.meta && n.meta.mash) || 'a sound') + ' and the industry is still catching up.';
       default: return n.key;
     }
   };
@@ -174,6 +175,7 @@
         return 'It is canon now: ' + group() + ' means ' + (c ? c.label.toLowerCase() : 'that sound') + '. Two eras deep and the public hears the group in the first four bars. An identity is free promotion — until the day you want to change it.';
       }
       case 'brandDarling': return 'Second campaign signed, and the industry noticed: ' + idol() + ' is who the brands call first now. Somewhere, every visual who was told the role “doesn’t monetize” is smiling.';
+      case 'genreShift': return 'The history books opened a new entry: ' + group() + ' made ' + ((n.meta && n.meta.mash) || 'a sound nobody had a name for') + ' real, on record, first. Every A&R meeting in the industry now contains the phrase “something like that.” Being copied is the sincerest form of panic.';
       default: return 'A narrative formed: ' + n.key;
     }
   }

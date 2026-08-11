@@ -248,6 +248,24 @@
         App.render();
         break;
       }
+      case 'cafe-notice': {
+        const r = KP.cafeNotice(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast('The notice is up. Plain language, actual information.'); App.render();
+        break;
+      }
+      case 'fan-meeting': {
+        const r = KP.fanMeeting(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast('The fan meeting happened. Somebody brought a cake shaped like the road manager.'); App.render();
+        break;
+      }
+      case 'lightstick': {
+        const r = KP.launchLightstick(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast('Sold out. That is what lightsticks do.'); App.render();
+        break;
+      }
       case 'fandom-name': {
         const r = KP.nameFandom(s, t.dataset.id, parseInt(t.dataset.choice, 10));
         if (!r.ok) { UI.toast(r.reason, true); break; }
@@ -613,6 +631,8 @@
         break;
       }
       case 'studio-week': App.studioDraft.week = parseInt(t.dataset.week, 10); App.render(); break;
+      case 'mash-a': App.studioDraft.mashA = App.studioDraft.mashA === t.dataset.genre ? null : t.dataset.genre; App.render(); break;
+      case 'mash-b': App.studioDraft.mashB = App.studioDraft.mashB === t.dataset.genre ? null : t.dataset.genre; App.render(); break;
       case 'studio-lock': {
         const d = App.studioDraft;
         const total = d.alloc.vocals + d.alloc.dance + d.alloc.rap + d.alloc.media;
@@ -626,8 +646,10 @@
           if (!rn.ok) { UI.toast(rn.reason, true); break; }
           d.customTitle = '';
         }
+        // genre-bending (v0.9.6): both mash slots picked → the gamble rides
+        const mash = (d.mashA && d.mashB && d.mashA !== d.mashB) ? [d.mashA, d.mashB] : null;
         const r = KP.planDebut(s, { groupId: sg.id, songId: d.songId, conceptId: d.conceptId || sel.conceptId,
-          promo: d.promo, week: d.week, alloc: d.alloc, format: d.format, rollout: d.rollout });
+          promo: d.promo, week: d.week, alloc: d.alloc, format: d.format, rollout: d.rollout, mash });
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
         if (r.warning) {

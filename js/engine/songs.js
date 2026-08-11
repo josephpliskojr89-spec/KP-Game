@@ -45,6 +45,13 @@
   // The creative direction (v0.6.7): a group-level commitment the
   // producers pitch to. Free to set while undebuted; changing an active
   // group's direction re-tools the next cycle's pitches.
+  // genre-bending (v0.9.6): the mash reads as a K- prefix on the first
+  // genre and a collision with the second — "K-metalcore × trot"
+  KP.mashLabel = function (mash) {
+    if (!mash || mash.length !== 2) return '';
+    return 'K-' + mash[0] + ' × ' + mash[1];
+  };
+
   KP.setGroupConcept = function (state, groupId, conceptId) {
     const g = KP.groupById(state, groupId);
     if (!g) return { ok: false, reason: 'No such group.' };

@@ -67,6 +67,22 @@
       }
     }
 
+    // genre-bending (v0.9.6): a fusion brief opens the second option —
+    // pick the two genres to collide. Validated hard: the gamble is the
+    // player's, the spelling is the promoter's.
+    let mash = null;
+    if (plan.mash) {
+      const FU = KP.C.FUSION;
+      const briefed = (plan.conceptId || demo.conceptId) === 'fusion' || g.concept === 'fusion';
+      if (!briefed) return { ok: false, reason: 'Genre mashes come from the genre-bending brief. Set the direction first.' };
+      if (!Array.isArray(plan.mash) || plan.mash.length !== 2 ||
+          plan.mash[0] === plan.mash[1] ||
+          !plan.mash.every(x => FU.GENRES.includes(x))) {
+        return { ok: false, reason: 'A mash is two DIFFERENT genres the producers have actually heard of.' };
+      }
+      mash = plan.mash.slice();
+    }
+
     const cost = D.promoCost[plan.promo || 'standard'] + format.cost + rolloutCost;
     if (state.budget < cost) return { ok: false, reason: 'Budget cannot cover the record, the marketing AND this rollout. Trim something.' };
     state.budget -= cost;
@@ -80,6 +96,7 @@
       alloc,
       scheduledWeek: plan.week,
       progress: 0,
+      mash,
     };
     // the tracklist (v0.7.5): the record gets its full run of songs at
     // lock — an action-time draw. Open slots stay assignable until the
@@ -321,10 +338,36 @@
     // the calendar has a shape (v0.9.5): January sleeps, summer favors
     // the bright — one read supplies the number and the words
     const season = KP.seasonRead ? KP.seasonRead(state, concept.id) : { mod: 0, line: null };
-    const reception = KP.clamp(Math.round(
+    let reception = KP.clamp(Math.round(
       demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
       groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
       popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod), 1, 100);
+    // the mash (v0.9.6): a genre-bending release rolls the whole table —
+    // flop / worked / acclaimed-but-unpopular / changed-the-industry.
+    // Creative rooms tilt the odds; nobody escapes the variance.
+    const mash = g.prep.mash || null;
+    let fusionOutcome = null;
+    if (mash) {
+      const FU = KP.C.FUSION;
+      const cre = members.reduce((s, m) => s + m.personality.creativity, 0) / members.length / 100;
+      const pShift = FU.shiftBase + FU.shiftPerCreativity * cre;
+      const pAcclaim = FU.acclaimBase + FU.acclaimPerCreativity * cre;
+      const pFlop = Math.max(0.08, FU.flopBase - FU.flopLessPerCreativity * cre);
+      const roll = rng.next();
+      if (roll < pShift) {
+        fusionOutcome = 'shift';
+        reception = Math.max(reception, FU.shiftReceptionMin + Math.round(rng.next() * 8));
+      } else if (roll < pShift + pAcclaim) {
+        fusionOutcome = 'acclaim';
+        reception = Math.min(reception, FU.acclaimReceptionCap);
+      } else if (roll < pShift + pAcclaim + pFlop) {
+        fusionOutcome = 'flop';
+        reception = Math.min(reception, FU.flopReceptionCap);
+      } else {
+        fusionOutcome = 'worked';
+        reception = KP.clamp(reception + FU.workedLift, 1, 100);
+      }
+    }
     const band = D.receptionBands.find(b => reception >= b.min);
     const centerOvershadowed = !isSolo && breakout.id !== g.roles.center &&
       pulls.find(x => x.m.id === g.roles.center).pull < pulls[0].pull - 8;
@@ -487,6 +530,7 @@
       execLine: execDebutLine(band.key, centerOvershadowed, state),
       publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut, crowd, benched, fatigueAvg, natPeak)
         .concat(memRead.notes),
+      mash, fusionOutcome,
     };
     g.results.narrativeNotes = narrativeNotes;   // sim forwards these to the inbox
     g.releases = g.releases || [];
@@ -496,7 +540,35 @@
       nationalPeak: natPeak, nationalWeeks: weeksOn,
       isDebut, format: format.id, tracks: format.tracks,
       tracklist: tl.tracks, sleeperTitle: tl.sleeperTitle || null,
+      mash, fusionOutcome, acclaim: fusionOutcome === 'acclaim' || undefined,
     });
+    // the mash verdict (v0.9.6): every fusion outcome is narrated with
+    // its consequences attached — the gamble was the player's, the
+    // verdict is the world's
+    if (mash) {
+      const FU = KP.C.FUSION;
+      const label = KP.mashLabel(mash);
+      if (fusionOutcome === 'shift') {
+        g.popularity = KP.clamp((g.popularity || 0) + FU.shiftPop, 0, 100);
+        KP.fandomGain(g, FU.shiftFandomGain);
+        push(KP.recordEvidence(state, 'genreShift', 'group', g.id, { mash: label }));
+        push({ kind: 'public', urgent: true, priority: 'critical', ind: 'fusionVerdict', outcome: 'shift', groupId: g.id, mashLabel: label,
+          text: 'INDUSTRY SHIFT. “' + demo.title + '” made ' + label + ' a genre that exists now, and everyone knows it. Three A&R departments called about “that sound” before noon. The trades used the word “pioneering” without irony. Whatever happens next, this record is in the textbook.' });
+      } else if (fusionOutcome === 'acclaim') {
+        KP.fandomGain(g, FU.acclaimFandomGain);
+        state.trust = KP.clamp(state.trust + FU.acclaimTrust, 0, 100);
+        members.forEach(m => { m.morale = KP.clamp(m.morale + 2, 0, 100); });
+        push({ kind: 'public', priority: 'high', ind: 'fusionVerdict', outcome: 'acclaim', groupId: g.id, mashLabel: label,
+          text: '“' + demo.title + '” (' + label + ') is the best-reviewed record this company has ever put out and almost nobody bought it. The critics wrote paragraphs. The public wrote “interesting!” and streamed something else. The fandom has never been more devoted; the accountants have never been more confused. Both are correct.' });
+      } else if (fusionOutcome === 'flop') {
+        members.forEach(m => { m.morale = KP.clamp(m.morale - FU.flopMorale, 0, 100); });
+        push({ kind: 'public', priority: 'high', ind: 'fusionVerdict', outcome: 'flop', groupId: g.id, mashLabel: label,
+          text: 'The ' + label + ' experiment on “' + demo.title + '” ate itself. The two genres met, fought, and both lost; the comment sections are being creative about it. The members are taking it professionally, which is to say badly, quietly. The gamble was real — so was the floor.' });
+      } else {
+        push({ kind: 'public', ind: 'fusionVerdict', outcome: 'worked', groupId: g.id, mashLabel: label,
+          text: '“' + demo.title + '” made ' + label + ' work — genuinely work. Not a revolution, not a casualty: a good record with a strange engine, and the public took the ride. The producers are already asking what to collide next.' });
+      }
+    }
     // the release enters BOTH boards: the scene, and the national chart
     // the whole industry fights over
     KP.chartEnter(state, {

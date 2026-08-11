@@ -123,6 +123,18 @@ const BANDS = {
   // the summit stays rare — same law as natNumberOne
   daesangWon:        { lo: 0.00, hi: 0.45, label: 'orgs that took the daesang home' },
   daesangSnubbed:    { lo: 0.00, hi: 0.90, label: 'orgs shortlisted that watched the daesang go elsewhere' },
+  // v0.9.6 — the gamble + the constituency (floors provisional; ~35% of
+  // orgs run a fusion second group by construction)
+  fusionTried:       { lo: 0.10, hi: 0.60, label: 'orgs that released a genre mash' },
+  fusionShift:       { lo: 0.00, hi: 0.40, label: 'orgs whose mash changed the industry (the textbook entry stays rare)' },
+  fusionAcclaim:     { lo: 0.00, hi: 0.60, label: 'orgs with a critics-loved, public-shrugged mash' },
+  fusionFlop:        { lo: 0.00, hi: 0.70, label: 'orgs whose mash ate itself' },
+  // floor 0 by ruling: trucks need an organized fandom AND a grievance —
+  // the competent bot rarely supplies the grievance (same physics as
+  // discourseBoiled); the mechanism is suite-proven
+  truckParked:       { lo: 0.00, hi: 0.80, label: 'orgs that found a protest truck outside' },
+  fanMeetingHeld:    { lo: 0.30, hi: 1.00, label: 'orgs that held a fan meeting' },
+  lightstickOut:     { lo: 0.30, hi: 1.00, label: 'orgs that launched the lightstick' },
 };
 
 const tally = {
@@ -151,6 +163,8 @@ const tally = {
   homeCircuit: 0, encoreEarned: 0, friendMade: 0, coffeeTruck: 0,
   seniorStan: 0, debutClass: 0, industryCongrats: 0,
   festPlayed: 0, gayoStaged: 0, daesangWon: 0, daesangSnubbed: 0,
+  fusionTried: 0, fusionShift: 0, fusionAcclaim: 0, fusionFlop: 0,
+  truckParked: 0, fanMeetingHeld: 0, lightstickOut: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -205,6 +219,8 @@ for (let s = 0; s < SEEDS; s++) {
   let circuitSeen = false, encoreSeen = false, truckSeen = false,
     stanSeen = false, classSeen = false, congratsSeen = false;
   let festSeen = false, gayoSeen = false, daesangSeen = false, daesangSnubSeen = false;
+  let fusionTrySeen = false, fusionShiftSeen = false, fusionAcclaimSeen = false,
+    fusionFlopSeen = false, truckSeen2 = false, meetingSeen = false;
   let regionStorySeen = false;   // ever-formed, not end-state (v0.9.1):
   // narratives decay and the memory cap evicts — "became a story" is an
   // event, and a richer narrative world (aging feeds the rumor pool)
@@ -274,7 +290,14 @@ for (let s = 0; s < SEEDS; s++) {
       if (pool.length >= 4) {
         const hints = KP.roleHints(state, pool);
         const name = KP.suggestGroupNames(state, KP.rngFor(state))[0] + (state.groups.length ? ' II' : '');
-        KP.proposeGroup(state, name, pool.map(m => m.id), hints);
+        const formed = KP.proposeGroup(state, name, pool.map(m => m.id), hints);
+        // the gamble seeds (v0.9.6): about a third of orgs run their
+        // second group under the genre-bending brief — the soak must
+        // exercise the whole fusion outcome table
+        if (formed && formed.ok && state.groups.length > 1 &&
+            KP.hash01(seed + '|fusionOrg') < 0.35) {
+          KP.setGroupConcept(state, state.groups[state.groups.length - 1].id, 'fusion');
+        }
       }
     }
     // the war desk (v0.6.4): an ambushed date gets a decision, same menu
@@ -346,6 +369,15 @@ for (let s = 0; s < SEEDS; s++) {
       if (def) KP.resolveScene(state, sc.id, def.options(state, sc)[0].id);
     });
 
+    // the company's voice (v0.9.6): launch the lightstick the moment the
+    // market team clears it; hold a fan meeting when flush — the engine
+    // gates cooldowns and calendars
+    state.groups.forEach(g => {
+      if (!g.debuted || !g.fandom || !g.fandom.name) return;
+      if (!g.lightstickWeek) KP.launchLightstick(state, g.id);
+      if (state.budget > 150) KP.fanMeeting(state, g.id);
+    });
+
     // the touring desk (v0.6.8): when the calendar is open and the map
     // is warm, the bot takes the road — scale by fanbase, legs by warmth
     state.groups.forEach(g => {
@@ -408,10 +440,21 @@ for (let s = 0; s < SEEDS; s++) {
           ? Math.min(state.week + 8, state.objective.deadlineWeek) : state.week + 8);
       // a bigger record needs the runway it needs
       const targetWeek = Math.max(baseTarget, state.week + Math.max(KP.C.DEBUT.prepWeeksMin, fmt.minPrep));
+      // the gamble (v0.9.6): a fusion-brief group always rides the mash —
+      // two genres picked deterministically per group per era
+      let mash = null;
+      if (g.concept === 'fusion') {
+        const GEN = KP.C.FUSION.GENRES;
+        const i1 = Math.floor(KP.hash01([seed, g.id, 'mashA', (g.releases || []).length].join('|')) * GEN.length);
+        let i2 = Math.floor(KP.hash01([seed, g.id, 'mashB', (g.releases || []).length].join('|')) * GEN.length);
+        if (i2 === i1) i2 = (i2 + 1) % GEN.length;
+        mash = [GEN[i1], GEN[i2]];
+      }
       KP.planDebut(state, {
-        groupId: g.id, songId: demo.id, conceptId: demo.conceptId, promo: promoAffordable,
+        groupId: g.id, songId: demo.id, conceptId: g.concept === 'fusion' ? 'fusion' : demo.conceptId, promo: promoAffordable,
         week: targetWeek, rollout, format: fmt.id,
         alloc: { vocals: 30, dance: 30, rap: 10, media: 30 },
+        mash,
       });
       // the A&R pass (v0.7.5): the internet's favorite gets the solo slot,
       // the next two most-followed get the unit — public numbers only
@@ -438,6 +481,14 @@ for (let s = 0; s < SEEDS; s++) {
       if (n.ind === 'tourLeg' && n.soldOut) tourSoldOutSeen = true;
       if (n.ind === 'tourLeg' && n.soft) tourSoftSeen = true;
       if (n.ind === 'awardSnub') awardSnubSeen = true;
+      // the constituency + the gamble (v0.9.6)
+      if (n.ind === 'fusionVerdict') {
+        fusionTrySeen = true;
+        if (n.outcome === 'shift') fusionShiftSeen = true;
+        if (n.outcome === 'acclaim') fusionAcclaimSeen = true;
+        if (n.outcome === 'flop') fusionFlopSeen = true;
+      }
+      if (n.ind === 'fanTruck') truckSeen2 = true;
       // the year (v0.9.5)
       if (n.ind === 'festival') festSeen = true;
       if (n.ind === 'gayoStage') gayoSeen = true;
@@ -641,6 +692,16 @@ for (let s = 0; s < SEEDS; s++) {
   if (state.groups.some(g => g.debuted) &&
       state.groups.filter(g => g.debuted).every(g =>
         g.members.every(id => state.people[id] && state.people[id].contract))) tally.contractStamped++;
+  // the constituency + the gamble census (v0.9.6)
+  if (fusionTrySeen) tally.fusionTried++;
+  if (fusionShiftSeen) tally.fusionShift++;
+  if (fusionAcclaimSeen) tally.fusionAcclaim++;
+  if (fusionFlopSeen) tally.fusionFlop++;
+  if (truckSeen2) tally.truckParked++;
+  // player actions write to state.inbox directly, not the weekly notes —
+  // read the durable stamps, not the stream
+  if (state.groups.some(g => g.fanMeetingQuiet)) tally.fanMeetingHeld++;
+  if (state.groups.some(g => g.lightstickWeek)) tally.lightstickOut++;
   // the year census (v0.9.5)
   if (festSeen) tally.festPlayed++;
   if (gayoSeen) tally.gayoStaged++;
