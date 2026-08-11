@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.3',
+    VERSION: '0.9.4',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -250,7 +250,10 @@
       challengeSpread: 0.9,    // the challenge lands where it lands, hard
       loudAt: 40,              // a region worth a letter
       devotedAt: 65,           // a region worth a tour (v0.6.7 will collect)
-      strongholdNarrativeAt: 75, // a region past devoted becomes a story — a true second home
+      // 75→72 (v0.9.4): the home circuit lengthened tours, so careers fit
+      // fewer overseas legs and the map runs ~3pts cooler — the §18 watch
+      // item said to move the threshold, not the band, when this happened
+      strongholdNarrativeAt: 72, // a region past devoted becomes a story — a true second home
       revenuePerOverseas: 1 / 220, // release revenue × (1 + avgOverseas × this)
     },
 
@@ -646,6 +649,36 @@
       leaderLeadershipAt: 60,    // a real leader runs the room on the road
       leaderFatigueMult: 0.88,
       weakLeaderFrictionChance: 0.3,  // per leg, when nobody runs the room
+      // the home circuit (v0.9.4): the KR leg is a routed national tour,
+      // not one show — Seoul always, then every city whose room the
+      // promoter believes the fanbase can fill at this scale. Cities
+      // whose pre-sales blow past the ceiling get a SECOND NIGHT.
+      KR_CITIES: [
+        { id: 'seoul',   label: 'Seoul',   w: 1.00 },
+        { id: 'busan',   label: 'Busan',   w: 0.80 },
+        { id: 'incheon', label: 'Incheon', w: 0.70 },
+        { id: 'daegu',   label: 'Daegu',   w: 0.62 },
+        { id: 'gwangju', label: 'Gwangju', w: 0.55 },
+        { id: 'daejeon', label: 'Daejeon', w: 0.52 },
+      ],
+      datesPerWeek: 2,           // two stages a week is a schedule, not a stunt
+      maxKrDates: 9,             // routed dates + earned encores, capped
+      encoreRevMult: 0.85,       // the second night sells a shade under the first
+    },
+
+    // ---- The society (v0.9.4): the industry has waiting rooms -----------
+    SOCIETY: {
+      friendChance: 0.2,         // per promo week, further gated by warmth
+      maxFriends: 12,
+      quietWeeks: 5,             // formation spacing — friendships take time
+      coffeeTruckChance: 0.5,    // a friend marks your opening week
+      congratsChance: 0.5,       // your idol congratulates a friend's release
+      congratsQuietWeeks: 8,
+      seniorStanWindow: 12,      // weeks after debut a senior might notice
+      seniorStanChance: 0.18,    // per week inside the window, once per group
+      seniorMinAge: 96,          // an act two years older counts as senior
+      cohortWeek: 45,            // award season: the debut class resurfaces
+      friendMorale: 2, truckMorale: 2, stanMorale: 3,
     },
 
     // ---- The fan feed (v0.4.0→v0.6.3): a real feed, never cruel ---------

@@ -105,7 +105,12 @@
       const T = KP.C.TOUR;
       const tour = g.tour;
       const legId = tour.legs[tour.legIdx];
-      const where = legId === 'kr' ? 'Korea' : KP.regionLabel(legId);
+      const krLive = legId === 'kr' && tour.kr;
+      const where = krLive
+        ? 'Home circuit · ' + (T.KR_CITIES.find(c => c.id === tour.kr.route[Math.min(tour.kr.idx, tour.kr.route.length - 1)]) || {}).label +
+          ' · date ' + Math.min(tour.kr.idx + 1, tour.kr.route.length) + '/' + tour.kr.route.length +
+          (tour.kr.encores ? ' (+' + tour.kr.encores + ' encore' + (tour.kr.encores > 1 ? 's' : '') + ')' : '')
+        : legId === 'kr' ? 'Korea' : KP.regionLabel(legId);
       return switcher + '<div class="group-hero"><div class="g-status">On tour · ' + UI.esc(g.name) + '</div>' +
         '<div class="g-name" style="font-size:clamp(1.7rem,8vw,2.4rem)">The road<br>has them.</div>' +
         '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">' +
@@ -279,7 +284,11 @@
       const td = KP.App.tourDraft = KP.App.tourDraft ||
         { scale: 'clubs', legs: [], pacing: 'humane', setlist: 'hits' };
       const scale = T.SCALES[td.scale];
-      const cost = Math.round(scale.costPerLeg * Math.max(1, td.legs.length) * T.PACING[td.pacing].costMult);
+      // mirror the engine's pricing: the home circuit costs by the week
+      const krRoute = td.legs.includes('kr') ? KP.krRoute(state, g, td.scale) : [];
+      const krWeeks = krRoute.length ? Math.max(1, Math.ceil(krRoute.length / T.datesPerWeek)) : 0;
+      const costUnits = Math.max(1, td.legs.filter(l => l !== 'kr').length + krWeeks);
+      const cost = Math.round(scale.costPerLeg * costUnits * T.PACING[td.pacing].costMult);
       html.push('<div class="kicker" style="margin-top:26px">The touring desk</div>');
       html.push('<div class="card">' +
         '<div class="seg" style="margin-bottom:10px">' +
@@ -300,7 +309,12 @@
         '<div class="seg" style="margin-bottom:10px">' +
         Object.keys(T.SETLISTS).map(sl => '<button class="' + (td.setlist === sl ? 'on' : '') + '" data-action="tour-setlist" data-setlist="' + sl + '">' + UI.esc(T.SETLISTS[sl].label) + '</button>').join('') +
         '</div>' +
-        '<div style="font-size:.7rem;color:var(--ink-dim);margin-bottom:10px">Legs run ' + T.legWeeks + ' weeks each. Punishing pacing is cheaper and costs the humans; humane costs money. The hits sell, new material seeds the next era, fan service builds devotion. Production: ' + cost + '.</div>' +
+        (krRoute.length
+          ? '<div style="font-size:.7rem;color:var(--cyan);margin-bottom:6px">Home circuit routes ' + krRoute.length + ' cities (' +
+            krRoute.map(id => UI.esc((T.KR_CITIES.find(c => c.id === id) || {}).label || id)).join(' → ') +
+            ') over ' + krWeeks + ' week' + (krWeeks > 1 ? 's' : '') + '. Cities that sell out earn a second night.</div>'
+          : '') +
+        '<div style="font-size:.7rem;color:var(--ink-dim);margin-bottom:10px">Overseas legs run ' + T.legWeeks + ' weeks each; the home circuit plays ' + T.datesPerWeek + ' cities a week. Punishing pacing is cheaper and costs the humans; humane costs money. The hits sell, new material seeds the next era, fan service builds devotion. Production: ' + cost + '.</div>' +
         '<button class="btn primary" style="width:100%" data-action="tour-book"' + (td.legs.length ? '' : ' disabled') + '>Book the tour · ' + cost + '</button>' +
         '</div>');
     }

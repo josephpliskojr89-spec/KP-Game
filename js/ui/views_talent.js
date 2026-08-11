@@ -228,6 +228,15 @@
             UI.esc(KP.standingOf(state, p)), p) +
             '.<span class="n-who">— the road staff, off the record</span></div>');
         }
+        // the society (v0.9.4): friendships across company lines
+        const friends = (KP.friendsOf ? KP.friendsOf(state, p.id) : [])
+          .map(f => state.people[f.a === p.id ? f.b : f.a]).filter(Boolean);
+        if (friends.length) {
+          html.push('<div class="note">' + KP.fillPro('Industry friends, the real kind: ' +
+            friends.map(fr => UI.esc(KP.displayName(fr))).join(', ') +
+            '. Different companies, same waiting rooms. The managers pretend not to coordinate pickup times, and coordinate pickup times.', p) +
+            '<span class="n-who">— common knowledge backstage</span></div>');
+        }
         const credits = KP.trackCreditsOf(state, p.id);
         if (credits.length) {
           const first = credits.find(c => c.type === 'solo');

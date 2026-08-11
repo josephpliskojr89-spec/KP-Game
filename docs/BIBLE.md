@@ -2128,6 +2128,62 @@ character is read in the building, not from a scouting clip.
   cool rooms ("built on purpose") now get named beside the leader
   lines.
 
+## §45 The society + the home circuit (v0.9.4)
+
+Owner: *"so society is next. now 0.9.4. also, I'd like you to add
+'dates' to tours... should be able to just tour the country with
+multiple dates. maybe have certain venues or cities request multiple
+nights if sales are strong."* Two systems, one release: the industry
+gets waiting rooms, and Korea gets toured instead of visited.
+
+**The home circuit** (tour.js). The KR leg is no longer one show:
+`KP.krRoute(state, g, scale)` routes the country — Seoul always,
+then every city whose room the promoter believes the fanbase can
+fill at that scale (`KR_CITIES` with demand weights: Busan .80,
+Incheon .70, Daegu .62, Gwangju .55, Daejeon .52; city demand =
+popularity × weight). The circuit plays two cities a week; each
+date reports honestly (sold out / solid / soft). **A sold-out city
+asks for a second night and gets it** — extra date, encore revenue
+at .85, capped at `maxKrDates` 9 total — answering the old overseas
+letter's "second night we cannot book" at the one desk that holds
+the keys. Pricing is per circuit week, not per flat leg. The wrap
+letter counts cities, dates, and encores earned; popularity moves
+with sold cities. One truth: planner preview, booking, and the
+weekly grind all call `krRoute`. Legacy mid-tour saves (no
+`tour.kr`) fall through to the old single-show path — no migration.
+
+**The society** (society.js, new module, weekly order 857). §39
+consult #3, presence not power, aimed outward:
+- *The waiting room.* Promo weeks roll cross-company friendships
+  with rival idols whose acts worked the same shows this month —
+  personality-gated through `KP.voiceOf` (sunshine ×1.5, deadpan
+  ×.5, warmth the base). Stored in `state.industryFriends` (capped
+  12, spaced 5wk), stamped into her history, fed to the timeline.
+- *The coffee truck.* A friend marks your opening week (release or
+  tour start) with a banner truck — morale, a note, two fandoms
+  crying about a beverage vehicle.
+- *Public congratulations.* Your idol congratulates a friend's
+  release within the hour; both fandoms declare a one-day armistice.
+- *The senior stan.* Once per group, early (≤12wk post-debut), an
+  idol from an act two-plus years older names your rookie a
+  favorite, unprompted — priority-high, social spike, a history
+  line ("named her a favorite rookie, in public").
+- *The debut class.* Every award season (week 45), fan accounts
+  line up the same-year debut class — your group beside the rival
+  acts it debuted against, then and now.
+Dossier: "Industry friends, the real kind" on The file tab. All five
+inds answer through the feed registry.
+
+**Census** (all alive first soak): homeCircuit 40/40, encoreEarned
+40/40, friendMade 37/40, coffeeTruck 14/40, seniorStan 39/40,
+debutClass 20/40, industryCongrats 31/40. Ruling: the circuit
+lengthened tours → fewer overseas legs → map ~3pts cooler →
+`strongholdNarrativeAt` 75→72 (the §18 watch item's own
+prescription; regionStory 0/40→5/40). Fixture truth found on the
+way: the fandom-intensity "identical releases" fixture sat at 55,
+above the birthday-ad funding threshold (50) — different feed
+content is different rng; pinned to 45.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2137,6 +2193,9 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   distribution (median ~71, unchanged by aging — verified against the
   v0.9.0 baseline). If human play never sees a second-home story in a
   long career, consider lowering `strongholdNarrativeAt` instead.
+  *Resolved v0.9.4*: the home circuit lengthened tours (fewer overseas
+  legs per career, map ~3pts cooler, band went 0/40) — threshold moved
+  75→72 exactly as this item prescribed; band back to 5/40.
 
 - **Burnout census runs cold** (0/40 orgs with the cautious auto-player;
   band top 45%). The mechanism triggers under sustained heavy load (suite
@@ -3126,3 +3185,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > mix in words (stacked dominance, warm/cool rooms). Numbers:
 > battery 45/45 (suite 039 now 58), soak clean, e2e 91, lockstep
 > 0.9.3 (45 modules). Rode to main.
+\n
+> **v0.9.4 — the society + the home circuit** (owner: *"so society
+> is next. now 0.9.4. also, I'd like you to add 'dates' to tours...
+> certain venues or cities request multiple nights if sales are
+> strong"*)
+> Full spec in §45. The KR leg becomes a routed national circuit —
+> Seoul plus every city whose room the fanbase can fill, two dates
+> a week, sold-out cities earning second nights (the overseas
+> letter's "second night we cannot book," answered at home). And
+> the industry gets its society (§39 consult #3): waiting-room
+> friendships across company lines, personality-gated; coffee
+> trucks on opening weeks; public congratulations; the senior who
+> stans your rookie unprompted; the debut class lined up every
+> award season. New module society.js (46 total). Rulings:
+> strongholdNarrativeAt 75→72 (circuit-lengthened tours cooled the
+> map ~3pts — the §18 watch item's own prescription, now resolved);
+> the intensity fixture pinned below the birthday-ad threshold
+> (different feed content is different rng). Census first soak:
+> circuits 40/40, encores 40/40, friends 37/40, trucks 14/40,
+> senior stans 39/40, classes 20/40, congrats 31/40. Numbers:
+> battery 46/46 (suite 046, 32 assertions), soak clean, e2e 91,
+> lockstep 0.9.4 (46 modules). Rode to main.

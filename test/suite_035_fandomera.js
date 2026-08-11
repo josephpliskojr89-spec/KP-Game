@@ -68,10 +68,12 @@ function debuted(seed) {
   while (state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) KP.advanceWeek(state);
   const json = KP.serialize(state);
   const hot = KP.deserialize(json), cold = KP.deserialize(json);
-  // both below the storm-defense threshold: intensity ≥60 changes storm
-  // physics, which changes popularity, which changes reception — the
-  // systems interlock for real. This fixture isolates the revenue leg.
-  hot.groups[0].fandom.intensity = 55; cold.groups[0].fandom.intensity = 0;
+  // both below EVERY interlock threshold: storm defense flips at
+  // intensity ≥60, and the birthday subway ad funds at ≥50 (different
+  // feed content = different rng draws = different receptions — found
+  // when the v0.9.4 stream shift moved a birthday into this window).
+  // This fixture isolates the continuous revenue leg alone.
+  hot.groups[0].fandom.intensity = 45; cold.groups[0].fandom.intensity = 0;
   [hot, cold].forEach(s => {
     const sg = s.groups[0];
     sg.demos = KP.generateDemos(s, KP.rngFor(s), sg);

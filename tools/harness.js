@@ -108,6 +108,15 @@ const BANDS = {
   // bands do NOT live here: the window opens at year five (week ~246),
   // beyond this census's horizon — the long-horizon pass below owns them.
   contractStamped:   { lo: 0.90, hi: 1.00, label: 'orgs whose debuted idols all carry a stamped contract' },
+  // v0.9.4 — the home circuit + the society (floors provisional on first
+  // soak; tighten once the distribution shows itself)
+  homeCircuit:       { lo: 0.20, hi: 1.00, label: 'orgs that toured the country (home circuit wrapped)' },
+  encoreEarned:      { lo: 0.05, hi: 1.00, label: 'orgs whose city demanded a second night' },
+  friendMade:        { lo: 0.30, hi: 1.00, label: 'orgs whose idol made a cross-company friend' },
+  coffeeTruck:       { lo: 0.02, hi: 1.00, label: 'orgs that got the coffee truck' },
+  seniorStan:        { lo: 0.30, hi: 1.00, label: 'orgs whose rookie a senior publicly stanned' },
+  debutClass:        { lo: 0.20, hi: 1.00, label: 'orgs whose debut class the fans lined up at award season' },
+  industryCongrats:  { lo: 0.02, hi: 1.00, label: 'orgs whose idol congratulated a friend in public' },
 };
 
 const tally = {
@@ -133,6 +142,8 @@ const tally = {
   annivFelt: 0, scarCarried: 0,
   boysSigned: 0, boyGroupFormed: 0, staffNamed: 0, boardFaced: 0, petAssigned: 0,
   contractStamped: 0,
+  homeCircuit: 0, encoreEarned: 0, friendMade: 0, coffeeTruck: 0,
+  seniorStan: 0, debutClass: 0, industryCongrats: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -184,6 +195,8 @@ for (let s = 0; s < SEEDS; s++) {
   let doorKnockSeen = false, momentChoiceWasSeen = false, doorWaitSeen = false;
   let annivSeen = false, scarSeen = false;
   let tourSoldOutSeen = false, tourSoftSeen = false, awardSnubSeen = false;
+  let circuitSeen = false, encoreSeen = false, truckSeen = false,
+    stanSeen = false, classSeen = false, congratsSeen = false;
   let regionStorySeen = false;   // ever-formed, not end-state (v0.9.1):
   // narratives decay and the memory cap evicts — "became a story" is an
   // event, and a richer narrative world (aging feeds the rumor pool)
@@ -417,6 +430,13 @@ for (let s = 0; s < SEEDS; s++) {
       if (n.ind === 'tourLeg' && n.soldOut) tourSoldOutSeen = true;
       if (n.ind === 'tourLeg' && n.soft) tourSoftSeen = true;
       if (n.ind === 'awardSnub') awardSnubSeen = true;
+      // the home circuit + the society (v0.9.4)
+      if (n.ind === 'tourCircuit') circuitSeen = true;
+      if (n.ind === 'tourCircuit' && n.encores > 0) encoreSeen = true;
+      if (n.ind === 'coffeeTruck') truckSeen = true;
+      if (n.ind === 'seniorStan') stanSeen = true;
+      if (n.ind === 'debutClass') classSeen = true;
+      if (n.ind === 'industryCongrats') congratsSeen = true;
     });
     // the people census (v0.7.4): the spotlight lands most weeks
     if (notes.some(n => n.moment)) personMomentWeeks++;
@@ -608,6 +628,14 @@ for (let s = 0; s < SEEDS; s++) {
   if (state.groups.some(g => g.debuted) &&
       state.groups.filter(g => g.debuted).every(g =>
         g.members.every(id => state.people[id] && state.people[id].contract))) tally.contractStamped++;
+  // the home circuit + the society census (v0.9.4)
+  if (circuitSeen) tally.homeCircuit++;
+  if (encoreSeen) tally.encoreEarned++;
+  if ((state.industryFriends || []).length) tally.friendMade++;
+  if (truckSeen) tally.coffeeTruck++;
+  if (stanSeen) tally.seniorStan++;
+  if (classSeen) tally.debutClass++;
+  if (congratsSeen) tally.industryCongrats++;
   // the tracklist census (v0.7.5)
   const allReleases = state.groups.flatMap(gg => gg.releases || []);
   const credits = allReleases.flatMap(r => (r.tracklist || []).filter(tk => tk.credit));
