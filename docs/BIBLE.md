@@ -1846,20 +1846,41 @@ new architecture; Audit II stands.
   each other. School milestones (§32): graduation and entrance
   ceremonies for the young trainees.
 
-### Phase C — Careers Entire (v1.0.x): the long game
+### Phase C — Careers Entire: the long game
 
-- **v1.0.0 — The second job** (§22 v0.6.11). Variety careers:
-  fixed-panelist arcs, MC gigs, OST features — secondary strengths
-  become real careers that write to individual popularity and
-  memory, and collide with the group calendar (the scheduling
-  tension IS the system). The variety ambition finally pays in full.
-- **v1.0.1 — The disappearance** (§22 v0.6.14). Hiatus as strategy:
-  chosen dormancy with cooling risk vs full restoration and
-  anticipation; the §23 dormancy narrative and return bonus become
-  a deliberate tool with bigger stakes.
-- **v1.0.2 — The deep map.** The §28 regions grow verbs: region-
+Shipped: ~~The second job~~ (v0.9.11, §52), ~~The disappearance~~
+(v0.9.12, §53). Amended post-audit (owner: *"I like all three
+suggestions. fold them into the remaining Phase C plan"*) — the
+0.9.13 audit's three deferred findings join the map, front-loaded
+because all three answer the standing "the game in general feels
+easy" report, and the audit's measurements are fresh:
+
+- **Next — The price of fame** (audit B1, completed properly).
+  Stature-scaled production costs: a pop-80 act's comeback bills
+  like a pop-80 act's comeback — video, staging, styling scale
+  with the popularity that scales the income. Self-balancing by
+  construction; replaces the payroll stopgap as the primary sink
+  (payroll stays as the retainer, production becomes the invoice).
+  Measured target: late-career budget plateaus instead of the
+  9,000-by-year-13 runaway; the fiscal-pressure system stays alive
+  at every career stage. Bands: a budget-trajectory telemetry line
+  and a late-run solvency band, per the audit's coverage-gap list.
+- **Then — Time takes its share** (audit A4 + B4, one release —
+  both are anti-saturation clocks). Senescence: past ~28, growth
+  damps and fatigue recovery slows, while craft compensates (live
+  reliability and media reps carry what stamina used to) — "aging
+  out of its peak" becomes mechanics, and the legacy group finally
+  plays like its own intro copy. Trust drift: the executive's
+  regard decays slowly toward baseline and expectations scale with
+  stature, so year-5 trust gates keep tension instead of pinning
+  at 100 from year 3.
+- **Then — The deep map.** The §28 regions grow verbs: region-
   targeted promotion, localized releases, the overseas fan meeting —
   the map stops being a readout and becomes a board.
+- **Then — The wardrobe department** (§22 v0.6.12, deferred at
+  v0.9.7). The named choreographer/stylist with reputations,
+  artist chemistry, and poaching — the producer pool proved the
+  pattern; losing yours to Aurum should hurt.
 
 ### The debt rider (any release, when touched)
 
@@ -4016,3 +4037,11 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Numbers: battery 55/55 (suite 055, 90 assertions — every audit
 > bug pinned), soak clean (105 bands), longhaul clean (5×620
 > weeks), e2e 91, lockstep 0.9.13 (52 modules). Rode to main.
+\n
+> **Phase C map amended** (owner: *"I like all three suggestions.
+> fold them into the remaining Phase C plan"*) — the audit's three
+> deferred findings join §39 as releases, front-loaded: the price
+> of fame (stature-scaled production costs), time takes its share
+> (senescence + trust drift, one release — both anti-saturation
+> clocks), then the deep map, then the wardrobe department. Docs
+> only; no build.
