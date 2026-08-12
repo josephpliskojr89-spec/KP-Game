@@ -10,7 +10,7 @@ const t = makeT('suite_013_project');
 
 // rails
 {
-  const state = KP.newGame('prj-rails');
+  const state = KP.newGame('prj-rails', null, { legacy: false });
   t.ok(!KP.openProject(state, [], []).ok, 'a project needs at least one locked member');
   t.ok(!KP.openProject(state, state.roster.slice(0, 4), []).ok, 'a full lineup is a proposal, not a project');
   t.ok(!KP.openProject(state, [state.prospects[0]], []).ok, 'locked members must be signed trainees');
@@ -30,7 +30,7 @@ const t = makeT('suite_013_project');
 // hopefuls push: same seed with and without a project, hopefuls gain more
 {
   const mkState = (withProject) => {
-    const s = KP.newGame('prj-drive');
+    const s = KP.newGame('prj-drive', null, { legacy: false });
     if (withProject) KP.openProject(s, s.roster.slice(0, 2), ['rap']);
     // identical player plans everywhere: one focus slot used
     s.roster.forEach(id => { s.people[id].training = { focus: ['vocals'], intensity: 'standard' }; });
@@ -55,7 +55,7 @@ const t = makeT('suite_013_project');
 
 // player-set focus wins: a hopeful with two chosen foci is not overridden
 {
-  const state = KP.newGame('prj-override');
+  const state = KP.newGame('prj-override', null, { legacy: false });
   KP.openProject(state, state.roster.slice(0, 2), ['rap']);
   const p = state.people[state.roster[3]];
   p.training = { focus: ['vocals', 'dance'], intensity: 'standard' };
@@ -66,7 +66,7 @@ const t = makeT('suite_013_project');
 
 // finalizing: project clears; a locked member left out takes it hard
 {
-  const state = KP.newGame('prj-final');
+  const state = KP.newGame('prj-final', null, { legacy: false });
   KP.openProject(state, state.roster.slice(0, 3), []);
   const dropped = state.people[state.roster[2]];
   const moraleBefore = dropped.morale;
@@ -80,7 +80,7 @@ const t = makeT('suite_013_project');
 
 // shelving disappoints the hopefuls
 {
-  const state = KP.newGame('prj-shelve');
+  const state = KP.newGame('prj-shelve', null, { legacy: false });
   KP.openProject(state, state.roster.slice(0, 2), []);
   const hopeful = state.people[state.roster[4]];
   const moraleBefore = hopeful.morale;
@@ -92,7 +92,7 @@ const t = makeT('suite_013_project');
 
 // no project during group development
 {
-  const state = KP.newGame('prj-dev');
+  const state = KP.newGame('prj-dev', null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'DEVLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   t.ok(!KP.openProject(state, [state.roster[5]], []).ok, 'no project while a group is in development');
@@ -100,7 +100,7 @@ const t = makeT('suite_013_project');
 
 // save + determinism
 {
-  const a = KP.newGame('prj-fork');
+  const a = KP.newGame('prj-fork', null, { legacy: false });
   KP.openProject(a, a.roster.slice(0, 2), ['dance']);
   const b = KP.deserialize(KP.serialize(a));
   for (let w = 0; w < 12; w++) { KP.advanceWeek(a); KP.advanceWeek(b); }

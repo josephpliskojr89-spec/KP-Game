@@ -7,7 +7,7 @@ const KP = loadEngine();
 const t = makeT('suite_001_generation');
 
 for (let s = 1; s <= 20; s++) {
-  const state = KP.newGame('gen' + s);
+  const state = KP.newGame('gen' + s, null, { legacy: false });
   const people = Object.values(state.people);
   t.ok(people.length >= 26, 'seed ' + s + ': world has enough people');
   t.ok(state.roster.length === KP.C.GEN.inheritedCount, 'seed ' + s + ': six inherited trainees');
@@ -51,7 +51,7 @@ for (let s = 1; s <= 20; s++) {
 {
   const ages = [];
   for (let s = 0; s < 20; s++) {
-    const st = KP.newGame('agedist' + s);
+    const st = KP.newGame('agedist' + s, null, { legacy: false });
     // the law measures the scouting pipeline — rival idols run older by design
     Object.values(st.people).forEach(p => { if (p.status !== 'rival') ages.push(p.age); });
   }
@@ -68,12 +68,12 @@ for (let s = 1; s <= 20; s++) {
 }
 
 // determinism: same seed → identical world
-const a = KP.newGame('same-seed');
-const b = KP.newGame('same-seed');
+const a = KP.newGame('same-seed', null, { legacy: false });
+const b = KP.newGame('same-seed', null, { legacy: false });
 t.eq(JSON.stringify(a), JSON.stringify(b), 'same seed produces identical state');
 
 // different seeds → different worlds (two saves never tell the same story)
-const c = KP.newGame('other-seed');
+const c = KP.newGame('other-seed', null, { legacy: false });
 t.ok(JSON.stringify(a) !== JSON.stringify(c), 'different seeds diverge');
 
 // there is no overall rating anywhere in the person model

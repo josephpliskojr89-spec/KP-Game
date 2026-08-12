@@ -9,7 +9,7 @@ const t = makeT('suite_015_generators');
 
 // names: well-formed, no doubled syllables, unique within a world
 {
-  const state = KP.newGame('gen-names');
+  const state = KP.newGame('gen-names', null, { legacy: false });
   const people = Object.values(state.people);
   people.forEach(p => {
     t.ok(/^[A-Z][a-z]+-[a-z]+$/.test(p.name.given), p.id + ' given name well-formed (' + p.name.given + ')');
@@ -24,7 +24,7 @@ const t = makeT('suite_015_generators');
 {
   const seen = new Set();
   for (let s = 0; s < 25; s++) {
-    const st = KP.newGame('gen-var' + s);
+    const st = KP.newGame('gen-var' + s, null, { legacy: false });
     Object.values(st.people).forEach(p => seen.add(p.name.given));
   }
   t.ok(seen.size >= 200, 'distinct given names across 25 worlds: ' + seen.size + ' (old pool: 42)');
@@ -32,15 +32,15 @@ const t = makeT('suite_015_generators');
 
 // two seeds barely overlap
 {
-  const a = new Set(Object.values(KP.newGame('gen-a').people).map(p => p.name.given));
-  const b = Object.values(KP.newGame('gen-b').people).map(p => p.name.given);
+  const a = new Set(Object.values(KP.newGame('gen-a', null, { legacy: false }).people).map(p => p.name.given));
+  const b = Object.values(KP.newGame('gen-b', null, { legacy: false }).people).map(p => p.name.given);
   const overlap = b.filter(n => a.has(n)).length;
   t.ok(overlap <= b.length * 0.25, 'two worlds share few names (' + overlap + '/' + b.length + ')');
 }
 
 // song titles + producers: grammar output, unique per cycle, retired titles stay retired
 {
-  const state = KP.newGame('gen-songs');
+  const state = KP.newGame('gen-songs', null, { legacy: false });
   const titles = new Set();
   for (let i = 0; i < 12; i++) {
     const rng = KP.rngFor(state);
@@ -66,7 +66,7 @@ const t = makeT('suite_015_generators');
 
 // group names: generated, unique against existing groups
 {
-  const state = KP.newGame('gen-groups');
+  const state = KP.newGame('gen-groups', null, { legacy: false });
   const names = KP.suggestGroupNames(state, KP.rngFor(state));
   t.eq(names.length, 3, 'three suggestions');
   t.eq(new Set(names.map(n => n.toLowerCase())).size, 3, 'all distinct');
@@ -80,7 +80,7 @@ const t = makeT('suite_015_generators');
 {
   const perBandLines = {};
   for (let s = 0; s < 12; s++) {
-    const st = KP.newGame('gen-blurb' + s);
+    const st = KP.newGame('gen-blurb' + s, null, { legacy: false });
     Object.values(st.people).forEach(p => {
       const evl = KP.evaluate(st, p);
       evl.domains.forEach(d => {
@@ -97,7 +97,7 @@ const t = makeT('suite_015_generators');
   // Capable bridge (v0.4.1). Talents pinned to band midpoints; max
   // observations keep the fog inside the band.
   {
-    const st = KP.newGame('gen-cells');
+    const st = KP.newGame('gen-cells', null, { legacy: false });
     const p = st.people[st.roster[0]];
     p.observations = KP.C.SCOUT.maxObservations;
     const mids = { raw: 10, developing: 30, capable: 50, strong: 70, exceptional: 95 };
@@ -113,7 +113,7 @@ const t = makeT('suite_015_generators');
     });
   }
   // determinism: same person, same blurbs, forever
-  const st = KP.newGame('gen-blurb-det');
+  const st = KP.newGame('gen-blurb-det', null, { legacy: false });
   const p = st.people[st.roster[0]];
   const a = JSON.stringify(KP.evaluate(st, p));
   const b = JSON.stringify(KP.evaluate(st, p));
@@ -122,7 +122,7 @@ const t = makeT('suite_015_generators');
 
 // headlines: generated, plural
 {
-  const state = KP.newGame('gen-head');
+  const state = KP.newGame('gen-head', null, { legacy: false });
   const rng = KP.rngFor(state);
   const seen = new Set();
   for (let i = 0; i < 40; i++) seen.add(KP.genHeadline(rng));
@@ -132,7 +132,7 @@ const t = makeT('suite_015_generators');
 // the whole thing stays deterministic (suite_001 checks identity too;
 // this is the generator-specific fork)
 {
-  const a = KP.newGame('gen-fork');
+  const a = KP.newGame('gen-fork', null, { legacy: false });
   const b = KP.deserialize(KP.serialize(a));
   for (let w = 0; w < 10; w++) { KP.advanceWeek(a); KP.advanceWeek(b); }
   t.eq(KP.serialize(a), KP.serialize(b), 'generated content forks identically');

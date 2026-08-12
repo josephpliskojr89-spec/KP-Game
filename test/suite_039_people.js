@@ -14,7 +14,7 @@ const personhood = KP.weeklyPipeline([]).find(p => p.name === 'personhood');
 t.ok(personhood, 'the personhood phase is registered on kernel rails');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'PERSONS', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -52,7 +52,7 @@ function runSpotlight(state) {
 
 // ---- voices vary across a real roster ----
 {
-  const state = KP.newGame('people-variety');
+  const state = KP.newGame('people-variety', null, { legacy: false });
   const voices = new Set(state.roster.map(id => KP.voiceOf(state, state.people[id])));
   t.ok(voices.size >= 2, 'a roster is not a choir — ' + voices.size + ' distinct voices');
 }
@@ -187,7 +187,7 @@ function freshSpots(state) {
 
 // ---- the public/private line: trainee weeks stay desk notes ----
 {
-  const state = KP.newGame('people-private');
+  const state = KP.newGame('people-private', null, { legacy: false });
   const notes = [];
   for (let w = 0; w < 8; w++) { state.week++; notes.push(...runSpotlight(state)); }
   t.ok(notes.length >= 8, 'trainees get their weeks told too');

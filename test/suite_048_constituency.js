@@ -11,7 +11,7 @@ const KP = loadEngine();
 const t = makeT('suite_048_constituency');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'PICKET', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];

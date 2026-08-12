@@ -11,7 +11,7 @@ const KP = loadEngine();
 const t = makeT('suite_026_memory');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'MEMLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -25,7 +25,7 @@ function debuted(seed) {
 
 // ---- form, reinforce, decay, prune, cap ----
 {
-  const state = KP.newGame('mem-core');
+  const state = KP.newGame('mem-core', null, { legacy: false });
   const M = KP.C.MEMORY;
   const note = KP.recordEvidence(state, 'monsterRookies', 'group', 'g1');
   t.ok(note && /monster rookies/.test(note.text), 'formation speaks');
@@ -46,7 +46,7 @@ function debuted(seed) {
 
 // ---- viral and breakout thresholds: luck first, reputation second ----
 {
-  const state = KP.newGame('mem-viral');
+  const state = KP.newGame('mem-viral', null, { legacy: false });
   const p = state.people[state.roster[0]];
   t.ok(KP.recordViral(state, p) === null, 'one viral moment is luck');
   const note = KP.recordViral(state, p);
@@ -66,7 +66,7 @@ function debuted(seed) {
 
 // ---- vocal pedigree forms from standing reputation, immediately ----
 {
-  const state = KP.newGame('mem-pedigree');
+  const state = KP.newGame('mem-pedigree', null, { legacy: false });
   t.ok(state.company.reputation.vocal >= KP.C.MEMORY.repPedigreeAt, 'fixture: HCG opens with vocal pedigree');
   KP.advanceWeek(state);
   t.ok(KP.getNarrative(state, 'vocalHouse', 'company', 'player'), 'the vocal-house narrative forms at once — six years of history walked in with you');

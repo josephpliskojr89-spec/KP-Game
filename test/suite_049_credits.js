@@ -10,7 +10,7 @@ const KP = loadEngine();
 const t = makeT('suite_049_credits');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'BYLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -153,7 +153,7 @@ function release(state, g, format) {
 
 // ---- the quote chain: the timeline talks to itself ----
 {
-  const state = KP.newGame('cr-quote');
+  const state = KP.newGame('cr-quote', null, { legacy: false });
   const F = KP.C.FEED;
   const old = F.quoteChance;
   F.quoteChance = 1;

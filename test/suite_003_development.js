@@ -10,7 +10,7 @@ const t = makeT('suite_003_development');
 // growth under focused training (many people, one year)
 let grew = 0, total = 0;
 for (let s = 0; s < 8; s++) {
-  const state = KP.newGame('dev' + s);
+  const state = KP.newGame('dev' + s, null, { legacy: false });
   const roster = state.roster.map(id => state.people[id]);
   roster.forEach(p => { p.training = { focus: ['dance'], intensity: 'standard' }; });
   const before = roster.map(p => p.talents.dance.cur);
@@ -33,7 +33,7 @@ t.ok(grew / total > 0.6, 'most focused trainees grow meaningfully over a year ('
 
 // gains are individual — a year of identical training produces a spread
 {
-  const state = KP.newGame('dev-spread');
+  const state = KP.newGame('dev-spread', null, { legacy: false });
   const roster = state.roster.map(id => state.people[id]);
   roster.forEach(p => { p.training = { focus: ['vocals'], intensity: 'standard' }; });
   const before = roster.map(p => p.talents.vocals.cur);
@@ -45,7 +45,7 @@ t.ok(grew / total > 0.6, 'most focused trainees grow meaningfully over a year ('
 
 // rest produces no gains and recovers fatigue
 {
-  const state = KP.newGame('dev-rest');
+  const state = KP.newGame('dev-rest', null, { legacy: false });
   const p = state.people[state.roster[0]];
   p.fatigue = 80;
   p.training = { focus: ['vocals'], intensity: 'rest' };
@@ -60,7 +60,7 @@ t.ok(grew / total > 0.6, 'most focused trainees grow meaningfully over a year ('
 {
   let burnouts = 0;
   for (let s = 0; s < 10; s++) {
-    const state = KP.newGame('dev-burn' + s);
+    const state = KP.newGame('dev-burn' + s, null, { legacy: false });
     const roster = state.roster.map(id => state.people[id]);
     roster.forEach(p => { p.training = { focus: ['dance', 'vocals'], intensity: 'heavy' }; });
     for (let w = 0; w < 30; w++) {
@@ -75,7 +75,7 @@ t.ok(grew / total > 0.6, 'most focused trainees grow meaningfully over a year ('
 
 // showcases add live experience
 {
-  const state = KP.newGame('dev-live');
+  const state = KP.newGame('dev-live', null, { legacy: false });
   const p = state.people[state.roster[0]];
   const before = p.liveExp;
   for (let w = 0; w < KP.C.TRAIN.showcaseEveryWeeks + 1; w++) KP.advanceWeek(state);
@@ -84,7 +84,7 @@ t.ok(grew / total > 0.6, 'most focused trainees grow meaningfully over a year ('
 
 // derived qualities respond to experience, not just raw talent
 {
-  const state = KP.newGame('dev-derived');
+  const state = KP.newGame('dev-derived', null, { legacy: false });
   const p = state.people[state.roster[1]];
   const d0 = KP.derived(p).stagePresence;
   p.liveExp += 25;

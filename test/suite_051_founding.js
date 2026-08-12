@@ -10,7 +10,7 @@ const KP = loadEngine();
 const t = makeT('suite_051_founding');
 
 function maturedCareer(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'LEGACY', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -31,7 +31,7 @@ function maturedCareer(seed) {
 
 // ---- the gate: trust, years, and a trophy on the pitch deck ----
 {
-  const state = KP.newGame('fd-gate');
+  const state = KP.newGame('fd-gate', null, { legacy: false });
   const gate = KP.foundingEligible(state);
   t.ok(!gate.ok, 'a rookie year opens nothing');
   t.ok(gate.reasons.length >= 3, 'and the reasons are named (' + gate.reasons.length + ')');

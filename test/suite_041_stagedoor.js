@@ -11,7 +11,7 @@ const KP = loadEngine();
 const t = makeT('suite_041_stagedoor');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'DOOR', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -37,7 +37,7 @@ function debuted(seed) {
   try { KP.registerClaim('readyTrainee', () => null); }
   catch (e) { threw = /duplicate/.test(e.message); }
   t.ok(threw, 'duplicate claim types throw');
-  const s = KP.newGame('sd-contract');
+  const s = KP.newGame('sd-contract', null, { legacy: false });
   threw = false;
   try { KP.openScene(s, { kind: 'neverRegistered' }); }
   catch (e) { threw = /unregistered/.test(e.message); }
@@ -59,7 +59,7 @@ function debuted(seed) {
     resolve: (s, sc, optionId) => { resolvedWith = optionId; return { toast: 'answered', note: { kind: 'company', text: 'The door closes softly.' } }; },
     expire: () => ({ kind: 'company', text: 'She stopped waiting.' }),
   });
-  const s = KP.newGame('sd-life');
+  const s = KP.newGame('sd-life', null, { legacy: false });
   const sc = KP.openScene(s, { kind: 'testAsk', text: 'A minute?' });
   t.ok(sc.id && sc.week === s.week, 'the scene gets an id and a week');
   t.eq(KP.sceneById(s, sc.id), sc, 'and can be found');
@@ -73,7 +73,7 @@ function debuted(seed) {
 
 // ---- expiry: silence is content -----------------------------------------
 {
-  const s = KP.newGame('sd-expire');
+  const s = KP.newGame('sd-expire', null, { legacy: false });
   KP.openScene(s, { kind: 'testAsk', text: 'Still there?', expiresWeek: s.week + 1 });
   KP.advanceWeek(s);
   t.eq(s.scenes.length, 1, 'not expired while the window is open');
@@ -88,7 +88,7 @@ function debuted(seed) {
     if (s.week >= c.byWeek) return { resolved: 'met', notes: [{ kind: 'company', text: 'Promise ' + c.id + ' kept.' }] };
     return null;
   });
-  const s = KP.newGame('sd-claims');
+  const s = KP.newGame('sd-claims', null, { legacy: false });
   const c = KP.openClaim(s, { type: 'testPromise', subject: { kind: 'idol', id: 'p1' }, byWeek: s.week + 2 });
   t.ok(c.id && c.resolved === null, 'the claim opens unresolved');
   KP.advanceWeek(s);
@@ -159,7 +159,7 @@ function debuted(seed) {
   t.ok((a.directed || []).some(x => x.kind === 'mediated') && (b.directed || []).some(x => x.kind === 'mediated'),
     'both of them remember that the office made room');
   // releasing a close friend wounds the one left behind
-  const s2 = KP.newGame('sd-friend');
+  const s2 = KP.newGame('sd-friend', null, { legacy: false });
   const x = s2.people[s2.roster[0]], y = s2.people[s2.roster[1]];
   s2.relationships = s2.relationships || {};
   s2.relationships[KP.pairKey(x, y)] = { score: 80, state: 'close' };

@@ -9,7 +9,7 @@ const t = makeT('suite_006_release');
 
 // basic release
 {
-  const state = KP.newGame('rel-basic');
+  const state = KP.newGame('rel-basic', null, { legacy: false });
   const id = state.roster[2];
   const before = state.roster.length;
   const r = KP.releaseTrainee(state, id);
@@ -24,7 +24,7 @@ const t = makeT('suite_006_release');
 
 // rails: group members and idols are protected
 {
-  const state = KP.newGame('rel-rails');
+  const state = KP.newGame('rel-rails', null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   const hints = KP.roleHints(state, ids.map(i => state.people[i]));
   KP.proposeGroup(state, 'RAILS', ids, hints);
@@ -45,14 +45,14 @@ const t = makeT('suite_006_release');
 
 // prospects are not releasable (they were never signed)
 {
-  const state = KP.newGame('rel-prospect');
+  const state = KP.newGame('rel-prospect', null, { legacy: false });
   const r = KP.releaseTrainee(state, state.prospects[0]);
   t.ok(!r.ok, 'cannot release someone who is not on the roster');
 }
 
 // close friends take the release hard
 {
-  const state = KP.newGame('rel-morale');
+  const state = KP.newGame('rel-morale', null, { legacy: false });
   const a = state.people[state.roster[0]];
   const b = state.people[state.roster[1]];
   state.relationships[KP.pairKey(a, b)] = { score: 70, state: 'close' };
@@ -64,7 +64,7 @@ const t = makeT('suite_006_release');
 
 // the world keeps simulating and the save round-trips after a release
 {
-  const state = KP.newGame('rel-save');
+  const state = KP.newGame('rel-save', null, { legacy: false });
   KP.releaseTrainee(state, state.roster[4]);
   for (let w = 0; w < 6; w++) KP.advanceWeek(state);
   const json = KP.serialize(state);

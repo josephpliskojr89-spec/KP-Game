@@ -12,7 +12,7 @@ const t = makeT('suite_014_hype_solo');
 // each week's delta is either pure decay or a discrete event pop, and
 // decay weeks must actually occur
 {
-  const state = KP.newGame('hs-decay');
+  const state = KP.newGame('hs-decay', null, { legacy: false });
   const p = state.people[state.roster[0]];
   p.hype = 50;
   const H = KP.C.HYPE;
@@ -34,7 +34,7 @@ const t = makeT('suite_014_hype_solo');
 {
   let orgsWithHype = 0;
   for (let s = 0; s < 12; s++) {
-    const state = KP.newGame('hs-events' + s);
+    const state = KP.newGame('hs-events' + s, null, { legacy: false });
     for (let w = 0; w < 40; w++) KP.advanceWeek(state);
     const maxHype = Math.max.apply(null, state.roster.map(id => state.people[id].hype || 0));
     if (maxHype >= 15) orgsWithHype++;
@@ -44,7 +44,7 @@ const t = makeT('suite_014_hype_solo');
 
 // the hard directive: fires at threshold, met by a group debut including her
 {
-  const state = KP.newGame('hs-directive');
+  const state = KP.newGame('hs-directive', null, { legacy: false });
   const star = state.people[state.roster[1]];
   star.hype = 80;
   KP.advanceWeek(state);
@@ -73,7 +73,7 @@ const t = makeT('suite_014_hype_solo');
 
 // missing the directive: trust hit, hype collapses, it does not come back
 {
-  const state = KP.newGame('hs-miss');
+  const state = KP.newGame('hs-miss', null, { legacy: false });
   const star = state.people[state.roster[1]];
   star.hype = 80;
   KP.advanceWeek(state);
@@ -98,7 +98,7 @@ const t = makeT('suite_014_hype_solo');
   const N = 15;
   for (let s = 0; s < N; s++) {
     const run = (hyped) => {
-      const state = KP.newGame('hs-cash' + s);
+      const state = KP.newGame('hs-cash' + s, null, { legacy: false });
       const ids = state.roster.slice(0, 5);
       if (hyped) state.people[ids[0]].hype = 70;
       KP.proposeGroup(state, 'CASHLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
@@ -120,7 +120,7 @@ const t = makeT('suite_014_hype_solo');
 
 // solo acts: rails and resolution
 {
-  const state = KP.newGame('hs-solo');
+  const state = KP.newGame('hs-solo', null, { legacy: false });
   const star = state.people[state.roster[1]];
   const r = KP.proposeGroup(state, 'SOLOSTAR', [star.id], {});
   t.ok(r.ok, 'a one-member act proposes as a solo');
@@ -146,7 +146,7 @@ const t = makeT('suite_014_hype_solo');
 
 // solo promotion runs hotter than group promotion
 {
-  const state = KP.newGame('hs-solofatigue');
+  const state = KP.newGame('hs-solofatigue', null, { legacy: false });
   const star = state.people[state.roster[1]];
   KP.proposeGroup(state, 'HOTSOLO', [star.id], {});
   const g = state.groups[0];
@@ -165,7 +165,7 @@ const t = makeT('suite_014_hype_solo');
 // determinism with hype, a directive, and a solo in flight
 {
   const mk = () => {
-    const s = KP.newGame('hs-fork');
+    const s = KP.newGame('hs-fork', null, { legacy: false });
     s.people[s.roster[1]].hype = 70;
     return s;
   };

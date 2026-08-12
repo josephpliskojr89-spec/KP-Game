@@ -105,8 +105,10 @@
       seen.add(e.act);
       if ((e.peakPos || 99) > 5) return;
       list.push({ name: e.act, company: 'the open market', isPlayer: false,
-        score: 130 - ((e.peakPos || 1) - 1) * 6 +
-          Math.min(30, e.weeksOn || 0) * 0.4 + jitter(e.act) });
+        // 140 base (v0.9.10): careers now START with an established
+        // act, so the bar the giants set rises with them
+        score: 140 - ((e.peakPos || 1) - 1) * 6 +
+          Math.min(30, e.weeksOn || 0) * 0.5 + jitter(e.act) });
     });
     return list.sort((x, y) => y.score - x.score);
   }

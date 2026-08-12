@@ -9,7 +9,7 @@ const KP = loadEngine();
 const t = makeT('suite_035_fandomera');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'ERALINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -23,16 +23,16 @@ function debuted(seed) {
 
 // ---- rival stage names: half the lineups, deterministic ----
 {
-  const state = KP.newGame('fe-stage');
+  const state = KP.newGame('fe-stage', null, { legacy: false });
   const natives = Object.values(state.people).filter(p => p.status === 'rival' && p.flags.rivalNative);
   const staged = natives.filter(p => p.name.stage);
   t.ok(staged.length > 0, 'rival idols wear stage names (' + staged.length + '/' + natives.length + ')');
   t.ok(staged.length < natives.length, 'but not all of them — half is the texture');
-  const state2 = KP.newGame('fe-stage');
+  const state2 = KP.newGame('fe-stage', null, { legacy: false });
   const staged2 = Object.values(state2.people).filter(p => p.status === 'rival' && p.name.stage);
   t.eq(staged.length, staged2.length, 'deterministic, not a re-roll');
   // migration: an old save's rival natives get theirs
-  const state3 = KP.newGame('fe-stage-mig');
+  const state3 = KP.newGame('fe-stage-mig', null, { legacy: false });
   Object.values(state3.people).forEach(p => { if (p.status === 'rival') delete p.name.stage; });
   state3.version = '0.6.9';
   const m = KP.deserialize(KP.serialize(state3));

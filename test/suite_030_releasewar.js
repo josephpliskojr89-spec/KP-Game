@@ -9,7 +9,7 @@ const KP = loadEngine();
 const t = makeT('suite_030_releasewar');
 
 function ready(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'WARLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];

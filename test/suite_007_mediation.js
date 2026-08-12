@@ -14,7 +14,7 @@ function forceConflict(state, a, b, score) {
 
 // basic sit-down: cost, cooldown, effect
 {
-  const state = KP.newGame('med-basic');
+  const state = KP.newGame('med-basic', null, { legacy: false });
   const a = state.people[state.roster[0]], b = state.people[state.roster[1]];
   const rel = forceConflict(state, a, b);
   const budget = state.budget;
@@ -33,7 +33,7 @@ function forceConflict(state, a, b, score) {
 
 // rails
 {
-  const state = KP.newGame('med-rails');
+  const state = KP.newGame('med-rails', null, { legacy: false });
   const a = state.people[state.roster[0]], b = state.people[state.roster[1]];
   t.ok(!KP.mediatePair(state, a.id, b.id).ok, 'nothing to mediate on a neutral pair');
   forceConflict(state, a, b);
@@ -48,7 +48,7 @@ function forceConflict(state, a, b, score) {
 {
   let improved = 0, worsened = 0;
   for (let s = 0; s < 100; s++) {
-    const state = KP.newGame('med-dist' + s);
+    const state = KP.newGame('med-dist' + s, null, { legacy: false });
     const a = state.people[state.roster[0]], b = state.people[state.roster[1]];
     const rel = forceConflict(state, a, b);
     const before = rel.score;
@@ -66,7 +66,7 @@ function forceConflict(state, a, b, score) {
   const counts = { negative: 0, conflict: 0, positive: 0 };
   let pairs = 0;
   for (let s = 0; s < 10; s++) {
-    const state = KP.newGame('med-drift' + s);
+    const state = KP.newGame('med-drift' + s, null, { legacy: false });
     state.roster.forEach(id => { state.people[id].training = { focus: ['vocals'], intensity: 'standard' }; });
     for (let w = 0; w < 40; w++) KP.advanceWeek(state);
     for (let i = 0; i < state.roster.length; i++) {
@@ -89,7 +89,7 @@ function forceConflict(state, a, b, score) {
 
 // determinism & save: mediation state round-trips
 {
-  const state = KP.newGame('med-save');
+  const state = KP.newGame('med-save', null, { legacy: false });
   const a = state.people[state.roster[0]], b = state.people[state.roster[1]];
   forceConflict(state, a, b);
   KP.mediatePair(state, a.id, b.id);

@@ -9,7 +9,7 @@ const KP = loadEngine();
 const t = makeT('suite_020_feed');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'FEEDLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -52,7 +52,7 @@ function debuted(seed) {
 
 // ---- the feed notices a hyped trainee ----
 {
-  const state = KP.newGame('feed-hype');
+  const state = KP.newGame('feed-hype', null, { legacy: false });
   const p = state.people[state.roster[2]];
   p.hype = 85;
   let noticed = false;

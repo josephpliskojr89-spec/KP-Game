@@ -9,7 +9,7 @@ const KP = loadEngine();
 const t = makeT('suite_038_timeline');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'TIMELINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -154,7 +154,7 @@ function debuted(seed) {
 
 // ---- volume: the feed is worth checking weekly, still capped ----
 {
-  const state = KP.newGame('tl-volume');
+  const state = KP.newGame('tl-volume', null, { legacy: false });
   let minWeek = 99;
   for (let w = 0; w < 40; w++) {
     KP.advanceWeek(state);

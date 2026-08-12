@@ -10,7 +10,7 @@ const t = makeT('suite_022_rivalroster');
 
 // ---- the scene opens with faces ----
 {
-  const state = KP.newGame('rr-seed');
+  const state = KP.newGame('rr-seed', null, { legacy: false });
   const I = KP.C.INDUSTRY;
   const seen = new Set();
   state.rivals.forEach(r => (r.acts || []).forEach(a => {
@@ -30,7 +30,7 @@ const t = makeT('suite_022_rivalroster');
 
 // ---- a signed board prospect debuts in the group her rival forms ----
 {
-  const state = KP.newGame('rr-steal');
+  const state = KP.newGame('rr-steal', null, { legacy: false });
   const rival = state.rivals[0];
   // hand the rival two board prospects, cranked so they top the casting order
   const stolen = state.prospects.slice(0, 2).map(id => state.people[id]);
@@ -58,7 +58,7 @@ const t = makeT('suite_022_rivalroster');
 // ---- act quality follows who is in the room ----
 {
   const mk = (talent) => {
-    const state = KP.newGame('rr-quality');
+    const state = KP.newGame('rr-quality', null, { legacy: false });
     const rival = state.rivals[0];
     state.prospects.slice(0, 3).map(id => state.people[id]).forEach(p => {
       p.status = 'rival'; p.company = rival.short;
@@ -80,7 +80,7 @@ const t = makeT('suite_022_rivalroster');
 {
   let lost = 0, runs = 6;
   for (let s = 0; s < runs; s++) {
-    const state = KP.newGame('rr-aggro-' + s);
+    const state = KP.newGame('rr-aggro-' + s, null, { legacy: false });
     for (let w = 0; w < 50; w++) KP.advanceWeek(state);
     lost += Object.values(state.people)
       .filter(p => p.status === 'rival' && !p.flags.rivalNative).length;
@@ -90,7 +90,7 @@ const t = makeT('suite_022_rivalroster');
 
 // ---- mergers move the people with the company ----
 {
-  const state = KP.newGame('rr-merge');
+  const state = KP.newGame('rr-merge', null, { legacy: false });
   const rng = KP.rngFor(state);
   // stage two weak rivals with acts full of real members
   const weakA = state.rivals[0], weakB = state.rivals[1];
@@ -114,7 +114,7 @@ const t = makeT('suite_022_rivalroster');
 
 // ---- migration: acts from a 0.4.2 save gain faces ----
 {
-  const old = KP.newGame('rr-mig');
+  const old = KP.newGame('rr-mig', null, { legacy: false });
   // fake the old shape: strip members and ids
   old.rivals.forEach(r => (r.acts || []).forEach(a => {
     (a.members || []).forEach(id => { delete old.people[id]; });
@@ -137,7 +137,7 @@ const t = makeT('suite_022_rivalroster');
 
 // ---- determinism across the whole feature ----
 {
-  const a = KP.newGame('rr-fork');
+  const a = KP.newGame('rr-fork', null, { legacy: false });
   const b = KP.deserialize(KP.serialize(a));
   for (let w = 0; w < 30; w++) { KP.advanceWeek(a); KP.advanceWeek(b); }
   t.eq(KP.serialize(a), KP.serialize(b), 'rival rosters fork clean');

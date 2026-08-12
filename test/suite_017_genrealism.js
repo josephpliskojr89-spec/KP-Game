@@ -11,7 +11,7 @@ const t = makeT('suite_017_genrealism');
 // gather a big generated population
 const young = [], old = [], all = [];
 for (let s = 0; s < 30; s++) {
-  const st = KP.newGame('real' + s);
+  const st = KP.newGame('real' + s, null, { legacy: false });
   st.prospects.forEach(id => {
     const p = st.people[id];
     all.push(p);
@@ -52,7 +52,7 @@ const avg = (arr, fn) => arr.reduce((s, p) => s + fn(p), 0) / arr.length;
   t.ok(elite.every(p => p.flags.overlooked), 'every surviving elite is flagged as overlooked');
   t.ok(elite.length >= 1, 'the overlooked find still exists — a story, not an impossibility');
   // and she is narrated
-  const st = KP.newGame('real-note');
+  const st = KP.newGame('real-note', null, { legacy: false });
   const anyOverlooked = st.prospects.map(id => st.people[id]).find(p => p.flags.overlooked) || (() => {
     // force one for the narration check
     const p = st.people[st.prospects[0]];
@@ -68,7 +68,7 @@ const avg = (arr, fn) => arr.reduce((s, p) => s + fn(p), 0) / arr.length;
 {
   let inheritedElite = 0;
   for (let s = 0; s < 20; s++) {
-    const st = KP.newGame('real-inh' + s);
+    const st = KP.newGame('real-inh' + s, null, { legacy: false });
     st.roster.map(id => st.people[id]).forEach(p => {
       if (p.age >= 18 && trained.some(d => p.talents[d].cur > KP.C.GEN.marketElite) && !p.flags.overlooked) inheritedElite++;
     });
@@ -95,8 +95,8 @@ const avg = (arr, fn) => arr.reduce((s, p) => s + fn(p), 0) / arr.length;
 
 // determinism holds through the new generation path
 {
-  const a = KP.newGame('real-fork');
-  const b = KP.newGame('real-fork');
+  const a = KP.newGame('real-fork', null, { legacy: false });
+  const b = KP.newGame('real-fork', null, { legacy: false });
   t.eq(JSON.stringify(a), JSON.stringify(b), 'same seed, same world, still');
 }
 

@@ -8,7 +8,7 @@ const KP = loadEngine();
 const t = makeT('suite_009_rollout');
 
 function throughDebut(seed, planExtra) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   if (planExtra && planExtra.budget != null) { state.budget = planExtra.budget; delete planExtra.budget; }
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'ROLL', ids, KP.roleHints(state, ids.map(i => state.people[i])));
@@ -42,7 +42,7 @@ function throughDebut(seed, planExtra) {
 
 // formats: cost, runway, revenue ordering
 {
-  const state = KP.newGame('roll-fmt');
+  const state = KP.newGame('roll-fmt', null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'FMT', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   state.demos = KP.generateDemos(state, KP.rngFor(state));

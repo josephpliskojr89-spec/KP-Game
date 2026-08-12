@@ -8,7 +8,7 @@ const KP = loadEngine();
 const t = makeT('suite_018_roles');
 
 function formed(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'ROLELINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   return state;
@@ -32,7 +32,7 @@ function debuted(seed) {
   t.ok(!KP.setGroupRoles(state, g.id, { leader: g.roles.leader, center: state.roster[5] }).ok, 'roles go to members only');
   t.ok(!KP.setGroupRoles(state, g.id, Object.assign({}, g.roles)).ok, 'a no-op change is refused');
   // solo rejection
-  const st2 = KP.newGame('rl-solo');
+  const st2 = KP.newGame('rl-solo', null, { legacy: false });
   const solo = KP.proposeGroup(st2, 'SOLOR', [st2.roster[0]], {});
   t.ok(!KP.setGroupRoles(st2, solo.group.id, { leader: st2.roster[0], center: st2.roster[0] }).ok,
     'solos have one of everything already');

@@ -349,7 +349,7 @@
       '<span class="chip cool">vocal powerhouse</span><span class="chip">mid-sized</span><span class="chip hot">6 years without a girl-group hit</span></div>' +
       '<div class="nc-p">The last group still sells, but it is aging out of its peak. A new executive wants growth, and you — the new A&R Manager — are how she intends to get it.</div>' +
       '<div class="nc-quote">“I don’t need five perfect trainees. I need one group people remember.”</div>' +
-      '<div class="nc-p">You inherit six trainees and a scouting board the rivals are already reading. Budget covers three signings. The deadline is eighteen months.</div>' +
+      '<div class="nc-p">You inherit the last group — four vocalists in year six of their contracts, still selling, visibly slowing — plus six trainees and a scouting board the rivals are already reading. Budget covers three signings. Their renewal folders reach your desk before your first debut does. The deadline is eighteen months.</div>' +
       '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">Your name</label>' +
       '<input class="nc-input" id="nc-name" placeholder="A&R Manager" maxlength="24">' +
       '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">World seed <span style="color:var(--ink-faint)">(optional)</span></label>' +

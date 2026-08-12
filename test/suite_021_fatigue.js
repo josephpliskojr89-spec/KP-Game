@@ -10,7 +10,7 @@ const KP = loadEngine();
 const t = makeT('suite_021_fatigue');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'RESTLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -111,7 +111,7 @@ function planFor(state, g) {
 // ---- a benched member costs the stage at release ----
 {
   const mk = () => {
-    const state = KP.newGame('fx-bench');
+    const state = KP.newGame('fx-bench', null, { legacy: false });
     const ids = state.roster.slice(0, 5);
     KP.proposeGroup(state, 'BENCHLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
     const g = state.groups[0];

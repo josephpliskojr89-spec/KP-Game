@@ -9,7 +9,7 @@ const KP = loadEngine();
 const t = makeT('suite_008_comeback');
 
 function throughDebut(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   const hints = KP.roleHints(state, ids.map(i => state.people[i]));
   KP.proposeGroup(state, 'CYCLE', ids, hints);

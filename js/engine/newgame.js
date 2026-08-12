@@ -6,7 +6,10 @@
   'use strict';
   const KP = root.KP = root.KP || {};
 
-  KP.newGame = function (seed, playerName) {
+  // opts.legacy === false skips the last-group seed (v0.9.10) — the
+  // mechanism suites run lean; the real game, the harness, and
+  // suite_052 always open with the last group in the building
+  KP.newGame = function (seed, playerName, opts) {
     const rng = new KP.Rng(seed == null ? String(Math.floor(Date.now() % 1e9)) : seed);
     KP.resetIds(1);
 
@@ -83,6 +86,82 @@
       state.people[p.id] = p;
       state.roster.push(p.id);
       p.history.push({ week: 0, text: 'Already in the building when you took the job.' });
+    }
+
+    if (!opts || opts.legacy !== false) legacySeed();
+    function legacySeed() {
+    // --- the last group (v0.9.10): the intro was always true, now the
+    // game is. "The last group still sells, but it is aging out of its
+    // peak" — four vocalists deep in their contract years, a fading but
+    // real fanbase, a discography with a visible decline, and renewal
+    // folders that will reach the Desk within the first months. The
+    // roster keeps trainees FIRST — the legacy members ride behind them.
+    {
+      const LG = { debutWeek: -252, pop: 56 };   // 5.25 years on the clock
+      const memberIds = [];
+      for (let i = 0; i < 4; i++) {
+        const p = KP.generatePerson(rng, { status: 'idol', usedNames, gender: 'f',
+          age: rng.int(23, 26) });
+        // the vocal powerhouse, embodied: polished, road-worn, formed
+        p.talents.vocals.cur = rng.int(66, 80);
+        p.talents.dance.cur = rng.int(52, 64);
+        p.talents.charisma.cur = rng.int(56, 70);
+        p.talents.visuals.cur = rng.int(52, 68);
+        KP.C.TALENTS.forEach(d => {
+          const tal = p.talents[d];
+          tal.ceilLo = Math.max(tal.ceilLo, tal.cur + 1);
+          tal.ceilHi = Math.max(tal.ceilHi, tal.ceilLo + 3);
+        });
+        p.liveExp = 90; p.mediaExp = 45;
+        p.morale = rng.int(52, 64); p.fatigue = rng.int(25, 40);
+        p.observations = 4;   // six years in the building — no fog left
+        p.history.push({ week: LG.debutWeek, text: 'Debuted. The stage lights were everything the practice-room mirror promised.' });
+        p.history.push({ week: 0, text: 'Year six of the contract when the new A&R manager arrived. Watched the introductions from the good chair in the practice room.' });
+        state.people[p.id] = p;
+        state.roster.push(p.id);
+        memberIds.push(p.id);
+      }
+      const members = memberIds.map(id => state.people[id]);
+      const roles = KP.roleHints(state, members);
+      state.nextGroupId = state.nextGroupId || 1;
+      const g = {
+        id: 'g' + (state.nextGroupId++),
+        type: 'group', gender: 'f',
+        name: KP.suggestGroupNames(state, rng)[0],
+        members: memberIds.slice(),
+        roles: Object.assign({}, roles),
+        formedWeek: LG.debutWeek - 60,
+        centerHistory: [{ week: LG.debutWeek - 60, id: roles.center }],
+        debuted: true, debutWeek: LG.debutWeek,
+        prep: null, results: null, demos: null,
+        popularity: LG.pop,
+        lastReleaseWeek: -60,
+        // keep the calendar coherent: their last promo ended a year ago,
+        // so the studio is open to them on your first morning
+        promoUntil: -60 + KP.C.COMEBACK.promoWeeks,
+        concept: 'elegant', conceptRun: 2,
+        // two per stage — real hardware for a six-year act, but well
+        // short of darlingAt (7): the dynasty narrative still takes five
+        // wins earned on the player's watch, not inherited
+        trophies: { countdown: 2, popWave: 2 },
+        releases: [],
+      };
+      // the discography tells the story: a real peak, then the slide
+      [[LG.debutWeek, 74, 1, 6, 'single', true],
+       [-160, 67, 2, 12, 'mini', false],
+       [-60, 58, 5, 22, 'mini', false]].forEach(([wk, rec, peak, natPeak, fmt, isDebut]) => {
+        g.releases.push({ week: wk, songTitle: KP.genSongTitle(rng, {}),
+          conceptId: 'elegant', reception: rec, receptionBand: rec >= 64 ? 'strong' : 'solid',
+          chartPeak: peak, chartWeeks: 8, nationalPeak: natPeak, nationalWeeks: 8,
+          isDebut, format: fmt, tracks: fmt === 'single' ? 1 : 5, tracklist: [] });
+      });
+      g.fandom = { name: KP.fandomNameOptions(state, g)[0], color: 'pearl ivory',
+        since: -200, intensity: 42 };
+      state.groups.push(g);
+      g.legacy = true;   // start-content marker (UI + census may read it)
+      KP.assignRooms(state, g);
+      state.firstShowWinWeek = -180;   // their trophies predate you
+    }
     }
 
     // --- external prospect board

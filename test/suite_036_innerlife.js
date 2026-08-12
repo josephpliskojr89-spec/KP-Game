@@ -10,7 +10,7 @@ const KP = loadEngine();
 const t = makeT('suite_036_innerlife');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'LIFELINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -24,7 +24,7 @@ function debuted(seed) {
 
 // ---- off the clock: stable, personal, two of them ----
 {
-  const state = KP.newGame('il-facts');
+  const state = KP.newGame('il-facts', null, { legacy: false });
   const p = state.people[state.roster[0]];
   const facts = KP.factsOf(state, p);
   t.eq(facts.length, 2, 'everyone has two facts');

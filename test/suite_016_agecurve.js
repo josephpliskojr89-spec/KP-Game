@@ -9,7 +9,7 @@ const t = makeT('suite_016_agecurve');
 
 // the migration: an old save's board is reborn, its roster is not
 {
-  const state = KP.newGame('age-mig');
+  const state = KP.newGame('age-mig', null, { legacy: false });
   const atCreation = {};
   Object.values(state.people).forEach(p => { atCreation[p.id] = p.age; });
   for (let w = 0; w < 8; w++) KP.advanceWeek(state);
@@ -59,7 +59,7 @@ const t = makeT('suite_016_agecurve');
 {
   let minSeen = 99;
   for (let s = 0; s < 8; s++) {
-    const st = KP.newGame('age-floor' + s);
+    const st = KP.newGame('age-floor' + s, null, { legacy: false });
     for (let w = 0; w < 30; w++) KP.advanceWeek(st);
     Object.values(st.people).forEach(p => { if (p.age < minSeen) minSeen = p.age; });
   }

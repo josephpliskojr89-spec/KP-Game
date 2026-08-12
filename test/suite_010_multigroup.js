@@ -8,7 +8,7 @@ const KP = loadEngine();
 const t = makeT('suite_010_multigroup');
 
 function debutFirstGroup(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   // sign three so a second lineup is possible later
   const scout = KP.DATA.evaluators[2];
   state.budget = 400;
@@ -28,7 +28,7 @@ function debutFirstGroup(seed) {
 
 // rails: no second lineup while one is in development; no shared members
 {
-  const state = KP.newGame('mg-rails');
+  const state = KP.newGame('mg-rails', null, { legacy: false });
   state.budget = 400;
   for (let i = 0; i < 3; i++) KP.signProspect(state, state.prospects[0]);
   const first = state.roster.slice(0, 5);

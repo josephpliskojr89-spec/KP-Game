@@ -10,7 +10,7 @@ const KP = loadEngine();
 const t = makeT('suite_050_flagships');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'APEX', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -40,7 +40,7 @@ function debuted(seed) {
 
 // ---- no era, no chase: pre-debut worlds stay calm ----
 {
-  const state = KP.newGame('fl-calm');
+  const state = KP.newGame('fl-calm', null, { legacy: false });
   t.eq(KP.sceneCeiling(state), 0, 'no debuted act, no ceiling');
   const pops = [];
   state.rivals.forEach(r => (r.acts || []).forEach(a => pops.push(a.popularity)));
@@ -127,7 +127,7 @@ function debuted(seed) {
 
 // ---- the born leader beats the building veteran (0.9.8.1) ----
 {
-  const state = KP.newGame('fl-leader');
+  const state = KP.newGame('fl-leader', null, { legacy: false });
   const a = state.people[state.roster[0]];
   const b = state.people[state.roster[1]];
   // the veteran: years of showcases, middling trait
@@ -148,7 +148,7 @@ function debuted(seed) {
 
 // ---- fancams need stages (0.9.8.2) ----
 {
-  const state = KP.newGame('fl-cover');
+  const state = KP.newGame('fl-cover', null, { legacy: false });
   const p = state.people[state.roster[0]];
   t.eq(p.status, 'trainee', 'fixture: a trainee');
   p.viralCount = KP.C.MEMORY.viralFormAt - 1;

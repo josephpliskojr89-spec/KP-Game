@@ -19,7 +19,7 @@ function buildGroup(state) {
 
 // formation rails
 {
-  const state = KP.newGame('grp-rails');
+  const state = KP.newGame('grp-rails', null, { legacy: false });
   const tooFew = KP.proposeGroup(state, 'X', state.roster.slice(0, 2), { leader: state.roster[0], center: state.roster[0] });
   t.ok(!tooFew.ok, 'lineup below directive minimum rejected');
   const noCenter = KP.proposeGroup(state, 'X', state.roster.slice(0, 5), { leader: state.roster[0] });
@@ -34,7 +34,7 @@ function buildGroup(state) {
 
 // chemistry is bounded and observable
 {
-  const state = KP.newGame('grp-chem');
+  const state = KP.newGame('grp-chem', null, { legacy: false });
   for (let w = 0; w < 10; w++) KP.advanceWeek(state);
   const members = state.roster.slice(0, 5).map(id => state.people[id]);
   const chem = KP.groupChemistry(state, members);
@@ -49,7 +49,7 @@ function buildGroup(state) {
   const bands = {};
   let overshadowedSeen = 0, centerBreakouts = 0;
   for (let s = 0; s < 25; s++) {
-    const state = KP.newGame('debut' + s);
+    const state = KP.newGame('debut' + s, null, { legacy: false });
     for (let w = 0; w < 8; w++) KP.advanceWeek(state);
     const g = buildGroup(state);
     t.ok(g.ok, 'seed ' + s + ': group formed');
@@ -87,7 +87,7 @@ function buildGroup(state) {
 
 // planning rails
 {
-  const state = KP.newGame('debut-rails');
+  const state = KP.newGame('debut-rails', null, { legacy: false });
   buildGroup(state);
   state.demos = KP.generateDemos(state, KP.rngFor(state));
   const d = state.demos[0];
@@ -101,7 +101,7 @@ function buildGroup(state) {
 
 // missed deadline self-heals: sailing past it fires the consequence once
 {
-  const state = KP.newGame('deadline');
+  const state = KP.newGame('deadline', null, { legacy: false });
   state.objective.deadlineWeek = state.week + 2;
   const trustBefore = state.trust;
   for (let w = 0; w < 5; w++) KP.advanceWeek(state);

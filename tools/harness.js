@@ -61,7 +61,13 @@ const BANDS = {
   warRivalry:        { lo: 0.00, hi: 0.85, label: 'worlds where a rivalry became canon' },
   showFirstWin:      { lo: 0.20, hi: 1.00, label: 'orgs that won their first music-show trophy' },
   showRivalWins:     { lo: 0.80, hi: 1.00, label: 'worlds where rival acts took stages' },
-  showDarling:       { lo: 0.00, hi: 0.70, label: 'worlds where a stage became somebody\'s (darling narrative)' },
+  // ceiling lifted to 1.00 by ruling (v0.9.10): careers now open with a
+  // six-year act holding two trophies per stage. darlingAt is 7, so the
+  // dynasty still takes FIVE wins earned on the player's watch — but an
+  // established act kept winning for three seasons gets there in nearly
+  // every world, and that is the designed shape of "still selling", not
+  // wallpaper. The floor is the alarm now: no darlings = broken stages.
+  showDarling:       { lo: 0.30, hi: 1.00, label: 'worlds where a stage became somebody\'s (darling narrative)' },
   regionLoud:        { lo: 0.20, hi: 1.00, label: 'orgs that got loud in at least one overseas region' },
   // floor 10%→2% by ruling (v0.9.1): the stronghold threshold (75) sits
   // in the tail of the 140-week best-region distribution (median ~71,
@@ -212,7 +218,11 @@ for (let s = 0; s < SEEDS; s++) {
 
   const startTalent = avgRosterTalent(state);
   // age census measures the scouting pipeline — rival idols run older by design
-  Object.values(state.people).forEach(p => { if (p.status !== 'rival') allAges.push(p.age); });
+  Object.values(state.people).forEach(p => {
+    // trainees + prospects only (v0.9.10): the census measures the
+    // GENERATION pipeline — the legacy veterans are start-content
+    if (p.status === 'trainee' || p.status === 'prospect') allAges.push(p.age);
+  });
   let sawFriction = false;
   let pressureSeen = false;
   let pressureWarned = false;
@@ -280,10 +290,13 @@ for (let s = 0; s < SEEDS; s++) {
     }
     // form the first group around week 20; a second lineup once the first
     // has debuted and the trainee room can field one (v0.2.2)
-    const wantSecond = state.groups.length === 1 && state.groups[0].debuted &&
+    // v0.9.10: the legacy group is start-content — the bot's OWN groups
+    // are the non-legacy ones, and the forming logic counts only those
+    const own = state.groups.filter(x => !x.legacy);
+    const wantSecond = own.length === 1 && own[0].debuted &&
       state.week >= 70 && KP.freeTrainees(state).length >= 4 && state.budget > 120;
-    if ((!state.groups.length && state.week >= 20 && state.roster.length >= 5) || wantSecond) {
-      const size = state.groups.length ? 4 : 5;
+    if ((!own.length && state.week >= 20 && KP.freeTrainees(state).length >= 5) || wantSecond) {
+      const size = own.length ? 4 : 5;
       // one group, one gender (v0.8.4): the bot fields the strongest
       // SAME-GENDER lineup — its second act is a boy group when the
       // boys outrank the remaining girls
@@ -600,10 +613,12 @@ for (let s = 0; s < SEEDS; s++) {
   }
 
   // --- per-seed observatory tallies ---
-  const g = state.groups[0];
-  guard(!!(g && g.debuted && g.results), seed + ' auto-player failed to reach a debut');
-  if (state.groups.length >= 2) tally.secondGroup++;
-  totalGroups += state.groups.length;
+  // the census reads the bot's OWN work: the legacy group is inherited
+  const ownGroups = state.groups.filter(x => !x.legacy);
+  const g = ownGroups.find(x => x.debuted && x.results) || ownGroups[0];
+  guard(!!(g && g.debuted), seed + ' auto-player failed to reach a debut');
+  if (ownGroups.length >= 2) tally.secondGroup++;
+  totalGroups += ownGroups.length;
   guard((state.objectiveHistory || []).length >= 1, seed + ' the objective ladder never advanced');
   if (g && g.debuted) {
     guard(g.members.map(id => state.people[id])
@@ -823,7 +838,7 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
     const foundingAges = {};
     pool.forEach(id => { foundingAges[id] = state.people[id].age; });
     KP.proposeGroup(state, 'LONGRUN', pool, KP.roleHints(state, pool.map(i => state.people[i])));
-    const g = state.groups[0];
+    const g = state.groups[state.groups.length - 1];   // LONGRUN, not the legacy
     KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
       week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
     let seedTables = 0;

@@ -9,7 +9,7 @@ const KP = loadEngine();
 const t = makeT('suite_033_direction');
 
 function fresh(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'BRIEFLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   return { state, g: state.groups[0] };

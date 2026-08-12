@@ -8,7 +8,7 @@ const KP = loadEngine();
 const t = makeT('suite_044_building');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'BLDG', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -36,14 +36,14 @@ function debuted(seed) {
 {
   let boys = 0, girls = 0;
   for (let s = 0; s < 6; s++) {
-    const state = KP.newGame('bldg-mix-' + s);
+    const state = KP.newGame('bldg-mix-' + s, null, { legacy: false });
     state.prospects.forEach(id => {
       if (state.people[id].gender === 'm') boys++; else girls++;
     });
   }
   t.ok(boys > 0, 'boys appear on the opening board (' + boys + ' across 6 worlds)');
   t.ok(girls > boys, 'the mandate still leans the board female (' + girls + ' vs ' + boys + ')');
-  const state = KP.newGame('bldg-names');
+  const state = KP.newGame('bldg-names', null, { legacy: false });
   const boy = state.prospects.map(id => state.people[id]).find(p => p.gender === 'm');
   if (boy) t.ok(!/[aeiou]{3}/.test(boy.name.given) && boy.name.given.includes('-'),
     'male given names use the male syllable pools (' + (boy && boy.name.given) + ')');
@@ -51,7 +51,7 @@ function debuted(seed) {
 
 // ---- one group, one gender ----
 {
-  const state = KP.newGame('bldg-mixed');
+  const state = KP.newGame('bldg-mixed', null, { legacy: false });
   const girl = state.roster.map(id => state.people[id])[0];
   const boyP = KP.generatePerson(KP.rngFor(state), { status: 'trainee', gender: 'm' });
   state.people[boyP.id] = boyP; state.roster.push(boyP.id);
@@ -63,7 +63,7 @@ function debuted(seed) {
 
 // ---- a boy group runs the whole machine ----
 {
-  const state = KP.newGame('bldg-boys');
+  const state = KP.newGame('bldg-boys', null, { legacy: false });
   const rng = KP.rngFor(state);
   const boys = [];
   for (let i = 0; i < 4; i++) {
@@ -87,7 +87,7 @@ function debuted(seed) {
 
 // ---- naming rights: the group ----
 {
-  const state = KP.newGame('bldg-name');
+  const state = KP.newGame('bldg-name', null, { legacy: false });
   const ids = state.roster.slice(0, 4);
   const hints = KP.roleHints(state, ids.map(i => state.people[i]));
   t.ok(!KP.proposeGroup(state, '   ', ids, hints).ok, 'a name needs letters');

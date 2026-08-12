@@ -9,7 +9,7 @@ const KP = loadEngine();
 const t = makeT('suite_019_industry');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'WORLDLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -23,7 +23,7 @@ function debuted(seed) {
 
 // ---- the world arrives seeded ----
 {
-  const state = KP.newGame('ind-seed');
+  const state = KP.newGame('ind-seed', null, { legacy: false });
   t.ok(state.rivals.every(r => r.prestige != null && r.prestige > 0), 'every rival has prestige');
   t.ok(state.rivals.every(r => (r.acts || []).length >= 1), 'every rival already runs at least one act');
   t.ok(state.rivals.every(r => r.nextDebutWeek > state.week), 'every rival has a debut on the calendar');
@@ -36,7 +36,7 @@ function debuted(seed) {
 
 // ---- rival debuts happen, on schedule, with consequences ----
 {
-  const state = KP.newGame('ind-debut');
+  const state = KP.newGame('ind-debut', null, { legacy: false });
   const rival = state.rivals[0];
   const actsBefore = rival.acts.length;
   const rosterBefore = 10;
@@ -55,7 +55,7 @@ function debuted(seed) {
 
 // ---- comeback cycles turn ----
 {
-  const state = KP.newGame('ind-cycle');
+  const state = KP.newGame('ind-cycle', null, { legacy: false });
   const rival = state.rivals[0];
   const act = rival.acts[0];
   const relBefore = act.releases.length;
@@ -70,7 +70,7 @@ function debuted(seed) {
 
 // ---- the chart cools and drops ----
 {
-  const state = KP.newGame('ind-chart');
+  const state = KP.newGame('ind-chart', null, { legacy: false });
   KP.chartEnter(state, { title: 'Fading Test', act: 'TESTACT', company: 'X', isPlayer: false,
     score: 10, entered: state.week });
   KP.advanceWeek(state);
@@ -96,7 +96,7 @@ function debuted(seed) {
   // fork: identical states, one facing a crowded week — reception differs
   // by exactly the penalty (crowd consumes no rng)
   const mk = () => {
-    const s = KP.newGame('ind-crowd2');
+    const s = KP.newGame('ind-crowd2', null, { legacy: false });
     const ids = s.roster.slice(0, 5);
     KP.proposeGroup(s, 'CROWDTEST', ids, KP.roleHints(s, ids.map(i => s.people[i])));
     const gg = s.groups[0];
@@ -116,7 +116,7 @@ function debuted(seed) {
 
 // ---- lifecycle: bounds hold, companies fall / merge / split / emerge ----
 {
-  const state = KP.newGame('ind-life');
+  const state = KP.newGame('ind-life', null, { legacy: false });
   const rng = KP.rngFor(state);
   // stage the scene: a starved third company, a weak fourth, and a giant
   const mkRival = (short, prestige, roster, acts) => ({
@@ -156,7 +156,7 @@ function debuted(seed) {
 
 // ---- migration: a 0.3.3 save wakes up in the living world ----
 {
-  const old = KP.newGame('ind-mig');
+  const old = KP.newGame('ind-mig', null, { legacy: false });
   // strip v0.4.0 state to fake the old shape
   delete old.chart; delete old.feed; delete old.lifecycleEvents;
   old.rivals.forEach(r => { delete r.prestige; delete r.acts; delete r.nextDebutWeek; });
@@ -178,7 +178,7 @@ function debuted(seed) {
 
 // ---- determinism: the whole living world forks clean ----
 {
-  const a = KP.newGame('ind-fork');
+  const a = KP.newGame('ind-fork', null, { legacy: false });
   const b = KP.deserialize(KP.serialize(a));
   for (let w = 0; w < 30; w++) { KP.advanceWeek(a); KP.advanceWeek(b); }
   t.eq(KP.serialize(a), KP.serialize(b), 'chart, feed, rivals and lifecycle are all seed-stable');

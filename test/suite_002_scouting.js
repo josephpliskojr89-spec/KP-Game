@@ -6,7 +6,7 @@ const { loadEngine, makeT } = require('./load_engine');
 const KP = loadEngine();
 const t = makeT('suite_002_scouting');
 
-const state = KP.newGame('scout-suite');
+const state = KP.newGame('scout-suite', null, { legacy: false });
 const scout = KP.DATA.evaluators[2];
 const pid = state.prospects[0];
 const p = state.people[pid];
@@ -36,7 +36,7 @@ t.ok(KP.readWidth(p, scout) >= KP.C.SCOUT.minReadWidth, 'certainty is never perf
 t.ok(KP.C.SCOUT.baseReadWidth > KP.C.SCOUT.minReadWidth, 'fog actually narrows over looks');
 
 // budget + allowance rails on signing
-const st2 = KP.newGame('scout-suite-2');
+const st2 = KP.newGame('scout-suite-2', null, { legacy: false });
 st2.budget = 1;
 const poor = KP.signProspect(st2, st2.prospects[0]);
 t.ok(!poor.ok, 'cannot sign without budget');
@@ -57,7 +57,7 @@ t.ok(!st2.prospects.includes(gone), 'signee off the board');
 st2.rivals.forEach(r => t.ok(!(gone in r.interest), 'rival interest cleared on signing'));
 
 // rival heat raises price
-const st3 = KP.newGame('scout-suite-3');
+const st3 = KP.newGame('scout-suite-3', null, { legacy: false });
 const cold = st3.prospects.map(id => st3.people[id]).find(pp => KP.rivalHeat(st3, pp.id).max === 0);
 const hot = st3.prospects.map(id => st3.people[id]).find(pp => KP.rivalHeat(st3, pp.id).max >= 2);
 if (cold && hot) t.ok(KP.signCost(st3, hot) > KP.signCost(st3, cold), 'contested prospects cost more');
@@ -65,7 +65,7 @@ if (cold && hot) t.ok(KP.signCost(st3, hot) > KP.signCost(st3, cold), 'contested
 // rivals eventually take people (soak a board with hot interest)
 let taken = 0;
 for (let s = 0; s < 12; s++) {
-  const st = KP.newGame('rival-take-' + s);
+  const st = KP.newGame('rival-take-' + s, null, { legacy: false });
   st.rivals.forEach(r => { st.prospects.slice(0, 6).forEach(id => { r.interest[id] = 3; }); });
   for (let w = 0; w < 20; w++) KP.advanceWeek(st);
   taken += Object.values(st.people).filter(pp => pp.status === 'rival').length;

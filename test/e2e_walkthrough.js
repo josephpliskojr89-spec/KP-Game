@@ -71,7 +71,8 @@ async function main() {
   await tap('[data-nav=talent]');
   await page.waitForSelector('.talent-row');
   const rosterCount = await page.$$eval('.talent-row', els => els.length);
-  ok(rosterCount === 6, 'six inherited trainees listed (got ' + rosterCount + ')');
+  // v0.9.10: six trainees plus the last group's four veterans
+  ok(rosterCount === 10, 'six trainees + four inherited idols listed (got ' + rosterCount + ')');
 
   // --- dossier: blurbs, no numbers ---
   await tap('.talent-row');
@@ -115,7 +116,7 @@ async function main() {
   await tap('[data-action=sign-confirm]');
   await page.waitForTimeout(120);
   await tap('[data-action=talent-sub][data-sub=roster]');
-  ok(await page.$$eval('.talent-row', els => els.length) === 7, 'roster grew to seven');
+  ok(await page.$$eval('.talent-row', els => els.length) === 11, 'roster grew to eleven');
 
   // --- training page: intensity without opening dossiers (v0.1.1) ---
   await tap('[data-action=talent-sub][data-sub=training]');
@@ -162,14 +163,14 @@ async function main() {
   await tap('[data-nav=talent]');
   await tap('[data-action=talent-sub][data-sub=roster]');
   await page.waitForSelector('.talent-row');
-  await page.click('.talent-row:nth-child(8)');   // 7th trainee row (after the seg header)
+  await page.click('.talent-row:nth-child(12)');  // 11th roster row (after the seg header) — the newest signing, appended after 6 trainees + 4 veterans
   await page.waitForSelector('[data-action=release]');
   await tap('[data-action=release]');
   await page.waitForSelector('.modal-sheet');
   ok((await page.textContent('.modal-sheet')).includes('not refunded'), 'release confirm states the cost');
   await tap('[data-action=release-confirm]');
   await page.waitForTimeout(150);
-  ok(await page.$$eval('.talent-row', els => els.length) === 6, 'roster shrank to six after the release');
+  ok(await page.$$eval('.talent-row', els => els.length) === 10, 'roster shrank to ten after the release');
 
   // --- group builder ---
   await tap('[data-nav=groups]');
@@ -197,7 +198,12 @@ async function main() {
   await page.waitForSelector('.modal-sheet');
   ok((await page.textContent('.modal-sheet')).includes('reviews the lineup'), 'executive reacts to the proposal');
   await tap('[data-action=close-modal]');
-  await page.waitForSelector('.group-hero .g-name');
+  // v0.9.10: two groups now (the inherited veterans + the new lineup) —
+  // the tab shows cards; open the new group's page (second card)
+  await page.waitForSelector('.group-hero');
+  ok(await page.$$eval('[data-action=open-grouppage]', els => els.length) === 2, 'two group cards — the last group and the new lineup');
+  await page.click('[data-action=open-grouppage]:nth-of-type(2)');
+  await page.waitForSelector('.member-cell');
   ok(await page.$$eval('.member-cell', els => els.length) === 5, 'group page shows five members');
   ok((await page.textContent('#screen')).includes('Maknae'), 'maknae labeled as a fact');
 
@@ -271,6 +277,10 @@ async function main() {
   await tap('.modal-sheet [data-action=close-modal]');
   await closeModalIfOpen();
   await tap('[data-nav=groups]');
+  // v0.9.10: card list again after reload — open the new lineup's page
+  await page.waitForSelector('[data-action=open-grouppage]');
+  await page.click('[data-action=open-grouppage]:nth-of-type(2)');
+  await page.waitForSelector('.member-cell');
   ok((await page.textContent('#screen')).includes('Discography'), 'group page shows a discography after reload');
 
   // --- the ladder: a comeback directive succeeded the debut objective ---
@@ -283,6 +293,12 @@ async function main() {
   // --- the calendar closes after a release (v0.4.2): promo, then rest ---
   for (let i = 0; i < 5; i++) await advanceWeek();
   await tap('[data-nav=studio]');
+  // v0.9.10: the studio defaults to the group hungriest for a record —
+  // the inherited veterans, whose calendar is wide open. Switch to the
+  // new lineup to see its post-promo rest window.
+  await page.waitForSelector('[data-action=studio-group]');
+  await page.click('[data-action=studio-group]:nth-of-type(2)');
+  await page.waitForTimeout(120);
   const closed = await page.textContent('#screen');
   ok(/calendar reopens/.test(closed), 'the studio shows the closed calendar after promo');
   ok(/Let them|stages/.test(closed), 'the rest window is narrated, not just disabled');
@@ -317,9 +333,14 @@ async function main() {
   ok((await page.textContent('.result-hero')).includes('Comeback report'), 'the report knows it is a comeback');
   await tap('[data-action=back]');
   await tap('[data-nav=groups]');
+  // v0.9.10: cards first — the lineup pointer lives on the tab, the
+  // discography on the group page behind the second card
+  await page.waitForSelector('[data-action=open-grouppage]');
+  ok(/without a lineup/.test(await page.textContent('#screen')), 'the groups tab points at trainees waiting for a second lineup');
+  await page.click('[data-action=open-grouppage]:nth-of-type(2)');
+  await page.waitForSelector('.member-cell');
   const disco = await page.textContent('#screen');
   ok((disco.match(/peaked #/g) || []).length >= 2, 'discography lists both releases with chart peaks');
-  ok(/without a lineup/.test(disco), 'the groups tab points at trainees waiting for a second lineup');
 
   // --- the living world: scene, chart, feed (v0.4.0) ---
   await tap('[data-nav=industry]');

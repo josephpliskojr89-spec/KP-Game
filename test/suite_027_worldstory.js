@@ -9,7 +9,7 @@ const KP = loadEngine();
 const t = makeT('suite_027_worldstory');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'STORYLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -23,7 +23,7 @@ function debuted(seed) {
 
 // ---- rival identities are common knowledge on day one ----
 {
-  const state = KP.newGame('ws-seed');
+  const state = KP.newGame('ws-seed', null, { legacy: false });
   t.ok(KP.getNarrative(state, 'trendCopier', 'rivalCompany', 'Novaline'), 'Novaline are the trend chasers');
   t.ok(KP.getNarrative(state, 'performanceFactory', 'rivalCompany', 'Aurum'), 'Aurum are the performance factory');
   t.ok(KP.getNarrative(state, 'patientHouse', 'rivalCompany', 'Whitecliff'), 'Whitecliff are the patient house');
@@ -37,7 +37,7 @@ function debuted(seed) {
 
 // ---- poachers: enough steals become a name ----
 {
-  const state = KP.newGame('ws-poach');
+  const state = KP.newGame('ws-poach', null, { legacy: false });
   // any rival may win the race — arm them all one steal short
   state.rivals.forEach(r => { r.poachCount = KP.C.MEMORY.poachAt - 1; });
   const pid = state.prospects[0];
@@ -56,7 +56,7 @@ function debuted(seed) {
 
 // ---- streaks and flop eras track rival acts ----
 {
-  const state = KP.newGame('ws-streak');
+  const state = KP.newGame('ws-streak', null, { legacy: false });
   const rival = state.rivals[0];
   const act = rival.acts[0];
   act.hitStreak = KP.C.MEMORY.streakAt - 1;
@@ -76,7 +76,7 @@ function debuted(seed) {
 
 // ---- social numbers: lazy init, plausible, deterministic ----
 {
-  const state = KP.newGame('ws-social');
+  const state = KP.newGame('ws-social', null, { legacy: false });
   const trainee = state.people[state.roster[0]];
   const prospect = state.people[state.prospects[0]];
   const rivalIdol = state.people[state.rivals[0].acts[0].members[0]];

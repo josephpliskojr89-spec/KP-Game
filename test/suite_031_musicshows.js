@@ -12,7 +12,7 @@ const ALLSHOWS = [['countdown', 'popWave'], ['countdown', 'primeStage'],
   ['countdown', 'popWave'], ['countdown', 'primeStage']];
 
 function ready(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'STAGELINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -79,7 +79,7 @@ function lockAndRide(state, g, rollout) {
 
 // ---- rival wins happen while we sleep, and the big ones make the desk ----
 {
-  const state = KP.newGame('ms-rivalwin');
+  const state = KP.newGame('ms-rivalwin', null, { legacy: false });
   const act = state.rivals[0].acts[0];
   act.popularity = 75; act.quality = 80;
   act.lastReleaseWeek = state.week;   // fresh release: on every stage

@@ -2417,6 +2417,56 @@ confirm, irreversible, once per save):
 founding — the player's own career entire. Remaining: variety
 careers, hiatus & returns, the deep map, the wardrobe department.
 
+## §51 The last group (v0.9.10) — the intro becomes true
+
+Owner, on the new-career screen: *"it says the last group still sells
+but it is aging. But then you have no group to start with. We either
+need to change that wording or provide an aging group at the end of
+their contracts to kind of keep it cohesive."* The second option,
+obviously — the copy was always the better game.
+
+**The seed** (`KP.newGame`, `legacySeed()`): every new career opens
+with the company's six-year girl group already in the building.
+- **Four vocalists, mid-twenties** (23–26): vocals 66–80 — the
+  vocal-house reputation embodied — dance/charisma/visuals formed,
+  ceilings nearly spent, `liveExp` 90, zero scouting fog
+  (`observations` 4), morale worn to 52–64, two history lines
+  (their debut; watching your introduction from the good chair).
+- **The group**: debuted week −252 (5.25 years), popularity 56,
+  concept `elegant` two eras deep, roles set, rooms assigned,
+  `promoUntil` coherent with a last release 60 weeks back (the
+  studio is open to them on your first morning), `legacy: true`
+  as the start-content marker.
+- **The discography tells the story**: a #1 debut single (reception
+  74), then minis at 67/#2 and 58/#5 — a real peak, then the slide.
+  "Still sells, but aging" is now readable on the shelf.
+- **The receipts**: fandom named and fading (intensity 42), trophies
+  `{countdown: 2, popWave: 2}` — real hardware, deliberately short of
+  `darlingAt` (7) so the dynasty story is earned on the player's
+  watch — and `firstShowWinWeek` −180 so the first-trophy beat never
+  re-fires for wins that predate you.
+- **The clock is the drama**: contracts run from the real debut, so
+  all four are inside the §43 renewal window on day one. Their
+  renewal folders reach the Desk before your first debut does — the
+  opening scenario now argues with itself for your attention, which
+  is the job.
+
+**Roster order is a contract**: six trainees FIRST, then the four
+veterans — every fixture that slices the roster for a debut lineup
+stays honest.
+
+**The opt-out**: `KP.newGame(seed, name, { legacy: false })` skips
+the seed. Mechanism suites run lean by explicit choice; the harness,
+the e2e, and suite 052 run the real opening. The battery's opening
+truth lives in suite 052 — the one place that proves the game the
+player actually gets.
+
+**Knock-on rulings**: the generation-age census reads trainees and
+prospects only (veterans are not evidence about the youth pipeline);
+`daesangField` giants seat at base 140 (careers now start with an
+established act in the race); the `showDarling` band flipped from
+ceiling to floor (§18).
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2430,6 +2480,14 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   legs per career, map ~3pts cooler, band went 0/40) — threshold moved
   75→72 exactly as this item prescribed; band back to 5/40.
 
+- **showDarling band flipped ceiling→floor (v0.9.10)** — careers now
+  open with a six-year act holding two trophies per stage; a bot that
+  keeps them winning reaches `darlingAt` (7) in ~38/40 worlds, and
+  that is the designed shape of "still selling", not wallpaper. The
+  band now guards the floor (30%): no darlings would mean broken
+  stages. If human play finds the dynasty coverage line stale by
+  year two, vary the `showDarling` feed/memory templates before
+  touching `darlingAt`.
 - **Burnout census runs cold** (0/40 orgs with the cautious auto-player;
   band top 45%). The mechanism triggers under sustained heavy load (suite
   003 forces it), but a sensible policy never sees it. Watch whether human
@@ -3625,3 +3683,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > wall (playerNarratives now excludes rival-status idols — they take
 > their stories with them). Battery 51/51 (suite 051 now 35), soak
 > clean, e2e 90, lockstep 0.9.9.1. Rode to main.
+\n
+> **v0.9.10 — the last group** (owner, on the new-career screen:
+> *"it says the last group still sells but it is aging. But then you
+> have no group to start with... provide an aging group at the end
+> of their contracts to kind of keep it cohesive"*)
+> Full spec in §51. The intro copy becomes the game: every new
+> career opens with the six-year girl group the reputation was built
+> on — four road-worn vocalists (23–26, vocals 66–80, liveExp 90, no
+> fog), popularity 56, a #1-debut-then-slide discography, a named
+> fading fandom, two trophies per stage (short of darlingAt on
+> purpose), and contracts that put all four renewal folders on the
+> Desk before the first debut does. Trainees stay first in the
+> roster; `newGame(seed, name, {legacy: false})` lets mechanism
+> suites run lean while the harness, the e2e, and new suite 052
+> prove the real opening. Rulings: age census reads trainees/
+> prospects only, daesang giants seat at 140, showDarling band
+> flipped ceiling→floor (§18 — a kept-winning inherited act reaching
+> the dynasty is design, not wallpaper). Coherence fix en route:
+> the seeded promoUntil tracks the year-old last release, so the
+> veterans' calendar is open on your first morning. Battery 52/52
+> (suite 052, 32 assertions), soak clean (97 bands), e2e 91,
+> lockstep 0.9.10 (50 modules). Rode to main.

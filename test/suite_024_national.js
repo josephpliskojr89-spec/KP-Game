@@ -11,7 +11,7 @@ const KP = loadEngine();
 const t = makeT('suite_024_national');
 
 function debuted(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'NATLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -25,7 +25,7 @@ function debuted(seed) {
 
 // ---- the wider world seeds whole ----
 {
-  const state = KP.newGame('nat-seed');
+  const state = KP.newGame('nat-seed', null, { legacy: false });
   const N = KP.C.NATIONAL;
   const poolSize = Object.values(N.pool).reduce((a, b) => a + b, 0);
   t.eq(state.national.artists.length, poolSize, 'the mainstream pool is fully cast');
@@ -44,7 +44,7 @@ function debuted(seed) {
 
 // ---- pool artists release on schedule, fame drifts, cadence resets ----
 {
-  const state = KP.newGame('nat-release');
+  const state = KP.newGame('nat-release', null, { legacy: false });
   const ar = state.national.artists[0];
   ar.nextRelease = state.week + 1;
   const before = state.national.entries.length;
@@ -98,7 +98,7 @@ function debuted(seed) {
 
 // ---- the pool churns: faded stars bow out, the pool never shrinks ----
 {
-  const state = KP.newGame('nat-churn');
+  const state = KP.newGame('nat-churn', null, { legacy: false });
   const rng = KP.rngFor(state);
   const N = KP.C.NATIONAL;
   const poolSize = Object.values(N.pool).reduce((a, b) => a + b, 0);

@@ -9,7 +9,7 @@ const KP = loadEngine();
 const t = makeT('suite_011_opening');
 
 function throughDebut(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'OPENA', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -23,7 +23,7 @@ function throughDebut(seed) {
 
 // the cap binds before the debut...
 {
-  const state = KP.newGame('open-cap');
+  const state = KP.newGame('open-cap', null, { legacy: false });
   t.ok(KP.signingsCapped(state), 'signings are capped before the first debut');
   state.budget = 500;
   for (let i = 0; i < 3; i++) KP.signProspect(state, state.prospects[0]);
@@ -76,7 +76,7 @@ function throughDebut(seed) {
 
 // no pressure while the cap is on — the tutorial phase is protected
 {
-  const state = KP.newGame('open-tutorial');
+  const state = KP.newGame('open-tutorial', null, { legacy: false });
   state.budget = 300;
   let pressureNote = false;
   for (let w = 0; w < 9; w++) {

@@ -9,7 +9,7 @@ const KP = loadEngine();
 const t = makeT('suite_040_tracklist');
 
 function ready(seed, n) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, n || 5);
   KP.proposeGroup(state, 'TRAX', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   return { state, g: state.groups[0] };
@@ -145,7 +145,7 @@ function release(state, g) {
   Object.keys(KP.C.LIFE.AMBITIONS).forEach(k => {
     t.ok(KP.C.LIFE.AMBITIONS[k].lines.length >= 3, k + ' has ' + KP.C.LIFE.AMBITIONS[k].lines.length + ' phrasings');
   });
-  const state = KP.newGame('tk-facts');
+  const state = KP.newGame('tk-facts', null, { legacy: false });
   const p = state.people[state.roster[0]];
   const f1 = KP.factsOf(state, p);
   t.eq(KP.factsOf(state, p).join('|'), f1.join('|'), 'facts stay stable — lore, not slot pulls');

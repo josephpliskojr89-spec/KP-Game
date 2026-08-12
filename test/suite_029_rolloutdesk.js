@@ -8,7 +8,7 @@ const KP = loadEngine();
 const t = makeT('suite_029_rolloutdesk');
 
 function ready(seed) {
-  const state = KP.newGame(seed);
+  const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'ROLLDESK', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
@@ -105,7 +105,7 @@ function rideToDebut(state, g) {
 
 // ---- the feed never goes quiet (owner: "1 or 2 posts a week") ----
 {
-  const state = KP.newGame('rd-volume');
+  const state = KP.newGame('rd-volume', null, { legacy: false });
   let minWeek = 99;
   for (let w = 0; w < 40; w++) {
     KP.advanceWeek(state);

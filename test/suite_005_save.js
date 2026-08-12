@@ -9,7 +9,7 @@ const t = makeT('suite_005_save');
 
 // round-trip exactness
 {
-  const state = KP.newGame('save-rt');
+  const state = KP.newGame('save-rt', null, { legacy: false });
   for (let w = 0; w < 10; w++) KP.advanceWeek(state);
   const json = KP.serialize(state);
   const back = KP.deserialize(json);
@@ -18,7 +18,7 @@ const t = makeT('suite_005_save');
 
 // a restored save simulates identically to the original
 {
-  const a = KP.newGame('save-fork');
+  const a = KP.newGame('save-fork', null, { legacy: false });
   for (let w = 0; w < 6; w++) KP.advanceWeek(a);
   const b = KP.deserialize(KP.serialize(a));
   for (let w = 0; w < 10; w++) { KP.advanceWeek(a); KP.advanceWeek(b); }
@@ -27,7 +27,7 @@ const t = makeT('suite_005_save');
 
 // forward-only version stamping
 {
-  const state = KP.newGame('save-stamp');
+  const state = KP.newGame('save-stamp', null, { legacy: false });
   state.version = '0.0.1';
   KP.migrate(state);
   t.eq(state.version, KP.C.VERSION, 'old save stamped forward to current');
@@ -38,7 +38,7 @@ const t = makeT('suite_005_save');
 
 // id counter stays ahead after load — new people never collide
 {
-  const state = KP.newGame('save-ids');
+  const state = KP.newGame('save-ids', null, { legacy: false });
   const back = KP.deserialize(KP.serialize(state));
   const rng = KP.rngFor(back);
   const p = KP.generatePerson(rng, { status: 'prospect' });
