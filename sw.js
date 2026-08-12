@@ -1,7 +1,7 @@
 /* Service worker — cache key rides the version lockstep. */
 'use strict';
-const CACHE = 'kpam-0.9.11';
-const V = '0.9.11';
+const CACHE = 'kpam-0.9.12';
+const V = '0.9.12';
 const PRECACHE = [
   '.',
   'index.html',
@@ -34,6 +34,7 @@ const PRECACHE = [
   'js/engine/fandom.js?v=' + V,
   'js/engine/deals.js?v=' + V,
   'js/engine/gigs.js?v=' + V,
+  'js/engine/hiatus.js?v=' + V,
   'js/engine/awards.js?v=' + V,
   'js/engine/life.js?v=' + V,
   'js/engine/scenes.js?v=' + V,

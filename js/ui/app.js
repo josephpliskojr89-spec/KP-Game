@@ -310,6 +310,26 @@
         App.render();
         break;
       }
+      case 'declare-hiatus': {
+        const g = KP.groupById(s, t.dataset.id);
+        if (!g) break;
+        UI.modal('An official hiatus',
+          '<div class="note">The statement goes out today: ' + UI.esc(g.name) + ' steps back — no date, no promises beyond the return. ' +
+          'Real rest for the members, room for their second jobs, and a comeback that lands as an event. But past ' +
+          KP.C.HIATUS.graceWeeks + ' weeks the public starts forgetting, and forgetting compounds.</div>',
+          '<button class="btn primary" data-action="hiatus-confirm" data-id="' + g.id + '" style="flex:1">Announce it</button>' +
+          '<button class="btn" data-action="close-modal" style="flex:1">Not yet</button>');
+        break;
+      }
+      case 'hiatus-confirm': {
+        const r = KP.declareHiatus(s, t.dataset.id);
+        UI.closeModal();
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast(r.note.slice(0, 120));
+        App.render();
+        break;
+      }
       case 'tour-scale': App.tourDraft.scale = t.dataset.scale; App.render(); break;
       case 'tour-pacing': App.tourDraft.pacing = t.dataset.pacing; App.render(); break;
       case 'tour-setlist': App.tourDraft.setlist = t.dataset.setlist; App.render(); break;

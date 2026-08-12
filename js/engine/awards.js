@@ -109,8 +109,11 @@
         // act, so the bar the giants set rises with them. 145 (v0.9.11):
         // the second job inflates player popularity a few points per
         // career — the giants panel and sing OSTs too, and the daesang
-        // stays designed-scarce (owner: "the game in general feels easy")
-        score: 145 - ((e.peakPos || 1) - 1) * 6 +
+        // stays designed-scarce (owner: "the game in general feels
+        // easy"). 148 (v0.9.12): declared returns land warmer now; the
+        // giants stage returns of their own. See §18 — if the creep
+        // continues, index this to the era instead of stepping it.
+        score: 148 - ((e.peakPos || 1) - 1) * 6 +
           Math.min(30, e.weeksOn || 0) * 0.5 + jitter(e.act) });
     });
     return list.sort((x, y) => y.score - x.score);

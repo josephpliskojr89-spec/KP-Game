@@ -172,7 +172,11 @@
         const p = state.people[id];
         return p && p.status === 'idol' && (p.archetypes || []).includes('varietyNatural');
       });
-      if (cand.length && rng.chance(G.offerBaseChance + (natural ? G.naturalBonus : 0))) {
+      // an idle idol is a bookable idol (v0.9.12): a group on declared
+      // hiatus makes its members the easiest calls in the industry
+      const parked = cand.some(c => KP.onHiatus && KP.onHiatus(KP.groupOf(state, c.p.id)));
+      if (cand.length && rng.chance(G.offerBaseChance + (natural ? G.naturalBonus : 0) +
+          (parked ? G.hiatusOfferBonus : 0))) {
         const pick = cand[0];
         const offer = { id: gigId(state), kind: pick.kind, personId: pick.p.id,
           expiresWeek: state.week + G.expiresWeeks };

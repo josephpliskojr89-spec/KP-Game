@@ -2522,6 +2522,56 @@ secondJobStory — all alive on the first calibration soak.
 grows followings and fatigue — see §18); daesang giants 140→145
 (the giants panel and sing OSTs too; scarcity holds).
 
+## §53 The disappearance (v0.9.12) — hiatus as strategy
+
+§39 Phase C item two ("The disappearance", from §22 v0.6.14).
+Not-releasing was always possible; ANNOUNCING it is a move. New
+module hiatus.js (52 total), weekly order 789.
+
+**The announcement** (`KP.declareHiatus`): debuted, not in prep,
+not touring, not mid-promo, not already gone. A press-release note
+(`hiatusDeclared`, feed reactions through the registry), a history
+line in every member's file, and the clock starts.
+
+**The stay**: real rest — fatigue −4/week extra, morale +1/week —
+and room for the second job (§52): gig offers get `hiatusOfferBonus`
++0.08 while a group is parked, and an empty calendar never misses a
+taping. Past `graceWeeks` (6) the public starts forgetting:
+popularity −0.6/week, fandom intensity −0.4/week, one plain desk
+note when the walk down begins, and a durable `hiatusCooledEver`
+stamp for the census.
+
+**The return**: locking any record ends the hiatus at the lock —
+`returnAnnounced` ("IS COMING BACK"), `g.returnFrom` stamped with
+the weeks away. The release settles the bet through
+`KP.hiatusReadsRelease` (same one-door contract as seasonRead):
+**anticipation counts only the weeks PAST grace** — the weeks that
+paid the cooling toll — at 0.75/week, capped at 10. A stay inside
+the window is a schedule gap wearing a press release: stamp
+consumed, nothing earned. This is the load-bearing ruling — the
+first soak exposed that a floor below the grace window made a
+6-week "hiatus" a free reception bonus on the natural release gap
+(dominant strategy, no bet). Now every point of hype is bought with
+popularity, which is the §22 spec's actual sentence: cooling risk
+vs full restoration and anticipation.
+
+**Blocked doors**: touring while announced-gone is refused ("a
+hiatus with tour dates is called a tour").
+
+**UI**: group page — declare button with a confirm sheet that
+states the trade; hiatus status in hero and cards; the parked card
+counts the weeks and switches tone at the grace boundary.
+
+**Bot policy**: declare at avg fatigue ≥55 with an open calendar;
+stay grace+6 weeks so the bet is real; un-park by locking the
+return. Bands: hiatusDeclared, hiatusReturned, hiatusCooled (ceiling
+1.00 by design — every earning hiatus pays the toll).
+
+**Knock-on rulings**: secondJobStory ceiling 0.70→0.85 (parked
+groups wrap gig arcs clash-free — the synergy is the thesis);
+daesang giants 145→148 (declared returns land warmer; the giants
+stage returns too — third step, see §18 for the indexing note).
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2549,12 +2599,13 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   posting incident in 140 weeks. One 2am storm per three-year career
   is realism. If human play reports storm fatigue, tune `gaffeChance`
   down before touching the second job's payoffs.
-- **Daesang giants at 145 (v0.9.11, was 140)** — gig wraps add a few
-  popularity points per career and the daesang crossed its scarcity
-  band (21/40 vs ≤45%); the giants' bar rose with the players' means
-  (15/40 after). If future systems keep inflating player popularity,
-  consider indexing the giants' base to the era instead of stepping
-  it per release.
+- **Daesang giants at 148 (v0.9.12; 145 in v0.9.11, 140 in v0.9.10)**
+  — three steps in three releases: the last group, the second job,
+  and the declared return each inflated player strength and the
+  giants' bar rose to keep the daesang scarce (10/40 after the third
+  step). This is now officially creep. Next release that touches
+  reception or popularity: index the giants' base to the era's
+  observed player means instead of stepping the constant again.
 - **Burnout census runs cold** (0/40 orgs with the cautious auto-player;
   band top 45%). The mechanism triggers under sustained heavy load (suite
   003 forces it), but a sensible policy never sees it. Watch whether human
@@ -3794,3 +3845,26 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Battery 53/53 (suite 053, 38 assertions), soak clean (102 bands,
 > all five new bands alive first try), e2e 91, lockstep 0.9.11
 > (51 modules). Rode to main. Phase C: one down, three to go.
+\n
+> **v0.9.12 — the disappearance** (owner: *"next step approved"* —
+> §39 item two, hiatus as strategy)
+> Full spec in §53. Announcing the quiet is a move now: a declared
+> hiatus rests the roster at double speed, hands the second job an
+> empty calendar (offer bonus, zero missed tapings), and builds a
+> return that lands as an event — but past six weeks of grace the
+> public starts forgetting, popularity and fandom walking down
+> weekly. The load-bearing ruling came from the first soak: with an
+> anticipation floor below the grace window, a six-week "hiatus" was
+> a free reception bonus on the natural release gap. Now anticipation
+> counts ONLY the weeks past grace — every point of hype is bought
+> with cooling, which is the bet the spec always described. Locking
+> a record announces the return (IS COMING BACK), the release
+> converts the toll into numbers (0.75/week past grace, cap 10), and
+> the census reads durable stamps. New module hiatus.js (52 total),
+> group-page declare button with the trade stated plainly, tour door
+> blocked while gone. Rulings: secondJobStory ceiling 0.85 (the
+> parked-group synergy is the thesis), daesang giants 148 — third
+> step in three releases, §18 now demands era-indexing next time.
+> Battery 54/54 (suite 054, 32 assertions), soak clean (105 bands),
+> e2e 91, lockstep 0.9.12 (52 modules). Rode to main. Phase C: two
+> down, two to go.

@@ -89,10 +89,21 @@ const BANDS = {
   fandomNamed:       { lo: 0.30, hi: 1.00, label: 'orgs whose fandom got its name' },
   dealSigned:        { lo: 0.10, hi: 1.00, label: 'orgs that signed a brand deal' },
   gigBooked:         { lo: 0.30, hi: 1.00, label: 'orgs that booked somebody a second job (panel/MC/OST)' },
+  hiatusDeclared:    { lo: 0.02, hi: 0.95, label: 'orgs that announced an official hiatus (the disappearance)' },
+  hiatusReturned:    { lo: 0.02, hi: 0.95, label: 'orgs whose declared return converted the wait into numbers' },
+  // ceiling 1.00 by design (v0.9.12): anticipation only accrues past the
+  // grace window, so every hiatus that earns its bonus pays the cooling
+  // toll — cooled-among-declarers ≈ 100% is the bet working, not a flood
+  hiatusCooled:      { lo: 0.00, hi: 1.00, label: 'orgs that stayed gone past the grace window (the forgetting)' },
   gigWrapped:        { lo: 0.10, hi: 1.00, label: 'orgs where a full gig run wrapped with a sendoff' },
   ostDropped:        { lo: 0.05, hi: 1.00, label: 'orgs whose idol dropped a drama OST' },
   gigTension:        { lo: 0.02, hi: 0.95, label: 'orgs where a second job ended early (recast or pulled)' },
-  secondJobStory:    { lo: 0.00, hi: 0.70, label: 'worlds where a second job became a narrative (variety monster / MC / OST voice)' },
+  // ceiling 0.70→0.85 by ruling (v0.9.12): the hiatus synergy is the
+  // design — parked groups run second jobs clash-free, arcs wrap, and
+  // wrapped arcs stack into narratives. One second-job story per company
+  // per 3-year career is Phase C's thesis working, not wallpaper. If all
+  // three keys blur together in human play, split the band per key.
+  secondJobStory:    { lo: 0.00, hi: 0.85, label: 'worlds where a second job became a narrative (variety monster / MC / OST voice)' },
   awardWon:          { lo: 0.05, hi: 1.00, label: 'orgs that took a year-end award home' },
   awardSnubbed:      { lo: 0.00, hi: 0.90, label: 'orgs that watched someone else win (the radicalizer)' },
   bubbleSeen:        { lo: 0.50, hi: 1.00, label: 'worlds where bubble screenshots reached the feed' },
@@ -177,6 +188,7 @@ const tally = {
   toured: 0, tourSoldOut: 0, tourSoft: 0, gaffeSeen: 0,
   fandomNamed: 0, dealSigned: 0, awardWon: 0, awardSnubbed: 0,
   gigBooked: 0, gigWrapped: 0, ostDropped: 0, gigTension: 0, secondJobStory: 0,
+  hiatusDeclared: 0, hiatusReturned: 0, hiatusCooled: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
   soloCredit: 0, unitCredit: 0, sleeperHeard: 0,
@@ -379,6 +391,15 @@ for (let s = 0; s < SEEDS; s++) {
       }
     });
 
+    // the disappearance (v0.9.12): a boss who reads the fatigue sheet
+    // parks a worn group ON PURPOSE — announced rest beats idle waiting
+    state.groups.forEach(g => {
+      if (!g.debuted || g.prep || g.tour || g.hiatus) return;
+      if (state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) return;
+      const avgF = g.members.reduce((s, id) => s + state.people[id].fatigue, 0) / g.members.length;
+      if (avgF >= 55) KP.declareHiatus(state, g.id);
+    });
+
     // the Monday meeting (v0.7.1): the bot answers with its best read —
     // and promises comebacks like someone who knows their own calendar
     // the scenes desk (v0.8.2): the bot answers every held scene the way
@@ -458,6 +479,10 @@ for (let s = 0; s < SEEDS; s++) {
       // player who reads the staff warnings waits for the roster to
       // actually recover before locking the next cycle
       if (g.debuted && state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) return;
+      // a declared hiatus means it (v0.9.12): anticipation only counts
+      // the weeks past grace, so the bot stays parked long enough for
+      // the bet to be real — and un-parks by locking the return
+      if (g.hiatus && state.week - g.hiatus.since < KP.C.HIATUS.graceWeeks + 6) return;
       if (g.debuted) {
         const avgF = g.members.reduce((s, id) => s + state.people[id].fatigue, 0) / g.members.length;
         if (avgF >= 45) return;
@@ -716,6 +741,11 @@ for (let s = 0; s < SEEDS; s++) {
   if (folk.some(p => ((p.flags || {}).ostDrops || 0) >= 1)) tally.ostDropped++;
   if (folk.some(p => (p.history || []).some(h => /Quietly written out|Pulled out of/.test(h.text)))) tally.gigTension++;
   if ((state.memory || []).some(n => ['varietyMonster', 'nationalMC', 'ostVoice'].includes(n.key))) tally.secondJobStory++;
+  // the disappearance (v0.9.12): person history and group stamps are durable
+  if (folk.some(p => (p.history || []).some(h => /announced an official hiatus/.test(h.text))) ||
+      state.groups.some(g => g.hiatus)) tally.hiatusDeclared++;
+  if (state.groups.some(g => (g.hiatusReturns || 0) >= 1)) tally.hiatusReturned++;
+  if (state.groups.some(g => g.hiatusCooledEver)) tally.hiatusCooled++;
   if (state.groups.some(g => g.regions &&
       Object.values(g.regions).some(v => v >= KP.C.REGIONAL.loudAt))) tally.regionLoud++;
   bestRegions.push(Math.max.apply(null, state.groups

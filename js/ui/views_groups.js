@@ -18,7 +18,7 @@
   function groupCard(state, g) {
     const promoting = g.debuted && state.week <= (g.promoUntil || 0);
     const status = g.debuted
-      ? (g.prep ? 'Comeback in prep' : promoting ? 'Promoting' : 'Active')
+      ? (g.prep ? 'Comeback in prep' : promoting ? 'Promoting' : g.hiatus ? 'On hiatus' : 'Active')
       : g.prep ? 'Debut in prep' : 'In development';
     return '<div class="group-hero" data-action="open-grouppage" data-id="' + g.id + '" style="cursor:pointer">' +
       '<div class="g-status">' + UI.esc(status) + '</div>' +
@@ -73,7 +73,7 @@
     const promoting = g.debuted && state.week <= (g.promoUntil || 0);
     html.push('<div class="group-hero">' +
       '<div class="g-status">' + (g.debuted
-        ? (g.prep ? 'Comeback in preparation' : promoting ? 'Promoting' : 'Active · debuted ' + UI.esc(KP.weekLabel(g.debutWeek).text))
+        ? (g.prep ? 'Comeback in preparation' : promoting ? 'Promoting' : g.hiatus ? 'On official hiatus' : 'Active · debuted ' + UI.esc(KP.weekLabel(g.debutWeek).text))
         : g.prep ? 'Debut in preparation' : 'In development') + '</div>' +
       '<div class="g-name">' + UI.esc(g.name) + '</div>' +
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:6px">' +
@@ -243,9 +243,19 @@
         '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Open the Studio</button></div></div>');
     } else if (promoting) {
       html.push('<div class="card">Promotion week — music shows, fan signs, radio. The schedule is full and so are the members. Comeback planning opens when it winds down.</div>');
+    } else if (g.hiatus) {
+      // the disappearance (v0.9.12): parked on purpose, counted weekly
+      const hw = state.week - g.hiatus.since;
+      const H = KP.C.HIATUS;
+      html.push('<div class="card"><b>On official hiatus</b> — ' + hw + ' week' + (hw === 1 ? '' : 's') + ' and counting. ' +
+        (hw <= H.graceWeeks
+          ? 'The announcement is holding: the fans are patient, the members are sleeping, the second jobs have room.'
+          : 'Past the grace window now — the rest is still working, and so is the forgetting. The return converts the wait into numbers; the wait converts the numbers into less.') +
+        '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Announce the return</button></div></div>');
     } else {
       html.push('<div class="card">The room between releases is where momentum goes to die. The producers have fresh demos in the Studio.' +
-        '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Plan the comeback</button></div></div>');
+        '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Plan the comeback</button></div>' +
+        '<div style="margin-top:8px"><button class="btn small ghost" style="border:1px solid var(--line)" data-action="declare-hiatus" data-id="' + g.id + '">Declare an official hiatus</button></div></div>');
     }
 
     // discography — the story so far, on the record

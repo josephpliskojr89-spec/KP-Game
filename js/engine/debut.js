@@ -106,6 +106,9 @@
       g.prep.tracks = KP.buildTracklist(state, trng, g, demo, format);
       state.rngState = trng.state();
     }
+    // the return (v0.9.12): locking a record ends a declared hiatus —
+    // the announcement IS the event, the release settles the bet
+    if (g.hiatus && KP.hiatusReturnLock) KP.hiatusReturnLock(state, g);
     // locking onto an announced rival week is a CHOICE — the challenge
     // half of "challenge or dodge" (v0.6.4). The desk assumes intent.
     const foes = KP.announcedAt(state, plan.week)
@@ -348,10 +351,12 @@
     // the calendar has a shape (v0.9.5): January sleeps, summer favors
     // the bright — one read supplies the number and the words
     const season = KP.seasonRead ? KP.seasonRead(state, concept.id) : { mod: 0, line: null };
+    // the declared return (v0.9.12): anticipation converts to numbers
+    const hiaRead = KP.hiatusReadsRelease ? KP.hiatusReadsRelease(state, g, isDebut) : { mod: 0, note: null };
     let reception = KP.clamp(Math.round(
       demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
       groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
-      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod), 1, 100);
+      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod + hiaRead.mod), 1, 100);
     // the mash (v0.9.6): a genre-bending release rolls the whole table —
     // flop / worked / acclaimed-but-unpopular / changed-the-industry.
     // Creative rooms tilt the odds; nobody escapes the variance.
@@ -539,7 +544,8 @@
       benched: benched.map(m => m.id),
       execLine: execDebutLine(band.key, centerOvershadowed, state),
       publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut, crowd, benched, fatigueAvg, natPeak)
-        .concat(memRead.notes),
+        .concat(memRead.notes)
+        .concat(hiaRead.note ? [hiaRead.note] : []),
       mash, fusionOutcome,
     };
     g.results.narrativeNotes = narrativeNotes;   // sim forwards these to the inbox
