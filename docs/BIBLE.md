@@ -1872,9 +1872,16 @@ against the standing clause (arrive, claim, mark):
    anniversary spikes, the four-year-old B-side reverse-charting.
    Every release ever shipped becomes a lottery ticket that never
    expires. Before the gravity on purpose.
-3. **The practice room years** (§55.9). Evaluation days with
-   visible rankings, debut-team speculation the trainees feel,
-   the quitter, and the aging-out clock with all three endings.
+3. **The practice room years + the regional schools** (§55.9 +
+   §55.14). The trainee pipeline deepened at both ends: where they
+   come from — persistent named academies in the home circuit's
+   cities, with specialty lanes, alumni ledgers, reputations that
+   move with their graduates, and audition classes submitted to
+   every company's casting call — and how they live and leave:
+   evaluation days with visible rankings, debut-team speculation
+   the trainees feel, the quitter, and the aging-out clock with
+   all three endings. Scouting trips and school partnerships give
+   the board its geography.
 4. **The title fight** (contested release loop). The pitch meeting
    gets politics: the producer's push, the exec's known taste,
    the member's demo against the professionals'; repackages
@@ -2855,6 +2862,27 @@ with cash and a group or debut it fresh, and it runs
 semi-autonomously with prestige and profit flowing up (and its
 failures reflecting on the house). The founding machinery run in
 reverse: you stay, the label spawns. Phase C finale material.
+
+### The fourth sitting
+
+**14. The regional schools** (*"the industry in real life has worked
+to decentralize and find talent outside of Seoul, and we should
+too. they will be persistent and tracked, and when you or another
+company begins casting for a new group, these schools would
+naturally provide some of the auditions"*) → merges into THE
+PRACTICE ROOM YEARS — the same pipeline, deepened at its other
+end. Named persistent academies in the KR_CITIES the home circuit
+already knows (the Busan vocal academy, the Daegu dance school),
+each with a specialty lane, an alumni ledger, and a REPUTATION
+that moves with its graduates' careers — the school whose alumna
+becomes an it-girl gets hot, and the trades say so. When casting
+opens — your project, or a rival's next debut (rivalScoutingWeek)
+— the schools submit auditioners: prospects arrive carrying their
+school on the file, and companies compete over the same pipelines.
+Player verbs: the scouting trip (a visit buys sharper reads on a
+school's current class) and the partnership (a retainer for first
+look at their best). The far door — founding your OWN academy —
+is noted for the imprint's era, not this one.
 
 ### The pitched eight — all ruled in
 
@@ -4421,3 +4449,15 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > feature. Numbers: battery 56/56 (suite 056, 31 assertions),
 > soak clean (110 bands, five new bands alive first try), e2e 91,
 > lockstep 0.9.14 (52 modules). Rode to main. Slot 1 of fourteen.
+\n
+> **The fourth sitting** (owner: *"regional training schools...
+> persistent and tracked, and when you or another company begins
+> casting for a new group, these schools would naturally provide
+> some of the auditions"*) — folded into slot 3, the practice room
+> years: the same pipeline deepened at its other end. Named
+> academies in the home circuit's cities with specialty lanes,
+> alumni ledgers, and reputations that move with their graduates;
+> audition classes submitted to every casting call, yours and the
+> rivals'; scouting trips and partnerships as the player verbs.
+> Founding your own academy noted for the imprint's era. Docs
+> only; no build.
