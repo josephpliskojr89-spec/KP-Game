@@ -1885,10 +1885,12 @@ against the standing clause (arrive, claim, mark):
    clamor (solo-in-group / the hold / the spin-out) — and the
    slump, the downward arc with its own middle register. Group
    identity arcs (festival icons, variety group, OST factory).
-6. **The bad blood + the fansite masters** (§55.3 + named fans).
-   Rivalries with teeth at three tiers, and the gasoline gets
-   faces: the big accounts with funding power, closeness, and
-   turn risk. Conflict finally costs.
+6. **The bad blood + the fansite masters** (§55.3 + named fans +
+   §55.13 professional rivalries). Rivalries with teeth at three
+   tiers, formed from SOURCES beyond the shared week — debut
+   class, concept, position, the award stolen twice — and the
+   gasoline gets faces: the big accounts with funding power,
+   closeness, and turn risk. Conflict finally costs.
 7. **Festival season + award night** (§55.4 + the attended
    ceremony). The calendar's events become scenes: festival
    invitations with schedule surgery and travel bills, headline
@@ -1897,11 +1899,13 @@ against the standing clause (arrive, claim, mark):
 8. **The service** (§55.7). Military enlistment — the boy-group
    story completed: windows and deadlines, stagger vs together,
    paused contract clocks, the wait, the discharge return stage.
-9. **The rise and fall + the offer** (§55.10 + being poached).
-   Rival eras made legible, the annual power ranking, the
-   overtake, collapse fallout as a free-agent signing class — and
-   the imperial rival's boldest move: the job offer, the
-   founding's mirror played against you.
+9. **The rise and fall + the offer + the generations** (§55.10 +
+   being poached + §55.12). Rival eras made legible, the annual
+   power ranking, the overtake, collapse fallout as a free-agent
+   signing class, the imperial rival's job offer — and the scene's
+   own memory: NAMED GENERATIONS declared when the wave turns,
+   every act stamped, gen-vs-gen discourse, and the torch-pass
+   narrative the week a rookie outsells the old guard.
 10. **The deep map + the tongue** (§55.5). Region verbs gated and
     colored by language; the fluent member becomes the voice
     abroad; interpreters for hire.
@@ -2890,6 +2894,34 @@ they fit neatly."* Each found its home by shared machinery:
   the fandom's spectrum — written under the full content law
   (never at bodies, the snark aimed at institutions, the people
   written with care).
+
+### The third sitting (two more, folded on arrival)
+
+**12. Named generations** (*"we need a way to name generations,
+because we will naturally create them with how much we're
+expanding on rivalries"*) → merges into THE RISE AND FALL. The
+scene gets a memory of its own eras: generation boundaries
+declared by the world when the wave turns (a cluster of landmark
+debuts, a genre shift, a dominant act dethroned), every act
+stamped with its generation, the trades writing "4th gen" as
+naturally as they write a group's name. Generational discourse
+(gen-vs-gen comparisons, "the gen-2 sound is back" — which feeds
+the catalog's resurfacings), and the TORCH-PASS narrative: the
+week a rookie outsells the old guard's flagship, a generation
+turns, and everyone knows it.
+
+**13. Professional rivalries** (*"groups should have professional
+rivalries as well beyond just when they've gone head to head"*) →
+merges into THE BAD BLOOD. Rivalry formation gets SOURCES beyond
+the shared calendar week: the debut-class rivalry (same cohort,
+measured against each other at every award season — §46's
+debutClass finally weaponized), the concept rivalry (two elegant
+groups the coverage cannot mention separately), the position
+rivalry (both chasing the same seat — #1 girl group of the gen),
+and the award rivalry (beaten to the daesang twice by the same
+name). Each source has its own formation logic, flavor, and
+fandom temperature — the calendar collision becomes just one road
+into a rivalry, not the only one.
 
 ## §18 Watch items
 
@@ -4309,4 +4341,15 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > loop stands alone as THE TITLE FIGHT (slot 4) and dating &
 > Dispatch stands alone as THE SECRET (slot 11, late on purpose).
 > §39 final order: fourteen releases, nothing parked. Docs only;
+> no build.
+\n
+> **The third sitting** (owner: *"we need a way to name
+> generations... and groups should have professional rivalries as
+> well beyond just when they've gone head to head"*) — two more,
+> folded on arrival: named generations into the rise and fall
+> (the scene's own memory — boundaries declared when the wave
+> turns, every act stamped, the torch-pass narrative) and
+> professional rivalries into the bad blood (formation sources
+> beyond the calendar: debut class, concept, position, the award
+> stolen twice). The fourteen-release count holds. Docs only;
 > no build.
