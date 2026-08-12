@@ -672,6 +672,15 @@
         applied.push(m.v);
       }
     });
+    // 0.9.9.1 self-heal (no version gate — four-part builds skip the
+    // migration chain): saves founded on 0.9.9 lack the letterhead
+    if (state.founded && state.company && !state.company.blurb) {
+      state.company.blurb = 'Founded by the architect of ' + state.founded.from +
+        '’s era. No catalog, no debuts, one reputation — and the whole industry watching on purpose.';
+      if ((state.company.short || '').length > 9) {
+        state.company.short = state.company.name.split(' ')[0].slice(0, 9);
+      }
+    }
     // forward-only stamp
     if (KP.versionLt(state.version, KP.C.VERSION)) state.version = KP.C.VERSION;
     return applied;
