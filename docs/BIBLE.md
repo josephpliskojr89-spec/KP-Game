@@ -1855,50 +1855,53 @@ suggestions. fold them into the remaining Phase C plan"*) — the
 because all three answer the standing "the game in general feels
 easy" report, and the audit's measurements are fresh:
 
-Re-sequenced again after the §55 depth mandate (owner: *"the game
-is extremely wide but it lacks depth when it comes to career
-narratives"*) — the depth releases interleave with the approved
-audit items, and two pairs merge where they share a system:
+Re-sequenced a third time after the full §55 consult (the depth
+mandate, the second sitting, and the agreed trainee pass). The
+unified order — every release measured against the standing
+clause (arrive, claim, mark):
 
-- **Next — The price of fame** (audit B1 + §55.1, one release —
-  both are "success has a bill"). Stature-scaled production costs:
-  a pop-80 act's comeback bills like a pop-80 act's comeback,
-  self-balancing by construction, replacing the payroll stopgap as
-  the primary sink. AND the sponsor's invoice: deals carry duties —
-  sponsored appearances that claim calendar weeks, missed
-  obligations that strain toward clawback, and the mid-contract
-  solo request scene (let her shine alone, or say no and be known
-  to have said it). Measured target: late-career budget plateaus;
-  fiscal pressure alive at every stage. New bands: budget
-  trajectory, sponsor obligations kept/missed, solo requests.
-- **Then — The gravity** (§55.2). The transcendence read, the
-  clamor from every existing voice (trades, split fandom, the
-  Monday meeting, the sponsor, her own knock), and the three
-  player paths: in-group solo debut, the hold with its resentment
-  clock, the spin-out. Plus group identity arcs: festival icons /
-  the variety group / the OST factory minted from repeated
-  behavior, changing how the world calls.
-- **Then — The bad blood** (§55.3). Rivalries with teeth at three
-  tiers — in-group (stage costs, credit disputes, the discourse
-  that notices cold), in-company (calendar cannibalization, fandom
-  civil war), in-scene (the feud system gets the fan-war
-  amplifier). Conflict finally COSTS.
-- **Then — Festival season** (§55.4). Named annual festivals that
-  REACH OUT: invitation scenes, schedule surgery, travel bills,
-  slot deadlines, headline calls for the icons. The §46 pass
-  becomes the circuit the identity arcs feed on.
-- **Then — The deep map + the tongue** (§55.5, one release).
-  Region verbs (targeted promotion, localized releases, the
-  overseas fan meeting) gated and colored by language: per-person
-  aptitude, training, media obligations abroad that flop without a
-  speaker, the fluent member becoming the voice of the group
-  overseas, interpreters for hire.
-- **Then — Time takes its share** (audit A4 + B4). Senescence
-  (growth damps past ~28, craft compensates) + trust drift
-  (expectations scale with stature). The anti-saturation clocks.
-- **Then — The wardrobe department** (§22 v0.6.12, deferred at
-  v0.9.7). Named choreographers/stylists with reputations, artist
-  chemistry, and poaching.
+1. **The price of fame** (audit B1 + §55.1). Stature-scaled
+   production costs (self-balancing sink, payroll demoted to
+   retainer) + the sponsor's invoice: duties that claim calendar
+   weeks, strain toward clawback, and the mid-contract solo
+   request scene. Bands: budget trajectory, obligations
+   kept/missed, solo requests.
+2. **The clip** (§55.8). Virality rewired to named stages — shows,
+   encores, festivals, tours, gayo — with provenance carried in
+   the story forever; the random weekly roll demoted to the rare
+   resurfaced old clip. Ships before the gravity on purpose.
+3. **The practice room years** (§55.9). Evaluation days with
+   visible rankings, debut-team speculation the trainees feel,
+   the quitter, and the aging-out clock with all three endings.
+4. **The gravity** (§55.2). The transcendence read and the clamor
+   from every existing voice; solo-in-group / the hold with its
+   resentment clock / the spin-out. Group identity arcs (festival
+   icons, the variety group, the OST factory).
+5. **The bad blood** (§55.3). Rivalries with teeth at three tiers;
+   the fandoms throw the gasoline. Conflict finally costs.
+6. **Festival season** (§55.4). Named annual festivals that reach
+   out: invitation scenes, schedule surgery, travel bills,
+   headline calls for the icons.
+7. **The service** (§55.7). Military enlistment — the boy-group
+   story completed: windows and deadlines, stagger vs together,
+   paused contract clocks, the wait, the discharge return stage.
+8. **The rise and fall** (§55.10). Rival eras made legible, the
+   annual power ranking, the overtake — and collapse as an event
+   whose fallout is a new signing class of free-agent idols.
+9. **The deep map + the tongue** (§55.5). Region verbs gated and
+   colored by language; the fluent member becomes the voice
+   abroad; interpreters for hire.
+10. **Time takes its share** (audit A4 + B4). Senescence + trust
+    drift — the anti-saturation clocks. (If executive succession
+    is ruled in from the pitched list, it lands here as the
+    third clock.)
+11. **The imprint** (§55.11). The associate label — the founding
+    machinery in reverse, the powerhouse's finale verb.
+12. **The wardrobe department** (§22 v0.6.12). Named
+    choreographers/stylists, chemistry, poaching.
+
+The pitched-unruled list (§55) stands ready to slot in wherever
+the owner rules; 1.0 is declared, never counted to.
 
 ### The debt rider (any release, when touched)
 
@@ -2772,6 +2775,76 @@ five: an event the game already narrates should instead ARRIVE
 morale, a relationship), and LEAVE a mark (a narrative, a ledger
 entry the world reads back). Every future depth release measures
 itself against that sentence.
+
+### The second sitting (owner's five + the agreed trainee pass)
+
+Owner: *"since we're deep into the planning phase, let's keep
+doing this."* Five more, each with the mechanism sketch:
+
+**7. The service** (*"boy bands are missing one massive part of
+their stories: military enlistment"*). Every male idol carries an
+enlistment window with a hard deadline age; postponement runs out.
+The decision is the industry's classic: STAGGER (the group works
+short-handed, sub-units carry eras, the map of who-is-away-when
+becomes the calendar's spine) or TOGETHER (the full ~two-year
+chapter — the hiatus system's biggest customer). The contract
+clock pauses in service; the fandom starts the wait ("see you in
+2027"); the DISCHARGE RETURN STAGE is the event the whole system
+builds toward — anticipation mechanics already exist (§53).
+
+**8. The clip** (*"I'd like to see fancams and viral reactions
+come as a result of actual stages... right now they just kind of
+happen with no rhyme or reason"*). A rewiring pass, not a feature:
+viral moments spawn FROM named stages — a show appearance, an
+encore, a festival slot, a tour stop, a gayo stage — and the story
+carries its provenance forever ("the Countdown fancam"). The
+weekly dice roll is demoted to the rare "an old clip resurfaced"
+(which is the catalog stirring — see the pitched list). Ships
+BEFORE the gravity so transcendence reads sourced virality.
+
+**9. The practice room years** (the agreed trainee pass — *"trainees
+in general were where a lot of my thoughts were, and I think we're
+on the same page"*). Monthly evaluation days with rankings the
+trainees can see and feel; debut-team speculation once a project
+opens (they know, and the game finally uses that they know); the
+trainee who QUITS on you; and the aging-out clock — the six-year
+trainee watching younger kids debut past her is a story the game
+must be able to tell, and end, in every direction (her leaving,
+your releasing, the last-chance debut).
+
+**10. The rise and fall** (*"rival labels don't ever seem to do
+anything but exist below me... I'd like to be able to see them
+fold if they're not successful just like they can reach the top"*).
+The lifecycle exists but is invisible and consequence-free. The
+pass: rivals get LEGIBLE ERAS (rising / imperial / fading, worn on
+their cards and in the trades' annual power ranking); a rising
+rival genuinely overtakes (the flagship physics get a company-level
+tier); and a COLLAPSE is an event with fallout — the roster hits
+the open market as a new signing class: free-agent idols with
+careers, fandoms, and opinions about your company.
+
+**11. The imprint** (*"I'd like to see an option to form an
+associate label for the big powerhouse we create"*). The late-game
+verb: a subsidiary label with its own letterhead — install a head
+(trusted staff, or a graduated idol turned executive), seed it
+with cash and a group or debut it fresh, and it runs
+semi-autonomously with prestige and profit flowing up (and its
+failures reflecting on the house). The founding machinery run in
+reverse: you stay, the label spawns. Phase C finale material.
+
+### Pitched, awaiting the owner's ruling
+
+From the same consult, unruled and parked (not on the map): the
+contested release loop (title-track politics, repackages, the MV
+as an object); the catalog alive (reverse chart runs, anniversary
+spikes — pairs with §55.8's resurfaced clips); executive
+succession + the founder's own board (the strongest candidate
+answer to trust saturation); fansite masters (the fandom's named
+individuals, with funding power and turn risk); being poached
+yourself (the rival job offer — the founding's mirror); award
+night as an attended scene; idol slumps (multi-week confidence
+arcs); dating & Dispatch (the industry's biggest untold story —
+flagged with full content-law care, entirely the owner's call).
 
 ## §18 Watch items
 
@@ -4159,3 +4232,21 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > gravity and the bad blood and festival season slot next, the
 > tongue merges into the deep map, the audit clocks and the
 > wardrobe close the phase. Docs only; no build.
+\n
+> **The second sitting** (owner: *"let's keep doing this rather
+> than make any changes to the game... I've played a lot of this
+> game and I have some ideas"*) — the consult continued both ways.
+> Owner's five, canonized into §55 and the map: the service
+> (military enlistment — stagger vs together, paused clocks, the
+> discharge return stage), the clip (virality rewired to named
+> stages, provenance forever), the rise and fall (rival eras made
+> legible, collapse fallout = free-agent idols), the imprint (the
+> associate label — founding machinery in reverse), and the agreed
+> practice-room-years trainee pass (evaluations, the quitter, the
+> aging-out clock). My pitched-unruled list parked in §55: the
+> contested release loop, the catalog alive, executive succession
+> + the founder's board, fansite masters, being poached yourself,
+> award night attended, idol slumps, and dating & Dispatch (named
+> honestly, flagged for content-law care, entirely the owner's
+> call). §39 unified into a twelve-release order, the clip
+> deliberately ahead of the gravity. Docs only; no build.
