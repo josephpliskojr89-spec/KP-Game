@@ -79,6 +79,13 @@ function maturedCareer(seed) {
   t.ok(KP.feedReactionFor('founding'), 'and the timeline answers through the registry');
   t.eq(KP.validateState(state).length, 0, 'the whole transformation validates');
   t.ok(!KP.foundLabel(state, 'TWICE').ok, 'you only get to walk through this door once');
+  // 0.9.9.1: the letterhead is yours, not HCG's hand-me-down
+  t.ok(state.company.short.length <= 9 && state.company.short === 'HOMEWARD',
+    'the topbar chip fits (' + state.company.short + ')');
+  t.ok(/architect of/.test(state.company.blurb), 'the company card tells YOUR story now');
+  KP.recordEvidence(state, 'fancamStar', 'idol', memberIds[0]);
+  t.ok(!KP.playerNarratives(state).some(n => String(n.subjectId) === String(memberIds[0])),
+    'idols who crossed the wall take their stories with them');
 }
 
 // ---- the war: the world keeps running, the old house fights back ----

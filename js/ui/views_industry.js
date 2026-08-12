@@ -76,7 +76,7 @@
     html.push('<div class="card rival-card">' +
       '<div class="rv-name">' + UI.esc(state.company.name) + '</div>' +
       '<div class="rv-phil">' + repHeadline(state.company.reputation) + '</div>' +
-      '<div class="rv-blurb">' + UI.esc(KP.DATA.playerCompany.reputationLine) + '</div>' +
+      '<div class="rv-blurb">' + UI.esc(state.company.blurb || KP.DATA.playerCompany.reputationLine) + '</div>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">' + repChips(state.company.reputation) + '</div>' +
       '</div>');
 

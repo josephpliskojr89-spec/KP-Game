@@ -60,6 +60,10 @@
     const wl = KP.weekLabel(s.week);
     document.getElementById('tb-week').textContent = wl.text;
     document.getElementById('tb-budget').textContent = '₩ ' + s.budget;
+    // the letterhead is state, not markup (0.9.9.1 — the founding
+    // revealed the topbar chip was hardcoded HCG since v0.1.0)
+    const tbCo = document.querySelector('.tb-company');
+    if (tbCo) tbCo.textContent = s.company.short;
     // Back restores where you were; forward navigation starts at the top
     if (App._restore) {
       const f = App._restore;

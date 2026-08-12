@@ -139,7 +139,10 @@
 
     // ---- the fresh start -------------------------------------------------
     state.founded = { week: state.week, from: oldCo.short, warChest: h.warChest };
-    state.company = { name, short: name,
+    // the letterhead: a chip-sized short and a story that is YOURS —
+    // the old house keeps its own origin line (0.9.9.1)
+    state.company = { name, short: name.split(' ')[0].slice(0, 9),
+      blurb: 'Founded by the architect of ' + oldCo.short + '’s era. No catalog, no debuts, one reputation — and the whole industry watching on purpose.',
       reputation: { vocal: 40, girlGroup: 30, starMaker: 35, performance: 40 } };
     const execIdx = Math.floor(KP.hash01([state.seed, 'founder-exec', state.week].join('|')) *
       KP.DATA.executives.length);

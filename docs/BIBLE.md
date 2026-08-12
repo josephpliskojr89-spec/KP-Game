@@ -3610,3 +3610,18 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > story. Numbers: battery 51/51 (suite 051, 32 assertions — the
 > whole second act ridden 80 weeks + a new debut), soak clean, e2e
 > 90, lockstep 0.9.9 (50 modules). Rode to main. Phase C is open.
+\n
+> **build 0.9.9.1 — the letterhead is yours** (owner, first founding
+> in the wild: *"everything in the screenshot just carried over...
+> I can't just take the description from HCG at the start of the
+> game lol"*; four-part build)
+> Three carry-overs caught: the scene card's company blurb was
+> hardcoded to HCG's origin line (now `state.company.blurb`, set at
+> founding to the architect's story, DATA fallback for old saves);
+> the topbar chip was literally the string "HCG" in the markup since
+> v0.1.0 (now rendered from `state.company.short`, and the founding
+> derives a chip-sized short from the typed name); and "the
+> conversation" still showed narratives about idols who crossed the
+> wall (playerNarratives now excludes rival-status idols — they take
+> their stories with them). Battery 51/51 (suite 051 now 35), soak
+> clean, e2e 90, lockstep 0.9.9.1. Rode to main.

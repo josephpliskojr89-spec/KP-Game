@@ -33,10 +33,14 @@
     return mem(state).filter(n => n.strength >= KP.C.MEMORY.minShowStrength)
       .sort((a, b) => b.strength - a.strength);
   };
-  // the conversation about US — rival stories live under their own cards
+  // the conversation about US — rival stories live under their own cards.
+  // 0.9.9.1: after the founding, idols who crossed the wall take their
+  // stories with them — a rival-status idol's narrative is not ours.
   KP.playerNarratives = function (state) {
     return KP.liveNarratives(state)
-      .filter(n => n.subjectType !== 'rivalCompany' && n.subjectType !== 'rivalAct');
+      .filter(n => n.subjectType !== 'rivalCompany' && n.subjectType !== 'rivalAct')
+      .filter(n => !(n.subjectType === 'idol' &&
+        (state.people[n.subjectId] || {}).status === 'rival'));
   };
 
   // The words are rendered live so stage names and renames stay current.
