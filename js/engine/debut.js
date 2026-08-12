@@ -123,6 +123,16 @@
       warning = (warning ? warning + ' And ' : 'The staff flag the schedule: ') +
         'the members are still worn from the last cycle. This one will cost them more than it should.';
     }
+    // a member with a second job (v0.9.11) means two calendars now claim
+    // the same weeks — the staff say so at the lock, not after
+    const moonlighter = KP.activeGigs ? members.find(m => KP.gigOf(state, m.id) &&
+      KP.gigOf(state, m.id).kind !== 'ost') : null;
+    if (moonlighter) {
+      const gig = KP.gigOf(state, moonlighter.id);
+      warning = (warning ? warning + ' And ' : 'The staff flag the schedule: ') +
+        KP.fillPro(KP.displayName(moonlighter) + ' still tapes ' + gig.show +
+          ' every week — this cycle will stretch {her}, and productions notice stretched.', moonlighter);
+    }
     return warning ? { ok: true, warning } : { ok: true };
   };
 

@@ -294,6 +294,22 @@
         App.render();
         break;
       }
+      case 'gig-accept': case 'gig-decline': {
+        const r = KP.respondGig(s, t.dataset.id, act === 'gig-accept');
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast(r.note.slice(0, 120));
+        App.render();
+        break;
+      }
+      case 'gig-quit': {
+        const r = KP.quitGig(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast(r.note.slice(0, 120));
+        App.render();
+        break;
+      }
       case 'tour-scale': App.tourDraft.scale = t.dataset.scale; App.render(); break;
       case 'tour-pacing': App.tourDraft.pacing = t.dataset.pacing; App.render(); break;
       case 'tour-setlist': App.tourDraft.setlist = t.dataset.setlist; App.render(); break;

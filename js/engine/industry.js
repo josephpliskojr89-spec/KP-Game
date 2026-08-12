@@ -998,6 +998,9 @@
           dateSniper: coName() + ' has officially made a HOBBY of dropping releases on other people’s dates. the audacity is almost impressive. almost',
           rivalry: 'the ' + actName() + ' rivalry is canon now. every shared release week is a pay-per-view event and I have never been happier',
           showDarling: groupName() + ' winning the same show AGAIN. the stagehands know their coffee orders at this point. dynasty behavior',
+          varietyMonster: idolName() + ' on variety is appointment television now. the group is great but the PANEL CLIPS are how I got here, honestly',
+          nationalMC: idolName() + ' opening the broadcast every week like it’s nothing. mic control is a talent and the general public has noticed',
+          ostVoice: 'heard the OST in a café, in a cab, and in my own head at 2am. ' + idolName() + '’s voice has achieved public-infrastructure status',
           regionStronghold: groupName() + ' really has a whole second home market now. the fan-sub accounts post before the company does. globalization won',
           conceptIdentity: groupName() + ' hearing one synth note and knowing EXACTLY what era it is… consistency is a superpower and they have it',
         };

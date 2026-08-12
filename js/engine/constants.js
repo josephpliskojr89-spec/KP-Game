@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.10',
+    VERSION: '0.9.11',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -759,6 +759,44 @@
       CATEGORIES: ['cosmetics', 'fashion house', 'soft drink', 'tech', 'jewelry', 'sportswear'],
       BRANDS: ['Léore', 'Maison Vue', 'Bombora', 'Nexel', 'Clair de Terre', 'Volt Athletics',
         'Aurum Beauty', 'Peau', 'Fizzi', 'Hyperion Mobile', 'Lumière Seoul', 'Stride'],
+    },
+
+    // ---- The second job (v0.9.11): individual careers -------------------
+    // Productions call for the idols whose SECONDARY strengths the market
+    // wants: a panel seat for the funny one, an MC mic for the poised one,
+    // an OST for the voice. The gig pays the person, not the group — and
+    // it collides with the group calendar, which is the whole system.
+    GIGS: {
+      offerBaseChance: 0.09,     // weekly, when anyone qualifies
+      naturalBonus: 0.06,        // a variety natural in the building attracts calls
+      expiresWeeks: 3,           // productions do not wait either
+      maxActive: 2,              // company-wide; the schedule is finite
+      // eligibility: the market reads the derived stats, not the résumé
+      panelSkillMin: 60,         // varietySkill — the funny one
+      mcPoiseMin: 62,            // stagePresence — the poised one
+      mcPopMin: 50,              // MC seats go to names the public knows
+      ostVocalsMin: 70,          // the voice
+      minSocial: 15000,          // productions want SOME reach
+      // the runs
+      panelWeeks: [10, 16], panelWeekly: [2, 4],
+      mcWeeks: [16, 24], mcWeekly: [4, 6],
+      ostWeeks: 3, ostLump: [18, 32],       // recording, then the drop
+      gigFatigue: 2,             // a second job is a second job
+      clashFatigue: 3,           // ...and busy group weeks stack on top of it
+      clashMissChance: 0.25,     // per busy week: the van does not make the taping
+      strainRecastAt: 3,         // missed tapings before the production recasts
+      recastMorale: 6,           // being quietly replaced stings
+      quitMorale: 4,             // being pulled out by the company also stings
+      followerDrip: 900,         // every other week on air, hash-jittered
+      mediaExpEvery: 2,          // weeks per +1 mediaExp — the loop feeds varietySkill
+      completePop: 1,            // the group feels the individual shine
+      ostHitAt: 74,              // reception that makes the OST "everywhere"
+      varietyMonsterAt: 2,       // completed panel arcs before the narrative
+      ostVoiceAt: 2,             // OST drops before the narrative
+      SHOWS: ['Weekly Antenna', 'Midnight Common Room', 'The Grocery Run', 'Panic Quiz Club',
+        'Off-Duty', 'The Long Lunch', 'Homework Hotel'],
+      DRAMAS: ['Paper Moon District', 'The Winter Clinic', 'Four Families', 'Signal Garden',
+        'Dusk Patrol', 'My Landlord the Ghost'],
     },
     AWARDS: {
       nominationWeek: 44,       // of the 48-week year

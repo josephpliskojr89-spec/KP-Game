@@ -106,8 +106,11 @@
       if ((e.peakPos || 99) > 5) return;
       list.push({ name: e.act, company: 'the open market', isPlayer: false,
         // 140 base (v0.9.10): careers now START with an established
-        // act, so the bar the giants set rises with them
-        score: 140 - ((e.peakPos || 1) - 1) * 6 +
+        // act, so the bar the giants set rises with them. 145 (v0.9.11):
+        // the second job inflates player popularity a few points per
+        // career — the giants panel and sing OSTs too, and the daesang
+        // stays designed-scarce (owner: "the game in general feels easy")
+        score: 145 - ((e.peakPos || 1) - 1) * 6 +
           Math.min(30, e.weeksOn || 0) * 0.5 + jitter(e.act) });
     });
     return list.sort((x, y) => y.score - x.score);

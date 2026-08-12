@@ -76,6 +76,9 @@
       case 'fancamStar': return idol() + ' is the fancam one. Everyone knows a clip.';
       case 'oneToWatch': return 'The internet keeps finding ' + idol() + ' before the debut does.';
       case 'itGirl': return KP.fillPro(idol() + ' is becoming an it-{girl}.', state.people[n.subjectId]);
+      case 'varietyMonster': return idol() + ' is a variety monster. Producers keep a chair warm.';
+      case 'nationalMC': return idol() + ' held the MC mic for a full run. The public trusts that face.';
+      case 'ostVoice': return idol() + ' is the OST voice now. Dramas call before the charts do.';
       case 'dateSniper': {
         const r = (state.rivals || []).find(x => x.short === n.subjectId);
         const count = (r && r.ambushCount) || n.evidence + 1;
@@ -175,13 +178,16 @@
       case 'patientHouse': return rivalCo() + '’s reputation crystallized: sign young, wait years, rarely miss. The patient ones are the dangerous ones.';
       case 'dateSniper': return 'Twice now ' + rivalCo() + ' has parked a release on one of our announced dates. Nobody in this building believes in coincidence anymore. The staff have started calling them what they are.';
       case 'rivalry': return 'The internet has made it official: ' + rivalAct() + ' versus us is a RIVALRY now — capital letters, compilation videos, the works. Every shared release week from here is a scoreboard.';
-      case 'showDarling': return 'Three trophies from the same stage and the coverage found its line: ' + KP.showLabel((n.meta && n.meta.show) || 'countdown') + ' belongs to ' + group() + ' now. Champions get measured harder — enjoy it anyway.';
+      case 'showDarling': return 'Trophy after trophy from the same stage and the coverage found its line: ' + KP.showLabel((n.meta && n.meta.show) || 'countdown') + ' belongs to ' + group() + ' now. Champions get measured harder — enjoy it anyway.';
       case 'regionStronghold': return 'The trades noticed what the shipping manifests already knew: ' + group() + ' has a real overseas market now — ' + KP.regionLabel((n.meta && n.meta.region) || 'jp') + ' first among them. The word “tour” has started appearing in meetings uninvited.';
       case 'conceptIdentity': {
         const c = KP.conceptById((n.meta && n.meta.concept) || 'bright');
         return 'It is canon now: ' + group() + ' means ' + (c ? c.label.toLowerCase() : 'that sound') + '. Two eras deep and the public hears the group in the first four bars. An identity is free promotion — until the day you want to change it.';
       }
       case 'brandDarling': return 'Second campaign signed, and the industry noticed: ' + idol() + ' is who the brands call first now. Somewhere, every visual who was told the role “doesn’t monetize” is smiling.';
+      case 'varietyMonster': return KP.fillPro('Second full panel run wrapped, and the industry has its label: ' + idol() + ' is a VARIETY MONSTER. Casting directors keep a chair warm, the clip compilations run twenty minutes, and half the general public knows {her} laugh before they know the group’s title track. That is not a side effect. That is a career.', state.people[n.subjectId]);
+      case 'nationalMC': return KP.fillPro('A full run holding a live broadcast together, and the tone of the coverage changed: ' + idol() + ' is “trusted with the mic” now. The public lets very few faces open their evening. {Hers} is one of them, and every producer in the industry wrote that down.', state.people[n.subjectId]);
+      case 'ostVoice': return KP.fillPro('Second drama, second OST, and the pattern has a name: ' + idol() + ' is the OST voice. Music directors ask for {her} before they finish casting the leads. The group gets {her} stages; the rest of the country gets {pos} voice over their favorite scene. Both are fame. Only one needed the group’s name to happen.', state.people[n.subjectId]);
       case 'genreShift': return 'The history books opened a new entry: ' + group() + ' made ' + ((n.meta && n.meta.mash) || 'a sound nobody had a name for') + ' real, on record, first. Every A&R meeting in the industry now contains the phrase “something like that.” Being copied is the sincerest form of panic.';
       case 'signatureSound': return 'Three records deep with ' + ((n.meta && n.meta.producer) || 'the same producer') + ', and the reviews stopped naming the producer because everyone already knows: ' + group() + ' has a SOUND now — recognizable from the first four bars, imitated within the quarter. A signature is an asset. It is also a cage with excellent acoustics.';
       default: return 'A narrative formed: ' + n.key;

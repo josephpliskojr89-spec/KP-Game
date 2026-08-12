@@ -125,6 +125,8 @@ function makeStrained(state, p) {
   p.social = 400000;                                          // famous — fame 2
   windowFor(state, p);
   const sc = rideToTable(state);
+  p.morale = 55; p.directed = [];   // re-pin: the ride drifts morale — the
+                                    // mechanism under test is the pricing
   const read = KP.renewalRead(state, p);
   t.eq(read.band, 'professional', 'fixture: professional');
   const opts = KP.sceneDef('renewal').options(state, sc);

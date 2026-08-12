@@ -80,6 +80,42 @@
       });
     }
 
+    // the second job (v0.9.11): productions call, the desk answers
+    const gigOffers = KP.openGigOffers(state);
+    if (gigOffers.length) {
+      html.push('<div class="kicker">Casting calls</div>');
+      gigOffers.forEach(o => {
+        const p = state.people[o.personId];
+        const terms = o.kind === 'ost'
+          ? o.lump + ' on delivery, three weeks of recording'
+          : o.weekly + '/week for ' + o.weeks + ' weeks, taping weekly';
+        const seat = o.kind === 'panel' ? 'a fixed panel seat on ' : o.kind === 'mc' ? 'the MC mic at ' : 'the OST for ';
+        html.push('<div class="war-card held"><div class="w-flag">' +
+          (o.kind === 'ost' ? 'OST offer' : o.kind === 'mc' ? 'MC offer' : 'Variety offer') +
+          ' · expires ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '</div>' +
+          '<div class="w-text">' + (p ? UI.esc(KP.displayName(p)) : 'She') + ' is wanted for ' + seat + UI.esc(o.show) +
+          ': ' + terms + '. A second job pays the person — and claims the weeks.</div>' +
+          '<div class="w-actions">' +
+          '<button class="btn primary" data-action="gig-accept" data-id="' + o.id + '">Book it</button>' +
+          '<button class="btn" data-action="gig-decline" data-id="' + o.id + '">Pass</button>' +
+          '</div></div>');
+      });
+    }
+    const activeGigs = KP.activeGigs(state);
+    if (activeGigs.length) {
+      html.push('<div class="kicker">Second jobs running</div>');
+      activeGigs.forEach(gig => {
+        const p = state.people[gig.personId];
+        html.push('<div class="card" style="display:flex;gap:10px;align-items:center">' +
+          '<div style="flex:1;min-width:0"><b>' + (p ? UI.esc(KP.displayName(p)) : '?') + '</b> — ' +
+          UI.esc(KP.gigLabel(gig)) + ' · ' + gig.weeksLeft + 'w left' +
+          (gig.strain ? ' · <span style="color:var(--magenta)">stretched ×' + gig.strain + '</span>' : '') +
+          '</div>' +
+          '<button class="btn small" data-action="gig-quit" data-id="' + gig.id + '">Pull out</button>' +
+          '</div>');
+      });
+    }
+
     // calendar strip
     const up = KP.upcoming(state);
     if (up.length) {

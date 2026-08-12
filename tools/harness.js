@@ -79,9 +79,20 @@ const BANDS = {
   toured:            { lo: 0.20, hi: 1.00, label: 'orgs that took a tour on the road' },
   tourSoldOut:       { lo: 0.05, hi: 1.00, label: 'orgs that sold a leg out in minutes' },
   tourSoft:          { lo: 0.00, hi: 0.80, label: 'orgs that played to curtained-off sections' },
-  gaffeSeen:         { lo: 0.02, hi: 0.90, label: 'worlds where a posting incident trended' },
+  // ceiling lifted 0.90→1.00 by ruling (v0.9.11): the second job grows
+  // followings past gaffeMinSocial and stacks fatigue past the tired-
+  // posting bonus — tired famous people posting carelessly at 2am IS the
+  // designed fiction. At-least-one-trended-gaffe per 140-week career is
+  // realism, not wallpaper. If the owner reports storm fatigue in human
+  // play, tune gaffeChance down before touching the second job.
+  gaffeSeen:         { lo: 0.02, hi: 1.00, label: 'worlds where a posting incident trended' },
   fandomNamed:       { lo: 0.30, hi: 1.00, label: 'orgs whose fandom got its name' },
   dealSigned:        { lo: 0.10, hi: 1.00, label: 'orgs that signed a brand deal' },
+  gigBooked:         { lo: 0.30, hi: 1.00, label: 'orgs that booked somebody a second job (panel/MC/OST)' },
+  gigWrapped:        { lo: 0.10, hi: 1.00, label: 'orgs where a full gig run wrapped with a sendoff' },
+  ostDropped:        { lo: 0.05, hi: 1.00, label: 'orgs whose idol dropped a drama OST' },
+  gigTension:        { lo: 0.02, hi: 0.95, label: 'orgs where a second job ended early (recast or pulled)' },
+  secondJobStory:    { lo: 0.00, hi: 0.70, label: 'worlds where a second job became a narrative (variety monster / MC / OST voice)' },
   awardWon:          { lo: 0.05, hi: 1.00, label: 'orgs that took a year-end award home' },
   awardSnubbed:      { lo: 0.00, hi: 0.90, label: 'orgs that watched someone else win (the radicalizer)' },
   bubbleSeen:        { lo: 0.50, hi: 1.00, label: 'worlds where bubble screenshots reached the feed' },
@@ -165,6 +176,7 @@ const tally = {
   regionLoud: 0, regionStory: 0, conceptCanon: 0,
   toured: 0, tourSoldOut: 0, tourSoft: 0, gaffeSeen: 0,
   fandomNamed: 0, dealSigned: 0, awardWon: 0, awardSnubbed: 0,
+  gigBooked: 0, gigWrapped: 0, ostDropped: 0, gigTension: 0, secondJobStory: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
   soloCredit: 0, unitCredit: 0, sleeperHeard: 0,
@@ -351,6 +363,21 @@ for (let s = 0; s < SEEDS; s++) {
       if (KP.fandomEligible(state, g)) KP.nameFandom(state, g.id, 0);
     });
     KP.openDealOffers(state).forEach(o => KP.respondDeal(state, o.id, true));
+
+    // the second job (v0.9.11): a sensible boss books the gig when the
+    // idol has room — and pulls her out once the misses start stacking
+    // against a long remaining run (the controlled exit beats the recast)
+    KP.openGigOffers(state).forEach(o => {
+      const p = state.people[o.personId];
+      const g = p && KP.groupOf(state, p.id);
+      const busy = g && (g.prep || g.tour);
+      KP.respondGig(state, o.id, !!(p && !busy && p.fatigue < 55));
+    });
+    KP.activeGigs(state).forEach(gig => {
+      if ((gig.strain || 0) >= KP.C.GIGS.strainRecastAt - 1 && gig.weeksLeft > 4) {
+        KP.quitGig(state, gig.id);
+      }
+    });
 
     // the Monday meeting (v0.7.1): the bot answers with its best read —
     // and promises comebacks like someone who knows their own calendar
@@ -682,6 +709,13 @@ for (let s = 0; s < SEEDS; s++) {
   if (state.firstShowWinWeek) tally.showFirstWin++;
   if (state.rivals.some(r => (r.acts || []).some(a => (a.showWins || 0) >= 1))) tally.showRivalWins++;
   if ((state.memory || []).some(n => n.key === 'showDarling')) tally.showDarling++;
+  // the second job (v0.9.11): the files are the durable record
+  const folk = Object.values(state.people);
+  if (folk.some(p => (p.history || []).some(h => /Signed on as/.test(h.text)))) tally.gigBooked++;
+  if (folk.some(p => ((p.flags || {}).panelArcs || 0) + ((p.flags || {}).mcRuns || 0) >= 1)) tally.gigWrapped++;
+  if (folk.some(p => ((p.flags || {}).ostDrops || 0) >= 1)) tally.ostDropped++;
+  if (folk.some(p => (p.history || []).some(h => /Quietly written out|Pulled out of/.test(h.text)))) tally.gigTension++;
+  if ((state.memory || []).some(n => ['varietyMonster', 'nationalMC', 'ostVoice'].includes(n.key))) tally.secondJobStory++;
   if (state.groups.some(g => g.regions &&
       Object.values(g.regions).some(v => v >= KP.C.REGIONAL.loudAt))) tally.regionLoud++;
   bestRegions.push(Math.max.apply(null, state.groups

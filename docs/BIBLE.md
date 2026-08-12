@@ -2467,6 +2467,61 @@ prospects only (veterans are not evidence about the youth pipeline);
 established act in the race); the `showDarling` band flipped from
 ceiling to floor (§18).
 
+## §52 The second job (v0.9.11) — careers entire, item one
+
+§39 Phase C's first line item ("The second job", from §22 v0.6.11):
+secondary strengths become real careers. Productions call for the
+idols the market wants — a fixed panel seat for the funny one, a
+music-show mic for the poised one, a drama OST for the voice — and
+the gig pays the PERSON, not the group. New module gigs.js (51
+total), weekly order 785 (after contracts, before the stage door).
+
+**The call** (`state.gigOffers`, deal-offer pattern): weekly chance
+once anyone qualifies, capped at 2 open engagements company-wide.
+Eligibility reads the DERIVED stats, not the résumé — varietySkill
+≥60 for the panel, stagePresence ≥62 + group pop ≥50 for the MC
+mic, vocals ≥70 for the OST — plus a real following (social ≥15k).
+Named shows and dramas from GIGS pools. Offers expire in 3 weeks;
+the Desk answers ("Casting calls" cards, accept/decline).
+
+**The run**: weekly pay to the budget, fatigue to her body (+2),
+mediaExp every 2 weeks (which feeds varietySkill back — the loop),
+follower drip every other week on air. A wrapped run pays the group
++1 popularity ("individual recognition feeds back"), touches the
+`variety` ambition (her OWN seat, not four promo bookings), and
+counts on the file: `panelArcs`, `mcRuns`, `ostDrops`.
+
+**The clash — the system's heart**: a busy group week (prep, promo,
+or the road) always costs her body (+3 more fatigue). Whether it
+costs the SHOW is a gamble: `clashMissChance` 0.25 per busy week
+that the van does not make the taping. Missed tapings are counted
+out loud ("the production 'understands completely', which is what
+productions say while they count"), and at 3 the production quietly
+recasts — public note, morale −6, no wrap payoffs. The staff flag a
+moonlighting member at comeback lock, and the player holds the
+lever: `KP.quitGig` pulls her out first (morale −4, controlled,
+still no wrap credit). Ride the gamble or cut it short — the
+scheduling tension IS the system.
+
+**The OST**: 3 recording weeks, lump on delivery, reception rolled
+from her voice + the group's reach + week luck. At ≥74 it is
+EVERYWHERE (triple follower spike); either way the drama's audience
+meets her without the group's name.
+
+**The narratives** (memory): `varietyMonster` at 2 wrapped panel
+arcs, `nationalMC` on the first full MC run (the public trusts few
+faces), `ostVoice` at 2 drops. All three render in coverage lines,
+long formation text, and the industry quote-post map.
+
+**Bot policy**: book when she has room (no prep/tour, fatigue <55),
+pull out at strain 2 with >4 weeks left (the controlled exit beats
+the recast). Bands: gigBooked, gigWrapped, ostDropped, gigTension,
+secondJobStory — all alive on the first calibration soak.
+
+**Knock-on rulings**: gaffe band ceiling lifted (the second job
+grows followings and fatigue — see §18); daesang giants 140→145
+(the giants panel and sing OSTs too; scarcity holds).
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2488,6 +2543,18 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   stages. If human play finds the dynasty coverage line stale by
   year two, vary the `showDarling` feed/memory templates before
   touching `darlingAt`.
+- **gaffeSeen ceiling lifted 0.90→1.00 (v0.9.11)** — the second job
+  pushes followings past `gaffeMinSocial` and fatigue past the tired-
+  posting bonus, so ~37/40 careers now see at least one trended
+  posting incident in 140 weeks. One 2am storm per three-year career
+  is realism. If human play reports storm fatigue, tune `gaffeChance`
+  down before touching the second job's payoffs.
+- **Daesang giants at 145 (v0.9.11, was 140)** — gig wraps add a few
+  popularity points per career and the daesang crossed its scarcity
+  band (21/40 vs ≤45%); the giants' bar rose with the players' means
+  (15/40 after). If future systems keep inflating player popularity,
+  consider indexing the giants' base to the era instead of stepping
+  it per release.
 - **Burnout census runs cold** (0/40 orgs with the cautious auto-player;
   band top 45%). The mechanism triggers under sustained heavy load (suite
   003 forces it), but a sensible policy never sees it. Watch whether human
@@ -3705,3 +3772,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > veterans' calendar is open on your first morning. Battery 52/52
 > (suite 052, 32 assertions), soak clean (97 bands), e2e 91,
 > lockstep 0.9.10 (50 modules). Rode to main.
+\n
+> **v0.9.11 — the second job** (owner: *"Phase C approved. let's get
+> started"* — §39 item one, variety careers)
+> Full spec in §52. Productions start calling for the idols the
+> market wants: a fixed panel seat for the funny one (varietySkill),
+> the MC mic for the poised one (stagePresence + a name the public
+> knows), a drama OST for the voice (vocals ≥70). The gig pays the
+> person — weekly money, follower drips, media reps that feed
+> varietySkill back — and collides with the group calendar: busy
+> weeks stack fatigue, the van misses tapings at a coin, and three
+> misses get her quietly recast unless the company pulls her out
+> first. Wrapped runs touch the variety ambition, pay the group a
+> point of popularity, and stack into narratives: variety monster
+> (2 panel arcs), national MC (one full run), the OST voice (2
+> drops). New module gigs.js (51 total), Desk casting-call cards,
+> staff flag moonlighters at comeback lock. Two knock-on rulings:
+> gaffe band ceiling to 1.00 (bigger followings + more fatigue =
+> more 2am incidents, by design), daesang giants 140→145 (scarcity
+> holds against gig-inflated popularity — 21/40 back to 15/40).
+> Battery 53/53 (suite 053, 38 assertions), soak clean (102 bands,
+> all five new bands alive first try), e2e 91, lockstep 0.9.11
+> (51 modules). Rode to main. Phase C: one down, three to go.
