@@ -1913,9 +1913,13 @@ against the standing clause (arrive, claim, mark):
    own memory: NAMED GENERATIONS declared when the wave turns,
    every act stamped, gen-vs-gen discourse, and the torch-pass
    narrative the week a rookie outsells the old guard.
-10. **The deep map + the tongue** (§55.5). Region verbs gated and
-    colored by language; the fluent member becomes the voice
-    abroad; interpreters for hire.
+10. **The deep map + the tongue + the world's auditions** (§55.5 +
+    §55.15). Region verbs gated and colored by language; the
+    fluent member becomes the voice abroad; interpreters for
+    hire — and international scouting: global audition tours,
+    prospects with home regions and native languages on the file,
+    the member whose hometown airport fills when the tour finally
+    comes.
 11. **The secret** (dating & Dispatch). Secrecy, the reveal, the
     response menu, the fandom's spectrum — under the full content
     law, late in the order on purpose so every system it touches
@@ -2883,6 +2887,28 @@ Player verbs: the scouting trip (a visit buys sharper reads on a
 school's current class) and the partnership (a retainer for first
 look at their best). The far door — founding your OWN academy —
 is noted for the imprint's era, not this one.
+
+### The fifth sitting
+
+**15. International scouting** (owner: *"international scouting...
+yea or nay?"* — ruled YEA) → merges into THE DEEP MAP + THE TONGUE
+(slot 10), where its enabling systems live. Global audition tours
+as a scouting verb: fund the Bangkok, Tokyo, or LA auditions —
+costly, higher-fog, higher-ceiling — and international prospects
+arrive with a home region and a native language on the file. An
+international member is a strategy, not a flavor: her home corner
+of the regions map loves her from day one (the §28 hash-truth,
+finally earned), she IS the fluent voice for that market's media
+obligations, and the inversion is real — her DOMESTIC obligations
+need her Korean, which the tongue tracks and trains. The airport
+crowds when the tour reaches her hometown write themselves.
+CONTENT-LAW EXTENSION, ruled at folding: the real discourse around
+international members includes xenophobia, and the game will not
+reproduce it as fan-voice content — home-region pride and the
+bridge she becomes are the feed's register; the ugly half, if
+touched at all, is institutional pressure the player manages,
+never snark the feed performs. Name pools per origin are data
+work, done with care.
 
 ### The pitched eight — all ruled in
 
@@ -4461,3 +4487,15 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > rivals'; scouting trips and partnerships as the player verbs.
 > Founding your own academy noted for the imprint's era. Docs
 > only; no build.
+\n
+> **The fifth sitting** (owner: *"international scouting... yea or
+> nay?"* — ruled YEA) — folded into slot 10, the deep map + the
+> tongue, where its enabling systems live: global audition tours
+> as a costly high-fog high-ceiling scouting verb; international
+> prospects carrying a home region and a native language; the
+> member who IS the voice for her market while her domestic
+> obligations need her Korean (the tongue inverted); the hometown
+> airport when the tour finally comes. Content-law extension ruled
+> at folding: xenophobia is never fan-voice content — home-region
+> pride is the feed's register, and the ugly half, if touched, is
+> institutional pressure the player manages. Docs only; no build.
