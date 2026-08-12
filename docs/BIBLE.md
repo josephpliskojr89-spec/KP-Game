@@ -1855,10 +1855,10 @@ suggestions. fold them into the remaining Phase C plan"*) — the
 because all three answer the standing "the game in general feels
 easy" report, and the audit's measurements are fresh:
 
-Re-sequenced a third time after the full §55 consult (the depth
-mandate, the second sitting, and the agreed trainee pass). The
-unified order — every release measured against the standing
-clause (arrive, claim, mark):
+The FINAL unified order (fourth re-sequencing — the depth mandate,
+the second sitting, and all eight pitched items ruled in and
+merged where the machinery is shared). Every release measured
+against the standing clause (arrive, claim, mark):
 
 1. **The price of fame** (audit B1 + §55.1). Stature-scaled
    production costs (self-balancing sink, payroll demoted to
@@ -1866,42 +1866,62 @@ clause (arrive, claim, mark):
    weeks, strain toward clawback, and the mid-contract solo
    request scene. Bands: budget trajectory, obligations
    kept/missed, solo requests.
-2. **The clip** (§55.8). Virality rewired to named stages — shows,
-   encores, festivals, tours, gayo — with provenance carried in
-   the story forever; the random weekly roll demoted to the rare
-   resurfaced old clip. Ships before the gravity on purpose.
+2. **The clip + the catalog** (§55.8 + catalog-alive). Virality
+   rewired to named stages with provenance carried forever — and
+   the catalog stirring in the other direction: resurfaced clips,
+   anniversary spikes, the four-year-old B-side reverse-charting.
+   Every release ever shipped becomes a lottery ticket that never
+   expires. Before the gravity on purpose.
 3. **The practice room years** (§55.9). Evaluation days with
    visible rankings, debut-team speculation the trainees feel,
    the quitter, and the aging-out clock with all three endings.
-4. **The gravity** (§55.2). The transcendence read and the clamor
-   from every existing voice; solo-in-group / the hold with its
-   resentment clock / the spin-out. Group identity arcs (festival
-   icons, the variety group, the OST factory).
-5. **The bad blood** (§55.3). Rivalries with teeth at three tiers;
-   the fandoms throw the gasoline. Conflict finally costs.
-6. **Festival season** (§55.4). Named annual festivals that reach
-   out: invitation scenes, schedule surgery, travel bills,
-   headline calls for the icons.
-7. **The service** (§55.7). Military enlistment — the boy-group
+4. **The title fight** (contested release loop). The pitch meeting
+   gets politics: the producer's push, the exec's known taste,
+   the member's demo against the professionals'; repackages
+   extend eras; the MV becomes an object with a budget tier. The
+   most-repeated loop in the game, finally contested.
+5. **The gravity, both directions** (§55.2 + slumps). One set of
+   individual-trajectory rails: the transcendence read and its
+   clamor (solo-in-group / the hold / the spin-out) — and the
+   slump, the downward arc with its own middle register. Group
+   identity arcs (festival icons, variety group, OST factory).
+6. **The bad blood + the fansite masters** (§55.3 + named fans).
+   Rivalries with teeth at three tiers, and the gasoline gets
+   faces: the big accounts with funding power, closeness, and
+   turn risk. Conflict finally costs.
+7. **Festival season + award night** (§55.4 + the attended
+   ceremony). The calendar's events become scenes: festival
+   invitations with schedule surgery and travel bills, headline
+   calls for the icons — and the year-end ceremony played out
+   (seating, speeches, the daesang moment), not summarized.
+8. **The service** (§55.7). Military enlistment — the boy-group
    story completed: windows and deadlines, stagger vs together,
    paused contract clocks, the wait, the discharge return stage.
-8. **The rise and fall** (§55.10). Rival eras made legible, the
-   annual power ranking, the overtake — and collapse as an event
-   whose fallout is a new signing class of free-agent idols.
-9. **The deep map + the tongue** (§55.5). Region verbs gated and
-   colored by language; the fluent member becomes the voice
-   abroad; interpreters for hire.
-10. **Time takes its share** (audit A4 + B4). Senescence + trust
-    drift — the anti-saturation clocks. (If executive succession
-    is ruled in from the pitched list, it lands here as the
-    third clock.)
-11. **The imprint** (§55.11). The associate label — the founding
-    machinery in reverse, the powerhouse's finale verb.
-12. **The wardrobe department** (§22 v0.6.12). Named
-    choreographers/stylists, chemistry, poaching.
+9. **The rise and fall + the offer** (§55.10 + being poached).
+   Rival eras made legible, the annual power ranking, the
+   overtake, collapse fallout as a free-agent signing class — and
+   the imperial rival's boldest move: the job offer, the
+   founding's mirror played against you.
+10. **The deep map + the tongue** (§55.5). Region verbs gated and
+    colored by language; the fluent member becomes the voice
+    abroad; interpreters for hire.
+11. **The secret** (dating & Dispatch). Secrecy, the reveal, the
+    response menu, the fandom's spectrum — under the full content
+    law, late in the order on purpose so every system it touches
+    is already deep.
+12. **Time takes its share** (audit A4 + B4 + succession + the
+    board). Senescence, trust drift, executive succession (the
+    ledger reset to "prove it again"), and the founder's own
+    board — every anti-saturation clock in one release.
+13. **The imprint** (§55.11). The associate label — the founding
+    machinery in reverse, the powerhouse's finale verb, staffed
+    if you like by the free agents of #9 and the graduates of
+    your own story.
+14. **The wardrobe department** (§22 v0.6.12). Named
+    choreographers/stylists, chemistry, poaching — the last
+    room in the building gets its names.
 
-The pitched-unruled list (§55) stands ready to slot in wherever
-the owner rules; 1.0 is declared, never counted to.
+Nothing remains parked. 1.0 is declared, never counted to.
 
 ### The debt rider (any release, when touched)
 
@@ -2832,19 +2852,44 @@ semi-autonomously with prestige and profit flowing up (and its
 failures reflecting on the house). The founding machinery run in
 reverse: you stay, the label spawns. Phase C finale material.
 
-### Pitched, awaiting the owner's ruling
+### The pitched eight — all ruled in
 
-From the same consult, unruled and parked (not on the map): the
-contested release loop (title-track politics, repackages, the MV
-as an object); the catalog alive (reverse chart runs, anniversary
-spikes — pairs with §55.8's resurfaced clips); executive
-succession + the founder's own board (the strongest candidate
-answer to trust saturation); fansite masters (the fandom's named
-individuals, with funding power and turn risk); being poached
-yourself (the rival job offer — the founding's mirror); award
-night as an attended scene; idol slumps (multi-week confidence
-arcs); dating & Dispatch (the industry's biggest untold story —
-flagged with full content-law care, entirely the owner's call).
+Owner: *"yeah I want you to fit all of them into the order where
+they fit neatly."* Each found its home by shared machinery:
+
+- **The catalog alive** → merges into THE CLIP (§55.8): a
+  resurfaced old clip IS the catalog stirring — one release owns
+  provenance in both directions, the new fancam and the four-
+  year-old B-side reverse-charting off one.
+- **The contested release loop** → its own release, THE TITLE
+  FIGHT: the pitch meeting gets politics (the producer's push,
+  the exec's known taste, the member's demo on the table against
+  the professionals'), repackages extend eras, the MV becomes an
+  object with a budget tier.
+- **Idol slumps** → merge into THE GRAVITY: the same individual-
+  trajectory rails read both directions — transcendence up, the
+  slump down (the vocalist who loses her nerve for an era). One
+  release builds the arc machinery.
+- **Fansite masters** → merge into THE BAD BLOOD: the fandom
+  warfare gets named faces — the big accounts with funding power,
+  closeness, and turn risk are precisely who throws the gasoline.
+- **Award night attended** → merges into FESTIVAL SEASON: one
+  release makes the calendar's events ATTENDED — invitations,
+  schedule surgery, and the ceremony played out as a scene
+  (seating, speeches, the daesang moment) instead of a note.
+- **Being poached yourself** → merges into THE RISE AND FALL: the
+  imperial-era rival's boldest move is the job offer — the
+  founding's mirror, played against you.
+- **Executive succession + the founder's board** → merge into TIME
+  TAKES ITS SHARE: succession is the strongest answer to trust
+  saturation (a new CEO resets the ledger to "prove it again"),
+  and the founder's own board is the same medicine for the
+  post-founding game.
+- **Dating & Dispatch** → its own release, THE SECRET, late in
+  the order on purpose: secrecy, the reveal, the response menu,
+  the fandom's spectrum — written under the full content law
+  (never at bodies, the snark aimed at institutions, the people
+  written with care).
 
 ## §18 Watch items
 
@@ -4250,3 +4295,18 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > honestly, flagged for content-law care, entirely the owner's
 > call). §39 unified into a twelve-release order, the clip
 > deliberately ahead of the gravity. Docs only; no build.
+\n
+> **All eight ruled in** (owner: *"yeah I want you to fit all of
+> them into the order where they fit neatly"*) — the pitched list
+> merged by shared machinery: catalog-alive into the clip (one
+> release owns provenance both directions), slumps into the
+> gravity (one set of trajectory rails, both directions), fansite
+> masters into the bad blood (the gasoline gets faces), award
+> night into festival season (the calendar attended), the job
+> offer into the rise and fall (the founding's mirror), succession
+> + the founder's board into time takes its share (every
+> anti-saturation clock in one release); the contested release
+> loop stands alone as THE TITLE FIGHT (slot 4) and dating &
+> Dispatch stands alone as THE SECRET (slot 11, late on purpose).
+> §39 final order: fourteen releases, nothing parked. Docs only;
+> no build.
