@@ -35,6 +35,7 @@
       if (a.kind === 'promiseBroken') s -= 3;
       if (a.kind === 'leftWaiting') s -= 1;
       if (a.kind === 'promiseKept') s += 2;
+      if (a.kind === 'heldBack') s -= 2;   // the solo stage you said no to (v0.9.14)
     });
     const g = KP.groupOf(state, p.id);
     if (g && (g.popularity || 0) >= 55) s += 2;   // a warm room is worth staying in

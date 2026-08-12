@@ -33,14 +33,70 @@
     // expire quietly
     state.dealOffers = offers(state).filter(o => o.expiresWeek >= state.week);
 
-    // active deals pay and cost
+    // active deals pay and cost — a declined solo request cools the wire
     KP.activeDeals(state).forEach(d => {
       d.weeksLeft--;
-      state.budget += d.weekly;
+      state.budget += d.cooled ? Math.max(0, d.weekly - D.cooledWeeklyCut) : d.weekly;
       const p = state.people[d.personId];
       if (p && d.weeksLeft % 4 === 0) {
         p.fatigue = KP.clamp(p.fatigue + D.shootFatigue, 0, 100);   // the shoots are real
         KP.socialSpike(state, p, 900, 'brand-' + d.id);
+      }
+      // ---- the invoice (v0.9.14): the sponsored appearance ------------
+      // Sponsorship is a job. Every N weeks the brand books her — the
+      // flagship store event, the campaign stage — and the calendar has
+      // to answer. Tour or a benched face = a miss the brand counts.
+      if (!d.nextObligationWeek) d.nextObligationWeek = d.signedWeek + D.obligationEveryWeeks;
+      if (p && d.weeksLeft > 0 && state.week >= d.nextObligationWeek) {
+        const led = state.sponsorLedger = state.sponsorLedger ||
+          { kept: 0, missed: 0, clawbacks: 0, soloAsked: 0, soloAllowed: 0, soloDeclined: 0 };
+        const g = KP.groupOf(state, p.id);
+        const away = (g && g.tour) || (p.flags.burnout > 0);
+        const busy = g && (g.prep || (g.debuted && state.week <= (g.promoUntil || 0)));
+        if (away) {
+          d.missStreak = (d.missStreak || 0) + 1;
+          d.obligationsMissed = (d.obligationsMissed || 0) + 1;
+          led.missed++;
+          if (d.missStreak >= D.missCancelAt) {
+            d.weeksLeft = 0;
+            const penalty = Math.round(d.lump * D.missClawbackMult);
+            state.budget = Math.max(0, state.budget - penalty);
+            led.clawbacks++;
+            notes.push({ kind: 'company', urgent: true, ind: 'dealCancelled', personId: p.id,
+              text: d.brand + ' terminated ' + KP.displayName(p) + '’s contract for cause — two sponsored appearances missed — and clawed back ' + penalty + '. The termination letter used the phrase “professional courtesy” in a way that contained neither.' });
+          } else {
+            d.nextObligationWeek = state.week + D.missRescheduleWeeks;
+            notes.push({ kind: 'company', priority: 'high', personId: p.id,
+              text: KP.fillPro('The ' + d.brand + ' appearance did not happen — ' + KP.displayName(p) +
+                ' was ' + (p.flags.burnout > 0 ? 'on medical rest' : 'on the road') + ' and the brand’s event ran without {her}. They rebooked it, politely, for a date that was not a question. (' + d.missStreak + ' missed.)', p) });
+          }
+        } else {
+          d.obligationsKept = (d.obligationsKept || 0) + 1;
+          d.missStreak = 0;
+          led.kept++;
+          p.fatigue = KP.clamp(p.fatigue + (busy ? D.squeezeFatigue : D.obligationFatigue), 0, 100);
+          KP.socialSpike(state, p, 700, 'oblig-' + d.id);
+          d.nextObligationWeek = state.week + D.obligationEveryWeeks;
+          notes.push({ kind: 'company', priority: 'flavor', personId: p.id,
+            text: KP.fillPro(KP.displayName(p) + ' worked the ' + d.brand + ' event this week' +
+              (busy ? ' — squeezed between schedules, van to store to stage, and {she} did not let it show on camera.'
+                    : '. Two hours, four hundred photos, one very satisfied brand manager.'), p) });
+        }
+      }
+      // ---- the solo request (v0.9.14): the ask everyone dreads --------
+      if (p && d.weeksLeft > 0 && !d.soloAsked &&
+          state.week - d.signedWeek >= D.soloAskAfterWeeks &&
+          !(state.scenes || []).some(sc => sc.kind === 'sponsorSolo') &&
+          rng.chance(D.soloAskChance)) {
+        d.soloAsked = true;
+        const led = state.sponsorLedger = state.sponsorLedger ||
+          { kept: 0, missed: 0, clawbacks: 0, soloAsked: 0, soloAllowed: 0, soloDeclined: 0 };
+        led.soloAsked++;
+        KP.openScene(state, { kind: 'sponsorSolo', personId: p.id, dealId: d.id,
+          brand: d.brand, expiresWeek: state.week + 3 });
+        notes.push({ kind: 'company', urgent: true, personId: p.id,
+          text: KP.fillPro(d.brand + ' called with the request that is never just a request: they want ' +
+            KP.displayName(p) + ' ALONE for a sponsored solo stage — {her} name, their logo, no group. The answer is on the Desk, and everyone in the building already knows the question was asked.', p) });
       }
       if (p && d.weeksLeft === 0) {
         notes.push({ kind: 'company', text: 'The ' + d.brand + ' contract with ' + KP.displayName(p) +
@@ -84,6 +140,79 @@
     }
     return notes;
   };
+
+  // ---- the solo request scene (v0.9.14) --------------------------------
+  // The brand wants the face ALONE. Allow: money, individual shine, and
+  // envy seeds in the room. Decline: the brand cools, and she knows the
+  // company said no — the renewal table will read that ledger line.
+  KP.registerScene('sponsorSolo', {
+    title: (state, sc) => sc.brand + ' · the solo request',
+    body: (state, sc) => {
+      const p = state.people[sc.personId];
+      return KP.fillPro(sc.brand + ' wants ' + (p ? KP.displayName(p) : 'the face') +
+        ' for a sponsored SOLO stage — no group, just {her} and the logo. The fee is real. So is what the other members will think, and what {she} will think if the answer is no.', p);
+    },
+    options: () => [
+      { id: 'allow', label: 'Let the stage happen' },
+      { id: 'decline', label: 'Decline — the group comes first' },
+    ],
+    resolve: (state, sc, optionId) => {
+      const D = KP.C.DEALS;
+      const p = state.people[sc.personId];
+      const d = (state.deals || []).find(x => x.id === sc.dealId);
+      const led = state.sponsorLedger = state.sponsorLedger ||
+        { kept: 0, missed: 0, clawbacks: 0, soloAsked: 0, soloAllowed: 0, soloDeclined: 0 };
+      if (optionId === 'allow') {
+        led.soloAllowed++;
+        const fee = d ? Math.round(d.lump * D.soloBonusMult) : 0;
+        state.budget += fee;
+        if (p) {
+          KP.socialSpike(state, p, D.soloSpike, 'sponsorsolo');
+          p.hype = (p.hype || 0) + 6;
+          p.morale = KP.clamp(p.morale + 4, 0, 100);
+          p.mediaExp = KP.clamp(p.mediaExp + 2, 0, 100);
+          p.flags.soloShines = (p.flags.soloShines || 0) + 1;
+          p.history.push({ week: state.week, text: 'Performed a sponsored solo stage for ' + sc.brand + '. Alone, and it worked.' });
+          const g = KP.groupOf(state, p.id);
+          if (g) {
+            g.members.forEach(id => {
+              const m = state.people[id];
+              if (m && m.id !== p.id && m.personality.competitiveness >= 65) {
+                m.morale = KP.clamp(m.morale - 2, 0, 100);
+              }
+            });
+          }
+          KP.note(state, { kind: 'public', ind: 'sponsorSolo', priority: 'high', personId: p.id,
+            text: KP.fillPro(KP.displayName(p) + ' took the ' + sc.brand + ' stage ALONE this week — solo arrangement, solo spotlight, ' + fee + ' on the invoice. The clips travelled without the group’s name attached, which everyone noticed, including the group.', p) });
+        }
+        return { toast: 'The stage happens. The fee lands. The room takes notes.' };
+      }
+      led.soloDeclined++;
+      if (d) d.cooled = true;
+      if (p) {
+        p.morale = KP.clamp(p.morale - 3, 0, 100);
+        KP.recordDirected(state, p.id, 'heldBack', -2);
+        p.history.push({ week: state.week, text: KP.fillPro('The company declined ' + sc.brand + '’s solo-stage request on {pos} behalf. Nobody asked {her}.', p) });
+      }
+      return { toast: KP.fillPro('Declined. ' + sc.brand + '’s enthusiasm drops a measurable degree — and ' +
+        (p ? KP.displayName(p) : 'she') + ' heard about the request from the brand manager, not from you. {She} keeps that.', p) };
+    },
+    expire: (state, sc) => {
+      const p = state.people[sc.personId];
+      return { kind: 'company', personId: sc.personId,
+        text: sc.brand + ' withdrew the solo-stage request after a week of silence. Brands read silence fluently. ' +
+          (p ? KP.displayName(p) : 'She') + ' never officially knew — officially.' };
+    },
+  });
+  KP.onFeedEvent('sponsorSolo', (state, n, rng) => {
+    const p = state.people[n.personId];
+    const name = p ? KP.publicGiven(p) : 'her';
+    return rng.pick([
+      { persona: 'fan', text: name + ' SOLO SPONSOR STAGE. the arrangement, the styling, the way the brand knew exactly who to ask. supporting the group means supporting this too. it does. it definitely does' },
+      { persona: 'casual', text: 'saw a solo idol stage at a brand event today and the crowd knew every word. apparently there is a whole group? wild how that works' },
+      { persona: 'stan', text: 'the ' + name + ' solo stage clips are everywhere and the fandom is doing group-photo damage control in the replies. love when a company hands us discourse homework' },
+    ]);
+  });
 
   KP.respondDeal = function (state, offerId, accept) {
     const D = KP.C.DEALS;

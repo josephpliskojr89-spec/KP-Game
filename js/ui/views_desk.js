@@ -80,6 +80,23 @@
       });
     }
 
+    // the invoice (v0.9.14): active sponsorships and their next dates
+    const activeDeals = KP.activeDeals(state);
+    if (activeDeals.length) {
+      html.push('<div class="kicker">Sponsorships running</div>');
+      activeDeals.forEach(d => {
+        const p = state.people[d.personId];
+        const nextIn = Math.max(0, (d.nextObligationWeek || d.signedWeek + KP.C.DEALS.obligationEveryWeeks) - state.week);
+        html.push('<div class="card" style="display:flex;gap:10px;align-items:center">' +
+          '<div style="flex:1;min-width:0"><b>' + (p ? UI.esc(KP.displayName(p)) : '?') + '</b> — ' +
+          UI.esc(d.brand) + ' · ' + d.weeksLeft + 'w left · next appearance ' +
+          (nextIn === 0 ? 'this week' : 'in ' + nextIn + 'w') +
+          ((d.missStreak || 0) > 0 ? ' · <span style="color:var(--magenta)">missed ×' + d.missStreak + '</span>' : '') +
+          (d.cooled ? ' · <span style="color:var(--ink-dim)">cooled</span>' : '') +
+          '</div></div>');
+      });
+    }
+
     // the second job (v0.9.11): productions call, the desk answers
     const gigOffers = KP.openGigOffers(state);
     if (gigOffers.length) {

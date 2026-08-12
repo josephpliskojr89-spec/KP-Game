@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.13',
+    VERSION: '0.9.14',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -93,7 +93,7 @@
       rivalHungerMult: 1.7,       // ...and hungrier still with a debut to cast
       rivalHungerWindow: 16,      // weeks before a planned debut that hunger starts
       newProspectChance: 0.3,     // weekly chance a fresh lead appears
-      prospectAgeOut: 24,         // unsigned past this, the market moves on (0.9.13)
+      prospectAgeOut: 24,         // unsigned past this, the market moves on (0.9.14)
     },
 
     SOURCES: [
@@ -294,6 +294,13 @@
       ],
       promoLevels: ['modest', 'standard', 'aggressive'],
       promoCost: { modest: 10, standard: 22, aggressive: 40 },
+      // the price of fame (v0.9.14): the record and the marketing scale
+      // with the act's stature — a pop-80 act's comeback bills like a
+      // pop-80 act's comeback. Self-balancing: the same popularity that
+      // scales the income scales the invoice. Rollout bookings stay flat
+      // (a radio slot costs what a radio slot costs).
+      statureCostFloor: 50,
+      statureCostPer: 0.012,     // ×1.36 at pop 80, ×1.6 at pop 100
       promoBoost: { modest: -4, standard: 0, aggressive: 6 },
       luckSd: 9,                 // public reaction noise — the market is not a formula
       breakoutNoiseSd: 14,       // who the public actually watches
@@ -756,12 +763,26 @@
       scandalPenaltyMult: 0.5,  // a cancelled deal claws back half the lump
       maxActive: 3,             // the market has limits
       brandDarlingAt: 2,        // deals before the narrative forms
+      // the invoice (v0.9.14): sponsorship is a JOB — periodic appearances
+      // that claim real weeks, a strain ladder when the van cannot make
+      // them, and the mid-contract request everyone dreads answering
+      obligationEveryWeeks: 10,  // the sponsored appearance cadence
+      obligationFatigue: 2,      // the store event is real work
+      squeezeFatigue: 4,         // ...squeezed into a promo/prep week, more so
+      missRescheduleWeeks: 3,    // a missed one gets rebooked, pointedly
+      missCancelAt: 2,           // consecutive misses before the brand walks
+      missClawbackMult: 0.25,    // ...taking a quarter of the lump with them
+      soloAskAfterWeeks: 6,      // the solo request comes once trust is built
+      soloAskChance: 0.05,       // weekly, once eligible, once per deal
+      soloBonusMult: 0.5,        // the solo stage pays half a lump again
+      soloSpike: 2600,           // her name alone on the sponsor's stage
+      cooledWeeklyCut: 1,        // a declined brand pays with less warmth
       CATEGORIES: ['cosmetics', 'fashion house', 'soft drink', 'tech', 'jewelry', 'sportswear'],
       BRANDS: ['Léore', 'Maison Vue', 'Bombora', 'Nexel', 'Clair de Terre', 'Volt Athletics',
         'Aurum Beauty', 'Peau', 'Fizzi', 'Hyperion Mobile', 'Lumière Seoul', 'Stride'],
     },
 
-    // ---- The second job (v0.9.13): individual careers -------------------
+    // ---- The second job (v0.9.14): individual careers -------------------
     // Productions call for the idols whose SECONDARY strengths the market
     // wants: a panel seat for the funny one, an MC mic for the poised one,
     // an OST for the voice. The gig pays the person, not the group — and
@@ -797,10 +818,10 @@
         'Off-Duty', 'The Long Lunch', 'Homework Hotel'],
       DRAMAS: ['Paper Moon District', 'The Winter Clinic', 'Four Families', 'Signal Garden',
         'Dusk Patrol', 'My Landlord the Ghost'],
-      hiatusOfferBonus: 0.08,    // productions love an idle idol (v0.9.13)
+      hiatusOfferBonus: 0.08,    // productions love an idle idol (v0.9.14)
     },
 
-    // ---- The disappearance (v0.9.13): hiatus as strategy ----------------
+    // ---- The disappearance (v0.9.14): hiatus as strategy ----------------
     // Not-releasing was always possible; ANNOUNCING it is a move. A
     // declared hiatus rests the roster faster and builds anticipation for
     // the return — but past the grace window the public starts forgetting,
@@ -1132,11 +1153,10 @@
       weeklyTrainingCostPerTrainee: 0.25,
       productionCost: 30,
       monthlyStipend: 12,
-      // the second half of the books (0.9.13): a debuted act bills monthly
-      // like the institution it is — the sink that keeps year-6 money real
+      // the retainer (0.9.13, simplified v0.9.14): a flat per-idol monthly
+      // cost — fame-scaling moved to the PRODUCTION bill (statureCostPer),
+      // where it is self-balancing against the income it shadows
       idolPayrollPerMember: 1,
-      payrollPopFloor: 50,        // stature bills only past here — rookies are cheap
-      payrollPerPopularity: 0.2,  // ...then every point of fame costs real staff         // roughly covers upkeep; spends are the choices
     },
 
     // ---- Rival agencies -------------------------------------------------

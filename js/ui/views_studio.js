@@ -237,10 +237,15 @@
         UI.esc(fmt.label) + ': ' + fmt.tracks + ' tracks, needs ' + Math.max(KP.C.DEBUT.prepWeeksMin, fmt.minPrep) + ' weeks of runway, pays ×' + fmt.revenueMult + ' when it lands.</div></div>');
 
       html.push('<div class="kicker">Promotion</div>');
+      // the price of fame (v0.9.14): the bill the studio shows is the
+      // bill planDebut charges — one truth, stature multiplier included
+      const statureMult = KP.statureCostMult(g);
       html.push('<div class="pad"><div class="seg">' +
         KP.C.DEBUT.promoLevels.map(pl => '<button class="' + (draft.promo === pl ? 'on' : '') + '" ' +
-          'data-action="studio-promo" data-promo="' + pl + '">' + pl + ' · ' + KP.C.DEBUT.promoCost[pl] + '</button>').join('') +
-        '</div><div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">Plus the record itself (' + fmt.cost + '). Budget: ' + state.budget + '.</div></div>');
+          'data-action="studio-promo" data-promo="' + pl + '">' + pl + ' · ' + Math.round(KP.C.DEBUT.promoCost[pl] * statureMult) + '</button>').join('') +
+        '</div><div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">Plus the record itself (' + Math.round(fmt.cost * statureMult) + ').' +
+        (statureMult > 1 ? ' An act this size bills like it — video, staging, styling scale with the name (×' + statureMult.toFixed(1) + ').' : '') +
+        ' Budget: ' + state.budget + '.</div></div>');
 
       // the rollout builder (v0.6.3): 4 promo weeks, 2 bookings each —
       // constrained choices, not sliders

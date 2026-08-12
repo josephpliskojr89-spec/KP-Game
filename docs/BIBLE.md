@@ -2923,6 +2923,49 @@ name). Each source has its own formation logic, flavor, and
 fandom temperature — the calendar collision becomes just one road
 into a rivalry, not the only one.
 
+## §56 The price of fame (v0.9.14) — map slot 1
+
+Owner: *"well, let's start with 1."* Two systems, one sentence:
+success stops being free.
+
+**The stature bill** (audit B1, completed properly). ONE truth —
+`KP.statureCostMult(g)` = ×1 at pop ≤50, +0.012 per point above
+(×1.36 at 80, ×1.6 at 100); `KP.recordBill` prices promo + format
+through it. planDebut charges it, the studio displays it (with the
+"an act this size bills like it" line), and both bots estimate
+with it. Rollout bookings stay flat — a radio slot costs what a
+radio slot costs. The 0.9.13 payroll simplifies to a flat per-idol
+retainer: fame-scaling lives in the production bill, where it
+shadows the income it prices. Measured (620-week probe): unchecked
+~8.9k; with the sink ~5.7–6.9k — a real governor, not yet a
+plateau (see §18).
+
+**The sponsor's invoice** (§55.1). A deal is a JOB now:
+- Every `obligationEveryWeeks` (10) the brand books the face. On
+  tour or benched = MISSED — rebooked pointedly in 3 weeks, and
+  two consecutive misses terminate for cause with a quarter-lump
+  clawback. In promo/prep = KEPT but squeezed (+4 fatigue, and the
+  narration knows the van schedule). Otherwise kept clean.
+- `state.sponsorLedger` keeps the durable census (kept, missed,
+  clawbacks, solo asked/allowed/declined).
+- THE SOLO REQUEST: once per deal, after week 6, the brand asks
+  for the face ALONE — a scene. Allow: half a lump again,
+  followers, hype, morale, `flags.soloShines` stamped (the gravity
+  will read it), and the competitive members feel it. Decline: the
+  brand cools (weekly payment drops), and she hears about the no
+  from the brand manager, not from you — `heldBack` on the
+  directed ledger, which the renewal table reads at −2 plus the
+  mood it sours. Expire: the brand reads silence fluently.
+- Desk: a "Sponsorships running" card with next-appearance dates
+  and miss counts.
+
+**Tuning history**: statureCostPer opened at 0.02 and starved the
+soak economy (the belt-tightening bot spiraled: pressure → lean
+singles → less income → pressure). Settled at 0.012 with the
+payroll flattened. Fiscal bands recalibrated by ruling (books
+0.85→0.95, trust-warnings 0.35→0.45): the CEO reading the books
+most careers IS the feature, per the owner's own brief.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2955,13 +2998,15 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   audit year-scoped the trophy term, removing that inflation, and
   the bar stepped back (12/40 daesang at 140 with year tallies).
   The era-indexing prescription stands if creep returns.
-- **The deep economy fix is deferred (0.9.13 audit B1)** — measured
-  budget runaway: ~9,000 by year 13 without a sink, ~6,700 with the
-  success payroll (which slows, not stops, it). The honest fix is
-  stature-scaled PRODUCTION costs (a pop-80 act's comeback bills
-  like a pop-80 act's comeback), which changes visible prices —
-  owner feel pass required before shipping it. The payroll +
-  belt-tightening bot hold the line meanwhile.
+- **The stature bill governs, not yet plateaus (v0.9.14)** — the
+  620-week trajectory is ~5.7–6.9k with the sink vs ~8.9k without
+  (~25% damped). Pushing statureCostPer past ~0.015 provably
+  starves the mid-game (the bots ship lean under pressure and the
+  income collapses — measured at 0.02). A true plateau waits on
+  the map's LATER sinks: enlistment eras cut income (slot 8), the
+  imprint costs seed capital (slot 13), and elastic optional
+  spending (tutors, wardrobe) arrives with slots 9 and 14. Revisit
+  the trajectory after each; the probe lives in audit_longhaul.
 - **No senescence (0.9.13 audit A4)** — a 33-year-old idol trains,
   tours, and recovers like a 21-year-old; "aging out of its peak"
   is copy, not mechanics. Owner's call whether age should bite.
@@ -4353,3 +4398,26 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > beyond the calendar: debut class, concept, position, the award
 > stolen twice). The fourteen-release count holds. Docs only;
 > no build.
+\n
+> **v0.9.14 — the price of fame** (owner: *"well, let's start with
+> 1"* — map slot 1, the depth era opens)
+> Full spec in §56. Success stops being free, twice over. The
+> record bills by the name on it: KP.statureCostMult prices promo
+> and format at +1.2% per popularity point above 50 — one truth
+> charged by planDebut, shown by the studio, estimated by both
+> bots — with the 0.9.13 payroll flattened to a plain retainer.
+> And sponsorship becomes a JOB: the brand books the face every
+> ten weeks (kept, squeezed between schedules, or MISSED on the
+> road — two misses terminate for cause with a clawback), and once
+> per contract the call comes that is never just a request: the
+> solo stage. Allow it and the money, the shine, and the envy all
+> land — soloShines stamped for the gravity to read. Decline and
+> the brand cools while she hears about the no from the brand
+> manager, not from you: heldBack on the ledger the renewal table
+> reads. Tuning history recorded honestly (0.02 starved the world;
+> 0.012 governs it — trajectory ~25% damped at year 13, plateau
+> deferred to the map's later sinks, §18). Fiscal bands
+> recalibrated by ruling: the CEO reading the books IS the
+> feature. Numbers: battery 56/56 (suite 056, 31 assertions),
+> soak clean (110 bands, five new bands alive first try), e2e 91,
+> lockstep 0.9.14 (52 modules). Rode to main. Slot 1 of fourteen.

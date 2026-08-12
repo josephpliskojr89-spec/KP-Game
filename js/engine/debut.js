@@ -13,6 +13,20 @@
     return KP.devGroup(state) || null;
   }
 
+  // The price of fame (v0.9.14): production scales with stature. ONE
+  // truth — planDebut charges it, the studio displays it, the bots
+  // estimate with it.
+  KP.statureCostMult = function (g) {
+    const D = KP.C.DEBUT;
+    if (!g || !g.debuted) return 1;
+    return 1 + Math.max(0, (g.popularity || 0) - D.statureCostFloor) * D.statureCostPer;
+  };
+  KP.recordBill = function (g, promoId, formatId) {
+    const D = KP.C.DEBUT;
+    const format = D.FORMATS.find(f => f.id === formatId) || D.FORMATS[0];
+    return Math.round((D.promoCost[promoId || 'standard'] + format.cost) * KP.statureCostMult(g));
+  };
+
   // Schedule a release: lock song, concept, prep allocation, promo, week.
   // Works for the debut and for every comeback after it.
   KP.planDebut = function (state, plan) {
@@ -86,7 +100,7 @@
       mash = plan.mash.slice();
     }
 
-    const cost = D.promoCost[plan.promo || 'standard'] + format.cost + rolloutCost;
+    const cost = KP.recordBill(g, plan.promo, format.id) + rolloutCost;
     if (state.budget < cost) return { ok: false, reason: 'Budget cannot cover the record, the marketing AND this rollout. Trim something.' };
     state.budget -= cost;
 

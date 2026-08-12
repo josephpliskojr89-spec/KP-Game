@@ -197,8 +197,7 @@ function debuted(seed, n) {
   // payroll bills on the month boundary, scaled to the debuted roster
   let guard = 0;
   while ((state.week - 1) % KP.C.WEEKS_PER_MONTH !== 3 && guard++ < 6) KP.advanceWeek(state);
-  const expected = Math.round(g.members.length * KP.C.ECON.idolPayrollPerMember +
-    (g.popularity || 0) * KP.C.ECON.payrollPerPopularity);
+  const expected = g.members.length * KP.C.ECON.idolPayrollPerMember;
   t.ok(expected > 0, 'an established act bills like one (' + expected + '/month)');
   // the renewal table never offers what the account cannot cover
   const p = state.people[g.members[0]];

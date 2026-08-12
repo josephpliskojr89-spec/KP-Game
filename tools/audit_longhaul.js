@@ -195,7 +195,7 @@ function botWeek(state, mode) {
       const avgF = g.members.reduce((s, id) => s + state.people[id].fatigue, 0) / (g.members.length || 1);
       if (!g.hiatus && avgF >= 55) { KP.declareHiatus(state, g.id); return; }
       if (avgF >= 45) return;
-      if (state.budget < 120) return;
+      if (state.budget < 120 * KP.statureCostMult(g)) return;   // the bill scales (v0.9.14)
       if (!g.demos) {
         const rng = KP.rngFor(state);
         g.demos = KP.generateDemos(state, rng, g);

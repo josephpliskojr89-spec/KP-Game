@@ -219,9 +219,7 @@
         // stylists, sessions, security, staff — scaled to who you are now.
         const payroll = KP.groups(state).reduce((s, g) =>
           g.debuted && !g.retiredWeek && g.members.length
-            ? s + Math.round(g.members.length * KP.C.ECON.idolPayrollPerMember +
-                Math.max(0, (g.popularity || 0) - KP.C.ECON.payrollPopFloor) *
-                  KP.C.ECON.payrollPerPopularity)
+            ? s + g.members.length * KP.C.ECON.idolPayrollPerMember
             : s, 0);
         state.budget = Math.max(0, state.budget + KP.C.ECON.monthlyStipend - upkeep - payroll);
 

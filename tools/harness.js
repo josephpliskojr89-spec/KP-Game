@@ -27,14 +27,22 @@ const BANDS = {
   chartTopTen:       { lo: 0.20, hi: 1.00, label: 'orgs whose first group hit #1 on the scene chart' },
   popAlive:          { lo: 0.50, hi: 1.00, label: 'orgs ending with a warm-or-better fanbase' },
   secondGroup:       { lo: 0.30, hi: 1.00, label: 'orgs that launched a second group' },
-  fiscalNoticed:     { lo: 0.00, hi: 0.85, label: 'orgs whose books got noticed (mature economies stay solvent)' },
+  // ceiling 0.85→0.95 by ruling (v0.9.14): mature acts now carry real
+  // costs (stature bills, retainers, sponsor obligations) — the CEO
+  // reading the books most careers is the price-of-fame WORKING. The
+  // meaningful alarm is the trust-hitting escalation band below.
+  fiscalNoticed:     { lo: 0.00, hi: 0.95, label: 'orgs whose books got noticed (mature economies stay solvent)' },
   hypeSeen:          { lo: 0.30, hi: 1.00, label: 'orgs where the internet found someone' },
   directiveFired:    { lo: 0.02, hi: 0.80, label: 'orgs that drew a hype directive' },
   // ceiling raised 0.60→0.75 in v0.8.4: the executive pet project now
   // DEMANDS a solo debut in most careers (39/40 assigned) — more solos
   // is the designed consequence, not drift
   soloDebuts:        { lo: 0.02, hi: 0.75, label: 'orgs that debuted a solo act' },
-  fiscalWarned:      { lo: 0.00, hi: 0.35, label: 'orgs warned at trust-hitting level (2+)' },
+  // ceiling 0.35→0.45 by ruling (v0.9.14): with the sink live, roughly
+  // a third-to-two-fifths of bot orgs eat a trust-level warning across
+  // 140 weeks — 'success stops being free' is the owner's brief. Past
+  // 45% the sink is punishing, not pricing; that stays the alarm.
+  fiscalWarned:      { lo: 0.00, hi: 0.45, label: 'orgs warned at trust-hitting level (2+)' },
   idolsRested:       { lo: 0.50, hi: 1.00, label: 'orgs whose idol weeks average off the fumes (<70, rolling)' },
   overworkSeen:      { lo: 0.05, hi: 1.00, label: 'orgs where medical staff benched somebody' },
   rivalActDebut:     { lo: 0.80, hi: 1.00, label: 'worlds where a rival debuted a new act' },
@@ -89,6 +97,11 @@ const BANDS = {
   fandomNamed:       { lo: 0.30, hi: 1.00, label: 'orgs whose fandom got its name' },
   dealSigned:        { lo: 0.10, hi: 1.00, label: 'orgs that signed a brand deal' },
   gigBooked:         { lo: 0.30, hi: 1.00, label: 'orgs that booked somebody a second job (panel/MC/OST)' },
+  obligationKept:    { lo: 0.10, hi: 1.00, label: 'orgs that worked a sponsored appearance (the invoice arrives)' },
+  obligationMissed:  { lo: 0.00, hi: 0.80, label: 'orgs that missed a sponsored appearance (the road won)' },
+  dealClawedBack:    { lo: 0.00, hi: 0.50, label: 'orgs a brand terminated for cause (two misses)' },
+  soloRequested:     { lo: 0.05, hi: 1.00, label: 'orgs that got the sponsor solo request' },
+  soloAllowed:       { lo: 0.00, hi: 1.00, label: 'orgs that let the solo stage happen' },
   hiatusDeclared:    { lo: 0.02, hi: 0.95, label: 'orgs that announced an official hiatus (the disappearance)' },
   hiatusReturned:    { lo: 0.02, hi: 0.95, label: 'orgs whose declared return converted the wait into numbers' },
   // ceiling 1.00 by design (v0.9.12): anticipation only accrues past the
@@ -193,6 +206,7 @@ const tally = {
   fandomNamed: 0, dealSigned: 0, awardWon: 0, awardSnubbed: 0,
   gigBooked: 0, gigWrapped: 0, ostDropped: 0, gigTension: 0, secondJobStory: 0,
   hiatusDeclared: 0, hiatusReturned: 0, hiatusCooled: 0,
+  obligationKept: 0, obligationMissed: 0, dealClawedBack: 0, soloRequested: 0, soloAllowed: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
   soloCredit: 0, unitCredit: 0, sleeperHeard: 0,
@@ -210,6 +224,7 @@ const tally = {
 let totalGroups = 0;
 let totalAmbushes = 0;
 const bestRegions = [];
+const endBudgets = [];
 let totalSaveKB = 0;
 let mediationsRun = 0;
 let totalReleases = 0;
@@ -410,6 +425,12 @@ for (let s = 0; s < SEEDS; s++) {
     // a decent boss would — exec reads its own calendar, idol asks get
     // promised only when the bot's own play can plausibly deliver
     (state.scenes || []).slice().forEach(sc => {
+      if (sc.kind === 'sponsorSolo') {
+        // a sensible boss lets the stage happen unless the face is worn
+        const face = state.people[sc.personId];
+        KP.resolveScene(state, sc.id, face && face.fatigue < 65 ? 'allow' : 'decline');
+        return;
+      }
       if (sc.kind === 'execQuestion') {
         const q = sc.q;
         if (q.type === 'comebackPromise') {
@@ -499,16 +520,17 @@ for (let s = 0; s < SEEDS; s++) {
       // under fiscal pressure a sensible player ships lean (0.9.13)
       const fmt = (state.fiscal || {}).pressure > 0 ? FMT[0]
         : state.budget > 320 ? FMT[2] : state.budget > 160 ? FMT[1] : FMT[0];
-      const fmtCost = fmt.cost;
+      // the bot reads the same stature-scaled bill the studio shows (v0.9.14)
+      const bill = KP.recordBill(g, promoAffordable, fmt.id);
       // the rollout desk bills at lock (v0.6.3) — a player trims the plan
       // before skipping the release, so the bot does too
       const R = KP.C.ROLLOUT;
       const planCost = p => p.flat().reduce((s, a) => s + R.ACTIVITIES[a].cost, 0);
       const thrifty = [['radio', 'livestream'], ['radio', 'livestream'], ['radio', 'livestream'], ['rest']];
       const wantDefault = !(state.fiscal || {}).pressure &&
-        state.budget > KP.C.DEBUT.promoCost[promoAffordable] + fmtCost + planCost(R.DEFAULT) + 20;
+        state.budget > bill + planCost(R.DEFAULT) + 20;
       const rollout = wantDefault ? R.DEFAULT.map(w => w.slice()) : thrifty;
-      if (state.budget <= KP.C.DEBUT.promoCost[promoAffordable] + fmtCost + planCost(rollout)) return;
+      if (state.budget <= bill + planCost(rollout)) return;
       if (!g.demos) {
         const rng = KP.rngFor(state);
         g.demos = KP.generateDemos(state, rng, g);
@@ -754,6 +776,13 @@ for (let s = 0; s < SEEDS; s++) {
       state.groups.some(g => g.hiatus)) tally.hiatusDeclared++;
   if (state.groups.some(g => (g.hiatusReturns || 0) >= 1)) tally.hiatusReturned++;
   if (state.groups.some(g => g.hiatusCooledEver)) tally.hiatusCooled++;
+  // the invoice (v0.9.14): the sponsor ledger is durable state
+  const sl = state.sponsorLedger || {};
+  if ((sl.kept || 0) >= 1) tally.obligationKept++;
+  if ((sl.missed || 0) >= 1) tally.obligationMissed++;
+  if ((sl.clawbacks || 0) >= 1) tally.dealClawedBack++;
+  if ((sl.soloAsked || 0) >= 1) tally.soloRequested++;
+  if ((sl.soloAllowed || 0) >= 1) tally.soloAllowed++;
   if (state.groups.some(g => g.regions &&
       Object.values(g.regions).some(v => v >= KP.C.REGIONAL.loudAt))) tally.regionLoud++;
   bestRegions.push(Math.max.apply(null, state.groups
@@ -867,6 +896,12 @@ for (let s = 0; s < SEEDS; s++) {
     if (pairCount && negative / pairCount > 0.3) tally.conflictEndemic++;
   }
   growths.push(avgRosterTalent(state) - startTalent);
+  endBudgets.push(state.budget);
+  // the price of fame (v0.9.14): a competent 140-week org banks a few
+  // thousand — the stature bill governs the RATE, not the existence, of
+  // wealth. The guard is an insanity ceiling; the plateau story is told
+  // by tools/audit_longhaul at week 620.
+  guard(state.budget < 10000, seed + ' budget ran away to ' + Math.round(state.budget) + ' by week 140');
 }
 
 function avgRosterTalent(state) {
@@ -878,6 +913,9 @@ function avgRosterTalent(state) {
 // --- report ---
 console.log('=== Observatory — ' + SEEDS + ' seeds, 140 weeks each ===');
 receptions.sort((a, b) => a - b);
+endBudgets.sort((a, b) => a - b);
+console.log('end-budget: median ' + Math.round(endBudgets[Math.floor(endBudgets.length / 2)] || 0) +
+  ', max ' + Math.round(endBudgets[endBudgets.length - 1] || 0) + ' (wk140, the stature bill governs)');
 const med = receptions[Math.floor(receptions.length / 2)] || 0;
 console.log('debut reception: median ' + med +
   ', min ' + (receptions[0] || 0) + ', max ' + (receptions[receptions.length - 1] || 0));
@@ -916,7 +954,13 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
     let seedTables = 0;
     for (let w = 0; w < 380; w++) {
       if (!neglect) (state.scenes || []).slice().forEach(sc => {
-        if (sc.kind === 'execQuestion') {
+        if (sc.kind === 'sponsorSolo') {
+        // a sensible boss lets the stage happen unless the face is worn
+        const face = state.people[sc.personId];
+        KP.resolveScene(state, sc.id, face && face.fatigue < 65 ? 'allow' : 'decline');
+        return;
+      }
+      if (sc.kind === 'execQuestion') {
           // honest and boring: never promise what this slim bot won't ship
           KP.answerMeeting(state, sc.q && sc.q.type === 'comebackPromise' ? 1 : 0);
           return;
@@ -940,6 +984,9 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
       guard(errs.length === 0, seed + ' long clock wk' + state.week + ': ' + errs[0]);
     }
     guard(neglect || seedTables >= 1, seed + ' long clock: no renewal table ever opened');
+    // (budget telemetry lives on the MAIN pass — the slim clock bot
+    // never plans comebacks, so its balance pins at the monthly floor
+    // and measures nothing about the economy)
     const departed = Object.values(state.people).filter(p => p.status === 'departed');
     clockDeparted += departed.length;
     if (neglect) neglectDeparted = departed.length;
