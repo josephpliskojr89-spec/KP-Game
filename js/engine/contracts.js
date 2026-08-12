@@ -119,16 +119,21 @@
       const read = KP.renewalRead(state, p);
       if (read.band === 'devoted') return [
         { id: 'sign', label: 'Sign the renewal' },
-        { id: 'sweeten', label: 'Sign it — and sweeten it · ' + C.sweetenCost },
-      ];
+        state.budget >= C.sweetenCost
+          ? { id: 'sweeten', label: 'Sign it — and sweeten it · ' + C.sweetenCost } : null,
+      ].filter(Boolean);
+      // the table never offers what the account cannot cover (0.9.13
+      // audit B3: these were the only ungated spends in the game)
+      const termsCost = C.termsCostBase + read.fame * C.termsCostPerFame;
+      const canTerms = state.budget >= termsCost;
       if (read.band === 'professional') return [
-        { id: 'terms', label: 'Meet the terms · ' + (C.termsCostBase + read.fame * C.termsCostPerFame) },
+        canTerms ? { id: 'terms', label: 'Meet the terms · ' + termsCost } : null,
         { id: 'standard', label: 'Offer the standard renewal' },
-      ];
+      ].filter(Boolean);
       if (read.band === 'strained') return [
-        { id: 'terms', label: 'Give real terms · ' + (C.termsCostBase + read.fame * C.termsCostPerFame) },
+        canTerms ? { id: 'terms', label: 'Give real terms · ' + termsCost } : null,
         { id: 'hold', label: 'Hold the company line' },
-      ];
+      ].filter(Boolean);
       return [
         { id: 'farewell', label: 'Write the ending right' },
         { id: 'plead', label: 'Try to change the arithmetic' },
@@ -248,6 +253,23 @@
         }
       }
       if (g.rooms) { g.rooms = null; if (g.members.length) KP.assignRooms(state, g); }
+      // the maknae is a fact — recompute it when the youngest walks (0.9.13)
+      if (g.maknae === p.id && g.members.length) {
+        g.maknae = g.members.map(id => state.people[id]).filter(Boolean)
+          .sort((a, b) => a.age - b.age)[0].id;
+      }
+      // a locked record does not survive its credited member (0.9.13
+      // audit H3): strip her name from the unreleased tracklist
+      if (g.prep && g.prep.tracks) {
+        g.prep.tracks.forEach(tr => {
+          if (!tr.credit) return;
+          if (tr.credit.type === 'solo' && tr.credit.memberId === p.id) tr.credit = null;
+          else if (tr.credit.type === 'unit' && (tr.credit.memberIds || []).includes(p.id)) {
+            tr.credit.memberIds = tr.credit.memberIds.filter(id => id !== p.id);
+            if (tr.credit.memberIds.length < 2) tr.credit = null;
+          }
+        });
+      }
       g.popularity = KP.clamp((g.popularity || 0) - (warm ? C.departPopHitWarm : C.departPopHitCold), 0, 100);
       // the ones left behind
       g.members.forEach(id => {
@@ -260,7 +282,17 @@
           KP.recordDirected(state, m.id, 'friendDeparted', warm ? -1 : -2);
         }
       });
-      if (!g.members.length) { g.retiredWeek = state.week; }
+      if (!g.members.length) {
+        // the group ends here (0.9.13 audit C1): an empty lineup holding
+        // a locked release bricked the weekly loop forever. Everything
+        // scheduled dies with the act, and retiredWeek becomes a real
+        // gate every desk checks — not a write-only stamp.
+        g.retiredWeek = state.week;
+        g.prep = null; g.demos = null; g.tour = null;
+        g.hiatus = null; delete g.returnFrom;
+        push({ kind: 'public', priority: 'high', groupId: g.id,
+          text: g.name + '’s chapter closes with the last contract — the company statement thanks the fans for every era, and means it. The scheduled work comes off the calendar. The catalog stays.' });
+      }
     }
 
     // the desk: deals wind down, her claims settle void
@@ -275,6 +307,9 @@
         c.resolved = 'void'; c.resolvedWeek = state.week;
       }
     });
+    // pending offers naming {her} come off the desk too (0.9.13 audit H1)
+    if (state.dealOffers) state.dealOffers = state.dealOffers.filter(o => o.personId !== p.id);
+    if (state.gigOffers) state.gigOffers = state.gigOffers.filter(o => o.personId !== p.id);
     // any scene still holding her name comes off the desk with her —
     // nobody renews, promises, or consoles a person who already left
     if (state.scenes) state.scenes = state.scenes.filter(sc => sc.personId !== p.id);

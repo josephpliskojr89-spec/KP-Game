@@ -98,12 +98,24 @@ function checkIntegrity(seed, week, state) {
       flag(seed, week, g.name + ' fandom intensity out of range');
     }
   });
-  // engagements point at live idols
+  // engagements point at LIVE IDOLS — existence alone hid the departure
+  // holes from every earlier harness (0.9.13)
   (state.deals || []).forEach(d => {
-    if (d.weeksLeft > 0 && !person(d.personId)) flag(seed, week, 'active deal for missing person ' + d.personId);
+    const dp = person(d.personId);
+    if (d.weeksLeft > 0 && (!dp || dp.status !== 'idol')) flag(seed, week, 'active deal on non-idol ' + d.personId);
   });
   (state.gigs || []).forEach(gg => {
-    if (gg.weeksLeft > 0 && !person(gg.personId)) flag(seed, week, 'active gig for missing person ' + gg.personId);
+    const gp = person(gg.personId);
+    if (gg.weeksLeft > 0 && (!gp || gp.status !== 'idol')) flag(seed, week, 'active gig on non-idol ' + gg.personId);
+  });
+  (state.dealOffers || []).concat(state.gigOffers || []).forEach(o => {
+    const op = person(o.personId);
+    if (o.expiresWeek >= state.week && (!op || op.status !== 'idol')) flag(seed, week, 'open offer for non-idol ' + o.personId);
+  });
+  state.groups.forEach(g => {
+    if ((g.retiredWeek || !g.members.length) && (g.prep || g.tour || g.hiatus)) {
+      flag(seed, week, g.name + ' retired/empty but still scheduled');
+    }
   });
   (state.scenes || []).forEach(sc => {
     if (sc.personId && !person(sc.personId)) flag(seed, week, 'scene ' + sc.kind + ' holds missing person ' + sc.personId);

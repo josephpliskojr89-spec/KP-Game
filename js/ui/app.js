@@ -99,7 +99,17 @@
   // page you were ON — group page, scroll position and all — with the
   // row you came from briefly marked so you never lose your place
   App.stack = App.stack || [];
-  function go(tab) { App.tab = tab; App.view = null; App.stack.length = 0; App.render(); }
+  function go(tab) {
+    App.tab = tab; App.view = null; App.stack.length = 0;
+    // opening the Desk reads the mail — an action-time state write with a
+    // save, not a render-time timer (0.9.13 audit L2: the old 600ms timer
+    // made save bytes depend on how long a tab was open)
+    if (tab === 'desk' && App.state && (App.state.inbox || []).some(m => !m.read)) {
+      App.state.inbox.forEach(m => { m.read = true; });
+      App.save();
+    }
+    App.render();
+  }
   function push(type, id) {
     App.stack.push({ view: App.view, scroll: window.scrollY, mark: id || null });
     App.view = { type, id };
@@ -586,7 +596,8 @@
 
       case 'open-builder': {
         App.builderDraft = { members: [], roles: {}, name: null, seeking: [],
-          nameOptions: KP.suggestGroupNames(s, KP.rngFor(s)) };
+          nameOptions: KP.suggestGroupNames(s,
+            new KP.Rng([s.seed, 'builder-names', s.week, s.nextGroupId].join('|'))) };
         // an open project walks in with its locked members already selected
         if (s.project) {
           App.builderDraft.members = s.project.locked.slice();

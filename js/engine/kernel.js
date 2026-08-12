@@ -202,6 +202,26 @@
     if (!isFinite(state.budget)) bad('budget NaN');
     if (!isFinite(state.trust)) bad('trust NaN');
     (state.deals || []).forEach(d => { if (!state.people[d.personId]) bad('deal ghost ' + d.personId); });
+    // 0.9.13 audit: the harness never saw the departure holes because the
+    // validator only checked existence — engagements must target LIVE idols,
+    // and a retired group must not hold a schedule
+    (state.deals || []).forEach(d => {
+      const dp = state.people[d.personId];
+      if (d.weeksLeft > 0 && dp && dp.status !== 'idol') bad('active deal on non-idol ' + d.personId);
+    });
+    (state.gigs || []).forEach(gg => {
+      const gp = state.people[gg.personId];
+      if (gg.weeksLeft > 0 && (!gp || gp.status !== 'idol')) bad('active gig on non-idol ' + gg.personId);
+    });
+    (state.dealOffers || []).concat(state.gigOffers || []).forEach(o => {
+      const op = state.people[o.personId];
+      if (o.expiresWeek >= state.week && (!op || op.status !== 'idol')) bad('open offer for non-idol ' + o.personId);
+    });
+    (state.groups || []).forEach(g => {
+      if ((g.retiredWeek || !g.members.length) && (g.prep || g.tour || g.hiatus)) {
+        bad(g.name + ' is retired/empty but still holds a schedule');
+      }
+    });
     (state.scenes || []).forEach(sc => {
       if (!sc.id || !sc.kind) bad('malformed scene ' + JSON.stringify(sc && sc.kind));
       else if (!sceneDefs[sc.kind]) bad('scene of unregistered kind ' + sc.kind);

@@ -48,12 +48,15 @@
     if (woy === 6) {
       let gowns = 0;
       roster.forEach(p => {
-        if (gowns >= 2) return;
         if ((p.status !== 'trainee' && p.status !== 'idol') || p.age !== 19 || p.flags.gradNoted) return;
+        // everyone eligible graduates (0.9.13 audit A1: the narration cap
+        // used to silently drop the third gown FOREVER — now the flag is
+        // universal and only the coverage is capped at two)
         p.flags.gradNoted = 1;
-        gowns++;
         p.morale = KP.clamp(p.morale + KP.C.CREDITS.gradMoraleBonus, 0, 100);
         p.history.push({ week: state.week, text: 'Graduated high school. The gown photo, the flowers, the whole building in attendance.' });
+        if (gowns >= 2) return;
+        gowns++;
         inbox.push({ kind: 'public', ind: 'graduation', priority: 'high', personId: p.id,
           text: KP.fillPro(KP.displayName(p) + ' graduated high school this week — gown, flowers, the members screaming from the second row like proud aunts. {She} did every practice schedule AND the homework. The staff who covered for {her} exam weeks got a handwritten note each.', p) });
       });

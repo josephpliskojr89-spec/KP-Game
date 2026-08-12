@@ -7,7 +7,7 @@
 
   // Which group the studio is working with right now.
   UI.studioGroup = function (state) {
-    const groups = KP.groups(state);
+    const groups = KP.groups(state).filter(g => !g.retiredWeek && g.members.length);
     if (!groups.length) return null;
     const chosen = KP.groupById(state, KP.App.studioGroupId);
     if (chosen) return chosen;

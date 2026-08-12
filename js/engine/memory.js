@@ -256,7 +256,7 @@
     // dormancy: a debuted group gone quiet becomes a countdown — the
     // narrative forms the week the threshold crosses, then nags on cadence
     KP.groups(state).forEach(g => {
-      if (!g.debuted || g.prep) return;
+      if (!g.debuted || g.prep || g.retiredWeek) return;   // nobody counts down for a closed chapter (0.9.13)
       const silent = state.week - (g.lastReleaseWeek || 0);
       if (silent < M.dormantWeeks) return;
       const existing = KP.getNarrative(state, 'dormant', 'group', g.id);

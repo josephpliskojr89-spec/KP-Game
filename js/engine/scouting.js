@@ -114,6 +114,22 @@
         }
       });
     });
+    // the board is a market, not a museum (0.9.13 audit A2): leads who
+    // aged past the market without a signature move on — file and all,
+    // because nobody here ever met them
+    const stale = (state.prospects || []).filter(id => {
+      const pr = state.people[id];
+      return pr && pr.age >= S.prospectAgeOut;
+    });
+    if (stale.length) {
+      stale.forEach(id => {
+        (state.rivals || []).forEach(r => { if (r.interest) delete r.interest[id]; });
+        delete state.people[id];
+      });
+      state.prospects = state.prospects.filter(id => state.people[id]);
+      notes.push({ kind: 'scouting', text: 'Scout Im thinned the board: ' + stale.length +
+        ' long-listed lead' + (stale.length === 1 ? '' : 's') + ' aged past the market and signed elsewhere, or went back to school, or both. The board is for the ones still reachable.' });
+    }
     // fresh leads keep the board alive
     if (rng.chance(S.newProspectChance)) {
       // person ids come from state, never from module memory — saves depend on it

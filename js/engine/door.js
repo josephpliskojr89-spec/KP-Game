@@ -44,7 +44,9 @@
 
     const eligible = [];
     roster.forEach(p => {
-      if (p.status === 'released') return;
+      // only current trainees and idols knock (0.9.13 audit M1: the
+      // week-start roster snapshot can still hold a same-week departure)
+      if (p.status !== 'trainee' && p.status !== 'idol') return;
       if (state.week - (p.flags.doorWeek || -999) < D.personCooldownWeeks) return;
       const g = KP.groupOf(state, p.id);
       // the ASK: the ambition meeting — the one she has rehearsed

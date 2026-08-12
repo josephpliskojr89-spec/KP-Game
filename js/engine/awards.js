@@ -52,7 +52,9 @@
     } else {  // artist
       KP.groups(state).forEach(g => {
         if (!g.debuted) return;
-        const trophies = Object.values(g.trophies || {}).reduce((s, n) => s + n, 0);
+        // the year's shelf, not the career's (0.9.13 audit B2: all-time
+        // tallies made the top prizes an annuity by year five)
+        const trophies = g.trophiesYear || 0;
         if ((g.releases || []).some(r => r.week >= from)) {
           list.push({ name: g.name, company: state.company.short, isPlayer: true,
             groupId: g.id, score: (g.popularity || 0) + trophies * 3 + KP.fandomIntensity(g) * 0.2 + jitter(g.id) });
@@ -61,7 +63,7 @@
       (state.rivals || []).forEach(rv => (rv.acts || []).forEach(a => {
         if (a.retired || !(a.releases || []).some(r => r.week >= from)) return;
         list.push({ name: a.name, company: rv.short, isPlayer: false,
-          score: (a.popularity || 0) + (a.showWins || 0) * 2 + jitter(a.id) });
+          score: (a.popularity || 0) + (a.showWinsYear || 0) * 2 + jitter(a.id) });
       }));
     }
     return list.sort((x, y) => y.score - x.score);
@@ -79,7 +81,7 @@
       if (!g.debuted) return;
       const yearRels = (g.releases || []).filter(r => r.week >= from);
       if (!yearRels.length) return;
-      const trophies = Object.values(g.trophies || {}).reduce((s, n) => s + n, 0);
+      const trophies = g.trophiesYear || 0;   // the year, weighed once — literally (audit B2)
       // symmetric with the rival read — no fandom term the rivals can't
       // have; devotion already lives inside popularity and trophies
       list.push({ name: g.name, company: state.company.short, isPlayer: true, groupId: g.id,
@@ -93,7 +95,7 @@
       if (!yearRels.length) return;
       list.push({ name: a.name, company: rv.short, isPlayer: false,
         debutWeek: a.debutWeek || 0,
-        score: (a.popularity || 0) * 1.2 + (a.showWins || 0) * 2.5 +
+        score: (a.popularity || 0) * 1.2 + (a.showWinsYear || 0) * 2.5 +
           yearRels.reduce((s, r) => s + r.reception, 0) * 0.12 + jitter(a.id) });
     }));
     // the wider market weighs in: the national chart's year-defining
@@ -105,15 +107,13 @@
       seen.add(e.act);
       if ((e.peakPos || 99) > 5) return;
       list.push({ name: e.act, company: 'the open market', isPlayer: false,
-        // 140 base (v0.9.10): careers now START with an established
-        // act, so the bar the giants set rises with them. 145 (v0.9.11):
-        // the second job inflates player popularity a few points per
-        // career — the giants panel and sing OSTs too, and the daesang
-        // stays designed-scarce (owner: "the game in general feels
-        // easy"). 148 (v0.9.12): declared returns land warmer now; the
-        // giants stage returns of their own. See §18 — if the creep
-        // continues, index this to the era instead of stepping it.
-        score: 148 - ((e.peakPos || 1) - 1) * 6 +
+        // The giants' bar was stepped 140→145→148 across three releases
+        // to hold scarcity against ALL-TIME trophy inflation. 0.9.13
+        // year-scoped the trophy term (audit B2), which removed the very
+        // inflation the steps countered — so the bar steps back to 140,
+        // calibrated against year-shaped player scores. The §18 era-
+        // indexing note stands if the creep ever returns.
+        score: 140 - ((e.peakPos || 1) - 1) * 6 +
           Math.min(30, e.weeksOn || 0) * 0.5 + jitter(e.act) });
     });
     return list.sort((x, y) => y.score - x.score);
@@ -252,6 +252,13 @@
       }
       state.awardHistory = (state.awardHistory || []).concat(results).slice(-24);
       state.awardSeason = null;
+      // the year's tally closes with the ceremony (0.9.13 audit B2): the
+      // shelf keeps everything, the SCORING starts over — next year's
+      // prizes are won next year
+      KP.groups(state).forEach(g => { if (g.trophiesYear) g.trophiesYear = 0; });
+      (state.rivals || []).forEach(rv => (rv.acts || []).forEach(a => {
+        if (a.showWinsYear) a.showWinsYear = 0;
+      }));
     }
     return notes;
   };

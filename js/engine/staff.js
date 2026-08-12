@@ -124,9 +124,10 @@
         (m.name.split(' ')[0]) + '; nothing else will.';
     },
     options: (state) => [
-      { id: 'counter', label: 'Counter-offer · ' + KP.C.BUILDING.counterCost },
+      state.budget >= KP.C.BUILDING.counterCost
+        ? { id: 'counter', label: 'Counter-offer · ' + KP.C.BUILDING.counterCost } : null,
       { id: 'release', label: 'Wish them well' },
-    ],
+    ].filter(Boolean),
     resolve: (state, sc, optionId) => {
       const g = KP.groupById(state, sc.groupId);
       const st = KP.staffOf(state);

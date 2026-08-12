@@ -181,7 +181,6 @@
       state.inbox.slice(0, 14).forEach(m => { html.push(UI.mailRow(state, m)); });
       html.push('</div>');
     }
-    setTimeout(() => { state.inbox.forEach(m => { m.read = true; }); }, 600);
 
     return html.join('');
   };

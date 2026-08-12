@@ -49,7 +49,7 @@
       // pitch meetings happen on company time (v0.7.2): demos exist
       // BEFORE anyone opens the studio — render never draws rng (law)
       groups.forEach(g => {
-        if (g.demos || g.prep || g.tour) return;
+        if (g.demos || g.prep || g.tour || g.retiredWeek || !g.members.length) return;
         const calendarOpen = !g.debuted ||
           (state.week > (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks &&
            state.week > (g.tourRestUntil || 0));
@@ -213,7 +213,17 @@
       //    and a headline
       if ((state.week - 1) % KP.C.WEEKS_PER_MONTH === 0) {
         const upkeep = Math.round(state.roster.length * KP.C.ECON.weeklyTrainingCostPerTrainee * KP.C.WEEKS_PER_MONTH);
-        state.budget = Math.max(0, state.budget + KP.C.ECON.monthlyStipend - upkeep);
+        // success payroll (0.9.13 audit B1): income scaled with stature but
+        // every cost was flat, so year-5+ budgets ran away and the fiscal
+        // system went silent. Established acts bill like established acts:
+        // stylists, sessions, security, staff — scaled to who you are now.
+        const payroll = KP.groups(state).reduce((s, g) =>
+          g.debuted && !g.retiredWeek && g.members.length
+            ? s + Math.round(g.members.length * KP.C.ECON.idolPayrollPerMember +
+                Math.max(0, (g.popularity || 0) - KP.C.ECON.payrollPopFloor) *
+                  KP.C.ECON.payrollPerPopularity)
+            : s, 0);
+        state.budget = Math.max(0, state.budget + KP.C.ECON.monthlyStipend - upkeep - payroll);
 
         // fiscal pressure (v0.2.3): once the signing cap lifts, the CEO
         // reads the books on a rolling quarter — one big album month is
@@ -483,6 +493,23 @@
     p.status = 'released';
     p.training.focus = [];
     p.history.push({ week: state.week, text: 'Released from ' + state.company.short + '.' });
+    // the same sweep a departure gets (0.9.13 audit M3): open scenes
+    // come off the desk, a project slot un-locks, and the hype directive
+    // resolves NOW with its own narration instead of lapsing in silence
+    if (state.scenes) state.scenes = state.scenes.filter(sc => sc.personId !== personId);
+    if (state.project && (state.project.locked || []).includes(personId)) {
+      state.project.locked = state.project.locked.filter(id => id !== personId);
+    }
+    if (state.hypeDirective && state.hypeDirective.status === 'open' &&
+        state.hypeDirective.personId === personId) {
+      state.trust = KP.clamp(state.trust + KP.C.HYPE.directiveMissTrust, 0, 100);
+      state.objectiveHistory = state.objectiveHistory || [];
+      state.objectiveHistory.push({ type: 'hypeDebut', status: 'missed', week: state.week, personId });
+      state.hypeDirective = null;   // fully settled here \u2014 the weekly must not re-process it
+      KP.note(state, { kind: 'executive', urgent: true,
+        text: state.executive.name + ': \u201cThe internet decided on ' + KP.displayName(p) +
+          ' and you released ' + (p.gender === 'm' ? 'him' : 'her') + '. Perhaps you know something the numbers do not. For your sake I hope so.\u201d' });
+    }
     // the building notices: close friends take it hard
     const shaken = [];
     const rels = state.relationships || {};

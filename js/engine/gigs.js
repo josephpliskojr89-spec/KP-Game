@@ -125,7 +125,7 @@
           // the drop: her voice, somebody else's drama — reception rides
           // the voice, the show's reach, and the week's luck
           const rec = KP.clamp(Math.round(p.talents.vocals.cur * 0.7 +
-            (KP.groupOf(state, p.id) || {}).popularity * 0.15 + rng.int(-8, 12)), 20, 96);
+            ((KP.groupOf(state, p.id) || {}).popularity || 0) * 0.15 + rng.int(-8, 12)), 20, 96);
           gig.reception = rec;
           state.budget += gig.lump || 0;
           p.flags.ostDrops = (p.flags.ostDrops || 0) + 1;

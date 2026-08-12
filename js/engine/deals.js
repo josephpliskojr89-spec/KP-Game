@@ -90,6 +90,14 @@
     const o = offers(state).find(x => x.id === offerId);
     if (!o) return { ok: false, reason: 'That offer is no longer on the desk.' };
     if (o.expiresWeek < state.week) return { ok: false, reason: 'The offer expired. Brands do not wait.' };
+    // a face that left the building cannot be signed for it (0.9.13 audit H1)
+    if (accept) {
+      const who = state.people[o.personId];
+      if (!who || who.status !== 'idol') {
+        state.dealOffers = offers(state).filter(x => x.id !== offerId);
+        return { ok: false, reason: 'That artist is no longer on the roster. The brand has been informed.' };
+      }
+    }
     state.dealOffers = offers(state).filter(x => x.id !== offerId);
     const p = state.people[o.personId];
     if (!accept) {

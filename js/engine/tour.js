@@ -42,6 +42,7 @@
   KP.tourEligible = function (state, g) {
     const T = KP.C.TOUR;
     if (!g || !g.debuted) return { ok: false, reason: 'Nobody tours a group that has not debuted.' };
+    if (g.retiredWeek || !g.members.length) return { ok: false, reason: 'That chapter is closed. The catalog tours on its own.' };
     if (g.prep) return { ok: false, reason: 'A release is in production. One calendar at a time.' };
     if (g.tour) return { ok: false, reason: 'They are already on the road.' };
     if (g.hiatus) return { ok: false, reason: 'They are officially gone. A hiatus with tour dates is called a tour.' };

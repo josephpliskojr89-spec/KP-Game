@@ -88,6 +88,7 @@
         const g = winner.g;
         g.trophies = g.trophies || {};
         g.trophies[showId] = (g.trophies[showId] || 0) + 1;
+        g.trophiesYear = (g.trophiesYear || 0) + 1;   // the award year's tally (0.9.13 audit B2)
         g.popularity = KP.clamp((g.popularity || 0) + W.winPop, 0, 100);
         const members = g.members.map(id => state.people[id]).filter(Boolean);
         members.forEach(m => {
@@ -132,6 +133,7 @@
       } else if (winner && winner.type === 'rival') {
         const act = winner.act;
         act.showWins = (act.showWins || 0) + 1;
+        act.showWinsYear = (act.showWinsYear || 0) + 1;
         // did they take it off OUR stage?
         const beaten = field.find(c => c.type === 'player');
         if (beaten) {

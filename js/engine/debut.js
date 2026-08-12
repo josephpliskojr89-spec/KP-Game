@@ -19,6 +19,9 @@
     const D = KP.C.DEBUT;
     const g = targetGroup(state, plan);
     if (!g) return { ok: false, reason: 'No group to debut. With several groups, say which one.' };
+    if (g.retiredWeek || !g.members.length) {
+      return { ok: false, reason: 'That chapter is closed — there is nobody left to record it.' };
+    }
     if (g.prep) return { ok: false, reason: 'A release is already locked.' };
     if (g.tour) return { ok: false, reason: 'They are on tour. The studio can wait for the road to end.' };
     if (state.week <= (g.tourRestUntil || 0)) {
@@ -555,8 +558,12 @@
       reception, receptionBand: band.key, chartPeak: peak, chartWeeks: weeksOn,
       nationalPeak: natPeak, nationalWeeks: weeksOn,
       isDebut, format: format.id, tracks: format.tracks,
-      tracklist: tl.tracks, sleeperTitle: tl.sleeperTitle || null,
-      mash, fusionOutcome, acclaim: fusionOutcome === 'acclaim' || undefined,
+      // the release archives its OWN copy (0.9.13 audit L4: results and
+      // releases shared one live array — identical today, a fork hazard
+      // the first time anything edits a released tracklist)
+      tracklist: (tl.tracks || []).map(t => Object.assign({}, t)),
+      sleeperTitle: tl.sleeperTitle || null,
+      mash, fusionOutcome, acclaim: fusionOutcome === 'acclaim',
       producerId: demo.producerId || null, producer: demo.producer,
     });
     // the mash verdict (v0.9.6): every fusion outcome is narrated with

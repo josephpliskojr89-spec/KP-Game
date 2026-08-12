@@ -18,6 +18,7 @@
   KP.declareHiatus = function (state, groupId) {
     const g = KP.groupById(state, groupId);
     if (!g || !g.debuted) return { ok: false, reason: 'Only a debuted group can disappear. Everyone else is just unknown.' };
+    if (g.retiredWeek || !g.members.length) return { ok: false, reason: 'That chapter is closed. A hiatus needs somebody to come back.' };
     if (g.hiatus) return { ok: false, reason: 'They are already gone. Announcing it twice is a comeback in reverse.' };
     if (g.prep) return { ok: false, reason: 'A release is in production. Finish the record or scrap it — not both.' };
     if (g.tour) return { ok: false, reason: 'They are on the road. A hiatus announced from a tour bus is a scandal, not a strategy.' };
@@ -36,7 +37,7 @@
   KP.registerWeekly('hiatus', 789, function (state, rng, inbox, roster, groups) {
     const H = KP.C.HIATUS;
     groups.forEach(g => {
-      if (!g.hiatus) return;
+      if (!g.hiatus || g.retiredWeek) return;
       const weeks = state.week - g.hiatus.since;
       // the rest is real: fatigue drains, people come back to themselves
       g.members.forEach(id => {

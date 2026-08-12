@@ -2572,6 +2572,87 @@ groups wrap gig arcs clash-free — the synergy is the thesis);
 daesang giants 145→148 (declared returns land warmer; the giants
 stage returns too — third step, see §18 for the indexing note).
 
+## §54 The audit (0.9.13) — the world holds
+
+Owner: *"we have so many systems interacting that it's time for a
+full code audit: bugs, saves, aging, persistence, balance, code
+health, anything that can corrupt a long save."* Four parallel
+review passes (determinism, growth, departure integrity, aging &
+economy) plus a new permanent torture tool. Every finding verified
+against the code before fixing; every fix regression-pinned in
+suite 055 (90 assertions).
+
+**The new rail** — `tools/audit_longhaul.js`: five scenario careers
+to week 620 (three standard, one total neglect, one founding
+mid-run) with a deep checker every 10 weeks: referential integrity,
+status-level engagement checks, NaN/Infinity sweep, clamp ranges,
+save round-trip identity every 40 weeks, determinism forks at three
+horizons, size telemetry. Runs clean; joins the ship ritual for
+releases that touch state shape.
+
+**Fixed — save-killers:**
+- A group emptied by departures while holding a locked release
+  crashed `resolveDebut` every week FOREVER (the one true
+  brick-a-save bug found). `departIdol` now closes the chapter:
+  prep/tour/hiatus/demos die with the act, `retiredWeek` became a
+  real gate honored by planDebut, tours, hiatus, the studio picker,
+  the Monday meeting, dormancy, and the demos desk.
+- localStorage quota failures threw out of every autosave
+  mid-action: now caught, warned once, career safe in memory.
+- Founding generated people without re-syncing the module id
+  counter (id collisions could overwrite files on loaded saves) and
+  skipped the social mint (render-time state writes). Both now
+  match the scouting/industry discipline — pinned by a
+  found-the-same-save-twice byte-identity test.
+
+**Fixed — ghosts and holes:** departure clears pending deal/gig
+offers (and `respondDeal` gained the status guard `respondGig`
+always had — no more signing departed idols for money); unreleased
+tracklist credits strip when the credited member departs; the
+maknae recomputes; trainee release sweeps scenes/project
+locks/hype directives with narration instead of silent lapse; the
+same-week door knock for departed people closed; founding clears
+dealOffers/gigOffers/gigs/project, deletes never-signed prospect
+files, stamps `p.company` on converts, frees fan-account handles,
+and re-keys monsterRookies → rivalMonsterRookies while dropping
+group narratives that cannot be told from the other side.
+
+**Fixed — the ratchets (balance):**
+- Award scoring counted CAREER-TOTAL trophies, making the daesang
+  an annuity by year five. Now `trophiesYear`/`showWinsYear` —
+  "the whole year, weighed once" is finally literal — reset at the
+  ceremony, symmetric for rivals. The giants' bar stepped back
+  148→140 (the three steps countered exactly the inflation this
+  removes).
+- Budget runaway (measured: ~9,000 by year 13, every cost gate
+  trivial): a monthly success payroll — 1/member + 0.2 per
+  popularity point above 50 for debuted acts. Rookies are cheap;
+  institutions bill like institutions. The soak bot learned to
+  read the CEO's letters (no tours, lean formats under fiscal
+  pressure) — the same adaptation a sensible player makes.
+- The three ungated scene spends (renewal sweeten/terms, poach
+  counter, truck concede) now respect the balance.
+- Prospects age out of the board at 24 (files deleted — nobody
+  ever met them); every eligible 19-year-old graduates (the
+  narration cap no longer eats the third diploma).
+
+**Fixed — kernel-law and hygiene:** builder name suggestions no
+longer peek the live rng stream (hash-seeded throwaway); the Desk
+marks mail read at navigation time, not on a 600ms render timer;
+releases archive their own tracklist copy (alias hazard); no more
+`undefined` stored in state; dead constant removed; OST NaN guard;
+objectiveHistory capped at 50. `KP.validateState` extended with
+status-level checks — the reason the harness never saw these holes
+is that it only checked existence.
+
+**Measured and accepted (watch, not fix):** save growth ~40-45
+KB/year dominated by rival-native files (~600 KB at year 13;
+single-copy quota breach extrapolates to ~a century); no senescence
+mechanics (a 33-year-old trains like a rookie — flavor gap, owner's
+call); trust saturates high by year 3; the deep economy fix
+(stature-scaled production costs) deferred — it changes visible
+prices and deserves the owner's feel pass.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -2599,13 +2680,28 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   posting incident in 140 weeks. One 2am storm per three-year career
   is realism. If human play reports storm fatigue, tune `gaffeChance`
   down before touching the second job's payoffs.
-- **Daesang giants at 148 (v0.9.12; 145 in v0.9.11, 140 in v0.9.10)**
-  — three steps in three releases: the last group, the second job,
-  and the declared return each inflated player strength and the
-  giants' bar rose to keep the daesang scarce (10/40 after the third
-  step). This is now officially creep. Next release that touches
-  reception or popularity: index the giants' base to the era's
-  observed player means instead of stepping the constant again.
+- **Daesang giants back at 140 (0.9.13; peaked 148 in v0.9.12)** —
+  the three upward steps countered ALL-TIME trophy inflation; the
+  audit year-scoped the trophy term, removing that inflation, and
+  the bar stepped back (12/40 daesang at 140 with year tallies).
+  The era-indexing prescription stands if creep returns.
+- **The deep economy fix is deferred (0.9.13 audit B1)** — measured
+  budget runaway: ~9,000 by year 13 without a sink, ~6,700 with the
+  success payroll (which slows, not stops, it). The honest fix is
+  stature-scaled PRODUCTION costs (a pop-80 act's comeback bills
+  like a pop-80 act's comeback), which changes visible prices —
+  owner feel pass required before shipping it. The payroll +
+  belt-tightening bot hold the line meanwhile.
+- **No senescence (0.9.13 audit A4)** — a 33-year-old idol trains,
+  tours, and recovers like a 21-year-old; "aging out of its peak"
+  is copy, not mechanics. Owner's call whether age should bite.
+- **Trust saturates high by year 3 (0.9.13 audit B4)** — gains
+  outpace every loss path at scale; gates lose tension. Candidate:
+  slow drift toward startTrust, or stature-scaled expectations.
+- **Rival-native file growth (0.9.13 audit)** — ~25 files/year,
+  ~half the save by year 13, quota breach ~a century out. If it
+  ever matters: tombstone-compress members of long-retired acts
+  (keep name/history, drop talent cones).
 - **Burnout census runs cold** (0/40 orgs with the cautious auto-player;
   band top 45%). The mechanism triggers under sustained heavy load (suite
   003 forces it), but a sensible policy never sees it. Watch whether human
@@ -3890,3 +3986,33 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > migration note neutralized. Verified with a forced Kang Min-ho +
 > male soloist render of every touched line. Battery 54/54, soak
 > clean, e2e 91, lockstep 0.9.12.1. Rode to main.
+\n
+> **0.9.13 — the audit** (owner: *"stop expanding the world right
+> here... full code audit: bugs, saves, aging, persistence,
+> balance, code health, anything that can corrupt a long save"*)
+> Full spec in §54. Four parallel review passes + a new permanent
+> torture rail (tools/audit_longhaul.js: five careers to week 620
+> with deep integrity/round-trip/fork/NaN checks — clean). ONE true
+> brick-a-save bug found and killed: a group emptied mid-lock
+> crashed the weekly loop forever; retiredWeek is now a real gate
+> across nine desks. Also fixed: unhandled storage-quota throws,
+> founding's id-counter desync (save corruption class) and missing
+> social mint, ghost engagements on departed idols, unreleased
+> credits surviving their member, the trainee-release sweep, the
+> founding's post-v0.9.9 surfaces (gigs/offers/project/handles/
+> narratives/orphan files), same-week door knocks, render-time rng
+> peeks and the Desk's 600ms read timer, the aliased tracklist, and
+> the two monotone ratchets: award tallies year-scoped (the daesang
+> stops being an annuity; giants step back 148→140) and a success
+> payroll (rookies cheap, institutions bill monthly) with the soak
+> bot taught to tighten its belt under fiscal pressure. Aging came
+> back CLEAN (no NaN, no double-aging, no under-14s, no immortal
+> contracts); graduation now flags every eligible gown; prospects
+> age off the board at 24. Growth measured healthy (~600 KB at year
+> 13, ~a century from quota). validateState extended with the
+> status-level checks whose absence hid every departure hole.
+> Deferred with measurements in §18: stature-scaled production
+> costs, senescence, trust saturation, rival-file compaction.
+> Numbers: battery 55/55 (suite 055, 90 assertions — every audit
+> bug pinned), soak clean (105 bands), longhaul clean (5×620
+> weeks), e2e 91, lockstep 0.9.13 (52 modules). Rode to main.

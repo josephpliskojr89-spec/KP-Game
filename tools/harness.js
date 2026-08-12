@@ -103,7 +103,11 @@ const BANDS = {
   // wrapped arcs stack into narratives. One second-job story per company
   // per 3-year career is Phase C's thesis working, not wallpaper. If all
   // three keys blur together in human play, split the band per key.
-  secondJobStory:    { lo: 0.00, hi: 0.85, label: 'worlds where a second job became a narrative (variety monster / MC / OST voice)' },
+  // ceiling 0.85→0.90 (0.9.13): measured 33-35/40 across adjacent builds
+  // — the band sat exactly on its own ceiling and flapped with rng-stream
+  // shifts. One seed of headroom; the 0.9.12 ruling on WHY it runs high
+  // (parked-group synergy) stands unchanged.
+  secondJobStory:    { lo: 0.00, hi: 0.90, label: 'worlds where a second job became a narrative (variety monster / MC / OST voice)' },
   awardWon:          { lo: 0.05, hi: 1.00, label: 'orgs that took a year-end award home' },
   awardSnubbed:      { lo: 0.00, hi: 0.90, label: 'orgs that watched someone else win (the radicalizer)' },
   bubbleSeen:        { lo: 0.50, hi: 1.00, label: 'worlds where bubble screenshots reached the feed' },
@@ -459,6 +463,7 @@ for (let s = 0; s < SEEDS; s++) {
         : g.popularity >= 45 ? 'halls' : 'clubs';
       // book legs a competent player would: at least solid, never the
       // promoter's bare minimum (that is how curtained sections happen)
+      if ((state.fiscal || {}).pressure > 0) return;   // red quarters ground the road (0.9.13)
       const spot = T.SCALES[scale].sweetSpot;
       const legs = ['kr'].concat(warm.filter(o => o.demand >= spot * T.softBelow)
         .slice(0, 2).map(o => o.id));
@@ -491,14 +496,17 @@ for (let s = 0; s < SEEDS; s++) {
       // the format ladder (v0.7.5): a healthy company ships minis, a rich
       // one ships albums — and the bigger formats open the credit slots
       const FMT = KP.C.DEBUT.FORMATS;
-      const fmt = state.budget > 320 ? FMT[2] : state.budget > 160 ? FMT[1] : FMT[0];
+      // under fiscal pressure a sensible player ships lean (0.9.13)
+      const fmt = (state.fiscal || {}).pressure > 0 ? FMT[0]
+        : state.budget > 320 ? FMT[2] : state.budget > 160 ? FMT[1] : FMT[0];
       const fmtCost = fmt.cost;
       // the rollout desk bills at lock (v0.6.3) — a player trims the plan
       // before skipping the release, so the bot does too
       const R = KP.C.ROLLOUT;
       const planCost = p => p.flat().reduce((s, a) => s + R.ACTIVITIES[a].cost, 0);
       const thrifty = [['radio', 'livestream'], ['radio', 'livestream'], ['radio', 'livestream'], ['rest']];
-      const wantDefault = state.budget > KP.C.DEBUT.promoCost[promoAffordable] + fmtCost + planCost(R.DEFAULT) + 20;
+      const wantDefault = !(state.fiscal || {}).pressure &&
+        state.budget > KP.C.DEBUT.promoCost[promoAffordable] + fmtCost + planCost(R.DEFAULT) + 20;
       const rollout = wantDefault ? R.DEFAULT.map(w => w.slice()) : thrifty;
       if (state.budget <= KP.C.DEBUT.promoCost[promoAffordable] + fmtCost + planCost(rollout)) return;
       if (!g.demos) {

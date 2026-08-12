@@ -34,7 +34,7 @@
     const wantReady = KP.hash01([state.seed, 'meeting', state.week].join('|')) < 0.5;
     const free = KP.freeTrainees(state).map(id => state.people[id])
       .filter(p => p.status === 'trainee');
-    const debutedGroups = KP.groups(state).filter(g => g.debuted && !g.prep && !g.tour);
+    const debutedGroups = KP.groups(state).filter(g => g.debuted && !g.prep && !g.tour && !g.retiredWeek && g.members.length);
     if ((wantReady || !debutedGroups.length) && free.length >= 2) {
       const opts = free.slice()
         .sort((a, b) => (b.talents.vocals.cur + b.talents.dance.cur + b.talents.charisma.cur) -

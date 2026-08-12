@@ -110,17 +110,26 @@
         ? 'The person who built this company walked out to start ' + name + '. ' + (p.gender === 'm' ? 'He' : 'She') + ' heard it from the staff, sat with it a while, and kept the door pass as a bookmark.'
         : 'The A&R architect left ' + oldCo.short + ' to found ' + name + '. The building carried on. Buildings do.' });
       p.status = 'rival';
+      p.company = legacy.short;   // the legacy house can cast them later (audit A3)
       delete p.contract;
     });
     state.roster = [];
     state.groups = [];
 
     // ---- the world keeps its book straight ------------------------------
-    (state.memory || []).forEach(n => {
-      if (n.subjectType === 'group' && oldGroupIds.includes(n.subjectId)) {
+    // group-keyed narratives cross the wall only if they can still be
+    // TOLD from the other side (0.9.13 audit L3): monster rookies has a
+    // rival-act telling; the rest (dormancy countdowns, show dynasties,
+    // concept identities) belonged to the era and end with it
+    state.memory = (state.memory || []).filter(n => {
+      if (n.subjectType !== 'group' || !oldGroupIds.includes(n.subjectId)) return true;
+      if (n.key === 'monsterRookies') {
+        n.key = 'rivalMonsterRookies';
         n.subjectType = 'rivalAct';
         n.subjectId = 'legacy-' + n.subjectId;
+        return true;
       }
+      return false;
     });
     state.memory = (state.memory || []).filter(n => n.subjectType !== 'company');
     (state.chart && state.chart.entries || []).forEach(e => { if (e.isPlayer) e.isPlayer = false; });
@@ -130,10 +139,27 @@
       if (!c.resolved) { c.resolved = 'void'; c.resolvedWeek = state.week; }
     });
     state.deals = [];
+    // the deal/gig surfaces post-date v0.9.9 and were missed (audit H2/M2):
+    // offers naming the rival's idols come off the new label's desk, and
+    // active second jobs end with the era
+    state.dealOffers = [];
+    state.gigOffers = [];
+    state.gigs = [];
+    state.project = null;
+    // fan-account adoptions of people who crossed the wall release their
+    // handles back to the pool (audit L2)
+    Object.keys(state.feedCast || {}).forEach(h => {
+      const c = state.feedCast[h];
+      const bp = c && c.biasId && state.people[c.biasId];
+      if (bp && bp.status !== 'idol') delete state.feedCast[h];
+    });
     state.grievances = [];
     state.ghostDemos = [];
     state.discourses = (state.discourses || []).filter(d =>
       !(d.subjectType === 'group' && oldGroupIds.includes(d.subjectId)));
+    // the old board's never-signed leads vanish entirely — no file, no
+    // ghost aging in the save (audit A3)
+    (state.prospects || []).forEach(id => { delete state.people[id]; });
     state.prospects = [];
     state.awardSeason = null;
 
@@ -177,12 +203,17 @@
         usedNames.add(p.name.display.toLowerCase());
         usedNames.add(p.name.given.toLowerCase());
       });
+      // person ids come from state, never from module memory — saves
+      // depend on it (0.9.13 audit H1: founding was the one door that
+      // skipped the re-sync, risking id collisions on loaded saves)
+      KP.resetIds(state.nextPersonId || KP.peekNextId());
       const count = rng.int(KP.C.GEN.prospectCount[0], KP.C.GEN.prospectCount[1]);
       for (let i = 0; i < count; i++) {
         const gender = rng.chance(0.4) ? 'm' : 'f';
         const p = KP.generatePerson(rng, { status: 'prospect', usedNames, gender });
         state.people[p.id] = p;
         state.prospects.push(p.id);
+        KP.socialOf(state, p);   // minted at the door, not on first look (audit H2)
       }
       state.nextPersonId = KP.peekNextId();
       state.rngState = rng.state();

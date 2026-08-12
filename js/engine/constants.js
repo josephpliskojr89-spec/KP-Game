@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.12.1',
+    VERSION: '0.9.13',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -93,6 +93,7 @@
       rivalHungerMult: 1.7,       // ...and hungrier still with a debut to cast
       rivalHungerWindow: 16,      // weeks before a planned debut that hunger starts
       newProspectChance: 0.3,     // weekly chance a fresh lead appears
+      prospectAgeOut: 24,         // unsigned past this, the market moves on (0.9.13)
     },
 
     SOURCES: [
@@ -357,7 +358,6 @@
     },
     CHART: {
       noiseSd: 6,
-      maxWeeksOn: 16,
       // the weekly scene chart (v0.4.0): every release — yours and the
       // rivals' — enters with a heat score and cools until it drops off
       decay: 0.88,              // last week's heat, kept per week
@@ -761,7 +761,7 @@
         'Aurum Beauty', 'Peau', 'Fizzi', 'Hyperion Mobile', 'Lumière Seoul', 'Stride'],
     },
 
-    // ---- The second job (v0.9.12.1): individual careers -------------------
+    // ---- The second job (v0.9.13): individual careers -------------------
     // Productions call for the idols whose SECONDARY strengths the market
     // wants: a panel seat for the funny one, an MC mic for the poised one,
     // an OST for the voice. The gig pays the person, not the group — and
@@ -797,10 +797,10 @@
         'Off-Duty', 'The Long Lunch', 'Homework Hotel'],
       DRAMAS: ['Paper Moon District', 'The Winter Clinic', 'Four Families', 'Signal Garden',
         'Dusk Patrol', 'My Landlord the Ghost'],
-      hiatusOfferBonus: 0.08,    // productions love an idle idol (v0.9.12.1)
+      hiatusOfferBonus: 0.08,    // productions love an idle idol (v0.9.13)
     },
 
-    // ---- The disappearance (v0.9.12.1): hiatus as strategy ----------------
+    // ---- The disappearance (v0.9.13): hiatus as strategy ----------------
     // Not-releasing was always possible; ANNOUNCING it is a move. A
     // declared hiatus rests the roster faster and builds anticipation for
     // the return — but past the grace window the public starts forgetting,
@@ -1131,7 +1131,12 @@
       PRESSURE: { quarterBurnWarn: 90, trustHitL2: -3, trustHitL3: -5 },
       weeklyTrainingCostPerTrainee: 0.25,
       productionCost: 30,
-      monthlyStipend: 12,         // roughly covers upkeep; spends are the choices
+      monthlyStipend: 12,
+      // the second half of the books (0.9.13): a debuted act bills monthly
+      // like the institution it is — the sink that keeps year-6 money real
+      idolPayrollPerMember: 1,
+      payrollPopFloor: 50,        // stature bills only past here — rookies are cheap
+      payrollPerPopularity: 0.2,  // ...then every point of fame costs real staff         // roughly covers upkeep; spends are the choices
     },
 
     // ---- Rival agencies -------------------------------------------------

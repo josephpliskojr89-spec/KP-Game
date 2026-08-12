@@ -100,10 +100,11 @@
     options: (state, sc) => {
       const C = KP.C.CONSTITUENCY;
       return [
-        { id: 'concede', label: 'Concede — publicly, with the fix · ' + C.concedeCost },
+        state.budget >= C.concedeCost
+          ? { id: 'concede', label: 'Concede — publicly, with the fix · ' + C.concedeCost } : null,
         { id: 'half', label: 'A careful statement (change nothing)' },
         { id: 'hold', label: 'Hold — the office does not answer trucks' },
-      ];
+      ].filter(Boolean);
     },
     resolve: (state, sc, optionId, rng) => {
       const C = KP.C.CONSTITUENCY;
