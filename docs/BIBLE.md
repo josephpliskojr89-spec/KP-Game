@@ -1855,32 +1855,50 @@ suggestions. fold them into the remaining Phase C plan"*) — the
 because all three answer the standing "the game in general feels
 easy" report, and the audit's measurements are fresh:
 
-- **Next — The price of fame** (audit B1, completed properly).
-  Stature-scaled production costs: a pop-80 act's comeback bills
-  like a pop-80 act's comeback — video, staging, styling scale
-  with the popularity that scales the income. Self-balancing by
-  construction; replaces the payroll stopgap as the primary sink
-  (payroll stays as the retainer, production becomes the invoice).
-  Measured target: late-career budget plateaus instead of the
-  9,000-by-year-13 runaway; the fiscal-pressure system stays alive
-  at every career stage. Bands: a budget-trajectory telemetry line
-  and a late-run solvency band, per the audit's coverage-gap list.
-- **Then — Time takes its share** (audit A4 + B4, one release —
-  both are anti-saturation clocks). Senescence: past ~28, growth
-  damps and fatigue recovery slows, while craft compensates (live
-  reliability and media reps carry what stamina used to) — "aging
-  out of its peak" becomes mechanics, and the legacy group finally
-  plays like its own intro copy. Trust drift: the executive's
-  regard decays slowly toward baseline and expectations scale with
-  stature, so year-5 trust gates keep tension instead of pinning
-  at 100 from year 3.
-- **Then — The deep map.** The §28 regions grow verbs: region-
-  targeted promotion, localized releases, the overseas fan meeting —
-  the map stops being a readout and becomes a board.
+Re-sequenced again after the §55 depth mandate (owner: *"the game
+is extremely wide but it lacks depth when it comes to career
+narratives"*) — the depth releases interleave with the approved
+audit items, and two pairs merge where they share a system:
+
+- **Next — The price of fame** (audit B1 + §55.1, one release —
+  both are "success has a bill"). Stature-scaled production costs:
+  a pop-80 act's comeback bills like a pop-80 act's comeback,
+  self-balancing by construction, replacing the payroll stopgap as
+  the primary sink. AND the sponsor's invoice: deals carry duties —
+  sponsored appearances that claim calendar weeks, missed
+  obligations that strain toward clawback, and the mid-contract
+  solo request scene (let her shine alone, or say no and be known
+  to have said it). Measured target: late-career budget plateaus;
+  fiscal pressure alive at every stage. New bands: budget
+  trajectory, sponsor obligations kept/missed, solo requests.
+- **Then — The gravity** (§55.2). The transcendence read, the
+  clamor from every existing voice (trades, split fandom, the
+  Monday meeting, the sponsor, her own knock), and the three
+  player paths: in-group solo debut, the hold with its resentment
+  clock, the spin-out. Plus group identity arcs: festival icons /
+  the variety group / the OST factory minted from repeated
+  behavior, changing how the world calls.
+- **Then — The bad blood** (§55.3). Rivalries with teeth at three
+  tiers — in-group (stage costs, credit disputes, the discourse
+  that notices cold), in-company (calendar cannibalization, fandom
+  civil war), in-scene (the feud system gets the fan-war
+  amplifier). Conflict finally COSTS.
+- **Then — Festival season** (§55.4). Named annual festivals that
+  REACH OUT: invitation scenes, schedule surgery, travel bills,
+  slot deadlines, headline calls for the icons. The §46 pass
+  becomes the circuit the identity arcs feed on.
+- **Then — The deep map + the tongue** (§55.5, one release).
+  Region verbs (targeted promotion, localized releases, the
+  overseas fan meeting) gated and colored by language: per-person
+  aptitude, training, media obligations abroad that flop without a
+  speaker, the fluent member becoming the voice of the group
+  overseas, interpreters for hire.
+- **Then — Time takes its share** (audit A4 + B4). Senescence
+  (growth damps past ~28, craft compensates) + trust drift
+  (expectations scale with stature). The anti-saturation clocks.
 - **Then — The wardrobe department** (§22 v0.6.12, deferred at
-  v0.9.7). The named choreographer/stylist with reputations,
-  artist chemistry, and poaching — the producer pool proved the
-  pattern; losing yours to Aurum should hurt.
+  v0.9.7). Named choreographers/stylists with reputations, artist
+  chemistry, and poaching.
 
 ### The debt rider (any release, when touched)
 
@@ -2673,6 +2691,87 @@ mechanics (a 33-year-old trains like a rookie — flavor gap, owner's
 call); trust saturates high by year 3; the deep economy fix
 (stature-scaled production costs) deferred — it changes visible
 prices and deserves the owner's feel pass.
+
+## §55 The depth mandate (post-audit consult)
+
+Owner, in full: *"the game is extremely wide but it lacks depth
+when it comes to career narratives, both for groups and soloists."*
+Six named holes, each with the owner's example preserved and a
+mechanism sketch. These are the raw material for the re-sequenced
+Phase C map in §39 — each ships as its own release with the full
+ritual.
+
+**1. The sponsor's invoice** (*"sponsors are only a positive right
+now. you sign the contract and nothing happens. they should come
+with all sorts of obligations, sponsored shows etc."*). Deals stop
+being free money: each contract carries DUTIES — periodic sponsored
+appearances that claim real calendar weeks (the gig-clash pattern,
+proven in v0.9.11), with missed obligations straining the deal
+toward clawback. And the solo request (*"the member who gets asked
+to perform solo for a sponsor and you have to decide if you want to
+let them"*): mid-contract, the brand asks for the face ALONE — a
+scene with teeth. Allow: money, individual shine, envy seeds in the
+room. Refuse: the brand cools, and she knows you said no.
+
+**2. The gravity** (*"social media, executives, and the industry as
+a whole would begin clamoring for a solo career for a member who
+begins to transcend their group"*). A transcendence read — her
+share of the group's followers, her narrative shelf (fancam star,
+it-girl, variety monster, OST voice), her breakout count — crosses
+a line and the CLAMOR begins, from every voice the game already
+has: the trades write the "bigger than the group?" feature, the
+fandom splits into solo-clamor and ot5-loyalist camps (discourse),
+the exec asks at the Monday meeting, sponsors request her alone
+(§55.1), and eventually SHE knocks (the §40 door, the ask she
+rehearsed). Player paths: the in-group solo debut, the hold (a
+resentment clock the renewal table will read), or the spin-out.
+Plus group identity arcs (*"a group becoming known as festival
+icons"*): repeated behavior mints identity narratives — festival
+icons, the variety group, the OST factory — that change how
+invitations and coverage arrive.
+
+**3. The bad blood** (*"when group members don't get along, the
+negative effect is barely felt. I want rivalries to be able to
+form, both within the group, company, and scene as a whole with
+the fandoms serving to throw gas on the fire"*). Three tiers, one
+principle — conflict must COST and the fandom must amplify:
+in-group, sustained cold pairs escalate to a rivalry state with
+felt effects (stage costs when both perform, tracklist credit
+disputes, camera-time fights, the "they didn't stand together"
+discourse the fans always notice); in-company, two own groups too
+close on the calendar cannibalize each other and their fandoms
+turn on each other; in-scene, the existing feud/rivalry narratives
+get the fandom-warfare amplifier — every shared week a fan-war
+discourse that can boil.
+
+**4. Festival season** (*"we should have annual festivals that
+actually reach out to you about a group and you have to see if you
+can fit in the schedule, arrange the travel, etc."*). The §46
+festival pass grows up: NAMED annual festivals with weeks-of-year,
+prestige tiers, and slot deadlines; organizers INVITE — a scene,
+not a notification — and the answer means schedule surgery
+(promo/tour/gig conflicts read out loud), travel with a fatigue
+bill, a fee, and a slot. Playing the circuit builds the
+festival-icons identity (§55.2); icons get headline calls.
+
+**5. The tongue** (*"we can send our group to North America with no
+media obligations and no clue if anyone can even speak English.
+that's a real hole"*). Language per person: hash-seeded aptitude,
+trainable (a focus, or a tutor with a bill). Overseas legs and
+region promotion carry MEDIA OBLIGATIONS: with no speaker in the
+room, the interviews flop (region gains cut, the awkward-clip
+discourse); a fluent member becomes the voice abroad — individual
+shine that feeds §55.2; an interpreter is hireable, at a cost and
+a distance. Ships WITH the deep map — language is what makes the
+region verbs earn their depth.
+
+**6. The standing examples clause** (*"there are so many more
+examples of things we could be doing"*). The pattern behind all
+five: an event the game already narrates should instead ARRIVE
+(a scene with a decision), CLAIM something real (weeks, money,
+morale, a relationship), and LEAVE a mark (a narrative, a ledger
+entry the world reads back). Every future depth release measures
+itself against that sentence.
 
 ## §18 Watch items
 
@@ -4045,3 +4144,18 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > (senescence + trust drift, one release — both anti-saturation
 > clocks), then the deep map, then the wardrobe department. Docs
 > only; no build.
+\n
+> **The depth mandate** (owner: *"the game is extremely wide but it
+> lacks depth when it comes to career narratives... there are so
+> many more examples of things we could be doing"*) — six named
+> holes written into §55 with the owner's examples preserved:
+> sponsor obligations and the solo request, the transcendence
+> clamor, rivalries with teeth at three tiers with fandom gasoline,
+> festival season that reaches out and demands schedule surgery,
+> language skills gating the overseas media room, and the standing
+> clause that names the pattern (an event should ARRIVE, CLAIM
+> something real, and LEAVE a mark — never just notify). §39
+> re-sequenced: price of fame absorbs the sponsor's invoice, the
+> gravity and the bad blood and festival season slot next, the
+> tongue merges into the deep map, the audit clocks and the
+> wardrobe close the phase. Docs only; no build.
