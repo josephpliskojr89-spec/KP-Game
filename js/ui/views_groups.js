@@ -337,9 +337,9 @@
     // a solo act (v0.2.6): exactly one, and nowhere to hide
     if (draft.members.length === 1) {
       const soloist = state.people[draft.members[0]];
-      html.push('<div class="kicker">Or debut her alone</div>');
+      html.push('<div class="kicker">' + KP.fillPro('Or debut {her} alone', soloist) + '</div>');
       html.push('<div class="card">A solo lives or dies on one person. No room to blame, no one to cover a bad night — and nothing to share the spotlight with.' +
-        ((soloist.hype || 0) >= 35 ? '<div style="margin-top:8px;color:var(--magenta);font-size:.8rem">The internet already knows her. A solo cashes all of that in.</div>' : '') +
+        ((soloist.hype || 0) >= 35 ? '<div style="margin-top:8px;color:var(--magenta);font-size:.8rem">' + KP.fillPro('The internet already knows {her}. A solo cashes all of that in.', soloist) + '</div>' : '') +
         '<div style="margin-top:12px"><button class="btn primary" data-action="builder-propose-solo" data-id="' + soloist.id + '">Propose ' + UI.esc(KP.displayName(soloist)) + ', solo</button></div>' +
         '</div>');
     }

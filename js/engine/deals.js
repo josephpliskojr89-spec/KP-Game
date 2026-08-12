@@ -93,8 +93,8 @@
     state.dealOffers = offers(state).filter(x => x.id !== offerId);
     const p = state.people[o.personId];
     if (!accept) {
-      return { ok: true, note: 'The ' + o.brand + ' offer was declined politely. ' +
-        (p ? KP.displayName(p) : 'She') + ' keeps her schedule; the brand keeps calling other agencies.' };
+      return { ok: true, note: KP.fillPro('The ' + o.brand + ' offer was declined politely. ' +
+        (p ? KP.displayName(p) : '{She}') + ' keeps {pos} schedule; the brand keeps calling other agencies.', p) };
     }
     state.budget += o.lump;
     deals(state).push({ id: o.id, brand: o.brand, personId: o.personId,

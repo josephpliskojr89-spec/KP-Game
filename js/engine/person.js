@@ -62,6 +62,11 @@
   const PRO_M = { she: 'he', her: 'him', pos: 'his', hers: 'his', herself: 'himself',
     girl: 'boy', She: 'He', Her: 'Him', Pos: 'His', Girl: 'Boy', Hers: 'His' };
   KP.pro = function (p) { return p && p.gender === 'm' ? PRO_M : PRO_F; };
+  // the executive as a pronoun subject (0.9.12.1): CEO Kang Min-ho was
+  // being written up as "she" — fillPro needs only a gender to get it right
+  KP.execP = function (state) {
+    return { gender: (state.executive && state.executive.gender) || 'f' };
+  };
   KP.fillPro = function (text, p) {
     if (!text || text.indexOf('{') === -1) return text;
     const pr = KP.pro(p);

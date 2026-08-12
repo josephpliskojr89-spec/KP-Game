@@ -100,9 +100,9 @@
         if (optionId === 'year') {
           KP.openClaim(state, { type: 'secondGroup', subject: { kind: 'exec' },
             baseline: KP.groups(state).length, byWeek: state.week + KP.C.WEEKS_PER_YEAR });
-          return { toast: 'A second lineup inside the year, on the record. The executive looked at the trainee-room door like she could already hear the debut stage.' };
+          return { toast: KP.fillPro('A second lineup inside the year, on the record. The executive looked at the trainee-room door like {she} could already hear the debut stage.', KP.execP(state)) };
         }
-        return { toast: '“When the room is ready.” She accepted it the way people accept weather forecasts — noted, not believed, checked against the sky later.' };
+        return { toast: KP.fillPro('“When the room is ready.” {She} accepted it the way people accept weather forecasts — noted, not believed, checked against the sky later.', KP.execP(state)) };
       }
       return {};
     },
@@ -126,16 +126,16 @@
       state.trust = KP.clamp(state.trust + (met ? M.payoffTrust : 0), 0, 100);
       return { resolved: met ? 'met' : 'metPoorly',
         notes: [{ kind: 'executive', text: state.executive.name + ': “' +
-          (met
-            ? 'You told me ' + KP.displayName(p) + ' was the one, and then she was. I remember the people who read talent correctly.'
-            : 'She debuted, as you said. The debut itself we will discuss another day.') + '”' }] };
+          KP.fillPro(met
+            ? 'You told me ' + KP.displayName(p) + ' was the one, and then {she} was. I remember the people who read talent correctly.'
+            : '{She} debuted, as you said. The debut itself we will discuss another day.', p) + '”' }] };
     }
     if (!p || p.status === 'released' || state.week > c.byWeek) {
       state.trust = KP.clamp(state.trust + M.missTrust, 0, 100);
       return { resolved: 'missed',
         notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “You told me in ' +
           KP.weekLabel(c.week).text + ' that ' + c.personName + ' was closest to ready. ' +
-          (p && p.status === 'released' ? 'You then released her.' : 'The window has closed.') +
+          (p && p.status === 'released' ? KP.fillPro('You then released {her}.', p) : 'The window has closed.') +
           ' I keep my notes, and I reread them.”' }] };
     }
     return null;

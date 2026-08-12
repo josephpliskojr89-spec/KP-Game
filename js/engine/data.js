@@ -43,11 +43,11 @@
       reputationLine: 'Known for vocalists. No successful girl group launch in six years.',
     },
     executives: [
-      { name: 'CEO Yoon Da-jung', personality: 'visionary',
+      { name: 'CEO Yoon Da-jung', gender: 'f', personality: 'visionary',
         intro: '“I don’t need five perfect trainees. I need one group people remember.”' },
-      { name: 'CEO Kang Min-ho', personality: 'profitHunter',
+      { name: 'CEO Kang Min-ho', gender: 'm', personality: 'profitHunter',
         intro: '“Six years without a hit girl group. The board counts in quarters, not eras.”' },
-      { name: 'CEO Seo Hae-won', personality: 'traditionalist',
+      { name: 'CEO Seo Hae-won', gender: 'f', personality: 'traditionalist',
         intro: '“We are known for vocals. Build me a group that can actually sing — then make them famous.”' },
     ],
   };

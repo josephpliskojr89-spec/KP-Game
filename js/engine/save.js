@@ -600,7 +600,7 @@
     state.inbox.unshift({
       kind: 'company', week: state.week, read: false,
       id: 'm' + (state.nextMsgId++),
-      text: 'Structural memo, long overdue, three items. One: the building gets NAMES — a road manager per group (rivals can and will poach the good ones), the head vocal coach on the record, and an executive who, it turns out, has taste and a board to answer to; expect board season yearly and, someday, a project of her own. Two: the open auditions now run both halls — boys are on the scouting board, and a second lineup can be a BOY group (one group, one gender; the exec was very clear). Three: naming rights come home — group names and record titles can be yours, typed by hand, with the marketing team’s pitches demoted to suggestions.',
+      text: 'Structural memo, long overdue, three items. One: the building gets NAMES — a road manager per group (rivals can and will poach the good ones), the head vocal coach on the record, and an executive who, it turns out, has taste and a board to answer to; expect board season yearly and, someday, a pet project of their own. Two: the open auditions now run both halls — boys are on the scouting board, and a second lineup can be a BOY group (one group, one gender; the exec was very clear). Three: naming rights come home — group names and record titles can be yours, typed by hand, with the marketing team’s pitches demoted to suggestions.',
     });
   } });
 
@@ -680,6 +680,14 @@
       if ((state.company.short || '').length > 9) {
         state.company.short = state.company.name.split(' ')[0].slice(0, 9);
       }
+    }
+    // 0.9.12.1 self-heal (no version gate, same reasoning): executives
+    // predate their gender field — CEO Kang Min-ho was being written up
+    // as "she". Recover it from the data by name; the fallback matches
+    // the two-of-three female pool.
+    if (state.executive && !state.executive.gender) {
+      const src = (KP.DATA.executives || []).find(e => e.name === state.executive.name);
+      state.executive.gender = (src && src.gender) || 'f';
     }
     // forward-only stamp
     if (KP.versionLt(state.version, KP.C.VERSION)) state.version = KP.C.VERSION;

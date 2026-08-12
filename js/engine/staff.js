@@ -77,9 +77,9 @@
       if (g.results.conceptId === taste) {
         state.trust = KP.clamp(state.trust + 1, 0, 100);
         inbox.push({ kind: 'executive', priority: 'high', text: state.executive.name + ', passing the numbers back across the desk: “' +
-          cLabel + '. Finally somebody in this building understands what we should sound like.” She does not hide the smile. Trust ticks up on taste alone.' });
+          cLabel + '. Finally somebody in this building understands what we should sound like.” ' + KP.fillPro('{She} does not hide the smile.', KP.execP(state)) + ' Trust ticks up on taste alone.' });
       } else {
-        inbox.push({ kind: 'executive', priority: 'high', text: state.executive.name + ' reviews the ' + g.name + ' numbers, nods once, and says “good result” in the tone of someone whose favorite genre this is not. A win is a win. Hers would have been ' +
+        inbox.push({ kind: 'executive', priority: 'high', text: state.executive.name + ' reviews the ' + g.name + ' numbers, nods once, and says “good result” in the tone of someone whose favorite genre this is not. A win is a win. ' + KP.fillPro('{Hers}', KP.execP(state)) + ' would have been ' +
           ((KP.conceptById(taste) || {}).label || '').toLowerCase() + '.' });
       }
     });
@@ -104,7 +104,7 @@
       state.petProjectDone = true;
       KP.openScene(state, { kind: 'petProject', expiresWeek: state.week + 3 });
       inbox.push({ kind: 'executive', urgent: true,
-        text: state.executive.name + ' closes your office door herself, which never means anything small: she has a project. Hers, personally. The details — and your answer — are on the Desk.' });
+        text: state.executive.name + KP.fillPro(' closes your office door {herself}, which never means anything small: {she} has a project. {Hers}, personally. The details — and your answer — are on the Desk.', KP.execP(state)) });
     }
   });
 
@@ -194,7 +194,7 @@
     expire: (state) => {
       state.trust = KP.clamp(state.trust - 1, 0, 100);
       return { kind: 'executive',
-        text: 'Board season ended with the company’s chair empty at its own review. ' + state.executive.name + ' covered for you, which cost her something, which means it cost you something.' };
+        text: 'Board season ended with the company’s chair empty at its own review. ' + state.executive.name + KP.fillPro(' covered for you, which cost {her} something, which means it cost you something.', KP.execP(state)) };
     },
   });
   KP.registerClaim('growthPromise', (state, c) => {
@@ -212,7 +212,7 @@
   // ---- the pet project ------------------------------------------------------
   KP.registerScene('petProject', {
     title: (state) => state.executive.name + ' · the pet project',
-    body: (state) => state.executive.name + ' wants a SOLO debut — hers, conceptually: one artist from the roster, built up and launched inside the year. “Groups are the company’s legacy,” she says, “this one is mine.” She has wanted this since before you were hired, and she is asking you, which is not quite the same as asking.',
+    body: (state) => state.executive.name + KP.fillPro(' wants a SOLO debut — {hers}, conceptually: one artist from the roster, built up and launched inside the year. “Groups are the company’s legacy,” {she} says, “this one is mine.” {She} has wanted this since before you were hired, and {she} is asking you, which is not quite the same as asking.', KP.execP(state)),
     options: () => [
       { id: 'accept', label: 'Take it on' },
       { id: 'push', label: 'Push back — the calendar is full' },
@@ -221,15 +221,15 @@
       if (optionId === 'accept') {
         KP.openClaim(state, { type: 'petProject', subject: { kind: 'exec' },
           byWeek: state.week + KP.C.WEEKS_PER_YEAR });
-        return { toast: 'She left your office lighter than she came in. The claim is on the record: a solo debut inside the year. Her pet project is now your calendar problem — and, handled right, your biggest favor ever banked.' };
+        return { toast: KP.fillPro('{She} left your office lighter than {she} came in. The claim is on the record: a solo debut inside the year. {Pos} pet project is now your calendar problem — and, handled right, your biggest favor ever banked.', KP.execP(state)) };
       }
       state.trust = KP.clamp(state.trust - 2, 0, 100);
-      return { toast: '“The calendar is full.” She took it well, which from her is a specific kind of badly. The project goes back in the drawer. She keeps the drawer.' };
+      return { toast: KP.fillPro('“The calendar is full.” {She} took it well, which from {her} is a specific kind of badly. The project goes back in the drawer. {She} keeps the drawer.', KP.execP(state)) };
     },
     expire: (state) => {
       state.trust = KP.clamp(state.trust - 2, 0, 100);
       return { kind: 'executive',
-        text: 'The pet project sat on your desk until she quietly took it back. Some silences are answers; this one was filed as one.' };
+        text: KP.fillPro('The pet project sat on your desk until {she} quietly took it back. Some silences are answers; this one was filed as one.', KP.execP(state)) };
     },
   });
   KP.registerClaim('petProject', (state, c) => {
@@ -239,7 +239,7 @@
       state.trust = KP.clamp(state.trust + 4, 0, 100);
       return { resolved: 'met',
         notes: [{ kind: 'executive',
-          text: state.executive.name + ' watched the solo debut stage from the wings, and for exactly one chorus stopped being an executive. “Thank you,” she said after, in the voice she signs contracts with. That favor is banked, permanently.' }] };
+          text: state.executive.name + KP.fillPro(' watched the solo debut stage from the wings, and for exactly one chorus stopped being an executive. “Thank you,” {she} said after, in the voice {she} signs contracts with. That favor is banked, permanently.', KP.execP(state)) }] };
     }
     if (state.week > c.byWeek) {
       state.trust = KP.clamp(state.trust - 3, 0, 100);

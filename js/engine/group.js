@@ -150,9 +150,9 @@
     const lines = [];
     if (members.length === 1) {
       const pull = KP.derived(members[0]).centerPull;
-      lines.push(pull >= 60
-        ? '“A solo. Bold. She had better be exactly who you think she is — there is nobody to stand next to when she isn’t.”'
-        : '“A solo debut for her? I hope you know something my reports do not.”');
+      lines.push(KP.fillPro(pull >= 60
+        ? '“A solo. Bold. {She} had better be exactly who you think {she} is — there is nobody to stand next to when {she} isn’t.”'
+        : '“A solo debut for {her}? I hope you know something my reports do not.”', members[0]));
       if ((members[0].hype || 0) >= 35) lines.push('“At least the internet already did half the marketing. Do not waste that.”');
       return lines;
     }
@@ -162,7 +162,7 @@
     const leader = state.people[roles.leader];
     const avgAge = members.reduce((s, m) => s + m.age, 0) / members.length;
 
-    if (centerPull >= 62) lines.push('“The center choice, I understand. Even I keep watching her.”');
+    if (centerPull >= 62) lines.push(KP.fillPro('“The center choice, I understand. Even I keep watching {her}.”', center));
     else if (centerPull <= 42) lines.push('“Your center. Explain to me later why the public will agree with you.”');
     if (leader.personality.leadership >= 62) lines.push('“The leader can carry a room. Good.”');
     else lines.push('“You have named a leader the room has not.”');

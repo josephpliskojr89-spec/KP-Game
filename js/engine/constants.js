@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.12',
+    VERSION: '0.9.12.1',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -761,7 +761,7 @@
         'Aurum Beauty', 'Peau', 'Fizzi', 'Hyperion Mobile', 'Lumière Seoul', 'Stride'],
     },
 
-    // ---- The second job (v0.9.12): individual careers -------------------
+    // ---- The second job (v0.9.12.1): individual careers -------------------
     // Productions call for the idols whose SECONDARY strengths the market
     // wants: a panel seat for the funny one, an MC mic for the poised one,
     // an OST for the voice. The gig pays the person, not the group — and
@@ -797,10 +797,10 @@
         'Off-Duty', 'The Long Lunch', 'Homework Hotel'],
       DRAMAS: ['Paper Moon District', 'The Winter Clinic', 'Four Families', 'Signal Garden',
         'Dusk Patrol', 'My Landlord the Ghost'],
-      hiatusOfferBonus: 0.08,    // productions love an idle idol (v0.9.12)
+      hiatusOfferBonus: 0.08,    // productions love an idle idol (v0.9.12.1)
     },
 
-    // ---- The disappearance (v0.9.12): hiatus as strategy ----------------
+    // ---- The disappearance (v0.9.12.1): hiatus as strategy ----------------
     // Not-releasing was always possible; ANNOUNCING it is a move. A
     // declared hiatus rests the roster faster and builds anticipation for
     // the return — but past the grace window the public starts forgetting,

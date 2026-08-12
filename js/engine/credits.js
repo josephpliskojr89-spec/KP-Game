@@ -135,7 +135,7 @@
     const p = state.people[n.personId];
     return rng.pick([
       { persona: 'stan', text: (p ? KP.publicGiven(p).toUpperCase() : 'SHE') + ' WROTE IT. name in the booklet. we are framing the liner notes. artist era confirmed' },
-      { persona: 'fan', text: 'the shift from “she performs songs” to “she writes songs” is doing something to the general public and to me personally' },
+      { persona: 'fan', text: KP.fillPro('the shift from “{she} performs songs” to “{she} writes songs” is doing something to the general public and to me personally', p) },
       { persona: 'casual', text: 'idol songwriting credits always change how a group gets talked about. watch the word “artist” start appearing in the coverage' },
     ]);
   });

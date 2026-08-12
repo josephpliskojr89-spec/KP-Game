@@ -147,7 +147,7 @@
       outcome = 'cleared';
       text = rng.pick([
         A + ' and ' + B + ' talked for two hours. Nobody cried, one of them laughed, and the room feels lighter already.',
-        'It went better than staff expected. ' + A + ' said what she had been sitting on for weeks; ' + B + ' actually heard it.',
+        KP.fillPro('It went better than staff expected. ' + A + ' said what {she} had been sitting on for weeks; ' + B + ' actually heard it.', a),
         'They walked in separately and left together to get food. Take the win.',
       ]);
     } else if (bothDominant && roll > 0.93) {
@@ -202,7 +202,7 @@
   KP.chemistryNotes = function (state, members) {
     const notes = [];
     if (members.length === 1) {
-      return ['It is her, a stage, and nowhere to hide. Solo acts do not get a room to blame.'];
+      return [KP.fillPro('It is {her}, a stage, and nowhere to hide. Solo acts do not get a room to blame.', members[0])];
     }
     const chem = KP.groupChemistry(state, members);
     const quiet = [];

@@ -41,7 +41,7 @@
       const weeksLeft = hd.deadlineWeek - state.week;
       html.push('<div class="objective" style="margin-top:10px;border-color:color-mix(in srgb,var(--magenta) 50%,var(--line))">' +
         '<div class="o-from" style="color:var(--magenta)">Directive · the internet has decided</div>' +
-        '<div class="o-text">Debut ' + UI.esc(person ? KP.displayName(person) : 'her') + ' — group her or solo her — before the window closes.</div>' +
+        '<div class="o-text">' + UI.esc(KP.fillPro('Debut ' + (person ? KP.displayName(person) : '{her}') + ' — group {her} or solo {her} — before the window closes.', person)) + '</div>' +
         '<div class="o-meta"><span class="chip hot">' + (weeksLeft > 0 ? weeksLeft + ' weeks left' : 'overdue') + '</span>' +
         (person ? '<span class="chip">' + UI.esc(KP.hypeWord(person.hype || 0)) + '</span>' : '') +
         '</div></div>');
@@ -197,7 +197,7 @@
     const what = c => {
       if (c.type === 'readyTrainee') return '“' + UI.esc(c.personName || '') + ' is closest to ready” — a debut that lands';
       if (c.type === 'comebackPromise') { const g = KP.groupById(state, c.groupId); return 'the ' + (g ? UI.esc(g.name) : '') + ' comeback, on the calendar'; }
-      if (c.type === 'ambitionPromise') { const A = KP.C.LIFE.AMBITIONS[c.ambition]; return (A ? A.label : 'the thing she wanted') + ', within the year'; }
+      if (c.type === 'ambitionPromise') { const A = KP.C.LIFE.AMBITIONS[c.ambition]; return (A ? A.label : 'the thing they wanted') + ', within the year'; }
       return c.type;
     };
     const open = claims.filter(c => !c.resolved);

@@ -436,7 +436,7 @@
             ? 'Signings remaining after this: ' + (s.signingsAllowed - s.signingsUsed - 1) + '.'
             : 'Budget after this: ₩ ' + (s.budget - cost) + '. The executive reads the books monthly.') + '</div>',
           '<button class="btn" data-action="close-modal" style="flex:1">Not yet</button>' +
-          '<button class="btn primary" data-action="sign-confirm" data-id="' + p.id + '" style="flex:1">Sign her</button>');
+          '<button class="btn primary" data-action="sign-confirm" data-id="' + p.id + '" style="flex:1">' + KP.fillPro('Sign {her}', p) + '</button>');
         break;
       }
       case 'sign-confirm': {
@@ -537,10 +537,10 @@
         const close = s.roster.filter(oid => oid !== p.id).map(oid => s.people[oid])
           .filter(o => { const r = rels[KP.pairKey(p, o)]; return r && r.state === 'close'; });
         UI.modal('Release ' + KP.displayName(p) + '?',
-          '<div class="pad" style="font-size:.88rem;line-height:1.55;color:var(--ink-dim)">Her contract ends, she leaves the building, and the decision is yours to own. Signings spent on her are not refunded.' +
+          '<div class="pad" style="font-size:.88rem;line-height:1.55;color:var(--ink-dim)">' + KP.fillPro('{Pos} contract ends, {she} leaves the building, and the decision is yours to own. Signings spent on {her} are not refunded.', p) +
           (close.length ? '<br><br>' + close.map(o => KP.publicGiven(o)).join(' and ') + ' will take it hard.' : '') + '</div>',
-          '<button class="btn" data-action="close-modal" style="flex:1">Keep her</button>' +
-          '<button class="btn danger" data-action="release-confirm" data-id="' + p.id + '" style="flex:1">Release her</button>');
+          '<button class="btn" data-action="close-modal" style="flex:1">' + KP.fillPro('Keep {her}', p) + '</button>' +
+          '<button class="btn danger" data-action="release-confirm" data-id="' + p.id + '" style="flex:1">' + KP.fillPro('Release {her}', p) + '</button>');
         break;
       }
       case 'release-confirm': {

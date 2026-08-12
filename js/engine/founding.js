@@ -36,7 +36,7 @@
     const h = careerHonors(state);
     const reasons = [];
     if (state.founded) reasons.push('You already walked through this door once.');
-    if (state.trust < F.trustAt) reasons.push('The exec’s trust is the collateral — investors call her first. (needs ' + F.trustAt + ')');
+    if (state.trust < F.trustAt) reasons.push(KP.fillPro('The exec’s trust is the collateral — investors call {her} first. (needs ' + F.trustAt + ')', KP.execP(state)));
     if (h.years < F.minYears) reasons.push('Nobody funds a label off ' + (h.years < 1 ? 'a rookie year' : 'two seasons') + '. Serve ' + F.minYears + ' full years first.');
     if (!h.daesangs && !h.bonsangs && !h.natOnes) reasons.push('The pitch deck needs a trophy on it — an award or a national #1 with your name behind it.');
     if (!KP.groups(state).some(g => g.debuted)) reasons.push('You have not debuted anyone. What exactly would you be leaving?');
@@ -147,7 +147,7 @@
     const execIdx = Math.floor(KP.hash01([state.seed, 'founder-exec', state.week].join('|')) *
       KP.DATA.executives.length);
     const exec = KP.DATA.executives[execIdx];
-    state.executive = { name: exec.name, personality: exec.personality, intro: exec.intro };
+    state.executive = { name: exec.name, gender: exec.gender || 'f', personality: exec.personality, intro: exec.intro };
     state.trust = F.newTrust;
     state.budget = h.warChest;
     state.fiscal = { monthStartBudget: h.warChest, pressure: 0, monthSignings: 0 };

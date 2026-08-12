@@ -391,7 +391,7 @@
       UI.portrait(breakout, 'md') +
       '<div style="flex:1"><div style="font-weight:800">' + UI.esc(KP.displayName(breakout)) + '</div>' +
       '<div style="font-size:.78rem;color:var(--ink-dim);margin-top:3px">' +
-      (r.breakoutId === g.roles.center ? 'The center held the center. The plan worked.' : 'Not your center. The public picked her anyway.') +
+      (r.breakoutId === g.roles.center ? 'The center held the center. The plan worked.' : KP.fillPro('Not your center. The public picked {her} anyway.', breakout)) +
       '</div></div></div>');
     if (r.centerOvershadowed) {
       html.push('<div class="note urgent">The designated center is losing the room to ' + UI.esc(breakout.name.given) + '. Reassigning the center is your call to make — and your consequence to own.<span class="n-who">— performance division</span></div>');

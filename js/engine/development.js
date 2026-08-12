@@ -82,7 +82,7 @@
       notes.push({ kind: 'breakthrough', text: KP.displayName(person) + ' had a breakthrough week in ' + KP.C.TALENT_LABELS[d].toLowerCase() + '. Something clicked — you could see it from the hallway.' });
     } else if (focus.length && rng.chance(T.plateauChance)) {
       const d = rng.pick(focus);
-      notes.push({ kind: 'plateau', text: KP.displayName(person) + ' has plateaued in ' + KP.C.TALENT_LABELS[d].toLowerCase() + '. The coaches suggest changing her focus for a few weeks.' });
+      notes.push({ kind: 'plateau', text: KP.fillPro(KP.displayName(person) + ' has plateaued in ' + KP.C.TALENT_LABELS[d].toLowerCase() + '. The coaches suggest changing {pos} focus for a few weeks.', person) });
     }
 
     // overtraining consequences

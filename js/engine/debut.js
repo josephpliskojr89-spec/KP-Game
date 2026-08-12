@@ -43,7 +43,7 @@
     }
     if (state.objective.type === 'debutGirlGroup' && state.objective.status === 'open' &&
         plan.week > state.objective.deadlineWeek) {
-      return { ok: false, reason: 'That date is past the executive deadline. Do not test her.' };
+      return { ok: false, reason: KP.fillPro('That date is past the executive deadline. Do not test {her}.', KP.execP(state)) };
     }
     const alloc = plan.alloc || { vocals: 25, dance: 25, rap: 25, media: 25 };
     const total = alloc.vocals + alloc.dance + alloc.rap + alloc.media;

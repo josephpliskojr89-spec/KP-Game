@@ -3868,3 +3868,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Battery 54/54 (suite 054, 32 assertions), soak clean (105 bands),
 > e2e 91, lockstep 0.9.12 (52 modules). Rode to main. Phase C: two
 > down, two to go.
+\n
+> **build 0.9.12.1 — the pronoun sweep** (owner: *"debuting a male
+> solo act refers to him as a her. can [you] just go through and
+> clean that up?"*; four-part build)
+> The sweep found two classes. One: person-subject lines written
+> before the halls went co-ed — the solo builder ("The internet
+> already knows her"), the exec's solo review ("A solo debut for
+> her?"), solo chemistry, sign/keep/release buttons and the release
+> modal, the plateau note, the hype directive, the breakout card,
+> deal/gig declines, the memberWrote fan post, the hype-promise
+> meeting callbacks — all rerouted through fillPro tokens (~20
+> sites). Two, found by the sweep: CEO Kang Min-ho has been "she"
+> since v0.1.0 — executives never had a gender field. Added to the
+> data, stamped at newGame and at founding, healed on old saves
+> without a version gate (four-part builds skip the migration
+> chain), and every exec-voice line (deadline refusals, Monday
+> meeting toasts, board season, the entire pet-project arc) now
+> renders through KP.execP. Null-fallback pronouns and historical
+> migration notes left as-is; one exec reference in an old
+> migration note neutralized. Verified with a forced Kang Min-ho +
+> male soloist render of every touched line. Battery 54/54, soak
+> clean, e2e 91, lockstep 0.9.12.1. Rode to main.

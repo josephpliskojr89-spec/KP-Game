@@ -25,7 +25,7 @@
         short: KP.DATA.playerCompany.short,
         reputation: { vocal: 72, girlGroup: 28, starMaker: 35, performance: 45 },
       },
-      executive: { name: exec.name, personality: exec.personality, intro: exec.intro },
+      executive: { name: exec.name, gender: exec.gender || 'f', personality: exec.personality, intro: exec.intro },
       trust: KP.C.EXEC.startTrust,
       budget: KP.C.ECON.startBudget,
       signingsAllowed: 3,        // the tutorial rail — lifts at first debut

@@ -216,10 +216,10 @@
     state.gigOffers = offers(state).filter(x => x.id !== offerId);
     const p = state.people[o.personId];
     if (!accept) {
-      return { ok: true, note: 'Declined with thanks. ' + (p ? KP.displayName(p) : 'She') +
-        ' keeps her weeks; the production keeps a shortlist we are no longer on.' };
+      return { ok: true, note: KP.fillPro('Declined with thanks. ' + (p ? KP.displayName(p) : '{She}') +
+        ' keeps {pos} weeks; the production keeps a shortlist we are no longer on.', p) };
     }
-    if (!p || p.status !== 'idol') return { ok: false, reason: 'She is not available to sign.' };
+    if (!p || p.status !== 'idol') return { ok: false, reason: 'That artist is not available to sign.' };
     gigs(state).push({ id: o.id, kind: o.kind, personId: o.personId, show: o.show,
       weeksLeft: o.weeks, weekly: o.weekly || 0, lump: o.lump || 0,
       signedWeek: state.week, strain: 0, weeksRun: 0 });

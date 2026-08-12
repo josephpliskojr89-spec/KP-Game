@@ -146,7 +146,7 @@
       const newWeek = g.prep.scheduledWeek + W.slipWeeks;
       if (state.objective.status === 'open' && state.objective.type === 'debutGirlGroup' &&
           !g.debuted && newWeek > state.objective.deadlineWeek) {
-        return { ok: false, reason: 'Slipping past the executive deadline is not on the menu. She was clear. The date stands.' };
+        return { ok: false, reason: KP.fillPro('Slipping past the executive deadline is not on the menu. {She} was clear. The date stands.', KP.execP(state)) };
       }
       state.budget -= W.slipCost;
       g.prep.scheduledWeek = newWeek;
