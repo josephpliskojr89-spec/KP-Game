@@ -188,7 +188,7 @@
         const r = KP.tryImport(txt.trim());
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.state = r.state;
-        KP.saveLocal(App.state);
+        if (!KP.saveLocal(App.state)) UI.toast('Imported, but the autosave did not stick — storage is full. Export to keep it safe.', true);
         App.mode = 'game';
         UI.closeModal();
         UI.toast('Career imported — ' + KP.weekLabel(App.state.week).text + '.');
@@ -839,7 +839,11 @@
   document.addEventListener('click', (e) => {
     const t = e.target.closest('[data-action]');
     if (!t) return;
-    if (t.dataset.action === 'save-slot') { KP.saveLocal(App.state, t.dataset.slot); UI.toast('Saved to slot ' + t.dataset.slot + '.'); systemSheet(); }
+    if (t.dataset.action === 'save-slot') {
+      const ok = KP.saveLocal(App.state, t.dataset.slot);
+      UI.toast(ok ? 'Saved to slot ' + t.dataset.slot + '.' : 'Slot save failed — storage is full. Export instead.', !ok);
+      systemSheet();
+    }
     if (t.dataset.action === 'load-slot') {
       const st = KP.loadLocal(t.dataset.slot);
       if (st) { App.state = st; App.save(); UI.closeModal(); go('desk'); UI.toast('Loaded.'); }

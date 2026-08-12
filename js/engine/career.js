@@ -25,6 +25,11 @@
     state.objectiveHistory.push({
       type: prev.type, text: prev.text, status: prev.status, week: state.week,
     });
+    // the record keeps its last chapter, not the whole shelf (0.9.13
+    // audit: ~8 directives/year, unbounded — the UI reads recent only)
+    if (state.objectiveHistory.length > 60) {
+      state.objectiveHistory = state.objectiveHistory.slice(-50);
+    }
 
     const lastReception = g.results ? g.results.reception : 50;
     const confident = state.trust >= 60;
