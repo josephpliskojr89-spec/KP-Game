@@ -741,12 +741,19 @@
   KP.saveLocal = function (state, slot) {
     if (typeof localStorage === 'undefined') return false;
     const key = KP.C.SAVE_KEY + (slot ? '_slot' + slot : '_auto');
-    localStorage.setItem(key, KP.serialize(state));
-    localStorage.setItem(key + '_meta', JSON.stringify({
-      when: Date.now(), week: state.week, version: state.version,
-      label: KP.weekLabel(state.week).text,
-    }));
-    return true;
+    // quota failures must not throw out of an action handler (0.9.13
+    // audit): a full disk turns into a visible warning, not a crash —
+    // and the career stays alive in memory for an export
+    try {
+      localStorage.setItem(key, KP.serialize(state));
+      localStorage.setItem(key + '_meta', JSON.stringify({
+        when: Date.now(), week: state.week, version: state.version,
+        label: KP.weekLabel(state.week).text,
+      }));
+      return true;
+    } catch (e) {
+      return false;
+    }
   };
   KP.loadLocal = function (slot) {
     if (typeof localStorage === 'undefined') return null;

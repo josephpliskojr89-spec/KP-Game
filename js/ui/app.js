@@ -22,7 +22,16 @@
       alloc: { vocals: 30, dance: 30, rap: 10, media: 30 } },
   };
 
-  App.save = function () { if (App.state) KP.saveLocal(App.state); };
+  App.save = function () {
+    if (!App.state) return;
+    const ok = KP.saveLocal(App.state);
+    // warn once per session, not once per action — the fix is an export
+    if (!ok && !App.saveWarned && typeof localStorage !== 'undefined') {
+      App.saveWarned = true;
+      UI.toast('Autosave failed — storage is full. Export your save from the System menu.', true);
+    }
+    if (ok) App.saveWarned = false;
+  };
 
   App.render = function () {
     const el = document.getElementById('screen');
