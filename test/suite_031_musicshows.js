@@ -117,10 +117,24 @@ function lockAndRide(state, g, rollout) {
   lockAndRide(state, g, [['countdown'], ['countdown'], ['countdown'], ['countdown']]);
   clearStages(state);
   g.trophies = { countdown: KP.C.SHOWWIN.darlingAt - 1 };   // one short of dynasty
-  for (let w = 0; w < KP.C.ROLLOUT.weeks; w++) { clearStages(state); KP.advanceWeek(state); }
-  const nar = KP.getNarrative(state, 'showDarling', 'group', g.id);
+  // ride until the dynasty win lands — WHICH week it lands is stream
+  // luck (a hot rival can steal any given Countdown), the threshold
+  // mechanism is what's under test. Bounded, boosted, never forever.
+  let nar = null;
+  for (let cycle = 0; cycle < 3 && !nar; cycle++) {
+    boost(state, g, 92);
+    for (let w = 0; w < KP.C.ROLLOUT.weeks * 2; w++) {
+      clearStages(state); KP.advanceWeek(state);
+      nar = KP.getNarrative(state, 'showDarling', 'group', g.id);
+      if (nar) break;
+    }
+    if (!nar && !g.prep && state.week > (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) {
+      lockAndRide(state, g, [['countdown'], ['countdown'], ['countdown'], ['countdown']]);
+      clearStages(state);
+    }
+  }
   t.ok(nar, 'the dynasty trophy from one stage makes it a story');
-  t.ok(KP.narrativeText(state, nar).includes('The Countdown'), 'and the story names the stage');
+  t.ok(nar && KP.narrativeText(state, nar).includes('The Countdown'), 'and the story names the stage');
 }
 
 // ---- the encore belongs to WINS now, and it still makes stars ----

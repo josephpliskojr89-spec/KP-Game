@@ -94,6 +94,9 @@
     state.people[p.id] = p;
     state.prospects.push(p.id);
     KP.socialOf(state, p);   // minted at the door, like every arrival
+    // a trip or a partnership IS a real look (0.9.17.1): those files
+    // arrive with a DATED read — that is exactly what the money bought
+    if ((p.observations || 0) > 0) KP.takeReads(state, p);
     return p;
   };
 

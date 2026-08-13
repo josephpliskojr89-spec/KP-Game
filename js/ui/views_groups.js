@@ -24,7 +24,7 @@
       '<div class="g-status">' + UI.esc(status) + '</div>' +
       '<div class="g-name" style="font-size:clamp(2rem,10vw,2.8rem)">' + UI.esc(g.name) + '</div>' +
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:6px">' +
-      '<span class="chip">' + g.members.length + ' members</span>' +
+      '<span class="chip">' + (g.type === 'solo' || g.members.length === 1 ? 'solo act' : g.members.length + ' members') + '</span>' +
       (g.debuted ? '<span class="chip ' + (g.popularity >= 58 ? 'hot' : '') + '">' + KP.popularityWord(g.popularity) + '</span>' : '') +
       ((g.releases || []).length ? '<span class="chip gold">' + g.releases.length + ' release' + (g.releases.length === 1 ? '' : 's') + '</span>' : '') +
       '</div></div>';
@@ -77,7 +77,7 @@
         : g.prep ? 'Debut in preparation' : 'In development') + '</div>' +
       '<div class="g-name">' + UI.esc(g.name) + '</div>' +
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:6px">' +
-      '<span class="chip">' + members.length + ' members</span>' +
+      '<span class="chip">' + (g.type === 'solo' || members.length === 1 ? 'solo act' : members.length + ' members') + '</span>' +
       (g.prep ? '<span class="chip cool">' + UI.esc(KP.conceptById(g.prep.conceptId).label) + '</span>' : '') +
       (g.debuted ? '<span class="chip ' + (g.popularity >= 58 ? 'hot' : '') + '">' + KP.popularityWord(g.popularity) + '</span>' : '') +
       (g.debuted && g.results ? '<span class="chip gold">' + UI.esc(g.results.receptionLabel) + '</span>' : '') +

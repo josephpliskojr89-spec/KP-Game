@@ -38,6 +38,15 @@ t.ok(KP.C.SCOUT.baseReadWidth > KP.C.SCOUT.minReadWidth, 'fog actually narrows o
 // ---- the dated report (0.9.16.3): everything shows, wearing a "?" ----
 {
   const st = KP.newGame('scout-dated', null, { legacy: false });
+  // 0.9.17.1 (owner report): every walk-in starts as a desk report —
+  // nobody arrives pre-looked; the "?" is the default state of the board
+  t.ok(st.prospects.every(id => !(st.people[id].observations > 0)),
+    'no lead on the opening board arrives with a free look');
+  for (let w = 0; w < 8; w++) KP.advanceWeek(st);
+  const walkedIn = st.prospects.map(id => st.people[id])
+    .filter(p => !p.schoolId || !(p.observations > 0));
+  t.ok(walkedIn.every(p => (p.observations > 0) === !!(p.reads)),
+    'a lead with looks has a DATED read; a lead without has neither');
   const q = st.people[st.prospects.find(id => !(st.people[id].observations > 0))];
   const e0 = KP.evaluate(st, q);
   t.eq(e0.domains.length, 5, 'everything shows from the first report');

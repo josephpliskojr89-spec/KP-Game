@@ -13,7 +13,13 @@ function withWriter(seed) {
   const state = KP.newGame(seed, null, { legacy: false });
   state.budget = 800;
   const ids = state.roster.slice(0, 5);
-  state.people[ids[0]].personality.creativity = 95;   // the pen in the room
+  // ids[0] is the ONLY writer — natural creativity elsewhere would let a
+  // different member take the pen and break the fixture's identity checks
+  ids.forEach((id, i) => {
+    const p = state.people[id];
+    p.personality.creativity = i === 0 ? 95 : 20;
+    p.archetypes = (p.archetypes || []).filter(a => a !== 'producerMinded');
+  });
   const P = KP.C.PITCH;
   const old = P.memberDemoChance;
   P.memberDemoChance = 1;

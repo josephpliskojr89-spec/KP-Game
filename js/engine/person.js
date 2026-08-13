@@ -134,7 +134,10 @@
       liveExp: opts.inherited ? rng.int(5, 30) : rng.int(0, 12),
       mediaExp: rng.int(0, 8),
       training: { focus: [], intensity: 'standard' },
-      observations: opts.inherited ? 3 : rng.int(0, 1),
+      // 0.9.17.1 (owner: "new leads are coming with a fresh read already
+      // on them"): nobody counts as looked-at until somebody PAYS for a
+      // look — every walk-in starts as a desk report wearing the "?"
+      observations: opts.inherited ? 3 : 0,
       signedWeek: null,
       history: [],
       flags: {},
@@ -240,6 +243,15 @@
     p.name.stage = clean;
     if (!had) p.history.push({ week: state.week, text: 'Took the stage name “' + clean + '”.' });
     else if (had !== clean) p.history.push({ week: state.week, text: 'Changed stage name from “' + had + '” to “' + clean + '”.' });
+    // a solo act IS the person (0.9.17.1, owner: releases and the group
+    // page should carry the stage name): renaming the artist renames the
+    // act — one truth, and every report follows
+    const g = KP.groupOf ? KP.groupOf(state, personId) : null;
+    if (g && (g.type === 'solo' || (g.members || []).length === 1)) {
+      const dupe = KP.groups(state).some(x => x.id !== g.id &&
+        x.name.toLowerCase() === clean.toLowerCase());
+      if (!dupe) g.name = clean;
+    }
     return { ok: true };
   };
 

@@ -4878,3 +4878,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Numbers: battery 59/59 (suite 059, 44 assertions), soak clean
 > (101 bands, six new all alive), longhaul 5×620 clean, e2e 94,
 > lockstep 0.9.17 (55 modules). Rode to main. Slot 4 of fourteen.
+\n
+> **0.9.17.1 — the desk report and the solo's name** (owner
+> playtest, two reports). One: *"new leads on the board are
+> coming with a fresh read already on them. I'm never seeing the
+> question marks"* — generation was rolling 0-1 free observations
+> per walk-in; nobody counts as looked-at until somebody PAYS for
+> a look now, so every lead arrives as a desk report wearing the
+> "?" (school trips and partnerships still pre-read their files —
+> that is exactly what the money bought, and those reads arrive
+> DATED). Two: *"lots of group talk with solo acts... it should
+> just show his stage name"* — a solo act IS the person: taking a
+> stage name now renames the act (one truth; releases, charts,
+> and the group page all follow), and the member-count chip reads
+> "solo act", never "1 members". Fixture repairs from the removed
+> generation draw recorded in-suite. Battery 59/59, soak clean,
+> e2e 94, lockstep 0.9.17.1. Rode to main.

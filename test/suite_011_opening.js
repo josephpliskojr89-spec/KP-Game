@@ -103,6 +103,18 @@ function throughDebut(seed) {
   t.eq(KP.publicGiven(state.people[g.members[2]]), state.people[g.members[2]].name.given,
     'publicGiven falls back to the real given name');
 
+  // a solo act IS the person (0.9.17.1): the stage name renames the act,
+  // so releases and the group page stop using the birth-name title
+  {
+    const s2 = KP.newGame('open-soloname', null, { legacy: false });
+    const solo = s2.people[s2.roster[0]];
+    KP.proposeGroup(s2, KP.displayName(solo), [solo.id], {});
+    const gs = s2.groups.find(x => x.members.length === 1);
+    t.ok(gs, 'fixture: a solo act exists');
+    KP.setStageName(s2, solo.id, 'Bogyeo9');
+    t.eq(gs.name, 'Bogyeo9', 'the act now carries the stage name');
+  }
+
   // the sit-down speaks in stage names
   state.relationships[KP.pairKey(a, b)] = { score: -50, state: 'conflict' };
   const med = KP.mediatePair(state, a.id, b.id);
