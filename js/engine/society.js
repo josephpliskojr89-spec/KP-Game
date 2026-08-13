@@ -75,7 +75,12 @@
               state.societyQuietUntil = state.week + S.quietWeeks;
               ours.history.push({ week: state.week,
                 text: 'Made a real friend in a music-show waiting room: ' + KP.displayName(friend) + ' of ' + act.name + '.' });
-              inbox.push({ kind: 'public', ind: 'industryFriend', priority: 'flavor',
+              // priority high (0.9.18.1): the friendship's birth is a
+              // bounded beat other systems read later (renewals, gigs,
+              // the coffee truck) — society runs LAST in the week, so at
+              // any tied priority the trim eats it first. Bounded by
+              // maxFriends + the quiet window; no flood risk.
+              inbox.push({ kind: 'public', ind: 'industryFriend', priority: 'high',
                 personId: ours.id, friendId: friend.id, actName: act.name,
                 text: KP.fillPro('Music-show week did what music-show weeks do: ' + KP.publicGiven(ours) +
                   ' and ' + KP.displayName(friend) + ' (' + act.name + ') left the building laughing at the same thing, and a fan photo of it is already everywhere. The waiting rooms are where the industry actually lives.', ours) });

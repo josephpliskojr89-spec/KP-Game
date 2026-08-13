@@ -323,9 +323,14 @@
     let reception = Math.round(KP.clamp(
       act.quality * 0.85 + act.popularity * 0.15 + rng.normal(0, I.releaseNoiseSd) - 6, 1, 100));
     // the flagship punches up (v0.9.8): behind the scene leader, the
-    // release comes hungrier — the machine spends when it is chasing
+    // release comes hungrier — the machine spends when it is chasing.
+    // A portfolio at comfort is a focused machine (0.9.18.1): fewer
+    // groups means EVERY act gets that backing, not just the flagship
     const ceiling = KP.sceneCeiling(state);
-    if (!isDebut && ceiling > 0 && act === flagshipOf(rival) && statureBefore < ceiling) {
+    const RM = I.ROOM;
+    const focused = rival.acts.filter(a => !a.retired).length <=
+      RM.comfortBase + Math.floor((rival.prestige || 40) / RM.comfortPerPrestige);
+    if (!isDebut && ceiling > 0 && (focused || act === flagshipOf(rival)) && statureBefore < ceiling) {
       const F = I.FLAGSHIP;
       reception = Math.round(KP.clamp(
         reception + Math.min(F.punchCap, (ceiling - statureBefore) * F.punchFactor), 1, 100));
@@ -334,7 +339,10 @@
       ? KP.clamp(Math.round(10 + reception * 0.7), 0, 100)
       : KP.clamp(Math.round(act.popularity * 0.55 + reception * 0.5), 0, 100);
     act.lastReleaseWeek = state.week;
-    act.cycleWeeks = rng.int(I.cycleWeeks[0], I.cycleWeeks[1]);
+    // fewer groups, faster cycles (0.9.18.1): the calendar stays crowded
+    // because each act works harder, not because there are more of them
+    act.cycleWeeks = Math.max(8, Math.round(
+      rng.int(I.cycleWeeks[0], I.cycleWeeks[1]) * (focused ? RM.focusCycleFactor : 1)));
     act.announcedWeek = null;   // the announced date was kept — or moved (v0.6.4)
     act.releases = act.releases || [];
     act.releases.push({ week: state.week, title, reception, isDebut: !!isDebut });
@@ -391,8 +399,66 @@
 
     (state.rivals || []).forEach(rival => {
       rival.acts = rival.acts || [];
-      if (rng.chance(I.scoutIntake)) rival.rosterCount = Math.min(30, (rival.rosterCount || 0) + 1);
+      // the room is sized to a plan (0.9.18.1): the next debut's cost
+      // plus a bench the company's ambition can carry. Below the plan
+      // they scout at full appetite; a full room only signs the
+      // can't-miss kid.
+      const R = I.ROOM;
+      const roomTarget = I.debutTraineeCost + R.bench + Math.floor((rival.prestige || 40) / R.benchPerPrestige);
+      const appetite = (rival.rosterCount || 0) < roomTarget ? 1 : R.satedIntake;
+      if (rng.chance(I.scoutIntake * appetite)) rival.rosterCount = Math.min(30, (rival.rosterCount || 0) + 1);
 
+      // the evaluation (0.9.18.1): twice a year the floor is graded and
+      // the room is cut back to the plan — deeper when the room has
+      // bloated badly. The named signee who never made a lineup is not
+      // exempt; nobody in this industry is.
+      if ((state.week + (KP.hashStr(rival.short) % R.cullEvery)) % R.cullEvery === 0) {
+        const overage = (rival.rosterCount || 0) - roomTarget;
+        if (overage > 0) {
+          const cut = overage >= R.purgeAt
+            ? Math.ceil(overage * R.purgeFactor)
+            : Math.min(R.cullMax, overage);
+          rival.rosterCount = Math.max(0, (rival.rosterCount || 0) - cut);
+          state.rivalLedger = state.rivalLedger || { culls: 0, namedCuts: 0 };
+          state.rivalLedger.culls++;
+          pushMove(rival, 'Cut ' + cut + ' trainee' + (cut === 1 ? '' : 's'));
+          if (cut >= R.cullNoteAt) {
+            notes.push({ kind: 'industry', text: rival.short + '’s seasonal evaluation cut ' +
+              cut + ' from the trainee floor. The company calls it aligning the room with the roadmap. The room calls it Tuesday.' });
+          }
+          // a named signee below the bar goes with the counters — the
+          // people we lost to their scouts are not safe on their floor
+          const inActs = new Set();
+          (state.rivals || []).forEach(r0 => (r0.acts || []).forEach(a0 =>
+            (a0.members || []).forEach(id0 => inActs.add(id0))));
+          const floor = Object.values(state.people)
+            .filter(p0 => p0.status === 'rival' && p0.company === rival.short && !inActs.has(p0.id))
+            .filter(p0 => {
+              const signed = (p0.history || []).find(h => /Signed to /.test(h.text));
+              const peak = Math.max(p0.talents.vocals.cur, p0.talents.dance.cur,
+                p0.talents.rap.cur, p0.talents.charisma.cur);
+              return signed && state.week - signed.week >= R.namedTenure && peak < R.namedBar;
+            })
+            .sort((a0, b0) => peakTalent(a0) - peakTalent(b0));
+          floor.slice(0, R.namedMax).forEach(pc => {
+            pc.status = 'released';
+            pc.company = null;
+            pc.history.push({ week: state.week,
+              text: 'Cut at ' + rival.short + '’s seasonal evaluation. Years of practice rooms, one meeting.' });
+            state.rivalLedger.namedCuts++;
+            notes.push({ kind: 'scouting', personId: pc.id,
+              text: KP.fillPro(rival.short + ' cut ' + KP.displayName(pc) + ' at their seasonal evaluation — the same trainee their scouts took off our board. {She} deserved a company with a plan for {her}.', pc) });
+          });
+        }
+      }
+
+      // a full portfolio waits its turn (0.9.18.1): a company running at
+      // its comfort keeps the trainees training and re-asks in a month
+      const comfort = R.comfortBase + Math.floor((rival.prestige || 40) / R.comfortPerPrestige);
+      if (state.week >= (rival.nextDebutWeek || Infinity) &&
+          rival.acts.filter(a => !a.retired).length >= comfort) {
+        rival.nextDebutWeek = state.week + R.comfortRecheck;
+      }
       // a scheduled debut, if the trainee room can field one
       if (state.week >= (rival.nextDebutWeek || Infinity) && (rival.rosterCount || 0) >= I.debutTraineeCost) {
         // the copycat reveal (v0.6.4): a trend chaser that clocked one of
@@ -421,7 +487,10 @@
         };
         rival.acts.push(act);
         rival.nextDebutWeek = state.week + rng.int(I.debutInterval[0], I.debutInterval[1]) +
-          Math.round(Math.max(0, 70 - rival.prestige) / 4);
+          Math.round(Math.max(0, 70 - rival.prestige) / 4) +
+          // the portfolio paces the pipeline (0.9.18.1): every group a
+          // company already runs is a machine that needs feeding first
+          rival.acts.filter(a => !a.retired).length * I.ROOM.actPace;
         const rel = rivalRelease(state, rival, act, rng, true);
         (rel.narNotes || []).forEach(n => notes.push(n));
         pushMove(rival, 'Debuted ' + act.name);
@@ -464,7 +533,13 @@
         } else {
           act.popularity = Math.max(0, act.popularity - I.actPopDecay);
           const age = state.week - act.debutWeek;
-          if (act.popularity < I.disbandFloorPop && age > I.disbandMinAgeWeeks && rng.chance(I.disbandChance)) {
+          // an overextended company prunes its coldest act sooner
+          // (0.9.18.1): six groups is a portfolio, not a family
+          const activeNow = rival.acts.filter(a => !a.retired);
+          const crowded = activeNow.length > I.ROOM.overextendAt &&
+            act === activeNow.reduce((m, a) => a.popularity < m.popularity ? a : m);
+          if (act.popularity < I.disbandFloorPop * (crowded ? 1.6 : 1) &&
+              age > I.disbandMinAgeWeeks && rng.chance(I.disbandChance * (crowded ? 2 : 1))) {
             act.retired = true;
             rival.prestige = KP.clamp(rival.prestige - 4, 5, 95);
             if (rival.prestige < KP.C.MEMORY.fadingBelow) {
@@ -475,6 +550,16 @@
             notes.push({ kind: 'industry', ind: 'disband', actName: act.name, company: rival.short,
               text: rival.short + ' announced the “conclusion of team activities” for ' + act.name +
                 '. The fans saw it coming, which never once made it hurt less.' });
+          } else if (age > I.ROOM.sevenYearWeeks && rng.chance(I.ROOM.wallChance)) {
+            // the seven-year wall (0.9.18.1): rival contracts expire on
+            // the same clock the player's do. A finished run, not a fall.
+            act.retired = true;
+            rival.prestige = KP.clamp(rival.prestige - 2, 5, 95);
+            pushMove(rival, act.name + ' concluded (7 years)');
+            notes.push({ kind: 'industry', ind: 'disband', actName: act.name, company: rival.short,
+              text: act.name + '’s seven-year run ends where the contracts do: ' + rival.short +
+                ' and the members could not land on the same next chapter. Seven years, ' +
+                (act.releases || []).length + ' releases, and a fandom that will now archive everything twice.' });
           }
         }
       });

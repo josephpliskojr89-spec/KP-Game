@@ -3389,6 +3389,14 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   Watch human play — a neglected second group after a missed
   comeback is the natural door. If the owner never sees a quiet
   era, raise enterMoraleBelow before touching enterChance.
+- **The fiscal ceiling has been chased three times (0.9.18.1)** —
+  0.45→0.65→0.75→0.85, each time because a designed-cost or
+  designed-pressure release moved the operating point up while the
+  poverty tail stayed healthy (latest: 80-seed min end-budget 2065,
+  none below 300). The warned-count band is drifting toward
+  weather. Next flap: stop chasing and re-point the census at the
+  tail itself (orgs ending under ~300, ceiling ~0.05) — that is
+  the poverty-spiral regression this alarm exists to catch.
 - **clamorHeld measures choice now, not cadence (v0.9.18)** — at
   first soak 100% of orgs paid resentment ticks because settling
   needs a release and the release cadence (~20wk) outruns the
@@ -5032,3 +5040,45 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > soak clean (137 bands, seven new all alive or suite-held),
 > longhaul 5×620 clean, e2e 94, lockstep 0.9.18 (56 modules).
 > Rode to main. Slot 5 of fourteen.
+\n
+> **0.9.18.1 — the trainee floor gets a door** (owner playtest:
+> "every rival with ~30 trainees... most have 6+ groups already
+> created. it gets crowded pretty quickly for only being year 8").
+> Two absences, found and filled. One: rival intake was a
+> metronome — 35%/week toward the cap of 30 with NO release path,
+> so every room pinned at the cap by year two and stayed. Rooms
+> are now sized to a plan (next debut's cost + a prestige-scaled
+> bench, ~8-12), scout at full appetite only below it, and face a
+> seasonal evaluation that cuts back to the plan — purges for
+> badly bloated rooms, so old saves normalize within a game year.
+> A NAMED signee who never made a lineup is not exempt: below the
+> bar and long-tenured, she goes with the counters, file stamped,
+> wire told (median 3 named cuts per world per 140 weeks across
+> five companies — one per company every two years). Two: the
+> portfolio now paces the pipeline — every active act delays the
+> next debut, a company at its comfort (2-5 acts by prestige)
+> defers casting entirely, an overextended one prunes its coldest
+> act sooner, and rival acts finally hit the same seven-year
+> contract wall the player's idols live under (a finished run,
+> not a fall — dignified copy, smaller prestige cost). Year-8
+> worlds: 2-5 active acts and ~10 trainees per company, with
+> retired runs accruing as history. The thinning then had to be
+> paid for: player debut receptions jumped 61→67 in the emptier
+> calendar, the national summit doubled to 19/40. Restored
+> without re-crowding: a focused machine backs EVERY act with the
+> flagship's hungry punch, and cycles its comebacks faster
+> (×0.65) — the calendar stays contested because each act works
+> harder, not because there are more of them (summit back to
+> 13/40, catalog lottery to its old point, debut reception 60).
+> Fallout fixed en route: the scene/national peak "superset"
+> invariant was never sound (the boards decay at different rates
+> BY DESIGN — demoted to a wild-desync guard); the scar guilt
+> note and the friendship's birth both got trim priority (the
+> louder wire ate them — growthPromise precedent); comebackNoteMin
+> 64→70 (the punched era's bar for "everywhere" rises with it);
+> fiscalWarned 0.75→0.85 and catalogRevived 0.75→0.85 by ruling
+> with 80-seed measurements (tails healthy; the fiscal ceiling is
+> on its THIRD chase — §18 says re-point it at the poverty tail
+> next flap). Numbers: battery 60/60 (suite 022 +12 checks), soak
+> clean (139 bands, two new), longhaul 5x620 clean, e2e 94,
+> lockstep 0.9.18.1. Rode to main.

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.18',
+    VERSION: '0.9.18.1',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -554,7 +554,35 @@
       disbandMinAgeWeeks: 70,
       disbandChance: 0.05,       // weekly, when at risk
       scoutIntake: 0.35,         // weekly chance a rival roster grows by one
-      comebackNoteMin: 64,       // rival comebacks only make the inbox when hot
+      // the trainee floor gets a door (0.9.18.1, owner: "every rival
+      // with ~30 trainees... make it possible to more ruthlessly
+      // release those that aren't cutting it") — rooms are sized to a
+      // plan, graded twice a year, and cut back to the plan
+      ROOM: {
+        bench: 3,                // trainees kept beyond the next debut's cost
+        benchPerPrestige: 25,    // +1 bench per this much prestige
+        satedIntake: 0.12,       // intake multiplier once the room is full
+        cullEvery: 26,           // weeks between evaluations (staggered per company)
+        cullMax: 8,              // deepest routine single-evaluation cut
+        purgeAt: 16,             // overage at which the evaluation becomes a purge…
+        purgeFactor: 0.6,        // …cutting this share of the overage at once
+        cullNoteAt: 3,           // cuts this deep make the wire
+        namedTenure: 40,         // weeks a signee gets before the bar applies
+        namedBar: 58,            // peak talent below this is not cutting it
+        namedMax: 1,             // named cuts per evaluation
+        actPace: 7,              // extra debut-delay weeks per active act
+        overextendAt: 5,         // active acts past which the bottom act prunes faster
+        comfortBase: 2,          // active acts a company runs comfortably…
+        comfortPerPrestige: 30,  // …+1 per this much prestige (40→3, 90→5)
+        comfortRecheck: 8,       // weeks a full portfolio waits before re-asking
+        sevenYearWeeks: 364,     // the contract wall rival acts hit too
+        wallChance: 0.03,        // weekly wind-down chance past the wall
+        focusCycleFactor: 0.65,  // a focused machine cycles its acts faster
+      },
+      comebackNoteMin: 70,       // rival comebacks only make the inbox when hot
+                                 // (64→70 in 0.9.18.1: the focused machine
+                                 // punches receptions up — the bar for
+                                 // "everywhere this week" rises with the era)
       emergeChance: 0.06,        // monthly, while below maxRivals
       collapseChance: 0.09,      // monthly, for a starved company
       collapsePrestige: 26,      // below this with no active act = starved

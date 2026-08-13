@@ -49,7 +49,9 @@
       const p = state.people[sc.personId];
       if (!p) return null;
       p.morale = KP.clamp(p.morale + KP.C.SCAR.quietRecoveryMorale, 0, 100);
-      return { kind: 'development', priority: 'normal', personId: p.id,
+      // priority high (0.9.18.1): the guilt note is the CONSEQUENCE of
+      // ignoring the scene — it must not lose the week to industry noise
+      return { kind: 'development', priority: 'high', personId: p.id,
         text: KP.fillPro(KP.displayName(p) + ' found {pos} own way back this week — no plan, no meeting, just time doing what time does. The staff note it with relief and a little guilt about the unopened question on your desk.', p) };
     },
   });

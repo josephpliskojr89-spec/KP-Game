@@ -137,6 +137,103 @@ const t = makeT('suite_022_rivalroster');
   t.eq(KP.serialize(migrated), KP.serialize(m2), 'migration is deterministic');
 }
 
+// ---- the trainee floor gets a door (0.9.18.1) --------------------------
+// the room is sized to a plan; the evaluation cuts back to it; a bloated
+// room gets purged; a lingering named signee below the bar goes too
+{
+  const state = KP.newGame('rr-floor', null, { legacy: false });
+  const I = KP.C.INDUSTRY;
+  const R = I.ROOM;
+  const rival = state.rivals[0];
+  const target = I.debutTraineeCost + R.bench + Math.floor((rival.prestige || 40) / R.benchPerPrestige);
+  // a saturated room (the year-8 save the owner reported); no debut in
+  // the window, or the casting call saves the floor kid from the axe
+  rival.rosterCount = 30;
+  rival.nextDebutWeek = state.week + 500;
+  // a named signee who never made a lineup, below the bar, long-tenured
+  const floorKid = Object.values(state.people).find(p => p.status === 'prospect');
+  floorKid.status = 'rival';
+  floorKid.company = rival.short;
+  state.prospects = state.prospects.filter(id => id !== floorKid.id);
+  ['vocals', 'dance', 'rap', 'charisma'].forEach(d => { floorKid.talents[d].cur = 30; });
+  floorKid.history.push({ week: Math.max(1, state.week - R.namedTenure - 4),
+    text: 'Signed to ' + rival.short + ' — off our board.' });
+  let guard = 0;
+  while (rival.rosterCount > target && guard++ < R.cullEvery * 3 + 4) KP.advanceWeek(state);
+  t.ok(rival.rosterCount <= target,
+    'the evaluations cut a saturated room back to the plan (' + rival.rosterCount + ' <= ' + target + ')');
+  t.ok((state.rivalLedger || {}).culls >= 1, 'the cuts are ledgered');
+  t.ok((rival.recentMoves || []).some(m => /^Cut \d+ trainee/.test(m)),
+    'and worn on the company card');
+  t.eq(floorKid.status, 'released', 'the named signee below the bar was not exempt');
+  t.ok(floorKid.history.some(h => /seasonal evaluation/.test(h.text)),
+    'her file says what happened');
+  t.ok((state.rivalLedger || {}).namedCuts >= 1, 'named cuts are ledgered');
+}
+
+// a room AT the plan barely signs and is never cut
+{
+  const state = KP.newGame('rr-sated', null, { legacy: false });
+  const I = KP.C.INDUSTRY;
+  const R = I.ROOM;
+  const rival = state.rivals[0];
+  const target = I.debutTraineeCost + R.bench + Math.floor((rival.prestige || 40) / R.benchPerPrestige);
+  rival.rosterCount = target;
+  rival.nextDebutWeek = state.week + 500;   // no debut consumption in the window
+  for (let w = 0; w < 26; w++) KP.advanceWeek(state);
+  t.ok(rival.rosterCount <= target + 3,
+    'a sated room trickles instead of hoarding (' + rival.rosterCount + ')');
+}
+
+// the portfolio paces the pipeline: more active acts, later next debut
+{
+  const a = KP.newGame('rr-pace', null, { legacy: false });
+  const I = KP.C.INDUSTRY;
+  const rival = a.rivals[0];
+  rival.rosterCount = 30;
+  rival.nextDebutWeek = a.week;   // debut now
+  const before = (rival.acts || []).filter(x => !x.retired).length;
+  const b = KP.deserialize(KP.serialize(a));
+  b.rivals[0].acts.forEach(x => { x.retired = true; });   // same company, empty portfolio
+  KP.advanceWeek(a); KP.advanceWeek(b);
+  const rvA = a.rivals[0], rvB = b.rivals[0];
+  t.ok(rvA.acts.filter(x => !x.retired).length === before + 1, 'the crowded company debuted');
+  t.ok(rvB.acts.filter(x => !x.retired).length === 1, 'the empty company debuted too');
+  t.ok(rvA.nextDebutWeek - rvB.nextDebutWeek === before * I.ROOM.actPace,
+    'and the crowded portfolio pushed its NEXT debut ' + (rvA.nextDebutWeek - rvB.nextDebutWeek) + ' weeks later');
+}
+
+// a full portfolio defers its debut; the seven-year wall ends a run
+{
+  const state = KP.newGame('rr-comfort', null, { legacy: false });
+  const I = KP.C.INDUSTRY;
+  const R = I.ROOM;
+  const rival = state.rivals[0];
+  const comfort = R.comfortBase + Math.floor((rival.prestige || 40) / R.comfortPerPrestige);
+  while (rival.acts.filter(a => !a.retired).length < comfort) {
+    rival.acts.push({ id: 'raC' + rival.acts.length, gender: 'f', name: 'Filler ' + rival.acts.length,
+      concept: 'bright', quality: 60, members: [], popularity: 50,
+      debutWeek: state.week, lastReleaseWeek: state.week, cycleWeeks: 20, releases: [], retired: false });
+  }
+  rival.rosterCount = 20;
+  rival.nextDebutWeek = state.week;
+  const acts0 = rival.acts.length;
+  KP.advanceWeek(state);
+  t.eq(rival.acts.length, acts0, 'a company at comfort does not debut');
+  t.ok(rival.nextDebutWeek > state.week - 1, 'it re-asks later instead');
+  // now age one act past the wall and watch the run conclude
+  const veteran = rival.acts.find(a => !a.retired);
+  veteran.debutWeek = state.week - R.sevenYearWeeks - 10;
+  veteran.lastReleaseWeek = state.week + 100;   // idle weeks, so the wall roll runs
+  const W = R.wallChance;
+  R.wallChance = 1;
+  KP.advanceWeek(state);
+  R.wallChance = W;
+  t.ok(veteran.retired, 'the seven-year wall concluded the run');
+  t.ok(state.inbox.some(m => m.ind === 'disband' && /seven-year run/.test(m.text)),
+    'and the wire wrote it as a finished chapter, not a fall');
+}
+
 // ---- determinism across the whole feature ----
 {
   const a = KP.newGame('rr-fork', null, { legacy: false });

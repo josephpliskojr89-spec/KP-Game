@@ -55,7 +55,14 @@ const BANDS = {
   // MVs, repackages). The poverty tail stayed healthy (80-seed min
   // end-budget 2147, none below 300), so the drift is pricing, not
   // spiraling. The alarm keeps living past the operating point.
-  fiscalWarned:      { lo: 0.00, hi: 0.75, label: 'orgs warned at trust-hitting level (2+)' },
+  // ceiling 0.75→0.85 by ruling (0.9.18.1): 31/40 and 63/80 (~79%) —
+  // the rival rework's faster comeback cycles mean more contested
+  // weeks and thinner blind-bot margins; the tail stayed healthy
+  // (80-seed min end-budget 2065, none below 300). THIRD chase of this
+  // ceiling: if it flaps again, stop chasing and re-point the band at
+  // the poverty tail itself (orgs ending under ~300), which is the
+  // regression this alarm actually exists to catch.
+  fiscalWarned:      { lo: 0.00, hi: 0.85, label: 'orgs warned at trust-hitting level (2+)' },
   idolsRested:       { lo: 0.50, hi: 1.00, label: 'orgs whose idol weeks average off the fumes (<70, rolling)' },
   overworkSeen:      { lo: 0.05, hi: 1.00, label: 'orgs where medical staff benched somebody' },
   rivalActDebut:     { lo: 0.80, hi: 1.00, label: 'worlds where a rival debuted a new act' },
@@ -117,7 +124,11 @@ const BANDS = {
   // old ceiling sat INSIDE the band's own binomial noise and flapped.
   // A lottery ~2/3 of three-year careers hit once is the design; the
   // everyone-wins alarm now lives at 0.75.
-  catalogRevived:    { lo: 0.02, hi: 0.75, label: 'orgs whose catalog track reverse-charted (the lottery ticket)' },
+  // ceiling 0.75→0.85 by ruling (0.9.18.1): the 40-seed read flapped
+  // at the old ceiling twice in one patch cycle (30, 27, 31/40); the
+  // 80-seed operating point is 65%, so the ceiling moves outside the
+  // small-sample noise (~2 sigma) instead of sitting inside it.
+  catalogRevived:    { lo: 0.02, hi: 0.85, label: 'orgs whose catalog track reverse-charted (the lottery ticket)' },
   viralSourced:      { lo: 0.50, hi: 1.00, label: 'orgs whose viral moments carry provenance (the clip has a stage)' },
   obligationMissed:  { lo: 0.00, hi: 0.80, label: 'orgs that missed a sponsored appearance (the road won)' },
   dealClawedBack:    { lo: 0.00, hi: 0.50, label: 'orgs a brand terminated for cause (two misses)' },
@@ -138,6 +149,13 @@ const BANDS = {
   slumpSeen:         { lo: 0.00, hi: 0.80, label: 'orgs where somebody lost the nerve (the slump)' },
   footingFound:      { lo: 0.00, hi: 0.80, label: 'orgs where the nerve came back (the footing)' },
   arcMinted:         { lo: 0.02, hi: 1.00, label: 'orgs that minted a group identity arc (icons/variety/OST)' },
+  // the trainee floor gets a door (0.9.18.1): rooms sized to a plan
+  rivalCulled:       { lo: 0.05, hi: 1.00, label: 'worlds where a rival evaluation cut the trainee floor' },
+  // ceiling 0.90→1.00 by ruling (0.9.18.1, first soak): median 3 named
+  // cuts per world across FIVE companies in 140 weeks — one per company
+  // every two years, capped structurally at namedMax per evaluation.
+  // Ruthless is the owner's brief; the alarm guards extinction.
+  rivalNamedCut:     { lo: 0.05, hi: 1.00, label: 'worlds where a NAMED signee was cut at an evaluation' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
@@ -273,7 +291,7 @@ const tally = {
   obligationKept: 0, obligationMissed: 0, dealClawedBack: 0, soloRequested: 0, soloAllowed: 0,
   clipResurfaced: 0, catalogRevived: 0, viralSourced: 0,
   clamorBegan: 0, clamorSettled: 0, clamorHeld: 0, soloKnocked: 0,
-  slumpSeen: 0, footingFound: 0, arcMinted: 0,
+  slumpSeen: 0, footingFound: 0, arcMinted: 0, rivalCulled: 0, rivalNamedCut: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
   schoolLead: 0, schoolClass: 0, schoolTrip: 0, schoolPartner: 0, schoolHot: 0,
@@ -825,8 +843,14 @@ for (let s = 0; s < SEEDS; s++) {
       guard(Number.isFinite(e.score) && e.score >= 0 && !!e.title, seed + ' national entry broken'));
     state.groups.forEach(gg => (gg.releases || []).forEach(r => {
       if (r.nationalPeak != null && r.chartPeak != null) {
-        guard(r.nationalPeak >= r.chartPeak,
-          seed + ' national peak better than scene peak — impossible in a superset field (' +
+        // NOT a strict superset ordering (0.9.18.1): the boards decay at
+        // different rates BY DESIGN (scene 0.88/wk, national 0.93 — the
+        // big board has longevity), so an aging player entry can outlast
+        // a late rival nationally while trailing it on the scene. Small
+        // inversions are physics (first seen 3-vs-4 when rival cycles
+        // sped up); a WILD inversion is still a peak-stamping bug.
+        guard(r.nationalPeak >= r.chartPeak - 5,
+          seed + ' national peak wildly better than scene peak — peak stamping desync (' +
           r.nationalPeak + ' vs ' + r.chartPeak + ')');
       }
     }));
@@ -965,6 +989,10 @@ for (let s = 0; s < SEEDS; s++) {
   if ((gl.slumps || 0) >= 1) tally.slumpSeen++;
   if ((gl.footings || 0) >= 1) tally.footingFound++;
   if ((state.memory || []).some(n => ['festivalIcons', 'varietyGroup', 'ostFactory'].includes(n.key))) tally.arcMinted++;
+  // the trainee floor (0.9.18.1): the rival ledger is durable
+  const rl = state.rivalLedger || {};
+  if ((rl.culls || 0) >= 1) tally.rivalCulled++;
+  if ((rl.namedCuts || 0) >= 1) tally.rivalNamedCut++;
   // the title fight (v0.9.17): releases and producers carry the stamps
   const allRels = state.groups.flatMap(g => g.releases || []);
   if (((state.pitchLedger || {}).memberDemos || 0) >= 1) tally.memberDemoSeen++;
