@@ -26,9 +26,44 @@
         .sort((a, b) => KP.rivalHeat(state, b.id).max - KP.rivalHeat(state, a.id).max)
         .forEach(p => html.push(prospectRow(state, p)));
       if (!state.prospects.length) html.push('<div class="card">The board is empty. Leads arrive weekly.</div>');
+      html.push(renderSchools(state));
     }
     return html.join('');
   };
+
+  // ---- the regional schools (v0.9.16): the map under the board ---------
+  function renderSchools(state) {
+    const schools = state.schools || [];
+    if (!schools.length) return '';
+    const S = KP.C.SCHOOLS;
+    const html = ['<div class="pad" style="margin:14px 0 2px;font-size:.74rem;color:var(--ink-dim)">' +
+      'The regional schools. A trip (' + S.tripCost + ') buys sharper reads on a school’s class; a partnership (' + S.partnerCost + ') buys first look before any rival scout gets a seat.</div>'];
+    schools.slice().sort((a, b) => b.rep - a.rep).forEach(s => {
+      const partnered = s.partnerUntil > state.week;
+      const cooling = s.visitedWeek && state.week - s.visitedWeek < S.tripCooldownWeeks;
+      const grads = s.alumni.filter(a => a.debuted).length;
+      html.push('<div class="card" style="padding:12px">' +
+        '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">' +
+        '<span style="font-weight:800">' + UI.esc(s.name) + '</span>' +
+        '<span style="font-size:.74rem;color:var(--ink-dim)">' + UI.esc(s.city) + ' · ' +
+        (s.lane === 'vocals' ? 'vocal' : s.lane === 'dance' ? 'dance' : 'all-round') + ' lane</span>' +
+        (s.hot ? '<span class="chip hot">hot</span>' : '<span class="chip">' + KP.schoolRepWord(s.rep) + '</span>') +
+        (partnered ? '<span class="chip gold">first look</span>' : '') +
+        '</div>' +
+        '<div style="font-size:.76rem;color:var(--ink-dim);margin-top:5px">' +
+        (s.alumni.length
+          ? 'Alumni ledger: ' + s.alumni.slice(-3).map(a => UI.esc(a.name)).reverse().join(', ') +
+            (grads ? ' — ' + grads + ' on debut stages' : '')
+          : 'No signed alumni yet. Every ledger starts blank.') + '</div>' +
+        '<div style="display:flex;gap:8px;margin-top:9px">' +
+        '<button class="btn small" data-action="school-trip" data-id="' + s.id + '"' +
+        (state.budget < S.tripCost || cooling ? ' disabled' : '') + '>' + (cooling ? 'Visited' : 'Trip · ' + S.tripCost) + '</button>' +
+        '<button class="btn small" data-action="school-partner" data-id="' + s.id + '"' +
+        (partnered || state.budget < S.partnerCost ? ' disabled' : '') + '>' + (partnered ? 'Partnered' : 'Partner · ' + S.partnerCost) + '</button>' +
+        '</div></div>');
+    });
+    return html.join('');
+  }
 
   function rosterRow(state, p) {
     const head = KP.headline(state, p);
@@ -69,7 +104,7 @@
       '<div class="t-body" data-action="open-dossier" data-id="' + p.id + '">' +
       '<div class="t-name">' + UI.esc(p.name.display) +
       (p.gender === 'm' ? ' <span class="chip" style="font-size:.6rem;vertical-align:middle">boy</span>' : '') + '</div>' +
-      '<div class="t-sub">' + p.age + ' · ' + UI.esc(p.source) + ' · ' + looksWord(p) + '</div>' +
+      '<div class="t-sub">' + p.age + ' · ' + UI.esc(sourceLabel(state, p)) + ' · ' + looksWord(p) + '</div>' +
       '<div class="t-read">“' + UI.esc(best.line) + '”</div>' +
       '<div class="t-chips">' + UI.heatChips(state, p.id) + '</div>' +
       '</div>' +
@@ -90,6 +125,25 @@
     }
     html.push('<div class="pad" style="margin:10px 0 2px;font-size:.74rem;color:var(--ink-dim)">' +
       'Two focus areas max per trainee. Heavy weeks add up — so does rest.</div>');
+    // the evaluation board (v0.9.16): the ranking everyone reads monthly
+    const ranked = trainees.filter(p => p.evalRank).sort((a, b) => a.evalRank - b.evalRank);
+    if (ranked.length >= 2) {
+      const P = KP.C.PRACTICE;
+      const evalWeek = ranked[0].evalWeek || state.week;
+      const next = evalWeek + P.evalEveryWeeks;
+      html.push('<div class="card" style="padding:12px">' +
+        '<div style="font-weight:800">The evaluation board</div>' +
+        '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:2px">Posted ' + UI.esc(KP.weekLabel(evalWeek).text) +
+        ' · next board ' + UI.esc(KP.weekLabel(next).text) + '. The trainees read it before you do.</div>' +
+        '<div style="margin-top:8px">' +
+        ranked.map(p => '<div style="display:flex;gap:8px;align-items:baseline;padding:2px 0">' +
+          '<span style="font-weight:800;width:1.4em">' + p.evalRank + '</span>' +
+          '<span data-action="open-dossier" data-id="' + p.id + '">' + UI.esc(KP.displayName(p)) + '</span>' +
+          ((p.flags.evalStreak || 0) >= KP.C.PRACTICE.aceStreakAt ? '<span class="chip gold">the ace</span>' : '') +
+          (p.flags.agingOut ? '<span class="chip">the clock</span>' : '') +
+          '</div>').join('') +
+        '</div></div>');
+    }
     trainees.forEach(p => {
       const inPrep = prepIds.includes(p.id);
       html.push('<div class="card train-card" style="padding:12px">' +
@@ -118,6 +172,11 @@
     const n = Math.min(p.observations || 0, KP.C.SCOUT.maxObservations);
     return n === 0 ? 'one report' : n >= KP.C.SCOUT.maxObservations ? 'fully scouted' : n + 1 + ' looks';
   }
+  // the school's stamp outranks the generic channel on the file
+  function sourceLabel(state, p) {
+    const s = p.schoolId && KP.schoolById(state, p.schoolId);
+    return s ? s.name + ' (' + s.city + ')' : p.source;
+  }
   function bandRank(b) { return KP.C.BANDS.findIndex(x => x.key === b); }
 
   // ---- dossier ---------------------------------------------------------
@@ -140,7 +199,7 @@
     html.push('<div class="dossier-head">' + UI.portrait(p, 'lg') +
       '<div class="d-id"><div class="d-label">' + (p.status === 'prospect' ? 'Prospect file' : p.status === 'idol' ? 'Artist file' : 'Trainee file') + '</div>' +
       '<div class="bigname">' + nameHtml + '</div>' +
-      '<div class="d-meta">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' + UI.esc(p.source) +
+      '<div class="d-meta">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' + UI.esc(sourceLabel(state, p)) +
       (p.signedWeek ? ' · signed ' + UI.esc(KP.weekLabel(p.signedWeek).text) : '') + '</div>' +
       '<div class="d-social">' + KP.fmtCount(KP.socialOf(state, p)) + ' followers' +
       ((p.socialDelta || 0) > 0 ? ' <span class="ds-up">▲' + KP.fmtCount(p.socialDelta) + ' this week</span>' : '') +

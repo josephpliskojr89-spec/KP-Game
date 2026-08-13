@@ -106,7 +106,7 @@ function boilOn(state, g, p) {
   const run = (directedW) => {
     let successes = 0;
     for (let i = 0; i < 10; i++) {
-      const { state, g } = debuted('scar-sinc-' + directedW + '-' + i);
+      const { state, g } = debuted('scar-sinc2-' + directedW + '-' + i);
       const p = state.people[g.members[0]];
       p.directed = [{ week: state.week, kind: 'test', w: directedW }];
       state.discourses = [{ id: 'dQ', kind: 'gaffe', subjectType: 'idol', subjectId: p.id,

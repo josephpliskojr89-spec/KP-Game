@@ -54,7 +54,10 @@ function debuted(seed) {
   t.ok(note, 'the resurfacing gets told');
   t.ok(/-year-old/.test(note.text), 'with its age on it');
   const p = state.people[note.personId];
-  t.ok(p.lastViral && /resurfaced/.test(p.lastViral.label), 'and the file knows it was an old stage, not a new one');
+  // the history, not lastViral: a same-week encore/fairy can legitimately
+  // go viral AFTER the resurfaced clip and take the "most recent" slot
+  t.ok(p.history.some(h => /Went viral: .*resurfaced/.test(h.text)),
+    'and the file knows it was an old stage, not a new one');
   t.ok(KP.feedReactionFor('clipResurfaced') && KP.feedReactionFor('catalogRevival'),
     'both new inds answer through the registry');
 }

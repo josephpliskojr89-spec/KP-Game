@@ -141,6 +141,14 @@
       });
       state.project = null;
     }
+    // the evaluation board's #1 left off the lineup (v0.9.16): everyone
+    // in the practice room saw the board, and everyone saw the list
+    const ace = state.lastEvalTopId && state.people[state.lastEvalTopId];
+    if (ace && ace.status === 'trainee' && !memberIds.includes(ace.id) && !KP.groupOf(state, ace.id)) {
+      ace.morale = KP.clamp(ace.morale - 6, 0, 100);
+      KP.recordDirected(state, ace.id, 'passedOver', -2);
+      ace.history.push({ week: state.week, text: 'Ranked first on the evaluation board when the ' + name + ' lineup was posted — without ' + (ace.gender === 'm' ? 'his' : 'her') + ' name on it. Nobody in the practice room said anything, which said everything.' });
+    }
     return { ok: true, group, review: KP.execReviewLineup(state, members, roles) };
   };
 

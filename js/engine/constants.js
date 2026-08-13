@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.15',
+    VERSION: '0.9.16',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -100,6 +100,58 @@
       'Dance academy', 'Vocal academy', 'Street casting', 'Social media',
       'School performance', 'Open audition', 'Referral',
     ],
+
+    // ---- The regional schools (v0.9.16): the pipeline has addresses ----
+    // Persistent named academies in the home circuit's cities. Each has a
+    // specialty lane, an alumni ledger, and a reputation that moves with
+    // its graduates' careers. When casting opens — yours or a rival's —
+    // the schools submit their classes, and everyone fishes the same
+    // ponds. Player verbs: the scouting trip and the partnership.
+    SCHOOLS: {
+      startRep: [35, 60],        // day-one reputations, before anyone graduates
+      baseRep: 45,               // where reputation drifts absent news
+      repDrift: 0.08,            // weekly pull toward the base — fame fades
+      repDebut: 4,               // an alum on a debut stage
+      repViral: 2,               // an alum's clip doing numbers
+      repItGirl: 6,              // an alum becomes THE one — the school gets hot
+      hotAt: 75,                 // the trades start calling it a factory
+      classChance: 0.22,         // weekly while casting is open: a school submits
+      classSize: [1, 2],
+      repTalentBonus: 8,         // lane-skill lift at rep 100 (scaled from base)
+      // 12→10 in soak calibration: the desk's combined spend (~170 a
+      // career at first prices) tipped marginal orgs into trust-hitting
+      // fiscal warnings — measured by A/B probe with the desk disabled
+      tripCost: 10,
+      tripCooldownWeeks: 8,      // a visit is a trip, not a subscription
+      partnerCost: 32,           // one-time retainer (40→32, same calibration)
+      partnerWeeks: 26,          // half a year of first look
+      partnerObs: 2,             // partnered leads arrive pre-read
+      firstLookWeeks: 4,         // rivals can't circle a protected lead
+      maxAlumni: 12,             // the ledger keeps the names that matter
+    },
+
+    // ---- The practice room years (v0.9.16): trainee life has weather ---
+    // Monthly evaluation days with rankings the trainees can see and
+    // feel; debut-team speculation once a project opens; the trainee who
+    // quits on you; and the aging-out clock with all three endings.
+    PRACTICE: {
+      evalEveryWeeks: 4,
+      evalMoraleTop: 3,          // being #1 on the board is fuel
+      evalMoraleBottom: -3,      // being last is a long walk to the dorm
+      evalClimb: 2,              // the biggest climber feels the arrow
+      aceStreakAt: 3,            // three straight #1s and the room has a name for her
+      quitBaseChance: 0.012,     // weekly, for the discouraged long-timer
+      quitMoraleBelow: 38,
+      quitTenureWeeks: 60,       // quitting is earned — nobody quits month two
+      pleadCost: 8,              // the real week off that buys one more season
+      pleadMorale: 5,
+      pleadQuietWeeks: 12,
+      promiseWindowWeeks: 40,    // "the next lineup" has an expiry date
+      agingTenureWeeks: 90,      // the practice room clock gets loud here
+      agingAge: 22,              // or the birthday does
+      watchMorale: -4,           // watching a debut from the doorway
+      lastChanceMorale: 10,      // finally
+    },
 
     // ---- Training / development ----------------------------------------
     TRAIN: {

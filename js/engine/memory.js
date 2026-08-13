@@ -110,6 +110,7 @@
       case 'genreShift': return group() + ' invented ' + ((n.meta && n.meta.mash) || 'a sound') + ' and the industry is still catching up.';
       case 'signatureSound': return group() + ' and ' + ((n.meta && n.meta.producer) || 'one producer') + ' have a sound the public can name blind.';
       case 'catalogRevival': return '\u201c' + ((n.meta && n.meta.title) || 'an old song') + '\u201d came back years later and charted. ' + group() + '\u2019s catalog does not expire.';
+      case 'lastChanceDebut': return idol() + ' debuted after ' + ((n.meta && n.meta.years) || 'many') + ' years as a trainee. The practice room finally opened.';
       default: return n.key;
     }
   };
@@ -192,6 +193,7 @@
       case 'genreShift': return 'The history books opened a new entry: ' + group() + ' made ' + ((n.meta && n.meta.mash) || 'a sound nobody had a name for') + ' real, on record, first. Every A&R meeting in the industry now contains the phrase “something like that.” Being copied is the sincerest form of panic.';
       case 'signatureSound': return 'Three records deep with ' + ((n.meta && n.meta.producer) || 'the same producer') + ', and the reviews stopped naming the producer because everyone already knows: ' + group() + ' has a SOUND now — recognizable from the first four bars, imitated within the quarter. A signature is an asset. It is also a cage with excellent acoustics.';
       case 'catalogRevival': return 'The trades needed a week to believe it: \u201c' + ((n.meta && n.meta.title) || 'an old track') + '\u201d re-entered the chart YEARS after its era, on nothing but word of mouth and one resurfaced clip. ' + group() + '\u2019s catalog is officially alive — every record they ever shipped is a lottery ticket that never expires, and the industry just watched one pay out.';
+      case 'lastChanceDebut': return 'The profile writers all reached for the same file this week, because the file earned it: ' + idol() + ' trained for ' + ((n.meta && n.meta.years) || 'many') + ' years \u2014 watched other lineups post, bow, and walk out the door \u2014 and then debuted anyway. The industry runs on eighteen-year-olds and impatience, which is exactly why the one who outlasted the clock is the story everybody wanted to write.';
       default: return 'A narrative formed: ' + n.key;
     }
   }

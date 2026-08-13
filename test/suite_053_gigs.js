@@ -67,6 +67,13 @@ function famous(state, p) {
   });
   voice.talents.vocals.cur = 88;
   famous(state, voice);
+  // an MC desk calls a popular group's poised face; this block is about
+  // the VOICE, so keep the group under the MC popularity bar — the OST
+  // margin must win on vocals alone
+  g.popularity = 5;   // far under the bar: promo-week gains cannot recross it
+  // and clear any offer that rolled naturally during the debut weeks —
+  // a stale card on the desk blocks the pinned one (maxActive)
+  state.gigOffers = [];
   const old = G.offerBaseChance;
   G.offerBaseChance = 1;
   KP.advanceWeek(state);

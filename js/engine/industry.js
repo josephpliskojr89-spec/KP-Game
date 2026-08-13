@@ -1002,6 +1002,7 @@
           nationalMC: idolName() + ' opening the broadcast every week like it’s nothing. mic control is a talent and the general public has noticed',
           ostVoice: 'heard the OST in a café, in a cab, and in my own head at 2am. ' + idolName() + '’s voice has achieved public-infrastructure status',
           catalogRevival: groupName() + ' has an OLD song charting again and honestly? the catalog era is the best era. dig, children, dig. the vault provides',
+          lastChanceDebut: idolName() + ' debuting after YEARS of training is the arc I am most emotionally invested in this quarter. the evaluation-board survivor. cinema',
           regionStronghold: groupName() + ' really has a whole second home market now. the fan-sub accounts post before the company does. globalization won',
           conceptIdentity: groupName() + ' hearing one synth note and knowing EXACTLY what era it is… consistency is a superpower and they have it',
         };

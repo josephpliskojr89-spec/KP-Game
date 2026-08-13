@@ -62,6 +62,8 @@
     state.prospects = state.prospects.filter(id => id !== p.id);
     // rivals notice
     state.rivals.forEach(r => { delete r.interest[p.id]; });
+    // the school hangs the signing photo (v0.9.16)
+    KP.schoolRecordAlum(state, p, state.company.short);
     p.history.push({ week: state.week, text: 'Signed to ' + state.company.short + ' (' + p.source + ').' });
     return { ok: true, cost };
   };
@@ -100,6 +102,7 @@
         if (chance && rng.chance(chance)) {
           p.status = 'rival';
           p.company = rival.short;
+          KP.schoolRecordAlum(state, p, rival.short);
           p.history.push({ week: state.week, text: 'Signed to ' + rival.short + ' — off our board.' });
           state.prospects = state.prospects.filter(id => id !== pid);
           state.rivals.forEach(r => { delete r.interest[pid]; });
@@ -132,23 +135,40 @@
     }
     // fresh leads keep the board alive
     if (rng.chance(S.newProspectChance)) {
-      // person ids come from state, never from module memory — saves depend on it
-      KP.resetIds(state.nextPersonId || KP.peekNextId());
-      const usedNames = new Set(Object.values(state.people).map(x => x.name.given.toLowerCase()));
-      // boys walk into open auditions too (v0.8.4)
-      const gender = rng.chance(KP.C.GEN.maleLeadShare) ? 'm' : 'f';
-      const p = KP.generatePerson(rng, { status: 'prospect', usedNames, gender });
-      state.nextPersonId = KP.peekNextId();
-      state.people[p.id] = p;
-      state.prospects.push(p.id);
-      KP.socialOf(state, p);   // minted at the door, not on first look
-      notes.push({ kind: 'scouting', text: 'New lead: ' + KP.displayName(p) + ', ' + p.age + ', via ' + p.source.toLowerCase() + '. First report is on the board.' });
+      // some walk-ins come through the regional schools (v0.9.16): the
+      // pipeline has addresses now, and reputation pulls the eye
+      if (state.schools && rng.chance(0.4)) {
+        const weighted = state.schools.map(s => ({ s, w: 1 + s.rep / 40 }));
+        const total = weighted.reduce((sum, x) => sum + x.w, 0);
+        let roll = rng.next() * total;
+        let school = weighted[weighted.length - 1].s;
+        for (const x of weighted) { roll -= x.w; if (roll <= 0) { school = x.s; break; } }
+        const p = KP.spawnSchoolLead(state, rng, school,
+          { firstLook: school.partnerUntil > state.week });
+        notes.push({ kind: 'scouting', text: 'New lead: ' + KP.displayName(p) + ', ' + p.age + ', out of ' +
+          school.name + ' (' + school.city + '). The school’s stamp is on the file.' });
+      } else {
+        // person ids come from state, never from module memory — saves depend on it
+        KP.resetIds(state.nextPersonId || KP.peekNextId());
+        const usedNames = new Set(Object.values(state.people).map(x => x.name.given.toLowerCase()));
+        // boys walk into open auditions too (v0.8.4)
+        const gender = rng.chance(KP.C.GEN.maleLeadShare) ? 'm' : 'f';
+        const p = KP.generatePerson(rng, { status: 'prospect', usedNames, gender });
+        state.nextPersonId = KP.peekNextId();
+        state.people[p.id] = p;
+        state.prospects.push(p.id);
+        KP.socialOf(state, p);   // minted at the door, not on first look
+        notes.push({ kind: 'scouting', text: 'New lead: ' + KP.displayName(p) + ', ' + p.age + ', via ' + p.source.toLowerCase() + '. First report is on the board.' });
+      }
     }
     return notes;
   };
 
   function pickRivalTarget(state, rival, rng) {
-    const pool = state.prospects.map(id => state.people[id]).filter(Boolean);
+    // a partnered school's leads reach our desk first (v0.9.16): rival
+    // scouts don't get a seat at those showcases until the window lapses
+    const pool = state.prospects.map(id => state.people[id]).filter(Boolean)
+      .filter(p => (p.flags.firstLookUntil || 0) <= state.week);
     if (!pool.length) return null;
     // rivals read through their own (coarse) fog: perceived best by philosophy
     const scored = pool.map(p => {

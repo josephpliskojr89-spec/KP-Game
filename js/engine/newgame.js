@@ -164,6 +164,9 @@
     }
     }
 
+    // --- the regional schools (v0.9.16): the map exists before you do
+    KP.generateSchools(state, rng);
+
     // --- external prospect board
     const count = rng.int(KP.C.GEN.prospectCount[0], KP.C.GEN.prospectCount[1]);
     let mostCharismatic = null;
@@ -172,6 +175,12 @@
       // is not exclusively so — the second act starts on day one (v0.8.4)
       const gender = rng.chance(KP.C.GEN.maleBoardShare) ? 'm' : 'f';
       const p = KP.generatePerson(rng, { status: 'prospect', usedNames, gender });
+      // academy kids carry their academy's name on the file
+      if (p.source === 'Vocal academy' || p.source === 'Dance academy') {
+        const lane = p.source === 'Vocal academy' ? 'vocals' : 'dance';
+        const homes = state.schools.filter(s => s.lane === lane || s.lane === 'allround');
+        if (homes.length) p.schoolId = rng.pick(homes).id;
+      }
       state.people[p.id] = p;
       state.prospects.push(p.id);
       if (!mostCharismatic || p.talents.charisma.cur > mostCharismatic.talents.charisma.cur) mostCharismatic = p;

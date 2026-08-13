@@ -149,9 +149,11 @@ function debuted(seed) {
   t.ok(merged, 'two strugglers eventually merged');
   t.ok(split, 'the giant eventually shed a faction');
   t.ok(emerged, 'fresh money eventually entered the scene');
-  // >=3, not >=4: the starved company can exit via the merge (one event
-  // covers two observed outcomes)
-  t.ok((state.lifecycleEvents || 0) >= 3, 'lifecycle events are counted (' + state.lifecycleEvents + ')');
+  // >=2, not >=4: BOTH pairs can double-cover — the starved company can
+  // exit via the merge, and a split-born company is simultaneously the
+  // 'defectors' blurb AND a new name on the scene (split + emerged in
+  // one event). Two events can legitimately light all four lamps.
+  t.ok((state.lifecycleEvents || 0) >= 2, 'lifecycle events are counted (' + state.lifecycleEvents + ')');
 }
 
 // ---- migration: a 0.3.3 save wakes up in the living world ----

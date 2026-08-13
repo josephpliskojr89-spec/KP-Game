@@ -291,6 +291,18 @@
         App.save(); UI.toast('The fan meeting happened. Somebody brought a cake shaped like the road manager.'); App.render();
         break;
       }
+      case 'school-trip': {
+        const r = KP.scoutingTrip(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast('The trip paid for itself in notebook pages. New reads on the board.'); App.render();
+        break;
+      }
+      case 'school-partner': {
+        const r = KP.schoolPartnership(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast('Signed. Their best files reach our desk first now.'); App.render();
+        break;
+      }
       case 'lightstick': {
         const r = KP.launchLightstick(s, t.dataset.id);
         if (!r.ok) { UI.toast(r.reason, true); break; }

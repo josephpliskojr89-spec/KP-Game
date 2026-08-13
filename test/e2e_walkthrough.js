@@ -110,6 +110,14 @@ async function main() {
   await tap('[data-action=observe]');
   const budgetAfterLook = parseInt((await page.textContent('#tb-budget')).replace(/\D/g, ''), 10);
   ok(budgetAfterLook === budgetBefore - 4, 'a targeted look costs budget');
+  // --- the regional schools (v0.9.16): the map under the board ---
+  const boardText = await page.textContent('#screen');
+  ok(/The regional schools/.test(boardText), 'the schools directory renders under the board');
+  ok((await page.$$eval('[data-action=school-trip]', els => els.length)) >= 3, 'every school offers the trip');
+  const budgetBeforeTrip = parseInt((await page.textContent('#tb-budget')).replace(/\D/g, ''), 10);
+  await tap('[data-action=school-trip]');
+  const budgetAfterTrip = parseInt((await page.textContent('#tb-budget')).replace(/\D/g, ''), 10);
+  ok(budgetAfterTrip < budgetBeforeTrip, 'the train ticket costs what it costs');
   await tap('[data-action=sign]:not([disabled])');
   await page.waitForSelector('.modal-sheet');
   ok((await page.textContent('.modal-sheet')).includes('Contract cost'), 'signing asks for confirmation');

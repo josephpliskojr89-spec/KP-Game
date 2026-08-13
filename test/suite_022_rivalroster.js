@@ -60,8 +60,10 @@ const t = makeT('suite_022_rivalroster');
   const mk = (talent) => {
     const state = KP.newGame('rr-quality', null, { legacy: false });
     const rival = state.rivals[0];
-    state.prospects.slice(0, 3).map(id => state.people[id]).forEach(p => {
-      p.status = 'rival'; p.company = rival.short;
+    // six same-gender signees ≥ the max lineup size: the act forms from
+    // exactly these people, no mid-talent floor fillers diluting the read
+    state.prospects.slice(0, 6).map(id => state.people[id]).forEach(p => {
+      p.status = 'rival'; p.company = rival.short; p.gender = 'f';
       KP.C.TALENTS.forEach(d => { p.talents[d].cur = talent; });
       state.prospects = state.prospects.filter(id => id !== p.id);
       rival.rosterCount = (rival.rosterCount || 0) + 1;

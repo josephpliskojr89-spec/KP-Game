@@ -1875,7 +1875,7 @@ against the standing clause (arrive, claim, mark):
    Every release ever shipped becomes a lottery ticket that never
    expires. Before the gravity on purpose.
 3. **The practice room years + the regional schools** (§55.9 +
-   §55.14). The trainee pipeline deepened at both ends: where they
+   §55.14; SHIPPED v0.9.16, §58). The trainee pipeline deepened at both ends: where they
    come from — persistent named academies in the home circuit's
    cities, with specialty lanes, alumni ledgers, reputations that
    move with their graduates, and audition classes submitted to
@@ -3091,6 +3091,88 @@ entry, pop bump, royalties, anti-rerun), pipeline (base 0, boost 1
 — only the boost fires), disbanded revival + validateState clean,
 determinism fork.
 
+## §58 The practice room years + the regional schools (v0.9.16) — map slot 3
+
+Owner (§55.9 + §55.14): *"trainees in general were where a lot of my
+thoughts were"* / *"the industry in real life has worked to
+decentralize and find talent outside of Seoul, and we should too."*
+The pipeline deepened at both ends: where they come from, and how
+they live and leave.
+
+**The regional schools** (`schools.js`, weekly order 620;
+`state.schools` persistent, migrated into old saves on the next
+tick). One named academy per home-circuit city (six), each with a
+specialty lane (vocal / dance / all-round), an alumni ledger that
+writes at the signature (yours AND rivals'), and a REPUTATION that
+moves with its graduates: +4 when an alum reaches a debut stage,
++2 per viral week, +6 when she becomes the it-girl — drifting back
+toward 45 absent news. Past 75 the trades call the school HOT
+(note + feed reaction through the registry). While casting is open
+anywhere — your project, or a rival inside its hunger window — a
+school submits its class (~0.22/wk, rep-weighted pick): prospects
+arrive with the school's stamp on the file, and everyone fishes
+the same ponds. A hot school's class arrives better drilled (lane
+skill lift, never breaking the cone). Player verbs, priced as
+discretionary spending:
+- *The scouting trip* (10, 8-week cooldown per school): +1
+  observation on every board lead from that school, plus one new
+  name in the notebook.
+- *The partnership* (32, 26 weeks): first look — their leads reach
+  the desk pre-read, and rival scouts cannot open interest on a
+  protected file while the window holds (the rival picker skips
+  `firstLookUntil`).
+
+**The practice room years** (`practice.js`, weekly order 610 —
+right after releases, so debuts land on the room THIS week;
+`state.practiceLedger` durable):
+- *Evaluation day*, monthly: every free trainee ranked (talents +
+  charisma + live experience + the day's mood), rank on the file,
+  morale moving at the top, the bottom, and the biggest climber.
+  Three straight months at #1 makes her "the ace" — and the ace
+  left off a posted lineup takes it hard (morale −6, `passedOver`
+  on the directed ledger, the history line about the silence).
+  The board renders in the Training tab; the trainees read it
+  before you do.
+- *The speculation*: the week a project opens, the room knows —
+  hopefuls near the top of the board arrive an hour early, the
+  rest do the math and say nothing.
+- *The resignation letter* (scene): a discouraged long-timer
+  (morale < 38, tenure > 60wks, worse if bottom-ranked, aging-out,
+  or told the truth) brings it in. Accept with grace / a real week
+  off (costs 8, quiets 12 weeks) / PROMISE the next lineup — a
+  claim with teeth: `debutByPromise` resolves KEPT when she
+  debuts, and MISSED the moment a lineup goes out without her OR
+  the 40-week window closes — she packs the same night, and every
+  trainee in the building does the arithmetic. Unanswered letters
+  answer themselves (she leaves).
+- *The aging-out clock*: a trainee ≥90wks tenure (or 22+ with
+  40wks) watching a debut from the doorway takes the morale hit,
+  gets the history line, and asks the question ONCE — a scene with
+  all three endings: the promise (same claim), honesty (morale −8,
+  `toldStraight` +1, resigned — quit risk up), or the kind cut
+  (release, with a recommendation letter). And the fourth ending
+  the game wants you to reach: the LAST-CHANCE DEBUT — she makes a
+  lineup, the bow lasts a beat longer, `lastChanceDebut` narrative
+  + feed, the promise resolves kept.
+
+**Calibration** (three soak rounds + a probe): the school desk's
+first prices (~170/career) tipped marginal orgs into trust-hitting
+fiscal warnings — proven causal by an A/B probe with the desk
+disabled (18/40 vs 19-21/40). Trip 12→10, partnership 40→32, and
+the bot trips less often and never under fiscal pressure (red
+quarters ground the train like they ground the road). Two old
+bands re-ruled off their own ceilings (catalogRevived 0.70→0.75,
+gig-ended-early 0.95→1.00 — the flap precedent). And the harness's
+oldest fatigue invariant learned about second jobs: "a schedule to
+blame" now includes a gig run that ended within the recovery
+window (the exemption list predated v0.9.11).
+
+Suite 058 (62): map seeding, lane cones, trip/partnership
+mechanics, first-look protection, alumni ledger + moving rep + the
+hot crossing, old-save migration, eval ranks, speculation, the
+passed-over ace, all three letter answers, the broken promise, the
+aging clock, the kind cut, the last-chance debut, determinism.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3141,6 +3223,22 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   sees a clawback either, the road is too polite — widen
   missRescheduleWeeks so a mid-tour rebooking can land mid-tour
   again.
+- **The resignation letter never fires in soak (v0.9.16)** — the
+  sensible bot keeps trainee morale above the quit line in all 40
+  worlds (0/40), so the scene is suite-held only. This is the
+  burnout-census pattern: the mechanism triggers under neglect a
+  decent policy never produces. Watch human play; if the letter
+  never arrives there either, raise quitMoraleBelow before touching
+  tenure.
+- **schoolHot runs rare (1/40, v0.9.16)** — one it-girl arc plus a
+  debuted alum is barely enough to cross 75 in 140 weeks; longer
+  careers cross more. If the owner never sees a school get hot,
+  lower hotAt to 70 before juicing the rep gains.
+- **People-file growth accelerated by the school pipeline
+  (v0.9.16)** — classes and trips mint extra prospects: ~90 more
+  files by week 620 (~725KB vs ~619KB saves). The age-out sweep
+  handles the unsigned; the growth rides the same curve as the
+  rival-native item below and shares its remedy.
 - **No senescence (0.9.13 audit A4)** — a 33-year-old idol trains,
   tours, and recovers like a 21-year-old; "aging out of its peak"
   is copy, not mechanics. Owner's call whether age should bite.
@@ -4602,3 +4700,29 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > surgical. Numbers: battery 57/57 (suite 057, 27 assertions),
 > soak clean, longhaul 5×620 clean, e2e 91, lockstep 0.9.15
 > (53 modules). Rode to main. Slot 2 of fourteen.
+\n
+> **v0.9.16 — the practice room years + the regional schools**
+> (map slot 3). Owner: *"trainees in general were where a lot of
+> my thoughts were"* / *"decentralize and find talent outside of
+> Seoul."* The pipeline gets addresses: six persistent named
+> academies with lanes, alumni ledgers that write at the
+> signature, and reputations that move when graduates debut, go
+> viral, or become the it-girl — HOT schools make the trades, and
+> open castings anywhere pull audition classes onto everyone's
+> boards. The trip and the partnership become desk verbs; first
+> look means rival scouts wait. And trainee life gets weather:
+> monthly evaluation boards the trainees read before you do, the
+> ace, the passed-over ace, project speculation, the resignation
+> letter with three answers, and the aging-out clock with every
+> ending — including the one the whole system roots for, the
+> last-chance debut, which the feed and the profile writers treat
+> exactly the way the real industry does. Promises are claims with
+> expiry dates: a lineup that goes out without her breaks it ON
+> THE SPOT. Calibration by A/B probe (the school desk's spend was
+> tipping fiscal warnings — prices trimmed, bot paced); two bands
+> re-ruled off their own ceilings per the flap precedent; the
+> fatigue invariant taught about second jobs (its exemption list
+> predated v0.9.11). Numbers: battery 58/58 (suite 058, 62
+> assertions), soak clean (95 bands, eleven new — all alive round
+> one), longhaul 5×620 clean, e2e 94 (three new schools checks),
+> lockstep 0.9.16 (55 modules). Rode to main. Slot 3 of fourteen.

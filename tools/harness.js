@@ -99,12 +99,31 @@ const BANDS = {
   gigBooked:         { lo: 0.30, hi: 1.00, label: 'orgs that booked somebody a second job (panel/MC/OST)' },
   obligationKept:    { lo: 0.10, hi: 1.00, label: 'orgs that worked a sponsored appearance (the invoice arrives)' },
   clipResurfaced:    { lo: 0.10, hi: 1.00, label: 'worlds where an old clip resurfaced (the archive naps)' },
-  catalogRevived:    { lo: 0.02, hi: 0.70, label: 'orgs whose catalog track reverse-charted (the lottery ticket)' },
+  // ceiling 0.70→0.75 by ruling (v0.9.16): tuned at revivalChance 0.003
+  // the operating point is ~0.65 ± 0.08 across builds (26-29/40) — the
+  // old ceiling sat INSIDE the band's own binomial noise and flapped.
+  // A lottery ~2/3 of three-year careers hit once is the design; the
+  // everyone-wins alarm now lives at 0.75.
+  catalogRevived:    { lo: 0.02, hi: 0.75, label: 'orgs whose catalog track reverse-charted (the lottery ticket)' },
   viralSourced:      { lo: 0.50, hi: 1.00, label: 'orgs whose viral moments carry provenance (the clip has a stage)' },
   obligationMissed:  { lo: 0.00, hi: 0.80, label: 'orgs that missed a sponsored appearance (the road won)' },
   dealClawedBack:    { lo: 0.00, hi: 0.50, label: 'orgs a brand terminated for cause (two misses)' },
   soloRequested:     { lo: 0.05, hi: 1.00, label: 'orgs that got the sponsor solo request' },
   soloAllowed:       { lo: 0.00, hi: 1.00, label: 'orgs that let the solo stage happen' },
+  // the practice room years + the regional schools (v0.9.16). Floors on
+  // the rare arcs (quit, aging-out, last-chance) open at 0 for the first
+  // soak and tighten once measured — the ceilings are the day-one alarms.
+  schoolLead:        { lo: 0.60, hi: 1.00, label: 'orgs whose board carried a school-stamped file' },
+  schoolClass:       { lo: 0.30, hi: 1.00, label: 'worlds where a school sent its class to an open casting' },
+  schoolTrip:        { lo: 0.30, hi: 1.00, label: 'orgs that took the scouting trip (the train to the regions)' },
+  schoolPartner:     { lo: 0.20, hi: 1.00, label: 'orgs that signed a first-look school partnership' },
+  schoolHot:         { lo: 0.00, hi: 0.60, label: 'worlds where a school got HOT off its graduates' },
+  evalHeld:          { lo: 0.80, hi: 1.00, label: 'orgs whose practice room held evaluation days' },
+  projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
+  traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
+  traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
+  agingOutFaced:     { lo: 0.00, hi: 1.00, label: 'orgs where the aging-out clock got loud' },
+  lastChanceSeen:    { lo: 0.00, hi: 0.60, label: 'orgs where the long-timer finally debuted (the story everyone wants)' },
   // ceiling 0.95→1.00 by ruling (v0.9.15): a fatigue-reading boss
   // declares at least one hiatus in nearly every 140-week career — the
   // band flapped at its own ceiling for three builds. The floor is the
@@ -117,7 +136,11 @@ const BANDS = {
   hiatusCooled:      { lo: 0.00, hi: 1.00, label: 'orgs that stayed gone past the grace window (the forgetting)' },
   gigWrapped:        { lo: 0.10, hi: 1.00, label: 'orgs where a full gig run wrapped with a sendoff' },
   ostDropped:        { lo: 0.05, hi: 1.00, label: 'orgs whose idol dropped a drama OST' },
-  gigTension:        { lo: 0.02, hi: 0.95, label: 'orgs where a second job ended early (recast or pulled)' },
+  // ceiling 0.95→1.00 by ruling (v0.9.16): flapped at its own ceiling
+  // two builds running — a busy roster ends most second jobs early by
+  // DESIGN (the company chooses the group calendar). The floor is the
+  // alarm: a world where no gig ever ends early has no calendar at all.
+  gigTension:        { lo: 0.02, hi: 1.00, label: 'orgs where a second job ended early (recast or pulled)' },
   // ceiling 0.70→0.85 by ruling (v0.9.12): the hiatus synergy is the
   // design — parked groups run second jobs clash-free, arcs wrap, and
   // wrapped arcs stack into narratives. One second-job story per company
@@ -215,6 +238,9 @@ const tally = {
   hiatusDeclared: 0, hiatusReturned: 0, hiatusCooled: 0,
   obligationKept: 0, obligationMissed: 0, dealClawedBack: 0, soloRequested: 0, soloAllowed: 0,
   clipResurfaced: 0, catalogRevived: 0, viralSourced: 0,
+  schoolLead: 0, schoolClass: 0, schoolTrip: 0, schoolPartner: 0, schoolHot: 0,
+  evalHeld: 0, projectTalkSeen: 0, traineeQuitAsked: 0, traineeGone: 0,
+  agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
   soloCredit: 0, unitCredit: 0, sleeperHeard: 0,
@@ -339,11 +365,36 @@ for (let s = 0; s < SEEDS; s++) {
         if (solo.ok) soloProposed = true;
       }
     }
+    // the regional desk (v0.9.16): a boss who reads the map takes the
+    // train — trip the best unvisited school when the books are healthy,
+    // and sign one first-look partnership once established. Red quarters
+    // ground the train the same way they ground the road (0.9.13 rule):
+    // scouting trips are discretionary spending.
+    const fiscalCalm = !((state.fiscal || {}).pressure > 0);
+    if (state.schools && fiscalCalm && state.budget > 200 && state.week % 16 === 5) {
+      const target = state.schools.slice().sort((a, b) => b.rep - a.rep)
+        .find(sc2 => !sc2.visitedWeek || state.week - sc2.visitedWeek >= KP.C.SCHOOLS.tripCooldownWeeks);
+      if (target) KP.scoutingTrip(state, target.id);
+    }
+    if (state.schools && fiscalCalm && state.budget > 250 && state.week > 30 &&
+        !state.schools.some(sc2 => sc2.partnerUntil > state.week)) {
+      const best = state.schools.slice().sort((a, b) => b.rep - a.rep)[0];
+      KP.schoolPartnership(state, best.id);
+    }
     // form the first group around week 20; a second lineup once the first
     // has debuted and the trainee room can field one (v0.2.2)
     // v0.9.10: the legacy group is start-content — the bot's OWN groups
     // are the non-legacy ones, and the forming logic counts only those
     const own = state.groups.filter(x => !x.legacy);
+    // a boss who knows a second lineup is coming opens the PROJECT first
+    // (v0.9.16) — which is exactly what sets the practice room talking
+    if (own.length === 1 && own[0].debuted && !state.project &&
+        state.week >= 64 && state.week < 70 && KP.freeTrainees(state).length >= 4) {
+      const top2 = KP.freeTrainees(state).map(id => state.people[id])
+        .map(p => ({ p, v: KP.C.TALENTS.reduce((sum, d) => sum + KP.perceived(state, p, d, scout), 0) }))
+        .sort((a, b) => b.v - a.v).slice(0, 2).map(x => x.p.id);
+      if (top2.length === 2) KP.openProject(state, top2, ['vocals', 'dance']);
+    }
     const wantSecond = own.length === 1 && own[0].debuted &&
       state.week >= 70 && KP.freeTrainees(state).length >= 4 && state.budget > 120;
     if ((!own.length && state.week >= 20 && KP.freeTrainees(state).length >= 5) || wantSecond) {
@@ -465,6 +516,23 @@ for (let s = 0; s < SEEDS; s++) {
         // says gone (dormant in the 140-week census — the window opens at
         // year five — but live in the long-horizon pass below)
         botRenewal(state, sc);
+        return;
+      }
+      if (sc.kind === 'traineeQuit' || sc.kind === 'agingOutTalk') {
+        // the practice room (v0.9.16): promise the ones the reads back —
+        // when a lineup is genuinely comeable — and be straight with the
+        // rest. Promises the bot's own play then breaks COUNT: that is
+        // the mechanism under test.
+        const p = state.people[sc.personId];
+        const avg = p ? KP.C.TALENTS.reduce((sum, d) => sum + KP.perceived(state, p, d, scout), 0) / KP.C.TALENTS.length : 0;
+        const lineupComing = KP.freeTrainees(state).length >= 4;
+        if (sc.kind === 'traineeQuit') {
+          KP.resolveScene(state, sc.id, avg >= 50 && lineupComing ? 'promise'
+            : state.budget > KP.C.PRACTICE.pleadCost + 40 ? 'plead' : 'accept');
+        } else {
+          KP.resolveScene(state, sc.id, avg >= 50 && lineupComing ? 'promise'
+            : avg >= 45 ? 'honest' : 'release');
+        }
         return;
       }
       const def = KP.sceneDef(sc.kind);
@@ -721,8 +789,13 @@ for (let s = 0; s < SEEDS; s++) {
   totalGroups += ownGroups.length;
   guard((state.objectiveHistory || []).length >= 1, seed + ' the objective ladder never advanced');
   if (g && g.debuted) {
+    // "a schedule to blame" includes the SECOND job (v0.9.16 repair —
+    // the exemption list predated v0.9.11): an idol grinding a panel run
+    // until last week is not pinned, she is recovering from a calendar
     guard(g.members.map(id => state.people[id])
-      .every(p => p.fatigue <= 90 || g.prep || state.week <= (g.promoUntil || 0)),
+      .every(p => p.fatigue <= 90 || g.prep || state.week <= (g.promoUntil || 0) ||
+        KP.gigOf(state, p.id) ||
+        (p.history || []).some(h => /Wrapped a full run|Pulled out of/.test(h.text) && state.week - h.week <= 4)),
       seed + ' idols pinned at high fatigue with no schedule to blame');
   }
   if (g && g.results) {
@@ -807,6 +880,20 @@ for (let s = 0; s < SEEDS; s++) {
   if ((cl.revivals || 0) >= 1) tally.catalogRevived++;
   if (Object.values(state.people).some(p =>
       (p.history || []).some(hh => /Went viral: /.test(hh.text)))) tally.viralSourced++;
+  // the practice room + the schools (v0.9.16): durable ledgers and stamps
+  if (Object.values(state.people).some(p => p.schoolId)) tally.schoolLead++;
+  const sch = state.schools || [];
+  if (sch.some(s => (s.classesSent || 0) >= 1)) tally.schoolClass++;
+  if (sch.some(s => s.visitedWeek != null)) tally.schoolTrip++;
+  if (sch.some(s => (s.partnerUntil || 0) > 0)) tally.schoolPartner++;
+  if (sch.some(s => s.hotWeek != null)) tally.schoolHot++;
+  const pl = state.practiceLedger || {};
+  if ((pl.evals || 0) >= 1) tally.evalHeld++;
+  if ((pl.speculations || 0) >= 1) tally.projectTalkSeen++;
+  if ((pl.quitsAsked || 0) >= 1) tally.traineeQuitAsked++;
+  if ((pl.gone || 0) >= 1) tally.traineeGone++;
+  if ((pl.agingFaced || 0) >= 1) tally.agingOutFaced++;
+  if ((pl.lastChance || 0) >= 1) tally.lastChanceSeen++;
   if (state.groups.some(g => g.regions &&
       Object.values(g.regions).some(v => v >= KP.C.REGIONAL.loudAt))) tally.regionLoud++;
   bestRegions.push(Math.max.apply(null, state.groups
