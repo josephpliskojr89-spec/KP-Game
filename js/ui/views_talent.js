@@ -38,6 +38,8 @@
     const S = KP.C.SCHOOLS;
     const html = ['<div class="pad" style="margin:14px 0 2px;font-size:.74rem;color:var(--ink-dim)">' +
       'The regional schools. A trip (' + S.tripCost + ') buys sharper reads on a school’s class; a partnership (' + S.partnerCost + ') buys first look before any rival scout gets a seat.</div>'];
+    // one trip per week (0.9.16.1): Scout Im is one person on one train
+    const trippedThisWeek = schools.some(s => s.visitedWeek === state.week);
     schools.slice().sort((a, b) => b.rep - a.rep).forEach(s => {
       const partnered = s.partnerUntil > state.week;
       const cooling = s.visitedWeek && state.week - s.visitedWeek < S.tripCooldownWeeks;
@@ -57,7 +59,8 @@
           : 'No signed alumni yet. Every ledger starts blank.') + '</div>' +
         '<div style="display:flex;gap:8px;margin-top:9px">' +
         '<button class="btn small" data-action="school-trip" data-id="' + s.id + '"' +
-        (state.budget < S.tripCost || cooling ? ' disabled' : '') + '>' + (cooling ? 'Visited' : 'Trip · ' + S.tripCost) + '</button>' +
+        (state.budget < S.tripCost || cooling || trippedThisWeek ? ' disabled' : '') + '>' +
+        (cooling ? 'Visited' : trippedThisWeek ? 'Next week' : 'Trip · ' + S.tripCost) + '</button>' +
         '<button class="btn small" data-action="school-partner" data-id="' + s.id + '"' +
         (partnered || state.budget < S.partnerCost ? ' disabled' : '') + '>' + (partnered ? 'Partnered' : 'Partner · ' + S.partnerCost) + '</button>' +
         '</div></div>');

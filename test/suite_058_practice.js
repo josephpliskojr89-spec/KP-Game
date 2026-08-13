@@ -63,6 +63,13 @@ function debuted(seed) {
     'and one new name came home in the notebook');
   const r2 = KP.scoutingTrip(state, school.id);
   t.ok(!r2.ok, 'a second visit the same month reads as desperation');
+  // one trip per week (0.9.16.1): a DIFFERENT school also refuses —
+  // Scout Im is one person on one train
+  const other = state.schools.find(s => s.id !== school.id);
+  const r3 = KP.scoutingTrip(state, other.id);
+  t.ok(!r3.ok && /already on a train/.test(r3.reason), 'one trip per week — the scout is not a teleporter');
+  KP.advanceWeek(state);
+  t.ok(KP.scoutingTrip(state, other.id).ok, 'next week the train runs again');
 }
 
 // ---- the partnership: first look means first ----

@@ -3114,9 +3114,10 @@ arrive with the school's stamp on the file, and everyone fishes
 the same ponds. A hot school's class arrives better drilled (lane
 skill lift, never breaking the cone). Player verbs, priced as
 discretionary spending:
-- *The scouting trip* (10, 8-week cooldown per school): +1
-  observation on every board lead from that school, plus one new
-  name in the notebook.
+- *The scouting trip* (10, 8-week cooldown per school, and ONE
+  trip per week total — 0.9.16.1, owner: Scout Im is one person on
+  one train): +1 observation on every board lead from that school,
+  plus one new name in the notebook.
 - *The partnership* (32, 26 weeks): first look — their leads reach
   the desk pre-read, and rival scouts cannot open interest on a
   protected file while the window holds (the rival picker skips
@@ -4726,3 +4727,13 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > assertions), soak clean (95 bands, eleven new — all alive round
 > one), longhaul 5×620 clean, e2e 94 (three new schools checks),
 > lockstep 0.9.16 (55 modules). Rode to main. Slot 3 of fourteen.
+\n
+> **0.9.16.1 — one train** (owner: *"one scouting trip per week.
+> my scout shouldn't be able to hit every school in one week"*).
+> The trip gains a global weekly gate on top of the per-school
+> cooldown — one truth, read from the visitedWeek stamps the
+> schools already carry; the UI rests every Trip button once the
+> week's train is taken ("Next week"). The soak bot already
+> traveled like a person, so every number held. Battery 58/58
+> (suite 058 → 64), soak clean, e2e 94, lockstep 0.9.16.1. Rode
+> to main.

@@ -178,6 +178,11 @@
     if (s.visitedWeek && state.week - s.visitedWeek < S.tripCooldownWeeks) {
       return { ok: false, reason: 'The staff were just there. A second visit this soon reads as desperation.' };
     }
+    // one trip per week (0.9.16.1, owner: "my scout shouldn't be able to
+    // hit every school in one week") — Scout Im is one person on one train
+    if ((state.schools || []).some(s2 => s2.visitedWeek === state.week)) {
+      return { ok: false, reason: 'Scout Im is already on a train this week. The regions are not going anywhere.' };
+    }
     const rng = KP.rngFor(state);
     state.budget -= S.tripCost;
     s.visitedWeek = state.week;
