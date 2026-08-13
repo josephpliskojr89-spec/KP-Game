@@ -98,7 +98,9 @@
 
   function prospectRow(state, p) {
     const evl = KP.evaluate(state, p);
-    const best = evl.domains.slice().sort((a, b) => bandRank(b.band) - bandRank(a.band))[0];
+    // quote only pages the file has actually read (0.9.16.2)
+    const read = evl.domains.filter(d => d.revealed !== false);
+    const best = read.slice().sort((a, b) => bandRank(b.band) - bandRank(a.band))[0] || evl.domains[0];
     const cost = KP.signCost(state, p);
     const canSign = state.budget >= cost &&
       (!KP.signingsCapped(state) || state.signingsUsed < state.signingsAllowed);
@@ -202,7 +204,9 @@
     html.push('<div class="dossier-head">' + UI.portrait(p, 'lg') +
       '<div class="d-id"><div class="d-label">' + (p.status === 'prospect' ? 'Prospect file' : p.status === 'idol' ? 'Artist file' : 'Trainee file') + '</div>' +
       '<div class="bigname">' + nameHtml + '</div>' +
-      '<div class="d-meta">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' + UI.esc(sourceLabel(state, p)) +
+      '<div class="d-meta">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' +
+      (p.gender === 'm' ? 'boy' : 'girl') + ' · ' + UI.esc(sourceLabel(state, p)) +
+      (p.status === 'prospect' ? ' · ' + looksWord(p) : '') +
       (p.signedWeek ? ' · signed ' + UI.esc(KP.weekLabel(p.signedWeek).text) : '') + '</div>' +
       '<div class="d-social">' + KP.fmtCount(KP.socialOf(state, p)) + ' followers' +
       ((p.socialDelta || 0) > 0 ? ' <span class="ds-up">▲' + KP.fmtCount(p.socialDelta) + ' this week</span>' : '') +
@@ -320,14 +324,24 @@
             '.<span class="n-who">— A&R, keeping receipts</span></div>');
         }
       }
-      // the written evaluations, in the evaluators' own words
+      // the written evaluations, in the evaluators' own words — unread
+      // pages say so (0.9.16.2: the file grows one look at a time)
       html.push('<div class="kicker">In their words</div>');
       evl.domains.forEach(d => {
-        html.push('<div class="domain-quote">“' + UI.esc(d.line) + '”' +
-          '<span class="q-who">— ' + UI.esc(d.evaluator.name) + ', ' + UI.esc(d.evaluator.role) + ' · ' + UI.esc(KP.C.TALENT_LABELS[d.domain]) + '</span></div>');
+        html.push('<div class="domain-quote"' + (d.revealed === false ? ' style="opacity:.55"' : '') + '>“' + UI.esc(d.line) + '”' +
+          '<span class="q-who">' + (d.revealed === false
+            ? '— the file, waiting on a look · ' + UI.esc(KP.C.TALENT_LABELS[d.domain])
+            : '— ' + UI.esc(d.evaluator.name) + ', ' + UI.esc(d.evaluator.role) + ' · ' + UI.esc(KP.C.TALENT_LABELS[d.domain])) + '</span></div>');
       });
-      html.push('<div class="note" style="margin-top:12px">“' + UI.esc(evl.recommendation) + '”' +
-        '<span class="n-who">— overall recommendation</span></div>');
+      if (evl.recommendation) {
+        html.push('<div class="note" style="margin-top:12px">“' + UI.esc(evl.recommendation) + '”' +
+          '<span class="n-who">— overall recommendation</span></div>');
+      } else {
+        html.push('<div class="note" style="margin-top:12px">' +
+          KP.fillPro('“Ask me for a recommendation when I have seen all of {her}. ' + evl.looksLeft +
+            ' more look' + (evl.looksLeft === 1 ? '' : 's') + ' and you get the complete read.”', p) +
+          '<span class="n-who">— Scout Im, refusing to summarize an unread book</span></div>');
+      }
       if (evl.instinct) {
         html.push('<div class="note urgent">“' + UI.esc(evl.instinct) + '”' +
           '<span class="n-who">— Scout Im, off the record</span></div>');
@@ -358,6 +372,11 @@
     // ---- profile: the working card — attributes, plan, actions ----------
     html.push('<div class="kicker">Evaluations</div>');
     evl.domains.forEach(d => {
+      if (d.revealed === false) {
+        html.push('<div class="domain-row"><span class="dm-name">' + UI.esc(KP.C.TALENT_LABELS[d.domain]) + '</span>' +
+          '<span class="chip" style="opacity:.55">not yet watched</span></div>');
+        return;
+      }
       const val = KP.perceived(state, p, d.domain, d.evaluator);
       const band = KP.band(val);
       html.push('<div class="domain-row"><span class="dm-name">' + UI.esc(KP.C.TALENT_LABELS[d.domain]) + '</span>' +

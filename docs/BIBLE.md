@@ -4737,3 +4737,22 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > traveled like a person, so every number held. Battery 58/58
 > (suite 058 → 64), soak clean, e2e 94, lockstep 0.9.16.1. Rode
 > to main.
+\n
+> **0.9.16.2 — the unread book** (owner: *"every scouting visit to
+> only show a little more. full scouting after the 5th and that's
+> when you get the complete read"* + gender and scouting depth on
+> the profile). Scouting becomes a serial: the first report reads
+> ONE domain — whatever turned heads, pinned to the first
+> impression so the file grows without re-sorting — every paid
+> look reads exactly one more page, and the fifth (maxObservations
+> 4→5) completes the file: all five reads plus the overall
+> recommendation, which until then Scout Im refuses to write
+> ("ask me when I have seen all of her"). Unread pages SAY they
+> are unread, on the profile chips and in the evaluators' own
+> words; the board row and headline quote only written pages.
+> People in the building stay fully read — fog is a scouting
+> thing. Pre-read partnership leads (2 looks) now arrive with
+> literally more pages, which the first-look retainer always
+> deserved. The profile head gains boy/girl and the scouting
+> depth ("fully scouted" at five). Battery 58/58 (suite 002 → 42),
+> soak clean, e2e 94, lockstep 0.9.16.2. Rode to main.

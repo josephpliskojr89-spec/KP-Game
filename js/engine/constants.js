@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.16.1',
+    VERSION: '0.9.16.2',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -85,7 +85,9 @@
       widthPerObservation: 4,     // each extra look narrows the cone
       minReadWidth: 5,            // certainty is never perfect
       observeCost: 4,             // budget units per targeted look
-      maxObservations: 4,
+      // 4→5 (0.9.16.2, owner): five looks, five domains — every visit
+      // reads exactly one more page, and the fifth completes the file
+      maxObservations: 5,
       instinctNoteChance: 0.12,   // rare gut-call scout note on high hidden charisma
       // v0.4.3, owner: "more aggressive in signing talented trainees"
       rivalSignBaseChance: 0.09,  // weekly chance an interested rival signs a prospect

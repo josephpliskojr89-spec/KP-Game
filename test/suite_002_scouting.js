@@ -35,6 +35,38 @@ t.ok(KP.readWidth(p, scout) >= KP.C.SCOUT.minReadWidth, 'certainty is never perf
 // reads move when observations change (the fog re-centers as looks accrue)
 t.ok(KP.C.SCOUT.baseReadWidth > KP.C.SCOUT.minReadWidth, 'fog actually narrows over looks');
 
+// ---- the reveal ladder (0.9.16.2): every look shows a little more ----
+{
+  const st = KP.newGame('scout-ladder', null, { legacy: false });
+  const q = st.people[st.prospects[0]];
+  q.observations = 0;
+  const e0 = KP.evaluate(st, q);
+  t.eq(e0.domains.filter(d => d.revealed !== false).length, 1,
+    'the first report reads ONE domain — whatever turned heads');
+  t.eq(e0.recommendation, null, 'no recommendation on an unread book');
+  t.ok(e0.looksLeft === KP.C.SCOUT.maxObservations, 'the file says how many looks remain');
+  const order0 = KP.revealedDomains(st, q).join('|');
+  let lastCount = 1;
+  for (let i = 1; i <= KP.C.SCOUT.maxObservations; i++) {
+    q.observations = i;
+    const ei = KP.evaluate(st, q);
+    const count = ei.domains.filter(d => d.revealed !== false).length;
+    t.ok(count === Math.min(1 + i, 5) && count >= lastCount, 'look ' + i + ' reads exactly one more page (' + count + ')');
+    lastCount = count;
+    t.ok(KP.revealedDomains(st, q).join('|').indexOf(order0) === 0,
+      'look ' + i + ': the file grows — it never re-sorts what it already wrote');
+  }
+  q.observations = KP.C.SCOUT.maxObservations;
+  const eFull = KP.evaluate(st, q);
+  t.eq(eFull.domains.filter(d => d.revealed !== false).length, 5, 'fully scouted reads all five');
+  t.ok(typeof eFull.recommendation === 'string' && eFull.complete, 'and the complete read arrives with the fifth look');
+  // people in the building are watched daily — no fog gate on trainees
+  const tr = st.people[st.roster[0]];
+  const eTr = KP.evaluate(st, tr);
+  t.eq(eTr.domains.filter(d => d.revealed !== false).length, 5, 'a trainee file is always complete');
+  t.ok(eTr.recommendation, 'with the recommendation on paper');
+}
+
 // budget + allowance rails on signing
 const st2 = KP.newGame('scout-suite-2', null, { legacy: false });
 st2.budget = 1;
