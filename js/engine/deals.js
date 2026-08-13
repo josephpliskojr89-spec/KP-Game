@@ -84,10 +84,14 @@
         }
       }
       // ---- the solo request (v0.9.14): the ask everyone dreads --------
+      // the gravity (v0.9.18): a live clamor makes the brand's solo call
+      // far likelier — sponsors read the same trades everyone else does
+      const clamorLive = p && KP.groups(state).some(g2 => g2.gravity &&
+        !g2.gravity.settled && g2.gravity.personId === p.id);
       if (p && d.weeksLeft > 0 && !d.soloAsked &&
           state.week - d.signedWeek >= D.soloAskAfterWeeks &&
           !(state.scenes || []).some(sc => sc.kind === 'sponsorSolo') &&
-          rng.chance(D.soloAskChance)) {
+          rng.chance(D.soloAskChance * (clamorLive ? KP.C.GRAVITY.sponsorMult : 1))) {
         d.soloAsked = true;
         const led = state.sponsorLedger = state.sponsorLedger ||
           { kept: 0, missed: 0, clawbacks: 0, soloAsked: 0, soloAllowed: 0, soloDeclined: 0 };

@@ -199,9 +199,12 @@
     const t = p.talents, per = p.personality;
     const live = Math.min(40, p.liveExp);          // live experience saturates
     const media = Math.min(30, p.mediaExp);
+    // the slump (v0.9.18): the nerve dims the stage stats — not the
+    // skill, the NERVE. Practice-room numbers are untouched.
+    const slumpDamp = p.flags && p.flags.slump ? KP.C.SLUMP.damp : 1;
     return {
       stagePresence: KP.clamp(
-        0.38 * t.charisma.cur + 0.22 * t.dance.cur + 0.22 * per.confidence + live * 0.6, 0, 100),
+        (0.38 * t.charisma.cur + 0.22 * t.dance.cur + 0.22 * per.confidence + live * 0.6) * slumpDamp, 0, 100),
       // 0.9.8.1 (owner: "they're all trainees... why is it acting like
       // they [have experience]?") — showcase reps made the live term
       // dominate the leader pick, so years-in-the-building beat the born
@@ -213,8 +216,8 @@
       varietySkill: KP.clamp(
         0.35 * t.charisma.cur + 0.3 * per.warmth + 0.2 * per.confidence + media * 0.8, 0, 100),
       liveReliability: KP.clamp(
-        0.3 * ((t.vocals.cur + t.dance.cur) / 2) + 0.3 * per.professionalism +
-        0.15 * per.resilience + live * 0.55 - p.fatigue * 0.15, 0, 100),
+        (0.3 * ((t.vocals.cur + t.dance.cur) / 2) + 0.3 * per.professionalism +
+        0.15 * per.resilience + live * 0.55 - p.fatigue * 0.15) * slumpDamp, 0, 100),
       centerPull: KP.clamp(
         0.45 * t.charisma.cur + 0.3 * t.visuals.cur + 0.15 * per.confidence + live * 0.25, 0, 100),
     };

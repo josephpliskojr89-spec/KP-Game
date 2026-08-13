@@ -53,6 +53,7 @@
       // a cover, a showcase leak, a resurfaced photo. Different story.
       case 'coverClip': return KP.fillPro('An old ' + who + ' cover clip is having a MOMENT — {she} has not even debuted, which is somehow making it bigger. The algorithm found {her} before the company could.', p);
       case 'gaffe': return who + ' posted something at 2am that reads very differently in daylight — a caption, a like, a reply. Screenshots outlive deletions, and the quote-posts are rolling in.';
+      case 'soloClamor': return KP.fillPro('The fandom has formally split over ' + who + ': the solo-clamor camp has threads, edits, and a slogan; the loyalists have threads, edits, and a counter-slogan. Both camps love {her}. That is what makes it a war.', p);
       default: return 'Something about ' + who + ' is trending.';
     }
   };

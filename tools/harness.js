@@ -49,7 +49,13 @@ const BANDS = {
   // twice, then found noise). Per the v0.9.14 owner brief, the CEO
   // reading the books most careers IS the feature; the alarm now lives
   // at the tail, where a genuine poverty-spiral regression would push.
-  fiscalWarned:      { lo: 0.00, hi: 0.65, label: 'orgs warned at trust-hitting level (2+)' },
+  // ceiling 0.65→0.75 by ruling (v0.9.18): measured 27/40 and 52/80
+  // (65%) — the operating point drifted up with the DESIGNED spending
+  // of slots 3-5 (weekly scouting trips, school partnerships, cinema
+  // MVs, repackages). The poverty tail stayed healthy (80-seed min
+  // end-budget 2147, none below 300), so the drift is pricing, not
+  // spiraling. The alarm keeps living past the operating point.
+  fiscalWarned:      { lo: 0.00, hi: 0.75, label: 'orgs warned at trust-hitting level (2+)' },
   idolsRested:       { lo: 0.50, hi: 1.00, label: 'orgs whose idol weeks average off the fumes (<70, rolling)' },
   overworkSeen:      { lo: 0.05, hi: 1.00, label: 'orgs where medical staff benched somebody' },
   rivalActDebut:     { lo: 0.80, hi: 1.00, label: 'worlds where a rival debuted a new act' },
@@ -123,6 +129,15 @@ const BANDS = {
   // the title fight (v0.9.17). The producer-cooling path runs dormant in
   // soak by construction — the bot picks the best hook, which IS the
   // push — so that band opens floor 0 (suite-held, watch human play).
+  // the gravity (v0.9.18). Floors open low/zero on the rare arcs for the
+  // first soak; ceilings are the day-one alarms.
+  clamorBegan:       { lo: 0.05, hi: 1.00, label: 'orgs where the transcendence clamor began (the trades feature)' },
+  clamorSettled:     { lo: 0.00, hi: 1.00, label: 'orgs that settled a clamor with the in-group solo' },
+  clamorHeld:        { lo: 0.00, hi: 0.90, label: 'orgs that held a transcendent and paid the resentment clock' },
+  soloKnocked:       { lo: 0.00, hi: 1.00, label: 'orgs where she knocked with the rehearsed ask' },
+  slumpSeen:         { lo: 0.00, hi: 0.80, label: 'orgs where somebody lost the nerve (the slump)' },
+  footingFound:      { lo: 0.00, hi: 0.80, label: 'orgs where the nerve came back (the footing)' },
+  arcMinted:         { lo: 0.02, hi: 1.00, label: 'orgs that minted a group identity arc (icons/variety/OST)' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
@@ -257,6 +272,8 @@ const tally = {
   hiatusDeclared: 0, hiatusReturned: 0, hiatusCooled: 0,
   obligationKept: 0, obligationMissed: 0, dealClawedBack: 0, soloRequested: 0, soloAllowed: 0,
   clipResurfaced: 0, catalogRevived: 0, viralSourced: 0,
+  clamorBegan: 0, clamorSettled: 0, clamorHeld: 0, soloKnocked: 0,
+  slumpSeen: 0, footingFound: 0, arcMinted: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
   schoolLead: 0, schoolClass: 0, schoolTrip: 0, schoolPartner: 0, schoolHot: 0,
@@ -537,6 +554,18 @@ for (let s = 0; s < SEEDS; s++) {
         // says gone (dormant in the 140-week census — the window opens at
         // year five — but live in the long-horizon pass below)
         botRenewal(state, sc);
+        return;
+      }
+      if (sc.kind === 'soloKnock') {
+        // the gravity (v0.9.18): a sensible boss promises the solo — the
+        // bot's own credit assignment then keeps it or breaks it, which
+        // is the mechanism under test
+        KP.resolveScene(state, sc.id, 'promise');
+        return;
+      }
+      if (sc.kind === 'quietEra') {
+        const p = state.people[sc.personId];
+        KP.resolveScene(state, sc.id, p && p.fatigue > 50 ? 'shield' : 'push');
         return;
       }
       if (sc.kind === 'traineeQuit' || sc.kind === 'agingOutTalk') {
@@ -927,6 +956,15 @@ for (let s = 0; s < SEEDS; s++) {
   if ((cl.revivals || 0) >= 1) tally.catalogRevived++;
   if (Object.values(state.people).some(p =>
       (p.history || []).some(hh => /Went viral: /.test(hh.text)))) tally.viralSourced++;
+  // the gravity (v0.9.18): the ledger and the narratives are durable
+  const gl = state.gravityLedger || {};
+  if ((gl.clamors || 0) >= 1) tally.clamorBegan++;
+  if ((gl.settled || 0) >= 1) tally.clamorSettled++;
+  if ((gl.held || 0) >= 1) tally.clamorHeld++;
+  if ((gl.knocks || 0) >= 1) tally.soloKnocked++;
+  if ((gl.slumps || 0) >= 1) tally.slumpSeen++;
+  if ((gl.footings || 0) >= 1) tally.footingFound++;
+  if ((state.memory || []).some(n => ['festivalIcons', 'varietyGroup', 'ostFactory'].includes(n.key))) tally.arcMinted++;
   // the title fight (v0.9.17): releases and producers carry the stamps
   const allRels = state.groups.flatMap(g => g.releases || []);
   if (((state.pitchLedger || {}).memberDemos || 0) >= 1) tally.memberDemoSeen++;

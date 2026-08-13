@@ -1003,6 +1003,10 @@
           ostVoice: 'heard the OST in a café, in a cab, and in my own head at 2am. ' + idolName() + '’s voice has achieved public-infrastructure status',
           catalogRevival: groupName() + ' has an OLD song charting again and honestly? the catalog era is the best era. dig, children, dig. the vault provides',
           lastChanceDebut: idolName() + ' debuting after YEARS of training is the arc I am most emotionally invested in this quarter. the evaluation-board survivor. cinema',
+          biggerThan: idolName() + ' outgrowing the frame of every group photo and the trades finally said it out loud. the discourse is INSUFFERABLE and I am participating hourly',
+          festivalIcons: groupName() + ' and a festival field is simply a canon pairing now. golden hour, wind machine courtesy of actual wind, twenty thousand backup singers',
+          varietyGroup: groupName() + ' booking more panels than stages this quarter and honestly? the range. the music funds the comedy empire and I respect the business model',
+          ostFactory: 'a drama got announced and the comment section is already casting ' + groupName() + ' for the OST. that is what a reputation IS',
           regionStronghold: groupName() + ' really has a whole second home market now. the fan-sub accounts post before the company does. globalization won',
           conceptIdentity: groupName() + ' hearing one synth note and knowing EXACTLY what era it is… consistency is a superpower and they have it',
         };

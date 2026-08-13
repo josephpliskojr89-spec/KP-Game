@@ -81,6 +81,8 @@
       (g.prep ? '<span class="chip cool">' + UI.esc(KP.conceptById(g.prep.conceptId).label) + '</span>' : '') +
       (g.debuted ? '<span class="chip ' + (g.popularity >= 58 ? 'hot' : '') + '">' + KP.popularityWord(g.popularity) + '</span>' : '') +
       (g.debuted && g.results ? '<span class="chip gold">' + UI.esc(g.results.receptionLabel) + '</span>' : '') +
+      (g.gravity && !g.gravity.settled && state.people[g.gravity.personId]
+        ? '<span class="chip hot">the clamor: ' + UI.esc(KP.publicGiven(state.people[g.gravity.personId])) + '</span>' : '') +
       '</div></div>');
 
     html.push('<div class="member-strip">');

@@ -1890,7 +1890,8 @@ against the standing clause (arrive, claim, mark):
    the member's demo against the professionals'; repackages
    extend eras; the MV becomes an object with a budget tier. The
    most-repeated loop in the game, finally contested.
-5. **The gravity, both directions** (§55.2 + slumps). One set of
+5. **The gravity, both directions** (§55.2 + slumps; SHIPPED
+   v0.9.18, §60). One set of
    individual-trajectory rails: the transcendence read and its
    clamor (solo-in-group / the hold / the spin-out) — and the
    slump, the downward arc with its own middle register. Group
@@ -3244,6 +3245,87 @@ reception gap (exactly the tier gap), the repackage
 (window/drawer/carry-by-formula/short cycle/once-per-era/single
 refusal), determinism.
 
+## §60 The gravity, both directions (v0.9.18) — map slot 5
+
+Individual trajectories get rails. §39: *"the transcendence read
+and its clamor (solo-in-group / the hold / the spin-out) — and
+the slump, the downward arc with its own middle register. Group
+identity arcs."* One module (`gravity.js`, weekly 640), one
+ledger (`state.gravityLedger`), both directions of the same
+physics: a member can outgrow the room, and a member can lose it.
+
+**The read** (`KP.transcendRead`). Deterministic, no rolls: the
+follower gap is the spine — `(share − 1/n) × 120` — plus the
+shelf (narratives that name HER: fancam star, it girl, variety
+monster, national MC, OST voice, brand darling, ×8 each),
+breakouts (×5, cap 4), and solo shines from allowed sponsor
+stages (×4, cap 3). `KP.gravityWord` translates it: "one of the
+room" → "the face" → "first among equals" → "bigger than the
+group?". Crossing `transcendAt` (24) starts a watch; holding it
+four straight weeks (`holdWeeksToClamor`) begins the clamor.
+Groups under `minMembers` (3) are exempt — a duo IS two solos.
+
+**The clamor, staged.** The trades run the feature (`biggerThan`
+narrative minted, `gravityTrades` note, ledger `clamors`). Week
+3 the fandom formally splits — a `soloClamor` discourse where
+both camps love her, which is what makes it a war. Week 6 the
+board asks: the NEXT Monday meeting leads with the solo question
+(`state.gravityExecAsk` → `soloQuestion`), promise or "the group
+comes first" (morale −3, heldBack). Week 10 she knocks — the
+`soloKnock` scene, the ask she rehearsed: promise (a `soloPromise`
+claim, 30 weeks, one truth shared with the exec's promise,
+dup-guarded), hold (heldBack −2, morale −5), or open the door
+(`graduateToSolo`, settled `spinout`). Ignoring the knock is
+leftWaiting. Past the exec stage an unanswered clamor ticks the
+resentment clock every 6 weeks (morale −2, heldBack) — **unless a
+promise with a date is on the record**: a promise is an answer,
+not a hold, and breaking it already costs more (morale −8,
+promiseBroken; the missed date resolves against you). The settle:
+any solo credit of hers dated after the clamor began exhales the
+whole thing — morale +8, fandom +3, promiseKept, both camps told
+they won, live clamor discourses resolved. A live clamor also
+×3s the sponsor solo-ask chance (`sponsorMult`) — the market
+reads the trades too.
+
+**The slump.** Entry (rolled, `enterChance` 0.08/wk): morale
+< 42 AND confidence < 45 AND a fresh wound (last release
+miss/quiet, or an encore-era storm inside 8 weeks) — the nerve
+goes when everything else already has. While slumped, `derived()`
+damps stagePresence and liveReliability ×0.82 (`flags.slump` —
+the stage stats, never the practice room; the "the nerve" chip
+on the condition line says what the staff know). The `quietEra`
+scene offers the middle register: shield her (8 weeks off the
+front — confidence +1.5/wk, protected directed, and the group's
+stages miss her: `shieldPerformance` −3 to live scoring), push
+(−1/wk), or have the friend talk first (morale +4, shield
+recovers ×1.5 after). Exits: confidence back to 55, sixteen
+weeks of just living, or THE STAGE — a show win while slumping
+ends it that night (`g.lastShowWinWeek`, stamped by shows.js),
+`foundFooting` note, history, ledger.
+
+**The identity arcs** (one-truth counters from the systems that
+already count): `g.festivalsPlayed` ≥ 3 → `festivalIcons`
+(festival pay ×1.6), summed panel arcs + MC runs ≥ 3 →
+`varietyGroup` (gig offers ×1.6), summed OST drops ≥ 2 →
+`ostFactory`. Narratives with memory/industry/feed voices.
+
+Soak reality (measured, 40 + 80 seeds): end-state top reads
+median ~50 vs the bar at 24 — over 140 weeks nearly every group
+mints its biggest member, which is the genre truth, and ~all
+settle with the in-group solo because the release cadence (~20
+weeks) is the real clock. The promise-pause is what keeps that
+humane: before it, 100% of orgs paid resentment ticks while the
+wheel turned (structural, not chosen); after, 13/80 — the orgs
+that held or let a promise lapse. The slump is fully dormant in
+bot play (morale-managed bots never crater) — suite-held, §18.
+
+Suite 060 (37): the deterministic read + word + no-re-roll, the
+staged clamor (trades/narrative/discourse/exec question) and the
+injected-credit settle, the knock's three forks serialized
+(promise → backdated miss → promiseBroken; hold → heldBack;
+open → spinout), the slump entry/damp A/B/shield/stage exit,
+forced-counter arcs + feed registry, 40-week determinism fork.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3300,6 +3382,20 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   is suite-held. Human play picks for concept, taste, and members —
   watch whether the cooling ever fires there; if the owner never
   sees a producer cool, surface the push more loudly in the studio.
+- **The slump runs dormant in soak (v0.9.18)** — entry needs
+  morale < 42 AND confidence < 45 AND a fresh wound, and the
+  sit-down-happy bot never lets both crater (0/80). The whole
+  rail (entry, damp, shield, talk, the stage exit) is suite-held.
+  Watch human play — a neglected second group after a missed
+  comeback is the natural door. If the owner never sees a quiet
+  era, raise enterMoraleBelow before touching enterChance.
+- **clamorHeld measures choice now, not cadence (v0.9.18)** — at
+  first soak 100% of orgs paid resentment ticks because settling
+  needs a release and the release cadence (~20wk) outruns the
+  clock; the promise-pause (an open soloPromise stops the ticks)
+  dropped it to 13/80, the orgs that held or let a promise lapse.
+  If the band floods again, check the promise path before the
+  pacing constants.
 - **The resignation letter never fires in soak (v0.9.16)** — the
   sensible bot keeps trainee morale above the quit line in all 40
   worlds (0/40), so the scene is suite-held only. This is the
@@ -3322,6 +3418,12 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 - **Trust saturates high by year 3 (0.9.13 audit B4)** — gains
   outpace every loss path at scale; gates lose tension. Candidate:
   slow drift toward startTrust, or stature-scaled expectations.
+  *Overtaken by the sink (v0.9.18)*: the founder probe measured
+  trust hovering 40–60 across 13 bot years under the fiscal
+  warnings — saturation is gone at bot policy, and the founding
+  gate (70) is now the hard one. The longhaul grants the
+  collateral when trust ALONE gates founding by week 150, because
+  that audit soaks the founded shape; the soak owns the odds.
 - **Rival-native file growth (0.9.13 audit)** — ~25 files/year,
   ~half the save by year 13, quota breach ~a century out. If it
   ever matters: tombstone-compress members of long-retired acts
@@ -4894,3 +4996,39 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > "solo act", never "1 members". Fixture repairs from the removed
 > generation draw recorded in-suite. Battery 59/59, soak clean,
 > e2e 94, lockstep 0.9.17.1. Rode to main.
+\n
+> **v0.9.18 — the gravity, both directions** (map slot 5, owner:
+> "let's move ahead with slot 5"). A new module (gravity.js,
+> weekly 640) rails individual trajectories both ways. Up: the
+> deterministic transcendence read (follower gap the spine, the
+> narrative shelf, breakouts, sponsor shines) crosses 24 and
+> holds four weeks, then the clamor arrives in stages — the
+> trades' feature, the fandom formally splitting into camps that
+> both love her, the board's Monday question, and at week ten the
+> knock she rehearsed. Three answers, all with ledgers: the
+> promise (one claim type shared with the exec's, 30 weeks,
+> breaking it remembered), the hold (heldBack, and the resentment
+> clock — which a promise on the record PAUSES, because a promise
+> is an answer, not a hold), the open door (spin-out graduation).
+> Any solo credit of hers dated post-clamor settles the whole
+> thing and both camps claim the win. A live clamor triples the
+> sponsor solo ask. Down: the slump — the nerve goes when morale,
+> confidence, and a fresh wound align; stage stats damp ×0.82
+> while the practice room stays whole; the quiet-era desk offers
+> the shield (recovery, but the stage misses her: −3 live), the
+> push, or the friend first; exits by recovery, by sixteen weeks
+> of living, or by THE STAGE — a show win ends it that night.
+> Identity arcs mint from counters the gig and festival systems
+> already keep: festival icons (pay ×1.6), variety group (offers
+> ×1.6), OST factory. Soak found the read's genre truth (every
+> long career mints its biggest member; ~all settle by solo) and
+> the promise-pause is what separates pacing from choice: 100% →
+> 13/80 paying resentment. fiscalWarned ceiling ruled 0.65→0.75
+> (measured 27/40 + 52/80 with slots 3–5's designed spending;
+> poverty tail healthy, 80-seed min end-budget 2147). The
+> longhaul founder now takes the collateral when trust alone
+> gates by week 150 — that audit soaks the founded shape, the
+> soak owns the odds. Numbers: battery 60/60 (suite 060, 37),
+> soak clean (137 bands, seven new all alive or suite-held),
+> longhaul 5×620 clean, e2e 94, lockstep 0.9.18 (56 modules).
+> Rode to main. Slot 5 of fourteen.

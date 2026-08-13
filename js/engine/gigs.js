@@ -175,7 +175,15 @@
       // an idle idol is a bookable idol (v0.9.12): a group on declared
       // hiatus makes its members the easiest calls in the industry
       const parked = cand.some(c => KP.onHiatus && KP.onHiatus(KP.groupOf(state, c.p.id)));
-      if (cand.length && rng.chance(G.offerBaseChance + (natural ? G.naturalBonus : 0) +
+      // identity arcs (v0.9.18): a variety group's phones ring more; an
+      // OST factory's ring for dramas — the narrative changes the door
+      const arcBoosted = cand.some(c => {
+        const g3 = KP.groupOf(state, c.p.id);
+        return g3 && (KP.getNarrative(state, 'varietyGroup', 'group', g3.id) ||
+          (c.kind === 'ost' && KP.getNarrative(state, 'ostFactory', 'group', g3.id)));
+      });
+      if (cand.length && rng.chance(G.offerBaseChance * (arcBoosted ? KP.C.ARCS.varietyOfferBoost : 1) +
+          (natural ? G.naturalBonus : 0) +
           (parked ? G.hiatusOfferBonus : 0))) {
         const pick = cand[0];
         const offer = { id: gigId(state), kind: pick.kind, personId: pick.p.id,

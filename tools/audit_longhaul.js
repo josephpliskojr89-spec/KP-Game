@@ -232,7 +232,18 @@ for (const sc of SCENARIOS) {
   let founded = false;
   for (let w = 0; w < WEEKS; w++) {
     botWeek(state, sc.mode);
-    // the founding, once eligible (founder scenario only)
+    // the founding, once eligible (founder scenario only). This audit
+    // exists to soak the FOUNDED state shape for 500 weeks — the odds of
+    // a bot earning trust 70 belong to the soak, not here. If trust is
+    // the ONLY unmet gate by week 150, grant the collateral and walk;
+    // the lean bot pays fiscal trust warnings a player would dodge.
+    if (sc.mode === 'founder' && !founded && w >= 150 && KP.foundingEligible) {
+      const gate = KP.foundingEligible(state);
+      if (!gate.ok && gate.reasons.length === 1 &&
+          /trust is the collateral/.test(gate.reasons[0])) {
+        state.trust = KP.C.FOUNDING.trustAt;
+      }
+    }
     if (sc.mode === 'founder' && !founded && KP.foundingEligible &&
         KP.foundingEligible(state).ok) {
       KP.foundLabel(state, 'Audit House');

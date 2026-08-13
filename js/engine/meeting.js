@@ -30,6 +30,22 @@
   };
 
   function buildQuestion(state) {
+    // the gravity's exec stage (v0.9.18): once the clamor reaches the
+    // boardroom, the NEXT Monday meeting asks the solo question first
+    if (state.gravityExecAsk) {
+      const ask = state.gravityExecAsk;
+      const p = state.people[ask.personId];
+      const g = KP.groupById(state, ask.groupId);
+      state.gravityExecAsk = null;
+      if (p && g && g.members.includes(p.id)) {
+        return { type: 'soloQuestion', week: state.week, personId: p.id, groupId: g.id,
+          text: 'The trades keep asking about ' + KP.displayName(p) + '. So the board asked me. So I am asking you: is a solo happening?',
+          options: [
+            { id: 'promise', label: 'Yes — on the record' },
+            { id: 'group', label: 'The group comes first' },
+          ] };
+      }
+    }
     // alternate deterministically between the two questions that exist
     const wantReady = KP.hash01([state.seed, 'meeting', state.week].join('|')) < 0.5;
     const free = KP.freeTrainees(state).map(id => state.people[id])
@@ -103,6 +119,25 @@
           return { toast: KP.fillPro('A second lineup inside the year, on the record. The executive looked at the trainee-room door like {she} could already hear the debut stage.', KP.execP(state)) };
         }
         return { toast: KP.fillPro('“When the room is ready.” {She} accepted it the way people accept weather forecasts — noted, not believed, checked against the sky later.', KP.execP(state)) };
+      }
+      // the gravity's boardroom stage (v0.9.18): the same promise the
+      // knock offers, made to the exec instead — one claim type, one truth
+      if (q.type === 'soloQuestion') {
+        const p = state.people[q.personId];
+        if (optionId === 'promise' && p) {
+          const already = (state.claims || []).some(c => !c.resolved &&
+            c.type === 'soloPromise' && c.personId === p.id);
+          if (!already) KP.openClaim(state, { type: 'soloPromise', subject: { kind: 'idol', id: p.id },
+            personId: p.id, byWeek: state.week + KP.C.GRAVITY.soloPromiseWeeks,
+            label: 'A solo credit for ' + KP.displayName(p) + ', promised to the board' });
+          return { toast: KP.fillPro('“On the record,” you said, and the executive wrote the date without looking down. Two people now hold that receipt — {her}, and the board.', p) };
+        }
+        if (p) {
+          p.morale = KP.clamp(p.morale - 3, 0, 100);
+          KP.recordDirected(state, p.id, 'heldBack', -1);
+          return { toast: KP.fillPro('“The group comes first.” The executive nodded and moved the agenda along. Somewhere in the building, {she} heard the meeting summary before it was typed.', p) };
+        }
+        return {};
       }
       return {};
     },

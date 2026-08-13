@@ -110,6 +110,10 @@
       case 'genreShift': return group() + ' invented ' + ((n.meta && n.meta.mash) || 'a sound') + ' and the industry is still catching up.';
       case 'signatureSound': return group() + ' and ' + ((n.meta && n.meta.producer) || 'one producer') + ' have a sound the public can name blind.';
       case 'catalogRevival': return '\u201c' + ((n.meta && n.meta.title) || 'an old song') + '\u201d came back years later and charted. ' + group() + '\u2019s catalog does not expire.';
+      case 'biggerThan': return idol() + ' \u2014 bigger than ' + ((n.meta && n.meta.group) || 'the group') + '? The trades asked first. Now everyone does.';
+      case 'festivalIcons': return group() + ' are festival icons. Spring books them before it books the weather.';
+      case 'varietyGroup': return group() + ' is the variety group \u2014 the panels call the dorm directly now.';
+      case 'ostFactory': return group() + ' is an OST factory. The dramas call before the scripts are finished.';
       case 'lastChanceDebut': return idol() + ' debuted after ' + ((n.meta && n.meta.years) || 'many') + ' years as a trainee. The practice room finally opened.';
       default: return n.key;
     }
@@ -193,6 +197,10 @@
       case 'genreShift': return 'The history books opened a new entry: ' + group() + ' made ' + ((n.meta && n.meta.mash) || 'a sound nobody had a name for') + ' real, on record, first. Every A&R meeting in the industry now contains the phrase “something like that.” Being copied is the sincerest form of panic.';
       case 'signatureSound': return 'Three records deep with ' + ((n.meta && n.meta.producer) || 'the same producer') + ', and the reviews stopped naming the producer because everyone already knows: ' + group() + ' has a SOUND now — recognizable from the first four bars, imitated within the quarter. A signature is an asset. It is also a cage with excellent acoustics.';
       case 'catalogRevival': return 'The trades needed a week to believe it: \u201c' + ((n.meta && n.meta.title) || 'an old track') + '\u201d re-entered the chart YEARS after its era, on nothing but word of mouth and one resurfaced clip. ' + group() + '\u2019s catalog is officially alive — every record they ever shipped is a lottery ticket that never expires, and the industry just watched one pay out.';
+      case 'biggerThan': return 'The trades finally printed the question every comment section has been asking: is ' + idol() + ' bigger than ' + ((n.meta && n.meta.group) || 'the group') + '? The numbers say maybe. The narratives say probably. The company says nothing, loudly. However this resolves \u2014 the solo, the hold, the door \u2014 it is now the story the whole scene is watching.';
+      case 'festivalIcons': return 'It is official the way these things become official: ' + group() + ' are FESTIVAL ICONS. Third year running the fields, and now the organizers call them before they book the stage. The golden-hour fancams are a genre; the b-side singalongs are a tradition; spring has a lineup and they are on it by default.';
+      case 'varietyGroup': return 'The industry has filed ' + group() + ' under a second heading: the VARIETY GROUP. Enough panel runs and MC stints across the lineup that casting directors call the company switchboard asking \u201cwho is free,\u201d not \u201cwho is funny\u201d \u2014 they already know everyone is. The music is the job; the shows are the empire.';
+      case 'ostFactory': return group() + ' has become the industry\u2019s OST FACTORY \u2014 enough drama soundtracks across the lineup that music directors send scripts to the company before casting is finished. Somewhere right now a montage is being edited to a voice from this dorm, and everyone involved considers that the natural order.';
       case 'lastChanceDebut': return 'The profile writers all reached for the same file this week, because the file earned it: ' + idol() + ' trained for ' + ((n.meta && n.meta.years) || 'many') + ' years \u2014 watched other lineups post, bow, and walk out the door \u2014 and then debuted anyway. The industry runs on eighteen-year-olds and impatience, which is exactly why the one who outlasted the clock is the story everybody wanted to write.';
       default: return 'A narrative formed: ' + n.key;
     }

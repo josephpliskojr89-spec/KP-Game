@@ -46,7 +46,9 @@
     const mood = KP.moodOf(p);
     const cls = { benched: 'hot', 'running on fumes': 'hot', 'quietly off': 'hot',
       'carrying it': '', worn: '', glowing: 'cool', steady: 'cool' }[mood] || '';
-    return '<span class="chip' + (cls ? ' ' + cls : '') + '">' + mood + '</span>';
+    return '<span class="chip' + (cls ? ' ' + cls : '') + '">' + mood + '</span>' +
+      // the slump wears its name quietly (v0.9.18) — the staff know
+      (p.flags && p.flags.slump ? '<span class="chip hot">the nerve</span>' : '');
   };
 
   UI.heatChips = function (state, personId) {

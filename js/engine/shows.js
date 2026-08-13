@@ -24,7 +24,10 @@
   function livePerf(state, g) {
     const ms = g.members.map(id => state.people[id]).filter(Boolean);
     if (!ms.length) return 0;
-    return ms.reduce((s, m) =>
+    // a shielded member is off the front of the stage — the shield's cost
+    const shielded = g.slumpShield && state.week <= g.slumpShield.until ?
+      KP.C.SLUMP.shieldPerformance : 0;
+    return shielded + ms.reduce((s, m) =>
       s + 0.5 * KP.derived(m).liveReliability +
       0.5 * Math.max(m.talents.vocals.cur, m.talents.dance.cur), 0) / ms.length;
   }
@@ -89,6 +92,7 @@
         g.trophies = g.trophies || {};
         g.trophies[showId] = (g.trophies[showId] || 0) + 1;
         g.trophiesYear = (g.trophiesYear || 0) + 1;   // the award year's tally (0.9.13 audit B2)
+        g.lastShowWinWeek = state.week;   // the slump reads this (v0.9.18)
         g.popularity = KP.clamp((g.popularity || 0) + W.winPop, 0, 100);
         const members = g.members.map(id => state.people[id]).filter(Boolean);
         members.forEach(m => {

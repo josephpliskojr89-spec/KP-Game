@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.17.1',
+    VERSION: '0.9.18',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -124,6 +124,50 @@
       snubsAt: 2,                // two passed pushes and the producer cools
       snubHookMalus: 6,          // his next pitches to this room arrive B-grade
       execPassNoteAt: 3,         // the third pass on her taste draws a remark
+    },
+
+    // ---- The gravity (v0.9.18): individual-trajectory rails ------------
+    // §55.2: a member who begins to transcend her group draws a CLAMOR
+    // from every voice the game has — staged, resolvable, and costly to
+    // ignore. The same rails read downward: the slump.
+    GRAVITY: {
+      transcendAt: 24,           // the read that starts the conversation
+      holdWeeksToClamor: 4,      // it has to be a pattern, not a spike
+      minMembers: 3,             // a duo's math is different; solos exempt
+      tradesStage: 0,            // clamor stage offsets, in weeks
+      splitStage: 3,             // the fandom divides into camps
+      execStage: 6,              // the Monday meeting asks
+      knockStage: 10,            // she rehearsed this ask
+      sponsorMult: 3,            // clamor makes the brand call likelier (§55.1)
+      resentEvery: 6,            // held past the exec stage, the clock ticks
+      resentMorale: -2,
+      soloPromiseWeeks: 30,      // "a solo is happening" needs a date
+      settleMorale: 8,           // the credit lands and the room exhales
+      settleFandom: 3,
+    },
+    SLUMP: {
+      enterMoraleBelow: 42,      // the nerve goes when everything else has
+      enterConfidenceBelow: 45,
+      enterChance: 0.08,         // weekly, when the conditions align
+      damp: 0.82,                // stage presence and live reliability, dimmed
+      pushConfidence: -1,        // promoting through it costs weekly
+      shieldWeeks: 8,            // the quiet era
+      shieldRecovery: 1.5,       // confidence per shielded week
+      shieldPerformance: -3,     // the group's next stage misses her
+      talkMorale: 4,             // a friend saying it out loud helps
+      exitConfidence: 55,        // the nerve returns
+      exitWeeksMax: 16,          // or time does what time does
+      winExits: true,            // a trophy while slumping ends it NOW
+    },
+    // group identity arcs: repeated behavior mints a narrative that
+    // changes how the invitations arrive
+    ARCS: {
+      festivalIconsAt: 3,        // festivals played
+      festivalIconBoost: 1.6,    // ...and the organizers call icons first
+      varietyGroupAt: 3,         // gig runs wrapped across the lineup
+      varietyOfferBoost: 1.6,
+      ostFactoryAt: 2,           // OSTs dropped across the lineup
+      ostOfferBoost: 1.8,
     },
 
     // ---- The MV (v0.9.17): the video is an object with a budget --------
@@ -722,6 +766,10 @@
           actions: ['statement', 'apology'] },
         fancam:    { label: 'fancam wave', negative: false, start: [30, 55],
           actions: ['meme', 'livestream'] },
+        // the gravity (v0.9.18): the fandom divides into solo-clamor and
+        // ot5-loyalist camps — a debate, not an attack; both camps love her
+        soloClamor: { label: 'solo-clamor debate', negative: false, start: [35, 60],
+          actions: ['statement', 'meme'] },
         // 0.9.8.2: pre-debut virality is covers and leaked clips, not
         // fancams — she has no stages to film
         coverClip: { label: 'cover-clip wave', negative: false, start: [30, 55],

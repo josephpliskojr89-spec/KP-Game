@@ -75,7 +75,11 @@
         // content for any successful org: 2/40 in the census)
         if (pop < S.festPopRange[0]) return;
         g.festYear = year;
-        const pay = Math.min(24, Math.round(S.festPayBase + pop * S.festPayPerPop));
+        g.festivalsPlayed = (g.festivalsPlayed || 0) + 1;   // the icons arc counts (v0.9.18)
+        // festival icons headline for icon money — the identity pays
+        const icon = KP.getNarrative(state, 'festivalIcons', 'group', g.id);
+        const pay = Math.round(Math.min(24, Math.round(S.festPayBase + pop * S.festPayPerPop)) *
+          (icon ? KP.C.ARCS.festivalIconBoost : 1));
         state.budget += pay;
         const members = g.members.map(id => state.people[id]).filter(Boolean);
         members.forEach(m => {
