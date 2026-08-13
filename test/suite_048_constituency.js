@@ -31,6 +31,9 @@ function openCal(state, g) {
   const { state, g } = debuted('fu-gate');
   openCal(state, g);
   g.demos = KP.generateDemos(state, KP.rngFor(state), g);
+  // a demo that ROLLED the fusion concept is itself a brief — neutralize
+  // the stream luck so this block tests the gate, not the dice
+  g.demos.forEach(d => { if (d.conceptId === 'fusion') d.conceptId = 'bright'; });
   const plain = KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 }, mash: ['trot', 'EDM'] });
   t.ok(!plain.ok && /genre-bending brief/.test(plain.reason), 'no brief, no mash — set the direction first');

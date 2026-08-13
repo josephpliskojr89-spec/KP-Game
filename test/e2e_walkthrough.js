@@ -107,9 +107,10 @@ async function main() {
   ok(await page.$$eval('.talent-row', els => els.length) >= 20, 'prospect board is stocked');
   ok((await page.textContent('#screen')).match(/watching|interested|circling/), 'rival interest visible on the board');
   const budgetBefore = parseInt((await page.textContent('#tb-budget')).replace(/\D/g, ''), 10);
+  const lookCost = await page.evaluate(() => KP.C.SCOUT.observeCost);
   await tap('[data-action=observe]');
   const budgetAfterLook = parseInt((await page.textContent('#tb-budget')).replace(/\D/g, ''), 10);
-  ok(budgetAfterLook === budgetBefore - 4, 'a targeted look costs budget');
+  ok(budgetAfterLook === budgetBefore - lookCost, 'a targeted look costs budget');
   // --- the regional schools (v0.9.16): the map under the board ---
   const boardText = await page.textContent('#screen');
   ok(/The regional schools/.test(boardText), 'the schools directory renders under the board');
@@ -216,6 +217,9 @@ async function main() {
   ok((await page.textContent('#screen')).includes('Maknae'), 'maknae labeled as a fact');
 
   // --- studio: song, concept, date, lock ---
+  // the walkthrough spends more on the desk now (look 12, school trip) —
+  // stage enough budget that the LOCK tests the studio, not the wallet
+  await page.evaluate(() => { KP.App.state.budget += 40; KP.App.save(); });
   await tap('[data-nav=studio]');
   await page.waitForSelector('.demo-card');
   ok(await page.$$eval('.demo-card', els => els.length) === 4, 'four demos on the desk');

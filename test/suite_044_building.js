@@ -180,9 +180,11 @@ function debuted(seed) {
   t.ok(claim && claim.baseline >= 0, 'growth goes on the record with a number');
   g.popularity = (claim.baseline || 0) + 40;
   claim.byWeek = state.week;
-  KP.advanceWeek(state);
+  // read the week's OWN notes: the capped inbox can evict this line in
+  // a busy week (eval days, school classes — the world got louder)
+  const wkNotes = KP.advanceWeek(state);
   t.eq(claim.resolved, 'met', 'growth delivered resolves warm');
-  t.ok(state.inbox.some(n => /trajectory/.test(n.text)), 'the directors say "trajectory" approvingly');
+  t.ok(wkNotes.some(n => /trajectory/.test(n.text)), 'the directors say "trajectory" approvingly');
 }
 
 // ---- the pet project: hers, personally ----

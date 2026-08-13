@@ -8,10 +8,14 @@
   const KP = root.KP = root.KP || {};
 
   // Width of an evaluator's uncertainty on one domain of one person.
+  // Front-loaded (0.9.16.3): the desk report is wide fog — the "?" —
+  // and ONE targeted look collapses most of it. Repeat looks polish.
   KP.readWidth = function (person, evaluator) {
     const S = KP.C.SCOUT;
     const obs = Math.min(person.observations || 0, S.maxObservations);
-    const w = (S.baseReadWidth - obs * S.widthPerObservation) * (evaluator ? evaluator.accuracy : 1);
+    const acc = evaluator ? evaluator.accuracy : 1;
+    const w = obs === 0 ? S.baseReadWidth * acc
+      : (S.baseReadWidth * S.firstLookFactor - (obs - 1) * S.widthPerObservation) * acc;
     return Math.max(S.minReadWidth, w);
   };
 
@@ -259,21 +263,6 @@
     'I checked twice why {she} is still available. The answer is luck. Ours — if we hurry.',
   ];
 
-  // the unread pages (0.9.16.2): before a domain has been WATCHED, the
-  // file says so instead of guessing — scouting is a serial, not a dump
-  const UNSEEN = {
-    vocals: ['The vocal booth is still waiting for {her}. Another look books it.',
-      'No vocal read yet — the first report was about something louder.'],
-    rap: ['Nobody has handed {her} a verse yet. The next look could.',
-      'The rap page of the file is still blank paper.'],
-    dance: ['{She} has not been watched in a practice room yet. The mirror is patient.',
-      'No dance read on file — send the performance director next.'],
-    visuals: ['No test shots in the file yet. The camera has not voted.',
-      'The visuals page is empty. Cameras need appointments.'],
-    charisma: ['The room has not had time to notice {her} yet — presence takes a sitting.',
-      'No presence read yet. That one only shows up in person.'],
-  };
-
   const INSTINCT_NOTES = [
     'I don’t have objective evidence for this. Don’t let another company sign {her}.',
     'On paper {she} is ordinary. In the room {she} is not. Trust me once.',
@@ -299,69 +288,59 @@
       cell.detail[Math.floor(k / cell.open.length) % cell.detail.length];
   }
 
-  // The first report's loudness — a domain's read with the looks pinned
-  // to zero, so the reveal ORDER never reshuffles as observation accrues.
-  // The file grows; it does not re-sort itself.
-  function firstImpression(state, person, domain) {
-    const S = KP.C.SCOUT;
-    const scout = KP.DATA.evaluators[2];
-    const width = Math.max(S.minReadWidth, S.baseReadWidth * scout.accuracy);
-    const key = [state.seed, scout.id, person.id, domain, 0].join('|');
-    return KP.clamp(Math.round(person.talents[domain].cur +
-      (KP.hash01(key) - 0.5) * 2 * width), 1, 100);
+  // The lane evaluator for a domain: vocal coach on vocals/rap,
+  // performance director on dance/visuals, senior scout on charisma.
+  function laneEvaluator(domain) {
+    const evs = KP.DATA.evaluators;
+    return domain === 'vocals' || domain === 'rap' ? evs[0]
+      : domain === 'dance' || domain === 'visuals' ? evs[1] : evs[2];
   }
-  // Which domains the file has actually READ, in reveal order. The reveal
-  // ladder (0.9.16.2, owner: "every scouting visit should only show a
-  // little more"): the first report covers ONE domain — whatever turned
-  // heads — each paid look reads one more, and the fifth look completes
-  // the file. People in the building are watched daily: no gate.
-  KP.revealedDomains = function (state, person) {
-    if (person.status !== 'prospect') return KP.C.TALENTS.slice();
-    const obs = Math.min(person.observations || 0, KP.C.SCOUT.maxObservations);
-    return KP.C.TALENTS.slice().sort((a, b) =>
-      firstImpression(state, person, b) - firstImpression(state, person, a))
-      .slice(0, Math.min(1 + obs, KP.C.TALENTS.length));
+
+  // The dated report (0.9.16.3). A prospect's file shows what the staff
+  // WROTE, not what is currently true: a targeted look snapshots every
+  // read at that week, and the board keeps training — so an old report
+  // can undersell a kid who kept improving, and a repeat trip is a real
+  // choice, not a stat refresh. Before any look, the desk report reads
+  // live through full fog (the question-mark width).
+  KP.takeReads = function (state, person) {
+    const vals = {};
+    KP.C.TALENTS.forEach(d => {
+      vals[d] = KP.perceived(state, person, d, laneEvaluator(d));
+    });
+    person.reads = { week: state.week, vals };
+    return person.reads;
+  };
+  KP.reportRead = function (state, person, domain) {
+    if (person.status === 'prospect' && person.reads && person.reads.vals[domain] != null) {
+      return person.reads.vals[domain];
+    }
+    return KP.perceived(state, person, domain, laneEvaluator(domain));
+  };
+  KP.reportAgeWeeks = function (state, person) {
+    return person.reads ? state.week - person.reads.week : null;
   };
 
-  // Full evaluation: one blurb per READ domain (from the best-suited
-  // evaluator), unread pages saying so, and the overall recommendation
-  // only when the file is complete.
+  // Full evaluation: every domain shows — wearing a question mark until
+  // somebody has actually gone and looked (0.9.16.3 rollback of the .2
+  // reveal ladder: nothing hidden, everything honest about its fog).
   KP.evaluate = function (state, person) {
-    const evs = KP.DATA.evaluators;
-    const S = KP.C.SCOUT;
-    const revealed = new Set(KP.revealedDomains(state, person));
+    const uncertain = person.status === 'prospect' && !(person.observations > 0);
     const domains = KP.C.TALENTS.map(domain => {
-      // vocal coach speaks on vocals/rap, performance director on dance/visuals,
-      // senior scout on charisma — each professional in their lane
-      const ev = domain === 'vocals' || domain === 'rap' ? evs[0]
-        : domain === 'dance' || domain === 'visuals' ? evs[1] : evs[2];
-      if (!revealed.has(domain)) {
-        return { domain, evaluator: ev, band: null, revealed: false, confident: false,
-          line: KP.fillPro(pickLine(UNSEEN[domain],
-            [state.seed, person.id, domain, 'unseen'].join('|')), person) };
-      }
-      const val = KP.perceived(state, person, domain, ev);
+      const ev = laneEvaluator(domain);
+      const val = KP.reportRead(state, person, domain);
       const band = bandKey(val);
       const line = KP.fillPro(composeLine(LINES[domain][band],
         [state.seed, person.id, domain, band, 'line'].join('|')), person);
-      return { domain, evaluator: ev, band, line, revealed: true,
-        confident: KP.readWidth(person, ev) <= 9 };
+      return { domain, evaluator: ev, band, line, uncertain,
+        confident: !uncertain && KP.readWidth(person, ev) <= 9 };
     });
 
-    // the recommendation goes on paper only when the file is COMPLETE —
-    // Scout Im does not summarize a book with unread chapters
-    const scout = evs[2];
-    const obs = Math.min(person.observations || 0, S.maxObservations);
-    const complete = person.status !== 'prospect' || obs >= S.maxObservations;
-    let rec = null;
-    if (complete) {
-      // keyed off the two best perceived domains (never an average of five)
-      const perceivedAll = KP.C.TALENTS.map(d => KP.perceived(state, person, d, scout))
-        .sort((a, b) => b - a);
-      const topTwo = (perceivedAll[0] + perceivedAll[1]) / 2;
-      rec = KP.fillPro(pickLine(RECOMMEND[bandKey(topTwo)],
-        [state.seed, person.id, 'rec'].join('|')), person);
-    }
+    // recommendation keys off the two best report reads (never an average of five)
+    const readsAll = KP.C.TALENTS.map(d => KP.reportRead(state, person, d))
+      .sort((a, b) => b - a);
+    const topTwo = (readsAll[0] + readsAll[1]) / 2;
+    const rec = KP.fillPro(pickLine(RECOMMEND[bandKey(topTwo)],
+      [state.seed, person.id, 'rec'].join('|')), person);
 
     // rare instinct note: senior scout smells hidden charisma the numbers
     // miss — or flags the overlooked older find the market forgot
@@ -369,23 +348,21 @@
     if (person.flags && person.flags.overlooked && person.status === 'prospect') {
       instinct = KP.fillPro(pickLine(OVERLOOKED_NOTES, [state.seed, person.id, 'overlooked'].join('|')), person);
     } else {
-      const hiddenGap = person.talents.charisma.ceilHi - KP.perceived(state, person, 'charisma', scout);
+      const hiddenGap = person.talents.charisma.ceilHi - KP.reportRead(state, person, 'charisma');
       if (hiddenGap > 22 && KP.hash01([state.seed, person.id, 'instinct'].join('|')) < KP.C.SCOUT.instinctNoteChance * 3) {
         instinct = KP.fillPro(pickLine(INSTINCT_NOTES, [state.seed, person.id, 'instinctLine'].join('|')), person);
       }
     }
 
-    return { domains, recommendation: rec, instinct, complete,
-      looksLeft: complete ? 0 : S.maxObservations - obs };
+    return { domains, recommendation: rec, instinct, uncertain,
+      reportAge: KP.reportAgeWeeks(state, person) };
   };
 
-  // Short one-line read for list rows: the loudest READ domain — the
-  // board never quotes a page the file has not written.
+  // Short one-line read for list rows: the loudest domain on the report.
   KP.headline = function (state, person) {
-    const scout = KP.DATA.evaluators[2];
     let best = null;
-    KP.revealedDomains(state, person).forEach(d => {
-      const v = KP.perceived(state, person, d, scout);
+    KP.C.TALENTS.forEach(d => {
+      const v = KP.reportRead(state, person, d);
       if (!best || v > best.v) best = { d, v };
     });
     const band = KP.band(best.v);

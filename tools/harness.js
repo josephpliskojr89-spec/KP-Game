@@ -789,13 +789,20 @@ for (let s = 0; s < SEEDS; s++) {
   totalGroups += ownGroups.length;
   guard((state.objectiveHistory || []).length >= 1, seed + ' the objective ladder never advanced');
   if (g && g.debuted) {
-    // "a schedule to blame" includes the SECOND job (v0.9.16 repair —
-    // the exemption list predated v0.9.11): an idol grinding a panel run
-    // until last week is not pinned, she is recovering from a calendar
+    // "a schedule to blame" = any calendar contact inside the RECOVERY
+    // HORIZON (0.9.16.3 repair): recovery from a stacked calendar takes
+    // ~10-12 weeks at idle rates, and the original exemption list knew
+    // only prep/promo — not tours' rest windows, second jobs (v0.9.11),
+    // or the year-end stages this week-141 snapshot always lands near.
+    // The alarm's true target survives: an idol above 90 with NO
+    // calendar contact for a full season is the bug.
+    const HORIZON = 12;
     guard(g.members.map(id => state.people[id])
-      .every(p => p.fatigue <= 90 || g.prep || state.week <= (g.promoUntil || 0) ||
+      .every(p => p.fatigue <= 90 || g.prep || g.tour ||
+        state.week <= (g.promoUntil || 0) + HORIZON ||
+        state.week <= (g.tourRestUntil || 0) + HORIZON ||
         KP.gigOf(state, p.id) ||
-        (p.history || []).some(h => /Wrapped a full run|Pulled out of/.test(h.text) && state.week - h.week <= 4)),
+        (p.history || []).some(h => /Wrapped a full run|Pulled out of/.test(h.text) && state.week - h.week <= HORIZON)),
       seed + ' idols pinned at high fatigue with no schedule to blame');
   }
   if (g && g.results) {

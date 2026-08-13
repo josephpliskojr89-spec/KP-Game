@@ -35,36 +35,50 @@ t.ok(KP.readWidth(p, scout) >= KP.C.SCOUT.minReadWidth, 'certainty is never perf
 // reads move when observations change (the fog re-centers as looks accrue)
 t.ok(KP.C.SCOUT.baseReadWidth > KP.C.SCOUT.minReadWidth, 'fog actually narrows over looks');
 
-// ---- the reveal ladder (0.9.16.2): every look shows a little more ----
+// ---- the dated report (0.9.16.3): everything shows, wearing a "?" ----
 {
-  const st = KP.newGame('scout-ladder', null, { legacy: false });
-  const q = st.people[st.prospects[0]];
-  q.observations = 0;
+  const st = KP.newGame('scout-dated', null, { legacy: false });
+  const q = st.people[st.prospects.find(id => !(st.people[id].observations > 0))];
   const e0 = KP.evaluate(st, q);
-  t.eq(e0.domains.filter(d => d.revealed !== false).length, 1,
-    'the first report reads ONE domain — whatever turned heads');
-  t.eq(e0.recommendation, null, 'no recommendation on an unread book');
-  t.ok(e0.looksLeft === KP.C.SCOUT.maxObservations, 'the file says how many looks remain');
-  const order0 = KP.revealedDomains(st, q).join('|');
-  let lastCount = 1;
-  for (let i = 1; i <= KP.C.SCOUT.maxObservations; i++) {
-    q.observations = i;
-    const ei = KP.evaluate(st, q);
-    const count = ei.domains.filter(d => d.revealed !== false).length;
-    t.ok(count === Math.min(1 + i, 5) && count >= lastCount, 'look ' + i + ' reads exactly one more page (' + count + ')');
-    lastCount = count;
-    t.ok(KP.revealedDomains(st, q).join('|').indexOf(order0) === 0,
-      'look ' + i + ': the file grows — it never re-sorts what it already wrote');
-  }
-  q.observations = KP.C.SCOUT.maxObservations;
-  const eFull = KP.evaluate(st, q);
-  t.eq(eFull.domains.filter(d => d.revealed !== false).length, 5, 'fully scouted reads all five');
-  t.ok(typeof eFull.recommendation === 'string' && eFull.complete, 'and the complete read arrives with the fifth look');
-  // people in the building are watched daily — no fog gate on trainees
+  t.eq(e0.domains.length, 5, 'everything shows from the first report');
+  t.ok(e0.domains.every(d => d.band && d.uncertain), 'every band wears the question mark');
+  t.ok(typeof e0.recommendation === 'string', 'the desk still ventures a recommendation');
+  // one expensive look: the question marks come off
+  st.budget = 100;
+  const b0 = st.budget;
+  const r = KP.observeProspect(st, q.id);
+  t.ok(r.ok && st.budget === b0 - KP.C.SCOUT.observeCost, 'a real trip costs real money (' + KP.C.SCOUT.observeCost + ')');
+  const e1 = KP.evaluate(st, q);
+  t.ok(e1.domains.every(d => !d.uncertain), 'one trip, relatively accurate — the "?" comes off');
+  t.ok(e1.domains.every(d => d.confident), 'and the reads are confident, not just brave');
+  t.ok(q.reads && q.reads.week === st.week, 'the report is DATED at the visit');
+  t.ok(!KP.observeProspect(st, q.id).ok, 'a second look the same week buys nothing new');
+  // the stale report: the board keeps training, the file does not know
+  const readBefore = KP.reportRead(st, q, 'vocals');
+  q.talents.vocals.cur = Math.min(q.talents.vocals.ceilLo - 1, q.talents.vocals.cur + 12);
+  t.eq(KP.reportRead(st, q, 'vocals'), readBefore, 'the file shows what was WRITTEN, not what is now true');
+  st.week += 6;
+  const r2 = KP.observeProspect(st, q.id);
+  t.ok(r2.ok, 'a repeat trip is always a choice');
+  t.ok(KP.reportRead(st, q, 'vocals') > readBefore, 'and the fresh read shows the improvement');
+  // the board actually trains: run weeks, trained skills drift up
+  const st2 = KP.newGame('scout-drift', null, { legacy: false });
+  const before = st2.prospects.map(id => {
+    const p2 = st2.people[id];
+    return p2.talents.vocals.cur + p2.talents.dance.cur + p2.talents.rap.cur;
+  });
+  const ids0 = st2.prospects.slice();
+  for (let w = 0; w < 16; w++) KP.advanceWeek(st2);
+  const grew = ids0.filter((id, i) => {
+    const p2 = st2.people[id];
+    return p2 && p2.status === 'prospect' &&
+      p2.talents.vocals.cur + p2.talents.dance.cur + p2.talents.rap.cur > before[i];
+  });
+  t.ok(grew.length >= 5, 'the academies kept training while the desk read old reports (' + grew.length + ' grew)');
+  // people in the building are never behind a dated report
   const tr = st.people[st.roster[0]];
   const eTr = KP.evaluate(st, tr);
-  t.eq(eTr.domains.filter(d => d.revealed !== false).length, 5, 'a trainee file is always complete');
-  t.ok(eTr.recommendation, 'with the recommendation on paper');
+  t.ok(eTr.domains.every(d => !d.uncertain), 'a trainee file has no question marks');
 }
 
 // budget + allowance rails on signing

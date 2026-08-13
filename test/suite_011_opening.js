@@ -53,8 +53,10 @@ function throughDebut(seed) {
   const trust0 = state.trust;
   // burn ~60/month across four-plus month boundaries (any spend source)
   let sawNotice = false, sawWarning = false;
+  // 30/wk (~360/quarter vs warn 90): one well-timed comeback's revenue
+  // must not be able to hide the burn from the read (stream-proof)
   for (let w = 0; w < 20; w++) {
-    state.budget = Math.max(0, state.budget - 15);
+    state.budget = Math.max(0, state.budget - 30);
     const notes = KP.advanceWeek(state);
     notes.forEach(n => {
       if (/flagged the quarterly books/.test(n.text)) sawNotice = true;

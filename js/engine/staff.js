@@ -203,8 +203,11 @@
     const popSum = KP.groups(state).reduce((s2, g) => s2 + (g.debuted ? (g.popularity || 0) : 0), 0);
     const met = popSum > c.baseline;
     state.trust = KP.clamp(state.trust + (met ? 3 : -3), 0, 100);
+    // priority high (0.9.16.3): the directors' one-year verdict must
+    // survive the weekly trim — the world got louder (eval days, school
+    // classes) and an unprioritized note now loses the cut in busy weeks
     return { resolved: met ? 'met' : 'missed',
-      notes: [{ kind: 'executive', urgent: !met,
+      notes: [{ kind: 'executive', urgent: !met, priority: 'high',
         text: met
           ? 'Board season, one year later: the growth you promised showed up in the numbers. The directors used the word “trajectory” approvingly, which is as warm as directors get.'
           : 'Board season, one year later: the growth slide got read back aloud, next to this year’s numbers, slowly. ' + state.executive.name + ' did not look at you once, which was its own message.' }] };

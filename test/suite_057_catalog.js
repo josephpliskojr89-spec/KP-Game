@@ -24,6 +24,12 @@ function debuted(seed) {
 {
   const { state, g } = debuted('cat-prov');
   const p = state.people[g.members[0]];
+  const q0 = state.people[g.members[1]];
+  // the debut weeks can mint virals of their own (stream-dependent) —
+  // wipe the slate so this block tests provenance, not the dice
+  [p, q0].forEach(x => { x.viralCount = 0; delete x.lastViral; });
+  state.memory = (state.memory || []).filter(n =>
+    !(String(n.subjectId) === String(p.id) || String(n.subjectId) === String(q0.id)));
   const note1 = KP.recordViral(state, p, { kind: 'encore', label: 'the Countdown encore' });
   t.eq(p.lastViral.label, 'the Countdown encore', 'the file stamps the source');
   t.ok(p.history.some(h => /Went viral: the Countdown encore/.test(h.text)),
@@ -35,7 +41,7 @@ function debuted(seed) {
   t.ok(KP.narrativeText(state, nar).includes('the Pop Wave ending fairy'),
     'and the coverage names the stage: ' + KP.narrativeText(state, nar));
   // a sourceless call still works (compat) — it just has no story to tell
-  const q = state.people[g.members[1]];
+  const q = q0;
   KP.recordViral(state, q);
   t.ok(!q.lastViral, 'no source, no stamp — never undefined garbage');
 }

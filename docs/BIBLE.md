@@ -4756,3 +4756,26 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > deserved. The profile head gains boy/girl and the scouting
 > depth ("fully scouted" at five). Battery 58/58 (suite 002 → 42),
 > soak clean, e2e 94, lockstep 0.9.16.2. Rode to main.
+\n
+> **0.9.16.3 — the dated report** (owner rethink of the .2 ladder:
+> *"roll it back to everything showing but with a question mark.
+> make a targeted trip more expensive but relatively accurate on
+> one trip. each compounding trip is a choice and might show
+> improvement if your report is out of date"*). Everything shows
+> from the first report, every band wearing a "?" until somebody
+> actually goes — one look (4→12, fog front-loaded to ~40%) takes
+> the question marks off in a single trip. And the report is a
+> SNAPSHOT dated at the visit: the board keeps training (weekly
+> trained-skill drift, lane-weighted for school kids, faster for
+> the young), so the file shows what was written, not what is now
+> true — a repeat look is a real choice that can reveal the
+> improvement, and the profile says how old the report is. Looks
+> are repeatable forever (one per person per week); signing wipes
+> the dated report — the coaches watch her daily. Repairs en
+> passant, both found by the louder world: the directors' one-year
+> board verdict now carries priority high (it was losing the
+> weekly trim), and the fatigue invariant learned the RECOVERY
+> HORIZON — recovery from a stacked calendar takes ~10-12 weeks,
+> and the old exemption list knew only prep/promo. Battery 58/58
+> (suite 002 reworked), soak clean, e2e 94, lockstep 0.9.16.3.
+> Rode to main.

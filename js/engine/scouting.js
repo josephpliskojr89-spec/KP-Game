@@ -25,15 +25,22 @@
     return E.signCostBase + heat * E.signCostPerHeat;
   };
 
-  // Targeted look: spend budget, gain one observation (narrows every read).
+  // Targeted look (0.9.16.3): expensive, and relatively accurate in ONE
+  // trip — the fog mostly collapses on the first look. Every read gets
+  // SNAPSHOTTED at the visit (the dated report), and repeat looks stay
+  // on the menu forever: the board keeps training, reports go stale,
+  // and going again is a choice that can show the improvement.
   KP.observeProspect = function (state, personId) {
     const p = state.people[personId];
     const cost = KP.C.SCOUT.observeCost;
     if (!p || p.status !== 'prospect') return { ok: false, reason: 'Not on the board.' };
-    if ((p.observations || 0) >= KP.C.SCOUT.maxObservations) return { ok: false, reason: 'The staff have seen all they need to see.' };
+    if (p.reads && p.reads.week === state.week) {
+      return { ok: false, reason: 'This week’s report is already on the desk. Nothing has changed since Tuesday.' };
+    }
     if (state.budget < cost) return { ok: false, reason: 'No budget for another look.' };
     state.budget -= cost;
     p.observations = (p.observations || 0) + 1;
+    KP.takeReads(state, p);
     return { ok: true };
   };
 
@@ -62,6 +69,7 @@
     state.prospects = state.prospects.filter(id => id !== p.id);
     // rivals notice
     state.rivals.forEach(r => { delete r.interest[p.id]; });
+    delete p.reads;   // signed: the coaches watch her daily now, no dated report
     // the school hangs the signing photo (v0.9.16)
     KP.schoolRecordAlum(state, p, state.company.short);
     p.history.push({ week: state.week, text: 'Signed to ' + state.company.short + ' (' + p.source + ').' });
@@ -115,6 +123,25 @@
             if (nar) notes.push(nar);
           }
         }
+      });
+    });
+    // the board keeps training (0.9.16.3): prospects are still at their
+    // academies, so trained skills drift upward slowly — lane-weighted
+    // for school kids, faster for the young. An old report goes stale;
+    // a repeat look is how the desk finds out.
+    (state.prospects || []).forEach(id => {
+      const p = state.people[id];
+      if (!p) return;
+      const school = p.schoolId ? KP.schoolById(state, p.schoolId) : null;
+      const youth = 0.4 + Math.max(0, (KP.C.GEN.ageRange[1] - p.age) /
+        (KP.C.GEN.ageRange[1] - KP.C.GEN.ageRange[0]));
+      ['vocals', 'rap', 'dance'].forEach(d => {
+        const t = p.talents[d];
+        let g = S.boardGrowth * youth * (0.5 + rng.next());
+        if (school && (school.lane === d || (school.lane === 'allround' && d !== 'rap'))) {
+          g *= S.boardGrowthLane;
+        }
+        t.cur = Math.min(t.ceilLo - 1, t.cur + g);
       });
     });
     // the board is a market, not a museum (0.9.13 audit A2): leads who

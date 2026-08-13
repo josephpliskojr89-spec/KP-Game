@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.16.2',
+    VERSION: '0.9.16.3',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -81,13 +81,20 @@
 
     // ---- Scouting -------------------------------------------------------
     SCOUT: {
-      baseReadWidth: 18,          // +/- fog on a never-observed prospect
-      widthPerObservation: 4,     // each extra look narrows the cone
+      // the dated report (0.9.16.3, owner rethink of the .2 ladder):
+      // everything shows from the first report — wearing a question mark
+      // until somebody actually GOES — and one targeted look is expensive
+      // but lands most of the accuracy. Reads are snapshots taken at the
+      // look; prospects keep training at their academies, so an old
+      // report goes stale and a repeat trip is a real choice.
+      baseReadWidth: 18,          // +/- fog on the desk report (the "?" width)
+      firstLookFactor: 0.4,       // one look collapses the fog to ~40%
+      widthPerObservation: 1,     // repeat looks polish, barely
       minReadWidth: 5,            // certainty is never perfect
-      observeCost: 4,             // budget units per targeted look
-      // 4→5 (0.9.16.2, owner): five looks, five domains — every visit
-      // reads exactly one more page, and the fifth completes the file
-      maxObservations: 5,
+      observeCost: 12,            // a real trip costs real money now (was 4)
+      maxObservations: 5,         // fog floor after five; looks stay repeatable
+      boardGrowth: 0.09,          // weekly avg trained-skill drift on the board
+      boardGrowthLane: 2.2,       // ...times this in a school kid's lane
       instinctNoteChance: 0.12,   // rare gut-call scout note on high hidden charisma
       // v0.4.3, owner: "more aggressive in signing talented trainees"
       rivalSignBaseChance: 0.09,  // weekly chance an interested rival signs a prospect
