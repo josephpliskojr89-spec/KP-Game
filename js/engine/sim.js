@@ -347,7 +347,8 @@
         if (rng.chance(H.eventBase * KP.clamp(pull, 20, 90) / 60)) {
           eventFired = true;
           p.hype = KP.clamp(p.hype + H.gainMin + rng.next() * (H.gainMax - H.gainMin), 0, 100);
-          const narNote = KP.recordViral(state, p);   // memory counts (v0.6.0)
+          const narNote = KP.recordViral(state, p,   // memory counts (v0.6.0)
+            { kind: 'cover', label: 'a practice-room cover clip' });
           if (narNote) notes.push(narNote);
           KP.socialSpike(state, p, KP.C.SOCIAL.viralSpike, 'viral');   // the numbers move (v0.6.1)
           if (rng.chance(KP.C.DISCOURSE.fancamChance)) {               // a wave you can ride (v0.6.2)

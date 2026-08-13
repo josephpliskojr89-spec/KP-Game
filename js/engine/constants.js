@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.14',
+    VERSION: '0.9.15',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -93,7 +93,7 @@
       rivalHungerMult: 1.7,       // ...and hungrier still with a debut to cast
       rivalHungerWindow: 16,      // weeks before a planned debut that hunger starts
       newProspectChance: 0.3,     // weekly chance a fresh lead appears
-      prospectAgeOut: 24,         // unsigned past this, the market moves on (0.9.14)
+      prospectAgeOut: 24,         // unsigned past this, the market moves on (0.9.13)
     },
 
     SOURCES: [
@@ -782,7 +782,7 @@
         'Aurum Beauty', 'Peau', 'Fizzi', 'Hyperion Mobile', 'Lumière Seoul', 'Stride'],
     },
 
-    // ---- The second job (v0.9.14): individual careers -------------------
+    // ---- The second job (v0.9.11): individual careers -------------------
     // Productions call for the idols whose SECONDARY strengths the market
     // wants: a panel seat for the funny one, an MC mic for the poised one,
     // an OST for the voice. The gig pays the person, not the group — and
@@ -818,10 +818,39 @@
         'Off-Duty', 'The Long Lunch', 'Homework Hotel'],
       DRAMAS: ['Paper Moon District', 'The Winter Clinic', 'Four Families', 'Signal Garden',
         'Dusk Patrol', 'My Landlord the Ghost'],
-      hiatusOfferBonus: 0.08,    // productions love an idle idol (v0.9.14)
+      hiatusOfferBonus: 0.08,    // productions love an idle idol (v0.9.12)
     },
 
-    // ---- The disappearance (v0.9.14): hiatus as strategy ----------------
+    // ---- The catalog (v0.9.15): old records are lottery tickets ---------
+    // Nothing you ever shipped stops mattering: a resurfaced clip finds
+    // an idol years after the stage, a sleeper B-side reverse-charts long
+    // after its era. Works for disbanded groups too, because
+    // the song outliving the group is one of music's best stories.
+    CATALOG: {
+      resurfaceChance: 0.015,    // weekly: an old clip finds new eyes
+      resurfaceMinWeeks: 40,     // the stage must be old enough to be "found"
+      // halved 0.006→0.003 in soak calibration: at 0.006 the lottery
+      // ticket hit 29/40 orgs per career — a lottery everyone wins is a
+      // salary
+      revivalChance: 0.003,      // weekly: a catalog track catches fire...
+      revivalClipBoost: 0.04,    // ...far likelier while a clip is burning
+      clipBoostWindow: 6,        // weeks a resurfaced clip keeps the door open
+      minAgeWeeks: 48,           // a year old before it counts as catalog
+      minReception: 50,          // flops stay flopped (mostly — sleepers exempt)
+      revivalScore: 46,          // the re-entry lands mid-chart and climbs or dies
+      // 3→2 in soak calibration: revival pop feeds the daesang score
+      // (×1.2) and the stature bill both — at 3 the lottery ticket was
+      // quietly co-writing award season
+      revivalPop: 2,             // the group feels it — even a disbanded one's members
+      revivalFandomGain: 3,
+      // the royalties: an old song charting is INCOME — streams, the
+      // merch reprint the note talks about. Disbanded or not, the label
+      // still owns the masters. Claims something real, per §55.6.
+      revivalWindfallBase: 25,
+      revivalWindfallPerReception: 1.2,   // × max(0, reception − 30)
+    },
+
+    // ---- The disappearance (v0.9.12): hiatus as strategy ----------------
     // Not-releasing was always possible; ANNOUNCING it is a move. A
     // declared hiatus rests the roster faster and builds anticipation for
     // the return — but past the grace window the public starts forgetting,

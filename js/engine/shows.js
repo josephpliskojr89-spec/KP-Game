@@ -121,7 +121,7 @@
           KP.socialSpike(state, voice, KP.C.SOCIAL.viralSpike, 'encore');
           keep({ kind: 'public', ind: 'encoreMoment', personId: voice.id, groupId: g.id,
             text: KP.displayName(voice) + ' took the winning encore without a backing track and casually murdered the vocal. The clip is everywhere by morning — this is what the music-show grind is FOR.' });
-          keep(KP.recordViral(state, voice));
+          keep(KP.recordViral(state, voice, { kind: 'encore', label: 'the ' + label + ' encore' }));
           keep(KP.igniteDiscourse(state, rng, 'fancam', 'idol', voice.id, g.id));
         } else if (livePerf(state, g) < W.shakyLiveMax * 1.4 &&
             members.reduce((s, m) => s + KP.derived(m).liveReliability, 0) / members.length < W.shakyLiveMax &&
@@ -178,7 +178,7 @@
         keep({ kind: 'public', ind: 'endingFairy', personId: fairy.id, groupId: g.id,
           text: 'The ending-fairy clip of ' + KP.displayName(fairy) + ' from this week’s ' +
             KP.showLabel(booked[0]) + ' is quietly outperforming the actual stage. Fifteen seconds, one look at the camera. That is all it takes now.' });
-        keep(KP.recordViral(state, fairy));
+        keep(KP.recordViral(state, fairy, { kind: 'fairy', label: 'the ' + KP.showLabel(booked[0]) + ' ending fairy' }));
       }
     });
     return notes;

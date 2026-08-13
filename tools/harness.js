@@ -98,11 +98,18 @@ const BANDS = {
   dealSigned:        { lo: 0.10, hi: 1.00, label: 'orgs that signed a brand deal' },
   gigBooked:         { lo: 0.30, hi: 1.00, label: 'orgs that booked somebody a second job (panel/MC/OST)' },
   obligationKept:    { lo: 0.10, hi: 1.00, label: 'orgs that worked a sponsored appearance (the invoice arrives)' },
+  clipResurfaced:    { lo: 0.10, hi: 1.00, label: 'worlds where an old clip resurfaced (the archive naps)' },
+  catalogRevived:    { lo: 0.02, hi: 0.70, label: 'orgs whose catalog track reverse-charted (the lottery ticket)' },
+  viralSourced:      { lo: 0.50, hi: 1.00, label: 'orgs whose viral moments carry provenance (the clip has a stage)' },
   obligationMissed:  { lo: 0.00, hi: 0.80, label: 'orgs that missed a sponsored appearance (the road won)' },
   dealClawedBack:    { lo: 0.00, hi: 0.50, label: 'orgs a brand terminated for cause (two misses)' },
   soloRequested:     { lo: 0.05, hi: 1.00, label: 'orgs that got the sponsor solo request' },
   soloAllowed:       { lo: 0.00, hi: 1.00, label: 'orgs that let the solo stage happen' },
-  hiatusDeclared:    { lo: 0.02, hi: 0.95, label: 'orgs that announced an official hiatus (the disappearance)' },
+  // ceiling 0.95→1.00 by ruling (v0.9.15): a fatigue-reading boss
+  // declares at least one hiatus in nearly every 140-week career — the
+  // band flapped at its own ceiling for three builds. The floor is the
+  // alarm (a world where nobody ever rests is the bug).
+  hiatusDeclared:    { lo: 0.02, hi: 1.00, label: 'orgs that announced an official hiatus (the disappearance)' },
   hiatusReturned:    { lo: 0.02, hi: 0.95, label: 'orgs whose declared return converted the wait into numbers' },
   // ceiling 1.00 by design (v0.9.12): anticipation only accrues past the
   // grace window, so every hiatus that earns its bonus pays the cooling
@@ -207,6 +214,7 @@ const tally = {
   gigBooked: 0, gigWrapped: 0, ostDropped: 0, gigTension: 0, secondJobStory: 0,
   hiatusDeclared: 0, hiatusReturned: 0, hiatusCooled: 0,
   obligationKept: 0, obligationMissed: 0, dealClawedBack: 0, soloRequested: 0, soloAllowed: 0,
+  clipResurfaced: 0, catalogRevived: 0, viralSourced: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
   soloCredit: 0, unitCredit: 0, sleeperHeard: 0,
@@ -485,6 +493,16 @@ for (let s = 0; s < SEEDS; s++) {
       // book legs a competent player would: at least solid, never the
       // promoter's bare minimum (that is how curtained sections happen)
       if ((state.fiscal || {}).pressure > 0) return;   // red quarters ground the road (0.9.13)
+      // a sensible boss reads the sponsor calendar before booking the
+      // road (v0.9.15): an appearance due mid-tour is a clawback waiting.
+      // Window 8→4 in soak calibration: obligations recur every 10 weeks,
+      // so an 8-week lockout grounded ~80% of the touring calendar — the
+      // bot stayed home, stacked comebacks, and award season inflated
+      // (daesang flood) while tour income vanished. Four weeks covers the
+      // actual tour span; a single landing mid-tour just reschedules.
+      if ((state.deals || []).some(d => d.weeksLeft > 0 &&
+          g.members.includes(d.personId) &&
+          (d.nextObligationWeek || 0) <= state.week + 4)) return;
       const spot = T.SCALES[scale].sweetSpot;
       const legs = ['kr'].concat(warm.filter(o => o.demand >= spot * T.softBelow)
         .slice(0, 2).map(o => o.id));
@@ -783,6 +801,12 @@ for (let s = 0; s < SEEDS; s++) {
   if ((sl.clawbacks || 0) >= 1) tally.dealClawedBack++;
   if ((sl.soloAsked || 0) >= 1) tally.soloRequested++;
   if ((sl.soloAllowed || 0) >= 1) tally.soloAllowed++;
+  // the catalog (v0.9.15): the ledger and the files are durable
+  const cl = state.catalogLedger || {};
+  if ((cl.resurfaced || 0) >= 1) tally.clipResurfaced++;
+  if ((cl.revivals || 0) >= 1) tally.catalogRevived++;
+  if (Object.values(state.people).some(p =>
+      (p.history || []).some(hh => /Went viral: /.test(hh.text)))) tally.viralSourced++;
   if (state.groups.some(g => g.regions &&
       Object.values(g.regions).some(v => v >= KP.C.REGIONAL.loudAt))) tally.regionLoud++;
   bestRegions.push(Math.max.apply(null, state.groups

@@ -53,7 +53,9 @@
       const promoting = !g.prep && state.week <= (g.promoUntil || 0);
 
       // 1) the waiting room: promo weeks are where the industry meets
-      if (promoting && state.industryFriends.length < S.maxFriends &&
+      // (members.length guard, v0.9.15: a group emptied by departures
+      // MID-PROMO used to crash the picker — found by suite 057)
+      if (promoting && members.length && state.industryFriends.length < S.maxFriends &&
           state.week >= (state.societyQuietUntil || 0)) {
         // rival acts working the same shows this month
         const active = allActs(state).filter(({ act }) =>

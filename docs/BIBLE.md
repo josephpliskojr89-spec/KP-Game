@@ -1860,13 +1860,15 @@ the second sitting, and all eight pitched items ruled in and
 merged where the machinery is shared). Every release measured
 against the standing clause (arrive, claim, mark):
 
-1. **The price of fame** (audit B1 + §55.1). Stature-scaled
+1. **The price of fame** (audit B1 + §55.1; SHIPPED v0.9.14,
+   §56). Stature-scaled
    production costs (self-balancing sink, payroll demoted to
    retainer) + the sponsor's invoice: duties that claim calendar
    weeks, strain toward clawback, and the mid-contract solo
    request scene. Bands: budget trajectory, obligations
    kept/missed, solo requests.
-2. **The clip + the catalog** (§55.8 + catalog-alive). Virality
+2. **The clip + the catalog** (§55.8 + catalog-alive; SHIPPED
+   v0.9.15, §57). Virality
    rewired to named stages with provenance carried forever — and
    the catalog stirring in the other direction: resurfaced clips,
    anniversary spikes, the four-year-old B-side reverse-charting.
@@ -3020,6 +3022,75 @@ payroll flattened. Fiscal bands recalibrated by ruling (books
 0.85→0.95, trust-warnings 0.35→0.45): the CEO reading the books
 most careers IS the feature, per the owner's own brief.
 
+## §57 The clip + the catalog (v0.9.15) — map slot 2
+
+Owner (§55, second sitting): *"I'd like to see fancams and viral
+reactions come as a result of actual stages, not just randomly
+throughout a career. right now they just kind of happen with no
+rhyme or reason."* Two halves: virality gets provenance, and the
+back catalog wakes up.
+
+**The clip** (provenance). `KP.recordViral(state, person, source)`
+now takes `{kind, label}` — the stage the moment came from. The
+file stamps `p.lastViral` {week, kind, label}, the history keeps
+"Went viral: <label>" forever, and the narrative carries
+`meta.source` so the coverage names the stage (fancamStar: "It
+started with <source>."; oneToWatch: "<source> did the rounds").
+Six call sites sourced: the debut/comeback stage (spark), the
+dance challenge, the encore, the ending fairy, the tour stop, the
+practice-room cover. Sourceless calls still work (compat) — they
+just have no story to tell.
+
+**The catalog** (`catalog.js`, weekly order 565; `state.catalogLedger`
+{resurfaced, revivals, lastClip} durable). Two blocks:
+- *The resurfaced clip*: weekly `resurfaceChance` (0.015), an idol
+  from a group ≥40 weeks debuted; the clip names a real stage (a
+  trophy show or the first release) and its age; recordViral with
+  kind `resurfaced`, social spike ×0.8. The old "random viral"
+  roll is demoted — random no longer means sourceless.
+- *The reverse chart run*: per group, releases ≥48 weeks old with
+  reception ≥50 (or sleeper-blessed) can catch fire —
+  `revivalChance` 0.003, +0.04 while a resurfaced clip of that
+  group is ≤6 weeks warm (the clip→song pipeline). Sleepers get a
+  +20 sort nod. The track re-enters the chart (`catalog: true`,
+  score 46 + reception-scaled), `r.revivedWeek` prevents reruns,
+  pop +2 / fandom +3 if the group is alive — and THE ROYALTIES
+  arrive either way (base 25 + 1.2×(reception−30), fandom-scaled
+  when alive): the label owns the masters, so a disbanded group's
+  song still pays the company that shipped it. Both notes say the
+  amount. catalogRevival narrative + feed reactions through the
+  registry, with a disbanded variant ("the song did not").
+
+**Calibration** (two soak rounds + a probe):
+- revivalChance halved 0.006→0.003 (29/40 careers winning the
+  lottery is a salary), revivalPop 3→2 (revival pop feeds the
+  daesang score ×1.2 AND the stature bill — at 3 the catalog was
+  quietly co-writing award season: daesang 17→20/40).
+- The harness bot reads the sponsor calendar before booking tours
+  — but the first gate (8 weeks) grounded ~80% of the road
+  against a 10-week obligation cycle and the bot stayed home
+  stacking comebacks (daesang flood, tour income gone). Settled
+  at 4 weeks: the actual tour span.
+- The royalties windfall was the fiscal fix found by probe: with
+  the catalog OFF, trust-hitting fiscal warnings still ran 19/40
+  — the catalog inflated bills (pop) without paying its own way.
+  Income landing on exactly the orgs whose bills it raises closed
+  the loop: 17/40, in band.
+- hiatusDeclared ceiling ruled 0.95→1.00 (flapped at its own
+  ceiling three builds; the floor is the alarm).
+- Fixed en passant: society.js waiting-room picker crashed when a
+  group emptied mid-promo (members.length guard, found by suite
+  057); constants.js historical version comments repaired (the
+  second job is v0.9.11, the disappearance v0.9.12, prospectAgeOut
+  0.9.13 — whole-file version bumps had drifted them; bumps are
+  now surgical, VERSION line only).
+
+Suite 057 (27): provenance stamps/history/meta, sourceless compat,
+resurfaced clip, reverse chart run (sleeper nod, catalog chart
+entry, pop bump, royalties, anti-rerun), pipeline (base 0, boost 1
+— only the boost fires), disbanded revival + validateState clean,
+determinism fork.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3061,6 +3132,15 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   imprint costs seed capital (slot 13), and elastic optional
   spending (tutors, wardrobe) arrives with slots 9 and 14. Revisit
   the trajectory after each; the probe lives in audit_longhaul.
+- **dealClawedBack censuses 0/40 with the obligation-aware bot
+  (v0.9.15)** — the 4-week tour gate means the auto-player simply
+  never books the road over a sponsored appearance, so the
+  two-miss termination path goes unexercised in soak (round one,
+  gate-less, proved it fires: 23/40). Band floor is 0 so this is
+  legal; the mechanism is held by suite 056. If human play never
+  sees a clawback either, the road is too polite — widen
+  missRescheduleWeeks so a mid-tour rebooking can land mid-tour
+  again.
 - **No senescence (0.9.13 audit A4)** — a 33-year-old idol trains,
   tours, and recovers like a 21-year-old; "aging out of its peak"
   is copy, not mechanics. Owner's call whether age should bite.
@@ -4499,3 +4579,26 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > at folding: xenophobia is never fan-voice content — home-region
 > pride is the feed's register, and the ugly half, if touched, is
 > institutional pressure the player manages. Docs only; no build.
+\n
+> **v0.9.15 — the clip + the catalog** (map slot 2). Owner:
+> *"fancams and viral reactions come as a result of actual
+> stages, not just randomly throughout a career."* Virality gets
+> provenance: recordViral takes the stage it came from, the file
+> stamps it, the history keeps it, the narrative names it — six
+> call sites sourced, the sourceless roll demoted. And the back
+> catalog wakes: resurfaced clips with real stages and ages on
+> them, sleeper B-sides reverse-charting a year after their era,
+> the clip→song pipeline, disbanded groups' songs charting
+> anyway — with ROYALTIES either way, because the label owns the
+> masters. Calibration by probe, recorded honestly: revival
+> chance halved, revival pop trimmed (it was co-writing award
+> season through the daesang score), the bot's sponsor-calendar
+> tour gate cut 8→4 weeks (8 grounded the road and inflated
+> award season from the couch), and the windfall itself was the
+> fiscal fix — the catalog inflated stature bills without paying
+> its own way until the money landed on the same orgs. Society
+> waiting-room crash on mid-promo empty groups fixed (suite 057
+> found it). Constants version-comment drift repaired; bumps now
+> surgical. Numbers: battery 57/57 (suite 057, 27 assertions),
+> soak clean, longhaul 5×620 clean, e2e 91, lockstep 0.9.15
+> (53 modules). Rode to main. Slot 2 of fourteen.

@@ -73,8 +73,8 @@
       case 'monsterRookies': return group() + ' are monster rookies.';
       case 'underperformed': return group() + '’s last comeback underperformed, and people noticed.';
       case 'dormant': return group() + ' has gone quiet — ' + Math.max(1, state.week - (n.meta && n.meta.since || state.week)) + ' weeks and counting.';
-      case 'fancamStar': return idol() + ' is the fancam one. Everyone knows a clip.';
-      case 'oneToWatch': return 'The internet keeps finding ' + idol() + ' before the debut does.';
+      case 'fancamStar': return idol() + ' is the fancam one.' + (n.meta && n.meta.source ? ' It started with ' + n.meta.source + '.' : ' Everyone knows a clip.');
+      case 'oneToWatch': return 'The internet keeps finding ' + idol() + ' before the debut does' + (n.meta && n.meta.source ? ' — ' + n.meta.source + ' did the rounds' : '') + '.';
       case 'itGirl': return KP.fillPro(idol() + ' is becoming an it-{girl}.', state.people[n.subjectId]);
       case 'varietyMonster': return idol() + ' is a variety monster. Producers keep a chair warm.';
       case 'nationalMC': return idol() + ' held the MC mic for a full run. The public trusts that face.';
@@ -109,6 +109,7 @@
       case 'brandDarling': return idol() + ' is who the brands call first. The visual role sends invoices now.';
       case 'genreShift': return group() + ' invented ' + ((n.meta && n.meta.mash) || 'a sound') + ' and the industry is still catching up.';
       case 'signatureSound': return group() + ' and ' + ((n.meta && n.meta.producer) || 'one producer') + ' have a sound the public can name blind.';
+      case 'catalogRevival': return '\u201c' + ((n.meta && n.meta.title) || 'an old song') + '\u201d came back years later and charted. ' + group() + '\u2019s catalog does not expire.';
       default: return n.key;
     }
   };
@@ -170,7 +171,7 @@
       case 'monsterRookies': return 'The verdict is in: ' + group() + ' are being called monster rookies. The public will hold them to it.';
       case 'underperformed': return 'The narrative has settled: ' + group() + '’s comeback underperformed. Fair or not, the next release answers for it.';
       case 'dormant': return 'The fan cafes have started counting: ' + group() + ' has not released in months. Quiet is a story too.';
-      case 'fancamStar': return KP.fillPro(idol() + ' has gone viral enough times that it is not luck anymore — the internet has decided {she} is the fancam one. Every stage {she} takes is a camera looking for the next clip.', state.people[n.subjectId]);
+      case 'fancamStar': return KP.fillPro(idol() + ' has gone viral enough times that it is not luck anymore — the internet has decided {she} is the fancam one.' + (n.meta && n.meta.source ? ' The archivists agree on the origin: ' + n.meta.source + '.' : '') + ' Every stage {she} takes is a camera looking for the next clip.', state.people[n.subjectId]);
       case 'oneToWatch': return KP.fillPro(idol() + ' has gone viral enough times — covers, clips, resurfaced photos — that it stopped being luck. {She} has not debuted. The internet has decided that is the company’s scheduling error, and the phrase “one to watch” is attaching to {her} name. A debut is a deadline now.', state.people[n.subjectId]);
       case 'itGirl': return KP.fillPro('Fashion accounts, recap channels, general-public posts: ' + idol() + ' keeps being the one people remember. The phrase “it-{girl}” is starting to attach.', state.people[n.subjectId]);
       case 'trendCopier': return rivalCo() + ' has a reputation now: first to every trend, occasionally face-first. The fans mean it affectionately. Mostly.';
@@ -190,6 +191,7 @@
       case 'ostVoice': return KP.fillPro('Second drama, second OST, and the pattern has a name: ' + idol() + ' is the OST voice. Music directors ask for {her} before they finish casting the leads. The group gets {her} stages; the rest of the country gets {pos} voice over their favorite scene. Both are fame. Only one needed the group’s name to happen.', state.people[n.subjectId]);
       case 'genreShift': return 'The history books opened a new entry: ' + group() + ' made ' + ((n.meta && n.meta.mash) || 'a sound nobody had a name for') + ' real, on record, first. Every A&R meeting in the industry now contains the phrase “something like that.” Being copied is the sincerest form of panic.';
       case 'signatureSound': return 'Three records deep with ' + ((n.meta && n.meta.producer) || 'the same producer') + ', and the reviews stopped naming the producer because everyone already knows: ' + group() + ' has a SOUND now — recognizable from the first four bars, imitated within the quarter. A signature is an asset. It is also a cage with excellent acoustics.';
+      case 'catalogRevival': return 'The trades needed a week to believe it: \u201c' + ((n.meta && n.meta.title) || 'an old track') + '\u201d re-entered the chart YEARS after its era, on nothing but word of mouth and one resurfaced clip. ' + group() + '\u2019s catalog is officially alive — every record they ever shipped is a lottery ticket that never expires, and the industry just watched one pay out.';
       default: return 'A narrative formed: ' + n.key;
     }
   }
@@ -197,8 +199,18 @@
   // ---- per-person tallies with thresholds -------------------------------
   // A first viral moment is luck; the second is a reputation. Same door
   // for both call sites (release sparks, pre-debut hype events).
-  KP.recordViral = function (state, person) {
+  // v0.9.15 (owner: "fancams and viral reactions [should] come as a
+  // result of actual stages... right now they just kind of happen with
+  // no rhyme or reason"): every viral moment carries its PROVENANCE —
+  // {kind, label} — stamped on the file, kept in the narrative, and
+  // named in the coverage forever.
+  KP.recordViral = function (state, person, source) {
     person.viralCount = (person.viralCount || 0) + 1;
+    if (source && source.label) {
+      person.lastViral = { week: state.week, kind: source.kind || 'clip', label: source.label };
+      person.history.push({ week: state.week,
+        text: 'Went viral: ' + source.label + '. The clip did the traveling.' });
+    }
     // viral moments cross borders (v0.6.6) — hardest where she is loved
     if (KP.regionsOnViral) KP.regionsOnViral(state, person);
     // and the timeline's regulars notice (v0.7.3) — one adopts her
@@ -208,7 +220,8 @@
       // stages, so her virality is a different story: covers and clips,
       // the internet arriving before the debut does
       return KP.recordEvidence(state,
-        person.status === 'idol' ? 'fancamStar' : 'oneToWatch', 'idol', person.id);
+        person.status === 'idol' ? 'fancamStar' : 'oneToWatch', 'idol', person.id,
+        source && source.label ? { source: source.label } : undefined);
     }
     return null;
   };

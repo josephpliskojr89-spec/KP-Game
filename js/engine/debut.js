@@ -283,7 +283,7 @@
         KP.socialSpike(state, face, KP.C.SOCIAL.viralSpike * 0.7, 'challenge');
         notes.push({ kind: 'public', ind: 'challengeViral', personId: face.id, groupId: g.id,
           text: 'The ' + g.name + ' dance challenge broke containment — ' + KP.displayName(face) + '’s version is the template everyone copies now. Cheapest promotion the company ever bought.' });
-        const narNote = KP.recordViral(state, face);
+        const narNote = KP.recordViral(state, face, { kind: 'challenge', label: 'the ' + g.name + ' dance-challenge clip' });
         if (narNote) notes.push(narNote);
       }
     }
@@ -418,7 +418,8 @@
     const narrativeNotes = [];
     const push = n => { if (n) narrativeNotes.push(n); };
     push(KP.recordBreakout(state, breakout));
-    if (spark > 0) push(KP.recordViral(state, breakout));
+    if (spark > 0) push(KP.recordViral(state, breakout,
+      { kind: 'stage', label: 'the “' + demo.title + '” ' + (isDebut ? 'debut stage' : 'comeback stage') }));
     // the numbers everyone can see move with the moment (v0.6.1)
     const SO = KP.C.SOCIAL;
     members.forEach(m => { if (isDebut) KP.socialSpike(state, m, SO.debutSpike, 'debut'); });

@@ -31,7 +31,14 @@ function debuted(seed) {
   const flag = rival.acts.filter(a => !a.retired).sort((x, y) => y.popularity - x.popularity)[0];
   flag.popularity = 40;
   const before = flag.popularity;
-  for (let w = 0; w < 20; w++) { g.popularity = 85; KP.advanceWeek(state); }
+  // re-pin each week: the act under test must STAY the company's
+  // flagship — stream drift once let a fresh debut overtake it and the
+  // investment followed the wrong act (the mechanism is the pursuit)
+  for (let w = 0; w < 20; w++) {
+    g.popularity = 85;
+    rival.acts.forEach(a => { if (a !== flag && !a.retired && a.popularity >= flag.popularity) a.popularity = Math.max(0, flag.popularity - 5); });
+    KP.advanceWeek(state);
+  }
   t.ok(flag.popularity > before + 5 || flag.retired,
     'the flagship closes on the leader (' + Math.round(before) + ' → ' + Math.round(flag.popularity) + ')');
   t.ok(state.inbox.some(n => n.ind === 'flagshipHunt') || KP.sceneCeiling(state) - flag.popularity > KP.C.INDUSTRY.FLAGSHIP.huntNoteAt,
