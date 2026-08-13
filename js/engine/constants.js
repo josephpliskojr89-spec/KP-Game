@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.18.1',
+    VERSION: '0.9.18.2',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1039,6 +1039,14 @@
     // declared hiatus rests the roster faster and builds anticipation for
     // the return — but past the grace window the public starts forgetting,
     // and forgetting compounds. Restoration vs relevance, chosen weekly.
+    // the conclusion of team activities (0.9.18.2, owner: "there's no
+    // way for ME to disband a group") — the same door the rivals got
+    DISBAND: {
+      morale: 10,            // what ending it costs the people in it
+      traineeMorale: 4,      // a dissolved project stings less than a dead era
+      sellingPop: 45,        // at this popularity, the board calls it instability…
+      trustSelling: -8,      // …and prices it
+    },
     HIATUS: {
       graceWeeks: 6,             // the announcement buys this much patience
       coolPerWeek: 0.6,          // popularity, after grace — out of sight...

@@ -115,4 +115,69 @@ function debutFirstGroup(seed) {
   t.eq(KP.serialize(a), KP.serialize(b), 'restored save continues identically with two groups');
 }
 
+// ---- the conclusion of team activities (0.9.18.2) ----------------------
+// the player's own disband door: the chapter closes, the people stay
+{
+  const state = debutFirstGroup('mg-disband');
+  const g = state.groups[0];
+  const memberIds = g.members.slice();
+  const morale0 = state.people[memberIds[0]].morale;
+  g.popularity = 60;   // a selling act — the board prices the ending
+  const trust0 = state.trust;
+  // guards first: the road and the era both block the door
+  g.tour = { startWeek: state.week };
+  t.ok(!KP.disbandGroup(state, g.id).ok, 'the road blocks the door');
+  g.tour = null;
+  g.promoUntil = state.week + 2;
+  t.ok(!KP.disbandGroup(state, g.id).ok, 'a running era blocks the door');
+  g.promoUntil = 0;
+  KP.openClaim(state, { type: 'comebackPromise', subject: { kind: 'exec' },
+    groupId: g.id, byWeek: state.week + 10 });
+  const r = KP.disbandGroup(state, g.id);
+  t.ok(r.ok, 'the statement goes out');
+  t.ok(g.retiredWeek === state.week, 'the chapter closes on the record');
+  t.eq(g.members.length, 0, 'every gate reads empty from here');
+  t.eq(g.finalLineup.length, memberIds.length, 'but the record keeps the lineup');
+  memberIds.forEach(id => {
+    const p = state.people[id];
+    t.eq(p.status, 'idol', 'the contracts do not end with the group: ' + id);
+    t.ok(p.history.some(h => /concluded team activities/.test(h.text)), 'her file says what happened');
+    t.ok((p.directed || []).some(d => d.kind === 'disbandedUs'), 'and she remembers whose call it was');
+  });
+  t.ok(state.people[memberIds[0]].morale < morale0, 'ending it costs the people in it');
+  t.ok(state.trust < trust0, 'ending a selling act costs the board’s trust');
+  t.ok(state.claims.some(c => c.groupId === g.id && c.resolved === 'void'),
+    'promises about a dead group settle void');
+  t.ok(state.inbox.some(n => n.ind === 'playerDisband'), 'the statement reaches the wire');
+  t.ok(KP.feedReactionFor('playerDisband'), 'and the timeline knows how to grieve');
+  t.ok(!KP.disbandGroup(state, g.id).ok, 'a closed chapter stays closed');
+  // the week after: nothing crashes, nobody schedules the dead
+  KP.advanceWeek(state);
+  t.ok(!g.prep && !g.tour && !g.hiatus, 'the calendar stays empty');
+  // and the ending survives the save file
+  const json = KP.serialize(state);
+  t.eq(KP.serialize(KP.deserialize(json)), json, 'the closed chapter round-trips');
+  const f1 = KP.deserialize(json), f2 = KP.deserialize(json);
+  for (let w = 0; w < 12; w++) { KP.advanceWeek(f1); KP.advanceWeek(f2); }
+  t.eq(KP.serialize(f1), KP.serialize(f2), 'and forks clean with groupless idols on the roster');
+}
+
+// dissolving a pre-debut project frees the room for the next lineup
+{
+  const state = KP.newGame('mg-dissolve', null, { legacy: false });
+  const ids = state.roster.slice(0, 4);
+  KP.proposeGroup(state, 'EPHEMERA', ids, KP.roleHints(state, ids.map(i => state.people[i])));
+  const g = state.groups[0];
+  t.ok(KP.devGroup(state), 'fixture: a group in development');
+  const r = KP.disbandGroup(state, g.id);
+  t.ok(r.ok, 'the project dissolves');
+  t.ok(!KP.devGroup(state), 'the dissolved project no longer blocks the next lineup');
+  ids.forEach(id => {
+    t.eq(state.people[id].status, 'trainee', 'the trainees are still trainees');
+    t.ok(KP.freeTrainees(state).includes(id), 'and free for the next project');
+  });
+  t.ok(state.people[ids[0]].history.some(h => /dissolved before the stage/.test(h.text)),
+    'the file carries it');
+}
+
 t.finish();

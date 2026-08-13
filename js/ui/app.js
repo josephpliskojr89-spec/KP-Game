@@ -352,6 +352,30 @@
           '<button class="btn" data-action="close-modal" style="flex:1">Not yet</button>');
         break;
       }
+      case 'disband-group': {
+        const g = KP.groupById(s, t.dataset.id);
+        if (!g) break;
+        const selling = g.debuted && (g.popularity || 0) >= KP.C.DISBAND.sellingPop;
+        UI.modal(g.debuted ? 'Conclude team activities' : 'Dissolve the project',
+          '<div class="note">' + (g.debuted
+            ? 'The statement goes out today: ' + UI.esc(g.name) + ' ends. The members stay with the company — contracts, solo careers, and second jobs all continue — but the group, its calendar, and everything scheduled end here. The catalog stays on the record.' +
+              (selling ? ' <b>They still sell.</b> The board will read this as instability, and price it.' : '')
+            : 'The ' + UI.esc(g.name) + ' project ends before the stage. The trainees return to the practice room, and the next lineup can begin.') +
+          ' This cannot be undone.</div>',
+          '<button class="btn danger" data-action="disband-confirm" data-id="' + g.id + '" style="flex:1">' +
+            (g.debuted ? 'End it' : 'Dissolve it') + '</button>' +
+          '<button class="btn" data-action="close-modal" style="flex:1">Keep going</button>');
+        break;
+      }
+      case 'disband-confirm': {
+        const r = KP.disbandGroup(s, t.dataset.id);
+        UI.closeModal();
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast(r.note.slice(0, 120));
+        App.render();
+        break;
+      }
       case 'hiatus-confirm': {
         const r = KP.declareHiatus(s, t.dataset.id);
         UI.closeModal();

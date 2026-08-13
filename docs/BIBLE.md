@@ -5082,3 +5082,27 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > next flap). Numbers: battery 60/60 (suite 022 +12 checks), soak
 > clean (139 bands, two new), longhaul 5x620 clean, e2e 94,
 > lockstep 0.9.18.1. Rode to main.
+\n
+> **0.9.18.2 — the conclusion of team activities** (owner playtest:
+> "I'm realizing there's no way for ME to disband a group"). The
+> door the rivals got in 0.9.18.1, opened from the player's side of
+> the desk: KP.disbandGroup, reached from the bottom of the group
+> page behind a confirmation that tells the whole truth. The GROUP
+> ends; the contracts don't — members stay signed idols on their
+> own calendars (gigs, deals, second jobs, renewals all continue,
+> renewalRead already null-safe for the groupless), the catalog
+> stays on the record and can still resurface. The record keeps
+> g.finalLineup while every gate reads empty; morale −10 and a
+> disbandedUs directed for everyone in it; open claims about the
+> group settle void; ending an act still selling (pop ≥ 45) costs
+> trust −8, priced by the exec in the statement. Guards: the road,
+> a release in production, and a running era all block the door —
+> let the era end before you end the act. A pre-debut project
+> dissolves instead (morale −4, trainees freed the same afternoon,
+> devGroup gained the retired-guard so a dissolved project can't
+> block the next lineup forever). The groups page grew a Concluded
+> archive; a closed chapter's page reads as a record, not a
+> dashboard; the timeline grieves through the playerDisband feed
+> reaction — the catalog doesn't disband and neither do they.
+> Battery 60/60 (suite 010 +26 checks incl. post-disband roundtrip
+> and fork), soak clean, e2e 94, lockstep 0.9.18.2. Rode to main.

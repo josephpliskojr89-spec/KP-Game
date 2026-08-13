@@ -20,7 +20,9 @@
   KP.groupOf = function (state, personId) {
     return KP.groups(state).find(g => g.members.includes(personId)) || null;
   };
-  KP.devGroup = function (state) { return KP.groups(state).find(g => !g.debuted) || null; };
+  // retired-guard added 0.9.18.2: a dissolved pre-debut project must not
+  // block the next lineup forever
+  KP.devGroup = function (state) { return KP.groups(state).find(g => !g.debuted && !g.retiredWeek) || null; };
   KP.freeTrainees = function (state) {
     return state.roster.filter(id =>
       state.people[id].status === 'trainee' && !KP.groupOf(state, id));
@@ -279,4 +281,65 @@
       leader: bestBy(m => KP.derived(m).leadership).id,
     };
   };
+
+  // ---- the conclusion of team activities (0.9.18.2) ---------------------
+  // owner: "there's no way for ME to disband a group". The same ending
+  // the rivals got in 0.9.18.1 — a written chapter, not a deletion. The
+  // GROUP ends; the contracts don't: the members stay signed idols with
+  // their solo careers (gigs, deals, second jobs) until their own clocks
+  // run out. The catalog stays and can still resurface.
+  KP.disbandGroup = function (state, groupId) {
+    const D = KP.C.DISBAND;
+    const g = KP.groupById(state, groupId);
+    if (!g) return { ok: false, reason: 'No such group.' };
+    if (g.retiredWeek) return { ok: false, reason: 'That chapter is already closed.' };
+    if (g.tour) return { ok: false, reason: 'They are on the road — a tour is a stack of signed venue contracts. Bring them home first.' };
+    if (g.debuted && g.prep) return { ok: false, reason: 'A release is in production. Let the era end before you end the act.' };
+    if (g.debuted && state.week <= (g.promoUntil || 0)) return { ok: false, reason: 'Promotions are running. Ending an act mid-era is a scandal, not a decision.' };
+    const debuted = !!g.debuted;
+    const members = g.members.map(id => state.people[id]).filter(Boolean);
+    members.forEach(p => {
+      if (debuted) {
+        p.morale = KP.clamp(p.morale - D.morale, 0, 100);
+        KP.recordDirected(state, p.id, 'disbandedUs', -2);
+        p.history.push({ week: state.week, text: g.name + ' concluded team activities. The statement thanked the fans for every era. The group chat renamed itself and kept going.' });
+      } else {
+        p.morale = KP.clamp(p.morale - D.traineeMorale, 0, 100);
+        p.history.push({ week: state.week, text: 'The ' + g.name + ' project was dissolved before the stage. Back to the practice room, carrying it.' });
+      }
+    });
+    // the record keeps the lineup; every gate reads empty from here
+    g.finalLineup = g.members.slice();
+    g.members = []; g.roles = {}; g.rooms = null; g.maknae = null;
+    g.prep = null; g.demos = null; g.tour = null; g.hiatus = null;
+    delete g.returnFrom;
+    g.retiredWeek = state.week;
+    // promises about a group that no longer exists settle void
+    (state.claims || []).forEach(c => {
+      if (!c.resolved && c.groupId === g.id) { c.resolved = 'void'; c.resolvedWeek = state.week; }
+    });
+    if (!debuted) {
+      const note = KP.note(state, { kind: 'company', priority: 'high',
+        text: 'The ' + g.name + ' project is dissolved. The trainees are back on the floor by the afternoon — the practice room does not do funerals, it does Monday.' });
+      return { ok: true, note: note.text };
+    }
+    let trustLine = '';
+    if ((g.popularity || 0) >= D.sellingPop) {
+      state.trust = KP.clamp(state.trust + D.trustSelling, 0, 100);
+      trustLine = ' ' + state.executive.name + ' signed the paperwork with one eyebrow raised: ending an act that still sells reads as instability upstairs, and upstairs reads everything.';
+    }
+    const note = KP.note(state, { kind: 'public', ind: 'playerDisband', priority: 'critical', groupId: g.id,
+      text: 'The statement is out: ' + g.name + ' concludes team activities. It thanks the fans for every era, and for once every word of it is true. The members remain with the company — their own calendars, their own rooms, the same building. The fan cafés are holding a wake and an archive drive at the same time.' + trustLine });
+    return { ok: true, note: note.text };
+  };
+
+  // the timeline grieves in public, the way it does everything
+  KP.onFeedEvent('playerDisband', (state, n, rng) => {
+    const g = KP.groupById(state, n.groupId);
+    if (!g) return null;
+    return rng.pick([
+      { persona: 'fan', text: 'the ' + g.name + ' statement says "concludes team activities" like it isn’t seven years of my life in four words. rest well. thank you. I’m not okay' },
+      { persona: 'stan', text: 'archiving every ' + g.name + ' stage tonight. twice. the catalog doesn’t disband and neither do we' },
+    ]);
+  });
 })(typeof window !== 'undefined' ? window : globalThis);

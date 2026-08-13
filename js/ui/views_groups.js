@@ -6,14 +6,35 @@
   const UI = KP.UI;
 
   UI.renderGroups = function (state) {
-    const groups = KP.groups(state);
-    if (!groups.length) return renderNoGroup(state) + (state.project ? newLineupCard(state) : '');
-    if (groups.length === 1) return UI.renderGroupPage(state, groups[0]) + newLineupCard(state);
+    // the concluded chapters live below the living ones (0.9.18.2);
+    // dissolved pre-debut projects leave no card — there was no era
+    const all = KP.groups(state);
+    const groups = all.filter(g => !g.retiredWeek);
+    const gone = all.filter(g => g.retiredWeek && g.debuted);
+    const archive = gone.length
+      ? '<div class="kicker" style="margin-top:16px">Concluded</div>' +
+        gone.map(g => archiveCard(state, g)).join('')
+      : '';
+    if (!groups.length) return renderNoGroup(state) + (state.project ? newLineupCard(state) : '') + archive;
+    if (groups.length === 1) return UI.renderGroupPage(state, groups[0]) + newLineupCard(state) + archive;
     const html = [];
     groups.forEach(g => html.push(groupCard(state, g)));
     html.push(newLineupCard(state));
+    html.push(archive);
     return html.join('');
   };
+
+  function archiveCard(state, g) {
+    const rels = (g.releases || []).length;
+    const size = (g.finalLineup || []).length || g.members.length;
+    return '<div class="card" style="opacity:.72"><b>' + UI.esc(g.name) + '</b>' +
+      '<div style="font-size:.78rem;color:var(--ink-dim);margin-top:4px">Concluded ' +
+      UI.esc(KP.weekLabel(g.retiredWeek).text) + ' · ' +
+      (size === 1 ? 'solo act' : size + ' members') + ' · ' +
+      rels + ' release' + (rels === 1 ? '' : 's') +
+      (g.fandom ? ' · ' + UI.esc(g.fandom.name) + ' keeps the archive' : '') +
+      '</div></div>';
+  }
 
   function groupCard(state, g) {
     const promoting = g.debuted && state.week <= (g.promoUntil || 0);
@@ -65,6 +86,21 @@
   }
 
   UI.renderGroupPage = function (state, g) {
+    // a closed chapter reads as a record, not a dashboard (0.9.18.2)
+    if (g.retiredWeek) {
+      const rels = (g.releases || []).length;
+      const lineup = (g.finalLineup || []).map(id => state.people[id]).filter(Boolean);
+      return '<div class="group-hero"><div class="g-status">Concluded · ' +
+        UI.esc(KP.weekLabel(g.retiredWeek).text) + '</div>' +
+        '<div class="g-name">' + UI.esc(g.name) + '</div>' +
+        '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:6px">' +
+        '<span class="chip">' + rels + ' release' + (rels === 1 ? '' : 's') + '</span>' +
+        (g.fandom ? '<span class="chip">' + UI.esc(g.fandom.name) + ' keeps the archive</span>' : '') +
+        '</div></div>' +
+        (lineup.length ? '<div class="card">The final lineup: ' +
+          lineup.map(p => UI.esc(KP.displayName(p))).join(', ') +
+          ' — still with the company, on their own calendars.</div>' : '');
+    }
     const members = g.members.map(id => state.people[id]);
     const html = [];
     const era = g.prep ? g.prep.conceptId : null;
@@ -309,6 +345,9 @@
       }
       html.push('<div class="pad" style="margin-top:8px"><button class="btn small" data-action="open-results" data-id="' + g.id + '">Latest full report</button></div>');
     }
+    // the door the rivals got (0.9.18.2): quiet, at the bottom, real
+    html.push('<div class="pad" style="margin-top:20px"><button class="btn small ghost" style="border:1px solid var(--line);color:var(--ink-dim)" data-action="disband-group" data-id="' + g.id + '">' +
+      (g.debuted ? 'Conclude team activities' : 'Dissolve the project') + '</button></div>');
     return html.join('');
   }
 
