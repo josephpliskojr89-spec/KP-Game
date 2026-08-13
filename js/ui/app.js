@@ -711,6 +711,14 @@
         break;
       }
       case 'studio-week': App.studioDraft.week = parseInt(t.dataset.week, 10); App.render(); break;
+      case 'studio-mv': App.studioDraft.mv = t.dataset.mv; App.render(); break;
+      case 'studio-repackage': {
+        const r = KP.planRepackage(s, { groupId: t.dataset.id, songId: t.dataset.song,
+          mv: App.studioDraft.mv || 'standard' });
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast('The era extends. The fandom is already budgeting for photocards.'); App.render();
+        break;
+      }
       case 'found-label': {
         const nm = (App.labelName || '').trim();
         if (!nm) { UI.toast('Name the label first. It goes on a building.', true); break; }
@@ -755,7 +763,8 @@
         // genre-bending (v0.9.6): both mash slots picked → the gamble rides
         const mash = (d.mashA && d.mashB && d.mashA !== d.mashB) ? [d.mashA, d.mashB] : null;
         const r = KP.planDebut(s, { groupId: sg.id, songId: d.songId, conceptId: d.conceptId || sel.conceptId,
-          promo: d.promo, week: d.week, alloc: d.alloc, format: d.format, rollout: d.rollout, mash });
+          promo: d.promo, week: d.week, alloc: d.alloc, format: d.format, rollout: d.rollout, mash,
+          mv: d.mv || 'standard' });
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
         if (r.warning) {

@@ -154,6 +154,27 @@
         const promoting = state.week <= (g.promoUntil || 0);
         const members = g.members.map(id => state.people[id]);
         const avgF = Math.round(members.reduce((s, m) => s + m.fatigue, 0) / members.length);
+        // the repackage door (v0.9.17): the rest window is exactly when
+        // an era extends — the reissue rides heat that is still there
+        const RP = KP.C.REPACKAGE;
+        const last = (g.releases || [])[(g.releases || []).length - 1];
+        const repackOpen = !promoting && last && (last.format || 'single') !== 'single' &&
+          !last.repackageOf && state.week <= (g.promoUntil || 0) + RP.windowWeeks &&
+          (g.eraLeftovers || []).length;
+        let repackHtml = '';
+        if (repackOpen) {
+          const repackBill = Math.round(KP.recordBill(g, 'standard', last.format) * RP.costMult) +
+            Math.round(KP.C.MV.TIERS.standard.cost * KP.statureCostMult(g));
+          repackHtml = '<div class="kicker" style="margin-top:16px">The era can extend</div>' +
+            '<div class="pad" style="font-size:.76rem;color:var(--ink-dim);margin-bottom:4px">“' + UI.esc(last.songTitle) +
+            '” is still warm. A repackage re-releases it with a new title track — from the era’s own drawer of passed demos — for ' + repackBill +
+            ', on a shorter cycle. The window closes ' + UI.esc(KP.weekLabel((g.promoUntil || 0) + RP.windowWeeks).text) + '.</div>' +
+            (g.eraLeftovers || []).map(d => '<div class="card" style="padding:10px 12px;display:flex;align-items:center;gap:10px">' +
+              '<div style="flex:1;min-width:0"><div style="font-weight:800">“' + UI.esc(d.title) + '”</div>' +
+              '<div style="font-size:.72rem;color:var(--ink-dim)">' + UI.esc(d.producer) + ' · leans ' + UI.esc((KP.conceptById(d.conceptId) || {}).label || '') + '</div></div>' +
+              '<button class="btn small primary" data-action="studio-repackage" data-id="' + g.id + '" data-song="' + d.id + '"' +
+              (state.budget < repackBill ? ' disabled' : '') + '>Repackage</button></div>').join('');
+        }
         return switcher + '<div class="group-hero"><div class="g-status">' +
           (promoting ? 'Mid-promotion · ' : 'Scheduled rest · ') + UI.esc(g.name) + '</div>' +
           '<div class="g-name" style="font-size:clamp(1.7rem,8vw,2.4rem)">' +
@@ -167,7 +188,7 @@
           (promoting
             ? 'Promotion runs hot by design. The rest window after it is contractual — the next release cannot be locked until the calendar reopens.'
             : 'The rest is contractual and it works: recovery runs at double pace until the calendar reopens. The producers are already writing.') +
-          '</div></div>';
+          '</div></div>' + repackHtml;
       }
     }
 
@@ -196,11 +217,20 @@
     html.push('<div class="kicker">Demos on the desk</div>');
     g.demos.forEach(demo => {
       const on = draft.songId === demo.id;
+      // the advocates (v0.9.17): the meeting has politics, worn openly
+      const advocates = [];
+      if (demo.pushed) advocates.push('<span class="chip hot">the producer’s push</span>');
+      if (demo.execFavored) advocates.push('<span class="chip gold">' + UI.esc(state.executive.name.split(' ')[0]) + '’s kind of record</span>');
+      if (demo.writtenBy) {
+        const w = state.people[demo.writtenBy];
+        advocates.push('<span class="chip hot">written by ' + UI.esc(w ? KP.publicGiven(w) : 'a member') + '</span>');
+      }
       html.push('<div class="card demo-card ' + (on ? 'on' : '') + '" data-action="studio-song" data-id="' + demo.id + '">' +
         '<div class="s-eq"><i></i><i></i><i></i></div>' +
         '<div class="s-title">“' + UI.esc(demo.title) + '”</div>' +
         '<div class="s-prod">' + UI.esc(demo.producer) + ' · leans ' + UI.esc(KP.conceptById(demo.conceptId).label) +
         (demo.toBrief ? ' · <span style="color:var(--gold)">to the brief</span>' : '') + '</div>' +
+        (advocates.length ? '<div style="display:flex;gap:5px;flex-wrap:wrap;margin:5px 0 2px">' + advocates.join('') + '</div>' : '') +
         '<div class="s-notes">' + KP.demoOpinion(state, demo, members).map(l => UI.esc(l)).join('<br>') + '</div>' +
         '</div>');
     });
@@ -235,6 +265,19 @@
           'data-action="studio-format" data-format="' + f.id + '">' + UI.esc(f.label) + ' · ' + f.cost + '</button>').join('') +
         '</div><div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">' +
         UI.esc(fmt.label) + ': ' + fmt.tracks + ' tracks, needs ' + Math.max(KP.C.DEBUT.prepWeeksMin, fmt.minPrep) + ' weeks of runway, pays ×' + fmt.revenueMult + ' when it lands.</div></div>');
+
+      // the MV (v0.9.17): the video is an object with a budget tier
+      const MV = KP.C.MV;
+      const statureMult0 = KP.statureCostMult(g);
+      if (!draft.mv) draft.mv = 'standard';
+      html.push('<div class="kicker">The video</div>');
+      html.push('<div class="pad"><div class="seg">' +
+        Object.keys(MV.TIERS).map(tid => '<button class="' + (draft.mv === tid ? 'on' : '') + '" ' +
+          'data-action="studio-mv" data-mv="' + tid + '">' + UI.esc(MV.TIERS[tid].label) + ' · ' + Math.round(MV.TIERS[tid].cost * statureMult0) + '</button>').join('') +
+        '</div><div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">' +
+        (draft.mv === 'cinema' ? 'A cinema budget lifts the record, travels overseas, and makes the breakout’s numbers move harder. Expensive on purpose.'
+          : draft.mv === 'plain' ? 'A performance cut saves real money. The internet notices budgets — the receipts go to the company, not the members.'
+          : 'The standard video: professional, invisible, exactly what it costs.') + '</div></div>');
 
       html.push('<div class="kicker">Promotion</div>');
       // the price of fame (v0.9.14): the bill the studio shows is the

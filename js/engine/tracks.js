@@ -38,9 +38,11 @@
     let penned = 0;
     for (let n = 1; n <= format.tracks; n++) {
       if (n === 1) {
+        // a member-written demo carries her name onto the title line
+        // (v0.9.17) — the booklet machinery reads writtenBy at release
         tracks.push({ n: 1, title: demo.title, kind: 'title',
           producer: demo.producer, producerId: demo.producerId || null,
-          hook: demo.hook, slot: false, credit: null });
+          hook: demo.hook, slot: false, credit: null, writtenBy: demo.writtenBy || null });
         continue;
       }
       const title = KP.genSongTitle(rng, used);

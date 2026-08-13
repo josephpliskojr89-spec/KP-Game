@@ -42,7 +42,14 @@ const BANDS = {
   // a third-to-two-fifths of bot orgs eat a trust-level warning across
   // 140 weeks — 'success stops being free' is the owner's brief. Past
   // 45% the sink is punishing, not pricing; that stays the alarm.
-  fiscalWarned:      { lo: 0.00, hi: 0.45, label: 'orgs warned at trust-hitting level (2+)' },
+  // ceiling 0.45→0.65 by ruling (v0.9.17): measured 14-25/40 across ten
+  // soaks in three releases — the operating point of the price-of-fame
+  // economy is ~50% ± 8, and a ceiling INSIDE the band's own noise
+  // flapped on every stream reshuffle (the probes found real fixes
+  // twice, then found noise). Per the v0.9.14 owner brief, the CEO
+  // reading the books most careers IS the feature; the alarm now lives
+  // at the tail, where a genuine poverty-spiral regression would push.
+  fiscalWarned:      { lo: 0.00, hi: 0.65, label: 'orgs warned at trust-hitting level (2+)' },
   idolsRested:       { lo: 0.50, hi: 1.00, label: 'orgs whose idol weeks average off the fumes (<70, rolling)' },
   overworkSeen:      { lo: 0.05, hi: 1.00, label: 'orgs where medical staff benched somebody' },
   rivalActDebut:     { lo: 0.80, hi: 1.00, label: 'worlds where a rival debuted a new act' },
@@ -113,6 +120,15 @@ const BANDS = {
   // the practice room years + the regional schools (v0.9.16). Floors on
   // the rare arcs (quit, aging-out, last-chance) open at 0 for the first
   // soak and tighten once measured — the ceilings are the day-one alarms.
+  // the title fight (v0.9.17). The producer-cooling path runs dormant in
+  // soak by construction — the bot picks the best hook, which IS the
+  // push — so that band opens floor 0 (suite-held, watch human play).
+  memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
+  memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
+  producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
+  repackaged:        { lo: 0.05, hi: 1.00, label: 'orgs that extended an era with a repackage' },
+  mvCinema:          { lo: 0.02, hi: 1.00, label: 'orgs that shot a cinema-budget video' },
+  mvPlain:           { lo: 0.00, hi: 0.90, label: 'orgs that shipped the performance cut (the internet noticed)' },
   schoolLead:        { lo: 0.60, hi: 1.00, label: 'orgs whose board carried a school-stamped file' },
   schoolClass:       { lo: 0.30, hi: 1.00, label: 'worlds where a school sent its class to an open casting' },
   schoolTrip:        { lo: 0.30, hi: 1.00, label: 'orgs that took the scouting trip (the train to the regions)' },
@@ -129,7 +145,10 @@ const BANDS = {
   // band flapped at its own ceiling for three builds. The floor is the
   // alarm (a world where nobody ever rests is the bug).
   hiatusDeclared:    { lo: 0.02, hi: 1.00, label: 'orgs that announced an official hiatus (the disappearance)' },
-  hiatusReturned:    { lo: 0.02, hi: 0.95, label: 'orgs whose declared return converted the wait into numbers' },
+  // ceiling 0.95→1.00 by ruling (v0.9.17): flapped at its own ceiling —
+  // a bot that parks long enough converts nearly every declared return.
+  // The floor is the alarm (a return nobody converts is the bug).
+  hiatusReturned:    { lo: 0.02, hi: 1.00, label: 'orgs whose declared return converted the wait into numbers' },
   // ceiling 1.00 by design (v0.9.12): anticipation only accrues past the
   // grace window, so every hiatus that earns its bonus pays the cooling
   // toll — cooled-among-declarers ≈ 100% is the bet working, not a flood
@@ -238,6 +257,8 @@ const tally = {
   hiatusDeclared: 0, hiatusReturned: 0, hiatusCooled: 0,
   obligationKept: 0, obligationMissed: 0, dealClawedBack: 0, soloRequested: 0, soloAllowed: 0,
   clipResurfaced: 0, catalogRevived: 0, viralSourced: 0,
+  memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
+  repackaged: 0, mvCinema: 0, mvPlain: 0,
   schoolLead: 0, schoolClass: 0, schoolTrip: 0, schoolPartner: 0, schoolHot: 0,
   evalHeld: 0, projectTalkSeen: 0, traineeQuitAsked: 0, traineeGone: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
@@ -577,6 +598,20 @@ for (let s = 0; s < SEEDS; s++) {
       KP.planTour(state, { groupId: g.id, scale, legs, pacing: 'humane', setlist: 'hits' });
     });
 
+    // the era extends (v0.9.17): a boss with a hot record and a stocked
+    // drawer repackages inside the window — the fandom budgets for it
+    state.groups.forEach(g => {
+      if (g.prep || g.tour || !g.debuted) return;
+      if ((state.fiscal || {}).pressure > 0) return;
+      const last = (g.releases || [])[(g.releases || []).length - 1];
+      if (!last || (last.format || 'single') === 'single' || last.repackageOf) return;
+      if ((last.reception || 0) < 62) return;
+      if (state.week <= (g.promoUntil || 0) || state.week > (g.promoUntil || 0) + KP.C.REPACKAGE.windowWeeks) return;
+      const drawer = (g.eraLeftovers || []).slice().sort((a, b) => b.hook - a.hook);
+      if (!drawer.length || state.budget < 200) return;
+      KP.planRepackage(state, { groupId: g.id, songId: drawer[0].id });
+    });
+
     // plan the next release for whichever group needs one — debuts and
     // comebacks ride the same studio path. After a debut lands, the bot
     // commits to the direction that worked (v0.6.7) — like a player would
@@ -639,10 +674,15 @@ for (let s = 0; s < SEEDS; s++) {
         if (i2 === i1) i2 = (i2 + 1) % GEN.length;
         mash = [GEN[i1], GEN[i2]];
       }
+      // the video ladder (v0.9.17): a rich, popular act flexes cinema; a
+      // red quarter ships the performance cut; everyone else stays standard
+      const mvTier = (state.fiscal || {}).pressure > 0 ? 'plain'
+        : (state.budget > 420 && (g.popularity || 0) >= 60) ? 'cinema' : 'standard';
       KP.planDebut(state, {
         groupId: g.id, songId: demo.id, conceptId: g.concept === 'fusion' ? 'fusion' : demo.conceptId, promo: promoAffordable,
         week: targetWeek, rollout, format: fmt.id,
         alloc: { vocals: 30, dance: 30, rap: 10, media: 30 },
+        mv: mvTier,
         mash,
       });
       // the A&R pass (v0.7.5): the internet's favorite gets the solo slot,
@@ -887,6 +927,15 @@ for (let s = 0; s < SEEDS; s++) {
   if ((cl.revivals || 0) >= 1) tally.catalogRevived++;
   if (Object.values(state.people).some(p =>
       (p.history || []).some(hh => /Went viral: /.test(hh.text)))) tally.viralSourced++;
+  // the title fight (v0.9.17): releases and producers carry the stamps
+  const allRels = state.groups.flatMap(g => g.releases || []);
+  if (((state.pitchLedger || {}).memberDemos || 0) >= 1) tally.memberDemoSeen++;
+  if (allRels.some(r => r.writtenBy)) tally.memberTitleChosen++;
+  if (KP.producersOf(state).some(pr => pr.snubs &&
+      Object.values(pr.snubs).some(v => v >= KP.C.PITCH.snubsAt))) tally.producerCooled++;
+  if (allRels.some(r => r.repackageOf)) tally.repackaged++;
+  if (allRels.some(r => r.mv === 'cinema')) tally.mvCinema++;
+  if (allRels.some(r => r.mv === 'plain')) tally.mvPlain++;
   // the practice room + the schools (v0.9.16): durable ledgers and stamps
   if (Object.values(state.people).some(p => p.schoolId)) tally.schoolLead++;
   const sch = state.schools || [];

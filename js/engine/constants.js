@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.16.3',
+    VERSION: '0.9.17',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -109,6 +109,53 @@
       'Dance academy', 'Vocal academy', 'Street casting', 'Social media',
       'School performance', 'Open audition', 'Referral',
     ],
+
+    // ---- The title fight (v0.9.17): the pitch meeting gets politics ----
+    // Demos arrive with ADVOCATES: one producer campaigns for his track,
+    // the exec's known taste sits on the table, and a member who writes
+    // sometimes pitches her own against the professionals'. Every pick
+    // is also a pass, and the passed remember.
+    PITCH: {
+      memberDemoChance: 0.4,     // a writer in the room brings her own sometimes
+      memberHookShift: -4,       // her demo runs wilder: lower floor...
+      memberHookSd: 9,           // ...bigger spread — raw, or special
+      pickMorale: 8,             // you chose HER song over the professionals'
+      passMorale: -4,            // her song left on the table, at a real lock
+      snubsAt: 2,                // two passed pushes and the producer cools
+      snubHookMalus: 6,          // his next pitches to this room arrive B-grade
+      execPassNoteAt: 3,         // the third pass on her taste draws a remark
+    },
+
+    // ---- The MV (v0.9.17): the video is an object with a budget --------
+    // Costs scale with stature (a big act's video bills like one).
+    MV: {
+      // the standard video was always implicitly in the promo budget —
+      // priced as DELTAS so the default bill never moves: plain refunds
+      // (skipping the shoot saves real money), cinema is the premium
+      TIERS: {
+        plain:    { label: 'performance cut', cost: -12, reception: -2 },
+        standard: { label: 'standard MV',     cost: 0,   reception: 0 },
+        cinema:   { label: 'cinema budget',   cost: 45,  reception: 4 },
+      },
+      cinemaSpikeMult: 1.6,      // a blockbuster video travels
+      cinemaOverseas: 2,         // ...literally: the map warms a touch
+      plainSnarkChance: 0.5,     // the internet notices a budget (at the company)
+    },
+
+    // ---- The repackage (v0.9.17): the era extends ----------------------
+    // A warm era re-releases with a new title track — one of the demos
+    // you passed on, back from the table. Cheaper, shorter, and it rides
+    // the era's heat. Once per era; singles don't repackage.
+    REPACKAGE: {
+      windowWeeks: 6,            // after promo ends, while the era is warm
+      costMult: 0.55,            // the record exists; the reprint is cheaper
+      minPrep: 2,
+      promoWeeks: 3,             // a shorter cycle than a full comeback
+      carryFrom: 60,             // a hot era lifts the repackage...
+      carryFactor: 0.15,         // ...by this share of the era's reception
+      revenueMult: 0.75,         // reprints sell real, not full
+      tracks: 3,                 // new title + two new b-sides on the reissue
+    },
 
     // ---- The regional schools (v0.9.16): the pipeline has addresses ----
     // Persistent named academies in the home circuit's cities. Each has a

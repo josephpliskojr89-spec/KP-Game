@@ -60,7 +60,10 @@ const t = makeT('suite_014_hype_solo');
   KP.proposeGroup(state, 'HYPELINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g = state.groups[0];
   g.demos = KP.generateDemos(state, KP.rngFor(state));
-  KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
+  // pick the BEST hook, not demos[0] — this block measures the
+  // directive's trust math, and a dud first demo is reception luck
+  const bestDemo = g.demos.slice().sort((a, b) => b.hook - a.hook)[0];
+  KP.planDebut(state, { groupId: g.id, songId: bestDemo.id, promo: 'modest',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
   let guard = 0;
   while (!g.debuted && guard++ < 12) KP.advanceWeek(state);

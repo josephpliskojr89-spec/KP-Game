@@ -257,4 +257,27 @@
       { persona: 'casual', text: 'heard the mash expecting chaos and got an actual song. mild disappointment, great record' },
     ]);
   });
+  // the title fight (v0.9.17): the timeline reads the meeting's outcomes
+  KP.onFeedEvent('eraExtended', (state, n, rng) => {
+    const g = KP.groupById(state, n.groupId);
+    return rng.pick([
+      { persona: 'fan', text: 'REPACKAGE ANNOUNCEMENT. new title track, new photocards, same era. my wallet has filed a formal complaint and pre-ordered anyway' },
+      { persona: 'stan', text: (g ? g.name : 'they') + ' extending the era instead of ending it… the confidence. the second wind singles are historically either nothing or EVERYTHING' },
+      { persona: 'casual', text: 'the album from two months ago is back with a new song on top. k-pop invented the DLC model and honestly nobody does it better' },
+    ]);
+  });
+  KP.onFeedEvent('memberTitle', (state, n, rng) => {
+    const p = state.people[n.personId];
+    const name = p ? KP.publicGiven(p) : 'she';
+    return rng.pick([
+      { persona: 'stan', text: name + ' WROTE the title track. not a b-side. the TITLE. self-produced idol arc unlocked and I was here for episode one' },
+      { persona: 'fan', text: 'the company put ' + name + '’s own song up against the professional demos and hers won. the booklet is going in a frame' },
+    ]);
+  });
+  KP.onFeedEvent('mvBudget', (state, n, rng) => {
+    return rng.pick([
+      { persona: 'casual', text: 'the song: excellent. the video: one room and a fog machine. somebody in accounting made a choice and I want to interview them' },
+      { persona: 'fan', text: 'petition for the company to give this song the video it deserved. the performance cut is CRISP but where is the LORE' },
+    ]);
+  });
 })(typeof window !== 'undefined' ? window : globalThis);

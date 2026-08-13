@@ -415,10 +415,14 @@ async function main() {
 
   await page.waitForSelector('.feed-post');
   ok(await page.$$eval('.feed-post', els => els.length) >= 3, 'the fan feed is alive');
-  const groupName = await page.evaluate(() => KP.App.state.groups[0].name);
   const feedText = await page.textContent('#screen');
   ok(feedText.includes('@'), 'the fans post under handles');
-  ok(feedText.includes(groupName), 'the fans are talking about our group by name');
+  // ANY of our groups, across the whole feed — groups[0] is the legacy
+  // act since v0.9.10, and which posts surface each week is
+  // stream-dependent; the claim under test is that fans name OUR acts
+  const namedInFeed = await page.evaluate(() =>
+    (KP.App.state.feed || []).some(p => KP.App.state.groups.some(g2 => (p.text || '').includes(g2.name))));
+  ok(namedInFeed, 'the fans are talking about our group by name');
 
   // --- the war calendar (v0.6.4): announced comebacks share the Desk strip
   await page.evaluate(() => {

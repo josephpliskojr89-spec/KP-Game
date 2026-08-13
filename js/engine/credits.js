@@ -72,6 +72,7 @@
         const left = (g.demos || []).filter(d => d.id !== g.prep.songId &&
           d.hook >= C.ghostHookMin).sort((a, b) => b.hook - a.hook)[0];
         if (left) {
+          g.prep.ghostTitle = left.title;   // the repackage drawer skips it (v0.9.17)
           state.ghostDemos = (state.ghostDemos || []);
           state.ghostDemos.push({ title: left.title, hook: left.hook,
             producer: left.producer, week: state.week, groupName: g.name });

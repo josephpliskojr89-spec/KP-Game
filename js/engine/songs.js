@@ -11,6 +11,7 @@
   KP.generateDemos = function (state, rng, group) {
     const S = KP.C.SONG;
     const D = KP.C.DIRECTION;
+    const P = KP.C.PITCH;
     const demos = [];
     const usedTitles = {};
     // titles already in any discography stay retired — no accidental reissues
@@ -30,6 +31,10 @@
       // the credits (v0.9.7): pitches come from the persistent pool —
       // names with track records, not strings
       const pr = KP.pickProducer(state, rng, concept.id);
+      // a snubbed producer sends this room his B-grade material (v0.9.17):
+      // pass his pushes twice and the good hooks go elsewhere — where
+      // they become ghost demos, which was always the ghost's origin story
+      const snubbed = group && pr.snubs && (pr.snubs[group.id] || 0) >= P.snubsAt;
       demos.push({
         id: 'song' + (i + 1),
         title,
@@ -37,10 +42,44 @@
         producerId: pr.id,
         conceptId: concept.id,
         toBrief,
-        hook: KP.clamp(q(rng) + (toBrief ? D.briefHookBonus : 0), 10, 95),
+        hook: KP.clamp(q(rng) + (toBrief ? D.briefHookBonus : 0) - (snubbed ? P.snubHookMalus : 0), 10, 95),
         vocalDemand: q(rng), rapDemand: KP.clamp(q(rng) - 15, 5, 95),
         choreoPotential: q(rng), trendFit: q(rng),
       });
+    }
+    // ---- the advocates (v0.9.17): the meeting has politics --------------
+    // ONE producer campaigns hard this meeting — his own best hook
+    const pushIdx = demos.reduce((bi, d, i) => d.hook > demos[bi].hook ? i : bi, 0);
+    demos[pushIdx].pushed = true;
+    // the exec's known taste marks its own — deterministic, everyone
+    // in the building knows what she likes
+    const taste = KP.execTaste(state);
+    demos.forEach(d => { if (d.conceptId === taste) d.execFavored = true; });
+    // and sometimes a member who writes puts her OWN demo on the table,
+    // against the professionals' — wilder odds, realer stakes
+    if (group && group.members) {
+      const CR = KP.C.CREDITS;
+      const writers = group.members.map(id => state.people[id]).filter(p => p &&
+        ((p.archetypes || []).includes('producerMinded') ||
+          p.personality.creativity >= CR.writeCreativityAt));
+      if (writers.length && rng.chance(P.memberDemoChance)) {
+        // durable census stamp: the meeting carried a member's demo
+        state.pitchLedger = state.pitchLedger || { memberDemos: 0 };
+        state.pitchLedger.memberDemos++;
+        const w = writers[rng.int(0, writers.length - 1)];
+        const concept = direction || rng.pick(KP.C.CONCEPTS);
+        demos.push({
+          id: 'song' + (demos.length + 1),
+          title: KP.genSongTitle(rng, usedTitles),
+          producer: KP.displayName(w), producerId: null,
+          writtenBy: w.id,
+          conceptId: concept.id,
+          toBrief: !!(direction && concept.id === direction.id),
+          hook: KP.clamp(Math.round(rng.normal(S.qualityMean + P.memberHookShift, P.memberHookSd)), 10, 95),
+          vocalDemand: q(rng), rapDemand: KP.clamp(q(rng) - 15, 5, 95),
+          choreoPotential: q(rng), trendFit: q(rng),
+        });
+      }
     }
     function q(r) { return KP.clamp(Math.round(r.normal(S.qualityMean, S.qualitySd)), 10, 95); }
     return demos;

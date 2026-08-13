@@ -1884,7 +1884,8 @@ against the standing clause (arrive, claim, mark):
    the trainees feel, the quitter, and the aging-out clock with
    all three endings. Scouting trips and school partnerships give
    the board its geography.
-4. **The title fight** (contested release loop). The pitch meeting
+4. **The title fight** (contested release loop; SHIPPED v0.9.17,
+   §59). The pitch meeting
    gets politics: the producer's push, the exec's known taste,
    the member's demo against the professionals'; repackages
    extend eras; the MV becomes an object with a budget tier. The
@@ -3174,6 +3175,75 @@ hot crossing, old-save migration, eval ranks, speculation, the
 passed-over ace, all three letter answers, the broken promise, the
 aging clock, the kind cut, the last-chance debut, determinism.
 
+## §59 The title fight (v0.9.17) — map slot 4
+
+The game's most-repeated loop, finally contested. §39: *"The pitch
+meeting gets politics: the producer's push, the exec's known
+taste, the member's demo against the professionals'; repackages
+extend eras; the MV becomes an object with a budget tier."*
+
+**The advocates** (`generateDemos` stamps them; `planDebut`
+settles them). Every meeting has politics, worn openly on the
+demo cards:
+- *The producer's push*: ONE producer campaigns per meeting — his
+  best hook. Pass his push twice (`pr.snubs[groupId]`) and he
+  cools: his next pitches to this room arrive B-grade
+  (snubHookMalus 6), and the good hooks go elsewhere — which was
+  always the ghost demo's origin story. Picking his push clears
+  the ledger.
+- *The exec's known taste*: demos matching `execTaste` wear her
+  stamp, deterministically. Passing her kind of record keeps a
+  tally (`state.execTastePasses`); the third pass draws the
+  remark — "Taste is not a directive. It is, however,
+  remembered." The smile at results already existed (v0.9.8).
+- *The member's demo*: a writer in the lineup (producer-minded or
+  creativity ≥ the booklet bar) sometimes pitches her OWN —
+  wilder hook distribution (lower floor, bigger spread: raw, or
+  special). Picked: morale +8, her name rides the TITLE line into
+  the booklet machinery, and a landing (≥65) gets the
+  "self-produced" recaps (memberTitle ind + feed). Passed at a
+  real lock: morale −4, `songPassed` on the directed ledger, the
+  history line about filing the demo, not the feeling.
+
+**The repackage** (`KP.planRepackage`). At release, the demos the
+meeting passed on go into `g.eraLeftovers` (minus the one the
+ghost machinery shopped). Inside `windowWeeks` (6) after promo
+ends — album formats only, once per era — the era re-releases
+with a leftover as the new title: cost ×0.55, MV optional, 3-track
+reissue, 3-week cycle, revenue ×0.75, and reception carries the
+era's heat (+15% of the era's reception above 50, when ≥60). The
+eraExtended note + feed know exactly what a repackage means
+("the fandom is already budgeting for the new photocards").
+
+**The MV** (`plan.mv`). Priced as DELTAS so the default bill
+never moves: plain −12 (the performance cut — saving is real, and
+the internet's receipts go to the COMPANY, never the members),
+standard 0, cinema +45 — all × the stature multiplier. Cinema:
+reception +4, breakout spike ×1.6, the whole regions map +2 (MVs
+are how overseas meets a record). Plain: reception −2 and the
+polite snark. The release archives its tier.
+
+**Calibration** (probes, recorded honestly): the bot repackages
+hot eras and flexes cinema when rich — and the probes showed
+repackages are net-PROFITABLE (fiscal improved with them on) and
+cinema barely registers. The fiscal trust-warning band's flood was
+neither: measured 14-25/40 across ten soaks in three releases,
+its 0.45 ceiling sat inside its own noise and flapped per
+reshuffle — ruled to 0.65 (the tail where a genuine poverty
+spiral would push), per the v0.9.14 owner brief that the CEO
+reading the books IS the feature. hiatusReturned ruled 0.95→1.00
+(the flap precedent). The producer-cooling path runs dormant in
+soak by construction — the bot picks the best hook, which IS the
+push — suite-held, §18.
+
+Suite 059 (44): one push per meeting on the best hook,
+deterministic taste stamps, the member demo (ledgered), her title
+credit riding to the booklet, the pass (morale/directed/history),
+snub ledger, the taste tally + remark, MV bills and the twin-fork
+reception gap (exactly the tier gap), the repackage
+(window/drawer/carry-by-formula/short cycle/once-per-era/single
+refusal), determinism.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3224,6 +3294,12 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   sees a clawback either, the road is too polite — widen
   missRescheduleWeeks so a mid-tour rebooking can land mid-tour
   again.
+- **Producer cooling runs dormant in soak (v0.9.17)** — the bot
+  picks the best hook, which is definitionally the push, so
+  `pr.snubs` never accumulates in the census (0/40). The mechanism
+  is suite-held. Human play picks for concept, taste, and members —
+  watch whether the cooling ever fires there; if the owner never
+  sees a producer cool, surface the push more loudly in the studio.
 - **The resignation letter never fires in soak (v0.9.16)** — the
   sensible bot keeps trainee morale above the quit line in all 40
   worlds (0/40), so the scene is suite-held only. This is the
@@ -4779,3 +4855,26 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > and the old exemption list knew only prep/promo. Battery 58/58
 > (suite 002 reworked), soak clean, e2e 94, lockstep 0.9.16.3.
 > Rode to main.
+\n
+> **v0.9.17 — the title fight** (map slot 4). The most-repeated
+> loop in the game, finally contested. Demos arrive with
+> ADVOCATES worn openly on the cards: one producer campaigns per
+> meeting and cools when passed twice (his good hooks go
+> elsewhere — the ghost story's origin, finally mechanized); the
+> exec's taste is stamped deterministically and passed at a
+> counted price ("Taste is not a directive. It is, however,
+> remembered."); and a member who writes sometimes puts her own
+> demo against the professionals' — wilder odds, realer stakes,
+> morale and the directed ledger moving on BOTH answers, her name
+> riding the title line into the booklet when she wins the
+> meeting. Repackages extend eras from the drawer of passed
+> demos: cheaper, shorter, riding the era's heat by formula, once
+> per era, albums only. The MV becomes an object: plain refunds
+> and draws polite snark at the company, cinema lifts the record,
+> travels the map, and bills like the act's name. Probes found
+> repackages net-profitable and the fiscal band flapping inside
+> its own noise across ten soaks — ceiling ruled to the tail per
+> the v0.9.14 owner brief; hiatusReturned ruled off its flap.
+> Numbers: battery 59/59 (suite 059, 44 assertions), soak clean
+> (101 bands, six new all alive), longhaul 5×620 clean, e2e 94,
+> lockstep 0.9.17 (55 modules). Rode to main. Slot 4 of fourteen.

@@ -100,10 +100,18 @@
       mash = plan.mash.slice();
     }
 
-    const cost = KP.recordBill(g, plan.promo, format.id) + rolloutCost;
+    // the MV (v0.9.17): the video is an object with a budget tier, and
+    // a big act's video bills like one (the stature multiplier)
+    const MV = KP.C.MV;
+    const mvTier = plan.mv || 'standard';
+    if (!MV.TIERS[mvTier]) return { ok: false, reason: 'The video comes in three budgets: plain, standard, or cinema.' };
+    const mvCost = Math.round(MV.TIERS[mvTier].cost * KP.statureCostMult(g));
+
+    const cost = KP.recordBill(g, plan.promo, format.id) + rolloutCost + mvCost;
     if (state.budget < cost) return { ok: false, reason: 'Budget cannot cover the record, the marketing AND this rollout. Trim something.' };
     state.budget -= cost;
 
+    g.eraLeftovers = null;   // a new era starts a new drawer
     g.prep = {
       songId: demo.id,
       conceptId: plan.conceptId || demo.conceptId,
@@ -114,7 +122,56 @@
       scheduledWeek: plan.week,
       progress: 0,
       mash,
+      mv: mvTier,
     };
+    // ---- the title fight (v0.9.17): the pick is also a pass ------------
+    // Every advocate in the meeting hears the answer, and the passed
+    // remember. One truth: the demos' own advocate stamps.
+    let pitchNote = null;
+    {
+      const P = KP.C.PITCH;
+      (g.demos || []).forEach(d => {
+        if (d.id === demo.id) return;
+        if (d.pushed && d.producerId) {
+          const pr = KP.producerById(state, d.producerId);
+          if (pr) {
+            pr.snubs = pr.snubs || {};
+            pr.snubs[g.id] = (pr.snubs[g.id] || 0) + 1;
+            if (pr.snubs[g.id] === P.snubsAt) {
+              pitchNote = 'Word from the writers’ rooms: ' + pr.name + ' has stopped sending this room the good hooks. Producers keep score too.';
+            }
+          }
+        }
+        if (d.writtenBy) {
+          const w = state.people[d.writtenBy];
+          if (w) {
+            w.morale = KP.clamp(w.morale + P.passMorale, 0, 100);
+            KP.recordDirected(state, w.id, 'songPassed', -1);
+            w.history.push({ week: state.week, text: 'Pitched “' + d.title + '” at the meeting. The company went with the professionals’. ' + (w.gender === 'm' ? 'He' : 'She') + ' filed the demo, not the feeling.' });
+          }
+        }
+      });
+      if (demo.pushed && demo.producerId) {
+        const pr = KP.producerById(state, demo.producerId);
+        if (pr && pr.snubs) pr.snubs[g.id] = 0;   // the push landed — all is forgiven
+      }
+      if (demo.writtenBy) {
+        const w = state.people[demo.writtenBy];
+        if (w) {
+          w.morale = KP.clamp(w.morale + P.pickMorale, 0, 100);
+          w.history.push({ week: state.week, text: 'The company chose ' + (w.gender === 'm' ? 'his' : 'her') + ' song — “' + demo.title + '” — as the title track, over the professionals’ demos. The pen shook slightly signing the production sheet.' });
+        }
+      }
+      // the exec's taste, passed over — she keeps a tally, not a grudge
+      const tasteOnTable = (g.demos || []).some(d => d.execFavored);
+      if (tasteOnTable && !demo.execFavored) {
+        state.execTastePasses = (state.execTastePasses || 0) + 1;
+        if (state.execTastePasses === P.execPassNoteAt) {
+          pitchNote = (pitchNote ? pitchNote + ' And ' : '') + state.executive.name +
+            ', in passing: “I notice my kind of record keeps losing these meetings. Taste is not a directive. It is, however, remembered.”';
+        }
+      }
+    }
     // the tracklist (v0.7.5): the record gets its full run of songs at
     // lock — an action-time draw. Open slots stay assignable until the
     // release week (KP.assignTrack).
@@ -153,7 +210,71 @@
         KP.fillPro(KP.displayName(moonlighter) + ' still tapes ' + gig.show +
           ' every week — this cycle will stretch {her}, and productions notice stretched.', moonlighter);
     }
+    if (pitchNote) warning = warning ? warning + ' ' + pitchNote : pitchNote;
     return warning ? { ok: true, warning } : { ok: true };
+  };
+
+  // ---- the repackage (v0.9.17): the era extends -------------------------
+  // A warm era re-releases with a new title track — one of the demos the
+  // meeting passed on, back from the table. Cheaper, shorter, and it
+  // rides the era's heat. Once per era; singles don't repackage.
+  KP.planRepackage = function (state, plan) {
+    const RP = KP.C.REPACKAGE;
+    const D = KP.C.DEBUT;
+    const g = KP.groupById(state, plan.groupId);
+    if (!g) return { ok: false, reason: 'No such group.' };
+    if (g.retiredWeek || !g.members.length) return { ok: false, reason: 'That chapter is closed.' };
+    if (!g.debuted) return { ok: false, reason: 'An era has to exist before it extends.' };
+    if (g.prep) return { ok: false, reason: 'A release is already locked.' };
+    if (g.tour) return { ok: false, reason: 'They are on tour. The reissue can wait for the road.' };
+    const last = (g.releases || [])[(g.releases || []).length - 1];
+    if (!last) return { ok: false, reason: 'An era has to exist before it extends.' };
+    if ((last.format || 'single') === 'single') {
+      return { ok: false, reason: 'Singles do not repackage. An era needs an album under it.' };
+    }
+    if (last.repackageOf) return { ok: false, reason: 'A repackage does not repackage. Even this industry has limits.' };
+    if (state.week <= (g.promoUntil || 0)) {
+      return { ok: false, reason: 'They are mid-promotion. The repackage lands when the first wind is spent, not before.' };
+    }
+    if (state.week > (g.promoUntil || 0) + RP.windowWeeks) {
+      return { ok: false, reason: 'The era has cooled. A repackage rides heat that is still there — this one is gone.' };
+    }
+    const demo = (g.eraLeftovers || []).find(d => d.id === plan.songId);
+    if (!demo) return { ok: false, reason: 'The repackage title comes from the era’s own drawer — the demos the meeting passed on.' };
+    const format = D.FORMATS.find(f => f.id === last.format) || D.FORMATS[0];
+    const MV = KP.C.MV;
+    const mvTier = plan.mv || 'standard';
+    if (!MV.TIERS[mvTier]) return { ok: false, reason: 'The video comes in three budgets: plain, standard, or cinema.' };
+    const mvCost = Math.round(MV.TIERS[mvTier].cost * KP.statureCostMult(g));
+    const cost = Math.round(KP.recordBill(g, plan.promo || 'standard', format.id) * RP.costMult) + mvCost;
+    if (state.budget < cost) return { ok: false, reason: 'Even the cheaper reprint needs money we do not have.' };
+    state.budget -= cost;
+    g.prep = {
+      songId: demo.id,
+      conceptId: demo.conceptId,
+      promo: plan.promo || 'standard',
+      format: format.id,
+      rollout: KP.C.ROLLOUT.DEFAULT.map(w => w.slice()),
+      alloc: plan.alloc || { vocals: 25, dance: 25, rap: 25, media: 25 },
+      scheduledWeek: state.week + RP.minPrep,
+      progress: 0,
+      mash: null,
+      mv: mvTier,
+      repackage: { of: last.songTitle, reception: last.reception || 0 },
+    };
+    // the chosen leftover takes the desk so the release resolution (and
+    // the studio hero card) can find it; the drawer is spent — one
+    // repackage per era
+    g.demos = [demo];
+    g.eraLeftovers = null;
+    {
+      const trng = KP.rngFor(state);
+      g.prep.tracks = KP.buildTracklist(state, trng, g, demo,
+        Object.assign({}, format, { tracks: RP.tracks }));
+      state.rngState = trng.state();
+    }
+    return { ok: true, note: g.name + '’s era extends: “' + last.songTitle + '” repackages with “' +
+      demo.title + '” as the new title track — the demo the meeting passed on, back from the table. The fandom knows exactly what a repackage means, and is already budgeting for the new photocards.' };
   };
 
   // Weekly release-prep for one group: rehearsal replaces training.
@@ -370,10 +491,21 @@
     const season = KP.seasonRead ? KP.seasonRead(state, concept.id) : { mod: 0, line: null };
     // the declared return (v0.9.12): anticipation converts to numbers
     const hiaRead = KP.hiatusReadsRelease ? KP.hiatusReadsRelease(state, g, isDebut) : { mod: 0, note: null };
+    // the MV reads on the record (v0.9.17): a cinema budget lifts, a
+    // performance cut costs a little — the internet does notice budgets
+    const MVC = KP.C.MV;
+    const mvTier = g.prep.mv || 'standard';
+    const mvMod = (MVC.TIERS[mvTier] || MVC.TIERS.standard).reception;
     let reception = KP.clamp(Math.round(
       demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
       groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
-      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod + hiaRead.mod), 1, 100);
+      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod + hiaRead.mod + mvMod), 1, 100);
+    // the repackage rides the era's heat (v0.9.17)
+    const repack = g.prep.repackage || null;
+    if (repack && repack.reception >= KP.C.REPACKAGE.carryFrom) {
+      reception = KP.clamp(reception +
+        Math.round((repack.reception - 50) * KP.C.REPACKAGE.carryFactor), 1, 100);
+    }
     // the mash (v0.9.6): a genre-bending release rolls the whole table —
     // flop / worked / acclaimed-but-unpopular / changed-the-industry.
     // Creative rooms tilt the odds; nobody escapes the variance.
@@ -423,8 +555,30 @@
     // the numbers everyone can see move with the moment (v0.6.1)
     const SO = KP.C.SOCIAL;
     members.forEach(m => { if (isDebut) KP.socialSpike(state, m, SO.debutSpike, 'debut'); });
-    KP.socialSpike(state, breakout, SO.breakoutSpike + reception * SO.breakoutPerReception, 'breakout');
+    KP.socialSpike(state, breakout, (SO.breakoutSpike + reception * SO.breakoutPerReception) *
+      (mvTier === 'cinema' ? MVC.cinemaSpikeMult : 1), 'breakout');
     if (spark > 0) KP.socialSpike(state, breakout, SO.viralSpike, 'spark');
+    // the video travels (v0.9.17): a cinema budget warms the whole map a
+    // touch — MVs are how the overseas corners meet a record first
+    if (mvTier === 'cinema' && g.regions) {
+      Object.keys(g.regions).forEach(k => {
+        g.regions[k] = KP.clamp(g.regions[k] + MVC.cinemaOverseas, 0, 100);
+      });
+    }
+    if (mvTier === 'plain' && rng.chance(MVC.plainSnarkChance)) {
+      push({ kind: 'public', ind: 'mvBudget', priority: 'flavor', groupId: g.id,
+        text: 'The “' + demo.title + '” video is a performance cut — one room, four cameras, no plot. The comment sections have noticed, and the company is the one getting the receipts: “the song deserved a location” is trending politely. The accountants regret nothing.' });
+    }
+    // the one she wrote (v0.9.17): a member-written TITLE track landing
+    // is a different kind of win — the booklet already says so; now the
+    // recaps do too
+    if (demo.writtenBy) {
+      const w = state.people[demo.writtenBy];
+      if (w && reception >= 65) {
+        push({ kind: 'public', ind: 'memberTitle', priority: 'high', personId: w.id, groupId: g.id,
+          text: KP.fillPro('“' + demo.title + '” — written by ' + KP.publicGiven(w) + ', chosen over the professionals’ demos, and it LANDED. The recaps keep using the word “self-produced” like they discovered it. {She} keeps the first production sheet in a drawer, slightly crumpled from the meeting.', w) });
+      }
+    }
     if (reception >= 75) push(KP.recordEvidence(state, 'monsterRookies', 'group', g.id));
     if (season.line) push({ kind: 'company', groupId: g.id, text: season.line });
     if (!isDebut && prevReception != null && reception <= prevReception - KP.C.MEMORY.underperformGap) {
@@ -504,7 +658,8 @@
     // a devoted fandom buys everything twice (v0.7.0)
     const fandomMult = 1 + KP.fandomIntensity(g) * KP.C.FANDOM.revenueFactor;
     const revenue = Math.round((Math.max(0, reception - 30) * 1.6 + (isDebut ? 0 : (g.popularity || 0) * 0.4)) *
-      format.revenueMult * overseasMult * fandomMult);
+      format.revenueMult * overseasMult * fandomMult *
+      (repack ? KP.C.REPACKAGE.revenueMult : 1));   // reprints sell real, not full
     state.budget += revenue;
 
     // popularity: the debut founds the fanbase (hype converts into it);
@@ -531,7 +686,8 @@
     }
     g.debuted = true;
     g.lastReleaseWeek = state.week;
-    g.promoUntil = state.week + KP.C.COMEBACK.promoWeeks;
+    // a repackage runs a shorter cycle — the second wind, not a new storm
+    g.promoUntil = state.week + (repack ? KP.C.REPACKAGE.promoWeeks : KP.C.COMEBACK.promoWeeks);
     // the rollout rides into promotion (v0.6.3); fan-sign weeks buy the
     // fanbase extra patience after the cycle ends
     g.rollout = g.prep.rollout || KP.C.ROLLOUT.DEFAULT.map(w => w.slice());
@@ -580,7 +736,17 @@
       sleeperTitle: tl.sleeperTitle || null,
       mash, fusionOutcome, acclaim: fusionOutcome === 'acclaim',
       producerId: demo.producerId || null, producer: demo.producer,
+      mv: mvTier, writtenBy: demo.writtenBy || null,
+      repackageOf: repack ? repack.of : null,
     });
+    // the era extends (v0.9.17): the repackage is its own story beat
+    if (repack) {
+      push({ kind: 'public', ind: 'eraExtended', priority: 'high', groupId: g.id,
+        text: 'The “' + repack.of + '” era EXTENDS: ' + g.name + ' repackaged with “' + demo.title +
+          '” as the new title track, and the rollout machine barely had to restart. ' +
+          (reception >= 60 ? 'The second wind is real — the era gets more weeks, the fandom gets more photocards, and the charts get the same name twice.'
+            : 'The second wind wheezed a little — reprints ride the era’s heat, and this era had less left than the desk hoped.') });
+    }
     // the mash verdict (v0.9.6): every fusion outcome is narrated with
     // its consequences attached — the gamble was the player's, the
     // verdict is the world's
@@ -630,6 +796,12 @@
     if (war.battle) g.results.battle = war.battle;
     // the release exports (v0.6.6): concept resonance decides where
     KP.regionsOnRelease(state, g, reception, concept.id).forEach(push);
+    // the era's leftovers (v0.9.17): the demos the meeting passed on stay
+    // in the drawer — minus the one the ghost machinery already shopped
+    // elsewhere — because a repackage's new title comes from exactly here
+    g.eraLeftovers = repack ? [] : (g.demos || [])
+      .filter(d => d.id !== g.prep.songId && d.title !== (g.prep.ghostTitle || null))
+      .slice(0, 3);
     g.prep = null;
     g.demos = null;       // the producers bring fresh demos for the next cycle
     if (state.demos) state.demos = null;   // pre-multigroup compatibility
