@@ -1896,6 +1896,10 @@ against the standing clause (arrive, claim, mark):
    clamor (solo-in-group / the hold / the spin-out) — and the
    slump, the downward arc with its own middle register. Group
    identity arcs (festival icons, variety group, OST factory).
+   *Interstitial on the owner's slate (§61, sitting of 0.9.18.2): the
+   mandate — exec-directed debuts, 3-year trainee contracts, the
+   member desk (remove/terminate/individual hiatus), the meeting she
+   calls. Placement relative to slots 6–14 awaits the owner's word.*
 6. **The bad blood + the fansite masters** (§55.3 + named fans +
    §55.13 professional rivalries). Rivalries with teeth at three
    tiers, formed from SOURCES beyond the shared week — debut
@@ -3325,6 +3329,82 @@ injected-credit settle, the knock's three forks serialized
 (promise → backdated miss → promiseBroken; hold → heldBack;
 open → spinout), the slump entry/damp A/B/shield/stage exit,
 forced-counter arcs + feed registry, 40-week determinism fork.
+
+## §61 The mandate (planning sitting, 0.9.18.2-era — docs only, no build)
+
+Owner, verbatim: *"I'd like to pivot away from the player just being
+able to debut a group or solo whenever they want. typically the
+directive would come down from above when it's time to debut a new
+act. the player is essentially an executive producer. I'd also like
+to add 3 year trainee contracts in line with the current real life
+standard. and I'd like to add more options for group members: the
+option to remove them from the group but retain their contract,
+terminate them entirely, or put them on hiatus."* Plus voluntary
+exits, answered from the record below. Four items, one theme: the
+player's chair gets a job description — executive producer, not
+owner-operator. Placement on the §39 map is the owner's call at the
+next approval; the natural shape is one interstitial release (or two:
+the mandate + the member desk) before or between the remaining slots.
+
+**1. Debuts come down from above.** The generalization of machinery
+we already have: the hard directive (§10c) is an exec-MANDATED debut
+with a dated window, the pet project (§32) demands a solo, and the
+secondGroup Monday question already puts lineup timing on the exec's
+record. The pivot: `planDebut` for a NEW act gates on an open
+mandate. Mandates arrive from the sources the game already reads —
+board season, a hot trainee room (the practice-room speculation),
+market reads, hype directives, the pet project — each with a window
+and a shape ("a girl group, this year"; "her, alone, 20 weeks").
+The player executes everything inside it: lineup, concept, song,
+budget, timing. Design guards: (a) the player can PITCH upward — a
+meeting verb that asks the board for a mandate, agency preserved as
+persuasion with trust as the currency; (b) a full trainee room the
+exec ignores must be rare by construction (the exec reads the same
+room the player does); (c) COMEBACKS stay free — the mandate gates
+new acts, not the release loop; (d) the founding (§51) flips the
+chair: your own label answers to nobody, which retroactively makes
+Phase C's exit MEAN something.
+
+**2. Three-year trainee contracts** (the real-world standard). A
+trainee clock stamped at signing, ~156 weeks, running beside the
+practice-room tenure machinery (§58 evals, aging-out, last chance).
+At expiry: renew (a real conversation — her read of her own odds
+against the room's), walk (the file remembers), or convert early at
+debut into the seven-year idol contract (§46, existing). Interacts
+with slot 3's shipped systems: the aging-out clock and the trainee
+contract clock are two different fears and should FEEL different —
+one is the market, one is the paper.
+
+**3. The member desk** — three verbs on a contracted member, all
+consequences the systems already price:
+- *Remove from the group, keep the contract*: she becomes a groupless
+  idol — machinery live since 0.9.18.2 (renewals null-safe, gigs and
+  second jobs continue). Directed ledger takes the hit; the fandom
+  asks in public; the door back (a future lineup, her solo) stays
+  open. This is the line-up surgery verb the builder's post-formation
+  editing (§13) never had.
+- *Terminate entirely*: the buyout. Money cost scaled to remaining
+  contract + stature, morale shock to everyone who shared a dorm
+  with her, fandom/discourse fallout, and the standing clause (§55.6)
+  applies — the industry watches how companies end people.
+- *Individual hiatus*: the group promotes as N−1 (the real-world
+  standard for health/rest); her fatigue/nerve recovers on the
+  group-hiatus rails (§the disappearance) scoped to one person; the
+  slump's shield (§60) is the 8-week version — this is the open-ended
+  one, with the same public-forgetting physics.
+
+**4. Voluntary exits — the record and the gap.** Exists: idols choose
+to leave at renewal tables (§46; the longhaul consistently shows
+chose-to-leave departures), trainees bring the resignation letter
+(§58, suite-held), the gravity's open door graduates her out (§60).
+The gap: a mid-contract "I want out NOW" — the meeting SHE calls.
+Design: an idol-initiated scene (door machinery, §42) triggered by
+the ledgers that already exist (promiseBroken, heldBack, disbandedUs,
+morale floor) — negotiate (terms cost), hold her to the paper (she
+stays and the directed ledger prices it), or release her (the
+termination verb above, at her request — cheaper in money, costlier
+in the room's trust in you). One truth with the renewal read: the
+same standing math, read early.
 
 ## §18 Watch items
 
@@ -5106,3 +5186,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > reaction — the catalog doesn't disband and neither do they.
 > Battery 60/60 (suite 010 +26 checks incl. post-disband roundtrip
 > and fork), soak clean, e2e 94, lockstep 0.9.18.2. Rode to main.
+\n
+> **Planning sitting (post-0.9.18.2) — the mandate.** Docs only; no
+> build, no version. Owner adds four items to the plan: exec-directed
+> debuts (the player as executive producer — the hard directive and
+> the pet project generalized into the ONLY way new acts start, with
+> a pitch-upward verb preserving agency as persuasion, comebacks
+> untouched, and the founding retroactively becoming the escape from
+> exactly this); three-year trainee contracts (the real-world
+> standard, a paper clock beside the practice room's market clock);
+> the member desk (remove-but-retain, terminate with a priced buyout,
+> individual hiatus with N-1 promotion); and the mid-contract walkout
+> — the meeting she calls — closing the one gap in voluntary exits
+> (renewal leave, the resignation letter, and the gravity's open door
+> already exist and were answered from the record). Written as §61
+> with a pointer at the §39 map; placement relative to slots 6-14 is
+> the owner's call at next approval. Rode to main.
