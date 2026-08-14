@@ -1896,10 +1896,12 @@ against the standing clause (arrive, claim, mark):
    clamor (solo-in-group / the hold / the spin-out) — and the
    slump, the downward arc with its own middle register. Group
    identity arcs (festival icons, variety group, OST factory).
-   *Interstitial on the owner's slate (§61, sitting of 0.9.18.2): the
-   mandate — exec-directed debuts, 3-year trainee contracts, the
-   member desk (remove/terminate/individual hiatus), the meeting she
-   calls. Placement relative to slots 6–14 awaits the owner's word.*
+   *Next up by owner ruling ("yeah if you think these work best
+   before step 6, that's when we'll do it"): the mandate (§61) —
+   exec-directed debuts, 3-year trainee contracts, the member desk
+   (remove/terminate/individual hiatus), the meeting she calls.
+   HELD until the owner's explicit go — playtest in progress, more
+   reports may land first.*
 6. **The bad blood + the fansite masters** (§55.3 + named fans +
    §55.13 professional rivalries). Rivalries with teeth at three
    tiers, formed from SOURCES beyond the shared week — debut
@@ -3342,9 +3344,10 @@ option to remove them from the group but retain their contract,
 terminate them entirely, or put them on hiatus."* Plus voluntary
 exits, answered from the record below. Four items, one theme: the
 player's chair gets a job description — executive producer, not
-owner-operator. Placement on the §39 map is the owner's call at the
-next approval; the natural shape is one interstitial release (or two:
-the mandate + the member desk) before or between the remaining slots.
+owner-operator. Placement ruled by the owner at this sitting: BEFORE
+slot 6, as one release (or two if the build wants a seam: the
+mandate, then the member desk). Held until the owner's explicit go —
+the playtest continues and reports may arrive first.
 
 **1. Debuts come down from above.** The generalization of machinery
 we already have: the hard directive (§10c) is an exec-MANDATED debut
