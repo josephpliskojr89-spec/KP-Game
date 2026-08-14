@@ -33,6 +33,7 @@
 
   // ---- the mood: her week, in one honest word (derived, never stored) ---
   KP.moodOf = function (p) {
+    if (p.flags.personalHiatus) return 'on a break';
     if (p.flags.burnout > 0) return 'benched';
     if (p.fatigue >= 75) return 'running on fumes';
     if (p.flags.scar > 0) return 'carrying it';

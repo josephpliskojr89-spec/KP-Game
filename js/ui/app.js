@@ -353,6 +353,52 @@
           '<button class="btn" data-action="close-modal" style="flex:1">Not yet</button>');
         break;
       }
+      case 'member-break': {
+        const r = KP.declareMemberBreak(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast(r.note.slice(0, 120)); App.render();
+        break;
+      }
+      case 'end-break': {
+        const r = KP.endMemberBreak(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast(r.note.slice(0, 120)); App.render();
+        break;
+      }
+      case 'remove-lineup': {
+        const p = s.people[t.dataset.id];
+        const g = KP.groupById(s, t.dataset.gid);
+        if (!p || !g) break;
+        UI.modal('Remove from the lineup',
+          '<div class="note">' + UI.esc(KP.fillPro(KP.displayName(p) + ' leaves ' + g.name + ' — the contract stays, the seat does not. ' + g.name + ' continues as ' + (g.members.length - 1) + '. {She} keeps {pos} solo calendar (gigs, deals, second jobs), and {she} will remember whose decision this was, at every table you ever sit at together again.', p)) + '</div>',
+          '<button class="btn danger" data-action="remove-lineup-confirm" data-id="' + p.id + '" data-gid="' + g.id + '" style="flex:1">Remove ' + UI.esc(KP.publicGiven(p)) + '</button>' +
+          '<button class="btn" data-action="close-modal" style="flex:1">Keep the lineup</button>');
+        break;
+      }
+      case 'remove-lineup-confirm': {
+        const r = KP.removeFromLineup(s, t.dataset.gid, t.dataset.id);
+        UI.closeModal();
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast(r.note.slice(0, 120)); App.render();
+        break;
+      }
+      case 'terminate': {
+        const p = s.people[t.dataset.id];
+        if (!p) break;
+        const cost = KP.terminationCost(s, p);
+        UI.modal('Terminate the contract',
+          '<div class="note">' + UI.esc(KP.fillPro('The buyout: ' + cost + ' — the remaining years plus what {pos} name is worth. {She} leaves the company entirely, today. The dorm learns something about this building that it will not unlearn. This cannot be undone.', p)) + '</div>',
+          '<button class="btn danger" data-action="terminate-confirm" data-id="' + p.id + '" style="flex:1">Terminate · ' + cost + '</button>' +
+          '<button class="btn" data-action="close-modal" style="flex:1">Keep the contract</button>');
+        break;
+      }
+      case 'terminate-confirm': {
+        const r = KP.terminateContract(s, t.dataset.id);
+        UI.closeModal();
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast(r.note.slice(0, 120)); App.render();
+        break;
+      }
       case 'pitch-mandate': {
         UI.modal('The pitch upstairs',
           '<div class="note">You get the room for ten minutes. ' + UI.esc(s.executive.name) +

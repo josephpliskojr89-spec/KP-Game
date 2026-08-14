@@ -166,6 +166,9 @@ const BANDS = {
   traineeTabled:     { lo: 0.40, hi: 1.00, label: 'orgs where a trainee term reached the table' },
   traineeWalked:     { lo: 0.00, hi: 0.90, label: 'orgs where the table ended a trainee story' },
   anticipationBanked:{ lo: 0.50, hi: 1.00, label: 'orgs whose countdown banked an opening edge' },
+  // the member desk (v0.9.20): the walkout is world-driven — grudges the
+  // ledgers accumulate can summon it even for a decent boss
+  walkoutCalled:     { lo: 0.00, hi: 0.60, label: 'orgs where she called the meeting (the walkout)' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
@@ -303,6 +306,7 @@ const tally = {
   clamorBegan: 0, clamorSettled: 0, clamorHeld: 0, soloKnocked: 0,
   slumpSeen: 0, footingFound: 0, arcMinted: 0, rivalCulled: 0, rivalNamedCut: 0,
   mandateGranted: 0, mandateBoard: 0, mandateLapsed: 0,
+  walkoutCalled: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -609,6 +613,15 @@ for (let s = 0; s < SEEDS; s++) {
       if (sc.kind === 'quietEra') {
         const p = state.people[sc.personId];
         KP.resolveScene(state, sc.id, p && p.fatigue > 50 ? 'shield' : 'push');
+        return;
+      }
+      if (sc.kind === 'walkOut') {
+        // hear her out when the books allow; fold before holding — a
+        // boss who reads renewal ledgers knows what heldToPaper costs
+        const p = state.people[sc.personId];
+        const cost = p ? KP.C.MEMBER_DESK.WALKOUT.negotiateBase +
+          KP.renewalRead(state, p).fame * KP.C.MEMBER_DESK.WALKOUT.negotiatePerFame : 0;
+        KP.resolveScene(state, sc.id, state.budget >= cost + 60 ? 'negotiate' : 'release');
         return;
       }
       if (sc.kind === 'traineeRenewal') {
@@ -1031,6 +1044,7 @@ for (let s = 0; s < SEEDS; s++) {
   if (Object.values(state.people).some(p => (p.history || []).some(h =>
       /trainee contract ran out|turned it down|The company let the trainee term run out/i.test(h.text)))) tally.traineeWalked++;
   if (state.groups.some(g => (g.releases || []).some(r => (r.anticipation || 0) >= 1))) tally.anticipationBanked++;
+  if (Object.values(state.people).some(p => (p.flags || {}).walkoutAsked)) tally.walkoutCalled++;
   // the trainee floor (0.9.18.1): the rival ledger is durable
   const rl = state.rivalLedger || {};
   if ((rl.culls || 0) >= 1) tally.rivalCulled++;

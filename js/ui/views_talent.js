@@ -433,6 +433,23 @@
         (inGroup ? '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">' + KP.fillPro('{She} is in a lineup.', p) + '</div>' : '') +
         '</div>');
     }
+
+    // the member desk (v0.9.20): three verbs on a contracted artist
+    if (p.status === 'idol') {
+      const g = KP.groupOf(state, p.id);
+      const inRealGroup = g && g.type !== 'solo' && g.members.length > 1;
+      const row = [];
+      if (p.flags.personalHiatus) {
+        row.push('<button class="btn small" data-action="end-break" data-id="' + p.id + '">End the personal break · week ' + (state.week - p.flags.personalHiatus.since) + '</button>');
+      } else if (inRealGroup) {
+        row.push('<button class="btn small" data-action="member-break" data-id="' + p.id + '">Grant a personal break</button>');
+      }
+      if (inRealGroup && g.members.length > 2) {
+        row.push('<button class="btn small ghost" style="border:1px solid var(--line)" data-action="remove-lineup" data-id="' + p.id + '" data-gid="' + g.id + '">Remove from the lineup</button>');
+      }
+      row.push('<button class="btn danger small" data-action="terminate" data-id="' + p.id + '">Terminate · ' + KP.terminationCost(state, p) + '</button>');
+      html.push('<div class="pad" style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">' + row.join('') + '</div>');
+    }
     return html.join('');
   };
 

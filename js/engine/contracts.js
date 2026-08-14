@@ -319,16 +319,11 @@
   });
 
   // ---- the departure: every invariant, handled ----------------------------
-  KP.departIdol = function (state, personId, mode, inbox) {
+  // one truth for taking a person OUT of a lineup (v0.9.20): the
+  // departure, the termination, and the removal verb all run the
+  // same surgery — roles, rooms, maknae, credits, the left-behind
+  KP.lineupSurgery = function (state, g, p, warm, push) {
     const C = KP.C.CONTRACT;
-    const p = state.people[personId];
-    if (!p) return null;
-    const g = KP.groupOf(state, p.id);
-    const warm = mode !== 'cold';
-    const push = n => { if (inbox) inbox.push(n); else KP.note(state, n); };
-
-    // the group: lineup, roles, rooms — the validator's whole checklist
-    if (g) {
       g.members = g.members.filter(id => id !== p.id);
       if (g.roles) {
         const remaining = g.members.map(id => state.people[id]).filter(Boolean);
@@ -389,7 +384,18 @@
         push({ kind: 'public', priority: 'high', groupId: g.id,
           text: g.name + '’s chapter closes with the last contract — the company statement thanks the fans for every era, and means it. The scheduled work comes off the calendar. The catalog stays.' });
       }
-    }
+  };
+
+  KP.departIdol = function (state, personId, mode, inbox) {
+    const C = KP.C.CONTRACT;
+    const p = state.people[personId];
+    if (!p) return null;
+    const g = KP.groupOf(state, p.id);
+    const warm = mode !== 'cold';
+    const push = n => { if (inbox) inbox.push(n); else KP.note(state, n); };
+
+    // the group: lineup, roles, rooms — the validator's whole checklist
+    if (g) KP.lineupSurgery(state, g, p, warm, push);
 
     // the desk: deals wind down, her claims settle void
     (state.deals || []).slice().forEach(d => {
@@ -484,5 +490,218 @@
       { persona: 'stan', text: KP.fillPro('three sentences. SEVEN YEARS and the statement was three sentences. the fandom is doing forensics on every comma and honestly? so am I', p) },
       { persona: 'anti', text: 'companies really let their own people walk out the door and then act surprised when the fandom asks questions. asking the questions louder now' },
     ]);
+  });
+
+  // ---- the member desk (v0.9.20, §61 items 3/4) -------------------------
+  // Three verbs on a contracted member — remove from the lineup but keep
+  // the paper, terminate the paper entirely at a priced buyout, or grant
+  // a personal break the group promotes through — and the meeting SHE
+  // calls when the grudge ledger and an empty tank agree.
+
+  // 1. cut from the lineup, kept on the books: she becomes a groupless
+  // idol on her own calendar (the 0.9.18.2 machinery carries her)
+  KP.removeFromLineup = function (state, groupId, personId) {
+    const MD = KP.C.MEMBER_DESK;
+    const g = KP.groupById(state, groupId);
+    const p = state.people[personId];
+    if (!g || !p || !g.members.includes(personId)) return { ok: false, reason: 'Not in that lineup.' };
+    if (g.tour) return { ok: false, reason: 'Lineup surgery on the road is a scandal, not a decision. Bring them home.' };
+    if (g.prep) return { ok: false, reason: 'A release is locked with this lineup on the sleeve. Let the era land first.' };
+    if (g.debuted && state.week <= (g.promoUntil || 0)) return { ok: false, reason: 'Promotions are running. The stage count changes when the era ends, not mid-song.' };
+    if (g.members.length <= 2) return { ok: false, reason: 'Removing ' + KP.publicGiven(p) + ' would not leave a group. That is a different conversation — the disband, or the solo.' };
+    KP.lineupSurgery(state, g, p, false, n => KP.note(state, n));
+    p.morale = KP.clamp(p.morale - MD.removeMorale, 0, 100);
+    KP.recordDirected(state, p.id, 'cutFromLineup', -3);
+    p.history.push({ week: state.week, text: 'Removed from ' + g.name + ' by company decision — contract retained. The statement said “new individual activities.” The practice room said other things.' });
+    g.members.map(id => state.people[id]).filter(Boolean).forEach(m => {
+      m.morale = KP.clamp(m.morale - MD.removeMateMorale, 0, 100);
+    });
+    const note = KP.note(state, { kind: 'public', ind: 'lineupChange', priority: 'critical',
+      personId: p.id, groupId: g.id,
+      text: KP.fillPro(g.name + ' continues as ' + g.members.length + ': ' + KP.displayName(p) +
+        ' leaves the lineup but stays with the company for “individual activities.” The fandom read the statement four times looking for the sentence that explains it. It is not there.', p) });
+    return { ok: true, note: note.text };
+  };
+
+  // 2. the buyout: end the paper entirely, priced by what remains of it
+  KP.terminationCost = function (state, p) {
+    const T = KP.C.MEMBER_DESK.TERMINATE;
+    const yearsLeft = p.contract ? Math.max(0, KP.C.CONTRACT.years - (KP.contractYear(state, p) || 1)) : 1;
+    return Math.round(T.base + yearsLeft * T.perYear + KP.renewalRead(state, p).fame * T.perFame);
+  };
+  KP.terminateContract = function (state, personId) {
+    const T = KP.C.MEMBER_DESK.TERMINATE;
+    const p = state.people[personId];
+    if (!p || p.status !== 'idol') return { ok: false, reason: 'Termination is for active artists. Trainees are released, not bought out.' };
+    const g = KP.groupOf(state, personId);
+    if (g && g.tour) return { ok: false, reason: 'Not from a tour bus. Bring them home first.' };
+    const cost = KP.terminationCost(state, p);
+    if (state.budget < cost) return { ok: false, reason: 'The buyout runs ' + cost + ' — remaining years plus what her name is worth. The budget says no.' };
+    state.budget -= cost;
+    const mates = g ? g.members.filter(id => id !== personId) : [];
+    p.history.push({ week: state.week, text: 'Contract terminated by ' + state.company.short + ' — bought out, effective immediately. The industry keeps a list of companies that do this, and how.' });
+    KP.departIdol(state, personId, 'cold', null);
+    mates.map(id => state.people[id]).filter(Boolean).forEach(m => {
+      m.morale = KP.clamp(m.morale - T.mateMorale, 0, 100);
+      KP.recordDirected(state, m.id, 'watchedTermination', -2);
+    });
+    const note = KP.note(state, { kind: 'public', ind: 'terminated', priority: 'critical', personId: p.id,
+      text: KP.fillPro(state.company.short + ' terminated ' + KP.displayName(p) + '’s exclusive contract — a buyout, effective immediately, ' + cost + ' on the books. The statement is legally immaculate, which the internet correctly reads as its own kind of statement.', p) });
+    return { ok: true, cost, note: note.text };
+  };
+
+  // 3. the personal break: the group promotes as N−1; her calendar stops
+  KP.declareMemberBreak = function (state, personId) {
+    const p = state.people[personId];
+    if (!p || p.status !== 'idol') return { ok: false, reason: 'Personal breaks are for active artists.' };
+    if (p.flags.personalHiatus) return { ok: false, reason: KP.fillPro('{She} is already on a break.', p) };
+    const g = KP.groupOf(state, personId);
+    if (!g) return { ok: false, reason: 'A groupless artist rests by scheduling nothing. No statement needed.' };
+    if (g.type === 'solo' || g.members.length === 1) return { ok: false, reason: 'A solo act’s break IS the act’s hiatus. Declare it from the group page.' };
+    if (g.tour) return { ok: false, reason: 'Mid-tour, this is a medical statement, not a plan. Bring them home.' };
+    p.flags.personalHiatus = { since: state.week };
+    p.history.push({ week: state.week, text: 'Stepped back for a personal break — health and rest, the statement said, and for once meant it. The group promotes on without ' + (p.gender === 'm' ? 'him' : 'her') + ' for a while.' });
+    const note = KP.note(state, { kind: 'public', ind: 'memberBreak', priority: 'high', personId: p.id, groupId: g.id,
+      text: KP.fillPro(KP.displayName(p) + ' is taking a break from activities for health and rest — ' + g.name + ' continues as ' + (g.members.length - 1) + ' for now. The fandom’s reply is unanimous for once: rest well, seat kept.', p) });
+    return { ok: true, note: note.text };
+  };
+  KP.endMemberBreak = function (state, personId) {
+    const p = state.people[personId];
+    if (!p || !p.flags.personalHiatus) return { ok: false, reason: 'No break to end.' };
+    const weeks = state.week - p.flags.personalHiatus.since;
+    delete p.flags.personalHiatus;
+    p.morale = KP.clamp(p.morale + 3, 0, 100);
+    p.history.push({ week: state.week, text: 'Returned from a ' + weeks + '-week personal break — quieter, steadier, visibly slept.' });
+    const note = KP.note(state, { kind: 'public', ind: 'memberReturn', priority: 'high', personId: p.id,
+      text: KP.fillPro(KP.displayName(p) + ' is back after ' + weeks + ' weeks — the return photo is one coffee cup and a practice room mirror, and the fandom has already made it a wallpaper.', p) });
+    return { ok: true, note: note.text };
+  };
+
+  // 4. the meeting she calls — the grudge ledger and an empty tank agree
+  function grudgeScore(p) {
+    let s = 0;
+    (p.directed || []).forEach(a => {
+      if (a.kind === 'promiseBroken') s += 2;
+      if (a.kind === 'disbandedUs') s += 2;
+      if (a.kind === 'cutFromLineup') s += 2;
+      if (a.kind === 'heldBack') s += 1;
+      if (a.kind === 'leftWaiting') s += 1;
+      if (a.kind === 'watchedTermination') s += 1;
+      if (a.kind === 'heldToPaper') s += 2;
+    });
+    return s;
+  }
+  KP.registerWeekly('memberDesk', 788, function (state, rng, inbox, roster) {
+    const W = KP.C.MEMBER_DESK.WALKOUT;
+    // personal breaks rest for real (the medical bench's gentler cousin)
+    roster.forEach(p => {
+      if (!p.flags.personalHiatus) return;
+      const MD = KP.C.MEMBER_DESK;
+      p.fatigue = KP.clamp(p.fatigue - MD.breakRecovery, 0, 100);
+      p.morale = KP.clamp(p.morale + MD.breakMorale, 0, 100);
+    });
+    // the walkout: at most one such meeting on the desk at a time
+    if ((state.scenes || []).some(sc => sc.kind === 'walkOut')) return;
+    const candidate = roster.find(p =>
+      p.status === 'idol' && !p.flags.personalHiatus &&
+      p.morale < W.moraleBelow && grudgeScore(p) >= W.grudgeAt &&
+      state.week - (p.flags.walkoutAsked || -999) >= W.cooldownWeeks &&
+      !(state.scenes || []).some(sc => sc.personId === p.id));
+    if (candidate && rng.chance(W.chance)) {
+      candidate.flags.walkoutAsked = state.week;
+      KP.openScene(state, { kind: 'walkOut', personId: candidate.id,
+        expiresWeek: state.week + 3 });
+      inbox.push({ kind: 'development', urgent: true, personId: candidate.id,
+        text: KP.fillPro(KP.displayName(candidate) + ' requested a meeting through {pos} manager — formally, in writing, with a lawyer’s font. Everyone in the building knows what a meeting requested like THAT is about. {She} wants out.', candidate) });
+    }
+  });
+
+  KP.registerScene('walkOut', {
+    title: (state, sc) => {
+      const p = state.people[sc.personId];
+      return (p ? KP.displayName(p) : 'The') + ' · the meeting she called';
+    },
+    body: (state, sc) => {
+      const p = state.people[sc.personId];
+      if (!p) return '';
+      return KP.fillPro(KP.displayName(p) + ' sat down, thanked you for the years, and asked to be released from {pos} contract. No tears, no threats — {she} has clearly rehearsed this more than any stage. The ledger between you is the reason, and you both know every line of it.', p);
+    },
+    options: (state, sc) => {
+      const p = state.people[sc.personId] || null;
+      const cost = p ? KP.C.MEMBER_DESK.WALKOUT.negotiateBase +
+        KP.renewalRead(state, p).fame * KP.C.MEMBER_DESK.WALKOUT.negotiatePerFame : 0;
+      return [
+        { id: 'negotiate', label: 'Hear her out and fix it · ' + cost },
+        { id: 'hold', label: 'Hold her to the paper' },
+        { id: 'release', label: KP.fillPro('Let {her} go', p) },
+      ];
+    },
+    resolve: (state, sc, optionId) => {
+      const W = KP.C.MEMBER_DESK.WALKOUT;
+      const p = state.people[sc.personId];
+      if (!p) return {};
+      if (optionId === 'negotiate') {
+        const cost = W.negotiateBase + KP.renewalRead(state, p).fame * W.negotiatePerFame;
+        if (state.budget < cost) return { ok: false, toast: 'Fixing it costs ' + cost + '. The budget says hold or fold.' };
+        state.budget -= cost;
+        p.morale = KP.clamp(p.morale + W.negotiateMorale, 0, 100);
+        KP.recordDirected(state, p.id, 'heardOut', 2);
+        p.flags.walkoutSettled = state.week;
+        p.history.push({ week: state.week, text: 'Asked to leave; stayed. The company heard the whole list and changed what it could. Neither side pretended it fixed everything. Both sides showed up Monday.' });
+        return { toast: KP.fillPro('{She} read the revised terms twice, and the second time {pos} shoulders came down an inch. “Okay,” {she} said. Not happy — heard. There is a difference, and it cost exactly ' + cost + '.', p) };
+      }
+      if (optionId === 'hold') {
+        p.morale = KP.clamp(p.morale + W.holdMorale, 0, 100);
+        p.personality.confidence = KP.clamp((p.personality.confidence || 50) - 4, 0, 100);
+        KP.recordDirected(state, p.id, 'heldToPaper', -2);
+        p.history.push({ week: state.week, text: 'Asked to leave. The company pointed at the contract. The contract won. Something else lost.' });
+        return { toast: KP.fillPro('You slid the contract across the table, and {she} looked at it the way people look at weather. “Understood,” {she} said, and went back to work. The renewal table will remember this meeting better than either of you.', p) };
+      }
+      // release: at her request — warm for her, real for the roster
+      p.history.push({ week: state.week, text: 'Asked to be released, and was. The goodbye was quiet, mutual, and cheaper than the fight.' });
+      KP.departIdol(state, p.id, 'warm', null);
+      return { toast: KP.fillPro('You signed it. {She} thanked you twice — once as an artist, once as a person — and left the building lighter than {she} entered it. The fandom will grieve. The renewal tables of everyone watching just got easier.', p) };
+    },
+    expire: (state, sc) => {
+      const W = KP.C.MEMBER_DESK.WALKOUT;
+      const p = state.people[sc.personId];
+      if (!p) return null;
+      p.morale = KP.clamp(p.morale + W.expireMorale, 0, 100);
+      KP.recordDirected(state, p.id, 'leftWaiting', -2);
+      return { kind: 'development', urgent: true, personId: p.id,
+        text: KP.fillPro('The meeting ' + KP.displayName(p) + ' requested never got scheduled. {She} noticed. The lawyer’s font will be back, and next time it will not be addressed to you first.', p) };
+    },
+  });
+
+  // the timeline reacts to the desk's verbs
+  KP.onFeedEvent('lineupChange', (state, n, rng) => {
+    const p = state.people[n.personId];
+    const g = KP.groupById(state, n.groupId);
+    if (!p || !g) return null;
+    return rng.pick([
+      { persona: 'fan', text: '“individual activities” is doing SO much work in the ' + g.name + ' statement. we can all read. we are choosing not to, for our health' },
+      { persona: 'anti', text: 'a lineup change with a statement that explains nothing. the group chat has theories and honestly some of them are load-bearing' },
+    ]);
+  });
+  KP.onFeedEvent('terminated', (state, n, rng) => {
+    const p = state.people[n.personId];
+    if (!p) return null;
+    return rng.pick([
+      { persona: 'press', text: 'Contract termination, effective immediately, buyout undisclosed. Industry sources describe the move as “decisive,” which is what industry sources say when they mean “cold.”' },
+      { persona: 'fan', text: KP.fillPro('terminated. TERMINATED. like a phone plan. {she} gave that company years and the statement has a word count in the thirties', p) },
+    ]);
+  });
+  KP.onFeedEvent('memberBreak', (state, n, rng) => {
+    const p = state.people[n.personId];
+    if (!p) return null;
+    return rng.pick([
+      { persona: 'fan', text: KP.fillPro('rest well ' + KP.publicGiven(p) + '. the seat is kept, the fancams are archived, the group chat lights a candle every friday. take every week you need', p) },
+      { persona: 'casual', text: 'a company actually letting somebody rest BEFORE the hospital thread? growth. genuine growth. cautiously impressed' },
+    ]);
+  });
+  KP.onFeedEvent('memberReturn', (state, n, rng) => {
+    const p = state.people[n.personId];
+    if (!p) return null;
+    return { persona: 'stan', text: KP.fillPro(KP.publicGiven(p) + ' IS BACK. one coffee cup photo and the timeline is HEALED. attendance at the next stage is mandatory, tell your bosses', p) };
   });
 })(typeof window !== 'undefined' ? window : globalThis);

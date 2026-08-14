@@ -195,6 +195,11 @@
   }
 
   // ---- Derived qualities — never purchased, always computed ------------
+  // off the schedule for ANY reason (v0.9.20): the medical bench or a
+  // declared personal break — every desk that books people checks here
+  KP.onBreak = function (p) {
+    return (p.flags && (p.flags.burnout > 0 || !!p.flags.personalHiatus)) || false;
+  };
   KP.derived = function (p) {
     const t = p.talents, per = p.personality;
     const live = Math.min(40, p.liveExp);          // live experience saturates

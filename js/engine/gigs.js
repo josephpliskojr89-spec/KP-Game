@@ -43,6 +43,7 @@
     const out = [];
     state.roster.map(id => state.people[id]).forEach(p => {
       if (!p || p.status !== 'idol') return;
+      if (KP.onBreak(p)) return;   // resting people don't take panel seats (v0.9.20)
       if ((p.social || 0) < G.minSocial) return;
       if (KP.gigOf(state, p.id)) return;
       if (offers(state).some(o => o.personId === p.id)) return;

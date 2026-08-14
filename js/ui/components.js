@@ -44,7 +44,7 @@
   // replaced was a second derivation of the same numbers
   UI.condChips = function (p) {
     const mood = KP.moodOf(p);
-    const cls = { benched: 'hot', 'running on fumes': 'hot', 'quietly off': 'hot',
+    const cls = { benched: 'hot', 'on a break': 'cool', 'running on fumes': 'hot', 'quietly off': 'hot',
       'carrying it': '', worn: '', glowing: 'cool', steady: 'cool' }[mood] || '';
     return '<span class="chip' + (cls ? ' ' + cls : '') + '">' + mood + '</span>' +
       // the slump wears its name quietly (v0.9.18) — the staff know

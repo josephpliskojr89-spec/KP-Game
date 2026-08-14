@@ -94,7 +94,7 @@
       person.flags.burnout = (person.flags.burnout || 0) + 2;
       notes.push({ kind: 'health', urgent: true, text: KP.displayName(person) + ' picked up a minor injury in practice. Two weeks of careful scheduling ahead.' });
     }
-    if (person.flags.burnout > 0) {
+    if (KP.onBreak(person)) {
       person.flags.burnout--;
       person.training.intensity = 'light';
     }

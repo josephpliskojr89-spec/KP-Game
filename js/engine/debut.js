@@ -294,7 +294,7 @@
     const members = g.members.map(id => state.people[id]);
     const a = g.prep.alloc;
     members.forEach(m => {
-      if (m.flags.burnout > 0) {
+      if (KP.onBreak(m)) {
         m.flags.burnout--;
         m.fatigue = KP.clamp(m.fatigue - OW.benchRecovery, 0, 100);
         return;
@@ -356,13 +356,13 @@
     if (!plan.length) {
       // an empty week is a breather by design
       members.forEach(m => {
-        if (!(m.flags.burnout > 0)) m.fatigue = KP.clamp(m.fatigue - R.emptyWeekRecovery, 0, 100);
+        if (!KP.onBreak(m)) m.fatigue = KP.clamp(m.fatigue - R.emptyWeekRecovery, 0, 100);
       });
     } else if (plan.length === 1) {
       // a deliberately light week half-breathes (v0.6.9) — pacing the
       // rollout is a real tool, not just an empty slot
       members.forEach(m => {
-        if (!(m.flags.burnout > 0)) m.fatigue = KP.clamp(m.fatigue - R.emptyWeekRecovery * 0.5, 0, 100);
+        if (!KP.onBreak(m)) m.fatigue = KP.clamp(m.fatigue - R.emptyWeekRecovery * 0.5, 0, 100);
       });
     }
     // a trusted leader absorbs promo grind for the room (v0.8.3):
@@ -374,7 +374,7 @@
       const A = R.ACTIVITIES[actId];
       if (!A) return;
       members.forEach(m => {
-        if (m.flags.burnout > 0) return;   // benched: she rests, whatever the calendar says
+        if (KP.onBreak(m)) return;   // benched or on a break: she rests, whatever the calendar says
         const softened = (m.fatigue >= CB.promoSoftCap && A.fatigue > 0) ? CB.promoSoftMult : 1;
         const eased = (leaderEases && m.id !== leader.id && A.fatigue > 0) ? KP.C.SCAR.leaderEase : 0;
         m.fatigue = KP.clamp(m.fatigue + A.fatigue * soloMult * softened - eased, 0, 100);
@@ -447,7 +447,7 @@
     const fatigueAvg = members.reduce((s, m) => s + m.fatigue, 0) / members.length;
     const prepBonus = Math.min(10, (g.prep.progress || 0) * 1.1);
     // members benched by medical staff (v0.4.2) cost the stage directly
-    const benched = members.filter(m => m.flags.burnout > 0);
+    const benched = members.filter(m => KP.onBreak(m));
     const performance = KP.clamp(
       skillVsDemand * 52 + liveRel * 0.28 + prepBonus - Math.max(0, fatigueAvg - 60) * 0.3
       - benched.length * KP.C.COMEBACK.OVERWORK.perfPenalty, 5, 100);

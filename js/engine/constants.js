@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.19',
+    VERSION: '0.9.20',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1065,6 +1065,31 @@
       buildupPop: 0.06,        // × group popularity
       anticipationCap: 4,      // reception lift ceiling at release
       anticipationPer: 22,     // buildup points per +1 reception
+    },
+    // the member desk (v0.9.20, §61 items 3/4) — three verbs on a
+    // contracted member, and the meeting SHE calls
+    MEMBER_DESK: {
+      removeMorale: 12,        // cut from the lineup, kept on the books
+      removeMateMorale: 4,     // the room watches the seat empty
+      breakRecovery: 2.5,      // weekly fatigue relief on a personal break
+      breakMorale: 0.8,        // the rest is real here too
+      TERMINATE: {
+        base: 40,              // the buyout's floor
+        perYear: 30,           // × contract years remaining
+        perFame: 40,           // × her leverage (the renewal table's fame read)
+        mateMorale: 6,         // everyone who shared a dorm learns something
+      },
+      WALKOUT: {
+        grudgeAt: 5,           // stacked directed grievances before she calls it
+        moraleBelow: 35,       // and the tank has to be empty
+        chance: 0.10,          // weekly, once both are true
+        cooldownWeeks: 52,     // one such meeting a year, at most
+        negotiateBase: 60,     // hearing her out costs real money…
+        negotiatePerFame: 30,  // …scaled to what walking would cost you
+        negotiateMorale: 10,
+        holdMorale: -8,        // the paper wins; the room remembers
+        expireMorale: -4,      // not answering is also an answer
+      },
     },
     // the conclusion of team activities (0.9.18.2, owner: "there's no
     // way for ME to disband a group") — the same door the rivals got

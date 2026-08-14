@@ -22,7 +22,9 @@
 
   function fresh(weeksSince) { return KP.clamp(100 - weeksSince * 18, 0, 100); }
   function livePerf(state, g) {
-    const ms = g.members.map(id => state.people[id]).filter(Boolean);
+    // the N-1 stage (v0.9.20): a member on a personal break is not on it
+    const ms = g.members.map(id => state.people[id]).filter(Boolean)
+      .filter(m => !m.flags.personalHiatus);
     if (!ms.length) return 0;
     // a shielded member is off the front of the stage — the shield's cost
     const shielded = g.slumpShield && state.week <= g.slumpShield.until ?

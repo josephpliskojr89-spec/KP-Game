@@ -51,7 +51,7 @@
         const led = state.sponsorLedger = state.sponsorLedger ||
           { kept: 0, missed: 0, clawbacks: 0, soloAsked: 0, soloAllowed: 0, soloDeclined: 0 };
         const g = KP.groupOf(state, p.id);
-        const away = (g && g.tour) || (p.flags.burnout > 0);
+        const away = (g && g.tour) || KP.onBreak(p);
         const busy = g && (g.prep || (g.debuted && state.week <= (g.promoUntil || 0)));
         if (away) {
           d.missStreak = (d.missStreak || 0) + 1;
@@ -68,7 +68,7 @@
             d.nextObligationWeek = state.week + D.missRescheduleWeeks;
             notes.push({ kind: 'company', priority: 'high', personId: p.id,
               text: KP.fillPro('The ' + d.brand + ' appearance did not happen — ' + KP.displayName(p) +
-                ' was ' + (p.flags.burnout > 0 ? 'on medical rest' : 'on the road') + ' and the brand’s event ran without {her}. They rebooked it, politely, for a date that was not a question. (' + d.missStreak + ' missed.)', p) });
+                ' was ' + (p.flags.burnout > 0 ? 'on medical rest' : p.flags.personalHiatus ? 'on a personal break' : 'on the road') + ' and the brand’s event ran without {her}. They rebooked it, politely, for a date that was not a question. (' + d.missStreak + ' missed.)', p) });
           }
         } else {
           d.obligationsKept = (d.obligationsKept || 0) + 1;

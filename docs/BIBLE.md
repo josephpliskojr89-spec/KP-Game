@@ -1896,11 +1896,9 @@ against the standing clause (arrive, claim, mark):
    clamor (solo-in-group / the hold / the spin-out) — and the
    slump, the downward arc with its own middle register. Group
    identity arcs (festival icons, variety group, OST factory).
-   *Interstitials by owner ruling, before slot 6: v0.9.19 the
-   mandate SHIPPED (§62 — exec-directed debuts, 3-year trainee
-   contracts, the announcement build-up); v0.9.20 the member desk
-   NEXT (remove/terminate/individual hiatus, the meeting she
-   calls).*
+   *Interstitials by owner ruling, before slot 6 — BOTH SHIPPED:
+   v0.9.19 the mandate (§62), v0.9.20 the member desk (§63). Slot 6
+   (the bad blood + the fansite masters) is next, on approval.*
 6. **The bad blood + the fansite masters** (§55.3 + named fans +
    §55.13 professional rivalries). Rivalries with teeth at three
    tiers, formed from SOURCES beyond the shared week — debut
@@ -3331,7 +3329,7 @@ injected-credit settle, the knock's three forks serialized
 open → spinout), the slump entry/damp A/B/shield/stage exit,
 forced-counter arcs + feed registry, 40-week determinism fork.
 
-## §61 The mandate (planning sitting; items 1/2/5 SHIPPED v0.9.19, §62 — items 3/4 next as v0.9.20)
+## §61 The mandate (planning sitting; items 1/2/5 SHIPPED v0.9.19 §62, items 3/4 SHIPPED v0.9.20 §63)
 
 Owner, verbatim: *"I'd like to pivot away from the player just being
 able to debut a group or solo whenever they want. typically the
@@ -3483,6 +3481,60 @@ the paper stamps (sign/inherit/migrate), the table's four endings
 bridge, the debut conversion, the countdown (announcement note,
 beats, banked capped edge, feed), 30-week determinism.
 
+## §63 The member desk (v0.9.20) — §61 items 3/4
+
+Three verbs on a contracted member, and the meeting SHE calls. All in
+contracts.js beside the machinery they share: `KP.lineupSurgery` is
+the extracted one-truth for taking a person out of a lineup (roles,
+rooms, maknae, unreleased credits, the left-behind, the empty-group
+retirement) — the departure, the termination, and the removal verb
+all run the same surgery.
+
+**Remove from the lineup, keep the paper** (`KP.removeFromLineup`).
+Blocked on the road, mid-prep, and mid-era; refused below three
+members (that is the disband, or the solo). She becomes a groupless
+idol on her own calendar — the 0.9.18.2 machinery carries her (gigs,
+deals, renewals). Morale −12, `cutFromLineup` −3 on the directed
+ledger (the renewal table and the walkout both read it), the room
+loses morale watching the seat empty, the statement says "individual
+activities" and the fandom reads it four times looking for the
+sentence that explains it.
+
+**Terminate entirely** (`KP.terminateContract`, `KP.terminationCost`).
+The buyout: 40 + 30×years-remaining + 40×her fame read. Idols only —
+trainees are released, not bought out. She departs cold through
+departIdol; everyone who shared a dorm takes `watchedTermination` −2
+and learns something about the building it will not unlearn.
+
+**The personal break** (`KP.declareMemberBreak`/`endMemberBreak`,
+`p.flags.personalHiatus`). The group promotes as N−1: `KP.onBreak`
+unifies the medical bench and the declared break at every desk that
+books people — prep rehearsal, idol weeks, training, brand events
+(missed while away), gig offers, and the live stage (livePerf simply
+does not count her). The memberDesk weekly owns the recovery
+(fatigue −2.5, morale +0.8 — one truth per number; idolWeek just
+skips her). Open-ended, mood word "on a break", return is hers to
+schedule, the fandom keeps the seat. Solos are pointed at the group
+hiatus instead.
+
+**The meeting she calls** (`walkOut` scene, weekly 788). When the
+grudge ledger (promiseBroken/disbandedUs/cutFromLineup ×2, heldBack/
+leftWaiting/watchedTermination ×1, heldToPaper ×2) reaches 5 AND
+morale is under 35: 10%/week, one per person per year, the lawyer's
+font on the desk. Hear her out (60 + 30×fame — morale +10, `heardOut`
++2, she stays), hold her to the paper (morale −8, confidence −4,
+`heldToPaper` −2 — the renewal table will remember this meeting
+better than either of you), or let her go (a warm departure, cheaper
+than the fight). The unanswered meeting is `leftWaiting` −2, and next
+time the font will not be addressed to you first.
+
+Soak: bot-dormant end to end (0/40 walkouts — the sit-down-happy bot
+never stacks five grievances on one person; §18), all verbs
+suite-held (suite 062, 46: the removal with role-integrity and the
+below-two refusal, the priced buyout with the budget gate and the
+dorm's lesson, the break's declare/rest/N−1/return cycle, the
+walkout's four forks serialized, determinism).
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3539,6 +3591,13 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   is suite-held. Human play picks for concept, taste, and members —
   watch whether the cooling ever fires there; if the owner never
   sees a producer cool, surface the push more loudly in the studio.
+- **The whole member desk runs bot-dormant (v0.9.20)** — the walkout
+  needs five stacked grievances on one person plus an empty tank, and
+  the bot's sit-downs prevent both (0/40); the three verbs are
+  player-only by nature. All suite-held. Watch human play: the
+  walkout SHOULD eventually reach an owner who holds solos back and
+  breaks promises — if it never does, lower grudgeAt before touching
+  the chance.
 - **The unasked greenlight and the trainee walkout run bot-dormant
   (v0.9.19)** — the bot always pitches before the floor gets loud
   (0/40), and it renews every believer under the age wall while her
@@ -5324,3 +5383,26 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > new, two ruled bot-dormant), longhaul 5x620 clean, e2e 94,
 > lockstep 0.9.19 (57 modules — mandate.js). Rode to main. Next:
 > v0.9.20 the member desk (§61 items 3/4).
+\n
+> **v0.9.20 — the member desk** (§61 items 3/4). Three verbs on a
+> contracted member, one shared surgery (KP.lineupSurgery, extracted
+> from departIdol so the departure, the termination, and the removal
+> run identical group-mechanics — roles, rooms, maknae, credits, the
+> left-behind). Remove from the lineup but keep the paper: she
+> becomes a groupless idol on her own calendar, morale and the
+> directed ledger priced, the statement saying "individual
+> activities" while the fandom looks for the missing sentence.
+> Terminate entirely: a buyout priced by remaining years and her
+> fame, cold, with everyone who shared a dorm learning something
+> about the building. The personal break: the group promotes as N−1
+> through one helper (KP.onBreak) wired into every desk that books
+> people — rehearsals, idol weeks, training, brand events, gig
+> offers, the live stage — open-ended, rested for real, the seat
+> kept. And the meeting she calls: when the grudge ledger and an
+> empty tank agree, the lawyer's font lands — hear her out for real
+> money, hold her to the paper and let the renewal table remember,
+> or sign the release and watch her leave lighter. The unanswered
+> meeting answers itself. Numbers: battery 62/62 (suite 062, 46),
+> soak clean (146 bands, walkout world-driven and bot-dormant),
+> longhaul 5x620 clean, e2e 94, lockstep 0.9.20. Rode to main. §61
+> complete; slot 6 (the bad blood) next, on approval.

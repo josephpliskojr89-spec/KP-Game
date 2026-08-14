@@ -425,6 +425,9 @@
       p.morale = KP.clamp(p.morale + 1, 0, 100);
       return null;
     }
+    // a personal break (v0.9.20): her calendar simply stops — the
+    // memberDesk weekly owns the recovery, one truth per number
+    if (p.flags.personalHiatus) return null;
     const promoting = g && g.debuted && state.week <= (g.promoUntil || 0);
     if (promoting) return null;   // the rollout desk runs promo weeks (v0.6.3)
     if (g && g.tour) return null; // the road runs tour weeks (v0.6.8)
@@ -472,7 +475,7 @@
   KP.setTraining = function (state, personId, focus, intensity) {
     const p = state.people[personId];
     if (!p) return { ok: false };
-    if (p.flags.burnout > 0 && intensity !== 'rest' && intensity !== 'light') {
+    if (KP.onBreak(p) && intensity !== 'rest' && intensity !== 'light') {
       return { ok: false, reason: KP.fillPro('Medical staff have capped {pos} load for now.', p) };
     }
     p.training.focus = (focus || []).slice(0, 2);
