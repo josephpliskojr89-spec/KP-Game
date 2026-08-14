@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.18.2',
+    VERSION: '0.9.19',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1039,6 +1039,33 @@
     // declared hiatus rests the roster faster and builds anticipation for
     // the return — but past the grace window the public starts forgetting,
     // and forgetting compounds. Restoration vs relevance, chosen weekly.
+    // the mandate (v0.9.19, §61 items 1/2/5) — the player is an
+    // executive producer: new acts start when the directive comes down
+    MANDATE: {
+      windowWeeks: 40,         // a greenlight is a window, not a deed
+      lapseTrust: -3,          // a greenlight left dark costs standing
+      pitchCooldown: 8,        // weeks between trips upstairs
+      pitchRoomMin: 4,         // free trainees before a group pitch is credible
+      pitchTrustMin: 45,       // below this the board hears nothing
+      roomPressureAt: 5,       // free trainees before the board notices the floor
+      roomPressureChance: 0.06, // weekly, once the floor is loud
+    },
+    TRAINEE_CONTRACT: {
+      years: 3,                // the real-world standard trainee term
+      noticeWeeks: 8,          // the expiry reaches the desk this early
+      // she declines the re-sign herself when the math stops working:
+      declineMoraleBelow: 38,  // low morale AND
+      declineTenureYears: 4,   // a long tenure with no project in sight
+    },
+    TEASER: {
+      beats: [3, 2, 1],        // T-minus weeks: concept film, tracklist, MV teaser
+      hypePerBeat: 1.5,        // members warm up as the date approaches
+      buildupBase: 4,          // per beat, plus the audience terms below
+      buildupFandom: 0.10,     // × fandom intensity
+      buildupPop: 0.06,        // × group popularity
+      anticipationCap: 4,      // reception lift ceiling at release
+      anticipationPer: 22,     // buildup points per +1 reception
+    },
     // the conclusion of team activities (0.9.18.2, owner: "there's no
     // way for ME to disband a group") — the same door the rivals got
     DISBAND: {

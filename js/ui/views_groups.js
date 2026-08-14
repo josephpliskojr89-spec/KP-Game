@@ -61,7 +61,14 @@
         '<div style="margin-top:12px"><button class="btn primary" data-action="open-builder">Continue the lineup</button></div></div>';
     }
     if (free >= KP.C.GROUP.minMembers) {
-      return '<div class="card" style="margin-top:14px">The trainee room still has people waiting for their shot — ' + free + ' without a lineup.' +
+      // the mandate (v0.9.19): the room being ready is half the equation —
+      // the greenlight is the other half, and the card says which is missing
+      const lit = KP.mandateFitting && KP.mandateFitting(state, { kind: 'group', gender: null, memberIds: [] });
+      if (!lit) {
+        return '<div class="card" style="margin-top:14px">The trainee room still has people waiting for their shot — ' + free + ' without a lineup. But no greenlight covers a new act: debuts come down from upstairs.' +
+          '<div style="margin-top:12px"><button class="btn small" data-action="nav-desk">Pitch the board from the Desk</button></div></div>';
+      }
+      return '<div class="card" style="margin-top:14px">The trainee room still has people waiting for their shot — ' + free + ' without a lineup. The greenlight is open.' +
         '<div style="margin-top:12px"><button class="btn primary" data-action="open-builder">Propose a new lineup</button></div></div>';
     }
     if (free > 0) {

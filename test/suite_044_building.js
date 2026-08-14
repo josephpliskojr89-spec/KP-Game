@@ -73,6 +73,7 @@ function debuted(seed) {
   }
   state.rngState = rng.state();
   state.nextPersonId = KP.peekNextId();   // generated people must claim their ids
+  KP.openMandate(state, { kind: 'group', gender: 'm', source: 'fixture greenlight' });
   const r = KP.proposeGroup(state, 'ATLAS', boys, KP.roleHints(state, boys.map(i => state.people[i])));
   t.ok(r.ok, 'a boy-group lineup proposes clean');
   const g = state.groups.find(x => x.name === 'ATLAS');

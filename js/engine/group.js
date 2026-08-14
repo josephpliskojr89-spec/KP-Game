@@ -35,6 +35,13 @@
     const P = KP.C.PROJECT;
     if (state.project) return { ok: false, reason: 'A project is already open. Finalize or shelve it first.' };
     if (KP.devGroup(state)) return { ok: false, reason: 'A group is already in development.' };
+    // the mandate (v0.9.19): a project is a lineup in the making — it
+    // needs the same greenlight the lineup will
+    const pGender = (lockedIds && lockedIds.length) ?
+      ((state.people[lockedIds[0]] || {}).gender || 'f') : null;
+    if (KP.mandateFitting && !KP.mandateFitting(state, { kind: 'group', gender: pGender, memberIds: lockedIds || [] })) {
+      return { ok: false, reason: 'No greenlight covers a new group. Pitch the board, or wait for the directive.' };
+    }
     lockedIds = (lockedIds || []).slice();
     if (!lockedIds.length) return { ok: false, reason: 'Lock in at least one member to make it a project.' };
     if (lockedIds.length >= KP.C.GROUP.minMembers) return { ok: false, reason: 'That is a full lineup — propose it instead.' };
@@ -68,6 +75,13 @@
   // group already debuted, and members belong to at most one group.
   KP.proposeGroup = function (state, name, memberIds, roles) {
     if (KP.devGroup(state)) return { ok: false, reason: 'A group is already in development. Debut them first.' };
+    // the mandate (v0.9.19): new acts start when the directive comes down.
+    // The executive producer assembles the lineup; the board opens the door.
+    const mGender = memberIds.length ? ((state.people[memberIds[0]] || {}).gender || 'f') : null;
+    const mKind = memberIds.length === 1 ? 'solo' : 'group';
+    if (KP.mandateFitting && !KP.mandateFitting(state, { kind: mKind, gender: mGender, memberIds })) {
+      return { ok: false, reason: 'No greenlight covers this act. Debuts come down from upstairs — pitch the board, or wait for the directive.' };
+    }
     const isSolo = memberIds.length === 1;   // v0.2.6: an act of one
     if (!isSolo && (memberIds.length < KP.C.GROUP.minMembers || memberIds.length > KP.C.GROUP.maxMembers)) {
       return { ok: false, reason: 'A lineup runs ' + KP.C.GROUP.minMembers + '–' + KP.C.GROUP.maxMembers + ' members — or exactly one, for a solo.' };

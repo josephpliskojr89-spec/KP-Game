@@ -33,6 +33,7 @@ function debuted(seed) {
   t.ok(!KP.setGroupRoles(state, g.id, Object.assign({}, g.roles)).ok, 'a no-op change is refused');
   // solo rejection
   const st2 = KP.newGame('rl-solo', null, { legacy: false });
+  KP.openMandate(st2, { kind: 'solo', source: 'fixture greenlight' });
   const solo = KP.proposeGroup(st2, 'SOLOR', [st2.roster[0]], {});
   t.ok(!KP.setGroupRoles(st2, solo.group.id, { leader: st2.roster[0], center: st2.roster[0] }).ok,
     'solos have one of everything already');

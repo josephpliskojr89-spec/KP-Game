@@ -156,6 +156,16 @@ const BANDS = {
   // every two years, capped structurally at namedMax per evaluation.
   // Ruthless is the owner's brief; the alarm guards extinction.
   rivalNamedCut:     { lo: 0.05, hi: 1.00, label: 'worlds where a NAMED signee was cut at an evaluation' },
+  // the mandate (v0.9.19): first soak; ceilings are the day-one alarms
+  mandateGranted:    { lo: 0.10, hi: 1.00, label: 'orgs whose pitch survived the boardroom' },
+  // floor 0.02→0 (v0.9.19 first soak): the bot ALWAYS pitches before the
+  // floor gets loud enough, so the unasked greenlight is bot-dormant by
+  // construction — the resignation-letter pattern. Suite-held, §18.
+  mandateBoard:      { lo: 0.00, hi: 1.00, label: 'orgs the board greenlit unasked (the loud floor)' },
+  mandateLapsed:     { lo: 0.00, hi: 0.60, label: 'orgs that let a greenlight lapse dark' },
+  traineeTabled:     { lo: 0.40, hi: 1.00, label: 'orgs where a trainee term reached the table' },
+  traineeWalked:     { lo: 0.00, hi: 0.90, label: 'orgs where the table ended a trainee story' },
+  anticipationBanked:{ lo: 0.50, hi: 1.00, label: 'orgs whose countdown banked an opening edge' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
@@ -292,6 +302,8 @@ const tally = {
   clipResurfaced: 0, catalogRevived: 0, viralSourced: 0,
   clamorBegan: 0, clamorSettled: 0, clamorHeld: 0, soloKnocked: 0,
   slumpSeen: 0, footingFound: 0, arcMinted: 0, rivalCulled: 0, rivalNamedCut: 0,
+  mandateGranted: 0, mandateBoard: 0, mandateLapsed: 0,
+  traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
   schoolLead: 0, schoolClass: 0, schoolTrip: 0, schoolPartner: 0, schoolHot: 0,
@@ -451,6 +463,14 @@ for (let s = 0; s < SEEDS; s++) {
         .sort((a, b) => b.v - a.v).slice(0, 2).map(x => x.p.id);
       if (top2.length === 2) KP.openProject(state, top2, ['vocals', 'dance']);
     }
+    // the mandate (v0.9.19): the boss asks upstairs before assembling —
+    // pitch from week 60, retry as the boardroom calendar reopens; the
+    // room-pressure greenlight covers orgs whose pitches keep dying
+    if (own.length === 1 && own[0].debuted && state.week >= 60 &&
+        KP.freeTrainees(state).length >= 4 &&
+        !KP.openMandates(state).some(m => m.kind !== 'solo')) {
+      KP.pitchMandate(state, { kind: 'group', gender: null });
+    }
     const wantSecond = own.length === 1 && own[0].debuted &&
       state.week >= 70 && KP.freeTrainees(state).length >= 4 && state.budget > 120;
     if ((!own.length && state.week >= 20 && KP.freeTrainees(state).length >= 5) || wantSecond) {
@@ -464,7 +484,12 @@ for (let s = 0; s < SEEDS; s++) {
         .sort((a, b) => b.v - a.v).slice(0, size);
       const fPool = byGender('f'), mPool = byGender('m');
       const sum = pool2 => pool2.reduce((s2, x) => s2 + x.v, 0);
-      const pool = (mPool.length >= 4 && (fPool.length < 4 || sum(mPool) > sum(fPool)) ? mPool : fPool)
+      // the founding directive demands a girl group (v0.9.19): the
+      // first act obeys the mandate on the desk, not the depth chart
+      const foundingOpen = state.objective &&
+        state.objective.type === 'debutGirlGroup' && state.objective.status === 'open';
+      const pool = ((!foundingOpen || own.length) &&
+        mPool.length >= 4 && (fPool.length < 4 || sum(mPool) > sum(fPool)) ? mPool : fPool)
         .map(x => x.p);
       if (pool.length >= 4) {
         const hints = KP.roleHints(state, pool);
@@ -584,6 +609,13 @@ for (let s = 0; s < SEEDS; s++) {
       if (sc.kind === 'quietEra') {
         const p = state.people[sc.personId];
         KP.resolveScene(state, sc.id, p && p.fatigue > 50 ? 'shield' : 'push');
+        return;
+      }
+      if (sc.kind === 'traineeRenewal') {
+        // renew the believers; let the term run out past the age wall
+        const p = state.people[sc.personId];
+        const keep = p && p.age < KP.C.PRACTICE.agingAge && p.morale >= 25;
+        KP.resolveScene(state, sc.id, keep ? 'renew' : 'farewell');
         return;
       }
       if (sc.kind === 'traineeQuit' || sc.kind === 'agingOutTalk') {
@@ -989,6 +1021,16 @@ for (let s = 0; s < SEEDS; s++) {
   if ((gl.slumps || 0) >= 1) tally.slumpSeen++;
   if ((gl.footings || 0) >= 1) tally.footingFound++;
   if ((state.memory || []).some(n => ['festivalIcons', 'varietyGroup', 'ostFactory'].includes(n.key))) tally.arcMinted++;
+  // the mandate (v0.9.19): ledger, histories, and release stamps
+  const ml = state.mandateLedger || {};
+  if ((ml.granted || 0) >= 1) tally.mandateGranted++;
+  if ((ml.issued || 0) > (ml.granted || 0)) tally.mandateBoard++;
+  if ((ml.lapsed || 0) >= 1) tally.mandateLapsed++;
+  if (Object.values(state.people).some(p => (p.history || []).some(h =>
+      /Signed trainee term|trainee contract ran out|turned it down|let the trainee term run out/i.test(h.text)))) tally.traineeTabled++;
+  if (Object.values(state.people).some(p => (p.history || []).some(h =>
+      /trainee contract ran out|turned it down|The company let the trainee term run out/i.test(h.text)))) tally.traineeWalked++;
+  if (state.groups.some(g => (g.releases || []).some(r => (r.anticipation || 0) >= 1))) tally.anticipationBanked++;
   // the trainee floor (0.9.18.1): the rival ledger is durable
   const rl = state.rivalLedger || {};
   if ((rl.culls || 0) >= 1) tally.rivalCulled++;

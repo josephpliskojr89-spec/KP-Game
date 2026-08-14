@@ -82,7 +82,13 @@ function debuted(seed) {
     let guard = 0;
     while (sg.prep && guard++ < 10) KP.advanceWeek(s);
   });
-  t.eq(hot.groups[0].results.reception, cold.groups[0].results.reception, 'fixture: identical releases');
+  // v0.9.19: a warm fandom banks countdown anticipation BY DESIGN — the
+  // archived rel.anticipation lets this fixture stay about revenue alone
+  const hotRel = hot.groups[0].releases[hot.groups[0].releases.length - 1];
+  const coldRel = cold.groups[0].releases[cold.groups[0].releases.length - 1];
+  t.eq(hot.groups[0].results.reception - (hotRel.anticipation || 0),
+    cold.groups[0].results.reception - (coldRel.anticipation || 0),
+    'fixture: identical releases net of the countdown edge');
   t.ok(hot.groups[0].results.revenue > cold.groups[0].results.revenue,
     'a devoted fandom buys everything twice (' + hot.groups[0].results.revenue + ' vs ' + cold.groups[0].results.revenue + ')');
   // storm defense: intense fandoms cool their group's storms faster

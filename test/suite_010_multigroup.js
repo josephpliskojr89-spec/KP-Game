@@ -52,6 +52,7 @@ function debutFirstGroup(seed) {
   const sameName = KP.proposeGroup(state, 'FIRSTLINE', free.slice(0, 4),
     KP.roleHints(state, free.slice(0, 4).map(i => state.people[i])));
   t.ok(!sameName.ok, 'group names are unique');
+  KP.openMandate(state, { kind: 'group', source: 'fixture greenlight' });
   const second = KP.proposeGroup(state, 'SECONDA', free.slice(0, 4),
     KP.roleHints(state, free.slice(0, 4).map(i => state.people[i])));
   t.ok(second.ok, 'a second lineup forms once the first has debuted');
@@ -85,6 +86,7 @@ function debutFirstGroup(seed) {
   t.eq(state.objective.groupId, state.groups[0].id, 'directive targets the debuted group');
   // form + debut a second group; the comeback objective must survive
   const free = KP.freeTrainees(state);
+  KP.openMandate(state, { kind: 'group', source: 'fixture greenlight' });
   const second = KP.proposeGroup(state, 'LADDERB', free.slice(0, 4),
     KP.roleHints(state, free.slice(0, 4).map(i => state.people[i])));
   const g2 = second.group;
@@ -103,6 +105,7 @@ function debutFirstGroup(seed) {
 {
   const a = debutFirstGroup('mg-fork');
   const free = KP.freeTrainees(a);
+  KP.openMandate(a, { kind: 'group', source: 'fixture greenlight' });
   const second = KP.proposeGroup(a, 'FORKB', free.slice(0, 4),
     KP.roleHints(a, free.slice(0, 4).map(i => a.people[i])));
   const g2 = second.group;

@@ -237,6 +237,7 @@
         break;
       }
       case 'nav-studio': go('studio'); break;
+      case 'nav-desk': go('desk'); break;
       case 'open-system': systemSheet(); break;
       case 'talent-sub': App.talentSub = t.dataset.sub; App.render(); break;
       case 'desk-sub': App.deskSub = t.dataset.sub; App.render(); break;
@@ -350,6 +351,26 @@
           KP.C.HIATUS.graceWeeks + ' weeks the public starts forgetting, and forgetting compounds.</div>',
           '<button class="btn primary" data-action="hiatus-confirm" data-id="' + g.id + '" style="flex:1">Announce it</button>' +
           '<button class="btn" data-action="close-modal" style="flex:1">Not yet</button>');
+        break;
+      }
+      case 'pitch-mandate': {
+        UI.modal('The pitch upstairs',
+          '<div class="note">You get the room for ten minutes. ' + UI.esc(s.executive.name) +
+          ' will say yes for reasons and no for reasons — the trust ledger, the trainee floor, the books. Either answer closes the boardroom calendar for ' +
+          KP.C.MANDATE.pitchCooldown + ' weeks.</div>',
+          '<button class="btn primary" data-action="pitch-confirm" data-kind="group" data-gender="f" style="flex:1">A girl group</button>' +
+          '<button class="btn primary" data-action="pitch-confirm" data-kind="group" data-gender="m" style="flex:1">A boy group</button>' +
+          '<button class="btn primary" data-action="pitch-confirm" data-kind="solo" style="flex:1">A solo act</button>' +
+          '<button class="btn" data-action="close-modal" style="flex:1">Not this week</button>');
+        break;
+      }
+      case 'pitch-confirm': {
+        const r = KP.pitchMandate(s, { kind: t.dataset.kind, gender: t.dataset.gender || null });
+        UI.closeModal();
+        if (!r.ok) { UI.toast(r.reason, true); App.save(); App.render(); break; }
+        App.save();
+        UI.toast('Greenlit. The window is open — the rest is yours.');
+        App.render();
         break;
       }
       case 'disband-group': {

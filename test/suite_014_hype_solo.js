@@ -125,6 +125,7 @@ const t = makeT('suite_014_hype_solo');
 {
   const state = KP.newGame('hs-solo', null, { legacy: false });
   const star = state.people[state.roster[1]];
+  KP.openMandate(state, { kind: 'solo', source: 'fixture greenlight' });
   const r = KP.proposeGroup(state, 'SOLOSTAR', [star.id], {});
   t.ok(r.ok, 'a one-member act proposes as a solo');
   t.eq(r.group.type, 'solo', 'typed as a solo');
@@ -151,6 +152,7 @@ const t = makeT('suite_014_hype_solo');
 {
   const state = KP.newGame('hs-solofatigue', null, { legacy: false });
   const star = state.people[state.roster[1]];
+  KP.openMandate(state, { kind: 'solo', source: 'fixture greenlight' });
   KP.proposeGroup(state, 'HOTSOLO', [star.id], {});
   const g = state.groups[0];
   g.demos = KP.generateDemos(state, KP.rngFor(state));

@@ -1896,12 +1896,11 @@ against the standing clause (arrive, claim, mark):
    clamor (solo-in-group / the hold / the spin-out) — and the
    slump, the downward arc with its own middle register. Group
    identity arcs (festival icons, variety group, OST factory).
-   *Next up by owner ruling ("yeah if you think these work best
-   before step 6, that's when we'll do it"): the mandate (§61) —
-   exec-directed debuts, 3-year trainee contracts, the member desk
-   (remove/terminate/individual hiatus), the meeting she calls.
-   HELD until the owner's explicit go — playtest in progress, more
-   reports may land first.*
+   *Interstitials by owner ruling, before slot 6: v0.9.19 the
+   mandate SHIPPED (§62 — exec-directed debuts, 3-year trainee
+   contracts, the announcement build-up); v0.9.20 the member desk
+   NEXT (remove/terminate/individual hiatus, the meeting she
+   calls).*
 6. **The bad blood + the fansite masters** (§55.3 + named fans +
    §55.13 professional rivalries). Rivalries with teeth at three
    tiers, formed from SOURCES beyond the shared week — debut
@@ -3332,7 +3331,7 @@ injected-credit settle, the knock's three forks serialized
 open → spinout), the slump entry/damp A/B/shield/stage exit,
 forced-counter arcs + feed registry, 40-week determinism fork.
 
-## §61 The mandate (planning sitting, 0.9.18.2-era — docs only, no build)
+## §61 The mandate (planning sitting; items 1/2/5 SHIPPED v0.9.19, §62 — items 3/4 next as v0.9.20)
 
 Owner, verbatim: *"I'd like to pivot away from the player just being
 able to debut a group or solo whenever they want. typically the
@@ -3346,8 +3345,13 @@ exits, answered from the record below. Four items, one theme: the
 player's chair gets a job description — executive producer, not
 owner-operator. Placement ruled by the owner at this sitting: BEFORE
 slot 6, as one release (or two if the build wants a seam: the
-mandate, then the member desk). Held until the owner's explicit go —
-the playtest continues and reports may arrive first.
+mandate, then the member desk). GO given next sitting, with a fifth
+item: *"I'd like to see hype build around debuts and comebacks after
+we've announced them. right now we announce it and the feed is
+basically quiet"* — the announcement rollout ladder (teaser beats,
+the feed anticipating, hype accruing toward the date) ships with the
+mandate. Build order: v0.9.19 the mandate (items 1, 2, 5), then
+v0.9.20 the member desk (items 3, 4).
 
 **1. Debuts come down from above.** The generalization of machinery
 we already have: the hard directive (§10c) is an exec-MANDATED debut
@@ -3409,6 +3413,76 @@ termination verb above, at her request — cheaper in money, costlier
 in the room's trust in you). One truth with the renewal read: the
 same standing math, read early.
 
+## §62 The mandate (v0.9.19) — the executive producer
+
+Owner: *"pivot away from the player just being able to debut a group
+or solo whenever they want... the directive would come down from
+above... the player is essentially an executive producer"* + 3-year
+trainee contracts + *"I'd like to see hype build around debuts and
+comebacks after we've announced them."*
+
+**The greenlight** (`mandate.js`, weekly 735; `state.mandates`,
+`state.mandateLedger`). New acts start when the directive comes down.
+`KP.openMandates` is one read-through truth over every desk that was
+already issuing them: the founding objective (the 18-month girl group
+IS the first greenlight), the hard directive (§10c — HER, any shape),
+the pet project (a solo, virtual through its claim), the second-lineup
+promise (a promise the paper won't let you keep is not a promise), and
+real board greenlights. `proposeGroup`/`openProject` gate on a fitting
+mandate (kind, gender, named person must be IN the lineup); the debut
+consumes it (met, archived); a window left dark 40 weeks lapses at
+trust −3 — greenlights are trust, and trust is a consumable (a lineup
+in development buys grace). Comebacks stay free: the mandate gates new
+acts, not the release loop. Graduation spin-outs bypass the boardroom
+— her table already granted it.
+
+**The pitch** (`KP.pitchMandate`). You take the room's case upstairs.
+Deterministic and legible — the exec says yes for reasons (trust ≥ 45,
+four free names for a group, books off warning) and no for reasons,
+never for dice; either answer closes the boardroom calendar 8 weeks.
+The Desk shows every open greenlight as a window card and carries the
+pitch button. The board can also greenlight unasked when the floor
+gets loud (5+ free, no dev group, weekly 6%) — bot-dormant since a
+sensible boss always asks first (§18).
+
+**The paper clock** (`p.traineeContract`, contracts weekly). Three
+years, the industry standard, stamped at signing (inherited kids carry
+a year already served; the migration backdates old saves and rolls
+served terms forward). Expiry reaches the desk 8 weeks early as the
+`traineeRenewal` table: offer another term (morale +4, term++, the
+belief notarized — but at morale < 38 with 4+ years served SHE
+declines, politely, finally) or let it run out. Unanswered tables
+answer themselves — she packs the locker without a meeting. A term
+lapping mid-lineup bridges to the debut without a table, and the debut
+trades the trainee paper for the seven-year contract.
+
+**The build-up** (teasers weekly 590). Locking a record is now a
+public event (`eraAnnounced`, feed reaction) and the wait is content:
+teaser beats at T-3 (concept film), T-2 (tracklist poster), T-1 (MV
+teaser) warm the members' hype (+1.5/beat) and bank
+`g.prep.buildup` (base 4 + fandom×0.10 + popularity×0.06 per beat);
+the timeline counts down out loud (teaser posts lead the week's feed);
+the release cashes the countdown as an opening edge — capped at +4
+reception (`rel.anticipation`, archived), an amplifier, never the
+record. Soak: debut reception median moved 60→65 — announced eras
+opening stronger is the designed shape, absorbed inside every band.
+
+Soak reality: pitches granted 36/40, lapses 24/40 (thin-roomed orgs
+ask early, age-out eats the bench, the window dies and they re-ask —
+priced at −3 each), trainee tables 24/40, countdown edges 40/40. Six
+new bands; mandateBoard and traineeWalked run bot-dormant (suite-held,
+§18).
+
+Suite 061 (54): the founding-directive coverage, the dark-room
+refusal, all three pitch denials + the grant + the cooldown, the
+debut consuming the mandate, the lapse (A/B forked to isolate the
+trust cost from a same-week show win), the unasked greenlight, all
+four virtual mandates with the personal-mandate lineup requirement,
+the paper stamps (sign/inherit/migrate), the table's four endings
+(renew, her decline, farewell, the unanswered answer), the mid-lineup
+bridge, the debut conversion, the countdown (announcement note,
+beats, banked capped edge, feed), 30-week determinism.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3465,6 +3539,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   is suite-held. Human play picks for concept, taste, and members —
   watch whether the cooling ever fires there; if the owner never
   sees a producer cool, surface the push more loudly in the studio.
+- **The unasked greenlight and the trainee walkout run bot-dormant
+  (v0.9.19)** — the bot always pitches before the floor gets loud
+  (0/40), and it renews every believer under the age wall while her
+  decline needs morale the bot never lets crater (0/40). Both rails
+  suite-held. Watch human play: if the owner never sees the board
+  move first, raise roomPressureChance; if no trainee ever walks,
+  the decline thresholds are too kind.
+- **Mandate lapses sit at 24/40 (v0.9.19 first soak)** — the blind
+  bot pitches with four free names, aging-out eats the bench, and
+  the window dies for −3 trust before a re-ask. Real friction,
+  correctly priced. If human play finds windows dying through no
+  fault (a poached room, a red quarter), consider pausing the lapse
+  clock while the books are on warning before lengthening windows.
 - **The slump runs dormant in soak (v0.9.18)** — entry needs
   morale < 42 AND confidence < 45 AND a fresh wound, and the
   sit-down-happy bot never lets both crater (0/80). The whole
@@ -5205,3 +5292,35 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > already exist and were answered from the record). Written as §61
 > with a pointer at the §39 map; placement relative to slots 6-14 is
 > the owner's call at next approval. Rode to main.
+\n
+> **v0.9.19 — the mandate** (§61 items 1/2/5; owner: "the player is
+> essentially an executive producer" + "I'd like to see hype build
+> around debuts and comebacks after we've announced them"). The
+> chair gets its job description. New acts start when the directive
+> comes down: one read-through truth (KP.openMandates) over every
+> desk already issuing them — the founding objective, the hard
+> directive, the pet project, the second-lineup promise — plus real
+> board greenlights and the pitch YOU take upstairs, which the exec
+> answers for reasons (trust, the room on paper, the books), never
+> for dice, closing the boardroom calendar either way. Formation and
+> projects gate on a fitting greenlight; the debut consumes it; a
+> window left dark lapses at trust cost. Comebacks stay free; the
+> spin-out bypasses the boardroom; the founding now reads as the
+> escape from exactly this. Trainees sign the industry-standard
+> three-year paper — stamped at signing, backdated by migration,
+> bridged through lineups, converted at debut — and the table at the
+> end of a term is real: renew and notarize the belief, watch her
+> decline it herself when the math stopped working, let it run out,
+> or let the unanswered table answer itself. And the wait between
+> the announcement and the stage is content now: locking a record is
+> a public event, teaser beats warm the members and bank buildup,
+> the timeline counts down out loud, and the release cashes the
+> countdown as a capped opening edge on the record (rel.anticipation
+> — debut receptions median 60→65, the designed shape). Fixture
+> repairs across ten suites (solo/second/boy-group formations get
+> fixture greenlights; the fandom-era A/B nets out the countdown
+> edge BY DESIGN; the founder's second climb pitches its own board).
+> Numbers: battery 61/61 (suite 061, 54), soak clean (145 bands, six
+> new, two ruled bot-dormant), longhaul 5x620 clean, e2e 94,
+> lockstep 0.9.19 (57 modules — mandate.js). Rode to main. Next:
+> v0.9.20 the member desk (§61 items 3/4).

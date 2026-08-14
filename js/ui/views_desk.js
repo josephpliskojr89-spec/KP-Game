@@ -47,6 +47,25 @@
         '</div></div>');
     }
 
+    // the greenlights (v0.9.19): every open mandate is a window on the
+    // Desk — and the pitch upstairs lives beside them
+    {
+      const open = (KP.openMandates ? KP.openMandates(state) : []);
+      open.filter(m => !m.virtual).forEach(m => {
+        const weeksLeft = m.window - state.week;
+        html.push('<div class="objective" style="margin-top:10px;border-color:color-mix(in srgb,var(--gold,#e2c76c) 45%,var(--line))">' +
+          '<div class="o-from">Greenlight · ' + UI.esc(m.source) + '</div>' +
+          '<div class="o-text">' + (m.kind === 'solo' ? 'A solo act' : m.gender === 'm' ? 'A boy group' : m.gender === 'f' ? 'A girl group' : 'A new group') +
+          ' is approved. Assemble it, name it, debut it — the window is yours to use or lose.</div>' +
+          '<div class="o-meta"><span class="chip ' + (weeksLeft <= 8 ? 'hot' : '') + '">' +
+          (weeksLeft > 0 ? weeksLeft + ' weeks left' : 'closing') + '</span></div></div>');
+      });
+      const cool = (state.mandateCooldownUntil || 0) >= state.week;
+      html.push('<div class="pad" style="margin-top:10px"><button class="btn small" data-action="pitch-mandate"' +
+        (cool ? ' disabled' : '') + '>Pitch a new act upstairs' +
+        (cool ? ' · ' + (state.mandateCooldownUntil - state.week + 1) + 'w' : '') + '</button></div>');
+    }
+
     // the stage door (v0.8.0): EVERY held scene renders through this one
     // rail — the meeting today, the office door and the renewal table
     // tomorrow. New conversations never add cards here again.

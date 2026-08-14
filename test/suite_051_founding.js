@@ -107,6 +107,9 @@ function maturedCareer(seed) {
     .filter(p => p && p.gender === 'f').slice(0, 4);
   pool.forEach(p => KP.signProspect(state, p.id));
   t.ok(state.roster.length >= 4, 'the second climb starts');
+  // the 18-month founding window died during the 80-week war — the
+  // founder asks the board they now own (v0.9.19)
+  KP.openMandate(state, { kind: 'group', source: 'the founder’s own desk' });
   KP.proposeGroup(state, 'PHOENIX', state.roster.slice(0, 4),
     KP.roleHints(state, state.roster.slice(0, 4).map(i => state.people[i])));
   const g2 = state.groups[0];

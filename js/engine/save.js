@@ -664,6 +664,34 @@
     }
   } });
 
+  MIGRATIONS.push({ v: '0.9.19', fn: function (state) {
+    // the paper clock (v0.9.19): every trainee in an old save gets the
+    // standard three-year term, backdated to their real signing week —
+    // long-tenured rooms will see renewals reach the desk soon, which
+    // is the point
+    let stamped = 0;
+    (state.roster || []).forEach(id => {
+      const p = (state.people || {})[id];
+      if (!p || p.status !== 'trainee' || p.traineeContract) return;
+      const start = p.signedWeek != null ? p.signedWeek : Math.max(1, state.week - KP.C.WEEKS_PER_YEAR);
+      // terms already served roll the clock forward, not out the door
+      const wpy = KP.C.WEEKS_PER_YEAR;
+      const termWeeks = KP.C.TRAINEE_CONTRACT.years * wpy;
+      const served = Math.max(0, state.week - start);
+      const term = Math.floor(served / termWeeks) + 1;
+      p.traineeContract = { start: start + (term - 1) * termWeeks, years: KP.C.TRAINEE_CONTRACT.years, term };
+      stamped++;
+    });
+    if (stamped) {
+      state.inbox = state.inbox || [];
+      state.inbox.unshift({
+        kind: 'company', week: state.week, read: false,
+        id: 'm' + (state.nextMsgId++),
+        text: 'Legal standardized the trainee paperwork to the industry-normal three-year term, backdated to each signing. ' + stamped + ' file' + (stamped === 1 ? '' : 's') + ' updated. The ones near the end of a term will reach your desk when the clock does.',
+      });
+    }
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

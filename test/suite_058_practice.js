@@ -226,6 +226,7 @@ function debuted(seed) {
   const last = KP.deserialize(KP.serialize(state));
   KP.resolveScene(last, last.scenes.find(x => x.kind === 'agingOutTalk').id, 'promise');
   const w2 = last.people[watcher.id];
+  KP.openMandate(last, { kind: 'solo', source: 'fixture greenlight' });
   KP.proposeGroup(last, 'FINALLY', [w2.id], {});
   const g2 = last.groups.find(x => x.name === 'FINALLY');
   KP.planDebut(last, { groupId: g2.id, songId: g2.demos[0].id, promo: 'modest',

@@ -118,6 +118,7 @@ function debuted(seed) {
   }
   const ids = KP.freeTrainees(state).slice(0, 4);
   ids.forEach(id => { state.people[id].talents.vocals.cur = 70; });   // pedigree met
+  KP.openMandate(state, { kind: 'group', source: 'fixture greenlight' });
   KP.proposeGroup(state, 'SECONDLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
   const g2 = state.groups[1];
   g2.demos = KP.generateDemos(state, KP.rngFor(state));

@@ -64,6 +64,8 @@
     if (state.fiscal) state.fiscal.monthSignings = (state.fiscal.monthSignings || 0) + 1;
     p.status = 'trainee';
     p.signedWeek = state.week;
+    // the paper clock (v0.9.19): three years, the industry standard
+    p.traineeContract = { start: state.week, years: KP.C.TRAINEE_CONTRACT.years, term: 1 };
     p.training = { focus: [], intensity: 'standard' };
     state.roster.push(p.id);
     state.prospects = state.prospects.filter(id => id !== p.id);

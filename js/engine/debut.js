@@ -183,6 +183,14 @@
     // the return (v0.9.12): locking a record ends a declared hiatus —
     // the announcement IS the event, the release settles the bet
     if (g.hiatus && KP.hiatusReturnLock) KP.hiatusReturnLock(state, g);
+    // the announcement (v0.9.19, owner: "right now we announce it and
+    // the feed is basically quiet") — the date going public is a public
+    // EVENT, and the weeks between now and the stage build toward it
+    g.prep.buildup = 0;
+    KP.note(state, { kind: 'public', ind: 'eraAnnounced', priority: 'high', groupId: g.id,
+      text: g.debuted
+        ? g.name + '’s comeback is official: ' + KP.weekLabel(plan.week).text + ', on every calendar the fandom keeps. The reply section is already fighting about the concept from one dark teaser image and a font.'
+        : state.company.short + ' put a date on the debut everyone suspected: ' + g.name + ', ' + KP.weekLabel(plan.week).text + '. The industry-watcher accounts have opinions. The trainees’ old academy classmates have screenshots.' });
     // locking onto an announced rival week is a CHOICE — the challenge
     // half of "challenge or dodge" (v0.6.4). The desk assumes intent.
     const foes = KP.announcedAt(state, plan.week)
@@ -496,10 +504,14 @@
     const MVC = KP.C.MV;
     const mvTier = g.prep.mv || 'standard';
     const mvMod = (MVC.TIERS[mvTier] || MVC.TIERS.standard).reception;
+    // the build-up cashes in (v0.9.19): weeks of countdown convert to an
+    // opening-week edge — capped small, an amplifier, never the record
+    const anticipation = Math.min(KP.C.TEASER.anticipationCap,
+      Math.round((g.prep.buildup || 0) / KP.C.TEASER.anticipationPer));
     let reception = KP.clamp(Math.round(
       demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
       groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
-      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod + hiaRead.mod + mvMod), 1, 100);
+      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod + hiaRead.mod + mvMod + anticipation), 1, 100);
     // the repackage rides the era's heat (v0.9.17)
     const repack = g.prep.repackage || null;
     if (repack && repack.reception >= KP.C.REPACKAGE.carryFrom) {
@@ -683,6 +695,8 @@
       g.debutWeek = state.week;
       KP.assignRooms(state, g);   // the dorm gets its room chart (v0.7.1)
       if (isSolo) push(KP.ambitionTouch(state, members[0], 'solo'));
+      // the mandate that opened this door closes met (v0.9.19)
+      if (KP.consumeMandate) KP.consumeMandate(state, g);
     }
     g.debuted = true;
     g.lastReleaseWeek = state.week;
@@ -729,6 +743,7 @@
       reception, receptionBand: band.key, chartPeak: peak, chartWeeks: weeksOn,
       nationalPeak: natPeak, nationalWeeks: weeksOn,
       isDebut, format: format.id, tracks: format.tracks,
+      anticipation,   // the countdown's cash-in, on the record (v0.9.19)
       // the release archives its OWN copy (0.9.13 audit L4: results and
       // releases shared one live array — identical today, a fork hazard
       // the first time anything edits a released tracklist)
@@ -835,4 +850,64 @@
     if (overshadowed) notes.push('Fans are openly asking why ' + bn + ' is not the center. That conversation is not going away on its own.');
     return notes;
   }
+
+  // ---- the build-up (v0.9.19): the weeks between the announcement and
+  // the stage are content now. Teaser beats land at T-3 (concept film),
+  // T-2 (tracklist poster), T-1 (MV teaser); each warms the members and
+  // banks anticipation the release cashes in — capped, never a substitute
+  // for the record being good.
+  KP.registerWeekly('teasers', 590, function (state, rng, inbox, roster, groups) {
+    const T = KP.C.TEASER;
+    groups.forEach(g => {
+      if (!g.prep || g.retiredWeek || !g.members.length) return;
+      const tMinus = g.prep.scheduledWeek - state.week;
+      if (!T.beats.includes(tMinus)) return;
+      const fandom = g.fandom ? (g.fandom.intensity || 0) : 0;
+      g.prep.buildup = (g.prep.buildup || 0) + T.buildupBase +
+        Math.round(fandom * T.buildupFandom + (g.popularity || 0) * T.buildupPop);
+      g.members.forEach(id => {
+        const p = state.people[id];
+        if (p) p.hype = Math.min(90, (p.hype || 0) + T.hypePerBeat);
+      });
+      g.prep.teaserBeat = { week: state.week, tMinus };
+      if (tMinus === 1) {
+        inbox.push({ kind: 'public', groupId: g.id,
+          text: (g.debuted
+            ? 'The “' + (g.name) + '” MV teaser dropped at midnight — nineteen seconds, one chorus fragment, and a frame the edits will not let die.'
+            : 'The final debut teaser is out: ' + g.name + ', one week. The last member film did what last member films do.') +
+            ' Seven days. The countdown accounts have switched to hours.' });
+      }
+    });
+  });
+
+  // the timeline counts down out loud — read by the weekly feed builder
+  KP.teaserPosts = function (state) {
+    const posts = [];
+    KP.groups(state).forEach(g => {
+      if (!g.prep || !g.prep.teaserBeat || g.prep.teaserBeat.week !== state.week) return;
+      const t = g.prep.teaserBeat.tMinus;
+      if (t === 3) {
+        posts.push(g.debuted
+          ? { persona: 'fan', text: 'the ' + g.name + ' concept film is 40 seconds long and I have theories that need a corkboard. the FONT is a clue. the font is always a clue' }
+          : { persona: 'casual', text: 'okay who is this ' + g.name + ' group my whole timeline is suddenly an unpaid marketing department for. the concept film goes hard though' });
+      } else if (t === 2) {
+        posts.push(g.debuted
+          ? { persona: 'stan', text: 'TRACKLIST POSTER. b-side titles analysis thread incoming. track 4 has a parenthetical which historically means we are not okay' }
+          : { persona: 'fan', text: g.name + ' member films dropping one by one and the trainee-era footage detectives are EATING. she was in that academy showcase clip. I knew it' });
+      } else if (t === 1) {
+        posts.push({ persona: 'stan', text: 'MV TEASER. nineteen seconds. one chorus fragment. I have watched it forty times and called in tired to work. see everyone at midnight' });
+      }
+    });
+    return posts;
+  };
+
+  // the announcement itself echoes through the registry
+  KP.onFeedEvent('eraAnnounced', (state, n, rng) => {
+    const g = KP.groupById(state, n.groupId);
+    if (!g) return null;
+    return rng.pick([
+      { persona: 'fan', text: g.name + ' DATE ANNOUNCED. clearing the week. clearing the month, honestly. the group chat has already assigned streaming shifts' },
+      { persona: 'casual', text: 'the ' + g.name + ' announcement post hit my feed from four different directions in an hour. okay, industry, I am paying attention' },
+    ]);
+  });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1249,6 +1249,8 @@
         candidates.push(discoursePost(state, d, rng));
       }
     });
+    // the countdown (v0.9.19): announced eras lead the week's timeline
+    if (KP.teaserPosts) candidates.push.apply(candidates, KP.teaserPosts(state));
     // 2. industry events this week
     candidates.push.apply(candidates, rivalEventPosts(state, weekNotes || [], rng));
     // the bubble (v0.7.1): her side of the screen, screenshotted

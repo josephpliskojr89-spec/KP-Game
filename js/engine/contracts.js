@@ -57,8 +57,46 @@
         const p = state.people[id];
         if (p && p.status === 'idol' && !p.contract) {
           p.contract = { start: g.debutWeek || state.week, years: C.years, term: 1 };
+          delete p.traineeContract;   // the debut converts the paper (v0.9.19)
         }
       });
+    });
+
+    // ---- the trainee clock (v0.9.19): three years, then a real table --
+    const TC = KP.C.TRAINEE_CONTRACT;
+    const tcWeeks = TC.years * KP.C.WEEKS_PER_YEAR;
+    const dueTrainee = roster.find(p => {
+      if (p.status !== 'trainee' || !p.traineeContract) return false;
+      if (state.week < p.traineeContract.start + tcWeeks - TC.noticeWeeks) return false;
+      return !(state.scenes || []).some(sc => sc.kind === 'traineeRenewal' && sc.personId === p.id);
+    });
+    if (dueTrainee) {
+      const inLineup = !!KP.groupOf(state, dueTrainee.id) ||
+        !!(state.project && state.project.locked.includes(dueTrainee.id));
+      if (inLineup) {
+        // nobody renegotiates during debut prep — the term bridges to
+        // the stage, quietly
+        dueTrainee.traineeContract.start += tcWeeks;
+        dueTrainee.traineeContract.term++;
+        inbox.push({ kind: 'company', personId: dueTrainee.id,
+          text: KP.fillPro(KP.displayName(dueTrainee) + '’s trainee term lapped while {she} is slated for a lineup — legal bridged the paper to the debut without a meeting. Some renewals sign themselves.', dueTrainee) });
+      } else {
+        KP.openScene(state, { kind: 'traineeRenewal', personId: dueTrainee.id,
+          expiresWeek: state.week + TC.noticeWeeks });
+        inbox.push({ kind: 'company', urgent: true, personId: dueTrainee.id,
+          text: KP.fillPro(KP.displayName(dueTrainee) + '’s three-year trainee contract is running out — term ' + dueTrainee.traineeContract.term + ' ends ' + KP.weekLabel(dueTrainee.traineeContract.start + tcWeeks).text + '. The table is on the Desk, and {she} has been doing {pos} own math about {pos} odds all week.', dueTrainee) });
+      }
+    }
+    // a term that expires with the scene unanswered ends the story itself
+    roster.slice().forEach(p => {
+      if (p.status !== 'trainee' || !p.traineeContract) return;
+      if (state.week <= p.traineeContract.start + tcWeeks) return;
+      if (KP.groupOf(state, p.id) || (state.project && state.project.locked.includes(p.id))) return;
+      if ((state.scenes || []).some(sc => sc.kind === 'traineeRenewal' && sc.personId === p.id)) return;
+      p.history.push({ week: state.week, text: 'The trainee contract ran out with no new paper on the table. Packed the practice room locker without a meeting.' });
+      KP.releaseTrainee(state, p.id);
+      inbox.push({ kind: 'company', urgent: true, personId: p.id,
+        text: KP.fillPro(KP.displayName(p) + '’s term expired while the desk was busy. {She} left the building politely, which somehow made it worse. Legal notes that contracts do not wait for meetings.', p) });
     });
 
     // the seventh year ends for whoever chose to go — departures do not
@@ -101,6 +139,63 @@
     strained: '{She} came alone, which says more than the folder does. The years are on the ledger and not enough of them went {pos} way: the waiting, the promises that slid, the plans that were always for someone else. {She} has not decided. That is the honest truth of this table.',
     gone: '{She} tells you straight, with the calm of someone who rehearsed it in the van: this is {pos} last contract. It is not anger — anger would be easier. It is arithmetic. Seven years, and the ledger reads the way it reads. What remains is how the ending gets written.',
   };
+  // ---- the trainee table (v0.9.19): three years, then this room ------
+  KP.registerScene('traineeRenewal', {
+    title: (state, sc) => {
+      const p = state.people[sc.personId];
+      return (p ? KP.displayName(p) : 'The') + ' · the trainee table';
+    },
+    body: (state, sc) => {
+      const p = state.people[sc.personId];
+      if (!p) return '';
+      const TC = KP.C.TRAINEE_CONTRACT;
+      const tenure = Math.round((state.week - (p.signedWeek || p.traineeContract.start)) / KP.C.WEEKS_PER_YEAR * 10) / 10;
+      const bleak = p.morale < TC.declineMoraleBelow && tenure >= TC.declineTenureYears;
+      return KP.fillPro('Term ' + (p.traineeContract.term || 1) + ' of ' + KP.displayName(p) + '’s trainee contract is ending — ' +
+        tenure + ' years in the building, no debut yet on paper. ' +
+        (bleak
+          ? '{She} came to the table with {pos} own spreadsheet, which is never a good sign. The offer is yours to make; whether {she} takes it may not be.'
+          : '{She} still believes — you can see it in how early {she} books the practice room. Three more years is a lot to ask of somebody. It is also what {she} is hoping you will ask.'), p);
+    },
+    options: () => [
+      { id: 'renew', label: 'Offer another term' },
+      { id: 'farewell', label: 'Let the term run out' },
+    ],
+    resolve: (state, sc, optionId) => {
+      const TC = KP.C.TRAINEE_CONTRACT;
+      const p = state.people[sc.personId];
+      if (!p || p.status !== 'trainee') return {};
+      const tcWeeks = TC.years * KP.C.WEEKS_PER_YEAR;
+      const tenure = (state.week - (p.signedWeek || p.traineeContract.start)) / KP.C.WEEKS_PER_YEAR;
+      if (optionId === 'renew') {
+        const declines = p.morale < TC.declineMoraleBelow && tenure >= TC.declineTenureYears;
+        if (declines) {
+          p.history.push({ week: state.week, text: 'Offered a new trainee term and turned it down — thanked the room, named the years, chose the exam season instead.' });
+          KP.releaseTrainee(state, p.id);
+          return { toast: KP.fillPro('{She} read the offer twice, thanked you by name, and declined. ' + Math.floor(tenure) + ' years is an answer even when the question is kind. The practice room went quiet for a day.', p) };
+        }
+        p.traineeContract = { start: state.week, years: TC.years, term: (p.traineeContract.term || 1) + 1 };
+        p.morale = KP.clamp(p.morale + 4, 0, 100);
+        p.history.push({ week: state.week, text: 'Signed trainee term ' + p.traineeContract.term + '. Somebody still believes — and put it in writing.' });
+        return { toast: KP.fillPro('{She} signed the new term the same afternoon and was back on the floor by six. Three more years, on the record. The belief is now mutual and notarized.', p),
+          note: { kind: 'company', personId: p.id,
+            text: KP.displayName(p) + ' re-signed for term ' + p.traineeContract.term + '. The practice room noticed who got new paper.' } };
+      }
+      p.history.push({ week: state.week, text: 'The company let the trainee term run out. The industry-standard goodbye: polite, dated, final.' });
+      KP.releaseTrainee(state, p.id);
+      return { toast: KP.fillPro('No new offer. {She} finished the week like a professional, cleared the locker on Sunday, and left a thank-you note that will bother you at odd hours for a while.', p) };
+    },
+    // an unanswered table is an answer — the paper does not wait
+    expire: (state, sc) => {
+      const p = state.people[sc.personId];
+      if (!p || p.status !== 'trainee') return null;
+      p.history.push({ week: state.week, text: 'The trainee contract ran out with no new paper on the table. Packed the practice room locker without a meeting.' });
+      KP.releaseTrainee(state, p.id);
+      return { kind: 'company', urgent: true,
+        text: KP.fillPro(KP.displayName(p) + '’s term expired while the desk was busy. {She} left the building politely, which somehow made it worse. Legal notes that contracts do not wait for meetings.', p) };
+    },
+  });
+
   KP.registerScene('renewal', {
     title: (state, sc) => {
       const p = state.people[sc.personId];

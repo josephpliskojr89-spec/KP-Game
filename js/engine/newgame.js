@@ -58,6 +58,9 @@
     const usedNames = new Set();
     for (let i = 0; i < KP.C.GEN.inheritedCount; i++) {
       const p = KP.generatePerson(rng, { status: 'trainee', inherited: true, source: 'Inherited trainee', usedNames });
+      // inherited kids carry inherited paper (v0.9.19): a year already
+      // served on the standard three-year term
+      p.traineeContract = { start: 1 - KP.C.WEEKS_PER_YEAR, years: KP.C.TRAINEE_CONTRACT.years, term: 1 };
       if (i === 0) {
         // exceptional vocalist, poor dance aptitude
         p.talents.vocals.cur = rng.int(72, 82);

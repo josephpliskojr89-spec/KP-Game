@@ -55,7 +55,14 @@ function elevate(state, g, p) {
   t.eq(state.gravityLedger.clamors, 1, 'ledgered');
   // ride to the split and the exec stages
   guard = 0;
-  while ((g.gravity.stage || 0) < 2 && guard++ < G.execStage + 6) KP.advanceWeek(state);
+  while ((g.gravity.stage || 0) < 2 && guard++ < G.execStage + 6) {
+    // keep the discourse cap clear for the split (stream shifts can
+    // seat an unrelated storm in the only chair)
+    (state.discourses || []).forEach(d => {
+      if (d.kind !== 'soloClamor' && d.status === 'live') { d.status = 'resolved'; d.resolved = 'faded'; }
+    });
+    KP.advanceWeek(state);
+  }
   t.ok((state.discourses || []).some(d => d.kind === 'soloClamor'), 'the fandom splits into camps');
   // the exec ask queues the NEXT Monday meeting
   let sawSoloQ = false;

@@ -108,6 +108,7 @@ function throughDebut(seed) {
   {
     const s2 = KP.newGame('open-soloname', null, { legacy: false });
     const solo = s2.people[s2.roster[0]];
+    KP.openMandate(s2, { kind: 'solo', source: 'fixture greenlight' });
     KP.proposeGroup(s2, KP.displayName(solo), [solo.id], {});
     const gs = s2.groups.find(x => x.members.length === 1);
     t.ok(gs, 'fixture: a solo act exists');
