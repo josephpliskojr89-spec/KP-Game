@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.20.1',
+    VERSION: '0.9.21',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -798,6 +798,15 @@
         // ot5-loyalist camps — a debate, not an attack; both camps love her
         soloClamor: { label: 'solo-clamor debate', negative: false, start: [35, 60],
           actions: ['statement', 'meme'] },
+        // the bad blood (v0.9.21): the fandom throws the gasoline
+        didntStand: { label: 'distance watch', negative: true, start: [25, 45],
+          actions: ['statement', 'meme'] },
+        fanWar: { label: 'fan war', negative: true, start: [35, 60],
+          actions: ['statement', 'meme'] },
+        civilWar: { label: 'in-house fan war', negative: true, start: [30, 50],
+          actions: ['statement', 'meme'] },
+        masterTurn: { label: 'fansite closing receipts', negative: true, start: [35, 55],
+          actions: ['statement', 'apology'] },
         // 0.9.8.2: pre-debut virality is covers and leaked clips, not
         // fancams — she has no stages to film
         coverClip: { label: 'cover-clip wave', negative: false, start: [30, 55],
@@ -1065,6 +1074,43 @@
       buildupPop: 0.06,        // × group popularity
       anticipationCap: 4,      // reception lift ceiling at release
       anticipationPer: 22,     // buildup points per +1 reception
+    },
+    // the bad blood (v0.9.21, §55.3 + §55.13, map slot 6) — conflict
+    // must COST, and the fandom must amplify. Three tiers: in-group,
+    // in-company, in-scene — plus the fansite masters, the gasoline
+    // with faces.
+    BADBLOOD: {
+      coldWeeksToRivalry: 8,   // consecutive conflict weeks before it hardens
+      rivalryChemDrag: 45,     // extra pair-score drag once it is NAMED
+      rivalryChance: 0.25,     // weekly, once the cold streak qualifies
+      buryWeeks: 6,            // non-conflict weeks before the hatchet buries
+      creditDisputeMorale: 3,  // a unit track shared by rivals costs both
+      didntStandChance: 0.15,  // promo weeks with a live rivalry draw the eye
+      // tier 2: two own groups on one calendar cannibalize
+      cannibalReception: 4,    // the split-attention cost at release
+      civilWarChance: 0.30,    // and the fandoms notice each other
+      // tier 3: professional rivalries (§55.13) — formation sources
+      maxSceneRivalries: 2,    // per player group, at most
+      formChance: 0.06,        // weekly, per eligible source
+      classPopMin: 45,         // both names have to matter first
+      positionGap: 8,          // chasing the same seat = this close
+      awardBeatenTwice: 2,     // the name that keeps taking it
+      feudUpgradeAt: 3,        // calendar wins+losses before it is personal
+      fanWarChance: 0.35,      // shared release weeks ignite the war
+      heatPerClash: 8,         // and the rivalry remembers each one
+      heatDecay: 0.5,          // weekly cooling between meetings
+      namedAt: 30,             // heat at which the trades name it
+      stakesReception: 2,      // a named-rivalry head-to-head fights harder
+    },
+    FANSITE: {
+      masterTenure: 30,        // weeks a biased regular runs the account first
+      masterSocialMin: 25000,  // the bias has to be worth the lens
+      maxPerPerson: 1,         // one master per face
+      fundBuildup: 6,          // the master funds the countdown (per era)
+      fundFandom: 2,           // organized money organizes the room
+      turnChance: 0.5,         // a betrayal trigger flips the account…
+      turnFandom: 6,           // …and the closing notice costs the room
+      turnTriggers: ['heldToPaper', 'cutFromLineup', 'promiseBroken', 'watchedTermination'],
     },
     // the member desk (v0.9.20, §61 items 3/4) — three verbs on a
     // contracted member, and the meeting SHE calls

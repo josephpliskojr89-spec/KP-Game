@@ -1091,6 +1091,7 @@
           catalogRevival: groupName() + ' has an OLD song charting again and honestly? the catalog era is the best era. dig, children, dig. the vault provides',
           lastChanceDebut: idolName() + ' debuting after YEARS of training is the arc I am most emotionally invested in this quarter. the evaluation-board survivor. cinema',
           biggerThan: idolName() + ' outgrowing the frame of every group photo and the trades finally said it out loud. the discourse is INSUFFERABLE and I am participating hourly',
+          archRivals: 'the rivalry chart-week threads have SPREADSHEETS now. two fandoms doing forensic accounting at each other while the rest of us eat popcorn in the quote posts',
           festivalIcons: groupName() + ' and a festival field is simply a canon pairing now. golden hour, wind machine courtesy of actual wind, twenty thousand backup singers',
           varietyGroup: groupName() + ' booking more panels than stages this quarter and honestly? the range. the music funds the comedy empire and I respect the business model',
           ostFactory: 'a drama got announced and the comment section is already casting ' + groupName() + ' for the OST. that is what a reputation IS',

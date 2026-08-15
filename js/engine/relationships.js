@@ -180,6 +180,9 @@
       for (let j = i + 1; j < members.length; j++) {
         const rel = (state.relationships || {})[pairKey(members[i], members[j])];
         pairSum += rel ? rel.score : 0;
+        // the bad blood (v0.9.21): a rivalry that got a NAME drags the
+        // room beyond what the pair score already says
+        if (rel && rel.rivalry) pairSum -= KP.C.BADBLOOD.rivalryChemDrag;
         pairs++;
       }
     }

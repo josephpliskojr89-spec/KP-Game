@@ -178,6 +178,13 @@ const BANDS = {
   // the member desk (v0.9.20): the walkout is world-driven — grudges the
   // ledgers accumulate can summon it even for a decent boss
   walkoutCalled:     { lo: 0.00, hi: 0.60, label: 'orgs where she called the meeting (the walkout)' },
+  // the bad blood (v0.9.21): first soak; ceilings are the day-one alarms
+  sceneRivalry:      { lo: 0.05, hi: 1.00, label: 'orgs with a named professional rivalry (the coverage found its angle)' },
+  fanWarSeen:        { lo: 0.02, hi: 1.00, label: 'orgs whose rivalry ignited a fan war week' },
+  inGroupRivalry:    { lo: 0.00, hi: 0.60, label: 'orgs where a cold pair hardened into an in-house rivalry' },
+  cannibalSeen:      { lo: 0.00, hi: 0.80, label: 'orgs whose own groups habitually cannibalize (3+ overlaps)' },
+  masterMinted:      { lo: 0.05, hi: 1.00, label: 'orgs whose fandom minted a fansite master' },
+  masterTurned:      { lo: 0.00, hi: 0.70, label: 'orgs that watched a fansite post the closing notice' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
@@ -318,7 +325,8 @@ const tally = {
   clamorBegan: 0, clamorSettled: 0, clamorHeld: 0, soloKnocked: 0,
   slumpSeen: 0, footingFound: 0, arcMinted: 0, rivalCulled: 0, rivalNamedCut: 0,
   mandateGranted: 0, mandateBoard: 0, mandateLapsed: 0,
-  walkoutCalled: 0,
+  walkoutCalled: 0, sceneRivalry: 0, fanWarSeen: 0, inGroupRivalry: 0,
+  cannibalSeen: 0, masterMinted: 0, masterTurned: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -1071,6 +1079,17 @@ for (let s = 0; s < SEEDS; s++) {
       /trainee contract ran out|turned it down|The company let the trainee term run out/i.test(h.text)))) tally.traineeWalked++;
   if (state.groups.some(g => (g.releases || []).some(r => (r.anticipation || 0) >= 1))) tally.anticipationBanked++;
   if (Object.values(state.people).some(p => (p.flags || {}).walkoutAsked)) tally.walkoutCalled++;
+  // the bad blood (v0.9.21): the ledger and the rivalry list are durable
+  const bb = state.badBloodLedger || {};
+  if ((bb.scene || 0) >= 1 || (state.sceneRivalries || []).length) tally.sceneRivalry++;
+  if ((bb.fanWars || 0) >= 1) tally.fanWarSeen++;
+  if ((bb.inGroup || 0) >= 1) tally.inGroupRivalry++;
+  // >=3 (v0.9.21 first soak): with every org running 2+ groups, ONE
+  // overlap per 3-year career is structural — the census counts the
+  // orgs that make a HABIT of cannibalizing their own calendar
+  if ((bb.cannibal || 0) >= 3) tally.cannibalSeen++;
+  if ((bb.masters || 0) >= 1) tally.masterMinted++;
+  if ((bb.turns || 0) >= 1) tally.masterTurned++;
   // the trainee floor (0.9.18.1): the rival ledger is durable
   const rl = state.rivalLedger || {};
   if ((rl.culls || 0) >= 1) tally.rivalCulled++;

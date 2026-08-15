@@ -508,10 +508,19 @@
     // opening-week edge — capped small, an amplifier, never the record
     const anticipation = Math.min(KP.C.TEASER.anticipationCap,
       Math.round((g.prep.buildup || 0) / KP.C.TEASER.anticipationPer));
+    // the bad blood (v0.9.21): two own groups on one calendar split one
+    // audience — and a head-to-head against THE named rival fights harder
+    const BB = KP.C.BADBLOOD;
+    const ownCrowd = KP.groups(state).some(o => o !== g && o.debuted && !o.retiredWeek &&
+      state.week <= (o.promoUntil || 0) && state.week > (o.lastReleaseWeek || 0));
+    const namedClash = g.prep.clash && KP.sceneRivalryWith &&
+      KP.sceneRivalryWith(state, g.id, g.prep.clash.actId);
+    const badBloodMod = (ownCrowd ? -BB.cannibalReception : 0) +
+      (namedClash ? BB.stakesReception : 0);
     let reception = KP.clamp(Math.round(
       demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
       groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
-      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod + hiaRead.mod + mvMod + anticipation), 1, 100);
+      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod + hiaRead.mod + mvMod + anticipation + badBloodMod), 1, 100);
     // the repackage rides the era's heat (v0.9.17)
     const repack = g.prep.repackage || null;
     if (repack && repack.reception >= KP.C.REPACKAGE.carryFrom) {
@@ -736,6 +745,36 @@
         .concat(hiaRead.note ? [hiaRead.note] : []),
       mash, fusionOutcome,
     };
+    // the bad blood (v0.9.21): a unit track shared by named rivals is a
+    // dispute the booklet cannot hide — once per era, both pay
+    {
+      const rels2 = state.relationships || {};
+      const pk = (a2, b2) => a2.id < b2.id ? a2.id + '~' + b2.id : b2.id + '~' + a2.id;
+      const disputed = (tl.tracks || []).find(tr => tr.credit && tr.credit.type === 'unit' &&
+        (tr.credit.memberIds || []).some((idA, ia) => (tr.credit.memberIds || []).some((idB, ib) => {
+          if (ib <= ia) return false;
+          const ra = state.people[idA], rb = state.people[idB];
+          const rel = ra && rb && rels2[pk(ra, rb)];
+          return rel && rel.rivalry;
+        })));
+      if (disputed) {
+        const badIds = disputed.credit.memberIds.filter(id2 => {
+          const pp = state.people[id2];
+          return pp && disputed.credit.memberIds.some(id3 => {
+            if (id3 === id2) return false;
+            const rel = rels2[pk(pp, state.people[id3] || pp)];
+            return rel && rel.rivalry;
+          });
+        });
+        badIds.forEach(id2 => {
+          const pp = state.people[id2];
+          if (pp) pp.morale = KP.clamp(pp.morale - KP.C.BADBLOOD.creditDisputeMorale, 0, 100);
+        });
+        if (state.badBloodLedger) state.badBloodLedger.disputes++;
+        narrativeNotes.push({ kind: 'development',
+          text: 'The “' + disputed.title + '” unit recording needed three sessions and two engineers who now need a vacation: the credit pairs two people who are not speaking. Both takes were flawless. Neither was in the same room as the other.' });
+      }
+    }
     g.results.narrativeNotes = narrativeNotes;   // sim forwards these to the inbox
     g.releases = g.releases || [];
     g.releases.push({

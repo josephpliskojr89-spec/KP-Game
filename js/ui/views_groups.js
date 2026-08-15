@@ -126,6 +126,9 @@
       (g.debuted && g.results ? '<span class="chip gold">' + UI.esc(g.results.receptionLabel) + '</span>' : '') +
       (g.gravity && !g.gravity.settled && state.people[g.gravity.personId]
         ? '<span class="chip hot">the clamor: ' + UI.esc(KP.publicGiven(state.people[g.gravity.personId])) + '</span>' : '') +
+      // the bad blood (v0.9.21): the named rivalries ride the hero
+      (KP.sceneRivalries ? KP.sceneRivalries(state, g.id).map(r =>
+        '<span class="chip hot">vs ' + UI.esc(r.actName) + '</span>').join('') : '') +
       '</div></div>');
 
     html.push('<div class="member-strip">');

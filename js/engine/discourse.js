@@ -54,6 +54,10 @@
       case 'coverClip': return KP.fillPro('An old ' + who + ' cover clip is having a MOMENT — {she} has not even debuted, which is somehow making it bigger. The algorithm found {her} before the company could.', p);
       case 'gaffe': return who + ' posted something at 2am that reads very differently in daylight — a caption, a like, a reply. Screenshots outlive deletions, and the quote-posts are rolling in.';
       case 'soloClamor': return KP.fillPro('The fandom has formally split over ' + who + ': the solo-clamor camp has threads, edits, and a slogan; the loyalists have threads, edits, and a counter-slogan. Both camps love {her}. That is what makes it a war.', p);
+      case 'didntStand': return 'The distance-watch accounts clocked it in four seconds: ' + who + ' at one end of the lineup, the usual suspect at the other, and a group photo composed like a peace treaty. The zoom threads are measuring centimeters. The company will call it blocking. The timeline has already called it what it is.';
+      case 'fanWar': return 'The fan war is ON: same release week, both fandoms mass-buying, chart-watching in fifteen-minute increments, and quote-posting each other\u2019s celebration posts with numbers attached. The rivalry coverage will call it healthy competition. Nobody in either trench calls it that.';
+      case 'civilWar': return 'An in-house fan war, the saddest genre: two fandoms under ONE company letterhead fighting over promo slots, teaser budgets, and who the building loves more. Every receipt in the thread is a screenshot of the same company calendar. The company, notably, has said nothing.';
+      case 'masterTurn': return 'A fansite closing notice with receipts is a genre of its own, and this one is dated, organized, and aimed at the COMPANY, not the artist. The fandom is split between grief and citation. The quote-posts are doing forensic accounting on the dates, and the dates hold up.';
       default: return 'Something about ' + who + ' is trending.';
     }
   };

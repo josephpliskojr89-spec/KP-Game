@@ -1900,7 +1900,7 @@ against the standing clause (arrive, claim, mark):
    v0.9.19 the mandate (§62), v0.9.20 the member desk (§63). Slot 6
    (the bad blood + the fansite masters) is next, on approval.*
 6. **The bad blood + the fansite masters** (§55.3 + named fans +
-   §55.13 professional rivalries). Rivalries with teeth at three
+   §55.13; SHIPPED v0.9.21, §64). Rivalries with teeth at three
    tiers, formed from SOURCES beyond the shared week — debut
    class, concept, position, the award stolen twice — and the
    gasoline gets faces: the big accounts with funding power,
@@ -3534,6 +3534,63 @@ suite-held (suite 062, 46: the removal with role-integrity and the
 below-two refusal, the priced buyout with the budget gate and the
 dorm's lesson, the break's declare/rest/N−1/return cycle, the
 walkout's four forks serialized, determinism).
+
+## §64 The bad blood + the fansite masters (v0.9.21) — map slot 6
+
+§55.3's brief verbatim: *"conflict must COST and the fandom must
+amplify."* One module (badblood.js, weekly 592), one ledger
+(state.badBloodLedger), three tiers plus the gasoline with faces.
+
+**Tier 1 — in-group.** A pair holding open conflict 8 straight weeks
+can HARDEN into a named rivalry (rel.rivalry): chemistry takes a drag
+beyond the pair score (rivalryChemDrag 45, read inside
+groupChemistry — every stage and release feels it), a unit track
+pairing rivals becomes a credit dispute (once per era, both pay
+morale, the booklet note says two flawless takes were never in one
+room), and promo weeks risk the didntStand discourse — the distance
+the cameras notice. The hatchet buries only through sustained thaw
+(6 non-conflict weeks — mediation and time, the handles the game
+already sells).
+
+**Tier 2 — in-company.** Two own groups promoting the same week
+split one audience: −4 reception at any release landing into an own
+group's promo window, and the civilWar discourse — two fandoms under
+one letterhead, every receipt a screenshot of the same company
+calendar. Census counts the habit (3+ overlaps), not the accident.
+
+**Tier 3 — in-scene (§55.13).** Professional rivalries form from
+SOURCES (state.sceneRivalries, max 2 per group): the debut class
+(same cohort, both above 45 pop), the concept (the coverage cannot
+mention them separately), the position (within 8 pop of the same
+seat), the award (the name that took the daesang twice while you
+watched), and the calendar feud grown personal (3+ head-to-heads).
+Shared release weeks heat the rivalry (+8, decay 0.5/wk), ignite
+fanWar discourses, and at heat 30 the trades mint the archRivals
+narrative. A named-rivalry head-to-head fights harder (+2 reception
+— both trenches buy everything).
+
+**The fansite masters.** A biased regular (the v0.7.3 cast) with 30
+weeks of tenure and a subject worth the lens (25k social) graduates
+to MASTER — the airport previews, the lens that costs more than a
+car. Powers: funds the countdown (buildup +6 once per era, fandom
++2, the subway-station note), organizes the room. Turn risk: a
+betrayal on her bias's directed ledger inside two weeks
+(heldToPaper, cutFromLineup, promiseBroken, watchedTermination) can
+flip the account — the 2am closing notice, receipts aimed at the
+COMPANY per the content law ("She deserved better than this
+building"), fandom −6, the masterTurn discourse. The account
+closes; the person was never the target.
+
+Soak: scene rivalries 40/40 (the genre truth — every act that
+matters gets measured against a name), fan wars 38/40, in-group
+8/40 (the bot mediates; the owner's neglect will not), masters
+40/40, closing notices 24/40, habitual cannibalization 12/40.
+
+Suite 063 (30): the cold streak hardening + both files + the chem
+drag A/B + the burial, the two-groups-one-calendar price and the
+in-house war, class-source formation + the heat/clash/canon ladder,
+the master's graduation/funding/turn with the receipts, 30-week
+determinism.
 
 ## §18 Watch items
 
@@ -5430,3 +5487,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > point). Battery 62/62, soak clean, e2e 94, lockstep 0.9.20.1.
 > Rode to main. Slot 6 (the bad blood + the fansite masters) is
 > approved and next.
+\n
+> **v0.9.21 — the bad blood + the fansite masters** (map slot 6,
+> owner: "slot 6 approved"). Conflict costs and the fandom
+> amplifies, at three altitudes. In the room: a pair that stays in
+> open conflict long enough gets a NAME — chemistry dragged beyond
+> the pair score, unit credits becoming disputes, the distance the
+> cameras notice — and only sustained thaw buries it. In the
+> building: two own groups on one calendar split one audience,
+> priced at release and litigated by two fandoms under one
+> letterhead. In the scene: professional rivalries finally form
+> from SOURCES — the debut class, the concept, the position, the
+> award taken twice, the feud grown personal — heat up on every
+> shared week, ignite fan wars, and at temperature become canon in
+> the trades. And the gasoline has faces now: biased regulars
+> graduate to fansite masters who fund countdowns and organize
+> rooms — until a betrayal on their bias's ledger flips the
+> account into the 2am closing notice, receipts aimed at the
+> company, per the content law. Numbers: battery 63/63 (suite 063,
+> 30), soak clean (152 bands, six new; cannibal census re-pointed
+> at the habit on first soak), longhaul 5x620 clean, e2e 94,
+> lockstep 0.9.21 (58 modules — badblood.js). Rode to main. Slot 7
+> (festival season + award night) next, on approval.
