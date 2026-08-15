@@ -5,7 +5,12 @@
   const KP = root.KP = root.KP || {};
 
   KP.suggestGroupNames = function (state, rng) {
-    const used = new Set(KP.groups(state).map(g => g.name.toLowerCase()));
+    // rivals count too (0.9.20.1): the scene shares one namespace, and
+    // the family key keeps HALO-anything to one act per world
+    const used = new Set();
+    const add = n => { used.add(n.toLowerCase()); KP.nameStems(n).forEach(st => used.add(st)); };
+    KP.groups(state).forEach(g => add(g.name));
+    (state.rivals || []).forEach(r => (r.acts || []).forEach(a => add(a.name)));
     const names = [];
     while (names.length < 3) {
       const n = KP.genGroupName(rng, used);

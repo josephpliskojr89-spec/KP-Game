@@ -12,9 +12,11 @@
 
   // ---- shared name pools ------------------------------------------------
   function usedActNames(state) {
+    // the family key rides along (0.9.20.1): one HALO per world
     const used = new Set();
-    KP.groups(state).forEach(g => used.add(g.name.toLowerCase()));
-    (state.rivals || []).forEach(r => (r.acts || []).forEach(a => used.add(a.name.toLowerCase())));
+    const add = n => { used.add(n.toLowerCase()); KP.nameStems(n).forEach(st => used.add(st)); };
+    KP.groups(state).forEach(g => add(g.name));
+    (state.rivals || []).forEach(r => (r.acts || []).forEach(a => add(a.name)));
     return used;
   }
   function usedTitles(state) {

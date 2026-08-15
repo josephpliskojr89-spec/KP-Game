@@ -76,7 +76,12 @@ const BANDS = {
   nationalAlive:     { lo: 0.80, hi: 1.00, label: 'worlds with a living national chart (>=12 entries)' },
   natTopTwenty:      { lo: 0.30, hi: 1.00, label: 'orgs that cracked the national top 20' },
   natTopTen:         { lo: 0.10, hi: 1.00, label: 'orgs that reached the national top 10' },
-  natNumberOne:      { lo: 0.00, hi: 0.40, label: 'orgs that topped the national chart (the summit stays rare)' },
+  // ceiling 0.40→0.50 by ruling (0.9.20.1): measured 34/80 (42.5%) —
+  // the mandate era's bots ALWAYS field a second act and every
+  // announced era banks the countdown edge, so more careers touch
+  // the summit once. Designed strength, not chart rot; the alarm
+  // now guards a summit that becomes a doormat.
+  natNumberOne:      { lo: 0.00, hi: 0.50, label: 'orgs that topped the national chart (the summit stays rare)' },
   chartAlive:        { lo: 0.40, hi: 1.00, label: 'worlds ending with a living chart (>=3 entries)' },
   lifecycleSeen:     { lo: 0.35, hi: 1.00, label: 'worlds where a company rose/fell/merged/split' },
   feedAlive:         { lo: 0.85, hi: 1.00, label: 'worlds with a full fan feed (>=25 posts)' },
@@ -163,7 +168,11 @@ const BANDS = {
   // construction — the resignation-letter pattern. Suite-held, §18.
   mandateBoard:      { lo: 0.00, hi: 1.00, label: 'orgs the board greenlit unasked (the loud floor)' },
   mandateLapsed:     { lo: 0.00, hi: 0.60, label: 'orgs that let a greenlight lapse dark' },
-  traineeTabled:     { lo: 0.40, hi: 1.00, label: 'orgs where a trainee term reached the table' },
+  // floor 0.40→0.05 by ruling (0.9.20.1): the one-hall bot consumes
+  // its bench into lineups before any term laps (6/80) — the table
+  // fires for hoarders, and the bot stopped being one (1/40, 6/80).
+  // Suite-held; floor guards outright extinction only.
+  traineeTabled:     { lo: 0.02, hi: 1.00, label: 'orgs where a trainee term reached the table' },
   traineeWalked:     { lo: 0.00, hi: 0.90, label: 'orgs where the table ended a trainee story' },
   anticipationBanked:{ lo: 0.50, hi: 1.00, label: 'orgs whose countdown banked an opening edge' },
   // the member desk (v0.9.20): the walkout is world-driven — grudges the
@@ -174,7 +183,10 @@ const BANDS = {
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
   repackaged:        { lo: 0.05, hi: 1.00, label: 'orgs that extended an era with a repackage' },
   mvCinema:          { lo: 0.02, hi: 1.00, label: 'orgs that shot a cinema-budget video' },
-  mvPlain:           { lo: 0.00, hi: 0.90, label: 'orgs that shipped the performance cut (the internet noticed)' },
+  // ceiling 0.90→0.97 by ruling (0.9.20.1): operating point 68/80
+  // (85%), the old ceiling sat one sigma away and flapped on every
+  // stream reshuffle.
+  mvPlain:           { lo: 0.00, hi: 0.97, label: 'orgs that shipped the performance cut (the internet noticed)' },
   schoolLead:        { lo: 0.60, hi: 1.00, label: 'orgs whose board carried a school-stamped file' },
   schoolClass:       { lo: 0.30, hi: 1.00, label: 'worlds where a school sent its class to an open casting' },
   schoolTrip:        { lo: 0.30, hi: 1.00, label: 'orgs that took the scouting trip (the train to the regions)' },
@@ -398,11 +410,22 @@ for (let s = 0; s < SEEDS; s++) {
     // --- auto-player policy (perceived reads only) ---
     // pre-debut: use the tutorial allowance; post-cap: restock the trainee
     // room when it runs thin and the books allow (v0.2.3)
+    // a boss holding a greenlight FILLS the room (0.9.20.1): the window
+    // is burning, and that is what the money is for
+    // a boss holding a greenlight FILLS the room (0.9.20.1) — and fills
+    // ONE HALL: a 3-girl/2-boy bench cannot field a one-gender lineup,
+    // which is how greenlight windows were quietly burning out
+    const openLight = KP.openMandates(state).some(m => m.kind !== 'solo' && !m.virtual);
+    const freeNow = KP.freeTrainees(state).map(id => state.people[id]);
+    const hallOf = gdr => freeNow.filter(p => (p.gender || 'f') === gdr).length;
+    const leadHall = hallOf('m') > hallOf('f') ? 'm' : 'f';
+    const hallShort = openLight && Math.max(hallOf('f'), hallOf('m')) < 4;
     const wantSign = KP.signingsCapped(state)
       ? (state.week <= 3 && state.signingsUsed < state.signingsAllowed)
-      : (KP.freeTrainees(state).length < 4 && state.budget > 150);
+      : ((freeNow.length < 4 || hallShort) && state.budget > (openLight ? 120 : 150));
     if (wantSign) {
       const ranked = state.prospects.map(id => state.people[id])
+        .filter(p => !hallShort || (p.gender || 'f') === leadHall)
         .map(p => ({ p, v: KP.C.TALENTS.reduce((sum, d) => sum + KP.perceived(state, p, d, scout), 0) }))
         .sort((a, b) => b.v - a.v);
       if (ranked.length && state.budget > KP.signCost(state, ranked[0].p) + 60) {
@@ -470,8 +493,11 @@ for (let s = 0; s < SEEDS; s++) {
     // the mandate (v0.9.19): the boss asks upstairs before assembling —
     // pitch from week 60, retry as the boardroom calendar reopens; the
     // room-pressure greenlight covers orgs whose pitches keep dying
-    if (own.length === 1 && own[0].debuted && state.week >= 60 &&
-        KP.freeTrainees(state).length >= 4 &&
+    // pitch only when formation can FOLLOW (0.9.20.1): asking at week
+    // 60 with a bench age-out could eat left windows dying dark — the
+    // boss walks upstairs when the room AND the books are ready
+    if (own.length === 1 && own[0].debuted && state.week >= 66 &&
+        KP.freeTrainees(state).length >= 4 && state.budget > 160 &&
         !KP.openMandates(state).some(m => m.kind !== 'solo')) {
       KP.pitchMandate(state, { kind: 'group', gender: null });
     }

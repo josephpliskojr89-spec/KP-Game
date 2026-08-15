@@ -45,14 +45,23 @@
   const TITLE_ADJ = ['Neon', 'Midnight', 'Glass', 'Velvet', 'Paper', 'Electric',
     'Hidden', 'Silver', 'Wild', 'Cherry', 'Lunar', 'Static', 'Golden', 'Secret',
     'Zero', 'Crimson', 'Hollow', 'Sugar', 'Feral', 'Quiet', 'Plastic', 'Honest',
-    'Borrowed', 'Peach', 'Cobalt', 'Last', 'First', 'Broken', 'Solar', 'Blue'];
+    'Borrowed', 'Peach', 'Cobalt', 'Last', 'First', 'Broken', 'Solar', 'Blue',
+    'Reckless', 'Tender', 'Upside', 'Sideways', 'Overdue', 'Handwritten',
+    'Bulletproof', 'Off-Limits', 'Homemade', 'Counterfeit', 'Sleepless',
+    'Airborne', 'Unspoken', 'Backwards', 'Infrared', 'Weightless', 'Analog',
+    'Runaway', 'Half-Moon', 'Cold-Case'];
   const TITLE_NOUN = ['Heart', 'Run', 'Bloom', 'Signal', 'Mirror', 'Parade',
     'Riot', 'Orbit', 'Whisper', 'Fever', 'Diary', 'Arcade', 'Halo', 'Wave',
     'Hour', 'Alibi', 'Costume', 'Anthem', 'Winter', 'Motel', 'Lipstick',
     'Thunder', 'Garden', 'Tempo', 'Karma', 'Voltage', 'Season', 'Satellite',
-    'Confetti', 'Museum'];
+    'Confetti', 'Museum', 'Gravity', 'Postcard', 'Rooftop', 'Compass',
+    'Encore', 'Blueprint', 'Firework', 'Aquarium', 'Detour', 'Snapshot',
+    'Marathon', 'Chandelier', 'Bodyguard', 'Passport', 'Curfew', 'Dial Tone',
+    'Getaway', 'Headline', 'Undertow', 'Vertigo', 'Wavelength', 'Mixtape',
+    'Alarm', 'Miracle', 'Antidote'];
   const TITLE_VERB = ['Chase', 'Break', 'Steal', 'Burn', 'Call', 'Keep',
-    'Blame', 'Dare', 'Spin', 'Crash'];
+    'Blame', 'Dare', 'Spin', 'Crash', 'Rewind', 'Outrun', 'Unlock', 'Borrow',
+    'Forgive', 'Haunt', 'Memorize', 'Trespass', 'Survive', 'Orbit'];
 
   KP.genSongTitle = function (rng, used) {
     for (let attempt = 0; attempt < 20; attempt++) {
@@ -72,32 +81,56 @@
     return rng.pick(TITLE_ADJ) + ' ' + rng.pick(TITLE_NOUN) + ' ' + rng.int(2, 9);
   };
 
+  // the name pass (0.9.20.1, owner: "four separate groups using the
+  // name HALO something... more options and more uniqueness") — pools
+  // roughly tripled, and uniqueness runs on the name FAMILY, not the
+  // exact string: one HALO per world, however it is dressed.
   const GN_PRE = ['LU', 'AE', 'VI', 'SO', 'MI', 'HA', 'NU', 'RE', 'KY', 'SE',
-    'OD', 'YV', 'PA', 'EL', 'NO'];
+    'OD', 'YV', 'PA', 'EL', 'NO', 'IZ', 'WYN', 'CHE', 'DA', 'RU'];
   const GN_POST = ['MINE', 'VELLE', 'RISE', 'CLAT', 'ONA', 'BLOOM', 'LUNE',
-    'PIA', 'NITE', 'VEA', 'RIET', 'DEA', 'QUE', 'SIA', 'MER'];
+    'PIA', 'NITE', 'VEA', 'RIET', 'DEA', 'QUE', 'SIA', 'MER', 'BELLE',
+    'WYN', 'CORE', 'LIT', 'VANA', 'ROSE', 'KIN'];
   const GN_WHOLE = ['Parallel', 'Daybreak', 'Off-Script', 'Clockwise',
     'Featherweight', 'Landline', 'Blue Hour', 'Marionette', 'First Snow',
     'Vermilion', 'Aftermath', 'Paper Moon', 'Static Bloom', 'Nightswim',
-    'Glasstown', 'Honeytrap', 'Curfew', 'Polaris', 'Backstage', 'Wildcard'];
+    'Glasstown', 'Honeytrap', 'Curfew', 'Polaris', 'Backstage', 'Wildcard',
+    'Moonwake', 'Riptide', 'Overbloom', 'Night Market', 'Slow Dive',
+    'Sugarcoat', 'Winterbird', 'Hologram', 'Silver Alarm', 'Dear Nobody',
+    'Bittersweet', 'Underline', 'Fox Weather', 'Late Bloom', 'Open Secret',
+    'Small Hours', 'Peach Static', 'Borrowed Light', 'Afterglow',
+    'Side Effect', 'Long Story', 'Petrichor', 'Standing Ovation', 'Undertow'];
   const GN_WORD = ['NOVA', 'PRISM', 'VELVET', 'ECLIPSE', 'AURORA', 'MIRAGE',
-    'SOLSTICE', 'HALO', 'RIVET', 'ONYX'];
+    'SOLSTICE', 'HALO', 'RIVET', 'ONYX', 'LUMEN', 'ORBIT', 'EMBER', 'COBALT',
+    'VESPER', 'GARNET', 'ZENITH', 'INDIGO', 'SABLE', 'QUARTZ', 'CIPHER',
+    'AZURE', 'PLUME', 'TIDAL', 'VELOUR', 'SAFFRON', 'MARROW', 'TEMPEST'];
+
+  // the family keys: 'HALO2', 'HALO Polaris', and 'Halo' are one name —
+  // and EVERY word in a compound counts ('COBALT Vermilion' cannot share
+  // a world with 'Vermilion')
+  KP.nameStems = function (name) {
+    return String(name).split(/\s+/)
+      .map(w => w.replace(/[0-9!.]+$/, '').toLowerCase())
+      .filter(w => w.length >= 3);
+  };
+  KP.nameStem = function (name) { return KP.nameStems(name)[0] || String(name).toLowerCase(); };
+  const nameFree = (used, name) =>
+    !used || (!used.has(name.toLowerCase()) && !KP.nameStems(name).some(s => used.has(s)));
+  const nameTake = (used, name) => {
+    if (used) { used.add(name.toLowerCase()); KP.nameStems(name).forEach(s => used.add(s)); }
+    return name;
+  };
 
   KP.genGroupName = function (rng, used) {
-    for (let attempt = 0; attempt < 20; attempt++) {
+    for (let attempt = 0; attempt < 24; attempt++) {
       const roll = rng.next();
       let name;
-      if (roll < 0.4) name = rng.pick(GN_PRE) + rng.pick(GN_POST);
-      else if (roll < 0.7) name = rng.pick(GN_WHOLE);
-      else if (roll < 0.85) name = rng.pick(GN_WORD) + rng.int(2, 9);
+      if (roll < 0.45) name = rng.pick(GN_PRE) + rng.pick(GN_POST);
+      else if (roll < 0.78) name = rng.pick(GN_WHOLE);
+      else if (roll < 0.86) name = rng.pick(GN_WORD) + rng.int(2, 9);
       else name = rng.pick(GN_WORD) + ' ' + rng.pick(GN_WHOLE).split(' ')[0];
-      const key = name.toLowerCase();
-      if (!used || !used.has(key)) {
-        if (used) used.add(key);
-        return name;
-      }
+      if (nameFree(used, name)) return nameTake(used, name);
     }
-    return rng.pick(GN_PRE) + rng.pick(GN_POST) + rng.int(2, 9);
+    return nameTake(used, rng.pick(GN_PRE) + rng.pick(GN_POST) + rng.int(2, 9));
   };
 
   const PROD_WORD = ['Glasshouse', 'Mireu', 'Daybreak', 'Vermilion', 'Kestrel',

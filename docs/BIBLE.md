@@ -5406,3 +5406,27 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > soak clean (146 bands, walkout world-driven and bot-dormant),
 > longhaul 5x620 clean, e2e 94, lockstep 0.9.20. Rode to main. §61
 > complete; slot 6 (the bad blood) next, on approval.
+\n
+> **0.9.20.1 — the name pass** (owner playtest, screenshot in hand:
+> "four separate groups using the name HALO something. I'd like more
+> options and to attempt to create more uniqueness"). The generator
+> had ten stem words feeding a third of all rolls and checked
+> uniqueness on the exact string only — HALO2, HALO6, HALO9, and
+> HALO Polaris were four different names to it. Pools roughly
+> tripled (20 prefixes × 22 suffixes, 44 whole names, 28 stems;
+> song titles: 50 adjectives, 55 nouns, 20 verbs), and uniqueness
+> now runs on the name FAMILY: every word of every act name claims
+> its stem for the world, so one HALO — and one Vermilion, however
+> dressed — per scene, player suggestions checked against rival
+> acts too. Chasing the reshuffle turned up a real bot blindness:
+> greenlight windows were burning dark in 29/40 orgs because a
+> 3-girl/2-boy bench can never field a one-gender lineup — the boss
+> now recruits INTO the leading hall while holding a greenlight
+> (lapses 29→0, second acts 40/40). Rulings with 80-seed
+> measurements: natNumberOne 0.40→0.50 (the mandate era's designed
+> strength), traineeTabled floor 0.40→0.02 (the bot consumes its
+> bench before terms lap; the table fires for hoarders),
+> performance-cut ceiling 0.90→0.97 (one sigma off the operating
+> point). Battery 62/62, soak clean, e2e 94, lockstep 0.9.20.1.
+> Rode to main. Slot 6 (the bad blood + the fansite masters) is
+> approved and next.
