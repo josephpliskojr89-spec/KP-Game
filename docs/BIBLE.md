@@ -5509,3 +5509,16 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > at the habit on first soak), longhaul 5x620 clean, e2e 94,
 > lockstep 0.9.21 (58 modules — badblood.js). Rode to main. Slot 7
 > (festival season + award night) next, on approval.
+\n
+> **0.9.21.1 — the scroll lock** (owner playtest: "when I'm changing
+> anything in the training screen, after I select the scroll resets
+> to the top... the same in the studio"). App.render ended with an
+> unconditional scroll-to-top on every re-render — every toggle,
+> draft change, and selection anywhere in the app threw the player
+> back to the top of the page. The fix is one signature: render now
+> fingerprints WHERE the user is (tab, pushed view, every sub-tab)
+> and a re-render of the SAME view restores the scroll position;
+> only genuine navigation — and the existing back-stack restore —
+> touches it. Covers the training screen, the studio, and every
+> other instance the owner was about to find. UI only; battery
+> 63/63, e2e 94, lockstep 0.9.21.1. Rode to main.

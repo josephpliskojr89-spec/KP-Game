@@ -40,9 +40,17 @@
       setChrome(false);
       el.innerHTML = App.mode === 'newcareer' ? UI.renderNewCareer() : UI.renderTitle(KP.saveMeta(null));
       window.scrollTo(0, 0);
+      App._lastSig = 'title';
       return;
     }
     setChrome(true);
+    // the scroll lock (0.9.21.1, owner: "after I select, the scroll
+    // resets to the top"): a re-render of the SAME view keeps your
+    // place; only real navigation starts at the top
+    const viewSig = [App.tab, App.view && App.view.type, App.view && App.view.id,
+      App.deskSub, App.talentSub, App.industrySub, App.industryChart,
+      App.dossierTab].join('|');
+    const viewScroll = window.scrollY;
 
     if (!App.view || !App.view.type) UI.setEra(null);
     if (App.view && App.view.type === 'dossier') el.innerHTML = UI.renderDossier(s, App.view.id, App.dossierTab);
@@ -85,9 +93,12 @@
           setTimeout(() => hit.classList.remove('nav-here'), 2400);
         }
       }
+    } else if (viewSig === App._lastSig) {
+      window.scrollTo(0, viewScroll);
     } else {
       window.scrollTo(0, 0);
     }
+    App._lastSig = viewSig;
   };
 
   function setChrome(on) {
