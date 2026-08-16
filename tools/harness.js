@@ -202,6 +202,14 @@ const BANDS = {
   // male idol past the wall who is neither serving nor served).
   svcPapersSeen:     { lo: 0.00, hi: 0.10, label: 'orgs where enlistment papers reached the desk' },
   svcEnlisted:       { lo: 0.00, hi: 0.10, label: 'orgs that sent a man to service' },
+  // the rise and fall (v0.9.24): first soak — provisional, measure-first
+  rfRankings:        { lo: 0.90, hi: 1.00, label: 'worlds where the trades published the power ranking' },
+  rfTopSeatMoved:    { lo: 0.00, hi: 1.00, label: 'worlds where the top seat changed hands (any overtake)' },
+  rfClassSeen:       { lo: 0.00, hi: 0.60, label: 'worlds that watched a collapse mint a signing class' },
+  rfOfferSeen:       { lo: 0.00, hi: 0.90, label: 'orgs the imperial house tried to hire' },
+  rfGenTurned:       { lo: 0.00, hi: 0.90, label: 'worlds where a generation turned' },
+  rfTorchSeen:       { lo: 0.00, hi: 0.90, label: 'worlds where a rookie took the torch' },
+  rfRivalService:    { lo: 0.00, hi: 0.10, label: 'worlds where a rival act hit the service wall (age-silent in soak)' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
@@ -346,6 +354,8 @@ const tally = {
   cannibalSeen: 0, masterMinted: 0, masterTurned: 0,
   festInvited: 0, festHeadlined: 0, festMissed: 0, nightPlanned: 0, speechGiven: 0,
   svcPapersSeen: 0, svcEnlisted: 0,
+  rfRankings: 0, rfTopSeatMoved: 0, rfClassSeen: 0, rfOfferSeen: 0,
+  rfGenTurned: 0, rfTorchSeen: 0, rfRivalService: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -459,6 +469,13 @@ for (let s = 0; s < SEEDS; s++) {
         KP.signProspect(state, ranked[0].p.id);
       }
     }
+    // the open market (v0.9.24): a flush boss buys a career when one
+    // is on it — the signing-class verb gets exercised
+    (state.freeAgents || []).slice(0, 1).forEach(f => {
+      const p = state.people[f.personId];
+      if (!p || state.week > f.until) return;
+      if (state.budget > KP.freeAgentCost(state, p) + 150) KP.signFreeAgent(state, p.id);
+    });
     // weekly training: two best perceived domains, rest when tired
     state.roster.forEach(id => {
       const p = state.people[id];
@@ -682,6 +699,11 @@ for (let s = 0; s < SEEDS; s++) {
         // the bot sends the public's pick when there is one — the clip travels
         const opts = KP.sceneDef('awardNight').options(state, sc);
         KP.resolveScene(state, sc.id, (opts.find(o => o.id === 'breakout') || opts[0]).id);
+        return;
+      }
+      if (sc.kind === 'theOffer') {
+        // a thin till leverages; a comfortable one declines with style
+        KP.resolveScene(state, sc.id, state.budget < 200 ? 'leverage' : 'decline');
         return;
       }
       if (sc.kind === 'servicePlan') {
@@ -1157,6 +1179,15 @@ for (let s = 0; s < SEEDS; s++) {
   const svl = state.serviceLedger || {};
   if ((svl.notices || 0) + (svl.plans || 0) >= 1) tally.svcPapersSeen++;
   if ((svl.enlisted || 0) >= 1) tally.svcEnlisted++;
+  // the rise and fall (v0.9.24): the ledger is durable
+  const rfl = state.riseFallLedger || {};
+  if ((rfl.rankings || 0) >= 2) tally.rfRankings++;
+  if ((rfl.overtakes || 0) + (rfl.playerNo1 || 0) >= 1) tally.rfTopSeatMoved++;
+  if ((rfl.classes || 0) >= 1) tally.rfClassSeen++;
+  if ((rfl.offers || 0) >= 1) tally.rfOfferSeen++;
+  if ((rfl.genTurns || 0) >= 1) tally.rfGenTurned++;
+  if ((rfl.torchPasses || 0) >= 1) tally.rfTorchSeen++;
+  if ((rfl.rivalServices || 0) >= 1) tally.rfRivalService++;
   // the trainee floor (0.9.18.1): the rival ledger is durable
   const rl = state.rivalLedger || {};
   if ((rl.culls || 0) >= 1) tally.rivalCulled++;

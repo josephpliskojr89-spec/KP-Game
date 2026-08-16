@@ -337,6 +337,20 @@
       reception = Math.round(KP.clamp(
         reception + Math.min(F.punchCap, (ceiling - statureBefore) * F.punchFactor), 1, 100));
     }
+    // the era physics (v0.9.24): an imperial house's releases come
+    // backed; a fading one's come thin — the ranking is not just copy
+    if (KP.rivalEra) {
+      const era = KP.rivalEra(state, rival);
+      if (era === 'imperial') reception = Math.min(100, reception + KP.C.RISEFALL.imperialPunch);
+      else if (era === 'fading') reception = Math.max(1, reception - KP.C.RISEFALL.fadingDrag);
+    }
+    // the service reads the stage (v0.9.24): a rotation is short-handed;
+    // the first release after a full pause is a RETURN, and returns punch
+    if (act.serviceRotation) reception = Math.max(1, reception - KP.C.RISEFALL.SERVICE.staggerDrag);
+    if (act.returnPrimed) {
+      delete act.returnPrimed;
+      reception = Math.min(100, reception + KP.C.RISEFALL.SERVICE.returnBump);
+    }
     act.popularity = isDebut
       ? KP.clamp(Math.round(10 + reception * 0.7), 0, 100)
       : KP.clamp(Math.round(act.popularity * 0.55 + reception * 0.5), 0, 100);
@@ -480,6 +494,7 @@
         const members = castMembers(state, rival, rng, I.memberDebutAge, actGender);
         const act = {
           id: newActId(state), gender: actGender,
+          gen: (state.gen && state.gen.n) || KP.C.RISEFALL.GEN.start,   // stamped at birth (v0.9.24)
           name: KP.genGroupName(rng, usedActNames(state)), concept: concept.id,
           quality: actQualityFromMembers(state, members, rival.prestige, rng),
           members, popularity: 0,
@@ -522,6 +537,10 @@
       // comeback cycles and aging for existing acts
       rival.acts.forEach(act => {
         if (act.retired) return;
+        // the service pause (v0.9.24): a whole act at the base releases
+        // nothing — the calendar waits with the fandom (cooling handled
+        // by the riseFall weekly, which owns the service state)
+        if (act.servicePause) return;
         if (state.week >= act.lastReleaseWeek + act.cycleWeeks) {
           const rel = rivalRelease(state, rival, act, rng, false);
           (rel.narNotes || []).forEach(n => notes.push(n));
@@ -626,6 +645,8 @@
         bump();
         notes.push({ kind: 'industry', urgent: false, ind: 'collapse', company: starved.short,
           text: starved.name + ' has ceased operations. Overnight, their trainees are free agents and their office lease is a cautionary tale. This industry does not do gentle exits.' });
+        // the fallout (v0.9.24): the roster is a signing class, not a footnote
+        if (KP.mintFreeAgents) KP.mintFreeAgents(state, starved, notes);
       }
     }
 
@@ -727,6 +748,7 @@
           const members = castMembers(state, r, rng, [17, 24], actGender2);
           const act = {
             id: newActId(state), gender: actGender2,
+            gen: (state.gen && state.gen.n) || KP.C.RISEFALL.GEN.start,
             name: KP.genGroupName(rng, usedActNames(state)), concept: concept.id,
             quality: actQualityFromMembers(state, members, r.prestige, rng),
             members,

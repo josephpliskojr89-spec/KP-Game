@@ -721,6 +721,9 @@
       if (KP.consumeMandate) KP.consumeMandate(state, g);
     }
     g.debuted = true;
+    // the generation stamp (v0.9.24): every act carries the number of
+    // the wave it debuted into, forever
+    if (!g.gen) g.gen = (state.gen && state.gen.n) || KP.C.RISEFALL.GEN.start;
     g.lastReleaseWeek = state.week;
     // a repackage runs a shorter cycle — the second wind, not a new storm
     g.promoUntil = state.week + (repack ? KP.C.REPACKAGE.promoWeeks : KP.C.COMEBACK.promoWeeks);

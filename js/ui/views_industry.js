@@ -80,6 +80,36 @@
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">' + repChips(state.company.reputation) + '</div>' +
       '</div>');
 
+    // the power ranking + the generation (v0.9.24): the scene, scored
+    if (state.powerRanking && state.powerRanking.entries) {
+      const pr = state.powerRanking;
+      const rows = pr.entries.map(e =>
+        '<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:3px 0' +
+        (e.isPlayer ? ';color:var(--gold);font-weight:600' : '') + '">' +
+        '<span>#' + e.rank + ' ' + UI.esc(e.short) +
+        (e.delta > 0 ? ' <span style="color:var(--cyan)">▲' + e.delta + '</span>'
+          : e.delta < 0 ? ' <span style="color:var(--magenta)">▼' + Math.abs(e.delta) + '</span>' : '') +
+        '</span><span>' + e.score + '</span></div>').join('');
+      html.push('<div class="kicker">The power ranking · Yr ' + pr.year +
+        (state.gen ? ' · the ' + state.gen.n + (state.gen.n === 3 ? 'rd' : 'th') + ' generation' : '') + '</div>');
+      html.push('<div class="card">' + rows + '</div>');
+    }
+
+    // the open market (v0.9.24): careers, priced and waiting
+    if (state.freeAgents && state.freeAgents.length) {
+      html.push('<div class="kicker">The open market</div>');
+      state.freeAgents.forEach(f => {
+        const p = state.people[f.personId];
+        if (!p || state.week > f.until) return;
+        html.push('<div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:10px">' +
+          '<div><b>' + UI.esc(KP.displayName(p)) + '</b> · ' + p.age + ' · ex-' + UI.esc(f.from) +
+          '<div style="font-size:.7rem;color:var(--ink-dim)">' + KP.fmtCount(KP.socialOf(state, p)) +
+          ' followers · window closes ' + UI.esc(KP.weekLabel(f.until).text) + '</div></div>' +
+          '<button class="btn small" data-action="sign-freeagent" data-id="' + p.id + '">Sign · ' +
+          KP.freeAgentCost(state, p) + '</button></div>');
+      });
+    }
+
     // what the world remembers about us (v0.6.0; rival stories moved to
     // their own cards in v0.6.1)
     const conversation = KP.playerNarratives(state);
@@ -94,7 +124,10 @@
       const activeActs = (r.acts || []).filter(a => !a.retired);
       const actLines = activeActs.map(a =>
         '<div class="rv-act tappable" data-action="open-rivalact" data-id="' + UI.esc(a.id || '') + '">' +
-        '<span class="rv-act-name">' + UI.esc(a.name) + '</span>' +
+        '<span class="rv-act-name">' + UI.esc(a.name) +
+        (a.gen ? ' <span style="font-size:.62rem;color:var(--ink-dim)">gen ' + a.gen + '</span>' : '') +
+        (a.servicePause ? ' <span style="font-size:.62rem;color:var(--magenta)">in service</span>'
+          : a.serviceRotation ? ' <span style="font-size:.62rem;color:var(--magenta)">rotation</span>' : '') + '</span>' +
         '<span class="rv-act-note">' + KP.popularityWord(a.popularity) + ' fanbase · ' +
         (a.members || []).length + ' members · ' +
         (a.releases || []).length + ' release' + ((a.releases || []).length === 1 ? '' : 's') + ' ›</span></div>').join('');
@@ -108,6 +141,9 @@
       html.push('<div class="card rival-card">' +
         '<div class="rv-name">' + UI.esc(r.name) + '</div>' +
         '<div class="rv-phil">' + philWord(r.philosophy) + ' · ' + prestigeWord(r.prestige) +
+        (KP.rivalEra ? ' · <span style="color:' +
+          ({ imperial: 'var(--gold)', rising: 'var(--cyan)', fading: 'var(--magenta)' }[KP.rivalEra(state, r)] || 'var(--ink-dim)') +
+          '">' + KP.eraWord(KP.rivalEra(state, r)) + '</span>' : '') +
         (casting ? ' · <span style="color:var(--magenta)">casting a new group</span>' : '') + '</div>' +
         '<div class="rv-blurb">' + UI.esc(r.blurb || '') + '</div>' +
         (rNars.length ? UI.narrativeLines(state, rNars.slice(0, 2)) : '') +

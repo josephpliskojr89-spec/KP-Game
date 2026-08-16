@@ -715,6 +715,28 @@
     }
   } });
 
+  MIGRATIONS.push({ v: '0.9.24', fn: function (state) {
+    // the rise and fall (v0.9.24): the scene gets a memory. Old saves
+    // arrive mid-conversation — the wave is declared to be the starting
+    // generation, veterans (two-plus years on the boards) are stamped
+    // to the wave before it, and the trades start publishing in January.
+    const G = KP.C.RISEFALL.GEN;
+    const wpy = KP.C.WEEKS_PER_YEAR;
+    state.gen = state.gen || { n: G.start, since: state.week, landmarks: [], torch: false };
+    const stamp = (obj, debutWeek) => {
+      if (obj.gen) return;
+      obj.gen = (debutWeek != null && state.week - debutWeek > 2 * wpy) ? G.start - 1 : G.start;
+    };
+    (state.rivals || []).forEach(r => (r.acts || []).forEach(a => stamp(a, a.debutWeek)));
+    (state.groups || []).forEach(g => { if (g.debuted) stamp(g, g.debutWeek); });
+    state.inbox = state.inbox || [];
+    state.inbox.unshift({
+      kind: 'industry', week: state.week, read: false,
+      id: 'm' + (state.nextMsgId++),
+      text: 'The trades are formalizing what the fans always did loosely: generation numbers on every act, an annual power ranking every January, and era labels on every letterhead. The first ranking issue is already at the printer. Nobody asked the acts how they feel about carrying a number. That is what makes it journalism.',
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

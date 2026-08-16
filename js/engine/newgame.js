@@ -162,6 +162,7 @@
         since: -200, intensity: 42 };
       state.groups.push(g);
       g.legacy = true;   // start-content marker (UI + census may read it)
+      g.gen = KP.C.RISEFALL.GEN.start - 1;   // the last group is LAST-gen (v0.9.24)
       KP.assignRooms(state, g);
       state.firstShowWinWeek = -180;   // their trophies predate you
     }

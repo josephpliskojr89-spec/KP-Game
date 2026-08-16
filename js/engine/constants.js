@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.23',
+    VERSION: '0.9.24',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1203,6 +1203,48 @@
       professionalism: 4,        // the spine of steel comes home with him
       returnBuildup: 26,         // a comeback locked inside the window banks this
       returnWindowWeeks: 24,     // how long the discharge moment stays convertible
+    },
+    // the rise and fall (v0.9.24, §55.10 + §55.12 + being poached, map
+    // slot 9) — rival eras made legible, the trades' annual power
+    // ranking, collapse fallout as a signing class, the imperial
+    // rival's job offer, named generations — and the rival world's
+    // boys pay the service tax too (owner, after v0.9.23)
+    RISEFALL: {
+      rankWeek: 2,               // woy the trades publish the power ranking
+      imperialAt: 74,            // prestige at or above = the imperial era
+      risingDelta: 6,            // ~half-year prestige climb that reads as rising
+      risingFloor: 45,           // nobody calls a basement climb a rise
+      fadingBelow: 32,           // low water = fading…
+      fadingDelta: -5,           // …and so does a real slide from anywhere
+      trailEvery: 12,            // prestige sampled this often for the trend
+      imperialPunch: 3,          // the imperial house's releases come backed
+      fadingDrag: 3,             // a fading house's releases come thin
+      freeAgentWindow: 16,       // weeks the signing class stays on the market
+      freeAgentMax: 5,           // named files a collapse mints at most
+      freeAgentAgeMax: 29,       // the market wants runway
+      faCostBase: 45,            // signing a name with a career…
+      faCostPerFame: 35,         // …priced by the career (renewal fame bands)
+      offerPrestige: 78,         // the imperial house that comes for YOU
+      offerTrust: 55,            // they only call proven operators
+      offerCooldownWeeks: 96,    // once per ~two years at most
+      leverageBudget: 120,       // what the board finds when you show the letter
+      leverageTrust: 3,          // and what staying is suddenly worth
+      GEN: {
+        start: 3,                // the scene arrives mid-conversation
+        minYears: 2,             // a generation lasts at least this long
+        landmarkReception: 78,   // a debut the trades call a landmark
+        landmarksToTurn: 3,      // this many inside a year turns the wave
+        rookieWeeks: 96,         // debuted within = the new blood
+        oldGuardPop: 60,         // the flagship the torch is taken from
+        talkChance: 0.03,        // ambient gen-vs-gen feed chatter, weekly
+      },
+      SERVICE: {                 // rival boy acts carry the window too
+        staggerPop: 55,          // a warm act rotates; a cool one pauses whole
+        staggerDrag: 5,          // reception malus while the line is short
+        rotationTail: 36,        // stagger runs serviceWeeks + this
+        pauseCool: 0.35,         // weekly popularity cool during a full pause
+        returnBump: 8,           // the return release punches
+      },
     },
     AWARDS: {
       nominationWeek: 44,       // of the 48-week year

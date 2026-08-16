@@ -110,6 +110,20 @@ function checkIntegrity(seed, week, state) {
       flag(seed, week, g.name + ' fandom intensity out of range');
     }
   });
+  // the rival service wall (v0.9.24): the world's boys pay the same tax —
+  // an active male act's member past the wall (with slack for the
+  // trigger week) must be served, serving, or inside a rotation/pause
+  (state.rivals || []).forEach(r => (r.acts || []).forEach(a => {
+    if (a.retired || a.gender !== 'm') return;
+    (a.members || []).forEach(id => {
+      const p = person(id);
+      if (!p || p.gender !== 'm') return;
+      if (p.age > KP.C.MIL.deadlineAge + 2 && !p.serviceDone &&
+          !(p.flags && p.flags.military) && !a.serviceRotation && !a.servicePause) {
+        flag(seed, week, a.name + ' member ' + id + ' age ' + p.age + ' past the rival wall, never served');
+      }
+    });
+  }));
   // engagements point at LIVE IDOLS — existence alone hid the departure
   // holes from every earlier harness (0.9.13)
   (state.deals || []).forEach(d => {
@@ -330,7 +344,9 @@ for (const sc of SCENARIOS) {
     Object.keys(state.people).length + ' files | top: ' +
     top.map(([k, v]) => k + ' ' + Math.round(v / 1024) + 'K').join(', ') +
     ' | service: ' + ['plans', 'notices', 'enlisted', 'walls', 'discharged', 'returns']
-      .map(k => k + ' ' + (svl[k] || 0)).join(', '));
+      .map(k => k + ' ' + (svl[k] || 0)).join(', ') +
+    ' | risefall: ' + ['rankings', 'overtakes', 'playerNo1', 'classes', 'offers', 'genTurns', 'torchPasses', 'rivalServices']
+      .map(k => k + ' ' + ((state.riseFallLedger || {})[k] || 0)).join(', '));
 }
 
 report();
