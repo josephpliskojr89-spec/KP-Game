@@ -98,6 +98,14 @@
       const opt = q.options.find(o => o.id === optionId);
       if (q.type === 'readyTrainee') {
         const p = state.people[opt.id];
+        // one receipt per name (0.9.26.2): re-answering the same
+        // question extends the date, it does not stack duplicates
+        const dupe = (state.claims || []).find(c => !c.resolved &&
+          c.type === 'readyTrainee' && c.personId === opt.id);
+        if (dupe) {
+          dupe.byWeek = state.week + M.claimWindow;
+          return { toast: 'Still on the record: ' + opt.label + ' is closest to ready. The executive moved the date, not the expectation.' };
+        }
         KP.openClaim(state, { type: 'readyTrainee', subject: { kind: 'exec' },
           personId: opt.id, personName: p ? KP.displayName(p) : opt.label,
           byWeek: state.week + M.claimWindow });

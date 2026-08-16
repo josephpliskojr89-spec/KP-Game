@@ -6001,3 +6001,14 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 58% of new leads while casting, 2 seeds x 60 weeks). No notice,
 > no change — the ambient stream stays as it was. Battery 68/68,
 > soak clean (168 bands), lockstep 0.9.26.1. Rode to main.
+
+> **0.9.26.2 — the receipts read like receipts.** Owner screenshot:
+> the Desk's promise ledger leaked raw claim types (growthPromise,
+> soloPromise) and unfilled {pos} tokens, and the exec's
+> closest-to-ready answer stacked a duplicate receipt per meeting.
+> Fixed: ambition labels fill their pronouns for the real person,
+> label-less claim types render prose, gravity-era claims use the
+> labels they already carry, and re-answering the ready question
+> MOVES the date instead of stacking receipts (existing stacks
+> resolve naturally as each due date passes). Battery green,
+> lockstep 0.9.26.2. Rode to main.

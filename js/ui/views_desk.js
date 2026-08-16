@@ -232,8 +232,17 @@
     const what = c => {
       if (c.type === 'readyTrainee') return '“' + UI.esc(c.personName || '') + ' is closest to ready” — a debut that lands';
       if (c.type === 'comebackPromise') { const g = KP.groupById(state, c.groupId); return 'the ' + (g ? UI.esc(g.name) : '') + ' comeback, on the calendar'; }
-      if (c.type === 'ambitionPromise') { const A = KP.C.LIFE.AMBITIONS[c.ambition]; return (A ? A.label : 'the thing they wanted') + ', within the year'; }
-      return c.type;
+      if (c.type === 'ambitionPromise') {
+        const A = KP.C.LIFE.AMBITIONS[c.ambition];
+        const p = state.people[c.personId];   // {pos} fills for real people (0.9.26.2)
+        const raw = (A ? A.label : 'the thing they wanted') + ', within the year';
+        return UI.esc(p ? KP.fillPro(raw, p) : raw.replace('{pos} ', ''));
+      }
+      if (c.label) return UI.esc(c.label);   // gravity-era claims carry prose
+      const WORDS = { soloPromise: 'the promised solo, on a record',
+        soloAlbumPromise: 'the promised solo album — her name on the spine',
+        growthPromise: 'the growth the board was promised' };
+      return WORDS[c.type] || c.type;
     };
     const open = claims.filter(c => !c.resolved);
     html.push('<div class="kicker">Promises on the clock</div>');
