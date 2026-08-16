@@ -216,6 +216,9 @@ const BANDS = {
   rfGenTurned:       { lo: 0.30, hi: 1.00, label: 'worlds where a generation turned' },
   rfTorchSeen:       { lo: 0.30, hi: 1.00, label: 'worlds where a rookie took the torch' },
   rfRivalService:    { lo: 0.00, hi: 0.10, label: 'worlds where a rival act hit the service wall (age-silent in soak)' },
+  // the portfolio (v0.9.26): first soak — provisional, measure-first
+  unitEraSeen:       { lo: 0.10, hi: 1.00, label: 'orgs that ran a unit era between group eras' },
+  doctrineDeniedSeen:{ lo: 0.00, hi: 1.00, label: 'orgs told no by their own doctrine' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
@@ -369,6 +372,7 @@ const tally = {
   svcPapersSeen: 0, svcEnlisted: 0,
   rfRankings: 0, rfTopSeatMoved: 0, rfClassSeen: 0, rfOfferSeen: 0,
   rfGenTurned: 0, rfTorchSeen: 0, rfRivalService: 0,
+  unitEraSeen: 0, doctrineDeniedSeen: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -482,6 +486,19 @@ for (let s = 0; s < SEEDS; s++) {
         KP.signProspect(state, ranked[0].p.id);
       }
     }
+    // the between gets fed (v0.9.26): a unit era when the group calendar
+    // is quiet and the till can carry it — the portfolio breathing
+    state.groups.forEach(g => {
+      if (!g.debuted || g.retiredWeek || g.type === 'solo' || g.members.length < 4) return;
+      if (g.prep || g.tour || g.hiatus || state.week <= (g.promoUntil || 0)) return;
+      if (state.week - (g.lastUnitWeek || -999) < KP.C.PORTFOLIO.UNIT.cooldown) return;
+      if (state.budget < KP.C.PORTFOLIO.UNIT.cost + 150) return;
+      const picks = g.members.map(id => state.people[id]).filter(Boolean)
+        .filter(m => !KP.onBreak(m))
+        .sort((a, b) => KP.derived(b).stagePresence - KP.derived(a).stagePresence)
+        .slice(0, 2).map(m => m.id);
+      if (picks.length === 2) KP.planUnitEra(state, g.id, picks, null);
+    });
     // the album promise gets kept (v0.9.25): produce her record when
     // the claim is open and the till can carry it
     (state.claims || []).forEach(c => {
@@ -1214,6 +1231,9 @@ for (let s = 0; s < SEEDS; s++) {
   if ((rfl.genTurns || 0) >= 1) tally.rfGenTurned++;
   if ((rfl.torchPasses || 0) >= 1) tally.rfTorchSeen++;
   if ((rfl.rivalServices || 0) >= 1) tally.rfRivalService++;
+  // the portfolio (v0.9.26): units + doctrine refusals are durable
+  if (((state.portfolioLedger || {}).units || 0) >= 1) tally.unitEraSeen++;
+  if (((state.mandateLedger || {}).doctrineDenied || 0) >= 1) tally.doctrineDeniedSeen++;
   // the trainee floor (0.9.18.1): the rival ledger is durable
   const rl = state.rivalLedger || {};
   if ((rl.culls || 0) >= 1) tally.rivalCulled++;

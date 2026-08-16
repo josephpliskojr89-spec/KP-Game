@@ -105,6 +105,36 @@
   // Deterministic, legible — the exec says yes for reasons and no for
   // reasons, never for dice. Denied or granted, the calendar closes for
   // a while: the board does not do weekly auditions of your ambition.
+  // the doctrine (v0.9.26, §69): an ESTABLISHED house debuts on the
+  // industry's clock, not on appetite — the generation's opening
+  // window, a flagship ending, or an empty hall. Startups stay hungry.
+  KP.isEstablished = function (state) {
+    const P = KP.C.PORTFOLIO;
+    const live = KP.groups(state).filter(g => g.debuted && !g.retiredWeek && g.members.length);
+    return live.length >= P.establishedGroups ||
+      (live.some(g => (g.popularity || 0) >= P.establishedPop) &&
+       state.week >= P.establishedMinWeeks);
+  };
+  KP.doctrineRead = function (state, gender) {
+    const P = KP.C.PORTFOLIO;
+    if (!KP.isEstablished(state)) return { open: true, why: 'hungry' };
+    if (state.gen && state.week - state.gen.since <= P.genWindowWeeks) {
+      return { open: true, why: 'genWindow' };
+    }
+    const wall = KP.C.CONTRACT.years * KP.C.WEEKS_PER_YEAR - P.wallLookahead;
+    const live = KP.groups(state).filter(g => g.debuted && !g.retiredWeek && g.members.length && g.type !== 'solo');
+    if (live.some(g => state.week - (g.debutWeek || 0) >= wall ||
+        g.pendingService || (g.hiatus && g.hiatus.service))) {
+      return { open: true, why: 'flagshipEnding' };
+    }
+    if (gender && !live.some(g => g.gender === gender)) return { open: true, why: 'whitespace' };
+    if (!gender && (!live.some(g => g.gender === 'f') || !live.some(g => g.gender === 'm'))) {
+      return { open: true, why: 'whitespace' };
+    }
+    return { open: false,
+      reason: 'the portfolio is FULL by this house’s own doctrine: the flagships are mid-era, both halls are fielded, and the generation’s debut window has closed. The next group comes when the wave turns, when an era ends, or not at all. Units and solo work carry the in-between — that is what they are for.' };
+  };
+
   KP.pitchMandate = function (state, opts) {
     const M = KP.C.MANDATE;
     const kind = (opts && opts.kind) || 'group';
@@ -124,6 +154,19 @@
       ledger(state).denied++;
       return { ok: false, denied: true,
         reason: KP.fillPro('The pitch died in the room. “Ambition is not collateral,” {she} said, tapping the trust ledger without looking at it. Rebuild {pos} confidence first.', execP) };
+    }
+    // the doctrine says no with a reason (v0.9.26) — and closes the
+    // calendar for a while, because doctrine is not a negotiation
+    if (kind !== 'solo') {
+      const doc = KP.doctrineRead(state, gender);
+      if (!doc.open) {
+        const led = ledger(state);
+        led.denied++;
+        led.doctrineDenied = (led.doctrineDenied || 0) + 1;
+        state.mandateCooldownUntil = state.week + KP.C.PORTFOLIO.deniedCooldown;
+        return { ok: false, denied: true,
+          reason: KP.fillPro('{She} let you finish, which was the courtesy. Then: ' + doc.reason, execP) };
+      }
     }
     if (kind !== 'solo' && free.length < M.pitchRoomMin) {
       ledger(state).denied++;
@@ -146,6 +189,28 @@
 
   // ---- the weekly: the board reads the same room you do ----------------
   KP.registerWeekly('mandates', 735, function (state, rng, inbox) {
+    // the generational grant (v0.9.26): the wave turns, and an
+    // established exec hands the next group down — the industry's
+    // clock, spoken from upstairs
+    if (state.gen) {
+      if (state.genGrantN == null) state.genGrantN = state.gen.n;   // arrive mid-wave, no grant
+      if (state.gen.n > state.genGrantN) {
+        state.genGrantN = state.gen.n;
+        if (KP.isEstablished(state) &&
+            KP.freeTrainees(state).length >= 2 &&   // no directives into empty rooms
+            !KP.openMandates(state).some(m => m.kind !== 'solo')) {
+          // gender-neutral on purpose: the directive names the MOMENT;
+          // whichever hall can field a lineup answers it. The window is
+          // the WAVE's, not the quarter's — a generational casting call
+          // gets the wave's own opening stretch to deliver.
+          KP.openMandate(state, { kind: 'group', gender: null,
+            source: 'the generational directive',
+            window: state.week + KP.C.PORTFOLIO.genWindowWeeks });
+          inbox.push({ kind: 'executive', urgent: true,
+            text: state.executive.name + ': “The generation turned. Every house in the scene is drafting its gen-' + state.gen.n + ' debut right now, and this one does not watch waves from the beach. The next group starts today — the greenlight is on your desk. Make it the one the era gets named after.”' });
+        }
+      }
+    }
     const M = KP.C.MANDATE;
     // greenlights left dark lapse, and the board remembers who asked
     (state.mandates || []).forEach(m => {

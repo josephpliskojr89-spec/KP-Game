@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.25',
+    VERSION: '0.9.26',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1214,6 +1214,25 @@
     // ranking, collapse fallout as a signing class, the imperial
     // rival's job offer, named generations — and the rival world's
     // boys pay the service tax too (owner, after v0.9.23)
+    // the portfolio (v0.9.26, §69) — "a major company might only debut
+    // a new girl group once every 5 to 7 years. essentially one per
+    // generation." Established houses greenlight on DOCTRINE; units are
+    // the pressure valve between group eras.
+    PORTFOLIO: {
+      establishedGroups: 2,    // debuted groups at which the doctrine engages
+      establishedPop: 62,      // or one group at real stature…
+      establishedMinWeeks: 144,// …once the company is 3+ years old — a
+                               // startup with one hot debut is still a
+                               // startup, and its second group is hunger
+      genWindowWeeks: 96,      // a wave's opening window — greenlights live here
+      wallLookahead: 60,       // a flagship this close to the 7-yr wall = ending
+      deniedCooldown: 48,      // a doctrine no closes the calendar for a year
+      rivalLateGenPace: 30,    // extra weeks on rival intervals late in a wave
+      UNIT: {
+        cost: 55, cooldown: 36, minSize: 2, maxSize: 3,
+        revPerReception: 1.2, fandomGain: 2, morale: 5,
+      },
+    },
     // the star's clock (v0.9.25, owner: "one solo stage shouldn't be
     // enough, forever... a ticking clock until she's on hiatus from the
     // group for her solo career, or leaves her group entirely")

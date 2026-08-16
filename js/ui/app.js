@@ -572,6 +572,28 @@
           '<button class="btn primary" data-action="sign-confirm" data-id="' + p.id + '" style="flex:1">' + KP.fillPro('Sign {her}', p) + '</button>');
         break;
       }
+      case 'plan-unit': {
+        const g = KP.groupById(s, t.dataset.id);
+        if (!g) break;
+        const rows = g.members.map(id => {
+          const m = s.people[id];
+          return '<label style="display:flex;gap:8px;align-items:center;padding:6px 0;font-size:.85rem">' +
+            '<input type="checkbox" class="unit-pick" value="' + id + '"> ' + UI.esc(KP.displayName(m)) + '</label>';
+        }).join('');
+        UI.modal('The unit — pick ' + KP.C.PORTFOLIO.UNIT.minSize + ' or ' + KP.C.PORTFOLIO.UNIT.maxSize,
+          '<div class="pad">' + rows + '</div>',
+          '<button class="btn" data-action="close-modal" style="flex:1">Not now</button>' +
+          '<button class="btn primary" data-action="unit-confirm" data-id="' + g.id + '" style="flex:1">Book the era</button>');
+        break;
+      }
+      case 'unit-confirm': {
+        const picks = Array.from(document.querySelectorAll('.unit-pick:checked')).map(el => el.value);
+        const r = KP.planUnitEra(s, t.dataset.id, picks, null);
+        UI.closeModal();
+        if (r.ok) { UI.toast(r.unitName + ' — “' + r.title + '” is out. Reception ' + r.reception + '.'); App.save(); App.render(); }
+        else UI.toast(r.reason, true);
+        break;
+      }
       case 'solo-album': {
         const r = KP.releaseSoloAlbum(s, t.dataset.id);
         if (r.ok) { UI.toast('“' + r.title + '” is out — reception ' + r.reception + '.'); App.save(); App.render(); }

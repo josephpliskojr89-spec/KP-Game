@@ -504,6 +504,10 @@
         };
         rival.acts.push(act);
         rival.nextDebutWeek = state.week + rng.int(I.debutInterval[0], I.debutInterval[1]) +
+          // the scene breathes with the wave (v0.9.26): late-generation
+          // years stretch the intervals; debut classes cluster at turns
+          (state.gen && state.week - state.gen.since > KP.C.PORTFOLIO.genWindowWeeks
+            ? KP.C.PORTFOLIO.rivalLateGenPace : 0) +
           Math.round(Math.max(0, 70 - rival.prestige) / 4) +
           // the portfolio paces the pipeline (0.9.18.1): every group a
           // company already runs is a machine that needs feeding first

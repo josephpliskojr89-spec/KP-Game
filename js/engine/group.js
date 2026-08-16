@@ -361,4 +361,70 @@
       { persona: 'stan', text: 'archiving every ' + g.name + ' stage tonight. twice. the catalog doesn’t disband and neither do we' },
     ]);
   });
+
+  // ---- the unit era (v0.9.26, §69): the pressure valve ----------------
+  // Two or three members, a persistent identity, a release cycle of its
+  // own between group eras — lightweight by design: an EVENT, not a
+  // second group object. One person, one groupOf, one truth.
+  KP.planUnitEra = function (state, groupId, memberIds, unitName) {
+    const U = KP.C.PORTFOLIO.UNIT;
+    const g = KP.groupById(state, groupId);
+    if (!g || !g.debuted) return { ok: false, reason: 'Units spin out of debuted groups. Everything else is just a demo session.' };
+    if (g.retiredWeek || g.type === 'solo') return { ok: false, reason: 'No group, no unit.' };
+    if (g.prep || g.tour || g.hiatus || state.week <= (g.promoUntil || 0)) {
+      return { ok: false, reason: 'The group calendar is running. Units live in the BETWEEN — that is the whole point of them.' };
+    }
+    if (state.week - (g.lastUnitWeek || -999) < U.cooldown) {
+      return { ok: false, reason: 'One unit era at a time. The last one is still warm.' };
+    }
+    const members = (memberIds || []).map(id => state.people[id]).filter(Boolean);
+    if (members.length < U.minSize || members.length > U.maxSize) {
+      return { ok: false, reason: 'A unit is ' + U.minSize + ' or ' + U.maxSize + ' members. Fewer is a solo; more is the group.' };
+    }
+    if (members.some(m => !g.members.includes(m.id))) return { ok: false, reason: 'Units are built from the lineup.' };
+    if (members.some(m => KP.onBreak(m))) return { ok: false, reason: 'Somebody in that lineup is off the schedule. The unit waits.' };
+    if (state.budget < U.cost) return { ok: false, reason: 'A unit era runs ' + U.cost + '. The budget says the between stays quiet.' };
+    state.budget -= U.cost;
+    const rng = KP.rngFor(state);
+    // the identity persists: same faces, same name, forever
+    g.units = g.units || [];
+    const key = memberIds.slice().sort().join('|');
+    let unit = g.units.find(u => u.key === key);
+    if (!unit) {
+      unit = { key, name: (unitName && unitName.trim()) ||
+        (g.name.split(' ')[0] + ' ' + (g.units.length + 2)), memberIds: memberIds.slice(), eras: [] };
+      g.units.push(unit);
+    }
+    const title = KP.genSongTitle(rng, {});
+    const avg = fn => members.reduce((s, m) => s + fn(m), 0) / members.length;
+    const reception = Math.round(KP.clamp(
+      0.45 * avg(m => KP.derived(m).stagePresence) +
+      0.25 * avg(m => Math.max(m.talents.vocals.cur, m.talents.dance.cur)) +
+      0.25 * (g.popularity || 0) + rng.normal(0, 5), 1, 100));
+    state.rngState = rng.state();
+    const revenue = Math.round(reception * U.revPerReception);
+    state.budget += revenue;
+    g.lastUnitWeek = state.week;
+    unit.eras.push({ week: state.week, title, reception });
+    members.forEach(m => {
+      m.morale = KP.clamp(m.morale + U.morale, 0, 100);
+      KP.socialSpike(state, m, KP.C.SOCIAL.breakoutSpike, 'unitEra');
+      m.history.push({ week: state.week, text: 'The ' + unit.name + ' unit era — "' + title + '". A smaller stage with more room on it.' });
+    });
+    KP.fandomGain(g, U.fandomGain);
+    state.portfolioLedger = state.portfolioLedger || { units: 0 };
+    state.portfolioLedger.units++;
+    KP.chartEnter(state, { title, act: unit.name, company: state.company.short,
+      isPlayer: true, score: reception, entered: state.week });
+    const note = KP.note(state, { kind: 'public', ind: 'unitEra', priority: 'high', groupId: g.id,
+      text: unit.name + ' — ' + members.map(m => KP.publicGiven(m)).join(' and ') + ' of ' + g.name +
+        ' — dropped "' + title + '" between group eras. Reception ' + reception + ', fee +' + revenue +
+        '. The fandom gets fed, the members get room, and the group name rests without cooling. This is what a portfolio sounds like breathing.' });
+    return { ok: true, reception, title, unitName: unit.name, note: note.text };
+  };
+  KP.onFeedEvent('unitEra', (state, n, rng) => rng.pick([
+    { persona: 'fan', text: 'UNIT ERA. the exact two people I would have picked. the b-side is better than the title and the title is already excellent. units are the industry\u2019s best idea' },
+    { persona: 'casual', text: 'love when a group sends out a small strike team between comebacks. keeps the name warm without burning the whole machine' },
+  ]));
+
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -3838,6 +3838,39 @@ rung-2 settlement, the fork with no promises on it, the launch with
 chapter two, holding's grudge entry, the return run end to end,
 60-week determinism.
 
+## §69 The portfolio (v0.9.26 — SHIPPED) — owner-directed
+
+Owner: *"a major company might only debut a new girl group once every
+5 to 7 years. essentially one per generation... a flagship boy group,
+girl group, units and soloists are more in line with reality."* And
+the frame that resolves early-game pacing: *"eventually early game
+will follow a player choice"* — three starts (fresh label / current
+veteran start / major with infrastructure), specced as THE THREE
+DOORS, a separate release after this one. The portfolio pass ships
+first because a major start means nothing until the doctrine exists.
+
+**The doctrine.** Once a company is ESTABLISHED (two debuted groups,
+or one at real stature), new-group greenlights come down only for
+doctrine reasons: the GENERATION TURNED (the industry's clock — debut
+classes cluster in a wave's first years, which the §67 gen machinery
+already declares), a FLAGSHIP IS ENDING (seven-year wall in sight,
+disband, service chapter), or WHITESPACE (an empty hall). Pitches
+outside doctrine get a no with a reason, on a long cooldown. Fresh
+companies keep the hungry-label ramp — that is not an exception, it
+is the truth of startups, and it becomes the fresh-door start later.
+
+**The units.** The pressure valve that makes generational cadence
+fun: unit ERAS — two or three members, a persistent unit identity,
+its own release cycle between group eras. Lightweight by design (an
+event like the solo album, not a second group object — one person,
+one groupOf, one truth). Units + solo albums + return runs are the
+between-eras content engine that lets a two-group major feel busy.
+
+**The world matches.** Rival debut scheduling breathes on the same
+generational rhythm: debuts land in a wave's opening window, the
+late-gen years stretch the intervals. The whole scene inhales at
+each turn together — which is what a generation IS.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -5929,3 +5962,30 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > lifecycles both live), e2e 94, lockstep 0.9.25 (61 modules).
 > Rode to main. Slot 10 (the deep map + the tongue + the world's
 > auditions) next, on approval.
+
+> **v0.9.26 — the portfolio (§69).** Owner: "a major company might
+> only debut a new girl group once every 5 to 7 years... a flagship
+> boy group, girl group, units and soloists are more in line with
+> reality." The doctrine: an ESTABLISHED house (two debuted groups,
+> or one at stature once the company is 3+ years old — a startup
+> with one hot debut is still a startup) gets new-group greenlights
+> only for doctrine reasons: the generation's opening window (96
+> weeks from each turn), a flagship visibly ending (the wall, a
+> service chapter), or an empty hall. Pitches outside doctrine die
+> with the reason spoken and close the boardroom calendar for a
+> year. When the wave turns, an established exec HANDS DOWN the
+> generational directive — gender-neutral, gated on a live bench,
+> and carrying the wave's own window (the 40-week default lapsed
+> 27/40 careers before the widening; 0/40 after — the window was
+> the whole story). Units are the valve: KP.planUnitEra, two or
+> three members, a persistent named identity on the group, its own
+> release event between group eras (reception from stage presence +
+> talent + group heat, revenue, chart entry, fandom fed) — 40/40
+> soak orgs ran one, which is the portfolio breathing. Rival debut
+> intervals stretch outside the wave's window so the whole scene
+> inhales at each turn together. The three doors (fresh / current /
+> major starts) are specced in §69 for a later release. Numbers:
+> battery 68/68 (suite 068, 22), soak clean (168 bands), longhaul
+> 6x620 clean, e2e 94, lockstep 0.9.26. Rode to main. Slot 10 (the
+> deep map + the tongue + the world's auditions) or the three
+> doors next, on approval.

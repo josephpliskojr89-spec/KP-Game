@@ -318,9 +318,21 @@
           : 'Past the grace window now — the rest is still working, and so is the forgetting. The return converts the wait into numbers; the wait converts the numbers into less.') +
         '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Announce the return</button></div></div>');
     } else {
-      html.push('<div class="card">The room between releases is where momentum goes to die. The producers have fresh demos in the Studio.' +
+      const unitReady = g.type !== 'solo' && members.length >= 3 &&
+        state.week - (g.lastUnitWeek || -999) >= KP.C.PORTFOLIO.UNIT.cooldown;
+      html.push('<div class="card">The room between releases is where momentum goes to die. The producers have fresh demos in the Studio' +
+        (unitReady ? ' — and the between is what units are for.' : '.') +
         '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Plan the comeback</button></div>' +
+        (unitReady ? '<div style="margin-top:8px"><button class="btn small" data-action="plan-unit" data-id="' + g.id + '">Plan a unit era · ' + KP.C.PORTFOLIO.UNIT.cost + '</button></div>' : '') +
         '<div style="margin-top:8px"><button class="btn small ghost" style="border:1px solid var(--line)" data-action="declare-hiatus" data-id="' + g.id + '">Declare an official hiatus</button></div></div>');
+      // the units on the record (v0.9.26)
+      (g.units || []).forEach(u => {
+        if (!u.eras.length) return;
+        const last = u.eras[u.eras.length - 1];
+        html.push('<div class="card" style="font-size:.8rem"><b>' + UI.esc(u.name) + '</b> · ' +
+          u.memberIds.map(id => state.people[id] ? UI.esc(KP.publicGiven(state.people[id])) : '').join(' · ') +
+          ' — ' + u.eras.length + ' era' + (u.eras.length === 1 ? '' : 's') + ', last “' + UI.esc(last.title) + '” (' + last.reception + ')</div>');
+      });
     }
 
     // discography — the story so far, on the record
