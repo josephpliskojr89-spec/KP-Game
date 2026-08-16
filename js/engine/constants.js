@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.26',
+    VERSION: '0.9.26.1',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -71,6 +71,7 @@
       // is a girl group); the weekly leads run closer to even
       maleBoardShare: 0.25,
       maleLeadShare: 0.35,
+      maleCastingShare: 0.60,  // a posted boys' audition fills with boys (0.9.26.1)
     },
 
     ARCHETYPES: [

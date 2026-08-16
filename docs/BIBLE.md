@@ -5989,3 +5989,15 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 6x620 clean, e2e 94, lockstep 0.9.26. Rode to main. Slot 10 (the
 > deep map + the tongue + the world's auditions) or the three
 > doors next, on approval.
+
+> **0.9.26.1 — the audition notice works.** Owner: "I do find I
+> have trouble casting viable boy groups." Measured true: the
+> prospect stream ran ~25% male, so a five-boy lineup meant signing
+> every male lead unseen while girl lineups picked from triple the
+> pool. The fix is demand, not a flat quota: when an open group
+> greenlight is male (or gender-neutral with the boys' hall empty),
+> both scouting AND the school submission slates read the casting
+> notice and the stream leans male (maleCastingShare 0.60; measured
+> 58% of new leads while casting, 2 seeds x 60 weeks). No notice,
+> no change — the ambient stream stays as it was. Battery 68/68,
+> soak clean (168 bands), lockstep 0.9.26.1. Rode to main.

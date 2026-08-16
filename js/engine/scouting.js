@@ -180,8 +180,17 @@
         // person ids come from state, never from module memory — saves depend on it
         KP.resetIds(state.nextPersonId || KP.peekNextId());
         const usedNames = new Set(Object.values(state.people).map(x => x.name.given.toLowerCase()));
-        // boys walk into open auditions too (v0.8.4)
-        const gender = rng.chance(KP.C.GEN.maleLeadShare) ? 'm' : 'f';
+        // boys walk into open auditions too (v0.8.4) — and when the
+        // house is CASTING a boy group, the audition line answers the
+        // notice (0.9.26.1, owner: "trouble casting viable boy groups"
+        // — at a 25% male stream, a five-boy lineup meant signing every
+        // male lead unseen while girl lineups picked from triple the
+        // pool). Demand reads the open greenlights and the halls.
+        const wantBoys = (KP.openMandates ? KP.openMandates(state) : []).some(m =>
+          m.kind !== 'solo' && (m.gender === 'm' || (!m.gender &&
+            !KP.groups(state).some(g => g.debuted && !g.retiredWeek && g.gender === 'm'))));
+        const gender = rng.chance(wantBoys ? KP.C.GEN.maleCastingShare
+          : KP.C.GEN.maleLeadShare) ? 'm' : 'f';
         const p = KP.generatePerson(rng, { status: 'prospect', usedNames, gender });
         state.nextPersonId = KP.peekNextId();
         state.people[p.id] = p;

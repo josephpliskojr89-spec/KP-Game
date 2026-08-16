@@ -72,7 +72,13 @@
     const S = KP.C.SCHOOLS;
     KP.resetIds(state.nextPersonId || KP.peekNextId());
     const usedNames = new Set(Object.values(state.people).map(x => x.name.given.toLowerCase()));
-    const gender = rng.chance(KP.C.GEN.maleLeadShare) ? 'm' : 'f';
+    // the schools read the casting notices too (0.9.26.1) — a posted
+    // boys' audition fills its submission slate with boys
+    const wantBoys = (KP.openMandates ? KP.openMandates(state) : []).some(m =>
+      m.kind !== 'solo' && (m.gender === 'm' || (!m.gender &&
+        !KP.groups(state).some(g => g.debuted && !g.retiredWeek && g.gender === 'm'))));
+    const gender = rng.chance(wantBoys ? KP.C.GEN.maleCastingShare
+      : KP.C.GEN.maleLeadShare) ? 'm' : 'f';
     const p = KP.generatePerson(rng, { status: 'prospect', usedNames, gender,
       source: LANE_SOURCE[school.lane] });
     state.nextPersonId = KP.peekNextId();
