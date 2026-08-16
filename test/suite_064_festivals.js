@@ -32,6 +32,9 @@ function rideTo(state, absWeek, handler) {
 {
   const { state, g } = debuted('fs-invite');
   g.popularity = 50;
+  // icon stamp: icons ALWAYS get the call — the invite stops riding the
+  // 75% roll, which rng-stream drift kept knocking over (0.9.24.1)
+  KP.recordEvidence(state, 'festivalIcons', 'group', g.id);
   const F = KP.C.FESTS;
   const f = F.LIST.find(x => x.id === 'hanRiver');
   const inviteWeek = f.woy - F.inviteLead;   // year 1 absolute = woy

@@ -84,7 +84,10 @@ function forceConflict(state, a, b) {
   KP.advanceWeek(state);
   B.civilWarChance = oldChance;
   t.ok(state.badBloodLedger.cannibal >= 1, 'one calendar, two own groups — priced');
-  t.ok(state.inbox.some(n => /stopped pretending to be one family/.test(n.text)),
+  // read the discourse itself, not its inbox note — a crowded week's
+  // trim can drop the note while the war is genuinely live (0.9.24.1)
+  t.ok(KP.liveDiscourses(state).some(d => d.kind === 'civilWar') ||
+    state.inbox.some(n => /stopped pretending to be one family/.test(n.text)),
     'and both fandoms noticed whose calendar it is');
 }
 

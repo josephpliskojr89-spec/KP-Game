@@ -5830,3 +5830,29 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > longhaul 6x620 clean, e2e 95, lockstep 0.9.24 (61 modules —
 > risefall.js). Rode to main. Slot 10 (the deep map + the tongue +
 > the world's auditions) next, on approval.
+
+> **0.9.24.1 — the internet finds who it finds.** Owner: "trainees
+> are getting too many opportunities to go viral... a couple with
+> over 2 years are around or above 200k followers and they're not
+> really special." Measured true (96-week probes): 34–42 pull
+> trainees sat at 117k–191k because the viral event paid a FLAT 22k
+> spike and its chance clamped pull at a floor of 20. The retune:
+> chance now scales with pull-SQUARED, the spike and the hype gain
+> scale with pull, and the hype trickle eased (traineePerHype
+> 25→18). After: unremarkable benches land mostly under 50k (some
+> never found at all, which is the truth of the industry), capable
+> ones 17–81k, and the 64–70 pull kids run 150–230k — exactly who
+> the hype directive exists to force onto a stage. Fixture repairs
+> from the stream shift: suite 064's first invite rides the icon
+> call (no more 75% roll), suite 063 reads the live civilWar
+> discourse instead of a trimmable note, suite 022 asserts
+> convergence to the plan's NEIGHBORHOOD (the plan moves with
+> prestige now that era physics move receptions). Two ceilings
+> ruled with measurement: daesangWon 0.45→0.60 (23/40, 38/80 —
+> hype concentration means the CEO's forced debuts are better
+> castings) and conflictEndemic 0.25→0.30 (11/40, 20/80 — the band
+> was sitting on its own edge). Numbers: battery 66/66, soak clean
+> (166 bands), e2e 94 (the conditional lock-note check idled),
+> lockstep 0.9.24.1. Rode to main. Next: the star's clock (owner:
+> solo albums, the fans calling for them, the ticking clock to a
+> solo career — and the return run), as v0.9.25.

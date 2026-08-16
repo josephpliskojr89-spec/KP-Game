@@ -344,13 +344,22 @@
       p.hype = Math.max(0, (p.hype || 0) - H.decayPerWeek);
       if (!eventFired) {
         const pull = KP.derived(p).centerPull;
-        if (rng.chance(H.eventBase * KP.clamp(pull, 20, 90) / 60)) {
+        // 0.9.24.1 (owner: two-year unremarkable trainees at 200k) — the
+        // internet finds WHO IT FINDS: chance now scales with pull² and
+        // the spike and hype gain scale with pull instead of paying flat.
+        // Measured (96-week no-debut probes, 5 seeds): before, 34–42 pull
+        // sat at 117k–191k; after, ≤45 pull lands mostly under 50k (some
+        // never found), 50s land 17–81k, and 64–70 pull runs 150–230k —
+        // which is exactly who the hype directive exists to force.
+        if (rng.chance(H.eventBase * Math.pow(KP.clamp(pull, 10, 95) / 70, 2))) {
           eventFired = true;
-          p.hype = KP.clamp(p.hype + H.gainMin + rng.next() * (H.gainMax - H.gainMin), 0, 100);
+          p.hype = KP.clamp(p.hype +
+            (H.gainMin + rng.next() * (H.gainMax - H.gainMin)) * KP.clamp(pull, 10, 95) / 70, 0, 100);
           const narNote = KP.recordViral(state, p,   // memory counts (v0.6.0)
             { kind: 'cover', label: 'a practice-room cover clip' });
           if (narNote) notes.push(narNote);
-          KP.socialSpike(state, p, KP.C.SOCIAL.viralSpike, 'viral');   // the numbers move (v0.6.1)
+          KP.socialSpike(state, p,
+            Math.round(KP.C.SOCIAL.viralSpike * KP.clamp(pull, 10, 95) / 70), 'viral');
           if (rng.chance(KP.C.DISCOURSE.fancamChance)) {               // a wave you can ride (v0.6.2)
             // 0.9.8.2: a trainee's viral clip is a cover, not a fancam —
             // she has no stages to film ("fancams of what, exactly?")

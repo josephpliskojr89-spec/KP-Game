@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.24',
+    VERSION: '0.9.24.1',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -684,7 +684,9 @@
       // weekly growth shape (×jitter 0.7–1.3, hash-keyed):
       idolPromoPerPop: 90,     // promoting idols grow fastest
       idolIdlePerPop: 12,      // idle idols coast
-      traineePerHype: 25,      // trainees grow only as fast as the internet cares
+      traineePerHype: 18,      // trainees grow only as fast as the internet cares
+                               // (25→18, 0.9.24.1: the hype trickle compounded
+                               // six-figure counts onto unremarkable benches)
       traineeBase: 6,          // plus a trickle — practice clips leak
       rivalPerPop: 10,         // rival idols coast on act popularity
       narrativeMult: 1.5,      // fancamStar / itGirl compound growth

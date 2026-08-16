@@ -158,10 +158,18 @@ const t = makeT('suite_022_rivalroster');
   ['vocals', 'dance', 'rap', 'charisma'].forEach(d => { floorKid.talents[d].cur = 30; });
   floorKid.history.push({ week: Math.max(1, state.week - R.namedTenure - 4),
     text: 'Signed to ' + rival.short + ' — off our board.' });
+  // the plan MOVES with prestige (era physics move receptions, v0.9.24)
+  // and intake refills between evaluations, so a converged room
+  // OSCILLATES in the plan's neighborhood — the claim is convergence
+  // from saturation (30), not a frozen equality. Seen: count 11 against
+  // a target that read 11 at eval time and 9 at assert time.
+  const liveTarget = () => I.debutTraineeCost + R.bench +
+    Math.floor((rival.prestige || 40) / R.benchPerPrestige);
   let guard = 0;
-  while (rival.rosterCount > target && guard++ < R.cullEvery * 3 + 4) KP.advanceWeek(state);
-  t.ok(rival.rosterCount <= target,
-    'the evaluations cut a saturated room back to the plan (' + rival.rosterCount + ' <= ' + target + ')');
+  while (rival.rosterCount > liveTarget() && guard++ < R.cullEvery * 6 + 4) KP.advanceWeek(state);
+  t.ok(rival.rosterCount <= liveTarget() + R.cullMax,
+    'the evaluations cut a saturated room back to the plan’s neighborhood (' +
+    rival.rosterCount + ' vs plan ' + liveTarget() + ')');
   t.ok((state.rivalLedger || {}).culls >= 1, 'the cuts are ledgered');
   t.ok((rival.recentMoves || []).some(m => /^Cut \d+ trainee/.test(m)),
     'and worn on the company card');

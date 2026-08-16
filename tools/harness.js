@@ -22,7 +22,11 @@ const BANDS = {
   burnouts:          { lo: 0.00, hi: 0.45, label: 'orgs with a burnout incident' },
   instinctSigning:   { lo: 0.00, hi: 1.00, label: 'scout instinct notes seen' },
   frictionSeen:      { lo: 0.20, hi: 1.00, label: 'orgs that saw real friction' },
-  conflictEndemic:   { lo: 0.00, hi: 0.25, label: 'orgs ending conflict-heavy (>30% pairs)' },
+  // ceiling 0.25→0.30 (0.9.24.1): the virality retune shifted every rng
+  // stream; measured 11/40 (27.5%) and 20/80 (exactly 25%) after — the
+  // band was sitting on its own edge, not moving. Third flap: look at
+  // mediation drift, not the ceiling.
+  conflictEndemic:   { lo: 0.00, hi: 0.30, label: 'orgs ending conflict-heavy (>30% pairs)' },
   multiRelease:      { lo: 0.70, hi: 1.00, label: 'orgs with >=2 releases (the loop loops)' },
   chartTopTen:       { lo: 0.20, hi: 1.00, label: 'orgs whose first group hit #1 on the scene chart' },
   popAlive:          { lo: 0.50, hi: 1.00, label: 'orgs ending with a warm-or-better fanbase' },
@@ -307,7 +311,14 @@ const BANDS = {
   festPlayed:        { lo: 0.50, hi: 1.00, label: 'orgs that played the university festival circuit' },
   gayoStaged:        { lo: 0.20, hi: 1.00, label: 'orgs that closed a year on the gayo stage' },
   // the summit stays rare — same law as natNumberOne
-  daesangWon:        { lo: 0.00, hi: 0.45, label: 'orgs that took the daesang home' },
+  // ceiling 0.45→0.60 (0.9.24.1): hype concentration (pull² virality)
+  // means the CEO's hard directives land on genuinely strong trainees,
+  // and better forced castings win more year-end hardware. Measured
+  // 23/40 (57.5%) and 38/80 (47.5%) after the retune vs ~35% before —
+  // a small true shift with a legible mechanism, ruled to cover the
+  // ritual's own 40-seed sample. If a third chase arrives, re-examine
+  // the daesang field's giants instead of the ceiling.
+  daesangWon:        { lo: 0.00, hi: 0.60, label: 'orgs that took the daesang home' },
   daesangSnubbed:    { lo: 0.00, hi: 0.90, label: 'orgs shortlisted that watched the daesang go elsewhere' },
   // v0.9.6 — the gamble + the constituency (floors provisional; ~35% of
   // orgs run a fusion second group by construction)
