@@ -202,13 +202,15 @@ const BANDS = {
   // male idol past the wall who is neither serving nor served).
   svcPapersSeen:     { lo: 0.00, hi: 0.10, label: 'orgs where enlistment papers reached the desk' },
   svcEnlisted:       { lo: 0.00, hi: 0.10, label: 'orgs that sent a man to service' },
-  // the rise and fall (v0.9.24): first soak — provisional, measure-first
+  // the rise and fall (v0.9.24): ruled on first-soak measurement
+  // (40 seeds: rankings 40, seat moved 40, classes 4, offers 32,
+  // turns 33, torches 33, rival service 0 — age-silent by design)
   rfRankings:        { lo: 0.90, hi: 1.00, label: 'worlds where the trades published the power ranking' },
-  rfTopSeatMoved:    { lo: 0.00, hi: 1.00, label: 'worlds where the top seat changed hands (any overtake)' },
-  rfClassSeen:       { lo: 0.00, hi: 0.60, label: 'worlds that watched a collapse mint a signing class' },
-  rfOfferSeen:       { lo: 0.00, hi: 0.90, label: 'orgs the imperial house tried to hire' },
-  rfGenTurned:       { lo: 0.00, hi: 0.90, label: 'worlds where a generation turned' },
-  rfTorchSeen:       { lo: 0.00, hi: 0.90, label: 'worlds where a rookie took the torch' },
+  rfTopSeatMoved:    { lo: 0.50, hi: 1.00, label: 'worlds where the top seat changed hands (any overtake)' },
+  rfClassSeen:       { lo: 0.00, hi: 0.45, label: 'worlds that watched a collapse mint a signing class' },
+  rfOfferSeen:       { lo: 0.20, hi: 1.00, label: 'orgs the imperial house tried to hire' },
+  rfGenTurned:       { lo: 0.30, hi: 1.00, label: 'worlds where a generation turned' },
+  rfTorchSeen:       { lo: 0.30, hi: 1.00, label: 'worlds where a rookie took the torch' },
   rfRivalService:    { lo: 0.00, hi: 0.10, label: 'worlds where a rival act hit the service wall (age-silent in soak)' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },

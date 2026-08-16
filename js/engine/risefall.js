@@ -216,7 +216,9 @@
     }
 
     // ---- named generations: stamps, landmarks, the torch, the turn ----
-    state.gen = state.gen || { n: RF.GEN.start, since: state.week, landmarks: [], torch: false };
+    state.gen = state.gen ||
+      { n: RF.GEN.start, since: state.week - 2 * KP.C.WEEKS_PER_YEAR,   // mid-wave on arrival
+        landmarks: [], torch: false };
     const gen = state.gen;
     // landmark debuts: this week's landings that arrived LOUD
     (state.weekReleases || []).forEach(wr => {
@@ -258,6 +260,15 @@
             });
           }
         }));
+        // the player's own veterans are old guard too — a legacy act
+        // holding the fort does not exempt the house from history
+        groups.forEach(g => {
+          if (!g.debuted || g.retiredWeek || (g.gen || RF.GEN.start) >= gen.n) return;
+          if ((g.popularity || 0) < RF.GEN.oldGuardPop) return;
+          (g.releases || []).slice(-3).forEach(rel => {
+            if (state.week - rel.week <= KP.C.WEEKS_PER_YEAR) oldGuard.push({ r: rel.reception, name: g.name });
+          });
+        });
         const guardBest = oldGuard.sort((a, b) => b.r - a.r)[0];
         if (guardBest && rookieBest.reception > guardBest.r) {
           gen.torch = true;
@@ -267,10 +278,16 @@
         }
       }
     }
-    // the turn: enough landmarks, or the torch, once the wave is old enough
+    // the turn: enough landmarks, the torch — or the old guard simply
+    // GONE (the seven-year wall retires whole waves; when the last
+    // prior-gen act leaves the stage, history closes the book itself)
     const genYears = (state.week - gen.since) / KP.C.WEEKS_PER_YEAR;
+    const oldGuardActive =
+      (state.rivals || []).some(r => (r.acts || []).some(a =>
+        !a.retired && (a.gen || RF.GEN.start - 1) < gen.n)) ||
+      groups.some(g => g.debuted && !g.retiredWeek && (g.gen || RF.GEN.start) < gen.n);
     if (genYears >= RF.GEN.minYears &&
-        (gen.landmarks.length >= RF.GEN.landmarksToTurn || gen.torch)) {
+        (gen.landmarks.length >= RF.GEN.landmarksToTurn || gen.torch || !oldGuardActive)) {
       const from = gen.n;
       state.gen = { n: from + 1, since: state.week, landmarks: [], torch: false };
       led.genTurns++;

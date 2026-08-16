@@ -1231,7 +1231,10 @@
       leverageTrust: 3,          // and what staying is suddenly worth
       GEN: {
         start: 3,                // the scene arrives mid-conversation
-        minYears: 2,             // a generation lasts at least this long
+        minYears: 4,             // a generation lasts at least this long —
+                                 // real waves run ~4-6 years; the seed
+                                 // backdates `since` 2y so the first turn
+                                 // still lands on a playable horizon
         landmarkReception: 78,   // a debut the trades call a landmark
         landmarksToTurn: 3,      // this many inside a year turns the wave
         rookieWeeks: 96,         // debuted within = the new blood

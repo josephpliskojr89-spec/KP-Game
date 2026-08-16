@@ -91,6 +91,7 @@ function release(state, g, conceptId) {
 // ---- the pivot: identity makes changing lanes news ----
 {
   const { state, g } = fresh('dir-pivot');
+  state.budget = 600;   // three locks deep — the till must not decide the test (v0.9.24 stream drift)
   KP.setGroupConcept(state, g.id, 'dark');
   release(state, g, 'dark');
   release(state, g, 'dark');
@@ -98,8 +99,18 @@ function release(state, g, conceptId) {
   t.ok(nar, 'fixture: identity is canon');
   const strengthBefore = nar.strength;
   KP.setGroupConcept(state, g.id, 'bright');
-  release(state, g, 'bright');
+  // lock and ride only to the RESOLVE — the 60-message inbox horizon
+  // must not decide the test (the release() helper rides out promo,
+  // and v0.9.24's louder wire ages the note past the window)
+  g.demos = KP.generateDemos(state, KP.rngFor(state), g);
+  const bDemo = g.demos.find(d => d.conceptId === 'bright') || g.demos[0];
+  KP.planDebut(state, { groupId: g.id, songId: bDemo.id, promo: 'modest',
+    conceptId: 'bright', week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
+  let pGuard = 0;
+  while (g.prep && pGuard++ < 10) KP.advanceWeek(state);
   t.ok(state.inbox.some(m => /changed lanes|pivot LANDED/.test(m.text)), 'the pivot is news');
+  // leave the calendar legal for any block that follows
+  while (state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) KP.advanceWeek(state);
   t.ok(nar.strength < strengthBefore, 'and it cuts the old story down (' +
     strengthBefore + ' → ' + nar.strength + ')');
   t.eq(g.conceptRun, 1, 'the new streak starts at one');

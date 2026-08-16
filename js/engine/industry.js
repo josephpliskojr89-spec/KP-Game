@@ -748,7 +748,6 @@
           const members = castMembers(state, r, rng, [17, 24], actGender2);
           const act = {
             id: newActId(state), gender: actGender2,
-            gen: (state.gen && state.gen.n) || KP.C.RISEFALL.GEN.start,
             name: KP.genGroupName(rng, usedActNames(state)), concept: concept.id,
             quality: actQualityFromMembers(state, members, r.prestige, rng),
             members,
@@ -758,6 +757,12 @@
             cycleWeeks: rng.int(I.cycleWeeks[0], I.cycleWeeks[1]),
             releases: [], retired: false,
           };
+          // the scene arrives mid-conversation (v0.9.24): acts already
+          // two-plus years deep belong to the PREVIOUS generation —
+          // without an old guard, no torch can ever pass. Stamped after
+          // the object so the seeding rng stream stays byte-identical.
+          act.gen = (state.week - act.debutWeek > KP.C.RISEFALL.GEN.rookieWeeks)
+            ? KP.C.RISEFALL.GEN.start - 1 : KP.C.RISEFALL.GEN.start;
           const title = KP.genSongTitle(rng, usedTitles(state));
           const reception = Math.round(KP.clamp(act.quality * 0.85 + act.popularity * 0.15 +
             rng.normal(0, I.releaseNoiseSd) - 6, 1, 100));

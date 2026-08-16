@@ -722,7 +722,8 @@
     // to the wave before it, and the trades start publishing in January.
     const G = KP.C.RISEFALL.GEN;
     const wpy = KP.C.WEEKS_PER_YEAR;
-    state.gen = state.gen || { n: G.start, since: state.week, landmarks: [], torch: false };
+    state.gen = state.gen ||
+      { n: G.start, since: state.week - 2 * wpy, landmarks: [], torch: false };   // mid-wave
     const stamp = (obj, debutWeek) => {
       if (obj.gen) return;
       obj.gen = (debutWeek != null && state.week - debutWeek > 2 * wpy) ? G.start - 1 : G.start;

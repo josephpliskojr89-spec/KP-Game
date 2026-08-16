@@ -1916,12 +1916,15 @@ against the standing clause (arrive, claim, mark):
    together, paused contract clocks, the loyal service hiatus,
    and the discharge return stage the countdown machine banks.
 9. **The rise and fall + the offer + the generations** (§55.10 +
-   being poached + §55.12). Rival eras made legible, the annual
-   power ranking, the overtake, collapse fallout as a free-agent
-   signing class, the imperial rival's job offer — and the scene's
-   own memory: NAMED GENERATIONS declared when the wave turns,
-   every act stamped, gen-vs-gen discourse, and the torch-pass
-   narrative the week a rookie outsells the old guard.
+   being poached + §55.12; SHIPPED v0.9.24, §67, + rival service
+   folded in on owner's order after v0.9.23). Rival eras made
+   legible, the annual power ranking, the overtake, collapse
+   fallout as a free-agent signing class, the imperial rival's
+   job offer — and the scene's own memory: NAMED GENERATIONS
+   declared when the wave turns, every act stamped, gen-vs-gen
+   discourse, and the torch-pass narrative the week a rookie
+   outsells the old guard. Plus: rival boy acts carry the
+   enlistment window (rotations, pauses, the return that punches).
 10. **The deep map + the tongue + the world's auditions** (§55.5 +
     §55.15). Region verbs gated and colored by language; the
     fluent member becomes the voice abroad; interpreters for
@@ -3705,6 +3708,88 @@ send-off morale, the wall, together's joint date + loyal hiatus +
 restarted grace, the return lock with THE RETURN note, the guarded
 member desk, the migration, 90-week determinism.
 
+## §67 The rise and fall + the offer + the generations (v0.9.24) — map slot 9
+
+§55.10 verbatim: *"rival labels don't ever seem to do anything but
+exist below me... I'd like to be able to see them fold if they're
+not successful just like they can reach the top."* Plus §55.12
+(named generations), being poached (the pitched eight), and the
+owner's post-v0.9.23 order: rival boys pay the service tax too.
+
+**The eras** (risefall.js, weekly 562; KP.rivalEra). Derived, never
+stored: imperial at prestige ≥74, rising on a +6 half-year climb
+from 45+, fading at ≤32 or a −5 slide, steady otherwise (trend read
+from a 12-week-sampled prestige trail). Worn on the rival cards in
+era colors — and the ranking is not just copy: an imperial house's
+releases come +3 backed, a fading one's −3 thin.
+
+**The power ranking** (state.powerRanking; every January, woy 2).
+One number the whole industry argues about: rivals at prestige ×0.8
++ flagship pop ×0.45; the player at top-group pop + second ×0.4 +
+trust ×0.35 + career daesangs ×4. Published with deltas; the top
+seat changing hands is written up as THE OVERTAKE — ours, theirs,
+or between two rivals, each with its own prose. The ranking card
+rides the Industry scene above the letterheads.
+
+**The collapse fallout** (KP.mintFreeAgents; state.freeAgents). A
+starved fold now mints a SIGNING CLASS: the folded house's best
+named people (≤29, top five by talent + following) hit the open
+market for 16 weeks, listed by name on the wire and priced by fame
+on the Industry desk. Signing one (KP.signFreeAgent) brings a
+veteran with a career, a carried fandom, and an opinion of your
+company read from trust; the file keeps her first house forever
+(flags.veteran). Unsigned windows close on their own — a rival
+signs her while the scene deliberates, hash-picked, deterministic.
+
+**The offer** (theOffer scene). An imperial-era house at prestige
+≥78 courts a proven operator (trust ≥55, non-founded, ~once per
+two years): the founding's mirror, played against you. Two
+respectable answers ship — decline (both halves of the story are
+worth something; trust +2) and leverage (the board finds 120 of
+"previously committed" budget within the hour, trust +3, and the
+exec remembers agreeing under these circumstances). Accepting —
+running THEIR machine — is a game mode, deferred to the
+succession/board era (slot 12); ruled in §18.
+
+**Named generations** (state.gen {n, since, landmarks, torch}).
+The scene arrives mid-conversation: gen 3, seeded two years deep,
+with seed acts older than two years stamped gen 2 (without an old
+guard no torch can ever pass — first-soak lesson, 0/40 → 33/40).
+Every act carries the number of the wave it debuted into: rival
+acts at creation, player groups at first debut, the legacy group
+gen 2. The wave turns (minYears 4) on any of three triggers: three
+landmark debuts (reception ≥78) inside a year, THE TORCH PASS (a
+current-gen rookie, rival or ours, outsells the old guard's best
+release of the year — old guard includes the player's own veterans
+holding pop ≥60), or the old guard simply GONE (the seven-year
+wall retires whole waves; when the last prior-gen act leaves,
+history closes the book itself — the fix for decade worlds frozen
+at gen 3). Turns are critical-priority news with feed reactions;
+ambient gen-vs-gen chatter rides the timeline; gen chips ride act
+rows and group heroes.
+
+**The rival service** (RISEFALL.SERVICE, coarse by design). When a
+male act's member hits the wall: warm acts (pop ≥55) run a
+ROTATION — releases continue −5 short-handed for serviceWeeks+36,
+the first man stamped away, everyone serviceDone at the end — and
+cool acts PAUSE whole: no releases, popularity cooling, all men
+≥20 stamped away, and the first release after discharge is a
+RETURN that punches +8 (returnPrimed). The trades print both. The
+longhaul holds a rival-side wall invariant (age > deadline+2 must
+be served, serving, or inside a rotation/pause).
+
+Numbers: soak ruled on 40-seed measurement confirmed at 80
+(rankings 40/40+80/80, seat moved 40/40, classes 4/40, offers
+32/40 + 61/80, turns and torches 33/40 + 64/80, rival service
+0/40 age-silent — seeded act members are 17–24 and the wall is 28).
+Longhaul: rankings 12/12 years every world, rival services 4–6 per
+decade world, gen turns 1–3 per 13 years (the 4–6-year wave
+cadence), wall invariants clean. Suite 066 (48): eras, ranking
+ordinality, the minted class + the signing verb + the closing
+window, the offer + leverage, stamps, the forced turn, the organic
+torch through the industry weekly, rival rotation + pause +
+returnPrimed, migration, 90-week determinism.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3802,11 +3887,22 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   positive coverage lives in the longhaul's haul-service scenario.
   If the generation curve ever ages up, or a legacy boy group ships,
   re-point the soak bands at real activity instead.
-- **Rival acts do not enlist (v0.9.23)** — the world's boy groups
-  are ageless where the player's are not, which is a fairness gap
-  the owner may eventually feel (their flagships never lose an era
-  to the service). Slot 9's rival-era work is the natural home for
-  rival enlistment windows if it stings.
+- ~~**Rival acts do not enlist (v0.9.23)**~~ — closed v0.9.24 on
+  the owner's order: rival boy acts now carry the window (warm acts
+  rotate short-handed, cool acts pause whole, returns punch), and
+  the longhaul holds a rival-side wall invariant.
+- **The offer has two answers, not three (v0.9.24)** — accepting
+  the imperial house's job (running THEIR machine) is a new game
+  mode, deferred to the succession/board era (slot 12) where
+  executive machinery lives; the scene ships with decline and
+  leverage, and the body plays the temptation honestly. If the
+  owner wants the third answer sooner, it is a real build, not a
+  toggle.
+- **Generation cadence is ruled, not measured long (v0.9.24)** —
+  minYears 4 with a 2-year backdated seed gives a first turn near
+  year 2 and ~4-year waves after; the longhaul prints gen counts.
+  If 13-year runs stack more than ~3 turns, raise minYears before
+  touching the torch or landmark triggers.
 - **clamorHeld measures choice now, not cadence (v0.9.18)** — at
   first soak 100% of orgs paid resentment ticks because settling
   needs a release and the release cadence (~20wk) outruns the
@@ -5701,3 +5797,36 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 6x620 clean, e2e 95, lockstep 0.9.23 (60 modules —
 > military.js). Rode to main. Slot 9 (the rise and fall + the
 > offer + the generations) next, on approval.
+
+> **v0.9.24 — the rise and fall + the offer + the generations (map
+> slot 9, §67).** Owner: slot 9 approved, "with that addition" —
+> rival enlistment folded in after asking whether rivals ever debut
+> boy groups (they do, ~one in three; now their boys pay the tax).
+> The scene got a pulse and a memory. ERAS derived from prestige
+> trails and worn on the cards — imperial releases come backed,
+> fading ones thin. The POWER RANKING every January: one number the
+> industry argues about, deltas printed, the top seat changing
+> hands written up as THE OVERTAKE in three voices (ours, theirs,
+> between rivals). A starved COLLAPSE now mints a SIGNING CLASS —
+> the folded house's best five hit the open market for 16 weeks,
+> priced by fame, veterans with carried fandoms and opinions read
+> from trust; unsigned windows close on their own. THE OFFER: an
+> imperial house courts a proven operator — decline or leverage
+> (accept is slot 12's build, ruled in §18). NAMED GENERATIONS:
+> gen 3 on arrival, seeded mid-wave with a real gen-2 old guard
+> (first-soak lesson: without one, no torch can pass — 0/40 →
+> 33/40), turns on landmarks, the TORCH PASS (player veterans are
+> targets too — a second longhaul lesson: the legacy act blocked
+> history while being exempt from it), or the old guard simply
+> gone. 4–6-year wave cadence proven at 620 weeks (1–3 turns per
+> world). RIVAL SERVICE: warm acts rotate short-handed at −5, cool
+> acts pause whole and return punching +8, 4–6 events per decade
+> world, rival-side wall invariant in the longhaul. Fixture
+> repairs: seeding rng order restored byte-identical after three
+> suites flapped (gen stamped post-object); suite_033's pivot
+> check moved to resolve time (the 60-message inbox horizon was
+> deciding a test). Numbers: battery 66/66 (suite 066, 48), soak
+> clean (166 bands, seven ruled on 40+80-seed measurement),
+> longhaul 6x620 clean, e2e 95, lockstep 0.9.24 (61 modules —
+> risefall.js). Rode to main. Slot 10 (the deep map + the tongue +
+> the world's auditions) next, on approval.
