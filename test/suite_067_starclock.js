@@ -29,7 +29,13 @@ function debuted(seed) {
   // a settled rung-1 clamor, aged past the quiet year, star still pulling
   g.gravity = { personId: star.id, since: state.week - ST.reclamorWeeks - 10,
     stage: 3, settled: 'solo', settledWeek: state.week - ST.reclamorWeeks - 1, rung: 1 };
-  const read = () => { star.social = 900000; star.morale = 70; };
+  // album-tier dominance on purpose: with v0.9.27's entry rung, a star
+  // who TOWERS over the room would skip straight to the career fork —
+  // this block tests the one-rung climb, so keep the ratio near 2×
+  const read = () => {
+    star.social = 900000; star.morale = 70;
+    g.members.forEach(id => { if (id !== star.id) state.people[id].social = 400000; });
+  };
   read();
   // make her read as transcendent whatever the fixture math says
   const realRead = KP.transcendRead;
@@ -134,6 +140,38 @@ function debuted(seed) {
   t.eq(rel.returnRun, star.id, 'the alum is on the sleeve, permanently');
   t.ok(star.history.some(h => /return run/.test(h.text)), 'and in her story');
   t.ok(state.inbox.some(n => n.ind === 'returnRunSet' && /LANDED/.test(n.text)), 'the era landed loud');
+}
+
+
+// ---- the entry rung (v0.9.27): the ladder reads the record ------------
+{
+  const { state, g, star } = debuted('sc-entry');
+  // a prior album on her record: the conversation opens at the career
+  star.soloAlbums = 1;
+  t.eq(KP.starRung(state, g, star), 3, 'a prior album skips to the career');
+  star.soloAlbums = 0;
+  // dominance: she more than doubles the room's median following
+  g.members.forEach(id => { state.people[id].social = 40000; });
+  star.social = 100000;
+  t.eq(KP.starRung(state, g, star), 2, 'doubling the room enters at the album');
+  star.social = 200000;
+  t.eq(KP.starRung(state, g, star), 2, 'even towering dominance enters at the album — the career entrance requires an album on the record');
+  star.social = 45000;
+  t.eq(KP.starRung(state, g, star), 1, 'a first among equals starts at the stage');
+}
+
+// ---- the proactive launch: the door opened first -----------------------
+{
+  const { state, g, star } = debuted('sc-launch');
+  let guard = 0;
+  while ((g.prep || state.week <= (g.promoUntil || 0)) && guard++ < 20) KP.advanceWeek(state);
+  const r = KP.launchSoloCareer(state, star.id);
+  t.ok(r.ok, 'the launch runs');
+  t.ok(!g.members.includes(star.id), 'she has her own calendar now');
+  t.ok(state.groups.some(s2 => s2.type === 'solo' && s2.originGroupId === g.id), 'next door, not gone');
+  t.ok(g.newEra, 'the group opens chapter two');
+  t.ok((star.directed || []).some(d => d.kind === 'openedTheDoor'), 'and she remembers WHO opened the door');
+  t.ok((state.gravityLedger || {}).careers >= 1, 'ledgered');
 }
 
 // ---- determinism ------------------------------------------------------

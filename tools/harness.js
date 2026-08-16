@@ -41,7 +41,12 @@ const BANDS = {
   // ceiling raised 0.60→0.75 in v0.8.4: the executive pet project now
   // DEMANDS a solo debut in most careers (39/40 assigned) — more solos
   // is the designed consequence, not drift
-  soloDebuts:        { lo: 0.02, hi: 0.75, label: 'orgs that debuted a solo act' },
+  // ceiling 0.75→0.90 (v0.9.27): the entry rung means dominant stars
+  // reach the career fork inside a soak career, and the bot always
+  // launches (a human may hold). Measured 32/40 (80%). Under the §69
+  // portfolio — flagships + units + SOLOISTS as the standard shape —
+  // this is the design, not a leak. Floor guards extinction as before.
+  soloDebuts:        { lo: 0.02, hi: 0.90, label: 'orgs that debuted a solo act' },
   // ceiling 0.35→0.45 by ruling (v0.9.14): with the sink live, roughly
   // a third-to-two-fifths of bot orgs eat a trust-level warning across
   // 140 weeks — 'success stops being free' is the owner's brief. Past

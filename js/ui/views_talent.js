@@ -463,6 +463,8 @@
       }
       if (inRealGroup && g.members.length > 2) {
         row.push('<button class="btn small ghost" style="border:1px solid var(--line)" data-action="remove-lineup" data-id="' + p.id + '" data-gid="' + g.id + '">Remove from the lineup</button>');
+        // the proactive launch (v0.9.27): open the career door first
+        row.push('<button class="btn small ghost" style="border:1px solid var(--line)" data-action="launch-solo" data-id="' + p.id + '">Launch the solo career</button>');
       }
       row.push('<button class="btn danger small" data-action="terminate" data-id="' + p.id + '">Terminate · ' + KP.terminationCost(state, p) + '</button>');
       html.push('<div class="pad" style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">' + row.join('') + '</div>');

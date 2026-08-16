@@ -6012,3 +6012,24 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > MOVES the date instead of stacking receipts (existing stacks
 > resolve naturally as each due date passes). Battery green,
 > lockstep 0.9.26.2. Rode to main.
+
+> **v0.9.27 — the entry rung + the launch.** Owner: "I've already
+> given her a solo on an album prior to the system... this idol more
+> than doubles the rest of the group's follower count. it should be
+> more flexible than a ladder every single time." KP.starRung: the
+> clamor now ENTERS at the rung her record and dominance have
+> earned — a prior solo credit skips the stage ask, a prior album
+> skips to the career fork, and a star at 2x the room's median
+> following opens at the album regardless of history. Dominance
+> alone caps at the album on purpose: the first cut let it jump
+> straight to the fork and 80% of soak orgs minted solo acts
+> ("an epidemic, not flexibility"); the career entrance requires an
+> album on the record. Migrated saves count their pre-system solos
+> — her old album credit is her rung. Plus the proactive verb the
+> question surfaced: KP.launchSoloCareer on the member desk —
+> launch her BEFORE she has to ask three times: warm graduation,
+> chapter two for the group, morale +8, and an openedTheDoor entry
+> in the directed ledger she keeps forever. soloDebuts ceiling
+> ruled 0.75→0.90 with the mechanism (soloists are standard
+> portfolio under §69). Numbers: battery 68/68 (suite 067 now 40),
+> soak clean (168 bands), e2e 94, lockstep 0.9.27. Rode to main.

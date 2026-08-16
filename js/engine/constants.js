@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.26.2',
+    VERSION: '0.9.27',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1251,6 +1251,9 @@
       returnRunBuildup: 30,      // the comeback she guests on counts down LOUD
       returnRunReception: 4,     // and lands louder
       returnRunMorale: 6,
+      dominanceAlbum: 2.0,       // her following vs the room's median: the
+      dominanceCareer: 3.5,      // conversation enters where the numbers already are
+      launchMorale: 8,           // the door opened before she had to push
     },
     RISEFALL: {
       rankWeek: 2,               // woy the trades publish the power ranking

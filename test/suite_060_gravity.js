@@ -50,6 +50,9 @@ function elevate(state, g, p) {
   let guard = 0;
   while (!g.gravity && guard++ < G.holdWeeksToClamor + 4) KP.advanceWeek(state);
   t.ok(g.gravity && g.gravity.personId === p.id, 'the pattern held — the clamor begins on her');
+  // pin rung 1 under test: elevate()'s follower gap now fast-tracks the
+  // entry rung (v0.9.27), and this block tests the STAGE rails
+  g.gravity.rung = 1;
   t.ok(state.inbox.some(n => n.ind === 'gravityTrades'), 'the trades run the feature');
   t.ok(KP.getNarrative(state, 'biggerThan', 'idol', p.id), 'and the question becomes a narrative');
   t.eq(state.gravityLedger.clamors, 1, 'ledgered');

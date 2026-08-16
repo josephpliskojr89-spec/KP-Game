@@ -41,6 +41,57 @@
       { clamors: 0, settled: 0, held: 0, knocks: 0, slumps: 0, footings: 0 };
   }
 
+  // the entry rung (v0.9.27, owner: "not all solo acts should be created
+  // equal... more flexible than a ladder every single time") — the
+  // conversation STARTS at the rung her record and her dominance have
+  // already earned. A prior solo credit skips the stage ask; a prior
+  // album skips to the career; a star who doubles the room's median
+  // following was never going to ask for one song.
+  KP.starRung = function (state, g, p) {
+    const ST = KP.C.STAR;
+    let rung = 1;
+    const credits = (KP.trackCreditsOf ? KP.trackCreditsOf(state, p.id) : []);
+    if (credits.some(c => c.type === 'solo')) rung = 2;
+    if ((p.soloAlbums || 0) >= 1) rung = 3;
+    const others = g.members.filter(id => id !== p.id)
+      .map(id => KP.socialOf(state, state.people[id])).sort((a, b) => a - b);
+    if (others.length) {
+      const median = others[Math.floor(others.length / 2)] || 1;
+      const ratio = KP.socialOf(state, p) / Math.max(1, median);
+      // dominance fast-tracks to the ALBUM; the career entrance still
+      // requires an album on the record — even a star who towers over
+      // the room runs an era of her own before the office ask (first
+      // cut let dominance jump straight to the fork: 80% of soak orgs
+      // minted solo acts, which is an epidemic, not flexibility)
+      if (ratio >= ST.dominanceAlbum) rung = Math.max(rung, 2);
+    }
+    return Math.min(ST.rungMax, rung);
+  };
+
+  // the proactive launch (v0.9.27): the boss who opens the career door
+  // BEFORE she has to ask three times — remembered warmly, forever
+  KP.launchSoloCareer = function (state, personId) {
+    const p = state.people[personId];
+    if (!p || p.status !== 'idol') return { ok: false, reason: 'Careers launch for active artists.' };
+    const g = KP.groupOf(state, personId);
+    if (!g || g.type === 'solo') return { ok: false, reason: 'A soloist already has the career.' };
+    if (g.members.length <= 2) return { ok: false, reason: 'Launching her would not leave a group behind. That is the disband conversation, not this one.' };
+    if (KP.onBreak(p)) return { ok: false, reason: KP.fillPro('{She} is off the schedule. The launch waits for {her}.', p) };
+    if (g.tour || g.prep) return { ok: false, reason: 'Mid-era is the wrong week for this press release. Let the calendar clear.' };
+    const r = KP.graduateToSolo(state, personId);
+    if (!r.ok) return r;
+    if (g.gravity && !g.gravity.settled) { g.gravity.settled = 'spinout'; g.gravity.settledWeek = state.week; }
+    g.newEra = { week: state.week, alum: p.id };
+    p.morale = KP.clamp(p.morale + KP.C.STAR.launchMorale, 0, 100);
+    KP.recordDirected(state, p.id, 'openedTheDoor', 2);
+    p.history.push({ week: state.week, text: 'The company launched the solo career before the third conversation ever happened. Some doors get opened for you. She has never forgotten which kind of company does that.' });
+    const led = ledger(state);
+    led.careers = (led.careers || 0) + 1;
+    const note = KP.note(state, { kind: 'public', ind: 'gravitySettled', priority: 'critical', personId: p.id, groupId: g.id,
+      text: KP.fillPro(state.company.short + ' launched ' + KP.displayName(p) + '’s solo career — announced WITH the group, photographed as a family, framed as the plan all along. The industry note is unanimous: this is how it is done. ' + g.name + ' opens its next chapter; {she} opens {pos} own office door.', p) });
+    return { ok: true, note: note.text };
+  };
+
   // ---- the weekly rails --------------------------------------------------
   // Order 640: after releases (600) and the schools (620) — this week's
   // breakouts and follower moves feed this week's read.
@@ -69,7 +120,8 @@
               rung < ST.rungMax &&
               KP.transcendRead(state, g, star) >= G.transcendAt) {
             g.gravity = { personId: star.id, since: state.week, stage: 0,
-              settled: null, rung: rung + 1 };
+              settled: null,
+              rung: Math.min(ST.rungMax, Math.max(rung + 1, KP.starRung(state, g, star))) };
             led.reclamors = (led.reclamors || 0) + 1;
             inbox.push({ kind: 'public', ind: 'gravityTrades', priority: 'critical',
               personId: star.id, groupId: g.id,
@@ -92,7 +144,8 @@
             if (g.gravityWatch.personId !== top.p.id) g.gravityWatch = { personId: top.p.id, since: state.week };
             if (state.week - g.gravityWatch.since >= G.holdWeeksToClamor) {
               // the pattern held — the clamor begins
-              g.gravity = { personId: top.p.id, since: state.week, stage: 0, settled: null };
+              g.gravity = { personId: top.p.id, since: state.week, stage: 0, settled: null,
+                rung: KP.starRung(state, g, top.p) };   // enter where the numbers are (v0.9.27)
               delete g.gravityWatch;
               led.clamors++;
               const nar = KP.recordEvidence(state, 'biggerThan', 'idol', top.p.id, { group: g.name });

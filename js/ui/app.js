@@ -572,6 +572,21 @@
           '<button class="btn primary" data-action="sign-confirm" data-id="' + p.id + '" style="flex:1">' + KP.fillPro('Sign {her}', p) + '</button>');
         break;
       }
+      case 'launch-solo': {
+        const p = s.people[t.dataset.id];
+        UI.modal('Launch ' + p.name.display + '’s solo career?',
+          '<div class="pad" style="font-size:.88rem;line-height:1.5;color:var(--ink-dim)">' + KP.fillPro('{She} leaves the lineup warmly — same company, {pos} own calendar. The group opens a new chapter, and the door stays oiled for return runs. This is the move stars remember forever.', p) + '</div>',
+          '<button class="btn" data-action="close-modal" style="flex:1">Not yet</button>' +
+          '<button class="btn primary" data-action="launch-solo-confirm" data-id="' + p.id + '" style="flex:1">Launch</button>');
+        break;
+      }
+      case 'launch-solo-confirm': {
+        const r = KP.launchSoloCareer(s, t.dataset.id);
+        UI.closeModal();
+        if (r.ok) { UI.toast('The career launches — announced as a family.'); App.save(); App.view = null; App.stack.length = 0; App.render(); }
+        else UI.toast(r.reason, true);
+        break;
+      }
       case 'plan-unit': {
         const g = KP.groupById(s, t.dataset.id);
         if (!g) break;
