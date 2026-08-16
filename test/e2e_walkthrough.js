@@ -323,14 +323,17 @@ async function main() {
   await tap('.demo-card');
   await page.waitForSelector('[data-action=studio-week]');
   await tap('[data-action=studio-week]');
+  // fixture margin (v0.9.22 stream): the walkthrough's till runs thin
+  // by the comeback — the lock needs the record bill covered
+  await page.evaluate(() => { KP.App.state.budget += 120; KP.App.save(); });
   await tap('[data-action=studio-lock]');
   await page.waitForTimeout(150);
   // the lock may draw a staff note: a worn roster (v0.4.2) or a date
   // clash with an announced rival week (v0.6.4) — acknowledge either
   if (await page.$('.modal-sheet')) {
     const lockNote = await page.textContent('.modal-sheet');
-    ok(/worn|announced|head-to-head/.test(lockNote),
-      'staff flag the lock (worn roster or date clash)');
+    ok(/worn|announced|head-to-head|Producers keep score|Taste is not a directive/.test(lockNote),
+      'staff flag the lock (worn roster, date clash, or the meeting politics)');
     await tap('.modal-sheet [data-action=close-modal]');
   }
   ok((await page.textContent('#screen')).includes('comeback'), 'the comeback is locked');

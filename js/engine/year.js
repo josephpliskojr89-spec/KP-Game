@@ -62,37 +62,8 @@
       });
     }
 
-    // spring: the university festival circuit calls the mid-tier
-    if (woy >= S.festWeeks[0] && woy <= S.festWeeks[1]) {
-      groups.forEach(g => {
-        // a festival is one afternoon, not a calendar block — production
-        // weeks don't stop it, only being physically on the road does
-        if (!g.debuted || g.tour) return;
-        if ((g.festYear || 0) >= year) return;
-        const pop = g.popularity || 0;
-        // the FEE is mid-tier; the lineup is not — festival season books
-        // headliners too (a pop ceiling here made the circuit dead
-        // content for any successful org: 2/40 in the census)
-        if (pop < S.festPopRange[0]) return;
-        g.festYear = year;
-        g.festivalsPlayed = (g.festivalsPlayed || 0) + 1;   // the icons arc counts (v0.9.18)
-        // festival icons headline for icon money — the identity pays
-        const icon = KP.getNarrative(state, 'festivalIcons', 'group', g.id);
-        const pay = Math.round(Math.min(24, Math.round(S.festPayBase + pop * S.festPayPerPop)) *
-          (icon ? KP.C.ARCS.festivalIconBoost : 1));
-        state.budget += pay;
-        const members = g.members.map(id => state.people[id]).filter(Boolean);
-        members.forEach(m => {
-          m.liveExp += S.festLiveExp;
-          m.fatigue = KP.clamp(m.fatigue + S.festFatigue, 0, 100);
-        });
-        inbox.push({ kind: 'company', ind: 'festival', priority: 'high', groupId: g.id,
-          text: pop > S.festPopRange[1]
-            ? g.name + ' headlined a university festival this week — the fee is a rounding error at their level, but the dean asked nicely and the crowd was twenty thousand students who know every word. Fee +' + pay + '. The clips will outperform the last music video. Fields do that.'
-            : g.name + ' played the university festival circuit this week — a field, a spring evening, a crowd that paid nothing and gave everything. The students screamed the b-sides. Fee +' + pay +
-              ', and the kind of live reps no practice room sells. Half the industry’s best stage clips are secretly from festivals.' });
-      });
-    }
+    // the university circuit grew up (v0.9.22): the named festivals
+    // invite through festivals.js — the auto-play retired with honor
 
     // summer: the race opens, once a year, as atmosphere
     if (woy === S.summerWeeks[0] && (state.summerNotedYear || 0) < year && groups.some(g => g.debuted)) {

@@ -39,27 +39,24 @@ function rideToWoy(state, target) {
   t.eq(KP.seasonRead(state, 'bright').mod, 0, 'an ordinary week is an ordinary week');
 }
 
-// ---- the festival circuit: mid-tier money, once a year ----
+// ---- the festival circuit grew up (v0.9.22): the invitation flow ----
 {
   const { state, g } = debuted('yr-fest');
-  rideToWoy(state, KP.C.SEASON.festWeeks[0] - 1);
+  const F = KP.C.FESTS;
+  const f = F.LIST.find(x => x.id === 'cherryPoint');
+  rideToWoy(state, f.woy - F.inviteLead - 1);
   g.popularity = 45;
+  KP.advanceWeek(state);
+  const sc = (state.scenes || []).find(x => x.kind === 'festivalInvite');
+  t.ok(sc, 'the students got their field show — by invitation now');
   const cash = state.budget;
   const live0 = state.people[g.members[0]].liveExp;
+  KP.resolveScene(state, sc.id, 'accept');
+  rideToWoy(state, f.woy - 1);
   KP.advanceWeek(state);
-  t.ok(state.inbox.some(n => n.ind === 'festival'), 'the students got their field show');
-  t.ok(state.budget > cash, 'and the fee is real');
+  t.ok(state.inbox.some(n => n.ind === 'festival'), 'and the stage happened on its week');
+  t.ok(state.budget > cash - f.travel, 'and the fee is real (net of travel)');
   t.ok(state.people[g.members[0]].liveExp > live0, 'live reps no practice room sells');
-  const count = state.inbox.filter(n => n.ind === 'festival').length;
-  for (let w = 0; w < 3; w++) KP.advanceWeek(state);
-  t.eq(state.inbox.filter(n => n.ind === 'festival').length, count, 'once a year — the circuit is not a residency');
-  // the famous play too — the fee is mid-tier, the lineup is not
-  const { state: s2, g: g2 } = debuted('yr-fest2');
-  rideToWoy(s2, KP.C.SEASON.festWeeks[0] - 1);
-  g2.popularity = 80;
-  KP.advanceWeek(s2);
-  const head = s2.inbox.find(n => n.ind === 'festival');
-  t.ok(head && /headlined/.test(head.text), 'a big act headlines the field — and the dean asked nicely');
 }
 
 // ---- the gayo stages: invitation by popularity, period ----

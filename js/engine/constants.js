@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.21.1',
+    VERSION: '0.9.22',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -162,7 +162,9 @@
     // group identity arcs: repeated behavior mints a narrative that
     // changes how the invitations arrive
     ARCS: {
-      festivalIconsAt: 3,        // festivals played
+      festivalIconsAt: 6,        // festivals played (3→6 in v0.9.22: the
+                                 // named circuit offers up to three a year
+                                 // — the identity should take seasons)
       festivalIconBoost: 1.6,    // ...and the organizers call icons first
       varietyGroupAt: 3,         // gig runs wrapped across the lineup
       varietyOfferBoost: 1.6,
@@ -1074,6 +1076,31 @@
       buildupPop: 0.06,        // × group popularity
       anticipationCap: 4,      // reception lift ceiling at release
       anticipationPer: 22,     // buildup points per +1 reception
+    },
+    // festival season (v0.9.22, §55.4, map slot 7) — the calendar's
+    // events become ATTENDED: named annuals that invite, schedule
+    // surgery read out loud, travel with a bill, and a slot
+    FESTS: {
+      inviteLead: 4,           // the organizer calls this many weeks out
+      maxPerYear: 3,           // a group plays at most this many a year
+      missFandom: 2,           // pulling out of a booked slot costs the room
+      headlineMult: 1.6,       // icons headline for icon money (one truth w/ ARCS)
+      LIST: [
+        { id: 'cherryPoint', name: 'Cherry Point Campus Week', woy: 17, tier: 1,
+          popMin: 25, pay: 12, travel: 3, fatigue: 3, blurb: 'a field, a spring evening, twenty thousand students who know every word' },
+        { id: 'hanRiver', name: 'Han River Summer Wave', woy: 30, tier: 2,
+          popMin: 40, pay: 22, travel: 6, fatigue: 4, blurb: 'the city’s big summer stage, floating lanterns and a broadcast truck' },
+        { id: 'moonlitGarden', name: 'Gyeongju Moonlight Garden', woy: 38, tier: 2,
+          popMin: 45, pay: 24, travel: 9, fatigue: 5, blurb: 'heritage grounds, lantern light, the set every act films for the archive' },
+        { id: 'neonHarbor', name: 'Neon Harbor', woy: 44, tier: 3,
+          popMin: 58, pay: 40, travel: 12, fatigue: 6, blurb: 'the year’s biggest open-air bill — headlining it is a line in a career summary' },
+        { id: 'firstFrost', name: 'First Frost Fest', woy: 49, tier: 1,
+          popMin: 25, pay: 12, travel: 3, fatigue: 3, blurb: 'the winter campus circuit, breath clouds and hot packs taped inside coats' },
+      ],
+    },
+    AWARD_NIGHT: {
+      speakerMorale: 6,        // the mic is a gift to whoever holds it
+      passedOverMorale: 2,     // and a small sting to whoever expected it
     },
     // the bad blood (v0.9.21, §55.3 + §55.13, map slot 6) — conflict
     // must COST, and the fandom must amplify. Three tiers: in-group,

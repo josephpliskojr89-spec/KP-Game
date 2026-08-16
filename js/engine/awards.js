@@ -119,6 +119,34 @@
     return list.sort((x, y) => y.score - x.score);
   }
 
+  // award night (v0.9.22): the planned speaker, if the desk chose one
+  function plannedSpeaker(state, g) {
+    const plan = state.awardNightPlan;
+    if (!plan || !g || plan.groupId !== g.id) return null;
+    const p = state.people[plan.speakerId];
+    return p && g.members.includes(p.id) ? { p, role: plan.role } : null;
+  }
+  function speakerLine(state, g, fandomName) {
+    const sp = plannedSpeaker(state, g);
+    if (!sp) return 'The leader took the microphone, steadied it, and named ' + fandomName +
+      ' before anyone else \u2014 \u201cthis belongs to ' + fandomName + ', who believed it first.\u201d';
+    if (sp.role === 'writer') {
+      return KP.displayName(sp.p) + ' took the microphone \u2014 the member who writes \u2014 and thanked the producers by NAME, the demo that got passed on, and ' + fandomName + ' \u201cwho heard what we meant, not just what charted.\u201d The writers\u2019 rooms will remember being thanked.';
+    }
+    if (sp.role === 'breakout') {
+      return KP.displayName(sp.p) + ' took the microphone \u2014 the one the public picked \u2014 and turned immediately to the line behind ' + (sp.p.gender === 'm' ? 'him' : 'her') + ': \u201cI stand in the light because they hold it steady.\u201d Then ' + fandomName + ', named like family. The clip was everywhere before the next award.';
+    }
+    return KP.displayName(sp.p) + ' took the microphone, steadied it, and named ' + fandomName +
+      ' before anyone else \u2014 \u201cthis belongs to ' + fandomName + ', who believed it first.\u201d';
+  }
+  // the seat-mate beat: a friend at the next table makes the night warmer
+  function tableLine(state, g) {
+    const f = (state.industryFriends || []).find(fr => g.members.includes(fr.a));
+    if (!f) return '';
+    const theirs = state.people[f.b];
+    return theirs ? ' From the next table, ' + KP.displayName(theirs) + ' was on their feet before the envelope finished opening \u2014 the cameras caught it, and the friendship trended beside the trophy.' : '';
+  }
+
   KP.awardsWeek = function (state) {
     const A = KP.C.AWARDS;
     const notes = [];
@@ -147,6 +175,25 @@
       }
     }
 
+    // award night attended (v0.9.22, §55.4): the week before the
+    // ceremony, the seating chart and ONE decision reach the desk —
+    // who takes the microphone if the night goes our way
+    if (woy === A.ceremonyWeek - 1 && state.awardSeason &&
+        state.awardSeason.year === yearOf(state) &&
+        !(state.scenes || []).some(sc => sc.kind === 'awardNight')) {
+      const nominated = [];
+      Object.values(state.awardSeason.noms).forEach(list =>
+        (list || []).forEach(n => { if (n.isPlayer && n.groupId) nominated.push(n.groupId); }));
+      const gid = nominated[0];
+      const g = gid && KP.groupById(state, gid);
+      if (g && g.members.length) {
+        KP.openScene(state, { kind: 'awardNight', groupId: g.id,
+          year: state.awardSeason.year, expiresWeek: state.week + 1 });
+        notes.push({ kind: 'company', urgent: true, groupId: g.id,
+          text: 'The year-end ceremony seating chart arrived — ' + g.name + ' at a floor table, cameras on a rail behind them, and the acceptance-speech question suddenly not hypothetical: if the night goes our way, WHO takes the microphone? The stage manager needs a name. It is on the Desk.' });
+      }
+    }
+
     if (woy === A.ceremonyWeek && state.awardSeason && state.awardSeason.year === yearOf(state)) {
       const results = [];
       let bonsangTonight = 0;   // the ladder: bonsangs first, then the one that matters
@@ -168,7 +215,10 @@
           bonsangTonight++;
           notes.push({ kind: 'public', urgent: true, ind: 'awardWin', groupId: winner.groupId,
             category: cat,
-            text: A.LABELS[cat].toUpperCase() + ' — a bonsang: ' + winner.name + '. The speech thanked the fans first and the company fourth, which is the correct order. ' +
+            text: A.LABELS[cat].toUpperCase() + ' — a bonsang: ' + winner.name + '. ' +
+              (g && plannedSpeaker(state, g)
+                ? KP.displayName(plannedSpeaker(state, g).p) + ' took the mic exactly as planned and thanked the fans first and the company fourth, which is the correct order. '
+                : 'The speech thanked the fans first and the company fourth, which is the correct order. ') +
               state.executive.name + ' has already had the trophy photographed for the lobby.' });
         } else {
           // the snub: we were shortlisted and watched someone else walk
@@ -228,8 +278,8 @@
               });
               notes.push({ kind: 'public', urgent: true, priority: 'critical', ind: 'daesang',
                 groupId: g.id, first: true,
-                text: 'DAESANG. ' + g.name + '. The grand prize, the real one, the one the whole ladder exists for. The leader took the microphone, steadied it, and named ' + fandomName +
-                  ' before anyone else — “this belongs to ' + fandomName + ', who believed it first.” The members cried in a line. The building will never fully recover, and should not.' });
+                text: 'DAESANG. ' + g.name + '. The grand prize, the real one, the one the whole ladder exists for. ' + speakerLine(state, g, fandomName) +
+                  ' The members cried in a line. The building will never fully recover, and should not.' + tableLine(state, g) });
             } else {
               notes.push({ kind: 'public', urgent: true, ind: 'daesang', groupId: g.id,
                 text: 'DAESANG, again: ' + g.name + '. The second one lands differently — less lightning, more law. The speech was calmer. ' + fandomName + ' was still named first, because some orders are permanent.' });
@@ -250,6 +300,24 @@
           }
         }
       }
+      // award night settles (v0.9.22): the chosen speaker either took
+      // the mic \u2014 stamped once, however many trophies \u2014 or the
+      // speech stayed folded in a jacket pocket
+      if (state.awardNightPlan && state.awardNightPlan.year === state.awardSeason.year) {
+        const sp = state.people[state.awardNightPlan.speakerId];
+        if (sp) {
+          if (results.some(r => r.isPlayer)) {
+            const AN = KP.C.AWARD_NIGHT;
+            sp.morale = KP.clamp(sp.morale + AN.speakerMorale, 0, 100);
+            KP.recordDirected(state, sp.id, 'gaveTheSpeech', 2);
+            sp.history.push({ week: state.week, text: 'Gave the acceptance speech on year-end television. Practiced it once in the van and then said something better.' });
+          } else {
+            notes.push({ kind: 'development', personId: sp.id,
+              text: KP.fillPro('The van ride home was quiet in the specific way of a nominated night that stayed one. ' + KP.displayName(sp) + '\u2019s acceptance speech stayed folded in a jacket pocket. {She} will not throw it away. Next year it will need one edit: the date.', sp) });
+          }
+        }
+      }
+      state.awardNightPlan = null;
       state.awardHistory = (state.awardHistory || []).concat(results).slice(-24);
       state.awardSeason = null;
       // the year's tally closes with the ceremony (0.9.13 audit B2): the
@@ -262,4 +330,65 @@
     }
     return notes;
   };
+
+  // ---- award night: the seating chart and the microphone (v0.9.22) ----
+  KP.registerScene('awardNight', {
+    title: (state, sc) => {
+      const g = KP.groupById(state, sc.groupId);
+      return (g ? g.name : 'The ceremony') + ' \u00b7 award night';
+    },
+    body: (state, sc) => {
+      const g = KP.groupById(state, sc.groupId);
+      if (!g) return '';
+      const friend = (state.industryFriends || []).find(fr => g.members.includes(fr.a));
+      const fp = friend && state.people[friend.b];
+      return 'The floor table is booked, the stylists have opinions, and the stage manager wants ONE name: who takes the microphone if ' + g.name +
+        '\u2019s night goes the way the fandom\u2019s spreadsheets say it might.' +
+        (fp ? ' Seating note: ' + KP.displayName(fp) + ' is at the next table \u2014 the cameras will find that friendship the moment anything happens.' : '') +
+        ' Whoever speaks carries the room; whoever expected to and does not will notice.';
+    },
+    options: (state, sc) => {
+      const g = KP.groupById(state, sc.groupId);
+      if (!g) return [{ id: 'leader', label: 'The leader' }];
+      const out = [{ id: 'leader', label: 'The leader \u2014 steady hands' }];
+      const breakout = g.results && g.results.breakoutId &&
+        g.members.includes(g.results.breakoutId) ? g.results.breakoutId : null;
+      if (breakout && breakout !== g.roles.leader) {
+        out.push({ id: 'breakout', label: KP.publicGiven(state.people[breakout]) + ' \u2014 the public\u2019s pick' });
+      }
+      const writer = g.members.find(id => (g.releases || []).some(r => r.writtenBy === id));
+      if (writer && writer !== g.roles.leader && writer !== breakout) {
+        out.push({ id: 'writer', label: KP.publicGiven(state.people[writer]) + ' \u2014 the one who writes' });
+      }
+      return out;
+    },
+    resolve: (state, sc, optionId) => {
+      const g = KP.groupById(state, sc.groupId);
+      if (!g) return {};
+      let speakerId = g.roles.leader, role = 'leader';
+      if (optionId === 'breakout' && g.results && g.results.breakoutId) {
+        speakerId = g.results.breakoutId; role = 'breakout';
+      } else if (optionId === 'writer') {
+        const w = g.members.find(id => (g.releases || []).some(r => r.writtenBy === id));
+        if (w) { speakerId = w; role = 'writer'; }
+      }
+      state.awardNightPlan = { year: sc.year, groupId: g.id, speakerId, role };
+      // whoever expected the mic and lost it, noticed (the leader always
+      // expects it \u2014 that is what leaders are for)
+      if (role !== 'leader' && g.roles.leader && state.people[g.roles.leader]) {
+        const lead = state.people[g.roles.leader];
+        lead.morale = KP.clamp(lead.morale - KP.C.AWARD_NIGHT.passedOverMorale, 0, 100);
+      }
+      const sp = state.people[speakerId];
+      return { toast: (sp ? KP.displayName(sp) : 'The leader') + ' gets the microphone if the night delivers. ' +
+        (sp ? KP.fillPro('{She} has started drafting nothing, which is how the good speeches happen.', sp) : '') };
+    },
+    expire: (state, sc) => {
+      const g = KP.groupById(state, sc.groupId);
+      if (!g) return null;
+      state.awardNightPlan = { year: sc.year, groupId: g.id, speakerId: g.roles.leader, role: 'leader' };
+      return { kind: 'company', groupId: g.id,
+        text: 'Nobody answered the stage manager, so protocol answered: the leader speaks. Protocol is fine. Protocol is always fine. That is the whole problem with protocol.' };
+    },
+  });
 })(typeof window !== 'undefined' ? window : globalThis);

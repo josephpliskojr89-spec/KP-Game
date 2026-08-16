@@ -1906,10 +1906,10 @@ against the standing clause (arrive, claim, mark):
    gasoline gets faces: the big accounts with funding power,
    closeness, and turn risk. Conflict finally costs.
 7. **Festival season + award night** (§55.4 + the attended
-   ceremony). The calendar's events become scenes: festival
-   invitations with schedule surgery and travel bills, headline
-   calls for the icons — and the year-end ceremony played out
-   (seating, speeches, the daesang moment), not summarized.
+   ceremony; SHIPPED v0.9.22, §65). The calendar's events become
+   scenes: festival invitations with schedule surgery and travel
+   bills, headline calls for the icons — and the year-end ceremony
+   played out (seating, speeches, the daesang moment).
 8. **The service** (§55.7). Military enlistment — the boy-group
    story completed: windows and deadlines, stagger vs together,
    paused contract clocks, the wait, the discharge return stage.
@@ -3591,6 +3591,53 @@ drag A/B + the burial, the two-groups-one-calendar price and the
 in-house war, class-source formation + the heat/clash/canon ladder,
 the master's graduation/funding/turn with the receipts, 30-week
 determinism.
+
+## §65 Festival season + award night (v0.9.22) — map slot 7
+
+§55.4 verbatim: *"annual festivals that actually reach out to you...
+you have to see if you can fit in the schedule, arrange the travel."*
+
+**The named circuit** (festivals.js, weekly 745; state.festivalLedger).
+Five annuals with weeks-of-year and tiers: Cherry Point Campus Week
+(spring, tier 1), Han River Summer Wave (tier 2), Gyeongju Moonlight
+Garden (tier 2), Neon Harbor (tier 3 — headlining it is a line in a
+career summary), First Frost Fest (winter, tier 1). Organizers INVITE
+four weeks out — a scene whose body reads the schedule surgery out
+loud (tour, release week, running promo, hiatus, members on fumes)
+and prices the answer: travel bills up front, the fee lands at the
+stage, at most three a year, once per edition, and bookers skip acts
+mid-road. Icons (festivalIcons — threshold 3→6 now that the circuit
+offers three a year) always get the call and headline tiers 2+ at
+×1.6. A booked slot the calendar later eats is MISSED: fandom −2 and
+the fans who bought train tickets are right to be angry (3/40 in
+soak after the bot learned to ground tours and hold hiatuses over
+bookings — a real mistake, not structural blindness). The v0.9.5
+auto-circuit retired with honor; suite 047 rewired to the invite
+flow.
+
+**Award night attended** (awards.js). The week before the ceremony,
+a nominated company gets the seating chart and ONE question: who
+takes the microphone if the night delivers — the leader (steady
+hands), the breakout (the public's pick; the clip travels), or the
+member who writes (the writers' rooms remember being thanked). The
+leader not chosen notices (−2 morale). The ceremony reads the plan:
+bonsang speeches name the chosen speaker; the daesang moment speaks
+in their voice (three speech texts); a society friend at the next
+table is on their feet before the envelope finishes opening. The
+speaker stamps once per night (morale +6, gaveTheSpeech, the
+history line about practicing in the van). A nominated night that
+stays one ends with the speech folded in a jacket pocket — one
+edit needed next year: the date. Unanswered charts default to the
+leader, because protocol is always fine, which is the whole
+problem with protocol.
+
+Soak: invitations 40/40, headlines 18/40, misses 3/40, the mic
+planned 40/40 and spoken ~always (ruled — a competent bot wins a
+bonsang most careers). Suite 064 (26): the invitation with
+conflicts read aloud, travel billed at accept, the stage on its
+week, the headline call, the eaten booking, regrets, the seating
+chart, the chosen mic, the consumed plan, the spoken-or-folded
+ending, 45-week determinism.
 
 ## §18 Watch items
 
@@ -5522,3 +5569,28 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > touches it. Covers the training screen, the studio, and every
 > other instance the owner was about to find. UI only; battery
 > 63/63, e2e 94, lockstep 0.9.21.1. Rode to main.
+\n
+> **v0.9.22 — festival season + award night** (map slot 7, owner:
+> "approved for slot 7"). The calendar's events become attended.
+> Five NAMED annual festivals with weeks-of-year and prestige
+> tiers now reach out — a scene four weeks ahead whose body reads
+> the schedule surgery out loud and whose answer costs travel up
+> front, pays at the stage, and can be EATEN by a calendar that
+> changed after the ink dried. Icons get the headline call at
+> ×1.6 (the arc threshold doubled to match the richer circuit);
+> the old auto-circuit retired with honor. And the year-end
+> ceremony is played, not summarized: the seating chart arrives
+> the week before with one question — who takes the microphone —
+> and the night answers in that voice: the leader's steady hands,
+> the breakout turning to the line behind her, the writer
+> thanking the producers by name, the friend at the next table on
+> their feet before the envelope opens, or the speech that stayed
+> folded in a jacket pocket, one edit needed next year. Fixture
+> repairs: suite 047's circuit block rewired to the invite flow;
+> the e2e till topped up and its lock-note check widened to the
+> title fight's producer note. Numbers: battery 64/64 (suite 064,
+> 26), soak clean (157 bands, five new; two first-soak bot fixes
+> — tours grounded over bookings, hiatuses held), longhaul 5x620
+> clean, e2e 95, lockstep 0.9.22 (59 modules — festivals.js).
+> Rode to main. Slot 8 (the service — military enlistment) next,
+> on approval.

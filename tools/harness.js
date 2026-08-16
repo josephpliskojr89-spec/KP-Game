@@ -185,6 +185,15 @@ const BANDS = {
   cannibalSeen:      { lo: 0.00, hi: 0.80, label: 'orgs whose own groups habitually cannibalize (3+ overlaps)' },
   masterMinted:      { lo: 0.05, hi: 1.00, label: 'orgs whose fandom minted a fansite master' },
   masterTurned:      { lo: 0.00, hi: 0.70, label: 'orgs that watched a fansite post the closing notice' },
+  // festival season + award night (v0.9.22): first soak
+  festInvited:       { lo: 0.30, hi: 1.00, label: 'orgs the festival organizers called by name' },
+  festHeadlined:     { lo: 0.00, hi: 0.80, label: 'orgs whose icons took the top of a poster' },
+  festMissed:        { lo: 0.00, hi: 0.50, label: 'orgs that pulled out of a booked slot' },
+  nightPlanned:      { lo: 0.10, hi: 1.00, label: 'orgs that chose the microphone before the ceremony' },
+  // ceiling 0.90→1.00, floor 0.02 (v0.9.22 first soak): a bot that wins
+  // a bonsang most careers and always answers the seating chart speaks
+  // ~always — the alarm guards extinction of the attended night.
+  speechGiven:       { lo: 0.02, hi: 1.00, label: 'orgs whose chosen speaker took the mic on a win' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
@@ -327,6 +336,7 @@ const tally = {
   mandateGranted: 0, mandateBoard: 0, mandateLapsed: 0,
   walkoutCalled: 0, sceneRivalry: 0, fanWarSeen: 0, inGroupRivalry: 0,
   cannibalSeen: 0, masterMinted: 0, masterTurned: 0,
+  festInvited: 0, festHeadlined: 0, festMissed: 0, nightPlanned: 0, speechGiven: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -593,6 +603,8 @@ for (let s = 0; s < SEEDS; s++) {
     state.groups.forEach(g => {
       if (!g.debuted || g.prep || g.tour || g.hiatus) return;
       if (state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) return;
+      // a booked festival plays before anyone disappears (0.9.22)
+      if ((g.festivalBookings || []).some(b => b.week >= state.week)) return;
       const avgF = g.members.reduce((s, id) => s + state.people[id].fatigue, 0) / g.members.length;
       if (avgF >= 55) KP.declareHiatus(state, g.id);
     });
@@ -647,6 +659,20 @@ for (let s = 0; s < SEEDS; s++) {
       if (sc.kind === 'quietEra') {
         const p = state.people[sc.personId];
         KP.resolveScene(state, sc.id, p && p.fatigue > 50 ? 'shield' : 'push');
+        return;
+      }
+      if (sc.kind === 'festivalInvite') {
+        // take the stage unless the room is running on fumes
+        const g2 = KP.groupById(state, sc.groupId);
+        const avgF = g2 ? g2.members.reduce((s2, id) => s2 + (state.people[id] ? state.people[id].fatigue : 0), 0) /
+          (g2.members.length || 1) : 100;
+        KP.resolveScene(state, sc.id, avgF < 62 && state.budget > 40 ? 'accept' : 'decline');
+        return;
+      }
+      if (sc.kind === 'awardNight') {
+        // the bot sends the public's pick when there is one — the clip travels
+        const opts = KP.sceneDef('awardNight').options(state, sc);
+        KP.resolveScene(state, sc.id, (opts.find(o => o.id === 'breakout') || opts[0]).id);
         return;
       }
       if (sc.kind === 'walkOut') {
@@ -718,6 +744,9 @@ for (let s = 0; s < SEEDS; s++) {
       if ((state.deals || []).some(d => d.weeksLeft > 0 &&
           g.members.includes(d.personId) &&
           (d.nextObligationWeek || 0) <= state.week + 4)) return;
+      // a booked festival slot grounds the road (0.9.22): the boss does
+      // not book a stage and then drive the group away from it
+      if ((g.festivalBookings || []).some(b => b.week <= state.week + 10)) return;
       const spot = T.SCALES[scale].sweetSpot;
       const legs = ['kr'].concat(warm.filter(o => o.demand >= spot * T.softBelow)
         .slice(0, 2).map(o => o.id));
@@ -1090,6 +1119,16 @@ for (let s = 0; s < SEEDS; s++) {
   if ((bb.cannibal || 0) >= 3) tally.cannibalSeen++;
   if ((bb.masters || 0) >= 1) tally.masterMinted++;
   if ((bb.turns || 0) >= 1) tally.masterTurned++;
+  // festival season + award night (v0.9.22): ledger + histories
+  const fl = state.festivalLedger || {};
+  if ((fl.invites || 0) >= 1) tally.festInvited++;
+  if ((fl.headlines || 0) >= 1) tally.festHeadlined++;
+  if ((fl.missed || 0) >= 1) tally.festMissed++;
+  if (Object.values(state.people).some(p => (p.history || []).some(h =>
+      /acceptance speech on year-end television/.test(h.text)))) tally.speechGiven++;
+  if (Object.values(state.people).some(p => (p.directed || []).some(d => d.kind === 'gaveTheSpeech')) ||
+      Object.values(state.people).some(p => (p.history || []).some(h => /speech stayed folded|acceptance speech on year-end/.test(h.text))))
+    tally.nightPlanned++;
   // the trainee floor (0.9.18.1): the rival ledger is durable
   const rl = state.rivalLedger || {};
   if ((rl.culls || 0) >= 1) tally.rivalCulled++;
