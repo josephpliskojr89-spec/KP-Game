@@ -482,6 +482,12 @@ for (let s = 0; s < SEEDS; s++) {
         KP.signProspect(state, ranked[0].p.id);
       }
     }
+    // the album promise gets kept (v0.9.25): produce her record when
+    // the claim is open and the till can carry it
+    (state.claims || []).forEach(c => {
+      if (c.resolved || c.type !== 'soloAlbumPromise') return;
+      if (state.budget > KP.C.STAR.albumCost + 120) KP.releaseSoloAlbum(state, c.personId);
+    });
     // the open market (v0.9.24): a flush boss buys a career when one
     // is on it — the signing-class verb gets exercised
     (state.freeAgents || []).slice(0, 1).forEach(f => {
@@ -691,8 +697,15 @@ for (let s = 0; s < SEEDS; s++) {
       if (sc.kind === 'soloKnock') {
         // the gravity (v0.9.18): a sensible boss promises the solo — the
         // bot's own credit assignment then keeps it or breaks it, which
-        // is the mechanism under test
-        KP.resolveScene(state, sc.id, 'promise');
+        // is the mechanism under test. At the career rung (v0.9.25)
+        // there is no promise on the menu: launch her, same house.
+        const opts = KP.sceneDef('soloKnock').options(state, sc);
+        KP.resolveScene(state, sc.id, opts.some(o => o.id === 'promise') ? 'promise' : 'open');
+        return;
+      }
+      if (sc.kind === 'returnRun') {
+        // the event of the year does not get skipped by a sensible boss
+        KP.resolveScene(state, sc.id, 'invite');
         return;
       }
       if (sc.kind === 'quietEra') {

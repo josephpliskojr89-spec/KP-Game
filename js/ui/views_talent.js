@@ -447,6 +447,15 @@
       const g = KP.groupOf(state, p.id);
       const inRealGroup = g && g.type !== 'solo' && g.members.length > 1;
       const row = [];
+      // the star's clock (v0.9.25): when the album conversation is live,
+      // the desk can simply SAY YES
+      const albumAsk = inRealGroup && (
+        (state.claims || []).some(c => !c.resolved && c.type === 'soloAlbumPromise' && c.personId === p.id) ||
+        (KP.liveDiscourses(state) || []).some(d => d.kind === 'albumClamor' && String(d.subjectId) === String(p.id)) ||
+        (g.gravity && !g.gravity.settled && g.gravity.personId === p.id && (g.gravity.rung || 1) === 2));
+      if (albumAsk && state.week - (p.lastSoloAlbumWeek || -999) >= KP.C.STAR.albumCooldown) {
+        row.push('<button class="btn primary small" data-action="solo-album" data-id="' + p.id + '">Produce the solo album · ' + KP.C.STAR.albumCost + '</button>');
+      }
       if (p.flags.personalHiatus) {
         row.push('<button class="btn small" data-action="end-break" data-id="' + p.id + '">End the personal break · week ' + (state.week - p.flags.personalHiatus.since) + '</button>');
       } else if (inRealGroup) {

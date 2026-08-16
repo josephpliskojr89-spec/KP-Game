@@ -107,13 +107,17 @@
       seen.add(e.act);
       if ((e.peakPos || 99) > 5) return;
       list.push({ name: e.act, company: 'the open market', isPlayer: false,
-        // The giants' bar was stepped 140→145→148 across three releases
-        // to hold scarcity against ALL-TIME trophy inflation. 0.9.13
-        // year-scoped the trophy term (audit B2), which removed the very
-        // inflation the steps countered — so the bar steps back to 140,
-        // calibrated against year-shaped player scores. The §18 era-
-        // indexing note stands if the creep ever returns.
-        score: 140 - ((e.peakPos || 1) - 1) * 6 +
+        // The giants' bar was stepped 140→145→148 against ALL-TIME
+        // trophy inflation, then back to 140 when 0.9.13 year-scoped
+        // the trophy term. The creep RETURNED by another road (v0.9.25:
+        // hype concentration made forced debuts stronger, solo albums
+        // and return runs made years louder — daesang censused 35% →
+        // 57% → 62% across the three releases), so the bar steps to
+        // 146, calibrated: 25/40 (62.5%) before the step, 22/40 (55%)
+        // after — back inside the ruled ceiling with the snub band
+        // healthy. Era-indexing (§18) remains the real fix if a fourth
+        // chase arrives.
+        score: 146 - ((e.peakPos || 1) - 1) * 6 +
           Math.min(30, e.weeksOn || 0) * 0.5 + jitter(e.act) });
     });
     return list.sort((x, y) => y.score - x.score);

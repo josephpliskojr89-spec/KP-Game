@@ -460,6 +460,8 @@
     state.groups.push({
       id: 'g' + (state.nextGroupId++),
       type: 'solo', gender: p.gender || 'f',
+      gen: (state.gen && state.gen.n) || (KP.C.RISEFALL && KP.C.RISEFALL.GEN.start),
+      originGroupId: g.id,   // the door swings both ways (v0.9.25)
       name: KP.displayName(p),
       members: [p.id],
       roles: { leader: p.id, center: p.id },

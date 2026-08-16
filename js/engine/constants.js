@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.24.1',
+    VERSION: '0.9.25',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -802,6 +802,9 @@
         // ot5-loyalist camps — a debate, not an attack; both camps love her
         soloClamor: { label: 'solo-clamor debate', negative: false, start: [35, 60],
           actions: ['statement', 'meme'] },
+        // the star's clock (v0.9.25): the fans call for the ALBUM
+        albumClamor: { label: 'solo-album campaign', negative: false, start: [40, 65],
+          actions: ['statement', 'meme'] },
         // the bad blood (v0.9.21): the fandom throws the gasoline
         didntStand: { label: 'distance watch', negative: true, start: [25, 45],
           actions: ['statement', 'meme'] },
@@ -1211,6 +1214,24 @@
     // ranking, collapse fallout as a signing class, the imperial
     // rival's job offer, named generations — and the rival world's
     // boys pay the service tax too (owner, after v0.9.23)
+    // the star's clock (v0.9.25, owner: "one solo stage shouldn't be
+    // enough, forever... a ticking clock until she's on hiatus from the
+    // group for her solo career, or leaves her group entirely")
+    STAR: {
+      reclamorWeeks: 40,         // a settled clamor stays settled ~a year…
+      rungMax: 3,                // …then the ladder climbs: stage → album → career
+      albumPromiseWeeks: 30,     // the album promise gets a real runway
+      albumCost: 90,             // producing her record
+      albumCooldown: 60,         // one solo era at a time
+      albumRevPerReception: 1.6, // her record sells like her name
+      albumFandomSplit: 3,       // the group's room splits its attention
+      albumMorale: 8,            // her name on a spine of its own
+      rung3Morale: 8,            // holding her at the career rung cuts deep
+      launchNewEraWeeks: 30,     // the group's fresh-chapter window after she goes
+      returnRunBuildup: 30,      // the comeback she guests on counts down LOUD
+      returnRunReception: 4,     // and lands louder
+      returnRunMorale: 6,
+    },
     RISEFALL: {
       rankWeek: 2,               // woy the trades publish the power ranking
       imperialAt: 74,            // prestige at or above = the imperial era

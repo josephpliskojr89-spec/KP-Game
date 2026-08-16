@@ -3790,6 +3790,54 @@ window, the offer + leverage, stamps, the forced turn, the organic
 torch through the industry weekly, rival rotation + pause +
 returnPrimed, migration, 90-week determinism.
 
+## §68 The star's clock (v0.9.25) — owner-directed insert
+
+Owner, verbatim: *"if she wants solos, one solo stage shouldn't be
+enough, forever... I want the fans calling for a solo album... it
+should feel like a ticking clock until she's on hiatus from the
+group for her solo career, or leaves her group entirely."*
+
+**The ladder** (gravity.js, on the §60 rails; constants STAR). A
+settled clamor stays settled ~40 weeks — then, if she is STILL the
+top transcendence read, it RE-ARMS one rung bigger (rung stored on
+g.gravity; census reclamors). Rung 1 (the stage) settles on a solo
+track credit as before. Rung 2 (THE ALBUM): the fandom's discourse
+is albumClamor — a campaign, not a debate — her knock brings a
+handwritten tracklist, the promise is a soloAlbumPromise claim, and
+settlement is KP.releaseSoloAlbum: a real record (cost, reception
+from stagePresence + best talent + the transcendence read, chart
+entry, revenue, +morale, big social spike, the group's fandom
+splitting attention), stamped p.soloAlbums/lastSoloAlbumWeek. Rung
+3 (THE CAREER) never settles by side payment: only the knock
+answers — LAUNCH (graduateToSolo, warm: same house, originGroupId
+stamped, the career ledgered) or HOLD, which pays heldToPaper −3
+and rung3Morale −8 into the exact grudge ledger the walkout
+machinery reads: hold her long enough and she leaves entirely,
+through the meeting with the lawyer's font. The clock's speed IS
+her personality, talent, and demand — the transcendence read gates
+every re-arm.
+
+**Chapter two.** Her graduation stamps g.newEra: the group's first
+era locked inside 30 weeks announces itself as a new chapter, on
+purpose, with buildup +8 and copy that refuses the word
+"diminished."
+
+**The return run.** A graduated star next door (originGroupId)
+means every announced comeback raises the obvious question within
+the hour — the returnRun scene. Inviting her back books one era as
+a full member: buildup +30, reception +4, fandom +3, the sleeve
+stamps rel.returnRun forever, both calendars go home richer.
+
+Calibration ride-along: the star's clock (albums, return runs) plus
+0.9.24.1's hype concentration raised bot years enough to chase the
+daesang ceiling a third time — per the band's own rule the GIANTS
+answered, not the ceiling: the national bar stepped 140→146
+(62.5%→55% at 40 seeds, snub band healthy). Suite 067 (30): the
+re-arm, the campaign, the tracklist knock, the album promise kept,
+rung-2 settlement, the fork with no promises on it, the launch with
+chapter two, holding's grudge entry, the return run end to end,
+60-week determinism.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -5856,3 +5904,28 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > lockstep 0.9.24.1. Rode to main. Next: the star's clock (owner:
 > solo albums, the fans calling for them, the ticking clock to a
 > solo career — and the return run), as v0.9.25.
+
+> **v0.9.25 — the star's clock.** Owner: "one solo stage shouldn't
+> be enough, forever... a ticking clock until she's on hiatus from
+> the group for her solo career, or leaves her group entirely."
+> Built on the gravity's own rails (§60): a settled clamor re-arms
+> ~40 weeks later ONE RUNG BIGGER if she is still the top
+> transcendence read. Rung 2 is THE ALBUM — the fans campaign
+> (albumClamor discourse), she brings a handwritten tracklist to
+> the knock, the promise is a claim with a date, and
+> KP.releaseSoloAlbum keeps it: a real record with reception,
+> revenue, chart entry, and the group's room splitting its
+> attention. Rung 3 is THE CAREER, and it only settles at the
+> fork: launch her (same house, originGroupId, chapter two stamped
+> on the group) or hold her — heldToPaper into the same grudge
+> ledger the walkout reads, so holding long enough ends with the
+> lawyer's font. The return run closes the circle: the alum next
+> door gets asked back within the hour of every announced date;
+> one era, full member, buildup +30, the sleeve stamped forever.
+> Ride-along: the third daesang-ceiling chase resolved at the
+> GIANTS per the band's own rule (national bar 140→146, 62.5%→55%,
+> snubs healthy). Numbers: battery 67/67 (suite 067, 30), soak
+> clean (166 bands), longhaul 6x620 clean (risefall + service
+> lifecycles both live), e2e 94, lockstep 0.9.25 (61 modules).
+> Rode to main. Slot 10 (the deep map + the tongue + the world's
+> auditions) next, on approval.

@@ -204,6 +204,28 @@
         : g.debuted
         ? g.name + '’s comeback is official: ' + KP.weekLabel(plan.week).text + ', on every calendar the fandom keeps. The reply section is already fighting about the concept from one dark teaser image and a font.'
         : state.company.short + ' put a date on the debut everyone suspected: ' + g.name + ', ' + KP.weekLabel(plan.week).text + '. The industry-watcher accounts have opinions. The trainees’ old academy classmates have screenshots.' });
+    // chapter two (v0.9.25): the first era after the star's graduation
+    // announces itself as a NEW CHAPTER, not a diminished one
+    if (g.newEra && state.week - g.newEra.week <= KP.C.STAR.launchNewEraWeeks && g.debuted) {
+      g.prep.buildup = (g.prep.buildup || 0) + 8;
+      KP.note(state, { kind: 'public', ind: 'eraAnnounced', priority: 'high', groupId: g.id,
+        text: g.name + '’s first era as the new lineup has a date — and the concept photos read like a thesis statement: chapter two, on purpose, nobody pretending the room is the same shape. The fandom is nervous and proud in exactly equal measure, which is the correct amount of both.' });
+    }
+    delete g.newEra;
+    // the return run (v0.9.25): a graduated star next door means the
+    // obvious question gets asked the hour the date is announced
+    {
+      const alumAct = state.groups.find(s => s.type === 'solo' && s.originGroupId === g.id &&
+        s.members.length && !s.retiredWeek);
+      const alum = alumAct && state.people[alumAct.members[0]];
+      if (g.debuted && alum && !KP.onBreak(alum) && !g.prep.returnRun &&
+          !(state.scenes || []).some(sc => sc.kind === 'returnRun' && sc.groupId === g.id)) {
+        KP.openScene(state, { kind: 'returnRun', groupId: g.id, personId: alum.id,
+          expiresWeek: Math.max(state.week + 1, Math.min(plan.week - 1, state.week + 3)) });
+        KP.note(state, { kind: 'company', urgent: true, groupId: g.id, personId: alum.id,
+          text: KP.fillPro('Within the hour of the announcement, ' + KP.displayName(alum) + '’s manager was in the doorway, carefully casual: “Interesting date. {She} keeps that week open, as it happens.” The return-run question is on the Desk, and the fandom is already asking it in all caps.', alum) });
+      }
+    }
     // locking onto an announced rival week is a CHOICE — the challenge
     // half of "challenge or dodge" (v0.6.4). The desk assumes intent.
     const foes = KP.announcedAt(state, plan.week)
@@ -533,7 +555,8 @@
     let reception = KP.clamp(Math.round(
       demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
       groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
-      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod + hiaRead.mod + mvMod + anticipation + badBloodMod), 1, 100);
+      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod + hiaRead.mod + mvMod + anticipation + badBloodMod +
+      (g.prep.returnRun ? KP.C.STAR.returnRunReception : 0)), 1, 100);
     // the repackage rides the era's heat (v0.9.17)
     const repack = g.prep.repackage || null;
     if (repack && repack.reception >= KP.C.REPACKAGE.carryFrom) {
@@ -799,6 +822,7 @@
       nationalPeak: natPeak, nationalWeeks: weeksOn,
       isDebut, format: format.id, tracks: format.tracks,
       anticipation,   // the countdown's cash-in, on the record (v0.9.19)
+      returnRun: g.prep.returnRun || null,   // the alum on the sleeve (v0.9.25)
       // the release archives its OWN copy (0.9.13 audit L4: results and
       // releases shared one live array — identical today, a fork hazard
       // the first time anything edits a released tracklist)
@@ -809,6 +833,17 @@
       mv: mvTier, writtenBy: demo.writtenBy || null,
       repackageOf: repack ? repack.of : null,
     });
+    // the return run lands (v0.9.25): the alum stood in her old spot
+    if (g.prep.returnRun) {
+      const alum = state.people[g.prep.returnRun];
+      if (alum) {
+        alum.morale = KP.clamp(alum.morale + KP.C.STAR.returnRunMorale, 0, 100);
+        KP.fandomGain(g, 3);
+        alum.history.push({ week: state.week, text: 'The return run with ' + g.name + ' — one era, the old spot, the loudest crowds of the year. Went home to the solo calendar with the group’s name written somewhere permanent.' });
+        push({ kind: 'public', ind: 'returnRunSet', priority: 'critical', personId: alum.id, groupId: g.id,
+          text: KP.fillPro('The return-run era LANDED — ' + KP.displayName(alum) + ' in {pos} old spot for every stage, the fancams shot from inside a sustained scream. One era only, which everyone knew, which is exactly why every ticket vanished. The door stays oiled, and both calendars go back to work richer.', alum) });
+      }
+    }
     // the era extends (v0.9.17): the repackage is its own story beat
     if (repack) {
       push({ kind: 'public', ind: 'eraExtended', priority: 'high', groupId: g.id,

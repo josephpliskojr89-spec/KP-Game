@@ -56,6 +56,30 @@
       // ---- the up rail: transcendence and the clamor -------------------
       if (g.members.length >= G.minMembers) {
         const cur = g.gravity && !g.gravity.settled ? state.people[g.gravity.personId] : null;
+        // the star's clock (v0.9.25): a settled clamor stays settled for
+        // a while — then, if she is STILL the one pulling away, the
+        // conversation comes back one rung bigger. A stage was an
+        // answer; it stops being one.
+        if (g.gravity && g.gravity.settled &&
+            state.week - (g.gravity.settledWeek || 0) >= KP.C.STAR.reclamorWeeks) {
+          const ST = KP.C.STAR;
+          const star = state.people[g.gravity.personId];
+          const rung = g.gravity.rung || 1;
+          if (star && g.members.includes(star.id) && !KP.onBreak(star) &&
+              rung < ST.rungMax &&
+              KP.transcendRead(state, g, star) >= G.transcendAt) {
+            g.gravity = { personId: star.id, since: state.week, stage: 0,
+              settled: null, rung: rung + 1 };
+            led.reclamors = (led.reclamors || 0) + 1;
+            inbox.push({ kind: 'public', ind: 'gravityTrades', priority: 'critical',
+              personId: star.id, groupId: g.id,
+              text: KP.fillPro('The trades are back on ' + KP.displayName(star) + ', and the question grew: ' +
+                (rung + 1 === 2 ? 'not a stage this time — an ALBUM. {Pos} name on a spine. The last answer bought a year, which is what answers buy.'
+                  : 'not a stage, not an album — a CAREER. The word the piece uses is “inevitable,” and the piece is not wrong about people like {her}. The clock this starts does not wind back.'), star) });
+          } else {
+            delete g.gravity;   // the wave passed — the room resets for anyone
+          }
+        }
         if (!g.gravity) {
           // who, if anyone, is pulling away from the room
           const reads = g.members.map(id => state.people[id]).filter(Boolean)
@@ -84,10 +108,12 @@
         } else if (cur && !g.gravity.settled) {
           const gv = g.gravity;
           const weeks = state.week - gv.since;
-          // stage 2: the fandom divides into camps
+          // stage 2: the fandom divides into camps — at rung 2 they are
+          // not debating anymore, they are CAMPAIGNING for the album
           if (gv.stage < 1 && weeks >= G.splitStage) {
             gv.stage = 1;
-            const dn = KP.igniteDiscourse(state, rng, 'soloClamor', 'idol', cur.id, g.id);
+            const dn = KP.igniteDiscourse(state, rng,
+              (gv.rung || 1) >= 2 ? 'albumClamor' : 'soloClamor', 'idol', cur.id, g.id);
             if (dn) inbox.push(dn);
           }
           // stage 3: the Monday meeting asks (meeting.js reads this flag)
@@ -121,9 +147,12 @@
                 text: KP.fillPro('The staff notice ' + KP.displayName(cur) + ' checking the door of every meeting {she} is in. The solo conversation everyone is having AROUND {her} has not been had WITH {her}. That arithmetic is being done nightly, in a dorm room, with the lights off.', cur) });
             }
           }
-          // ---- resolution: the in-group solo credit settles it ----------
-          const soloCredit = (KP.trackCreditsOf ? KP.trackCreditsOf(state, cur.id) : [])
-            .some(c => c.type === 'solo' && c.week >= gv.since);
+          // ---- resolution: rung 1 settles on a solo credit; rung 2 on
+          // the ALBUM; rung 3 only settles at the knock (the fork)
+          const soloCredit = (gv.rung || 1) >= 3 ? false
+            : (gv.rung || 1) === 2 ? (cur.lastSoloAlbumWeek || 0) >= gv.since
+            : (KP.trackCreditsOf ? KP.trackCreditsOf(state, cur.id) : [])
+              .some(c => c.type === 'solo' && c.week >= gv.since);
           if (soloCredit) {
             gv.settled = 'solo';
             gv.settledWeek = state.week;
@@ -131,12 +160,18 @@
             cur.morale = KP.clamp(cur.morale + G.settleMorale, 0, 100);
             if (g.fandom) KP.fandomGain(g, G.settleFandom);
             KP.recordDirected(state, cur.id, 'promiseKept', 2);
-            cur.history.push({ week: state.week, text: 'The solo stage inside the group — the answer to a year of clamor. Both camps claimed the win. Both were right.' });
+            const wasAlbum = (gv.rung || 1) === 2;
+            cur.history.push({ week: state.week, text: wasAlbum
+              ? 'The solo album — her name on a spine, the group name in the liner notes. The answer to the second wave of clamor, and a bigger one than the first.'
+              : 'The solo stage inside the group — the answer to a year of clamor. Both camps claimed the win. Both were right.' });
             inbox.push({ kind: 'public', ind: 'gravitySettled', priority: 'critical',
               personId: cur.id, groupId: g.id,
-              text: KP.fillPro('The clamor got its answer: ' + KP.displayName(cur) + ' — solo, ON the record, IN the group. The solo-clamor camp is celebrating a win. The loyalists are celebrating that {she} stayed. The company is celebrating quietly, because this was the only move that let everyone win, and it nearly did not happen.', cur) });
+              text: KP.fillPro(wasAlbum
+                ? 'The album is REAL: ' + KP.displayName(cur) + ', solo, a full record, still in the group. The campaign accounts posted the tracklist like a treaty. Everyone knows what the third conversation is about, and everyone has agreed not to have it today.'
+                : 'The clamor got its answer: ' + KP.displayName(cur) + ' — solo, ON the record, IN the group. The solo-clamor camp is celebrating a win. The loyalists are celebrating that {she} stayed. The company is celebrating quietly, because this was the only move that let everyone win, and it nearly did not happen.', cur) });
             (state.discourses || []).forEach(d => {
-              if (d.kind === 'soloClamor' && String(d.subjectId) === String(cur.id) && d.status === 'live') {
+              if ((d.kind === 'soloClamor' || d.kind === 'albumClamor') &&
+                  String(d.subjectId) === String(cur.id) && d.status === 'live') {
                 d.status = 'resolved'; d.resolved = 'settled';
               }
             });
@@ -237,41 +272,78 @@
     body: (state, sc) => {
       const p = state.people[sc.personId];
       const g = KP.groupById(state, sc.groupId);
+      const rung = (g && g.gravity && g.gravity.rung) || 1;
+      if (rung >= 3) {
+        return KP.fillPro((p ? KP.displayName(p) : 'She') + ' does not bring a clipping this time. “The stage happened. The album happened. Both were true answers, and I am grateful — and we both know what this meeting is. I want the career. I would rather build it HERE, next door to ' + (g ? g.name : 'the group') + ', than across the street.” The clock on the wall is very loud.', p);
+      }
+      if (rung === 2) {
+        return KP.fillPro((p ? KP.displayName(p) : 'She') + ' sits down with a folder this time, not a clipping — a tracklist, handwritten, page numbers and everything. “The stage was real. Thank you for it. But the fans are not campaigning for a stage anymore — they want the ALBUM, and honestly? So do I.” The campaign hashtag has been trending twice a week.', p);
+      }
       return KP.fillPro((p ? KP.displayName(p) : 'She') + ' sits down with the trades feature everyone read, folded to the page. “I am not asking to leave ' + (g ? g.name : 'the group') + '. I am asking what the plan is — for me. There is one, isn’t there?” {She} rehearsed this. It shows, in the best way.', p);
     },
-    options: () => [
-      { id: 'promise', label: 'A solo. On the record.' },
-      { id: 'group', label: 'The group comes first — for now' },
-      { id: 'open', label: 'Open the solo door — graduation' },
-    ],
+    options: (state, sc) => {
+      const g = KP.groupById(state, sc.groupId);
+      const rung = (g && g.gravity && g.gravity.rung) || 1;
+      if (rung >= 3) {
+        return [
+          { id: 'open', label: 'Launch the solo career — same house' },
+          { id: 'group', label: 'Hold her to the lineup' },
+        ];
+      }
+      return [
+        { id: 'promise', label: rung === 2 ? 'The album. On the record.' : 'A solo. On the record.' },
+        { id: 'group', label: 'The group comes first — for now' },
+        { id: 'open', label: 'Open the solo door — graduation' },
+      ];
+    },
     resolve: (state, sc, optionId) => {
       const G = KP.C.GRAVITY;
       const p = state.people[sc.personId];
       const g = KP.groupById(state, sc.groupId);
       if (!p) return { toast: 'The moment resolved itself.' };
+      const rung = (g && g.gravity && g.gravity.rung) || 1;
       if (optionId === 'promise') {
         p.morale = KP.clamp(p.morale + 6, 0, 100);
+        const type = rung === 2 ? 'soloAlbumPromise' : 'soloPromise';
         const already = (state.claims || []).some(c => !c.resolved &&
-          c.type === 'soloPromise' && c.personId === p.id);
-        if (!already) KP.openClaim(state, { type: 'soloPromise', subject: { kind: 'idol', id: p.id },
-          personId: p.id, byWeek: state.week + G.soloPromiseWeeks,
-          label: 'A solo credit for ' + KP.displayName(p) + ', on a record' });
-        p.history.push({ week: state.week, text: 'Asked the solo question and got a date, on the record. Kept the trades clipping anyway.' });
-        return { toast: KP.fillPro('“On the record” were the words {she} came for. {She} left the clipping on your desk — a reminder, politely.', p) };
+          c.type === type && c.personId === p.id);
+        if (!already) KP.openClaim(state, { type, subject: { kind: 'idol', id: p.id },
+          personId: p.id,
+          byWeek: state.week + (rung === 2 ? KP.C.STAR.albumPromiseWeeks : G.soloPromiseWeeks),
+          label: rung === 2 ? 'A solo ALBUM for ' + KP.displayName(p) + ' — her name on the spine'
+            : 'A solo credit for ' + KP.displayName(p) + ', on a record' });
+        p.history.push({ week: state.week, text: rung === 2
+          ? 'Asked the album question and got a date, on the record. Left the handwritten tracklist behind — on purpose.'
+          : 'Asked the solo question and got a date, on the record. Kept the trades clipping anyway.' });
+        return { toast: KP.fillPro('“On the record” were the words {she} came for.' +
+          (rung === 2 ? ' The tracklist stays on your desk — a reminder, in {pos} handwriting.' : ' {She} left the clipping on your desk — a reminder, politely.'), p) };
       }
       if (optionId === 'group') {
-        p.morale = KP.clamp(p.morale - 5, 0, 100);
-        KP.recordDirected(state, p.id, 'heldBack', -2);
-        p.history.push({ week: state.week, text: 'Asked the solo question. The answer was the group, for now. Wrote the date of the meeting somewhere private.' });
-        return { toast: KP.fillPro('{She} nodded like a professional and left like a stranger. The clamor outside continues; the clock inside just started.', p) };
+        // holding at the career rung is a different weight class of no
+        p.morale = KP.clamp(p.morale - (rung >= 3 ? KP.C.STAR.rung3Morale : 5), 0, 100);
+        KP.recordDirected(state, p.id, rung >= 3 ? 'heldToPaper' : 'heldBack', rung >= 3 ? -3 : -2);
+        p.history.push({ week: state.week, text: rung >= 3
+          ? 'Asked for the career and was held to the lineup. Said nothing. Started keeping the kind of counsel lawyers eventually hear.'
+          : 'Asked the solo question. The answer was the group, for now. Wrote the date of the meeting somewhere private.' });
+        return { toast: KP.fillPro(rung >= 3
+          ? '{She} heard the no all the way through, thanked you for the years in a voice you did not recognize, and left. The clamor will not stop. The clock will not stop. And the meeting {she} calls next may have a lawyer’s font on it.'
+          : '{She} nodded like a professional and left like a stranger. The clamor outside continues; the clock inside just started.', p) };
       }
-      // the spin-out, chosen: graduation with the door held open
+      // the spin-out, chosen: graduation with the door held open — at
+      // rung 3 it is the LAUNCH, the fork the whole clock pointed at
       const r = KP.graduateToSolo ? KP.graduateToSolo(state, p.id) : { ok: false };
       if (!r.ok) {
         return { toast: r.reason || 'The graduation path is not open this week.' };
       }
       if (g && g.gravity) { g.gravity.settled = 'spinout'; g.gravity.settledWeek = state.week; }
-      return { toast: KP.fillPro('You opened the door before {she} had to push it. The spin-out, done warm: same company, {pos} own calendar, and a group that gets to say it blessed the flight.', p),
+      if (g) g.newEra = { week: state.week, alum: p.id };   // chapter two opens (v0.9.25)
+      if (rung >= 3) {
+        const led2 = ledger(state);
+        led2.careers = (led2.careers || 0) + 1;
+      }
+      return { toast: KP.fillPro(rung >= 3
+        ? 'You said yes before the clock finished ticking. The launch, done right: same house, {pos} own calendar, a group that gets a new chapter instead of a wound — and a door that swings BOTH ways. Return runs have been arranged for less.'
+        : 'You opened the door before {she} had to push it. The spin-out, done warm: same company, {pos} own calendar, and a group that gets to say it blessed the flight.', p),
         note: r.note ? { kind: 'public', priority: 'high', personId: p.id, text: r.note } : null };
     },
     expire: (state, sc) => {
@@ -282,6 +354,127 @@
       return { kind: 'development', priority: 'high', personId: p.id,
         text: KP.fillPro(KP.displayName(p) + ' asked the rehearsed question and got a week of silence for it. {She} will not ask again. The trades will — they always do — and next time {she} may answer them instead of you.', p) };
     },
+  });
+
+  // ---- the solo album (v0.9.25): her name on a spine of its own -------
+  KP.releaseSoloAlbum = function (state, personId) {
+    const ST = KP.C.STAR;
+    const p = state.people[personId];
+    if (!p || p.status !== 'idol') return { ok: false, reason: 'Solo albums are for active artists.' };
+    const g = KP.groupOf(state, p.id);
+    if (!g || !g.debuted) return { ok: false, reason: 'The in-group solo album needs a group around it. A soloist just makes albums.' };
+    if (KP.onBreak(p)) return { ok: false, reason: KP.fillPro('{She} is off the schedule. The record waits for {her}.', p) };
+    if (g.tour) return { ok: false, reason: 'Not from the road. The tour ends, then the studio opens.' };
+    if (state.week - (p.lastSoloAlbumWeek || -999) < ST.albumCooldown) {
+      return { ok: false, reason: 'One solo era at a time. The last one is still on the charts of somebody’s heart.' };
+    }
+    if (state.budget < ST.albumCost) return { ok: false, reason: 'Producing her record runs ' + ST.albumCost + '. The budget says not yet.' };
+    state.budget -= ST.albumCost;
+    const rng = KP.rngFor(state);
+    const d = KP.derived(p);
+    const read = KP.transcendRead ? KP.transcendRead(state, g, p) : 40;
+    const reception = Math.round(KP.clamp(
+      0.42 * d.stagePresence + 0.28 * Math.max(p.talents.vocals.cur, p.talents.dance.cur) +
+      0.30 * read + rng.normal(0, 5), 1, 100));
+    state.rngState = rng.state();
+    const title = KP.genSongTitle(rng, {});
+    const revenue = Math.round(reception * ST.albumRevPerReception);
+    state.budget += revenue;
+    p.lastSoloAlbumWeek = state.week;
+    p.soloAlbums = (p.soloAlbums || 0) + 1;
+    p.morale = KP.clamp(p.morale + ST.albumMorale, 0, 100);
+    KP.socialSpike(state, p, KP.C.SOCIAL.breakoutSpike * 2, 'soloAlbum');
+    if (g.fandom) g.fandom.intensity = KP.clamp((g.fandom.intensity || 0) - ST.albumFandomSplit, 0, 100);
+    KP.chartEnter(state, { title, act: KP.displayName(p), company: state.company.short,
+      isPlayer: true, score: reception, entered: state.week });
+    (state.discourses || []).forEach(dc => {
+      if (dc.kind === 'albumClamor' && String(dc.subjectId) === String(p.id) && dc.status === 'live') {
+        dc.status = 'resolved'; dc.resolved = 'answered';
+      }
+    });
+    p.history.push({ week: state.week, text: 'Released the solo album — “' + title + '”. ' + g.name + ' in the liner notes, her name alone on the spine.' });
+    const led = ledger(state);
+    led.albums = (led.albums || 0) + 1;
+    const note = KP.note(state, { kind: 'public', ind: 'soloAlbum', priority: 'critical',
+      personId: p.id, groupId: g.id,
+      text: KP.fillPro(KP.displayName(p) + '’s solo album “' + title + '” is OUT — full record, {pos} name on the spine, ' + g.name + ' thanked in the first line of the credits. The campaign accounts that spent a year asking for this are somewhere between triumphant and unemployed. Reception ' + reception + ', fee +' + revenue + '.', p) });
+    return { ok: true, reception, title, note: note.text };
+  };
+
+  // the album promise: a full record by the deadline
+  KP.registerClaim('soloAlbumPromise', (state, c) => {
+    const p = state.people[c.personId];
+    if (!p) return { resolved: 'missed', notes: [] };
+    if ((p.lastSoloAlbumWeek || 0) >= c.week) {
+      KP.recordDirected(state, p.id, 'promiseKept', 3);
+      return { resolved: 'met',
+        notes: [{ kind: 'development', priority: 'high', personId: p.id,
+          text: KP.fillPro('The promised album exists. ' + KP.displayName(p) + ' signed a copy for the front desk — “to the company that said yes.” The campaign accounts have already moved on to demanding a repackage, because fandoms are perpetual-motion machines.', p) }] };
+    }
+    if (state.week > c.byWeek) {
+      p.morale = KP.clamp(p.morale - 8, 0, 100);
+      KP.recordDirected(state, p.id, 'promiseBroken', -4);
+      return { resolved: 'missed',
+        notes: [{ kind: 'development', priority: 'high', personId: p.id,
+          text: KP.fillPro('The album date passed with no album. ' + KP.displayName(p) + ' took the handwritten tracklist back off your desk without a word, which said the whole thing. The next conversation will not be about records.', p) }] };
+    }
+    return null;
+  });
+
+  // ---- the return run (v0.9.25): the door swings both ways ------------
+  KP.registerScene('returnRun', {
+    title: (state, sc) => {
+      const p = state.people[sc.personId];
+      return (p ? KP.displayName(p) : 'The alum') + ' · the return run';
+    },
+    body: (state, sc) => {
+      const p = state.people[sc.personId];
+      const g = KP.groupById(state, sc.groupId);
+      if (!p || !g) return '';
+      return KP.fillPro('The date is announced, and the obvious question is on every account within the hour: is ' + KP.displayName(p) + ' on it? {She} graduated, not left — same building, one floor over — and {pos} manager has already asked, carefully, what the plan is. A return run: one era, full member, then back to {pos} own calendar. The fandom would lose its collective mind in the best possible way.', p);
+    },
+    options: () => [
+      { id: 'invite', label: 'Bring her back for the run' },
+      { id: 'skip', label: 'This era stands on its own' },
+    ],
+    resolve: (state, sc, optionId) => {
+      const ST = KP.C.STAR;
+      const p = state.people[sc.personId];
+      const g = KP.groupById(state, sc.groupId);
+      if (!p || !g || !g.prep) return {};
+      if (optionId === 'invite') {
+        g.prep.returnRun = p.id;
+        g.prep.buildup = (g.prep.buildup || 0) + ST.returnRunBuildup;
+        p.morale = KP.clamp(p.morale + ST.returnRunMorale, 0, 100);
+        const led = ledger(state);
+        led.returnRuns = (led.returnRuns || 0) + 1;
+        p.history.push({ week: state.week, text: 'Said yes to the return run before the sentence finished. Some doors you keep oiled.' });
+        KP.note(state, { kind: 'public', ind: 'returnRunSet', priority: 'critical',
+          personId: p.id, groupId: g.id,
+          text: KP.fillPro('CONFIRMED: ' + KP.displayName(p) + ' returns to ' + g.name + ' for the whole era — the photo of {her} back in the practice room, in {pos} old spot, broke every record the fan cafés keep. One run. Full member. The countdown accounts are not okay, and they would like everyone to know it.', p) });
+        return { toast: KP.displayName(p) + ' is IN for the era. The room is already rearranging itself around the old chemistry.' };
+      }
+      return { toast: 'This era stands on its own — the alum sends flowers and a very public stream link on release day. The door stays oiled for next time.' };
+    },
+    expire: () => null,
+  });
+
+  KP.onFeedEvent('soloAlbum', (state, n, rng) => {
+    const p = n.personId ? state.people[n.personId] : null;
+    const name = p ? KP.publicGiven(p) : 'her';
+    return rng.pick([
+      { persona: 'fan', text: name + ' SOLO ALBUM DAY. her name. on a SPINE. we campaigned, we trended, we believed, and the b-sides are better than entire discographies I could name but won’t' },
+      { persona: 'stan', text: 'the ' + name + ' solo album credits thank the group in line one and the fans in line two. correct order debatable. crying either way' },
+      { persona: 'casual', text: 'a group idol dropping a genuinely good solo album while staying in the group is the industry actually working for once. more of this' },
+    ]);
+  });
+  KP.onFeedEvent('returnRunSet', (state, n, rng) => {
+    const p = n.personId ? state.people[n.personId] : null;
+    const name = p ? KP.publicGiven(p) : 'she';
+    return rng.pick([
+      { persona: 'fan', text: name + ' IS BACK FOR THE ERA. the practice room photo. the OLD SPOT. I have been normal for zero seconds and counting. this is the event of the year and it is not close' },
+      { persona: 'stan', text: 'return run confirmed and the fandom civil war (solo stans vs group stans) just signed a peace treaty for one era. historians will study this' },
+    ]);
   });
 
   // the promise with a date: a solo credit, on a record, by the deadline
