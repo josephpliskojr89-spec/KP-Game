@@ -217,7 +217,8 @@
         ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:5px">Exclusive contract · year ' +
           KP.contractYear(state, p) + ' of ' + p.contract.years +
           (p.contract.term > 1 ? ' · term ' + p.contract.term : '') +
-          (p.contract.leaving ? ' · <span style="color:var(--magenta)">final term</span>' : '') + '</div>'
+          (p.contract.leaving ? ' · <span style="color:var(--magenta)">final term</span>' : '') +
+          (p.flags.military ? ' · <span style="color:var(--magenta)">in service — back ' + UI.esc(KP.weekLabel(p.flags.military.until).text) + '</span>' : p.serviceDone ? ' · service completed' : '') + '</div>'
         : '') +
       (p.status === 'departed'
         ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:5px">Departed ' + UI.esc(KP.weekLabel(p.flags.departedWeek || 1).text) + ' · the file stays open forever</div>'
@@ -432,6 +433,13 @@
         '<button class="btn danger small" data-action="release" data-id="' + p.id + '"' + (inGroup ? ' disabled' : '') + '>Release from contract</button>' +
         (inGroup ? '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">' + KP.fillPro('{She} is in a lineup.', p) + '</div>' : '') +
         '</div>');
+    }
+
+    // the service (v0.9.23): while he serves, the desk waits with everyone
+    if (p.flags.military) {
+      html.push('<div class="pad" style="margin-top:18px;font-size:.72rem;color:var(--ink-dim)">In mandatory service — discharge expected ' +
+        UI.esc(KP.weekLabel(p.flags.military.until).text) + '. The contract clock is paused. The desk has no verbs here; nobody does.</div>');
+      return html.join('');
     }
 
     // the member desk (v0.9.20): three verbs on a contracted artist

@@ -120,6 +120,7 @@
 
     // the week's toll — the road pays in live reps and fatigue
     members.forEach(m => {
+      if (m.flags.military) return;   // he is not on the bus (v0.9.23)
       if (m.flags.burnout > 0) { m.flags.burnout--; return; }
       let f = scale.fatiguePerWeek * pacing.fatigueMult;
       if (leaderRuns) f *= T.leaderFatigueMult;

@@ -61,6 +61,18 @@ function checkIntegrity(seed, week, state) {
   // people numeric sanity
   Object.values(P).forEach(p => {
     if (!num(p.age) || p.age < 13 || p.age > 70) flag(seed, week, p.id + ' age insane: ' + p.age);
+    // the service wall (v0.9.23) is LAW: a male idol strictly past the
+    // deadline age must be serving or served — one year of slack covers
+    // the birthday-to-wall week and the tour deferral
+    if (p.gender === 'm' && p.status === 'idol' && p.age > KP.C.MIL.deadlineAge &&
+        !p.serviceDone && !(p.flags && p.flags.military)) {
+      flag(seed, week, p.id + ' male idol age ' + p.age + ' past the enlistment wall, never served');
+    }
+    // a serving man's clock must be a real window
+    if (p.flags && p.flags.military &&
+        (!num(p.flags.military.until) || p.flags.military.until <= p.flags.military.since)) {
+      flag(seed, week, p.id + ' military window malformed');
+    }
     if (!num(p.fatigue) || p.fatigue < 0 || p.fatigue > 100) flag(seed, week, p.id + ' fatigue out of range: ' + p.fatigue);
     if (!num(p.morale) || p.morale < 0 || p.morale > 100) flag(seed, week, p.id + ' morale out of range: ' + p.morale);
     KP.C.TALENTS.forEach(d => {
@@ -217,6 +229,31 @@ function botWeek(state, mode) {
   }
 }
 
+// the service scenario (v0.9.23): the lean bot's own group is female
+// (the founding objective fits it), so without a fixture no male idol
+// ever exists here and the enlistment machine idles. Seed a boy group
+// old enough that the wall arrives MID-RUN — papers, walls, paused
+// clocks, discharges, and the return all soak for a decade.
+function seedBoyGroup(state) {
+  const rng = KP.rngFor(state);
+  const ids = [];
+  for (let i = 0; i < 4; i++) {
+    const b = KP.generatePerson(rng, { status: 'trainee', gender: 'm' });
+    b.signedWeek = 1;
+    b.age = 23 + (i % 2);   // notice ~2.5 years in, the wall ~year 5
+    state.people[b.id] = b; state.roster.push(b.id); ids.push(b.id);
+  }
+  state.rngState = rng.state();
+  state.nextPersonId = KP.peekNextId();
+  KP.openMandate(state, { kind: 'group', gender: 'm', source: 'longhaul service fixture' });
+  KP.proposeGroup(state, 'HAULBOYS', ids, KP.roleHints(state, ids.map(i => state.people[i])));
+  const g = state.groups.find(x => x.name === 'HAULBOYS');
+  if (g) {
+    KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
+      week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
+  }
+}
+
 // ---- scenarios ---------------------------------------------------------
 const SCENARIOS = [
   { seed: 'haul-standard-1', mode: 'standard' },
@@ -224,11 +261,13 @@ const SCENARIOS = [
   { seed: 'haul-standard-3', mode: 'standard' },
   { seed: 'haul-neglect', mode: 'neglect' },     // the world alone, 13 years
   { seed: 'haul-founder', mode: 'founder' },     // walk out mid-run, keep going
+  { seed: 'haul-service', mode: 'service' },     // the boy-group decade (v0.9.23)
 ];
 
 const sizes = {};
 for (const sc of SCENARIOS) {
   const state = KP.newGame(sc.seed);
+  if (sc.mode === 'service') seedBoyGroup(state);
   let founded = false;
   for (let w = 0; w < WEEKS; w++) {
     botWeek(state, sc.mode);
@@ -278,9 +317,20 @@ for (const sc of SCENARIOS) {
   });
   const top = Object.entries(parts).sort((a, b) => b[1] - a[1]).slice(0, 8);
   sizes[sc.seed] = { total, top, people: Object.keys(state.people).length, week: state.week };
+  // the service (v0.9.23): positive coverage — a 13-year run where any
+  // male idol reached the notice age must have produced service traffic
+  const svl = state.serviceLedger || {};
+  const menSeen = Object.values(state.people).some(p =>
+    p.gender === 'm' && p.status === 'idol' &&
+    (p.age >= KP.C.MIL.noticeAge + 1 || p.serviceDone || (p.flags && p.flags.military)));
+  if (menSeen && !((svl.notices || 0) + (svl.plans || 0) + (svl.enlisted || 0))) {
+    flag(sc.seed, state.week, 'male idols aged past the notice window but the service system never spoke');
+  }
   console.log(sc.seed + ': wk ' + state.week + ', ' + Math.round(total / 1024) + ' KB, ' +
     Object.keys(state.people).length + ' files | top: ' +
-    top.map(([k, v]) => k + ' ' + Math.round(v / 1024) + 'K').join(', '));
+    top.map(([k, v]) => k + ' ' + Math.round(v / 1024) + 'K').join(', ') +
+    ' | service: ' + ['plans', 'notices', 'enlisted', 'walls', 'discharged', 'returns']
+      .map(k => k + ' ' + (svl[k] || 0)).join(', '));
 }
 
 report();

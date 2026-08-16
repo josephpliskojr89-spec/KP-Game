@@ -22,9 +22,10 @@
 
   function fresh(weeksSince) { return KP.clamp(100 - weeksSince * 18, 0, 100); }
   function livePerf(state, g) {
-    // the N-1 stage (v0.9.20): a member on a personal break is not on it
+    // the N-1 stage (v0.9.20): a member on a personal break is not on
+    // it — and neither is a member in service (v0.9.23)
     const ms = g.members.map(id => state.people[id]).filter(Boolean)
-      .filter(m => !m.flags.personalHiatus);
+      .filter(m => !m.flags.personalHiatus && !m.flags.military);
     if (!ms.length) return 0;
     // a shielded member is off the front of the stage — the shield's cost
     const shielded = g.slumpShield && state.week <= g.slumpShield.until ?

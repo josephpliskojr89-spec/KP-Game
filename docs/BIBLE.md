@@ -1910,9 +1910,11 @@ against the standing clause (arrive, claim, mark):
    scenes: festival invitations with schedule surgery and travel
    bills, headline calls for the icons — and the year-end ceremony
    played out (seating, speeches, the daesang moment).
-8. **The service** (§55.7). Military enlistment — the boy-group
-   story completed: windows and deadlines, stagger vs together,
-   paused contract clocks, the wait, the discharge return stage.
+8. **The service** (§55.7; SHIPPED v0.9.23, §66). Military
+   enlistment — the boy-group story completed: notice at 26, the
+   wall at 28 (law, with a longhaul invariant), stagger vs
+   together, paused contract clocks, the loyal service hiatus,
+   and the discharge return stage the countdown machine banks.
 9. **The rise and fall + the offer + the generations** (§55.10 +
    being poached + §55.12). Rival eras made legible, the annual
    power ranking, the overtake, collapse fallout as a free-agent
@@ -3639,6 +3641,70 @@ week, the headline call, the eaten booking, regrets, the seating
 chart, the chosen mic, the consumed plan, the spoken-or-folded
 ending, 45-week determinism.
 
+## §66 The service (v0.9.23) — map slot 8
+
+§55.7 verbatim: *"boy bands are missing one massive part of their
+stories: military enlistment."* Every male idol carries an
+enlistment window with a hard deadline age; postponement moves a
+date, never removes one.
+
+**The clock** (military.js, weekly 786; state.serviceLedger;
+constants MIL). Notice age 26, the wall at 28, service 72 weeks
+(~18 months in 48-week years). The wall is LAW: a male idol who
+reaches the deadline enlists that week, meeting or no meeting (one
+deferral only — mid-tour, the date negotiated to the day after the
+final show). A male trainee who hits the wall un-debuted leaves the
+building for service instead — the story that ends at the practice
+room door. The longhaul holds the invariant: no male idol strictly
+past the wall who is neither serving nor served.
+
+**The decision** (servicePlan scene, once per debuted boy group
+when the eldest reaches notice age). The industry's two answers,
+read with the ages out loud: STAGGER — each man goes as his window
+closes, the group holds the line short-handed (onBreak covers every
+desk: shows play N−1, tours leave him off the bus, festivals stage
+without him, deals close with a farewell post, no renewal tables,
+no member-desk verbs, no clamor from a base) — or TOGETHER — one
+joint date that executes when the current era ends: everyone at or
+past 20 enlists at once, the group enters a SERVICE hiatus that
+never cools (the wait is loyal; the reason is the law), and the
+ordinary grace clock restarts only at the last discharge (graceFrom).
+Unanswered folders default to stagger, filed by the scheduling
+office, pointedly.
+
+**The papers** (enlistPapers scene, per man at notice age under
+stagger or on a solo desk; one per week). Send him now — sooner
+gone, sooner back, the fandom's dread flips to a date — or hold to
+the wall and spend the runway on eras with the same goodbye waiting
+at the end. While he serves: the contract clock pauses one-for-one
+(p.contract.start advances with the week — renewalRead, contractYear
+and the seventh-year math all stay honest for free), fatigue drains,
+his file reads "serving."
+
+**The return stage** (the event the whole system builds toward).
+Discharge stamps p.serviceDone (durable), morale +8, professionalism
++4 (the spine of steel), fatigue capped at 30, the gate photo in
+history and on the wire. When the LAST serving member comes home the
+group gets g.returnStage — a comeback locked inside 24 weeks banks
+returnBuildup (26) straight into the countdown and the announcement
+reads THE RETURN; a service hiatus additionally converts its whole
+absence through the standard hiatus anticipation read, capped where
+all hype is capped. Migration '0.9.23': male idols already past the
+wall in old saves are recorded as served in early-career gaps the
+paperwork never captured (the age-backfill's cousin, one legal note);
+men inside the window get the feature arriving instead.
+
+Soak: structurally silent by age math (prospects generate 14–22, so
+no male idol reaches 26 inside 140 weeks) — two bands assert that
+silence [0–10%]. The teeth live in the longhaul's haul-service
+scenario (a boy group seeded at 23–24): plans 1, notices 4,
+enlisted 4, walls 0, discharged 4, returns 1 across 620 weeks, with
+the wall invariant and the clock-pause checked throughout. Suite
+065 (41): the folder, the papers, the bus, the paused clock, the
+send-off morale, the wall, together's joint date + loyal hiatus +
+restarted grace, the return lock with THE RETURN note, the guarded
+member desk, the migration, 90-week determinism.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -3730,6 +3796,17 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   weather. Next flap: stop chasing and re-point the census at the
   tail itself (orgs ending under ~300, ceiling ~0.05) — that is
   the poverty-spiral regression this alarm exists to catch.
+- **The service is soak-invisible by age math (v0.9.23)** — no male
+  idol reaches notice age 26 inside 140 weeks (prospects generate
+  14–22), so both service bands assert silence [0–10%] and the
+  positive coverage lives in the longhaul's haul-service scenario.
+  If the generation curve ever ages up, or a legacy boy group ships,
+  re-point the soak bands at real activity instead.
+- **Rival acts do not enlist (v0.9.23)** — the world's boy groups
+  are ageless where the player's are not, which is a fairness gap
+  the owner may eventually feel (their flagships never lose an era
+  to the service). Slot 9's rival-era work is the natural home for
+  rival enlistment windows if it stings.
 - **clamorHeld measures choice now, not cadence (v0.9.18)** — at
   first soak 100% of orgs paid resentment ticks because settling
   needs a release and the release cadence (~20wk) outruns the
@@ -5594,3 +5671,33 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > clean, e2e 95, lockstep 0.9.22 (59 modules — festivals.js).
 > Rode to main. Slot 8 (the service — military enlistment) next,
 > on approval.
+
+> **v0.9.23 — the service (map slot 8, §66).** Owner: slot 8
+> approved. §55.7's missing chapter, shipped whole: every male
+> idol carries the window (notice 26, wall 28), and the wall is
+> LAW — a longhaul invariant, not a suggestion. The folder with
+> the flag on it opens the industry's two answers per boy group:
+> STAGGER (the line holds short-handed — every desk reads
+> onBreak: N−1 stages, no bus seat, no bills to a soldier, no
+> renewal tables, no clamor from a base) or TOGETHER (one joint
+> date after the era closes, a service hiatus that never cools
+> because the wait is loyal, grace restarting at the last gate).
+> The papers per man: send him now and dread flips to a date, or
+> hold to the wall and spend the runway with the goodbye still
+> owed. The contract clock pauses one-for-one by advancing
+> contract.start with the week — every renewal read stays honest
+> for free. Discharge stamps serviceDone durable, professionalism
+> +4, the gate photo; the LAST man home opens g.returnStage and a
+> lock inside 24 weeks banks buildup 26 with THE RETURN on the
+> wire. A trainee at the wall leaves un-debuted — the story that
+> ends at the practice room door. Migration records old saves'
+> past-the-wall men as served in gaps the paperwork never had
+> (the age-backfill's cousin); window men get the feature
+> arriving. Soak is structurally silent by age math (two bands
+> assert it, §18); the teeth live in the new haul-service
+> longhaul scenario (boys seeded 23–24: 4 enlisted, 4 home, 1
+> return, 0 walls — the bot answers its papers). Numbers:
+> battery 65/65 (suite 065, 41), soak clean (159 bands), longhaul
+> 6x620 clean, e2e 95, lockstep 0.9.23 (60 modules —
+> military.js). Rode to main. Slot 9 (the rise and fall + the
+> offer + the generations) next, on approval.

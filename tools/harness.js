@@ -194,6 +194,14 @@ const BANDS = {
   // a bonsang most careers and always answers the seating chart speaks
   // ~always — the alarm guards extinction of the attended night.
   speechGiven:       { lo: 0.02, hi: 1.00, label: 'orgs whose chosen speaker took the mic on a win' },
+  // the service (v0.9.23): a 140-week soak CANNOT reach the enlistment
+  // window by age math — prospects generate 14–22, so the oldest male
+  // idol is ~25 at soak end against a notice age of 26. These bands
+  // assert that structural silence (nothing fires early); the system's
+  // positive teeth live in audit_longhaul (620 weeks, invariant: no
+  // male idol past the wall who is neither serving nor served).
+  svcPapersSeen:     { lo: 0.00, hi: 0.10, label: 'orgs where enlistment papers reached the desk' },
+  svcEnlisted:       { lo: 0.00, hi: 0.10, label: 'orgs that sent a man to service' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
@@ -337,6 +345,7 @@ const tally = {
   walkoutCalled: 0, sceneRivalry: 0, fanWarSeen: 0, inGroupRivalry: 0,
   cannibalSeen: 0, masterMinted: 0, masterTurned: 0,
   festInvited: 0, festHeadlined: 0, festMissed: 0, nightPlanned: 0, speechGiven: 0,
+  svcPapersSeen: 0, svcEnlisted: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -673,6 +682,21 @@ for (let s = 0; s < SEEDS; s++) {
         // the bot sends the public's pick when there is one — the clip travels
         const opts = KP.sceneDef('awardNight').options(state, sc);
         KP.resolveScene(state, sc.id, (opts.find(o => o.id === 'breakout') || opts[0]).id);
+        return;
+      }
+      if (sc.kind === 'servicePlan') {
+        // the industry's read: a warm room staggers to keep the era
+        // machine running; a cool one closes the chapter cleanly
+        const g2 = KP.groupById(state, sc.groupId);
+        KP.resolveScene(state, sc.id, g2 && (g2.popularity || 0) >= 45 ? 'stagger' : 'together');
+        return;
+      }
+      if (sc.kind === 'enlistPapers') {
+        // send him in a quiet stretch; hold if an era is running
+        const p2 = state.people[sc.personId];
+        const g2 = p2 ? KP.groupOf(state, p2.id) : null;
+        const busy = g2 && (g2.prep || g2.tour || state.week <= (g2.promoUntil || 0));
+        KP.resolveScene(state, sc.id, busy ? 'wall' : 'now');
         return;
       }
       if (sc.kind === 'walkOut') {
@@ -1129,6 +1153,10 @@ for (let s = 0; s < SEEDS; s++) {
   if (Object.values(state.people).some(p => (p.directed || []).some(d => d.kind === 'gaveTheSpeech')) ||
       Object.values(state.people).some(p => (p.history || []).some(h => /speech stayed folded|acceptance speech on year-end/.test(h.text))))
     tally.nightPlanned++;
+  // the service (v0.9.23): the ledger is durable
+  const svl = state.serviceLedger || {};
+  if ((svl.notices || 0) + (svl.plans || 0) >= 1) tally.svcPapersSeen++;
+  if ((svl.enlisted || 0) >= 1) tally.svcEnlisted++;
   // the trainee floor (0.9.18.1): the rival ledger is durable
   const rl = state.rivalLedger || {};
   if ((rl.culls || 0) >= 1) tally.rivalCulled++;

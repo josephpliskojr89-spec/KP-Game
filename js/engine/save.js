@@ -692,6 +692,29 @@
     }
   } });
 
+  MIGRATIONS.push({ v: '0.9.23', fn: function (state) {
+    // the service (v0.9.23): the law existed all along — the files just
+    // never had a page for it. Male artists already past the deadline
+    // age are recorded as having completed service in early-career gaps
+    // the paperwork never captured (the age-backfill's cousin). Men in
+    // the window get nothing stamped: their papers reach the Desk on
+    // the ordinary schedule, which is the feature arriving.
+    let stamped = 0;
+    Object.values(state.people || {}).forEach(p => {
+      if (p.gender !== 'm' || p.status !== 'idol') return;
+      if (p.serviceDone || (p.flags && p.flags.military)) return;
+      if (p.age >= KP.C.MIL.deadlineAge) { p.serviceDone = 'prior'; stamped++; }
+    });
+    if (stamped) {
+      state.inbox = state.inbox || [];
+      state.inbox.unshift({
+        kind: 'company', week: state.week, read: false,
+        id: 'm' + (state.nextMsgId++),
+        text: 'Legal finished a records reconciliation nobody asked about out loud: military service pages were missing from every artist file. ' + stamped + ' male artist' + (stamped === 1 ? '' : 's') + ' past the enlistment deadline ' + (stamped === 1 ? 'is' : 'are') + ' now recorded as having completed service during early-career gaps the old paperwork never captured. Files for the ones still inside the window were left blank on purpose — those papers will reach your desk the ordinary way, which legal wants you to know is soon.',
+      });
+    }
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

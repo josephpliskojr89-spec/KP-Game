@@ -198,7 +198,7 @@
   // off the schedule for ANY reason (v0.9.20): the medical bench or a
   // declared personal break — every desk that books people checks here
   KP.onBreak = function (p) {
-    return (p.flags && (p.flags.burnout > 0 || !!p.flags.personalHiatus)) || false;
+    return (p.flags && (p.flags.burnout > 0 || !!p.flags.personalHiatus || !!p.flags.military)) || false;
   };
   KP.derived = function (p) {
     const t = p.talents, per = p.personality;

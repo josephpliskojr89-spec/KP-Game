@@ -68,7 +68,7 @@
             d.nextObligationWeek = state.week + D.missRescheduleWeeks;
             notes.push({ kind: 'company', priority: 'high', personId: p.id,
               text: KP.fillPro('The ' + d.brand + ' appearance did not happen — ' + KP.displayName(p) +
-                ' was ' + (p.flags.burnout > 0 ? 'on medical rest' : p.flags.personalHiatus ? 'on a personal break' : 'on the road') + ' and the brand’s event ran without {her}. They rebooked it, politely, for a date that was not a question. (' + d.missStreak + ' missed.)', p) });
+                ' was ' + (p.flags.military ? 'in service' : p.flags.burnout > 0 ? 'on medical rest' : p.flags.personalHiatus ? 'on a personal break' : 'on the road') + ' and the brand’s event ran without {her}. They rebooked it, politely, for a date that was not a question. (' + d.missStreak + ' missed.)', p) });
           }
         } else {
           d.obligationsKept = (d.obligationsKept || 0) + 1;

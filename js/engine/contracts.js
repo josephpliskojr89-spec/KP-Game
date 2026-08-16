@@ -120,7 +120,7 @@
     if ((state.scenes || []).some(sc => sc.kind === 'renewal')) return;
     if (state.week < (state.renewalQuietUntil || 0)) return;
     const due = roster.filter(p => p.status === 'idol' && p.contract &&
-      !p.contract.leaving &&
+      !p.contract.leaving && !(p.flags && p.flags.military) &&
       state.week - p.contract.start >= C.renewalAtYears * KP.C.WEEKS_PER_YEAR)
       .sort((a, b) => a.contract.start - b.contract.start)[0];
     if (!due) return;
@@ -505,6 +505,7 @@
     const g = KP.groupById(state, groupId);
     const p = state.people[personId];
     if (!g || !p || !g.members.includes(personId)) return { ok: false, reason: 'Not in that lineup.' };
+    if (p.flags && p.flags.military) return { ok: false, reason: KP.fillPro('Not while {she} serves — cutting a man from the lineup mid-service is the kind of headline that ends companies.', p) };
     if (g.tour) return { ok: false, reason: 'Lineup surgery on the road is a scandal, not a decision. Bring them home.' };
     if (g.prep) return { ok: false, reason: 'A release is locked with this lineup on the sleeve. Let the era land first.' };
     if (g.debuted && state.week <= (g.promoUntil || 0)) return { ok: false, reason: 'Promotions are running. The stage count changes when the era ends, not mid-song.' };
@@ -533,6 +534,7 @@
     const T = KP.C.MEMBER_DESK.TERMINATE;
     const p = state.people[personId];
     if (!p || p.status !== 'idol') return { ok: false, reason: 'Termination is for active artists. Trainees are released, not bought out.' };
+    if (p.flags && p.flags.military) return { ok: false, reason: KP.fillPro('Not while {she} serves. Even this industry has a floor, and buying out a soldier is under it.', p) };
     const g = KP.groupOf(state, personId);
     if (g && g.tour) return { ok: false, reason: 'Not from a tour bus. Bring them home first.' };
     const cost = KP.terminationCost(state, p);
@@ -554,6 +556,7 @@
   KP.declareMemberBreak = function (state, personId) {
     const p = state.people[personId];
     if (!p || p.status !== 'idol') return { ok: false, reason: 'Personal breaks are for active artists.' };
+    if (p.flags.military) return { ok: false, reason: KP.fillPro('{She} is in service — the state has already scheduled the break.', p) };
     if (p.flags.personalHiatus) return { ok: false, reason: KP.fillPro('{She} is already on a break.', p) };
     const g = KP.groupOf(state, personId);
     if (!g) return { ok: false, reason: 'A groupless artist rests by scheduling nothing. No statement needed.' };
@@ -603,7 +606,7 @@
     // the walkout: at most one such meeting on the desk at a time
     if ((state.scenes || []).some(sc => sc.kind === 'walkOut')) return;
     const candidate = roster.find(p =>
-      p.status === 'idol' && !p.flags.personalHiatus &&
+      p.status === 'idol' && !KP.onBreak(p) &&
       p.morale < W.moraleBelow && grudgeScore(p) >= W.grudgeAt &&
       state.week - (p.flags.walkoutAsked || -999) >= W.cooldownWeeks &&
       !(state.scenes || []).some(sc => sc.personId === p.id));

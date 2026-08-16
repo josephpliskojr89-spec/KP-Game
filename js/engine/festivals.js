@@ -30,6 +30,9 @@
     if (g.prep && Math.abs(g.prep.scheduledWeek - week) <= 1) out.push('the release lands the same week');
     if (g.debuted && week <= (g.promoUntil || 0)) out.push('promotions are still running that week');
     if (g.hiatus) out.push('the group is on official hiatus');
+    const away = g.members.map(id => state.people[id]).filter(Boolean)
+      .filter(m => m.flags && m.flags.military).length;
+    if (away) out.push(away + ' member' + (away === 1 ? ' is' : 's are') + ' in service — the stage plays short-handed');
     const worn = g.members.map(id => state.people[id]).filter(Boolean)
       .filter(m => m.fatigue >= 65).length;
     if (worn) out.push(worn + ' member' + (worn === 1 ? ' is' : 's are') + ' already running on fumes');
@@ -75,7 +78,8 @@
       const f = festById(due.festivalId);
       if (!f) return;
       // the schedule moved after the ink dried: a booked slot missed
-      if (g.tour || g.hiatus || g.retiredWeek || !g.members.length) {
+      if (g.tour || g.hiatus || g.retiredWeek || !g.members.length ||
+          g.members.every(id => { const m = state.people[id]; return !m || (m.flags && m.flags.military); })) {
         led.missed++;
         if (g.fandom) KP.fandomGain(g, -F.missFandom);
         inbox.push({ kind: 'public', priority: 'high', groupId: g.id,
@@ -89,7 +93,8 @@
       g.festivalsPlayed = (g.festivalsPlayed || 0) + 1;   // the icons arc counts (v0.9.18)
       const pay = Math.round(f.pay * (due.headline ? F.headlineMult : 1));
       state.budget += pay;
-      const members = g.members.map(id => state.people[id]).filter(Boolean);
+      const members = g.members.map(id => state.people[id]).filter(Boolean)
+        .filter(m => !(m.flags && m.flags.military));   // he is not on this stage (v0.9.23)
       members.forEach(m => {
         m.liveExp += KP.C.SEASON.festLiveExp;
         m.fatigue = KP.clamp(m.fatigue + f.fatigue, 0, 100);

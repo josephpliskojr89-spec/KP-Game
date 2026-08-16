@@ -428,6 +428,8 @@
     // a personal break (v0.9.20): her calendar simply stops — the
     // memberDesk weekly owns the recovery, one truth per number
     if (p.flags.personalHiatus) return null;
+    // the service (v0.9.23): same contract — the military weekly owns him
+    if (p.flags.military) return null;
     const promoting = g && g.debuted && state.week <= (g.promoUntil || 0);
     if (promoting) return null;   // the rollout desk runs promo weeks (v0.6.3)
     if (g && g.tour) return null; // the road runs tour weeks (v0.6.8)

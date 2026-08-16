@@ -129,6 +129,15 @@
       // the bad blood (v0.9.21): the named rivalries ride the hero
       (KP.sceneRivalries ? KP.sceneRivalries(state, g.id).map(r =>
         '<span class="chip hot">vs ' + UI.esc(r.actName) + '</span>').join('') : '') +
+      // the service (v0.9.23): who is away rides the hero too
+      (function () {
+        const away = members.filter(m => m.flags && m.flags.military).length;
+        if (away) return '<span class="chip cool">' + away + ' in service</span>';
+        if (g.servicePlan && members.some(m => m.gender === 'm' && !m.serviceDone)) {
+          return '<span class="chip">service: ' + (g.servicePlan === 'together' ? 'together' : 'staggered') + '</span>';
+        }
+        return '';
+      })() +
       '</div></div>');
 
     html.push('<div class="member-strip">');
@@ -291,6 +300,13 @@
         '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Open the Studio</button></div></div>');
     } else if (promoting) {
       html.push('<div class="card">Promotion week — music shows, fan signs, radio. The schedule is full and so are the members. Comeback planning opens when it winds down.</div>');
+    } else if (g.hiatus && g.hiatus.service) {
+      // the service chapter (v0.9.23): the wait is loyal, the date is real
+      const back = g.members.map(id => state.people[id]).filter(Boolean)
+        .filter(m => m.flags && m.flags.military)
+        .reduce((w, m) => Math.max(w, m.flags.military.until), 0);
+      html.push('<div class="card"><b>The service chapter</b> — the group enlisted together and the fandom is running the wait like a project. Nothing cools while the reason is the law. Last discharge expected ' +
+        (back ? UI.esc(KP.weekLabel(back).text) : 'soon') + ' — and the next date after that is not a comeback, it is a return.</div>');
     } else if (g.hiatus) {
       // the disappearance (v0.9.12): parked on purpose, counted weekly
       const hw = state.week - g.hiatus.since;

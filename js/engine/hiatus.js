@@ -46,8 +46,13 @@
         p.fatigue = KP.clamp(p.fatigue - H.restBonus, 0, 100);
         p.morale = KP.clamp(p.morale + H.moraleGain, 0, 100);
       });
+      // a service hiatus does not cool: the reason is the law, and the
+      // wait is loyal — the ordinary clock restarts at the last
+      // discharge (graceFrom, stamped by military.js)
+      if (g.hiatus.service) return;
       // past the grace window, the public starts forgetting
-      if (weeks > H.graceWeeks) {
+      const anchor = g.hiatus.graceFrom || g.hiatus.since;
+      if (state.week - anchor > H.graceWeeks) {
         g.hiatusCooledEver = true;   // durable: the census reads stamps, not notes
         g.popularity = KP.clamp((g.popularity || 0) - H.coolPerWeek, 0, 100);
         if (g.fandom) g.fandom.intensity = KP.clamp((g.fandom.intensity || 0) - H.fandomCoolPerWeek, 0, 100);

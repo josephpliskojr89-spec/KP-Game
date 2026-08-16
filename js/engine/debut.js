@@ -36,6 +36,9 @@
     if (g.retiredWeek || !g.members.length) {
       return { ok: false, reason: 'That chapter is closed — there is nobody left to record it.' };
     }
+    if (g.members.every(id => { const m = state.people[id]; return !m || (m.flags && m.flags.military); })) {
+      return { ok: false, reason: 'Every member is in service. The record waits for the discharge — that is what makes it a return.' };
+    }
     if (g.prep) return { ok: false, reason: 'A release is already locked.' };
     if (g.tour) return { ok: false, reason: 'They are on tour. The studio can wait for the road to end.' };
     if (state.week <= (g.tourRestUntil || 0)) {
@@ -187,8 +190,18 @@
     // the feed is basically quiet") — the date going public is a public
     // EVENT, and the weeks between now and the stage build toward it
     g.prep.buildup = 0;
+    // the discharge return (v0.9.23): a lock inside the window converts
+    // the wait the fandom has been saving into a running countdown
+    let returnStage = false;
+    if (g.returnStage) {
+      returnStage = state.week - g.returnStage.week <= KP.C.MIL.returnWindowWeeks;
+      delete g.returnStage;   // inside or out, the moment is spent at lock
+      if (returnStage) g.prep.buildup = KP.C.MIL.returnBuildup;
+    }
     KP.note(state, { kind: 'public', ind: 'eraAnnounced', priority: 'high', groupId: g.id,
-      text: g.debuted
+      text: returnStage
+        ? 'THE RETURN: ' + g.name + ', ' + KP.weekLabel(plan.week).text + ' — the first date since the service ended, and the announcement post reads like a homecoming banner. The fandom spent the wait saving up. The receipts start now.'
+        : g.debuted
         ? g.name + '’s comeback is official: ' + KP.weekLabel(plan.week).text + ', on every calendar the fandom keeps. The reply section is already fighting about the concept from one dark teaser image and a font.'
         : state.company.short + ' put a date on the debut everyone suspected: ' + g.name + ', ' + KP.weekLabel(plan.week).text + '. The industry-watcher accounts have opinions. The trainees’ old academy classmates have screenshots.' });
     // locking onto an announced rival week is a CHOICE — the challenge

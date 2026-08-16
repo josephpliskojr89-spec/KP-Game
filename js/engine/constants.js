@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.22',
+    VERSION: '0.9.23',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1184,6 +1184,25 @@
       // bought with cooling, which is the whole bet.
       anticipationPerWeek: 0.75,
       anticipationCap: 10,       // hype has a ceiling; cooling does not
+    },
+    // the service (v0.9.23, §55.7, map slot 8) — every male idol carries
+    // an enlistment window with a hard deadline; the decision is the
+    // industry's classic (stagger vs together); the contract clock
+    // pauses; the fandom starts the wait; the discharge return stage is
+    // the event the whole anticipation system builds toward
+    MIL: {
+      noticeAge: 26,             // the papers reach the desk — two years of runway
+      deadlineAge: 28,           // the wall — postponement runs out on this birthday
+      serviceWeeks: 72,          // ~18 months, in 48-week years
+      minTogetherAge: 20,        // together: younger members stay home, clock still runs
+      mateMorale: 2,             // the send-off hits the room
+      soldierMorale: 3,          // and the one leaving, a little more
+      serviceFatigueRelief: 3,   // the schedule stops; the body clock resets weekly
+      dischargeMorale: 8,        // the gate photo, the first meal, the group chat
+      dischargeFatigueCap: 30,   // nobody comes back from service worn out
+      professionalism: 4,        // the spine of steel comes home with him
+      returnBuildup: 26,         // a comeback locked inside the window banks this
+      returnWindowWeeks: 24,     // how long the discharge moment stays convertible
     },
     AWARDS: {
       nominationWeek: 44,       // of the 48-week year

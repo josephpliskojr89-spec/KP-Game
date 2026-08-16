@@ -59,6 +59,7 @@
         if (!g.gravity) {
           // who, if anyone, is pulling away from the room
           const reads = g.members.map(id => state.people[id]).filter(Boolean)
+            .filter(p => !(p.flags && p.flags.military))   // nobody clamors from a base (v0.9.23)
             .map(p => ({ p, read: KP.transcendRead(state, g, p) }))
             .sort((a, b) => b.read - a.read);
           const top = reads[0];
