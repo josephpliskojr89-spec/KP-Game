@@ -288,11 +288,31 @@
     //     acts and a debut calendar; the chart and the feed open mid-story
     KP.seedIndustry(state, rng);
 
-    // --- opening inbox
+    // --- opening inbox: each door tells its own truth (0.9.28.1 — the
+    // owner's fresh save opened with six years of history it never had)
+    const OPENERS = {
+      fresh: {
+        intro: '“No history means no bad habits. Build the first thing this label is ever known for.”',
+        exec: 'The runway is the directive: a 4–6 member girl group, debuted within 18 months — before the seed money runs out. Budget covers three external signings.',
+        welcome: 'Welcome to ' + state.company.name + '. A new label: no catalog, no reputation, and a market with no opinion of you yet. The first debut changes all three.',
+      },
+      major: {
+        intro: '“Everything in this building works. Your job is to keep that true — and to know when the generation turns.”',
+        exec: 'The portfolio is yours: two flagships mid-era, a full bench, and the doctrine on the wall. New groups come when the wave turns. Everything else is stewardship — and the ranking prints in January.',
+        welcome: 'Welcome to ' + state.company.name + '. Two flagships, a floor of trainees who know the elevator code, and a board that measures you against last year’s power ranking. Keep it running. Make it bigger.',
+      },
+      current: {
+        intro: exec.intro,
+        exec: 'The directive is on your desk: a 4–6 member girl group, debuted within 18 months. Budget covers three external signings.',
+        welcome: 'Welcome to ' + state.company.name + '. ' + KP.DATA.playerCompany.reputationLine,
+      },
+    };
+    const opener = OPENERS[door] || OPENERS.current;
+    state.executive.intro = opener.intro;
     const open = [
-      { kind: 'executive', urgent: true, text: state.executive.name + ' — ' + exec.intro + ' The directive is on your desk: a 4–6 member girl group, debuted within 18 months. Budget covers three external signings.' },
+      { kind: 'executive', urgent: true, text: state.executive.name + ' — ' + opener.intro + ' ' + opener.exec },
       { kind: 'scouting', text: 'Scout Im left the prospect board on your desk with a sticky note: “The good ones never wait. Neither do Novaline and Aurum.”' },
-      { kind: 'company', text: 'Welcome to ' + state.company.name + '. ' + KP.DATA.playerCompany.reputationLine },
+      { kind: 'company', text: opener.welcome },
     ];
     open.forEach(n => { n.week = 1; n.read = false; n.id = 'm' + (state.nextMsgId++); });
     state.inbox = open;

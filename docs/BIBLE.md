@@ -6054,3 +6054,16 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > determinism forks. Numbers: battery 69/69, soak clean (168
 > bands), e2e 94, lockstep 0.9.28. Rode to main. Slot 10 (the deep
 > map + the tongue + the world's auditions) next, on approval.
+
+> **0.9.28.1 — each door tells its own truth.** Owner's fresh save
+> opened wearing the inheritance's clothes: "vocal powerhouse" as
+> the company headline, a welcome note about six years of history it
+> never had, and the exec briefing about a girl-group drought that
+> predates a label founded last Tuesday. Fixed at both leaks: the
+> opening inbox (exec intro, directive, welcome) is door-aware —
+> the fresh label gets the runway speech, the major gets the
+> stewardship speech and no 18-month directive, the inheritance
+> keeps its original copy — and repHeadline reads 'Unproven label'
+> until any reputation lane crosses 40. The new-career quote
+> varies per door to match. Battery 69/69, e2e 94, lockstep
+> 0.9.28.1. Rode to main.

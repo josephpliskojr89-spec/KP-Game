@@ -346,6 +346,9 @@
   }
   function repHeadline(rep) {
     const best = Object.entries(rep).sort((a, b) => b[1] - a[1])[0];
+    // a fresh label has no headline yet — nothing above "noted" means
+    // the market has no word for you (0.9.28.1, the fresh door)
+    if (!best || best[1] < 40) return 'Unproven label';
     return { vocal: 'Vocal powerhouse', girlGroup: 'Girl group factory', starMaker: 'Star makers', performance: 'Performance house' }[best[0]] || 'Mid-tier label';
   }
   function repChips(rep) {
@@ -379,10 +382,12 @@
   // the three doors (v0.9.28, §69): which company you choose to run
   const DOORS = {
     fresh: { title: 'The fresh label', chips: '<span class="chip">no history</span><span class="chip cool">founding class of six</span><span class="chip hot">payroll is burning</span>',
+      quote: '“No history means no bad habits. Build the first thing this label is ever known for.”',
       copy: 'A lease, a logo, and a practice room that still smells of paint. No catalog, no legacy group, no cushion — six trainees, a thin budget, and eighteen months to put a girl group on a stage. Startups debut as fast as they can, because they have to.' },
     current: { title: 'The inheritance', chips: '<span class="chip cool">vocal powerhouse</span><span class="chip">mid-sized</span><span class="chip hot">6 years without a girl-group hit</span>',
       copy: 'You inherit the last group — four vocalists in year six of their contracts, still selling, visibly slowing — plus six trainees and a scouting board the rivals are already reading. Their renewal folders reach your desk before your first debut does. The deadline is eighteen months.' },
     major: { title: 'The major', chips: '<span class="chip gold">top-three house</span><span class="chip cool">two flagships mid-era</span><span class="chip hot">everything to lose</span>',
+      quote: '“Everything in this building works. Your job is to keep that true — and to know when the generation turns.”',
       copy: 'The infrastructure is in place: a girl-group flagship, a boy-group flagship, a deep bench, real money — and the doctrine active from day one. New groups come once a generation here. The game is stewardship: the clocks, the renewals, the overtake to defend. A major has everything, which is exactly the problem.' },
   };
   UI.renderNewCareer = function (door) {
@@ -396,7 +401,7 @@
       '<div class="nc-co">Hanseong<br>Culture Group</div>' +
       '<div style="display:flex;gap:6px;margin:10px 0 4px">' + card('fresh') + card('current') + card('major') + '</div>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px">' + d.chips + '</div>' +
-      '<div class="nc-quote">“I don’t need five perfect trainees. I need one group people remember.”</div>' +
+      '<div class="nc-quote">' + (d.quote || '“I don’t need five perfect trainees. I need one group people remember.”') + '</div>' +
       '<div class="nc-p">' + d.copy + '</div>' +
       '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">Your name</label>' +
       '<input class="nc-input" id="nc-name" placeholder="A&R Manager" maxlength="24">' +
