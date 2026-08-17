@@ -3902,6 +3902,54 @@ arc; fourth chase goes to the national board's decay). Suite 070
 the signing stamp, home-first strongholds, the tongue crossing, the
 voice abroad, the interpreter, the airport, 50-week determinism.
 
+## §71 The sagas (planning sitting — owner-directed, not yet built)
+
+Owner, across the sitting: rare world events that *"basically invade
+the world and have the potential to reshape it, rather than come in
+with a script."* The ruling frame: each saga gets a BIRTH
+CERTIFICATE, NOT A BIOGRAPHY — one standard entrance script, then
+the sim takes the wheel. No outcome stages, no destiny; receptions,
+era reads, the power ranking, collapse and coronation are all owned
+by the existing physics, and the trades narrate whatever actually
+happens in the same voice they use for everything else.
+
+**The deck.** Each new save hash-seeds one saga (occasionally two),
+timed into years 2–8 — deterministic per seed, rare enough to feel
+like a world event, guaranteed enough that most careers get one.
+Each saga carries a pool of FIVE generated names (company + act,
+hash-picked per save) so the same entrance never wears the same
+letterhead twice. Nothing borrows a real name or mirrors an
+identifiable real organization — inspiration is shapes, never
+identities. The pool of sagas is APPEND-ONLY and grows as ideas
+arrive.
+
+**The launch five:**
+1. *The super-group project* — a new house arrives with an elite
+   international act and deep pockets, courting your international
+   trainees on the way in. Then: physics.
+2. *The global joint venture* — a foreign major brings the co-build
+   offer to YOUR desk first: worldwide auditions on their money,
+   split control, split revenue. Decline and it signs across the
+   street. The one saga whose entrance is a player decision that
+   changes the world's inputs.
+3. *The reverse invasion* — an overseas company enters Korea
+   directly with diaspora talent: pre-warmed overseas regions, a
+   cold domestic market, tongue mechanics running backwards, an
+   unscored outsider in the January ranking.
+4. *The heir's money* — a fortune bankrolls a label whose budget
+   ignores prestige for a while: signing prices distort everywhere,
+   poaching offers get stupid, and the ending — stabilized power or
+   the biggest signing class the game can mint — belongs to whether
+   their gambles hit.
+5. *The second capital* — a regional city funds a bid to become the
+   scene's other center: supercharged region verbs for years, and
+   the harvest belongs to whoever actually plants there.
+
+Entrances obey the arrive/claim/mark law; injected entities obey the
+world's laws from the first week. Verification: forced-fire suites
+for the entrances, the longhaul for the distribution of fates.
+Scheduled after slot 11 (the secret).
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
