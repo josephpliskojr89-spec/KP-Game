@@ -464,6 +464,13 @@
         (state.claims || []).some(c => !c.resolved && c.type === 'soloAlbumPromise' && c.personId === p.id) ||
         (KP.liveDiscourses(state) || []).some(d => d.kind === 'albumClamor' && String(d.subjectId) === String(p.id)) ||
         (g.gravity && !g.gravity.settled && g.gravity.personId === p.id && (g.gravity.rung || 1) === 2));
+      // the secret (v0.9.30): once the brief lands, the desk can pay for quiet
+      if (p.flags.secret && p.flags.secret.briefed && !p.flags.secret.revealed) {
+        row.push('<button class="btn small' + (p.flags.protectedLife ? ' primary' : ' ghost') +
+          '"' + (p.flags.protectedLife ? '' : ' style="border:1px solid var(--line)"') +
+          ' data-action="protect-life" data-id="' + p.id + '">' +
+          (p.flags.protectedLife ? 'Protection on · ' + KP.C.SECRET.protectCost + '/wk' : 'Protect her privacy · ' + KP.C.SECRET.protectCost + '/wk') + '</button>');
+      }
       if (albumAsk && state.week - (p.lastSoloAlbumWeek || -999) >= KP.C.STAR.albumCooldown) {
         row.push('<button class="btn primary small" data-action="solo-album" data-id="' + p.id + '">Produce the solo album · ' + KP.C.STAR.albumCost + '</button>');
       }

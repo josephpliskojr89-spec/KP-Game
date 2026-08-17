@@ -593,6 +593,7 @@
       if (a.kind === 'leftWaiting') s += 1;
       if (a.kind === 'watchedTermination') s += 1;
       if (a.kind === 'heldToPaper') s += 2;
+      if (a.kind === 'madeHerHide') s += 2;   // the denial she carries (v0.9.30)
     });
     return s;
   }

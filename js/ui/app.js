@@ -572,6 +572,13 @@
           '<button class="btn primary" data-action="sign-confirm" data-id="' + p.id + '" style="flex:1">' + KP.fillPro('Sign {her}', p) + '</button>');
         break;
       }
+      case 'protect-life': {
+        const p = s.people[t.dataset.id];
+        KP.setProtectedLife(s, p.id, !p.flags.protectedLife);
+        UI.toast(p.flags.protectedLife ? 'Cover schedules and decoy vans — quiet, on retainer.' : 'Protection stood down.');
+        App.save(); App.render();
+        break;
+      }
       case 'fund-audition': {
         const r = KP.fundAudition(s, t.dataset.id);
         if (r.ok) { UI.toast(r.minted + ' callbacks made the tape — files on the board.'); App.save(); App.render(); }

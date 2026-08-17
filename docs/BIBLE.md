@@ -1932,7 +1932,7 @@ against the standing clause (arrive, claim, mark):
     prospects with home regions and native languages on the file,
     the member whose hometown airport fills when the tour finally
     comes.
-11. **The secret** (dating & Dispatch). Secrecy, the reveal, the
+11. **The secret** (SHIPPED v0.9.30, §72). Secrecy, the reveal, the
     response menu, the fandom's spectrum — under the full content
     law, late in the order on purpose so every system it touches
     is already deep.
@@ -3949,6 +3949,39 @@ Entrances obey the arrive/claim/mark law; injected entities obey the
 world's laws from the first week. Verification: forced-fire suites
 for the entrances, the longhaul for the distribution of fates.
 Scheduled after slot 11 (the secret).
+
+## §72 The secret (v0.9.30 — SHIPPED) — map slot 11
+
+Dating & Dispatch, under the FULL content law. The non-negotiables,
+restated as rails: the relationship is REAL but never player-
+controlled and never detailed — no partner identity beyond "someone
+outside the industry" / "someone in it," no bodies, no meddling
+verbs, adults only (the existing 19+ privateNote is the seed). The
+player's entire game is the COMPANY'S side: secrecy logistics, the
+camera clock, the reveal, the response menu, and the fandom's
+spectrum. The snark aims at the cameras and the industry's norms,
+never at her. She is written with care in every line.
+
+**The ground truth.** A privateNote (19+, existing) sometimes
+deepens: p.flags.secret = { since, sphere: 'outside'|'industry' } —
+non-interactive, surfaced to the player only as her manager's
+careful brief. **The camera clock**: a fictional tabloid desk (name
+pool, never a real outlet) whose weekly reveal risk reads her fame,
+her schedule density, and time — with a PROTECT posture the company
+can pay for (cover schedules, decoy vans) that lowers it.
+**The reveal**: photos land as a critical scene with the response
+menu — confirm warmly (ask for privacy), the privacy statement
+(neither confirm nor deny), deny (cheapest today, costliest if it
+resurfaces), or silence. **The spectrum**: the fandom's reaction is
+a SPECTRUM, not a verdict — read from fandom identity/intensity,
+her standing, the relationship's length, and the response chosen;
+the devoted grieve and defend in the same thread, the casuals
+shrug, a fansite master may post the closing notice. Fandom and
+morale move; a warm confirm is the response she never forgets
+(directed +), a forced denial is one she carries (madeHerHide −,
+into the walkout-read grudge ledger). Recovery arcs over weeks;
+the discourse kind aims its heat at the tabloid and the norms.
+Verification: forced-fire suite + soak bands on the ledger.
 
 ## §18 Watch items
 
@@ -6160,3 +6193,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > longhaul 6x620 clean, e2e 94, lockstep 0.9.29 (62 modules —
 > tongue.js). Rode to main. Slot 11 (the secret — dating &
 > Dispatch) next, on approval.
+
+> **v0.9.30 — the secret (map slot 11, §72).** Dating & Dispatch
+> under the FULL content law, exactly as designed: a 19+ privateNote
+> sometimes deepens into a secret the player never controls and
+> never sees detailed — the manager's one-sentence brief is ALL the
+> company gets. The camera clock reads fame, promo weeks and time;
+> a paid protect posture (cover schedules, decoy vans) buys real
+> quiet. The midnight photos land as a critical scene with the
+> response menu: the warm confirm (the room takes it hard, heals
+> honest, and she keeps a printed copy — stoodByHer +2), the
+> privacy statement (cheaper, slower), the denial (cheapest today,
+> a loan against the second set of photos — madeHerHide −2 into
+> the walkout's grudge ledger), or silence (which is also an
+> answer). The spectrum lives in the feed, aimed at the fictional
+> tabloids and the norms, never at her — and the suite LINTS the
+> module's strings for the content law. Census re-points executed
+> per §18's own rules: fiscalWarned → the poverty tail (0/40 end
+> broke), natNumberOne rarity claim retired (band guards runaway
+> at 0.75). Numbers: battery 71/71 (suite 071, 20), soak clean
+> (174 bands), longhaul 6x620 clean, e2e 94, lockstep 0.9.30 (63
+> modules — secret.js). Rode to main. The sagas (§71) next, then
+> slot 12 (time takes its share), on approval.

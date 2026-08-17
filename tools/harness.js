@@ -71,7 +71,12 @@ const BANDS = {
   // ceiling: if it flaps again, stop chasing and re-point the band at
   // the poverty tail itself (orgs ending under ~300), which is the
   // regression this alarm actually exists to catch.
-  fiscalWarned:      { lo: 0.00, hi: 0.85, label: 'orgs warned at trust-hitting level (2+)' },
+  // RE-POINTED (v0.9.30, the §18 rule executed on the third chase): the
+  // warned-count ceiling was chased 0.65→0.75→0.85 and hit 35/40 again —
+  // warnings are weather for a lean bot. The alarm this band exists for
+  // is the POVERTY SPIRAL, so it now measures the tail directly: orgs
+  // ENDING the career under 300 (observatory median end-budget ~4200).
+  fiscalWarned:      { lo: 0.00, hi: 0.10, label: 'orgs that ended the career broke (end budget < 300)' },
   idolsRested:       { lo: 0.50, hi: 1.00, label: 'orgs whose idol weeks average off the fumes (<70, rolling)' },
   overworkSeen:      { lo: 0.05, hi: 1.00, label: 'orgs where medical staff benched somebody' },
   rivalActDebut:     { lo: 0.80, hi: 1.00, label: 'worlds where a rival debuted a new act' },
@@ -90,13 +95,13 @@ const BANDS = {
   // announced era banks the countdown edge, so more careers touch
   // the summit once. Designed strength, not chart rot; the alarm
   // now guards a summit that becomes a doormat.
-  // ceiling 0.50→0.60 (v0.9.29): third sample sitting ON the old edge —
-  // 34/80 (0.9.20.1), then 22/40 and 41/80 (51%) after the tongue's
-  // stream shift. The summit trend has tracked the whole star-power
-  // arc (hype concentration, solo albums, return runs) — a bot at 51%
-  // is the accumulated design, not a leak. Fourth chase: re-examine
-  // the national board's decay instead of this ceiling.
-  natNumberOne:      { lo: 0.00, hi: 0.60, label: 'orgs that topped the national chart (the summit stays rare)' },
+  // RE-RULED (v0.9.30, the fourth sample): 34/80 → 41/80 → 26/40 across
+  // three stream shifts. The rarity CLAIM is retired honestly — the
+  // accumulated star-power arc (hype concentration, solo albums, return
+  // runs, units) makes the summit a normal career milestone for a
+  // competent full-arc bot. The band now guards RUNAWAY, not rarity;
+  // if it crosses 0.75, tune the national board's decay.
+  natNumberOne:      { lo: 0.00, hi: 0.75, label: 'orgs that topped the national chart (guarding runaway, not rarity)' },
   chartAlive:        { lo: 0.40, hi: 1.00, label: 'worlds ending with a living chart (>=3 entries)' },
   lifecycleSeen:     { lo: 0.35, hi: 1.00, label: 'worlds where a company rose/fell/merged/split' },
   feedAlive:         { lo: 0.85, hi: 1.00, label: 'worlds with a full fan feed (>=25 posts)' },
@@ -233,6 +238,9 @@ const BANDS = {
   // the tongue (v0.9.29): first soak — provisional
   auditionRun:       { lo: 0.10, hi: 1.00, label: 'orgs that funded a global audition tour' },
   intlSigned:        { lo: 0.00, hi: 1.00, label: 'orgs that signed an international trainee' },
+  // the secret (v0.9.30): first soak — provisional
+  secretFormed:      { lo: 0.00, hi: 1.00, label: 'orgs where a private life deepened (19+ only)' },
+  revealSeen:        { lo: 0.00, hi: 0.80, label: 'orgs where the midnight photos landed' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
@@ -387,6 +395,7 @@ const tally = {
   rfRankings: 0, rfTopSeatMoved: 0, rfClassSeen: 0, rfOfferSeen: 0,
   rfGenTurned: 0, rfTorchSeen: 0, rfRivalService: 0,
   unitEraSeen: 0, doctrineDeniedSeen: 0, auditionRun: 0, intlSigned: 0,
+  secretFormed: 0, revealSeen: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -765,6 +774,17 @@ for (let s = 0; s < SEEDS; s++) {
         KP.resolveScene(state, sc.id, (opts.find(o => o.id === 'breakout') || opts[0]).id);
         return;
       }
+      if (sc.kind === 'theReveal') {
+        // a decent boss tells the truth when the room can carry it —
+        // the warm confirm when the fandom is devoted, the privacy
+        // statement otherwise. The bot never denies; denial is the
+        // trap the mechanism prices, not the policy a decent desk runs.
+        const p = state.people[sc.personId];
+        const g = p && KP.groupOf(state, p.id);
+        const devoted = g && g.fandom && g.fandom.intensity >= 55;
+        KP.resolveScene(state, sc.id, devoted ? 'confirm' : 'statement');
+        return;
+      }
       if (sc.kind === 'theOffer') {
         // a thin till leverages; a comfortable one declines with style
         KP.resolveScene(state, sc.id, state.budget < 200 ? 'leverage' : 'decline');
@@ -1139,7 +1159,7 @@ for (let s = 0; s < SEEDS; s++) {
   if (state.roster.map(id => state.people[id]).some(p => KP.evaluate(state, p).instinct)) tally.instinctSigning++;
   if (sawFriction) tally.frictionSeen++;
   if (pressureSeen || pressureWarned) tally.fiscalNoticed++;
-  if (pressureWarned) tally.fiscalWarned++;
+  if (state.budget < 300) tally.fiscalWarned++;   // the poverty tail (re-pointed v0.9.30)
   if (hypeSeen) tally.hypeSeen++;
   if (directiveSeen) tally.directiveFired++;
   if (state.groups.some(gg => gg.type === 'solo' && gg.debuted)) tally.soloDebuts++;
@@ -1258,6 +1278,9 @@ for (let s = 0; s < SEEDS; s++) {
   // the tongue (v0.9.29): the ledger is durable
   if (((state.tongueLedger || {}).auditions || 0) >= 1) tally.auditionRun++;
   if (((state.tongueLedger || {}).intlSigned || 0) >= 1) tally.intlSigned++;
+  // the secret (v0.9.30): the ledger is durable
+  if (((state.secretLedger || {}).secrets || 0) >= 1) tally.secretFormed++;
+  if (((state.secretLedger || {}).reveals || 0) >= 1) tally.revealSeen++;
   // the trainee floor (0.9.18.1): the rival ledger is durable
   const rl = state.rivalLedger || {};
   if ((rl.culls || 0) >= 1) tally.rivalCulled++;

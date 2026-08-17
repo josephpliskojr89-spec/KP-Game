@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.29',
+    VERSION: '0.9.30',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1215,6 +1215,32 @@
     // ranking, collapse fallout as a signing class, the imperial
     // rival's job offer, named generations — and the rival world's
     // boys pay the service tax too (owner, after v0.9.23)
+    // the secret (v0.9.30, map slot 11, §72) — dating & Dispatch under
+    // the full content law: never player-controlled, never at bodies,
+    // adults only, the snark at the cameras and the norms — never her
+    SECRET: {
+      formChance: 0.006,         // weekly, per eligible privateNote (19+)
+      industrySphereShare: 0.3,  // some secrets are two schedules deep
+      briefWeeks: 6,             // the manager's careful brief, this long in
+      riskBase: 0.004,           // weekly reveal risk…
+      riskPerFame: 0.004,        // …scaled by fame bands (renewal read)
+      riskPromo: 0.006,          // promo weeks put vans outside buildings
+      protectCost: 4,            // weekly: cover schedules, decoy vans
+      protectFactor: 0.45,       // protection buys real quiet, not silence
+      resurfaceChance: 0.25,     // a denial is a loan against a second set of photos
+      TABLOIDS: ['Flashcut', 'The Peninsula Lens', 'Paparazzo Weekly', 'Camera Nine', 'The Long Lens'],
+      // the response menu, priced
+      confirmFandom: 8,          // the room takes it hard…
+      confirmRecovery: 0.5,      // …and heals honestly, weekly
+      statementFandom: 5,        // the middle path cools less, heals slower
+      statementRecovery: 0.3,
+      denyFandom: 2,             // cheapest today
+      denyResurfaceFandom: 16,   // costliest when the second set lands
+      silenceFandom: 10,         // nothing reads as everything
+      confirmMorale: 7,          // the response she never forgets
+      denyMorale: -8,            // the one she carries
+      recoveryWeeks: 20,         // the arc, either way
+    },
     // the deep map + the tongue + the world's auditions (v0.9.29, map
     // slot 10, §55.5 + §55.15) — language colors the map's verbs, the
     // fluent member is the voice abroad, and the world auditions
