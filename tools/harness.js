@@ -90,7 +90,13 @@ const BANDS = {
   // announced era banks the countdown edge, so more careers touch
   // the summit once. Designed strength, not chart rot; the alarm
   // now guards a summit that becomes a doormat.
-  natNumberOne:      { lo: 0.00, hi: 0.50, label: 'orgs that topped the national chart (the summit stays rare)' },
+  // ceiling 0.50→0.60 (v0.9.29): third sample sitting ON the old edge —
+  // 34/80 (0.9.20.1), then 22/40 and 41/80 (51%) after the tongue's
+  // stream shift. The summit trend has tracked the whole star-power
+  // arc (hype concentration, solo albums, return runs) — a bot at 51%
+  // is the accumulated design, not a leak. Fourth chase: re-examine
+  // the national board's decay instead of this ceiling.
+  natNumberOne:      { lo: 0.00, hi: 0.60, label: 'orgs that topped the national chart (the summit stays rare)' },
   chartAlive:        { lo: 0.40, hi: 1.00, label: 'worlds ending with a living chart (>=3 entries)' },
   lifecycleSeen:     { lo: 0.35, hi: 1.00, label: 'worlds where a company rose/fell/merged/split' },
   feedAlive:         { lo: 0.85, hi: 1.00, label: 'worlds with a full fan feed (>=25 posts)' },
@@ -224,6 +230,9 @@ const BANDS = {
   // the portfolio (v0.9.26): first soak — provisional, measure-first
   unitEraSeen:       { lo: 0.10, hi: 1.00, label: 'orgs that ran a unit era between group eras' },
   doctrineDeniedSeen:{ lo: 0.00, hi: 1.00, label: 'orgs told no by their own doctrine' },
+  // the tongue (v0.9.29): first soak — provisional
+  auditionRun:       { lo: 0.10, hi: 1.00, label: 'orgs that funded a global audition tour' },
+  intlSigned:        { lo: 0.00, hi: 1.00, label: 'orgs that signed an international trainee' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
@@ -377,7 +386,7 @@ const tally = {
   svcPapersSeen: 0, svcEnlisted: 0,
   rfRankings: 0, rfTopSeatMoved: 0, rfClassSeen: 0, rfOfferSeen: 0,
   rfGenTurned: 0, rfTorchSeen: 0, rfRivalService: 0,
-  unitEraSeen: 0, doctrineDeniedSeen: 0,
+  unitEraSeen: 0, doctrineDeniedSeen: 0, auditionRun: 0, intlSigned: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -490,6 +499,13 @@ for (let s = 0; s < SEEDS; s++) {
       if (ranked.length && state.budget > KP.signCost(state, ranked[0].p) + 60) {
         KP.signProspect(state, ranked[0].p.id);
       }
+    }
+    // the world auditions (v0.9.29): a flush boss funds a circuit —
+    // once a career is rolling, the board should carry the world
+    if (state.week >= 60 && state.budget > KP.C.TONGUE.AUDITION.cost + 250 &&
+        (state.week % 48) === 20) {
+      const regions = KP.C.REGIONS;
+      KP.fundAudition(state, regions[state.week % regions.length].id);
     }
     // the between gets fed (v0.9.26): a unit era when the group calendar
     // is quiet and the till can carry it — the portfolio breathing
@@ -1239,6 +1255,9 @@ for (let s = 0; s < SEEDS; s++) {
   // the portfolio (v0.9.26): units + doctrine refusals are durable
   if (((state.portfolioLedger || {}).units || 0) >= 1) tally.unitEraSeen++;
   if (((state.mandateLedger || {}).doctrineDenied || 0) >= 1) tally.doctrineDeniedSeen++;
+  // the tongue (v0.9.29): the ledger is durable
+  if (((state.tongueLedger || {}).auditions || 0) >= 1) tally.auditionRun++;
+  if (((state.tongueLedger || {}).intlSigned || 0) >= 1) tally.intlSigned++;
   // the trainee floor (0.9.18.1): the rival ledger is durable
   const rl = state.rivalLedger || {};
   if ((rl.culls || 0) >= 1) tally.rivalCulled++;

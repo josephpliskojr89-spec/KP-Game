@@ -43,6 +43,10 @@
     const ids = regionIds();
     const a = Math.floor(KP.hash01([state.seed, p.id, 'home1'].join('|')) * ids.length);
     const b = (a + 1 + Math.floor(KP.hash01([state.seed, p.id, 'home2'].join('|')) * (ids.length - 1))) % ids.length;
+    // an international's first stronghold is not a hash — it is HOME
+    // (v0.9.29, §55.15: "her home corner of the regions map loves her
+    // from day one — the §28 hash-truth, finally earned")
+    if (p.origin) return [p.origin, ids[a] === p.origin ? ids[b] : ids[a]];
     return [ids[a], ids[b]];
   };
 

@@ -26,6 +26,15 @@
         .sort((a, b) => KP.rivalHeat(state, b.id).max - KP.rivalHeat(state, a.id).max)
         .forEach(p => html.push(prospectRow(state, p)));
       if (!state.prospects.length) html.push('<div class="card">The board is empty. Leads arrive weekly.</div>');
+      // the world's auditions (v0.9.29): fund a circuit, mint a class
+      html.push('<div class="kicker">Global auditions</div>');
+      html.push('<div class="card"><div style="font-size:.78rem;color:var(--ink-dim);margin-bottom:8px">Fund an audition tour — ' +
+        KP.C.TONGUE.AUDITION.cost + ' per circuit, annual per region. Higher ceilings, harder reads: prospects arrive with a home region and a native language on the file.</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+        KP.C.REGIONS.map(r => {
+          const cool = state.auditionCooldowns && state.week - (state.auditionCooldowns[r.id] || -999) < KP.C.TONGUE.AUDITION.cooldownWeeks;
+          return '<button class="btn small' + (cool ? ' ghost" disabled style="opacity:.4;border:1px solid var(--line)' : '') + '" data-action="fund-audition" data-id="' + r.id + '">' + UI.esc(r.label) + '</button>';
+        }).join('') + '</div></div>');
       html.push(renderSchools(state));
     }
     return html.join('');
@@ -209,7 +218,9 @@
       '<div class="d-meta">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' +
       (p.gender === 'm' ? 'boy' : 'girl') + ' · ' + UI.esc(sourceLabel(state, p)) +
       (p.status === 'prospect' ? ' · ' + looksWord(state, p) : '') +
-      (p.signedWeek ? ' · signed ' + UI.esc(KP.weekLabel(p.signedWeek).text) : '') + '</div>' +
+      (p.signedWeek ? ' · signed ' + UI.esc(KP.weekLabel(p.signedWeek).text) : '') +
+      (p.origin ? ' · <span style="color:var(--cyan)">' + UI.esc(KP.regionLabel(p.origin)) + ' · ' + UI.esc(p.nativeLang || '') +
+        (KP.koOf(p) < 95 ? ' · Korean ' + (KP.koOf(p) >= KP.C.TONGUE.koConversational ? 'conversational' : 'learning') : '') + '</span>' : '') + '</div>' +
       '<div class="d-social">' + KP.fmtCount(KP.socialOf(state, p)) + ' followers' +
       ((p.socialDelta || 0) > 0 ? ' <span class="ds-up">▲' + KP.fmtCount(p.socialDelta) + ' this week</span>' : '') +
       '</div>' +

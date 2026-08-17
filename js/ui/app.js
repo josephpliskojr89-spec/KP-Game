@@ -572,6 +572,12 @@
           '<button class="btn primary" data-action="sign-confirm" data-id="' + p.id + '" style="flex:1">' + KP.fillPro('Sign {her}', p) + '</button>');
         break;
       }
+      case 'fund-audition': {
+        const r = KP.fundAudition(s, t.dataset.id);
+        if (r.ok) { UI.toast(r.minted + ' callbacks made the tape — files on the board.'); App.save(); App.render(); }
+        else UI.toast(r.reason, true);
+        break;
+      }
       case 'pick-door': {
         App._door = t.dataset.door;   // the three doors (v0.9.28)
         App.render();

@@ -225,6 +225,34 @@
     let revenue = scale.revBase * (0.5 + demand / 80) * (setlist.revMult || 1);
     if (soldOut) revenue *= T.soldOutRevMult;
     if (soft) revenue *= T.softRevMult;
+    // the tongue (v0.9.29): a fluent member is the voice of the leg —
+    // local radio, local jokes, a homecoming's economics. Nobody
+    // fluent means an interpreter on payroll and a flatter room.
+    if (regionId !== 'kr' && KP.voiceAbroad) {
+      const voice = KP.voiceAbroad(state, g, regionId);
+      const tl = state.tongueLedger || (state.tongueLedger = { auditions: 0, intlMinted: 0, intlSigned: 0, voiceLegs: 0, interpreterLegs: 0, airports: 0 });
+      if (voice) {
+        revenue *= KP.C.TONGUE.voiceRevenueMult;
+        tl.voiceLegs++;
+        notes.push({ kind: 'company', groupId: g.id, personId: voice.id,
+          text: KP.fillPro(KP.displayName(voice) + ' ran the ' + KP.regionLabel(regionId) + ' leg’s mics — local radio in the morning, the ments at night, every joke landing in the room’s own language. The promoter called {her} “the reason the meet-and-greet went long.” The voice abroad is worth real money.', voice) });
+      } else {
+        revenue -= KP.C.TONGUE.interpreterFee;
+        tl.interpreterLegs++;
+      }
+      // the airport (v0.9.29): the tour reaches somebody's HOME
+      const local = g.members.map(id => state.people[id]).filter(Boolean)
+        .find(m => m.origin === regionId);
+      if (local && !(tour.airportDone || {})[regionId]) {
+        tour.airportDone = tour.airportDone || {};
+        tour.airportDone[regionId] = true;
+        tl.airports++;
+        local.morale = KP.clamp(local.morale + KP.C.TONGUE.airportMorale, 0, 100);
+        local.history.push({ week: state.week, text: 'The tour came home. The arrivals hall was full, the signs were in two languages, and the kid who left with one suitcase played the venue everyone here grows up pointing at.' });
+        notes.push({ kind: 'public', ind: 'airportHome', priority: 'critical', personId: local.id, groupId: g.id,
+          text: KP.fillPro('The ' + KP.regionLabel(regionId) + ' airport FILLED for ' + KP.displayName(local) + ' — the hometown arrival, the two-language signs, the childhood dance teacher in the crowd with a banner. {She} held it together until the van. The clip of {her} not quite holding it together is the most-shared thing the tour produces.', local) });
+      }
+    }
     revenue = Math.round(revenue);
     state.budget += revenue;
 

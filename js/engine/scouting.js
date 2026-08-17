@@ -64,6 +64,7 @@
     if (state.fiscal) state.fiscal.monthSignings = (state.fiscal.monthSignings || 0) + 1;
     p.status = 'trainee';
     p.signedWeek = state.week;
+    if (p.origin && state.tongueLedger) state.tongueLedger.intlSigned++;   // v0.9.29
     // the paper clock (v0.9.19): three years, the industry standard
     p.traineeContract = { start: state.week, years: KP.C.TRAINEE_CONTRACT.years, term: 1 };
     p.training = { focus: [], intensity: 'standard' };

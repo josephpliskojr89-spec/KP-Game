@@ -3871,6 +3871,37 @@ generational rhythm: debuts land in a wave's opening window, the
 late-gen years stretch the intervals. The whole scene inhales at
 each turn together — which is what a generation IS.
 
+## §70 The deep map + the tongue + the world's auditions (v0.9.29) — map slot 10
+
+§55.5 + §55.15, shipped whole. LANGUAGE colors the map's verbs
+(tongue.js; constants TONGUE; state.tongueLedger). Each overseas
+market has a language; KP.speaks reads native tongue or conversational
+Korean (koConversational 60); KP.voiceAbroad finds the member who can
+carry a market's mics. On overseas tour legs the fluent voice
+multiplies revenue ×1.18 with a note in her honor; no voice bills the
+interpreter (−6/leg, ledgered). THE WORLD'S AUDITIONS:
+KP.fundAudition(region) — cost 60, annual per region — mints 2–3
+prospects with origin, native language, Korean started mid-sentence
+(25–45), ceilings +6 and observations 0 (higher ceiling, harder read
+— the whole bet), names drawn from per-origin pools kept modest, real
+and respectful (§55.15's data work). THE HOME TRUTH: an
+international's first stronghold IS her origin (strongholdsOf
+override — the §28 hash-truth, finally earned), and the first tour
+leg through her home region fills the airport: morale +8, a permanent
+history line, a critical note, once per tour per region. THE TONGUE
+TRAINS: weekly 792, Korean +0.25 trainee / +0.5 active idol, capped
+95, with the crossing-the-line note when the joke finally lands.
+CONTENT LAW (ruled at folding, restated in code): the feed's register
+for international members is home-region pride and the bridge — the
+ugly half exists only as institutional pressure, never fan-voice
+snark. Bands: auditionRun 40/40 (bot funds a circuit yearly when
+flush), intlSigned 6/40 measured; natNumberOne ceiling ruled
+0.50→0.60 (41/80 — the summit trend tracks the whole star-power
+arc; fourth chase goes to the national board's decay). Suite 070
+(22): the circuit, the file, the fog, the names, the annual gate,
+the signing stamp, home-first strongholds, the tongue crossing, the
+voice abroad, the interpreter, the airport, 50-week determinism.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -6067,3 +6098,17 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > until any reputation lane crosses 40. The new-career quote
 > varies per door to match. Battery 69/69, e2e 94, lockstep
 > 0.9.28.1. Rode to main.
+
+> **v0.9.29 — the deep map + the tongue + the world's auditions
+> (map slot 10, §70).** Language colors the map: the fluent member
+> is the voice abroad (tour legs ×1.18 with her name on the note),
+> interpreters bill when nobody is, global audition tours mint
+> prospects with home regions, native languages, higher ceilings
+> and zero observations, an international's first stronghold IS
+> home, the tour's arrival there fills the airport, and Korean
+> trains weekly until the joke lands. Content law upheld: pride
+> and the bridge only. Numbers: battery 70/70 (suite 070, 22),
+> soak clean (172 bands; natNumberOne ruled 0.60 at 41/80),
+> longhaul 6x620 clean, e2e 94, lockstep 0.9.29 (62 modules —
+> tongue.js). Rode to main. Slot 11 (the secret — dating &
+> Dispatch) next, on approval.

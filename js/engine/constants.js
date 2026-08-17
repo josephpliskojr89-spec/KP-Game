@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.28.1',
+    VERSION: '0.9.29',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1215,6 +1215,41 @@
     // ranking, collapse fallout as a signing class, the imperial
     // rival's job offer, named generations — and the rival world's
     // boys pay the service tax too (owner, after v0.9.23)
+    // the deep map + the tongue + the world's auditions (v0.9.29, map
+    // slot 10, §55.5 + §55.15) — language colors the map's verbs, the
+    // fluent member is the voice abroad, and the world auditions
+    TONGUE: {
+      MARKET_LANG: { jp: 'Japanese', cn: 'Mandarin', sea: 'Thai', na: 'English', latam: 'Spanish', eu: 'English' },
+      koStart: [25, 45],         // an international arrives mid-sentence
+      koIdle: 0.25, koActive: 0.5,   // weekly Korean growth (trainee / active idol)
+      koConversational: 60,      // the interview stops needing subtitles
+      interpreterFee: 6,         // per overseas tour leg with no fluent voice
+      voiceRevenueMult: 1.18,    // the fluent leg sells like a homecoming
+      homeRegionBoost: 14,       // her corner of the map, from day one
+      airportMorale: 8,          // the hometown airport, full
+      AUDITION: {
+        cost: 60, cooldownWeeks: 40, minted: [2, 3],
+        ceilingBump: 6,          // higher ceiling…
+        fogObservations: 0,      // …harder to read
+      },
+      // origin name pools (§55.15: data work, done with care) — modest,
+      // real, and used with respect. Display order follows each culture's
+      // own convention (family-first only where that is the custom).
+      NAMES: {
+        jp:    { fam: ['Sato', 'Suzuki', 'Takahashi', 'Tanaka', 'Ito', 'Watanabe', 'Yamamoto', 'Nakamura'],
+                 given: ['Yuki', 'Hana', 'Rin', 'Mio', 'Aoi', 'Sakura', 'Riko', 'Mei', 'Haruto', 'Ren', 'Sota', 'Yuma'] },
+        cn:    { fam: ['Wang', 'Chen', 'Liu', 'Zhang', 'Lin', 'Huang', 'Wu', 'Xu'],
+                 given: ['Yuqi', 'Xinyi', 'Jiaqi', 'Meilin', 'Ruolan', 'Zihan', 'Yichen', 'Haoran', 'Junjie', 'Zixuan'] },
+        sea:   { fam: ['Sriwijaya', 'Chaiyasit', 'Rattanakorn', 'Santos', 'Nguyen', 'Pham', 'Wongsawat', 'Reyes'],
+                 given: ['Ploy', 'Nicha', 'Mali', 'Anh', 'Linh', 'Dara', 'Amara', 'Kiet', 'Minh', 'Arthit', 'Bao'] },
+        na:    { fam: ['Miller', 'Johnson', 'Garcia', 'Lee', 'Brown', 'Nguyen', 'Kim', 'Davis'],
+                 given: ['Madison', 'Ashley', 'Chloe', 'Grace', 'Zoe', 'Skylar', 'Ethan', 'Tyler', 'Jordan', 'Dylan'] },
+        latam: { fam: ['Garcia', 'Rodriguez', 'Silva', 'Fernandez', 'Lopez', 'Santos', 'Morales', 'Castillo'],
+                 given: ['Valentina', 'Camila', 'Sofia', 'Isabela', 'Luna', 'Mariana', 'Mateo', 'Santiago', 'Diego', 'Luca'] },
+        eu:    { fam: ['Novak', 'Kowalski', 'Muller', 'Rossi', 'Dubois', 'Jensen', 'Petrov', 'Laurent'],
+                 given: ['Emma', 'Lena', 'Sofia', 'Mila', 'Clara', 'Anya', 'Luka', 'Felix', 'Nico', 'Theo'] },
+      },
+    },
     // the portfolio (v0.9.26, §69) — "a major company might only debut
     // a new girl group once every 5 to 7 years. essentially one per
     // generation." Established houses greenlight on DOCTRINE; units are
