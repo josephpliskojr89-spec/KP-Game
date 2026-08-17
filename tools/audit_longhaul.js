@@ -340,13 +340,26 @@ for (const sc of SCENARIOS) {
   if (menSeen && !((svl.notices || 0) + (svl.plans || 0) + (svl.enlisted || 0))) {
     flag(sc.seed, state.week, 'male idols aged past the notice window but the service system never spoke');
   }
+  // the sagas (v0.9.31): the hash window [60,320] sits fully inside a
+  // 620-week run — every world MUST have been invaded at least once,
+  // and the deck never deals more than two
+  const sgl = state.sagaLedger || {};
+  if ((sgl.fired || 0) < 1) {
+    flag(sc.seed, state.week, 'no saga fired in ' + WEEKS + ' weeks — the window guarantees one');
+  }
+  if ((sgl.fired || 0) > 2) {
+    flag(sc.seed, state.week, sgl.fired + ' sagas fired — the deck deals at most two');
+  }
   console.log(sc.seed + ': wk ' + state.week + ', ' + Math.round(total / 1024) + ' KB, ' +
     Object.keys(state.people).length + ' files | top: ' +
     top.map(([k, v]) => k + ' ' + Math.round(v / 1024) + 'K').join(', ') +
     ' | service: ' + ['plans', 'notices', 'enlisted', 'walls', 'discharged', 'returns']
       .map(k => k + ' ' + (svl[k] || 0)).join(', ') +
     ' | risefall: ' + ['rankings', 'overtakes', 'playerNo1', 'classes', 'offers', 'genTurns', 'torchPasses', 'rivalServices']
-      .map(k => k + ' ' + ((state.riseFallLedger || {})[k] || 0)).join(', '));
+      .map(k => k + ' ' + ((state.riseFallLedger || {})[k] || 0)).join(', ') +
+    ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
+    (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +
+    (sgl.heirStabilized ? ' heirStabilized' : '') + (sgl.heirBurst ? ' heirBurst' : ''));
 }
 
 report();

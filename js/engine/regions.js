@@ -60,8 +60,12 @@
       const before = regions[id];
       // markets saturate: the tenth hit moves Japan less than the first
       const sat = Math.max(0, 1 - regions[id] / 95);
+      // the second capital (v0.9.31): releases travel to the funded
+      // market with the wind at their back — state-read, still rng-free
+      const cap = state.secondCapital && id === state.secondCapital.region &&
+        state.week <= state.secondCapital.until ? KP.C.SAGA.CAPITAL.exportMult : 1;
       regions[id] = KP.clamp(regions[id] +
-        reception * R.exportBase * KP.affinity(conceptId, id) * reach * sat, 0, 100);
+        reception * R.exportBase * KP.affinity(conceptId, id) * reach * sat * cap, 0, 100);
       if (before < R.loudAt && regions[id] >= R.loudAt) {
         notes.push({ kind: 'public', ind: 'regionLoud', groupId: g.id, region: id,
           text: 'The overseas desk flags it: ' + g.name + ' is getting LOUD in ' + KP.regionLabel(id) +

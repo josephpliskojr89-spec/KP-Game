@@ -90,7 +90,11 @@
       const hungry = rival.nextDebutWeek != null &&
         state.week >= rival.nextDebutWeek - S.rivalHungerWindow;
       // escalate or open interest on prospects fitting the rival's philosophy
-      const shiftChance = Math.min(0.9, KP.C.RIVALS.weeklyInterestShift * (hungry ? 1.4 : 1));
+      // the heir's money (v0.9.31): the bankrolled label's scouts are
+      // everywhere at once, and their opening offers skip the small talk
+      const bankrolled = rival.bankroll && state.week <= rival.bankroll.until;
+      const shiftChance = Math.min(0.9, KP.C.RIVALS.weeklyInterestShift * (hungry ? 1.4 : 1) *
+        (bankrolled ? KP.C.SAGA.HEIR.interestMult : 1));
       if (rng.chance(shiftChance)) {
         const target = pickRivalTarget(state, rival, rng);
         if (target) {

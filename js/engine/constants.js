@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.30',
+    VERSION: '0.9.31',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1274,6 +1274,86 @@
                  given: ['Valentina', 'Camila', 'Sofia', 'Isabela', 'Luna', 'Mariana', 'Mateo', 'Santiago', 'Diego', 'Luca'] },
         eu:    { fam: ['Novak', 'Kowalski', 'Muller', 'Rossi', 'Dubois', 'Jensen', 'Petrov', 'Laurent'],
                  given: ['Emma', 'Lena', 'Sofia', 'Mila', 'Clara', 'Anya', 'Luka', 'Felix', 'Nico', 'Theo'] },
+      },
+    },
+    // the sagas (v0.9.31, §71) — rare world events that "basically
+    // invade the world and have the potential to reshape it, rather
+    // than come in with a script." Birth certificate, not biography:
+    // one standard entrance per saga, then the sim takes the wheel —
+    // receptions, eras, the ranking, collapse and coronation belong
+    // to the existing physics. Every name below is generated fiction;
+    // nothing borrows a real name or mirrors an identifiable real
+    // organization. The deck is APPEND-ONLY and grows as ideas arrive.
+    SAGA: {
+      firstWindow: [60, 320],  // the first saga lands in years ~2–7 (hash-timed)
+      secondChance: 0.35,      // some worlds get a second act…
+      secondGap: [70, 250],    // …spaced into the later years
+      latestWeek: 384,         // nothing fires past year 8
+      SUPER: {                 // the super-group project: a new house, an
+        prestige: 66,          // elite international act, deep pockets
+        roster: 8, quality: 84, size: 6, maleShare: 0.35,
+        courtInterest: 2,      // their scouts open on OUR international board
+        NAMES: [
+          { co: 'Meridian Sound Group', short: 'Meridian', act: 'LUMEN NINE' },
+          { co: 'Halcyon Works', short: 'Halcyon', act: 'GLASS PARADE' },
+          { co: 'North Terminal Media', short: 'NorthTerminal', act: 'SIGNAL FLARE' },
+          { co: 'Onda Global', short: 'Onda', act: 'VELVET ORBIT' },
+          { co: 'Kitestring Collective', short: 'Kitestring', act: 'PAPER COMET' },
+        ],
+      },
+      JV: {                    // the global joint venture — YOUR desk first
+        answerWeeks: 3,        // the term sheet does not wait long
+        years: 4, share: 0.25, // their money, their cut of the road abroad
+        classN: [3, 4], classEvery: 48,   // worldwide audition classes, annual
+        declinePrestige: 8,    // decline and it signs across the street…
+        declineActWeeks: 20,   // …and the co-built act debuts there
+        declineQuality: 80,
+        NAMES: [
+          { co: 'Westbrook Music Group', short: 'Westbrook', act: 'HORIZON CALL' },
+          { co: 'Atlantica Records', short: 'Atlantica', act: 'SEVEN HARBORS' },
+          { co: 'Northlight Music', short: 'Northlight', act: 'POLAR BLOOM' },
+          { co: 'Silver Coast Media', short: 'SilverCoast', act: 'TIDE ATLAS' },
+          { co: 'Granville Audio', short: 'Granville', act: 'MIRROR CONTINENT' },
+        ],
+      },
+      INVASION: {              // the reverse invasion: an overseas company
+        prestige: 50,          // enters Korea with diaspora talent —
+        roster: 6,             // pre-warmed abroad, cold at home, the
+        quality: 78, size: 5,  // tongue running backwards
+        koRange: [40, 60],     // heritage speakers, mid-sentence the other way
+        coldDrag: 8,           // the domestic market makes them earn it
+        NAMES: [
+          { co: 'Liberty Row Records', short: 'LibertyRow', act: 'CROSSTIDE' },
+          { co: 'Coastline United', short: 'Coastline', act: 'NEW HARBOR' },
+          { co: 'Beacon Street Music', short: 'BeaconStreet', act: 'TWO ADDRESSES' },
+          { co: 'Foxglove America', short: 'Foxglove', act: 'RIVER WEST' },
+          { co: 'Kestrel & Vine', short: 'Kestrel', act: 'LONG DISTANCE' },
+        ],
+      },
+      HEIR: {                  // the heir's money: a fortune bankrolls a
+        prestige: 30,          // label whose budget ignores prestige
+        roster: 14, runwayWeeks: 120,
+        intakeMult: 3,         // signing prices distort everywhere…
+        interestMult: 2.5,     // …poaching offers get stupid…
+        faInflate: 1.5,        // …and the open market reprices
+        stabilizeAt: 55,       // the ending belongs to whether the gambles hit:
+        burstPrestige: 12,     // prestige here by runway's end = a real company;
+        burstRoster: 4,        // below it, the tap closes and the room empties
+        NAMES: [
+          { co: 'Aster Haus Entertainment', short: 'AsterHaus' },
+          { co: 'Goldleaf Group', short: 'Goldleaf' },
+          { co: 'Perihelion Music', short: 'Perihelion' },
+          { co: 'Marble Arch Music', short: 'MarbleArch' },
+          { co: 'Onyx Standard', short: 'OnyxStandard' },
+        ],
+      },
+      CAPITAL: {               // the second capital: a regional market funds
+        years: 5,              // a bid to become the scene's other center —
+        tourRevMult: 1.3,      // supercharged region verbs for years, and the
+        exportMult: 1.35,      // harvest belongs to whoever actually plants there
+        auditionDiscount: 0.5, extraMinted: 1,
+        NAMES: ['The Harborlight Initiative', 'The Second Stage Fund',
+          'The Gateway Compact', 'The Crossroads Charter', 'The Estuary Project'],
       },
     },
     // the portfolio (v0.9.26, §69) — "a major company might only debut

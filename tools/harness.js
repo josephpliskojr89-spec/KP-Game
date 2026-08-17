@@ -241,6 +241,14 @@ const BANDS = {
   // the secret (v0.9.30): first soak — provisional
   secretFormed:      { lo: 0.00, hi: 1.00, label: 'orgs where a private life deepened (19+ only)' },
   revealSeen:        { lo: 0.00, hi: 0.80, label: 'orgs where the midnight photos landed' },
+  // the sagas (v0.9.31): the hash window [60,320] puts ~31% of first
+  // sagas inside a 140-week census; the rest belong to the longhaul,
+  // which asserts every world gets one. Measured 9/40 first soak —
+  // sampling variance around the window math, exactly as planned.
+  sagaFired:         { lo: 0.05, hi: 0.60, label: 'orgs whose world a saga invaded inside 140 weeks' },
+  // one saga in five is the JV, and only fired JVs get answered
+  // (measured 2/40 first soak)
+  jvAnswered:        { lo: 0.00, hi: 0.30, label: 'orgs that answered the co-build term sheet' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
@@ -395,7 +403,7 @@ const tally = {
   rfRankings: 0, rfTopSeatMoved: 0, rfClassSeen: 0, rfOfferSeen: 0,
   rfGenTurned: 0, rfTorchSeen: 0, rfRivalService: 0,
   unitEraSeen: 0, doctrineDeniedSeen: 0, auditionRun: 0, intlSigned: 0,
-  secretFormed: 0, revealSeen: 0,
+  secretFormed: 0, revealSeen: 0, sagaFired: 0, jvAnswered: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -788,6 +796,12 @@ for (let s = 0; s < SEEDS; s++) {
       if (sc.kind === 'theOffer') {
         // a thin till leverages; a comfortable one declines with style
         KP.resolveScene(state, sc.id, state.budget < 200 ? 'leverage' : 'decline');
+        return;
+      }
+      if (sc.kind === 'globalJV') {
+        // a proven operator co-builds; an unproven one keeps the wheel —
+        // both answers change the world, which is the saga's point
+        KP.resolveScene(state, sc.id, (state.trust || 0) >= 50 ? 'sign' : 'decline');
         return;
       }
       if (sc.kind === 'servicePlan') {
@@ -1281,6 +1295,10 @@ for (let s = 0; s < SEEDS; s++) {
   // the secret (v0.9.30): the ledger is durable
   if (((state.secretLedger || {}).secrets || 0) >= 1) tally.secretFormed++;
   if (((state.secretLedger || {}).reveals || 0) >= 1) tally.revealSeen++;
+  // the sagas (v0.9.31): the ledger is durable
+  if (((state.sagaLedger || {}).fired || 0) >= 1) tally.sagaFired++;
+  const sgl = state.sagaLedger || {};
+  if ((sgl.jvSigned || 0) + (sgl.jvDeclined || 0) >= 1) tally.jvAnswered++;
   // the trainee floor (0.9.18.1): the rival ledger is durable
   const rl = state.rivalLedger || {};
   if ((rl.culls || 0) >= 1) tally.rivalCulled++;

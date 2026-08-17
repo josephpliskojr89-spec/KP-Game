@@ -421,7 +421,11 @@
       // can't-miss kid.
       const R = I.ROOM;
       const roomTarget = I.debutTraineeCost + R.bench + Math.floor((rival.prestige || 40) / R.benchPerPrestige);
-      const appetite = (rival.rosterCount || 0) < roomTarget ? 1 : R.satedIntake;
+      // the heir's money (v0.9.31): a bankroll that ignores prestige
+      // signs at a pace prestige never could — while the tap is open
+      const bankrolled = rival.bankroll && state.week <= rival.bankroll.until;
+      const appetite = ((rival.rosterCount || 0) < roomTarget ? 1 : R.satedIntake) *
+        (bankrolled ? KP.C.SAGA.HEIR.intakeMult : 1);
       if (rng.chance(I.scoutIntake * appetite)) rival.rosterCount = Math.min(30, (rival.rosterCount || 0) + 1);
 
       // the evaluation (0.9.18.1): twice a year the floor is graded and

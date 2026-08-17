@@ -110,6 +110,22 @@
       });
     }
 
+    // the sagas' standing arrangements (v0.9.31): the pact and the fund
+    if (state.jv && state.week <= state.jv.until) {
+      html.push('<div class="kicker">The pact</div>');
+      html.push('<div class="card"><b>' + UI.esc(state.jv.partner) + '</b> · the co-build' +
+        '<div style="font-size:.75rem;color:var(--ink-dim);margin-top:4px">Worldwide auditions on their money — an annual class on the board. ' +
+        'Their split abroad: ' + Math.round(state.jv.share * 100) + '% of overseas touring. Runs ' +
+        Math.max(0, Math.ceil((state.jv.until - state.week) / KP.C.WEEKS_PER_YEAR * 10) / 10) + ' more years.</div></div>');
+    }
+    if (state.secondCapital && state.week <= state.secondCapital.until) {
+      html.push('<div class="kicker">The second capital</div>');
+      html.push('<div class="card"><b>' + UI.esc(state.secondCapital.name) + '</b> · ' +
+        UI.esc(KP.regionLabel(state.secondCapital.region)) +
+        '<div style="font-size:.75rem;color:var(--ink-dim);margin-top:4px">Touring there pays a premium, auditions run subsidized, releases travel with the wind at their back. ' +
+        'The fund runs through ' + UI.esc(KP.weekLabel(state.secondCapital.until).text) + ' — the harvest belongs to whoever plants.</div></div>');
+    }
+
     // what the world remembers about us (v0.6.0; rival stories moved to
     // their own cards in v0.6.1)
     const conversation = KP.playerNarratives(state);
@@ -144,7 +160,9 @@
         (KP.rivalEra ? ' · <span style="color:' +
           ({ imperial: 'var(--gold)', rising: 'var(--cyan)', fading: 'var(--magenta)' }[KP.rivalEra(state, r)] || 'var(--ink-dim)') +
           '">' + KP.eraWord(KP.rivalEra(state, r)) + '</span>' : '') +
-        (casting ? ' · <span style="color:var(--magenta)">casting a new group</span>' : '') + '</div>' +
+        (casting ? ' · <span style="color:var(--magenta)">casting a new group</span>' : '') +
+        (r.bankroll && state.week <= r.bankroll.until
+          ? ' · <span style="color:var(--gold)">the money is real</span>' : '') + '</div>' +
         '<div class="rv-blurb">' + UI.esc(r.blurb || '') + '</div>' +
         (rNars.length ? UI.narrativeLines(state, rNars.slice(0, 2)) : '') +
         (actLines ? '<div class="rv-acts">' + actLines + '</div>'

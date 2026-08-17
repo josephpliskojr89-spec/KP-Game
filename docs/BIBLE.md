@@ -3902,7 +3902,7 @@ arc; fourth chase goes to the national board's decay). Suite 070
 the signing stamp, home-first strongholds, the tongue crossing, the
 voice abroad, the interpreter, the airport, 50-week determinism.
 
-## §71 The sagas (planning sitting — owner-directed, not yet built)
+## §71 The sagas (v0.9.31 — SHIPPED)
 
 Owner, across the sitting: rare world events that *"basically invade
 the world and have the potential to reshape it, rather than come in
@@ -3949,6 +3949,37 @@ Entrances obey the arrive/claim/mark law; injected entities obey the
 world's laws from the first week. Verification: forced-fire suites
 for the entrances, the longhaul for the distribution of fates.
 Scheduled after slot 11 (the secret).
+
+**As built (v0.9.31, sagas.js, weekly order 561 — between the
+industry's release pass and the generation math, so a saga's
+entrance single can be the landmark that turns a wave).**
+`KP.planSagas` hash-plans the deck at the world's first tick —
+hash-only, zero rng, so unfired worlds stay byte-identical to
+pre-saga builds: first saga in weeks [60,320], a 35% second saga
+70–250 weeks later, capped at week 384. `KP.fireSaga` runs the
+entrances; each injects through the existing structures
+(state.rivals, real minted people with `origin`/`nativeLang`/`ko`
+on file, chart + national + weekReleases entries) and then owns
+NOTHING further — eras, ranking, collapse, coronation are physics.
+Injection ignores maxRivals: the cap governs organic emergence,
+not invasions. The five hooks the invasions legitimately bend:
+rival scout intake ×3 + interest escalation ×2.5 + free-agent cost
+×1.5 while a bankroll runs (heir); overseas leg revenue ×1.3 and
+export gains ×1.35 and audition cost ×0.5 +1 minted in the funded
+region (second capital); audition cost 0 + annual world class +
+overseas leg revenue ×(1−0.25) under the pact (JV). The JV is the
+one entrance that is a player decision (`globalJV` scene, 3-week
+expiry, expiry = decline); declining hands the pact to the top
+rival, +8 prestige and a co-built international act 20 weeks
+later. The heir's runway (120 wks) resolves on prestige at the
+wall: ≥55 stabilizes into a real company, below it the tap closes
+(−12 prestige, roster cut to 4) and existing collapse physics
+inherit the wreck. Ledger `state.sagaLedger`; census `sagaFired`
+9/40 first soak (window math predicts ~31% inside 140 weeks, the
+rest belong to the longhaul, whose invariant asserts every
+620-week world got invaded 1–2 times); suite_072 (41 checks)
+forced-fires all five entrances and lints the strings against
+real-name borrowings.
 
 ## §72 The secret (v0.9.30 — SHIPPED) — map slot 11
 
@@ -6215,3 +6246,31 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > (174 bands), longhaul 6x620 clean, e2e 94, lockstep 0.9.30 (63
 > modules — secret.js). Rode to main. The sagas (§71) next, then
 > slot 12 (time takes its share), on approval.
+
+> **v0.9.31 — the sagas (§71).** Owner: "Sagas approved." Birth
+> certificate, not biography — sagas.js hash-plans 1-2 world
+> events per save into years 2-8 (hash-only planning: unfired
+> worlds stay byte-identical), fires one standard entrance each,
+> then the sim takes the wheel. The launch five: the super-group
+> project (a new house arrives mid-chart with an elite
+> international act and opens scout interest on OUR international
+> board), the global JV (the one player-decision entrance: sign =
+> worldwide auditions on their money + annual classes + 25% of
+> the road abroad for 4 years; decline/expire = the pact signs
+> across the street, +8 prestige and a co-built act there), the
+> reverse invasion (diaspora talent, Korean names kept, English
+> first, the tongue running backwards, cold at home), the heir's
+> money (a bankroll distorts scout intake x3, interest x2.5,
+> free-agent prices x1.5 for 120 weeks, then stabilizes at
+> prestige >=55 or the tap closes and collapse physics inherit),
+> and the second capital (a funded region: tour revenue x1.3,
+> exports x1.35, auditions half price and deeper, sunset after 5
+> years). Entrances enter weekReleases at order 561 so a saga
+> debut can BE the landmark that turns a generation. Injection
+> ignores maxRivals - invasions do not wait for a seat. Numbers:
+> battery 72/72 (suite 072, 41), soak clean (176 bands - sagaFired
+> 9/40 measured vs ~31% window math, jvAnswered 2/40), longhaul
+> 6x620 clean with the new every-world-invaded invariant (all five
+> kinds appeared across the six scenarios), e2e 94, lockstep
+> 0.9.31 (64 modules - sagas.js). Rode to main. Slot 12 (time
+> takes its share) next, on approval.

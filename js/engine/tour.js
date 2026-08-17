@@ -253,6 +253,15 @@
           text: KP.fillPro('The ' + KP.regionLabel(regionId) + ' airport FILLED for ' + KP.displayName(local) + ' — the hometown arrival, the two-language signs, the childhood dance teacher in the crowd with a banner. {She} held it together until the van. The clip of {her} not quite holding it together is the most-shared thing the tour produces.', local) });
       }
     }
+    // the sagas color the road (v0.9.31): the second capital pays a
+    // premium to be toured; a JV partner takes its split abroad
+    if (regionId !== 'kr') {
+      if (state.secondCapital && regionId === state.secondCapital.region &&
+          state.week <= state.secondCapital.until) {
+        revenue *= KP.C.SAGA.CAPITAL.tourRevMult;
+      }
+      if (state.jv && state.week <= state.jv.until) revenue *= (1 - state.jv.share);
+    }
     revenue = Math.round(revenue);
     state.budget += revenue;
 

@@ -99,7 +99,13 @@
   KP.freeAgentCost = function (state, p) {
     const RF = KP.C.RISEFALL;
     const fame = Math.min(4, Math.floor(KP.socialOf(state, p) / 150000));
-    return Math.round(RF.faCostBase + fame * RF.faCostPerFame);
+    let cost = RF.faCostBase + fame * RF.faCostPerFame;
+    // the heir's money (v0.9.31): a bankrolled bidder in the room
+    // reprices every career on the market — signing against a fortune
+    if ((state.rivals || []).some(r => r.bankroll && state.week <= r.bankroll.until)) {
+      cost *= KP.C.SAGA.HEIR.faInflate;
+    }
+    return Math.round(cost);
   };
   KP.signFreeAgent = function (state, personId) {
     const entry = (state.freeAgents || []).find(f => f.personId === personId &&

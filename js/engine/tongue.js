@@ -42,13 +42,20 @@
     if (state.week - (state.auditionCooldowns[regionId] || -999) < A.cooldownWeeks) {
       return { ok: false, reason: 'The ' + KP.regionLabel(regionId) + ' circuit ran recently. Auditions are annual affairs — the next class is still in school.' };
     }
-    if (state.budget < A.cost) return { ok: false, reason: 'A global audition tour runs ' + A.cost + ' — venues, judges, flights, tape. The budget says stay home.' };
-    state.budget -= A.cost;
+    // the sagas subsidize the circuit (v0.9.31): a JV runs it on the
+    // partner's money; the second capital pays half its own city's bill
+    let cost = A.cost;
+    const capital = state.secondCapital && regionId === state.secondCapital.region &&
+      state.week <= state.secondCapital.until;
+    if (state.jv && state.week <= state.jv.until) cost = 0;
+    else if (capital) cost = Math.round(cost * KP.C.SAGA.CAPITAL.auditionDiscount);
+    if (state.budget < cost) return { ok: false, reason: 'A global audition tour runs ' + cost + ' — venues, judges, flights, tape. The budget says stay home.' };
+    state.budget -= cost;
     state.auditionCooldowns[regionId] = state.week;
     const rng = KP.rngFor(state);
     const pool = T.NAMES[regionId];
     const usedNames = new Set(Object.values(state.people).map(x => x.name.given.toLowerCase()));
-    const n = rng.int(A.minted[0], A.minted[1]);
+    const n = rng.int(A.minted[0], A.minted[1]) + (capital ? KP.C.SAGA.CAPITAL.extraMinted : 0);
     const led = ledger(state);
     led.auditions++;
     KP.resetIds(state.nextPersonId || KP.peekNextId());
