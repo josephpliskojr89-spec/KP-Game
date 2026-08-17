@@ -38,7 +38,7 @@
     const s = App.state;
     if (App.mode !== 'game' || !s) {
       setChrome(false);
-      el.innerHTML = App.mode === 'newcareer' ? UI.renderNewCareer() : UI.renderTitle(KP.saveMeta(null));
+      el.innerHTML = App.mode === 'newcareer' ? UI.renderNewCareer(App._door || 'current') : UI.renderTitle(KP.saveMeta(null));
       window.scrollTo(0, 0);
       App._lastSig = 'title';
       return;
@@ -129,7 +129,7 @@
   function startCareer() {
     const name = (document.getElementById('nc-name').value || '').trim() || 'A&R Manager';
     const seedRaw = (document.getElementById('nc-seed').value || '').trim();
-    App.state = KP.newGame(seedRaw || null, name);
+    App.state = KP.newGame(seedRaw || null, name, { door: App._door || 'current' });
     App.mode = 'game';
     App.save();
     go('desk');
@@ -570,6 +570,11 @@
             : 'Budget after this: ₩ ' + (s.budget - cost) + '. The executive reads the books monthly.') + '</div>',
           '<button class="btn" data-action="close-modal" style="flex:1">Not yet</button>' +
           '<button class="btn primary" data-action="sign-confirm" data-id="' + p.id + '" style="flex:1">' + KP.fillPro('Sign {her}', p) + '</button>');
+        break;
+      }
+      case 'pick-door': {
+        App._door = t.dataset.door;   // the three doors (v0.9.28)
+        App.render();
         break;
       }
       case 'launch-solo': {

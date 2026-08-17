@@ -376,16 +376,28 @@
   };
 
   // ---- new career ------------------------------------------------------
-  UI.renderNewCareer = function () {
+  // the three doors (v0.9.28, §69): which company you choose to run
+  const DOORS = {
+    fresh: { title: 'The fresh label', chips: '<span class="chip">no history</span><span class="chip cool">founding class of six</span><span class="chip hot">payroll is burning</span>',
+      copy: 'A lease, a logo, and a practice room that still smells of paint. No catalog, no legacy group, no cushion — six trainees, a thin budget, and eighteen months to put a girl group on a stage. Startups debut as fast as they can, because they have to.' },
+    current: { title: 'The inheritance', chips: '<span class="chip cool">vocal powerhouse</span><span class="chip">mid-sized</span><span class="chip hot">6 years without a girl-group hit</span>',
+      copy: 'You inherit the last group — four vocalists in year six of their contracts, still selling, visibly slowing — plus six trainees and a scouting board the rivals are already reading. Their renewal folders reach your desk before your first debut does. The deadline is eighteen months.' },
+    major: { title: 'The major', chips: '<span class="chip gold">top-three house</span><span class="chip cool">two flagships mid-era</span><span class="chip hot">everything to lose</span>',
+      copy: 'The infrastructure is in place: a girl-group flagship, a boy-group flagship, a deep bench, real money — and the doctrine active from day one. New groups come once a generation here. The game is stewardship: the clocks, the renewals, the overtake to defend. A major has everything, which is exactly the problem.' },
+  };
+  UI.renderNewCareer = function (door) {
+    door = door || 'current';
+    const d = DOORS[door];
+    const card = k => '<button class="btn small' + (k === door ? ' primary' : ' ghost') + '" style="flex:1' +
+      (k === door ? '' : ';border:1px solid var(--line)') + '" data-action="pick-door" data-door="' + k + '">' + DOORS[k].title + '</button>';
     return '<div class="nc-wrap">' +
       '<div style="margin-bottom:10px"><button class="btn small" data-action="title-back">‹ Title</button></div>' +
       '<div class="d-label">New career</div>' +
       '<div class="nc-co">Hanseong<br>Culture Group</div>' +
-      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px">' +
-      '<span class="chip cool">vocal powerhouse</span><span class="chip">mid-sized</span><span class="chip hot">6 years without a girl-group hit</span></div>' +
-      '<div class="nc-p">The last group still sells, but it is aging out of its peak. A new executive wants growth, and you — the new A&R Manager — are how they intend to get it.</div>' +
+      '<div style="display:flex;gap:6px;margin:10px 0 4px">' + card('fresh') + card('current') + card('major') + '</div>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px">' + d.chips + '</div>' +
       '<div class="nc-quote">“I don’t need five perfect trainees. I need one group people remember.”</div>' +
-      '<div class="nc-p">You inherit the last group — four vocalists in year six of their contracts, still selling, visibly slowing — plus six trainees and a scouting board the rivals are already reading. Budget covers three signings. Their renewal folders reach your desk before your first debut does. The deadline is eighteen months.</div>' +
+      '<div class="nc-p">' + d.copy + '</div>' +
       '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">Your name</label>' +
       '<input class="nc-input" id="nc-name" placeholder="A&R Manager" maxlength="24">' +
       '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">World seed <span style="color:var(--ink-faint)">(optional)</span></label>' +

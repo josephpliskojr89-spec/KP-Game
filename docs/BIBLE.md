@@ -3846,7 +3846,7 @@ girl group, units and soloists are more in line with reality."* And
 the frame that resolves early-game pacing: *"eventually early game
 will follow a player choice"* — three starts (fresh label / current
 veteran start / major with infrastructure), specced as THE THREE
-DOORS, a separate release after this one. The portfolio pass ships
+DOORS — SHIPPED v0.9.28. The portfolio pass ships
 first because a major start means nothing until the doctrine exists.
 
 **The doctrine.** Once a company is ESTABLISHED (two debuted groups,
@@ -6033,3 +6033,24 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > ruled 0.75→0.90 with the mechanism (soloists are standard
 > portfolio under §69). Numbers: battery 68/68 (suite 067 now 40),
 > soak clean (168 bands), e2e 94, lockstep 0.9.27. Rode to main.
+
+> **v0.9.28 — the three doors (§69).** Owner: "you can start as a
+> fresh label with no history, the current start with a veteran
+> group but limited recent success, or a major start where the
+> infrastructure is already in place." The new-career screen offers
+> the choice; newGame takes opts.door and stamps state.door. THE
+> FRESH LABEL: no legacy group, budget 80, reputation ~30s, the
+> founding class of six and the eighteen-month directive — hunger
+> the doctrine never touches. THE INHERITANCE: today's start,
+> unchanged and now named (the default everywhere — old saves,
+> tests, the harness). THE MAJOR: two flagships mid-era (girl and
+> boy, pop 64–68, three releases each, fandoms, stamped contracts),
+> four extra bench trainees, budget 400, trust 62, the founding
+> objective inherited as met, the tutorial signing rail waived —
+> and isEstablished TRUE from the first morning, so the §69
+> doctrine reads the portfolio FULL on arrival. Stewardship as a
+> starting condition. Suite 069 (23): all three shapes, doctrine
+> states, the major's machine running from week one, and per-door
+> determinism forks. Numbers: battery 69/69, soak clean (168
+> bands), e2e 94, lockstep 0.9.28. Rode to main. Slot 10 (the deep
+> map + the tongue + the world's auditions) next, on approval.

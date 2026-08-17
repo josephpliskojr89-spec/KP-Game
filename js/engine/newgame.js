@@ -91,7 +91,97 @@
       p.history.push({ week: 0, text: 'Already in the building when you took the job.' });
     }
 
-    if (!opts || opts.legacy !== false) legacySeed();
+    // the three doors (v0.9.28, §69): which company you chose to run
+    const door = (opts && opts.door) || 'current';
+    state.door = door;
+    if (door === 'fresh') {
+      // no history, thin money, your founding class of six — the hungry
+      // start the doctrine never touches
+      state.budget = 80;
+      state.fiscal.monthStartBudget = 80;
+      state.company.blurb = 'A new label with a lease, a logo, and a practice room that still smells of paint. No catalog, no debts, no excuses.';
+      state.company.reputation = { vocal: 30, girlGroup: 25, starMaker: 30, performance: 30 };
+    } else if (door === 'major') {
+      majorSeed();
+    } else if (!opts || opts.legacy !== false) legacySeed();
+
+    function majorSeed() {
+      // the infrastructure is in place: two flagships mid-era, a deep
+      // bench, real money, and the §69 doctrine active from day one
+      state.budget = 400;
+      state.fiscal.monthStartBudget = 400;
+      state.trust = 62;
+      state.signingsAllowed = 99;   // the tutorial rail never applied here
+      state.objective = { type: 'debutGirlGroup', text: 'Inherited: the founding class already debuted.',
+        minMembers: KP.C.GROUP.minMembers, maxMembers: KP.C.GROUP.maxMembers,
+        deadlineWeek: -100, status: 'met' };
+      state.company.blurb = 'A top-three house with two flagships mid-era and a floor of trainees who all know the elevator code to the executive level. Everything works. Everything is watched.';
+      state.company.reputation = { vocal: 70, girlGroup: 68, starMaker: 66, performance: 64 };
+      const mkFlagship = (gender, pop, debutWeek) => {
+        const memberIds = [];
+        for (let i = 0; i < 4; i++) {
+          const p = KP.generatePerson(rng, { status: 'idol', usedNames, gender,
+            age: rng.int(21, 24) });
+          ['vocals', 'dance', 'charisma', 'visuals'].forEach(d => {
+            p.talents[d].cur = rng.int(58, 74);
+            p.talents[d].ceilLo = Math.max(p.talents[d].ceilLo, p.talents[d].cur + 2);
+            p.talents[d].ceilHi = Math.max(p.talents[d].ceilHi, p.talents[d].ceilLo + 4);
+          });
+          p.liveExp = 60; p.mediaExp = 30;
+          p.morale = rng.int(58, 70); p.fatigue = rng.int(20, 35);
+          p.observations = 4;
+          p.contract = { start: debutWeek, years: KP.C.CONTRACT.years, term: 1 };
+          p.history.push({ week: debutWeek, text: 'Debuted under the big letterhead. The building already knew how to make this go right.' });
+          state.people[p.id] = p;
+          state.roster.push(p.id);
+          memberIds.push(p.id);
+        }
+        const members = memberIds.map(id => state.people[id]);
+        const roles = KP.roleHints(state, members);
+        const g = {
+          id: 'g' + (state.nextGroupId++),
+          type: 'group', gender,
+          gen: KP.C.RISEFALL.GEN.start,
+          name: KP.suggestGroupNames(state, rng)[0],
+          members: memberIds.slice(),
+          roles: Object.assign({}, roles),
+          formedWeek: debutWeek - 50,
+          centerHistory: [{ week: debutWeek - 50, id: roles.center }],
+          debuted: true, debutWeek,
+          prep: null, results: null, demos: null,
+          popularity: pop,
+          lastReleaseWeek: -14,
+          promoUntil: -14 + KP.C.COMEBACK.promoWeeks,
+          concept: gender === 'f' ? 'elegant' : 'fierce', conceptRun: 1,
+          trophies: { countdown: 3, popWave: 2 },
+          releases: [],
+        };
+        [[debutWeek, 72, 2, 8, 'single', true],
+         [-70, 68, 2, 9, 'mini', false],
+         [-14, 70, 1, 6, 'mini', false]].forEach(([wk, rec, peak, natPeak, fmt, isDebut]) => {
+          g.releases.push({ week: wk, songTitle: KP.genSongTitle(rng, {}),
+            conceptId: g.concept, reception: rec, receptionBand: 'strong',
+            chartPeak: peak, chartWeeks: 8, nationalPeak: natPeak, nationalWeeks: 8,
+            isDebut, format: fmt, tracks: fmt === 'single' ? 1 : 5, tracklist: [] });
+        });
+        g.fandom = { name: KP.fandomNameOptions(state, g)[0],
+          color: gender === 'f' ? 'pearl rose' : 'cobalt', since: debutWeek + 20, intensity: 58 };
+        state.groups.push(g);
+        KP.assignRooms(state, g);
+        return g;
+      };
+      mkFlagship('f', 68, -150);
+      mkFlagship('m', 64, -110);
+      // the bench a major carries: four more beyond the founding class
+      for (let i = 0; i < 4; i++) {
+        const p = KP.generatePerson(rng, { status: 'trainee', usedNames, source: 'In-house audition' });
+        p.traineeContract = { start: 1 - Math.floor(KP.C.WEEKS_PER_YEAR / 2), years: KP.C.TRAINEE_CONTRACT.years, term: 1 };
+        p.signedWeek = 1 - Math.floor(KP.C.WEEKS_PER_YEAR / 2);
+        state.people[p.id] = p;
+        state.roster.push(p.id);
+      }
+      state.firstShowWinWeek = -120;
+    }
     function legacySeed() {
     // --- the last group (v0.9.10): the intro was always true, now the
     // game is. "The last group still sells, but it is aging out of its
