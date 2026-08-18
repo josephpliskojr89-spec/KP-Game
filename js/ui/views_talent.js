@@ -118,7 +118,11 @@
       (p.gender === 'm' ? ' <span class="chip" style="font-size:.6rem;vertical-align:middle">boy</span>' : '') + '</div>' +
       '<div class="t-sub">' + p.age + ' · ' + UI.esc(sourceLabel(state, p)) + ' · ' + looksWord(state, p) + '</div>' +
       '<div class="t-read">“' + UI.esc(best.line) + '”</div>' +
-      '<div class="t-chips">' + UI.heatChips(state, p.id) + '</div>' +
+      '<div class="t-chips">' + UI.heatChips(state, p.id) +
+      (KP.holdoutOf(state, p)
+        ? '<span class="chip hot">' + ((p.holdout || {}).callback ? (p.gender === 'm' ? 'he called back' : 'she called back')
+          : (p.holdout || {}).visits ? 'holding out · visit ' + p.holdout.visits
+          : 'holding out for a power') + '</span>' : '') + '</div>' +
       '</div>' +
       '<div class="t-side">' +
       '<button class="btn small" data-action="observe" data-id="' + p.id + '">Look · ' + KP.C.SCOUT.observeCost + '</button>' +

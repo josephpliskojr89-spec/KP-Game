@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.32',
+    VERSION: '0.9.33',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1389,6 +1389,33 @@
         proudAt: 2.0,          // war-chest multiple that earns the confidence
         proudTrust: 2,
       },
+    },
+    // the holdout (v0.9.33, §74) — "a particularly talented and highly
+    // sought after recruit wouldn't necessarily sign on with a more
+    // reputation company at the first offer. I'd think they'd hold out
+    // for one of the powers to come knocking." The top slice of talent
+    // WITH a hot market knows what she is worth. Money alone never
+    // flips her — the paths past the bar are stature, her lane at real
+    // height, and the courtship the powers never bother to make.
+    HOLDOUT: {
+      talentMin: 64,        // real peak talent — the top slice of the board
+                            // (measured: fresh boards run top-5 ≈ 72–78,
+                            // p75 ≈ 58 across 130 files; 64 ≈ the top ~8%)
+      heatMin: 2,           // AND rivals circling — she knows the market
+      gratefulShare: 0.25,  // a hash-carved minority sign anyway: some kids
+                            // just want the door that opened
+      rankBar: 3,           // a power = top-3 on the trades' ranking…
+      powerScore: 85,       // …with a REAL score — the scene chart is a
+                            // small pond early (legacy start opens rank 1
+                            // of 4 at score ~64); her bar is the wider
+                            // world's read, so the seat must be earned in
+                            // absolute terms, not just relative ones
+      laneRep: 60,          // …or HER lane at real height on your letterhead
+      visitsToWin: 3,       // the third sincere visit wins her
+      visitGapWeeks: 6,     // visits need air between them to read sincere
+      premium: 1.4,         // the market's read is priced in when she signs
+      rivalPrestigeBar: 55, // she refuses the small houses too — only the
+                            // heir's bankroll jumps her bar with money
     },
     // the portfolio (v0.9.26, §69) — "a major company might only debut
     // a new girl group once every 5 to 7 years. essentially one per

@@ -119,11 +119,25 @@ async function main() {
   await tap('[data-action=school-trip]');
   const budgetAfterTrip = parseInt((await page.textContent('#tb-budget')).replace(/\D/g, ''), 10);
   ok(budgetAfterTrip < budgetBeforeTrip, 'the train ticket costs what it costs');
-  await tap('[data-action=sign]:not([disabled])');
-  await page.waitForSelector('.modal-sheet');
-  ok((await page.textContent('.modal-sheet')).includes('Contract cost'), 'signing asks for confirmation');
-  await tap('[data-action=sign-confirm]');
-  await page.waitForTimeout(120);
+  // the holdout (v0.9.33): the hottest prospect sorts to the top of the
+  // board, which is exactly where a recruit with agency lives — the
+  // walkthrough does what a human does: read the no, sign the next kid
+  let signed = false, holdoutToast = false;
+  for (let row = 0; row < 4 && !signed; row++) {
+    const btns = await page.$$('[data-action=sign]:not([disabled])');
+    if (!btns[row]) break;
+    await btns[row].click();
+    await page.waitForSelector('.modal-sheet');
+    if (row === 0) {
+      ok((await page.textContent('.modal-sheet')).includes('Contract cost'), 'signing asks for confirmation');
+    }
+    await tap('[data-action=sign-confirm]');
+    await page.waitForTimeout(140);
+    signed = await page.evaluate(() => KP.App.state.roster.length === 11);
+    if (!signed && /holding out|waiting for one of the powers|academy director/
+        .test(await page.textContent('body'))) holdoutToast = true;
+  }
+  if (holdoutToast) ok(true, 'a recruit said no on the record (the board has agency)');
   await tap('[data-action=talent-sub][data-sub=roster]');
   ok(await page.$$eval('.talent-row', els => els.length) === 11, 'roster grew to eleven');
 

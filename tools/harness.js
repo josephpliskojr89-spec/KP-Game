@@ -249,6 +249,12 @@ const BANDS = {
   // one saga in five is the JV, and only fired JVs get answered
   // (measured 2/40 first soak)
   jvAnswered:        { lo: 0.00, hi: 0.30, label: 'orgs that answered the co-build term sheet' },
+  // the holdout (v0.9.33): first soak — provisional. Holdouts need the
+  // top slice of talent AND rival heat >= 2 on the same file; the bot
+  // meets them wherever its wanted prospect is also the market's.
+  holdoutMet:        { lo: 0.00, hi: 1.00, label: 'orgs a recruit said no to (the board has agency)' },
+  holdoutWon:        { lo: 0.00, hi: 1.00, label: 'orgs that got a holdout signed by any path' },
+  holdoutLost:       { lo: 0.00, hi: 1.00, label: 'orgs whose holdout signed with a power instead' },
   // time takes its share (v0.9.32): first soak — provisional. The
   // legacy act's members cross 28 inside 140 weeks in most worlds;
   // drift needs trust above 75, which the bot rarely holds; and
@@ -268,10 +274,12 @@ const BANDS = {
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
   repackaged:        { lo: 0.05, hi: 1.00, label: 'orgs that extended an era with a repackage' },
   mvCinema:          { lo: 0.02, hi: 1.00, label: 'orgs that shot a cinema-budget video' },
-  // ceiling 0.90→0.97 by ruling (0.9.20.1): operating point 68/80
-  // (85%), the old ceiling sat one sigma away and flapped on every
-  // stream reshuffle.
-  mvPlain:           { lo: 0.00, hi: 0.97, label: 'orgs that shipped the performance cut (the internet noticed)' },
+  // ceiling 0.90→0.97 by ruling (0.9.20.1), flapped AGAIN at 39/40
+  // (v0.9.33 stream shift) — third flap, so the alarm flips per the
+  // showDarling precedent: the plain cut is the budget default, near-
+  // universal by design, and the regression this band exists to catch
+  // is plain cuts VANISHING (an economy where everyone flexes cinema).
+  mvPlain:           { lo: 0.30, hi: 1.00, label: 'orgs that shipped the performance cut (the internet noticed)' },
   schoolLead:        { lo: 0.60, hi: 1.00, label: 'orgs whose board carried a school-stamped file' },
   schoolClass:       { lo: 0.30, hi: 1.00, label: 'worlds where a school sent its class to an open casting' },
   schoolTrip:        { lo: 0.30, hi: 1.00, label: 'orgs that took the scouting trip (the train to the regions)' },
@@ -368,15 +376,21 @@ const BANDS = {
   daesangWon:        { lo: 0.00, hi: 0.60, label: 'orgs that took the daesang home' },
   daesangSnubbed:    { lo: 0.00, hi: 0.90, label: 'orgs shortlisted that watched the daesang go elsewhere' },
   // v0.9.6 — the gamble + the constituency (floors provisional; ~35% of
-  // orgs run a fusion second group by construction)
-  fusionTried:       { lo: 0.10, hi: 0.60, label: 'orgs that released a genre mash' },
+  // orgs run a fusion second group by construction). Ceiling 0.60→0.75
+  // (v0.9.33): the holdout taught the bot to walk down the board, so it
+  // signs deeper and fields more second groups — 23/40 → 27/40 measured.
+  // The claim guarded stays: the mash is a gamble, never the default.
+  fusionTried:       { lo: 0.10, hi: 0.75, label: 'orgs that released a genre mash' },
   fusionShift:       { lo: 0.00, hi: 0.40, label: 'orgs whose mash changed the industry (the textbook entry stays rare)' },
   fusionAcclaim:     { lo: 0.00, hi: 0.60, label: 'orgs with a critics-loved, public-shrugged mash' },
   fusionFlop:        { lo: 0.00, hi: 0.70, label: 'orgs whose mash ate itself' },
   // floor 0 by ruling: trucks need an organized fandom AND a grievance —
   // the competent bot rarely supplies the grievance (same physics as
   // discourseBoiled); the mechanism is suite-proven
-  truckParked:       { lo: 0.00, hi: 0.80, label: 'orgs that found a protest truck outside' },
+  // ceiling 0.80→0.90 (v0.9.33): deeper rosters mean more organized
+  // fandoms holding more grievances — 31/40 → 33/40 measured across the
+  // stream shift. The ceiling still guards trucks-as-wallpaper.
+  truckParked:       { lo: 0.00, hi: 0.90, label: 'orgs that found a protest truck outside' },
   fanMeetingHeld:    { lo: 0.30, hi: 1.00, label: 'orgs that held a fan meeting' },
   lightstickOut:     { lo: 0.30, hi: 1.00, label: 'orgs that launched the lightstick' },
   // v0.9.8 — the flagships. The owner's report ("every release straight
@@ -419,6 +433,7 @@ const tally = {
   unitEraSeen: 0, doctrineDeniedSeen: 0, auditionRun: 0, intlSigned: 0,
   secretFormed: 0, revealSeen: 0, sagaFired: 0, jvAnswered: 0,
   senesceSeen: 0, trustDrifted: 0, successionSeen: 0,
+  holdoutMet: 0, holdoutWon: 0, holdoutLost: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -528,8 +543,11 @@ for (let s = 0; s < SEEDS; s++) {
         .filter(p => !hallShort || (p.gender || 'f') === leadHall)
         .map(p => ({ p, v: KP.C.TALENTS.reduce((sum, d) => sum + KP.perceived(state, p, d, scout), 0) }))
         .sort((a, b) => b.v - a.v);
-      if (ranked.length && state.budget > KP.signCost(state, ranked[0].p) + 60) {
-        KP.signProspect(state, ranked[0].p.id);
+      // the holdout (v0.9.33): a declined offer is an answer, not an
+      // error — the bot walks down the board like a real scout would
+      for (const cand of ranked.slice(0, 3)) {
+        if (state.budget <= KP.signCost(state, cand.p) + 60) break;
+        if (KP.signProspect(state, cand.p.id).ok) break;
       }
     }
     // the world auditions (v0.9.29): a flush boss funds a circuit —
@@ -1325,6 +1343,12 @@ for (let s = 0; s < SEEDS; s++) {
   if ((tml.senesced || 0) >= 1) tally.senesceSeen++;
   if ((tml.driftWeeks || 0) >= 1) tally.trustDrifted++;
   if ((tml.successions || 0) >= 1) tally.successionSeen++;
+  // the holdout (v0.9.33): the ledger is durable
+  const hl = state.holdoutLedger || {};
+  if ((hl.declined || 0) >= 1) tally.holdoutMet++;
+  if ((hl.signedStature || 0) + (hl.signedLane || 0) + (hl.signedCourtship || 0) +
+      (hl.signedCallback || 0) >= 1) tally.holdoutWon++;
+  if ((hl.lostToPowers || 0) >= 1) tally.holdoutLost++;
   // the trainee floor (0.9.18.1): the rival ledger is durable
   const rl = state.rivalLedger || {};
   if ((rl.culls || 0) >= 1) tally.rivalCulled++;

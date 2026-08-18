@@ -22,7 +22,54 @@
   KP.signCost = function (state, person) {
     const E = KP.C.ECON;
     const heat = KP.rivalHeat(state, person.id).max;
-    return E.signCostBase + heat * E.signCostPerHeat;
+    let cost = E.signCostBase + heat * E.signCostPerHeat;
+    // the holdout premium (v0.9.33): the market says she can wait,
+    // and the price says so whether or not she takes your call
+    if (KP.holdoutOf(state, person)) cost = Math.round(cost * KP.C.HOLDOUT.premium);
+    return cost;
+  };
+
+  // ---- the holdout (v0.9.33, §74): the recruit with agency --------------
+  function holdLedger(state) {
+    state.holdoutLedger = state.holdoutLedger ||
+      { declined: 0, courted: 0, callbacks: 0, signedStature: 0, signedLane: 0,
+        signedCourtship: 0, signedCallback: 0, lostToPowers: 0, agedWaiting: 0 };
+    return state.holdoutLedger;
+  }
+  function peakOf(p) {
+    return Math.max(p.talents.vocals.cur, p.talents.dance.cur,
+      p.talents.rap.cur, p.talents.charisma.cur);
+  }
+  function laneOf(p) {
+    const best = ['vocals', 'dance', 'rap', 'charisma']
+      .sort((a, b) => p.talents[b].cur - p.talents[a].cur)[0];
+    return { vocals: 'vocal', dance: 'performance', rap: 'performance',
+      charisma: 'starMaker' }[best];
+  }
+  // the top slice of talent WITH a hot market knows what she is worth —
+  // hash-stable, minus the grateful minority who sign anyway
+  KP.holdoutOf = function (state, p) {
+    const H = KP.C.HOLDOUT;
+    if (!p || p.status !== 'prospect') return false;
+    if (peakOf(p) < H.talentMin) return false;
+    if (KP.rivalHeat(state, p.id).max < H.heatMin) return false;
+    return KP.hash01([state.seed, p.id, 'grateful'].join('|')) >= H.gratefulShare;
+  };
+  // which door past the bar is open, if any
+  KP.holdoutBar = function (state, p) {
+    const H = KP.C.HOLDOUT;
+    if ((p.holdout || {}).callback) return 'callback';
+    // a power is a TOP seat, read against the size of the field — in a
+    // four-company scene only the leader is a power; in a full scene,
+    // the big three are
+    const rows = KP.powerRankingNow(state);
+    const me = rows.find(r => r.isPlayer);
+    const bar = Math.min(H.rankBar, Math.max(1, rows.length - 3));
+    if (me && me.rank <= bar && me.score >= H.powerScore) return 'stature';
+    if ((state.company.reputation[laneOf(p)] || 0) >= H.laneRep) return 'lane';
+    if ((p.holdout || {}).visits >= H.visitsToWin - 1 &&
+        state.week - p.holdout.lastVisit >= H.visitGapWeeks) return 'courtship';
+    return null;
   };
 
   // Targeted look (0.9.16.3): expensive, and relatively accurate in ONE
@@ -59,6 +106,28 @@
     if (KP.signingsCapped(state) && state.signingsUsed >= state.signingsAllowed) {
       return { ok: false, reason: 'The executive approved ' + state.signingsAllowed + ' external signings until the debut. That allowance is spent.' };
     }
+    // the holdout (v0.9.33): she can say no — and every no names the
+    // paths past her bar. No budget moves on a decline.
+    let holdPath = null;
+    if (KP.holdoutOf(state, p)) {
+      const H = KP.C.HOLDOUT;
+      holdPath = KP.holdoutBar(state, p);
+      if (!holdPath) {
+        const led = holdLedger(state);
+        p.holdout = p.holdout || { visits: 0, lastVisit: -999 };
+        const sincere = state.week - p.holdout.lastVisit >= H.visitGapWeeks;
+        if (sincere) { p.holdout.visits++; p.holdout.lastVisit = state.week; led.courted++; }
+        led.declined++;
+        const v = p.holdout.visits;
+        if (!sincere) {
+          return { ok: false, holdout: true, reason: KP.fillPro(KP.displayName(p) +
+            '’s academy director did not even book the room this time: “You were here two weeks ago. She noticed. Come back when the visit means something — or with a ranking.”', p) };
+        }
+        return { ok: false, holdout: true, reason: KP.fillPro(v === 1
+          ? KP.displayName(p) + ' listened to the whole pitch, thanked you by name, and said no with {pos} whole future in {pos} voice: {she} is waiting for one of the powers, or for a company that is unmistakably about what {she} does. The academy director walked you out: “Third label this month. Come back with a ranking — or just keep coming back. She remembers who does.”'
+          : KP.displayName(p) + ' met the second visit differently — {she} quoted your first pitch back to you, word for word, which is not what no sounds like. Still no, for now: the bar is the bar. But the director said it plainly at the door: “Nobody from the big three has visited twice. One more sincere trip and I think the bar moves.”', p) };
+      }
+    }
     state.budget -= cost;
     state.signingsUsed++;
     if (state.fiscal) state.fiscal.monthSignings = (state.fiscal.monthSignings || 0) + 1;
@@ -75,8 +144,21 @@
     delete p.reads;   // signed: the coaches watch her daily now, no dated report
     // the school hangs the signing photo (v0.9.16)
     KP.schoolRecordAlum(state, p, state.company.short);
-    p.history.push({ week: state.week, text: 'Signed to ' + state.company.short + ' (' + p.source + ').' });
-    return { ok: true, cost };
+    if (holdPath) {
+      const led = holdLedger(state);
+      led[{ stature: 'signedStature', lane: 'signedLane',
+        courtship: 'signedCourtship', callback: 'signedCallback' }[holdPath]]++;
+      delete p.holdout;
+      p.history.push({ week: state.week, text: KP.fillPro({
+        stature: 'Held out for a power — and signed the day the letterhead became one. {She} keeps the clipping of the ranking.',
+        lane: 'Held out for a company that was unmistakably about what {she} does. Signed to the label whose name means {pos} lane.',
+        courtship: 'Held out for the powers — and signed with the label that kept showing up. The third visit won {her}, the way the big three never bother to.',
+        callback: '{She} called back. The company {she} once said no to crossed {pos} bar, and {she} remembered who visited.',
+      }[holdPath], p) });
+    } else {
+      p.history.push({ week: state.week, text: 'Signed to ' + state.company.short + ' (' + p.source + ').' });
+    }
+    return { ok: true, cost, holdPath };
   };
 
   // Weekly rival scouting activity. Rivals escalate interest, and sometimes
@@ -115,6 +197,15 @@
         let chance = lvl >= 3 ? S.rivalSignHotChance : lvl === 2 ? S.rivalSignBaseChance : 0;
         if (hungry) chance = Math.min(0.6, chance * S.rivalHungerMult);
         if (chance && rng.chance(chance)) {
+          // the holdout refuses the small houses too (v0.9.33): only a
+          // power — or the heir's bankroll — clears her bar. The roll
+          // happened; the answer was no.
+          const wasHoldout = KP.holdoutOf(state, p);
+          if (wasHoldout && (rival.prestige || 0) < KP.C.HOLDOUT.rivalPrestigeBar &&
+              !(rival.bankroll && state.week <= rival.bankroll.until)) {
+            return;
+          }
+          if (wasHoldout) holdLedger(state).lostToPowers++;
           p.status = 'rival';
           p.company = rival.short;
           KP.schoolRecordAlum(state, p, rival.short);
@@ -122,7 +213,8 @@
           state.prospects = state.prospects.filter(id => id !== pid);
           state.rivals.forEach(r => { delete r.interest[pid]; });
           rival.rosterCount = (rival.rosterCount || 0) + 1;
-          notes.push({ kind: 'scouting', urgent: true, text: KP.fillPro(rival.short + ' signed ' + KP.displayName(p) + '. {She} is off the board' + (hungry ? ' — and probably in their debut lineup' : '') + '.', p) });
+          notes.push({ kind: 'scouting', urgent: true, text: KP.fillPro(rival.short + ' signed ' + KP.displayName(p) + '. {She} is off the board' + (hungry ? ' — and probably in their debut lineup' : '') +
+            (wasHoldout ? '. The power {she} was holding out for came knocking — it just was not us. {She} was never going to wait forever' : '') + '.', p) });
           // the scouts keep score (v0.6.1): enough poaches become a name
           rival.poachCount = (rival.poachCount || 0) + 1;
           if (rival.poachCount >= KP.C.MEMORY.poachAt) {
@@ -151,6 +243,23 @@
         t.cur = Math.min(t.ceilLo - 1, t.cur + g);
       });
     });
+    // the call-back (v0.9.33): a holdout who once said no watches the
+    // rankings like everyone else — when the company crosses her bar
+    // while she is still on the board, SHE calls, once
+    (state.prospects || []).forEach(id => {
+      const p = state.people[id];
+      if (!p || !p.holdout || p.holdout.callback || !(p.holdout.visits >= 1)) return;
+      if (!KP.holdoutOf(state, p)) return;
+      const bar = KP.holdoutBar(state, p);
+      if (bar !== 'stature' && bar !== 'lane') return;
+      p.holdout.callback = true;
+      holdLedger(state).callbacks++;
+      notes.push({ kind: 'scouting', urgent: true, priority: 'critical', personId: p.id,
+        text: KP.fillPro(KP.displayName(p) + ' called the office — {herself}, not the academy. “You visited when you did not have to. ' +
+          (bar === 'stature' ? 'I saw the ranking.' : 'Everyone knows what your name means now.') +
+          ' If the offer still stands, I am ready to hear it properly.” The recruit who held out for a power just decided you became one. The board has {pos} file.', p) });
+    });
+
     // the board is a market, not a museum (0.9.13 audit A2): leads who
     // aged past the market without a signature move on — file and all,
     // because nobody here ever met them
@@ -159,6 +268,15 @@
       return pr && pr.age >= S.prospectAgeOut;
     });
     if (stale.length) {
+      // burned by her own bar (v0.9.33): the holdout we actually met,
+      // aged past the market still waiting for the letterhead
+      const burned = stale.map(id => state.people[id])
+        .filter(p => p && p.holdout && p.holdout.visits >= 1);
+      if (burned.length) {
+        holdLedger(state).agedWaiting += burned.length;
+        notes.push({ kind: 'scouting', priority: 'high', text: KP.fillPro(
+          KP.displayName(burned[0]) + ' aged off the board this week — the one who held out for a power. The power never called; neither, in the end, did anyone else. {She} waited for a letterhead that never wrote. The board is honest about what waiting costs.', burned[0]) });
+      }
       stale.forEach(id => {
         (state.rivals || []).forEach(r => { if (r.interest) delete r.interest[id]; });
         delete state.people[id];

@@ -204,7 +204,10 @@ function botWeek(state, mode) {
     // sign a prospect when thin
     if (state.roster.filter(id => state.people[id].status === 'trainee').length < 5 &&
         state.prospects.length && state.budget > 60) {
-      KP.signProspect(state, state.prospects[0]);
+      // a holdout's no (v0.9.33) walks the bot down the board
+      for (const pid of state.prospects.slice(0, 3)) {
+        if (KP.signProspect(state, pid).ok) break;
+      }
     }
     // form a group when none of ours exists
     const own = state.groups.filter(g => !g.legacy);

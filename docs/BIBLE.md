@@ -4077,6 +4077,92 @@ successionSeen (silence-asserted — era math says none inside 140
 weeks), longhaul invariants (non-founded ⇒ ≥1 succession; founded
 ⇒ board seated) plus the time ledger printed per scenario.
 
+## §74 The holdout + the blank page (holdout SHIPPED v0.9.33; the blank page next)
+
+Owner, in full: *"I'd like potential trainees to have agency. a
+particularly talented and highly sought after recruit wouldn't
+necessarily sign on with a more reputation company at the first
+offer. I'd think they'd hold out for one of the powers to come
+knocking. and this brings me to my second request. a fourth door on
+game start that is completely fresh. name your own company, start
+with no trainees, and no reputation. hard mode, essentially."*
+Ruling frame agreed in the sitting: these are ONE design — the
+door's difficulty IS the mechanic. Sequencing delegated (*"I'll
+trust your judgement on when to implement"*): the holdout ships
+first, alone, so its rates calibrate against the three existing
+doors; the blank page lands on a measured mechanic.
+
+**The holdout (trainee agency).** A prospect's only agency today is
+passive — rivals sign her away, but the player's offer never gets
+refused. The change: the top slice of talent WITH a hot market
+(real peak talent above the bar AND rival heat ≥ 2) knows what she
+is worth — hash-stable per person, with a hash-carved minority who
+sign gratefully anyway (some kids just want the door that opened).
+Her bar reads the world's existing numbers: a top-3 seat on the
+power ranking, OR a reputation lane matching HER lane at real
+height. An offer below the bar is DECLINED — human, her whole
+future in her voice, no budget spent — and every decline names the
+paths past it: become bigger (the call-back: when the company
+crosses her bar while she is still on the board, she calls, and
+that note should feel enormous); keep showing up (courtship —
+repeated sincere visits; the third one wins her, the underdog
+pitch the powers never bother to make); and nothing else. Money
+alone never flips her — stupid offers are the HEIR saga's tool,
+and a bankrolled rival CAN jump her bar; the player cannot. The
+risk runs both ways: while she holds out, rival escalation keeps
+running — but SHE refuses the small houses too (rivals below a
+prestige bar skip her), so some holdouts sign with a power, and
+some get burned by their own bar — the power never calls and the
+age-out clock (§58) files her with "waited for a letterhead that
+never wrote." The sim owns every ending. When she does sign, the
+market's read is priced in: a holdout signs at a premium. Census:
+holdouts seen / signed by which path / lost to powers / aged out;
+the bot learns to fall back to the next name and to re-visit.
+
+**As built (v0.9.33, scouting.js).** `KP.holdoutOf`: peak talent ≥
+64 (measured: fresh boards run top-5 ≈ 72–78, ≈ the top 8%) AND
+rival heat ≥ 2, minus the grateful quarter (hash-carved).
+`KP.holdoutBar` names the open door: callback > stature > lane >
+courtship. Stature = a top seat read against the FIELD (rank ≤
+min(3, rows−3): in a four-company scene only the leader counts)
+AND an absolute score ≥ 85 — the legacy start opens scene-rank 1
+at score ~64, a small pond, not a power. Lane = her best domain's
+rep lane ≥ 60 (the current door's vocal-72 house gets the vocal
+prodigies by design — that asymmetry is the identity working).
+Courtship = the third sincere visit (6+ weeks apart; rapid
+re-offers are named as insincere and do not count). Declines cost
+nothing and name the paths; the premium (×1.4) is priced into
+`KP.signCost` whether or not she takes the call. The call-back:
+a holdout with ≥1 visit watches the rankings — when the company
+crosses her bar she calls, once, critical-priority. Rivals below
+prestige 55 get the same no (the roll still spins — stream-safe);
+the heir's bankroll jumps her bar, as ruled. A power signing her
+prints the loss; the age-out sweep prints the burn ("waited for
+a letterhead that never wrote") and ledgers agedWaiting. Census:
+holdoutWon 11/40, holdoutLost 40/40 (the powers ARE knocking),
+holdoutMet 0/40 bot-dormant (§18) — the e2e walkthrough, tapping
+the hottest row like a human would, hit a live decline and the
+suite (074, 37 checks) holds every path.
+
+**The blank page (the fourth door).** Name your own company, empty
+practice rooms, no reputation. Hard mode — built almost entirely
+from machinery that already exists: this door is THE FOUNDING AT
+WEEK ONE, WITHOUT THE FAME. state.founded from day one, the
+founder's board (§73) seated with its named checks-writers, the
+runway memo waiting, no executive era above you and no succession
+— you named it, you own it, you answer to the money. Unlike the
+fresh door (which still hands over inherited trainees and a
+granted objective), the rooms here are EMPTY: the same scouting
+board as everyone else, the bottom of the power ranking, Unproven
+label on the letterhead — which is exactly where the holdout
+mechanic becomes the door's teeth. The sought-after kids will not
+take your calls. You build from the overlooked — low-heat files,
+unpolished regional-school kids, the free agents nobody valued —
+until the ranking says otherwise and the first holdout calls YOU
+back. That arc (nobody → the call-back) is the door's whole
+fantasy, and the door tunes its war chest and signing cap against
+MEASURED holdout rates, not guesses.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -4168,6 +4254,15 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   weather. Next flap: stop chasing and re-point the census at the
   tail itself (orgs ending under ~300, ceiling ~0.05) — that is
   the poverty-spiral regression this alarm exists to catch.
+- **holdoutMet runs bot-dormant (v0.9.33)** — the bot signs early,
+  before heat and board-training push anyone over the holdout line,
+  so it never OFFERS below a bar (0/40); it still wins holdouts
+  through the lane door (11/40) and loses one to a power in every
+  world (40/40). The decline arc is suite-held and the e2e hits it
+  live. Watch human play: the owner scouts hot kids and WILL meet
+  the no — if the no never converts (no call-backs, no courtship
+  wins in reports), lower powerScore or laneRep before touching
+  talentMin.
 - **The service is soak-invisible by age math (v0.9.23)** — no male
   idol reaches notice age 26 inside 140 weeks (prospects generate
   14–22), so both service bands assert silence [0–10%] and the
@@ -6375,3 +6470,33 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > (non-founded => >=1 succession; founded => board seated), e2e
 > 94, lockstep 0.9.32 (65 modules - tenure.js). Rode to main.
 > Slot 13 (the imprint - the associate label) next, on approval.
+
+> **v0.9.33 — the holdout (§74, first half).** Owner: "I'd like
+> potential trainees to have agency... they'd hold out for one of
+> the powers to come knocking," sequencing delegated. The board
+> can say no: top-slice talent (>=64 peak, ~top 8%) with rival
+> heat >=2, minus the grateful quarter, refuses offers below her
+> bar — a REAL top seat (field-scaled rank AND score >=85; a
+> four-row pond has one power) or her lane at >=60 on the
+> letterhead. Every decline is free, human, and names the paths:
+> become bigger (the call-back — she watches the rankings and
+> calls ONCE when you cross), or keep showing up (the third
+> sincere visit, 6+ weeks apart, wins her — the underdog pitch
+> the powers never make). Money never flips her: the premium
+> (x1.4) prices the market's read, rivals below prestige 55 get
+> the same no, and only the heir saga's bankroll jumps bars.
+> Endings the sim owns: signed by stature/lane/courtship/
+> callback (each with its own history line), lost to a power
+> (40/40 soak - the powers ARE knocking), or burned by her own
+> bar at the age-out ("waited for a letterhead that never
+> wrote"). The e2e, tapping the hottest row like a human, hit a
+> live decline and learned to sign the next kid (95 checks).
+> Three band re-rules under the stream shift, each per its own
+> written history: mvPlain flipped ceiling->floor (third flap,
+> showDarling precedent), fusionTried 0.60->0.75 and truckParked
+> 0.80->0.90 (the bot walks deeper down the board now, measured).
+> holdoutMet bot-dormant, ruled into S18 with a human-play watch.
+> Numbers: battery 74/74 (suite 074, 37), soak clean (182 bands),
+> longhaul 6x620 clean, e2e 95, lockstep 0.9.33. Rode to main.
+> The blank page (S74 second half) next, then slot 13, per the
+> delegated sequencing.
