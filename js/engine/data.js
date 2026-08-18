@@ -49,6 +49,14 @@
         intro: '“Six years without a hit girl group. The board counts in quarters, not eras.”' },
       { name: 'CEO Seo Hae-won', gender: 'f', personality: 'traditionalist',
         intro: '“We are known for vocals. Build me a group that can actually sing — then make them famous.”' },
+      // the chairs widened for the succession era (v0.9.32) — executives
+      // have eras now, and the next one should not be a rerun
+      { name: 'CEO Baek Ji-soo', gender: 'f', personality: 'patient',
+        intro: '“I have watched three companies chase quarters off a cliff. We will build slowly, and we will still be here.”' },
+      { name: 'CEO Moon Sang-chul', gender: 'm', personality: 'trendChaser',
+        intro: '“The market tells you what it wants every single week. My last building refused to listen. This one will.”' },
+      { name: 'CEO Im Na-ri', gender: 'f', personality: 'micromanager',
+        intro: '“I read every report. Every one. If that sounds like a threat, we are going to get along fine.”' },
     ],
   };
 })(typeof window !== 'undefined' ? window : globalThis);

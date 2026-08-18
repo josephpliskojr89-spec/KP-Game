@@ -249,6 +249,20 @@ const BANDS = {
   // one saga in five is the JV, and only fired JVs get answered
   // (measured 2/40 first soak)
   jvAnswered:        { lo: 0.00, hi: 0.30, label: 'orgs that answered the co-build term sheet' },
+  // time takes its share (v0.9.32): first soak — provisional. The
+  // legacy act's members cross 28 inside 140 weeks in most worlds;
+  // drift needs trust above 75, which the bot rarely holds; and
+  // successions start at week 240+ (era math), so the census asserts
+  // silence and the positive coverage lives in the longhaul.
+  // measured 39/40 first soak: the legacy act ships aging members by
+  // design, so the crossing is near-universal — the band guards the
+  // FLOOR (silence would mean the clock broke)
+  senesceSeen:       { lo: 0.50, hi: 1.00, label: 'orgs where an idol crossed the senescence line' },
+  // measured 40/40 first soak: the bot rides trust high, so every org
+  // ticks the clock at least once — that is the anti-saturation working,
+  // not an alarm. Floor guard: a dead clock is the regression here.
+  trustDrifted:      { lo: 0.30, hi: 1.00, label: 'orgs whose devotion decayed above the bar' },
+  successionSeen:    { lo: 0.00, hi: 0.10, label: 'orgs that saw a chair change inside 140 weeks (era math says none)' },
   memberDemoSeen:    { lo: 0.20, hi: 1.00, label: 'orgs whose meeting carried a member-written demo' },
   memberTitleChosen: { lo: 0.00, hi: 0.90, label: 'orgs that chose her song as the title track' },
   producerCooled:    { lo: 0.00, hi: 0.80, label: 'orgs a snubbed producer stopped sending good hooks' },
@@ -404,6 +418,7 @@ const tally = {
   rfGenTurned: 0, rfTorchSeen: 0, rfRivalService: 0,
   unitEraSeen: 0, doctrineDeniedSeen: 0, auditionRun: 0, intlSigned: 0,
   secretFormed: 0, revealSeen: 0, sagaFired: 0, jvAnswered: 0,
+  senesceSeen: 0, trustDrifted: 0, successionSeen: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -796,6 +811,12 @@ for (let s = 0; s < SEEDS; s++) {
       if (sc.kind === 'theOffer') {
         // a thin till leverages; a comfortable one declines with style
         KP.resolveScene(state, sc.id, state.budget < 200 ? 'leverage' : 'decline');
+        return;
+      }
+      if (sc.kind === 'newChair') {
+        // a boss with a record walks it; a thin one bets on the year
+        KP.resolveScene(state, sc.id,
+          KP.groups(state).some(g => g.debuted) ? 'receipts' : 'slate');
         return;
       }
       if (sc.kind === 'globalJV') {
@@ -1299,6 +1320,11 @@ for (let s = 0; s < SEEDS; s++) {
   if (((state.sagaLedger || {}).fired || 0) >= 1) tally.sagaFired++;
   const sgl = state.sagaLedger || {};
   if ((sgl.jvSigned || 0) + (sgl.jvDeclined || 0) >= 1) tally.jvAnswered++;
+  // time takes its share (v0.9.32): the ledger is durable
+  const tml = state.timeLedger || {};
+  if ((tml.senesced || 0) >= 1) tally.senesceSeen++;
+  if ((tml.driftWeeks || 0) >= 1) tally.trustDrifted++;
+  if ((tml.successions || 0) >= 1) tally.successionSeen++;
   // the trainee floor (0.9.18.1): the rival ledger is durable
   const rl = state.rivalLedger || {};
   if ((rl.culls || 0) >= 1) tally.rivalCulled++;

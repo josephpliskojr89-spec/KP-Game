@@ -347,6 +347,16 @@ for (const sc of SCENARIOS) {
   if ((sgl.fired || 0) < 1) {
     flag(sc.seed, state.week, 'no saga fired in ' + WEEKS + ' weeks — the window guarantees one');
   }
+  // time takes its share (v0.9.32): the first exec era ends by week
+  // ~337 at the latest, so a 620-week non-founded world MUST have
+  // seen the chair change hands at least once
+  const tml = state.timeLedger || {};
+  if (!state.founded && (tml.successions || 0) < 1) {
+    flag(sc.seed, state.week, 'no executive succession in ' + WEEKS + ' weeks of a non-founded house');
+  }
+  if (state.founded && !state.board) {
+    flag(sc.seed, state.week, 'a founded house with no board — the seats never arrived');
+  }
   if ((sgl.fired || 0) > 2) {
     flag(sc.seed, state.week, sgl.fired + ' sagas fired — the deck deals at most two');
   }
@@ -359,7 +369,9 @@ for (const sc of SCENARIOS) {
       .map(k => k + ' ' + ((state.riseFallLedger || {})[k] || 0)).join(', ') +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +
-    (sgl.heirStabilized ? ' heirStabilized' : '') + (sgl.heirBurst ? ' heirBurst' : ''));
+    (sgl.heirStabilized ? ' heirStabilized' : '') + (sgl.heirBurst ? ' heirBurst' : '') +
+    ' | time: ' + ['senesced', 'driftWeeks', 'successions', 'boardMemos']
+      .map(k => k + ' ' + (tml[k] || 0)).join(', '));
 }
 
 report();

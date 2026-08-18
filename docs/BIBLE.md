@@ -1937,9 +1937,10 @@ against the standing clause (arrive, claim, mark):
     law, late in the order on purpose so every system it touches
     is already deep.
 12. **Time takes its share** (audit A4 + B4 + succession + the
-    board). Senescence, trust drift, executive succession (the
-    ledger reset to "prove it again"), and the founder's own
-    board — every anti-saturation clock in one release.
+    board; SHIPPED v0.9.32, §73). Senescence, trust drift,
+    executive succession (the ledger reset to "prove it again"),
+    and the founder's own board — every anti-saturation clock in
+    one release. *The sagas (§71) shipped between slots, v0.9.31.*
 13. **The imprint** (§55.11). The associate label — the founding
     machinery in reverse, the powerhouse's finale verb, staffed
     if you like by the free agents of #9 and the graduates of
@@ -4014,6 +4015,68 @@ into the walkout-read grudge ledger). Recovery arcs over weeks;
 the discourse kind aims its heat at the tabloid and the norms.
 Verification: forced-fire suite + soak bands on the ledger.
 
+## §73 Time takes its share (v0.9.32 — SHIPPED) — map slot 12
+
+Audit A4 + B4 + succession + the founder's board: every
+anti-saturation clock in one release. The whole module (tenure.js,
+weekly order 859) is hash-timed and consumes NO rng — worlds fork
+byte-identical through every clock, and the battery shipped with
+zero stream drift.
+
+**Senescence (audit A4 closed).** The line is 28. Past it, three
+quiet multipliers: training gains fall off 12%/year to a 0.35
+floor (development.js gainFor), fatigue recovery softens 6%/year
+to 0.55 (sim.js rest + idle recovery), and liveReliability gains
+the stage-IQ floor — +1.5/year capped at +9 (person.js derived).
+What the years take in bounce they pay back in floor: the veteran
+never misses on a tired night. One crossing note per idol, written
+with care (a professional's rebuilt week, never a decline), one
+history line, a gold "the veteran's pace" word on the dossier.
+Words never meters.
+
+**Trust drift (audit B4 closed).** Above 75, trust decays 1 per 4
+weeks toward 75 — excellence becomes the expectation. The bar sits
+ABOVE the founding gate (70) on purpose: the gate stays winnable,
+the summit does not stay owned. The exec says the quiet part once
+per era ("last year's miracle is this year's baseline").
+First-soak measurement: 40/40 orgs tick the clock — universal
+weather for a high-riding bot, exactly the design; the band guards
+the floor (a dead clock is the regression).
+
+**Executive succession.** Chairs have eras: 5–7 years, hash-timed
+per exec generation, first succession no earlier than week 96,
+non-founded houses only (a founder cannot be succeeded out of
+their own chair). On the turn: the farewell (tone reads trust),
+a new chair from the widened six-exec pool (hash-picked, never
+the same person), and the ledger reset — trust snaps to
+startTrust + (trust − startTrust) × 0.35, prove it again, in both
+directions. The new exec brings their own taste (execTaste hash
+carries execGen — only once a succession has happened, so
+pre-succession worlds keep their exec's ears), their own someday
+pet project (petProjectDone cleared), their own bar (driftNoted
+cleared). The first meeting is a scene: walk the record (+3, the
+receipts move her where charm never would) or the clean page (+1,
+the year will be read closely); letting it expire spends the
+benefit of the doubt (−2). Longhaul: 1–2 successions per 13-year
+non-founded run, invariant-held.
+
+**The founder's board.** A founded house seats three names the
+week the war chest arrives (hash-stable): the lead investor, the
+industry veteran, the first believer. They decorate board season's
+scene body, sit on the company card, and speak twice per founding:
+the runway memo when the budget falls below a quarter of the war
+chest ("I funded a company, not a countdown") and the confidence
+letter when it more than doubles (+2 trust, "Told them so").
+theOffer's accept path (running the rival's house) remains a ruled
+build for the owner to call — the succession machinery it needs
+now exists.
+
+Verification: suite_073 (35 checks), soak bands senesceSeen
+(39/40, floor-guarded), trustDrifted (40/40, floor-guarded),
+successionSeen (silence-asserted — era math says none inside 140
+weeks), longhaul invariants (non-founded ⇒ ≥1 succession; founded
+⇒ board seated) plus the time ledger printed per scenario.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -4121,7 +4184,9 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   executive machinery lives; the scene ships with decline and
   leverage, and the body plays the temptation honestly. If the
   owner wants the third answer sooner, it is a real build, not a
-  toggle.
+  toggle. *v0.9.32 update*: the succession/board machinery it
+  needs now exists (§73); the accept path remains a ruled build
+  awaiting the owner's call.
 - **Generation cadence is ruled, not measured long (v0.9.24)** —
   minYears 4 with a 2-year backdated seed gives a first turn near
   year 2 and ~4-year waves after; the longhaul prints gen counts.
@@ -4150,9 +4215,10 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   files by week 620 (~725KB vs ~619KB saves). The age-out sweep
   handles the unsigned; the growth rides the same curve as the
   rival-native item below and shares its remedy.
-- **No senescence (0.9.13 audit A4)** — a 33-year-old idol trains,
-  tours, and recovers like a 21-year-old; "aging out of its peak"
-  is copy, not mechanics. Owner's call whether age should bite.
+- ~~**No senescence (0.9.13 audit A4)**~~ — closed v0.9.32: age
+  bites at 28 (growth, recovery) and pays back in floor (stage
+  IQ), words never meters; the legacy act makes the crossing
+  near-universal in soak (39/40, floor-guarded).
 - **Trust saturates high by year 3 (0.9.13 audit B4)** — gains
   outpace every loss path at scale; gates lose tension. Candidate:
   slow drift toward startTrust, or stature-scaled expectations.
@@ -4162,6 +4228,9 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
   gate (70) is now the hard one. The longhaul grants the
   collateral when trust ALONE gates founding by week 150, because
   that audit soaks the founded shape; the soak owns the odds.
+  *Closed v0.9.32*: the drift clock ships anyway — above 75, −1 per
+  month toward 75, deliberately ABOVE the founding gate so the gate
+  stays winnable while the summit stops being ownable.
 - **Rival-native file growth (0.9.13 audit)** — ~25 files/year,
   ~half the save by year 13, quota breach ~a century out. If it
   ever matters: tombstone-compress members of long-retired acts
@@ -6274,3 +6343,35 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > kinds appeared across the six scenarios), e2e 94, lockstep
 > 0.9.31 (64 modules - sagas.js). Rode to main. Slot 12 (time
 > takes its share) next, on approval.
+
+> **v0.9.32 — time takes its share (§73, map slot 12).** Owner:
+> "slot 12 approved." Every anti-saturation clock in one release,
+> and the whole module (tenure.js, order 859) is hash-timed and
+> rng-free — the battery shipped with ZERO stream drift.
+> SENESCENCE (audit A4 closed): the line is 28 — training gains
+> fall 12%/yr to a 0.35 floor, recovery softens 6%/yr to 0.55,
+> and liveReliability gains the stage-IQ floor (+1.5/yr, cap +9):
+> what the years take in bounce they pay back in floor. One
+> crossing note per idol, written with care; "the veteran's pace"
+> on the dossier. TRUST DRIFT (audit B4 closed): above 75, -1 per
+> month toward 75 — excellence becomes the expectation; the bar
+> sits ABOVE the founding gate on purpose. Measured 40/40 first
+> soak = universal weather, band re-pointed to guard the floor.
+> EXECUTIVE SUCCESSION: chairs have 5-7 year hash-timed eras
+> (non-founded only); on the turn the ledger resets to prove-it-
+> again (startTrust + 0.35x the excess, both directions), the
+> exec pool widened 3->6, the new chair brings new taste (execGen
+> in the hash, pre-succession worlds keep their exec's ears), a
+> fresh pet-project someday, and the first-meeting scene
+> (receipts +3 / clean page +1 / expiry -2). THE FOUNDER'S BOARD:
+> three hash-stable seats (lead investor, industry veteran, first
+> believer) seated at founding — board-season flavor, the runway
+> memo below 25% of the war chest, the confidence letter above
+> 2x (+2 trust). theOffer's accept path now has the machinery it
+> was waiting for; still a ruled build on owner's call (S18).
+> Numbers: battery 73/73 (suite 073, 35), soak clean (179 bands,
+> senesceSeen 39/40 + trustDrifted 40/40 both floor-guarded with
+> measurements), longhaul 6x620 clean with two new invariants
+> (non-founded => >=1 succession; founded => board seated), e2e
+> 94, lockstep 0.9.32 (65 modules - tenure.js). Rode to main.
+> Slot 13 (the imprint - the associate label) next, on approval.

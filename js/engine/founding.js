@@ -173,7 +173,7 @@
     const execIdx = Math.floor(KP.hash01([state.seed, 'founder-exec', state.week].join('|')) *
       KP.DATA.executives.length);
     const exec = KP.DATA.executives[execIdx];
-    state.executive = { name: exec.name, gender: exec.gender || 'f', personality: exec.personality, intro: exec.intro };
+    state.executive = { name: exec.name, gender: exec.gender || 'f', personality: exec.personality, intro: exec.intro, since: state.week };
     state.trust = F.newTrust;
     state.budget = h.warChest;
     state.fiscal = { monthStartBudget: h.warChest, pressure: 0, monthSignings: 0 };

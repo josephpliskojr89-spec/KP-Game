@@ -446,12 +446,14 @@
       (state.week <= (g.promoUntil || 0) + CB.restWeeks ||
        state.week <= (g.tourRestUntil || 0));
     if (resting) {
-      // the contractual rest window: no schedules, real recovery
-      p.fatigue = KP.clamp(p.fatigue - CB.restRecovery, 0, 100);
+      // the contractual rest window: no schedules, real recovery —
+      // softened past the senescence line (v0.9.32): the body keeps
+      // a different ledger now
+      p.fatigue = KP.clamp(p.fatigue - CB.restRecovery * (KP.ageRecoveryMult ? KP.ageRecoveryMult(p) : 1), 0, 100);
       p.morale = KP.clamp(p.morale + 2, 0, 100);
       return null;
     }
-    p.fatigue = KP.clamp(p.fatigue - CB.idolRecovery, 0, 100);
+    p.fatigue = KP.clamp(p.fatigue - CB.idolRecovery * (KP.ageRecoveryMult ? KP.ageRecoveryMult(p) : 1), 0, 100);
     p.morale = KP.clamp(p.morale + 1, 0, 100);
     return idolAutoTrain(state, p, rng);
   }

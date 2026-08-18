@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.31',
+    VERSION: '0.9.32',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1354,6 +1354,40 @@
         auditionDiscount: 0.5, extraMinted: 1,
         NAMES: ['The Harborlight Initiative', 'The Second Stage Fund',
           'The Gateway Compact', 'The Crossroads Charter', 'The Estuary Project'],
+      },
+    },
+    // time takes its share (v0.9.32, §39 slot 12 — audit A4 + B4 +
+    // succession + the founder's board). Every anti-saturation clock
+    // in one release: age bites and pays back, devotion above the bar
+    // decays into expectation, executives have eras, and the founder
+    // answers to a board with names. All hash-timed — the module
+    // consumes no rng.
+    TIME: {
+      SENESCE: {               // audit A4: a 33-year-old trained like a rookie
+        at: 28,                // the body starts keeping a different ledger
+        growthPerYear: 0.12,   // training gains fall off past the line…
+        growthFloor: 0.35,     // …but never to nothing
+        recoveryPerYear: 0.06, // recovery softens year by year…
+        recoveryFloor: 0.55,   // …to a floor a pro schedule can live with
+        stageIQPerYear: 1.5,   // what the years take in bounce…
+        stageIQCap: 9,         // …they pay back in floor (liveReliability)
+      },
+      DRIFT: {                 // audit B4: trust saturated high by year 3
+        above: 75,             // devotion above the bar decays toward it —
+        everyWeeks: 4,         // excellence becomes the expectation, monthly.
+                               // Set ABOVE the founding gate (70) on purpose:
+                               // the gate stays winnable, the summit does not
+                               // stay owned
+      },
+      EXEC: {                  // executives have eras too
+        eraWeeks: [240, 336],  // 5–7 years per chair, hash-timed per exec
+        minWeek: 96,           // no successions in the opening years
+        carry: 0.35,           // the record transfers; the devotion does not
+      },
+      BOARD: {                 // the founder's own board
+        burnAt: 0.25,          // war-chest share that draws the investor memo
+        proudAt: 2.0,          // war-chest multiple that earns the confidence
+        proudTrust: 2,
       },
     },
     // the portfolio (v0.9.26, §69) — "a major company might only debut

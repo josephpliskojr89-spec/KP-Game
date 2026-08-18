@@ -1,7 +1,7 @@
 /* Service worker — cache key rides the version lockstep. */
 'use strict';
-const CACHE = 'kpam-0.9.31';
-const V = '0.9.31';
+const CACHE = 'kpam-0.9.32';
+const V = '0.9.32';
 const PRECACHE = [
   '.',
   'index.html',
@@ -55,6 +55,7 @@ const PRECACHE = [
   'js/engine/door.js?v=' + V,
   'js/engine/scars.js?v=' + V,
   'js/engine/staff.js?v=' + V,
+  'js/engine/tenure.js?v=' + V,
   'js/engine/contracts.js?v=' + V,
   'js/engine/society.js?v=' + V,
   'js/engine/year.js?v=' + V,

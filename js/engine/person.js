@@ -222,7 +222,10 @@
         0.35 * t.charisma.cur + 0.3 * per.warmth + 0.2 * per.confidence + media * 0.8, 0, 100),
       liveReliability: KP.clamp(
         (0.3 * ((t.vocals.cur + t.dance.cur) / 2) + 0.3 * per.professionalism +
-        0.15 * per.resilience + live * 0.55 - p.fatigue * 0.15) * slumpDamp, 0, 100),
+        0.15 * per.resilience + live * 0.55 - p.fatigue * 0.15) * slumpDamp +
+        // time takes its share (v0.9.32): what the years take in
+        // bounce they pay back in floor — the veteran's stage IQ
+        (KP.stageIQ ? KP.stageIQ(p) : 0), 0, 100),
       centerPull: KP.clamp(
         0.45 * t.charisma.cur + 0.3 * t.visuals.cur + 0.15 * per.confidence + live * 0.25, 0, 100),
     };

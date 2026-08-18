@@ -15,6 +15,9 @@
     if (focusCount > 1) g *= T.secondFocusMult;
     g *= 0.6 + (per.workEthic / 100) * 0.55;
     g *= 0.7 + (per.coachability / 100) * 0.5;
+    // time takes its share (v0.9.32): past the line, the explosive
+    // gains are behind her — the growth curve senesces, never to zero
+    if (KP.ageGrowthMult) g *= KP.ageGrowthMult(person);
     // fatigue drag
     if (person.fatigue > T.fatigueSoftCap) {
       g *= Math.max(0.2, 1 - (person.fatigue - T.fatigueSoftCap) / 40);

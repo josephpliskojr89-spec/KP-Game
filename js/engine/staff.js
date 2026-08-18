@@ -29,9 +29,15 @@
   };
 
   // ---- exec taste (hash-truth, never stored) -----------------------------
+  // the succession era (v0.9.32): a new chair brings new taste — the
+  // hash key carries the exec generation, but ONLY once a succession
+  // has happened, so every pre-succession world keeps its exec's ears
   KP.execTaste = function (state) {
     const ids = KP.C.CONCEPTS.map(c => c.id);
-    return ids[Math.floor(KP.hash01([state.seed, 'execTaste'].join('|')) * ids.length)];
+    const key = state.execGen
+      ? [state.seed, 'execTaste', state.execGen].join('|')
+      : [state.seed, 'execTaste'].join('|');
+    return ids[Math.floor(KP.hash01(key) * ids.length)];
   };
 
   // ---- the weekly building (order 788) -----------------------------------
@@ -172,7 +178,12 @@
       const groups = KP.groups(state).filter(g => g.debuted);
       const releases = groups.reduce((s2, g) => s2 + (g.releases || []).filter(r =>
         r.week > state.week - KP.C.WEEKS_PER_YEAR).length, 0);
-      return 'The directors have the year on one slide: ' + releases + ' release' + (releases === 1 ? '' : 's') +
+      // the founder's board (v0.9.32): the seats have names now
+      const seats = state.founded && state.board
+        ? 'Around the table, the three who wrote the checks: ' +
+          state.board.seats.map(s => s.name + ' (' + s.role + ')').join(', ') + '. '
+        : '';
+      return seats + 'The directors have the year on one slide: ' + releases + ' release' + (releases === 1 ? '' : 's') +
         ', the fanbase where it is, the books where they are. They want one sentence on where this company is going, and they want to believe it.';
     },
     options: () => [

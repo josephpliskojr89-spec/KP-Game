@@ -220,7 +220,9 @@
       (p.status === 'prospect' ? ' · ' + looksWord(state, p) : '') +
       (p.signedWeek ? ' · signed ' + UI.esc(KP.weekLabel(p.signedWeek).text) : '') +
       (p.origin ? ' · <span style="color:var(--cyan)">' + UI.esc(KP.regionLabel(p.origin)) + ' · ' + UI.esc(p.nativeLang || '') +
-        (KP.koOf(p) < 95 ? ' · Korean ' + (KP.koOf(p) >= KP.C.TONGUE.koConversational ? 'conversational' : 'learning') : '') + '</span>' : '') + '</div>' +
+        (KP.koOf(p) < 95 ? ' · Korean ' + (KP.koOf(p) >= KP.C.TONGUE.koConversational ? 'conversational' : 'learning') : '') + '</span>' : '') +
+      (p.status === 'idol' && p.age >= KP.C.TIME.SENESCE.at
+        ? ' · <span style="color:var(--gold)">the veteran’s pace</span>' : '') + '</div>' +
       '<div class="d-social">' + KP.fmtCount(KP.socialOf(state, p)) + ' followers' +
       ((p.socialDelta || 0) > 0 ? ' <span class="ds-up">▲' + KP.fmtCount(p.socialDelta) + ' this week</span>' : '') +
       '</div>' +
