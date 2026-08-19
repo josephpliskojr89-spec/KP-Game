@@ -158,6 +158,9 @@ function forceConflict(state, a, b) {
   const F = KP.C.FANSITE;
   const oldTurn = F.turnChance;
   F.turnChance = 1;
+  // the network's stream shift can fill the live-discourse slots before
+  // the turn fires — clear the airwaves so the receipts have a channel
+  (state.discourses || []).forEach(d => { if (d.status === 'live') d.status = 'faded'; });
   KP.advanceWeek(state);
   F.turnChance = oldTurn;
   t.ok(c.master.turned, 'the closing notice posts at 2am');

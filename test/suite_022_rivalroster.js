@@ -173,7 +173,10 @@ const t = makeT('suite_022_rivalroster');
   t.ok((state.rivalLedger || {}).culls >= 1, 'the cuts are ledgered');
   t.ok((rival.recentMoves || []).some(m => /^Cut \d+ trainee/.test(m)),
     'and worn on the company card');
-  t.eq(floorKid.status, 'released', 'the named signee below the bar was not exempt');
+  // the network (v0.9.35): the named cut stops vanishing — she returns
+  // to the open board as a washout, file and history intact
+  t.eq(floorKid.status, 'prospect', 'the named signee below the bar was not exempt');
+  t.eq(floorKid.channel, 'washout', 'and her file is back on the open board');
   t.ok(floorKid.history.some(h => /seasonal evaluation/.test(h.text)),
     'her file says what happened');
   t.ok((state.rivalLedger || {}).namedCuts >= 1, 'named cuts are ledgered');

@@ -77,7 +77,10 @@ function ride(state, weeks) { for (let w = 0; w < weeks; w++) KP.advanceWeek(sta
   t.ok(her.flags.veteran === doomed.short, 'the file remembers the first house');
   t.ok(her.traineeContract, 'papered on arrival');
   t.ok(!state.freeAgents.some(f => f.personId === her.id), 'off the market');
-  // an unsigned name's window closes on its own
+  // an unsigned name's window closes on its own — and in reality the
+  // folded house is GONE from the scene by then (the fixture minted the
+  // class directly, so retire the letterhead the way a collapse would)
+  state.rivals = state.rivals.filter(r => r !== doomed);
   const other = state.people[state.freeAgents[0].personId];
   state.freeAgents.forEach(f => { f.until = state.week - 1; });
   KP.advanceWeek(state);

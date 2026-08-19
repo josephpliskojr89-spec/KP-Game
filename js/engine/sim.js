@@ -239,7 +239,10 @@
             const lvl = state.fiscal.pressure;
             if (lvl >= 3) state.trust = KP.clamp(state.trust + P.trustHitL3, 0, 100);
             else if (lvl === 2) state.trust = KP.clamp(state.trust + P.trustHitL2, 0, 100);
-            inbox.push({ kind: 'executive', urgent: lvl >= 2, text: pressureLetter(state, lvl, quarterNet, spree) });
+            // priority high (v0.9.35): the network's arrival notes made
+            // weeks louder, and the books' first warning was losing the
+            // weekly trim — the money speaks over the mail
+            inbox.push({ kind: 'executive', urgent: lvl >= 2, priority: 'high', text: pressureLetter(state, lvl, quarterNet, spree) });
           } else if (quarterNet >= 0 && state.fiscal.pressure > 0) {
             state.fiscal.pressure--;
             if (state.fiscal.pressure === 0) {

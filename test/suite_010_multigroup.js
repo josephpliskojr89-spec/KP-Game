@@ -30,7 +30,13 @@ function debutFirstGroup(seed) {
 {
   const state = KP.newGame('mg-rails', null, { legacy: false });
   state.budget = 400;
-  for (let i = 0; i < 3; i++) KP.signProspect(state, state.prospects[0]);
+  // the holdout can say no (v0.9.33) and the opening batch is small
+  // (v0.9.35) — walk the board like a real scout would
+  let signedN = 0;
+  for (const pid of state.prospects.slice()) {
+    if (signedN >= 3) break;
+    if (KP.signProspect(state, pid).ok) signedN++;
+  }
   const first = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'ONE', first, KP.roleHints(state, first.map(i => state.people[i])));
   const free = KP.freeTrainees(state);

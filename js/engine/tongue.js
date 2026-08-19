@@ -63,7 +63,9 @@
     for (let i = 0; i < n; i++) {
       const p = KP.generatePerson(rng, { status: 'prospect', usedNames,
         source: 'Global audition — ' + KP.regionLabel(regionId) });
-      // the file: home region, native tongue, a name from home
+      // the file: home region, native tongue, a name from home —
+      // and your circuit's tape is YOUR tape (channel privacy, v0.9.35)
+      p.channel = 'audition';
       p.origin = regionId;
       p.nativeLang = KP.marketLang(regionId);
       p.ko = rng.int(T.koStart[0], T.koStart[1]);

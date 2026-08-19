@@ -587,6 +587,18 @@
         else UI.toast(r.reason, true);
         break;
       }
+      case 'street-cast': {
+        const r = KP.streetCast(s);
+        UI.toast(r.ok ? 'The scouts hit the districts.' : r.reason, !r.ok);
+        if (r.ok) { App.save(); App.render(); }
+        break;
+      }
+      case 'open-call': {
+        const r = KP.holdOpenCall(s);
+        UI.toast(r.ok ? 'The open call is booked — callbacks are on the board.' : r.reason, !r.ok);
+        if (r.ok) { App.save(); App.render(); }
+        break;
+      }
       case 'pick-door': {
         App._door = t.dataset.door;   // the three doors (v0.9.28)
         App.render();

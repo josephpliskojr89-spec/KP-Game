@@ -316,6 +316,9 @@
             KP.recordDirected(state, sp.id, 'gaveTheSpeech', 2);
             sp.history.push({ week: state.week, text: 'Gave the acceptance speech on year-end television. Practiced it once in the van and then said something better.' });
           } else {
+            // the folded speech is a durable memory too (v0.9.35): the
+            // note alone was losing the weekly trim in loud weeks
+            sp.history.push({ week: state.week, text: 'The acceptance speech stayed folded in a jacket pocket — a nominated night that stayed one. It will need exactly one edit next year: the date.' });
             notes.push({ kind: 'development', personId: sp.id,
               text: KP.fillPro('The van ride home was quiet in the specific way of a nominated night that stayed one. ' + KP.displayName(sp) + '\u2019s acceptance speech stayed folded in a jacket pocket. {She} will not throw it away. Next year it will need one edit: the date.', sp) });
           }

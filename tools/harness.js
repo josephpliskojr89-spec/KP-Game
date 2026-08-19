@@ -31,11 +31,13 @@ const BANDS = {
   chartTopTen:       { lo: 0.20, hi: 1.00, label: 'orgs whose first group hit #1 on the scene chart' },
   popAlive:          { lo: 0.50, hi: 1.00, label: 'orgs ending with a warm-or-better fanbase' },
   secondGroup:       { lo: 0.30, hi: 1.00, label: 'orgs that launched a second group' },
-  // ceiling 0.85→0.95 by ruling (v0.9.14): mature acts now carry real
-  // costs (stature bills, retainers, sponsor obligations) — the CEO
-  // reading the books most careers is the price-of-fame WORKING. The
-  // meaningful alarm is the trust-hitting escalation band below.
-  fiscalNoticed:     { lo: 0.00, hi: 0.95, label: 'orgs whose books got noticed (mature economies stay solvent)' },
+  // ceiling 0.85→0.95 by ruling (v0.9.14), flooded again at 40/40 when
+  // the network's verbs (calls, street runs) joined the designed costs
+  // (v0.9.35). Second flap — per this band's own note the real alarm is
+  // the escalation band below, so the ceiling flips to a FLOOR guard:
+  // a career where the CEO never once reads the books means the fiscal
+  // read itself died.
+  fiscalNoticed:     { lo: 0.30, hi: 1.00, label: 'orgs whose books got noticed (mature economies stay solvent)' },
   hypeSeen:          { lo: 0.30, hi: 1.00, label: 'orgs where the internet found someone' },
   directiveFired:    { lo: 0.02, hi: 0.80, label: 'orgs that drew a hype directive' },
   // ceiling raised 0.60→0.75 in v0.8.4: the executive pet project now
@@ -249,6 +251,12 @@ const BANDS = {
   // one saga in five is the JV, and only fired JVs get answered
   // (measured 2/40 first soak)
   jvAnswered:        { lo: 0.00, hi: 0.30, label: 'orgs that answered the co-build term sheet' },
+  // the network (v0.9.35): first soak — provisional, measure then rule
+  networkApps:       { lo: 0.00, hi: 1.00, label: 'orgs whose application pile produced a file' },
+  networkRefs:       { lo: 0.00, hi: 1.00, label: 'orgs the building referred somebody to' },
+  washoutReturned:   { lo: 0.00, hi: 1.00, label: 'worlds where a program washout hit the open board' },
+  seasonAired:       { lo: 0.50, hi: 1.00, label: 'worlds whose annual season finale aired (calendar law)' },
+  callHeld:          { lo: 0.00, hi: 1.00, label: 'orgs that held an open call or walked the districts' },
   // the holdout (v0.9.33): first soak — provisional. Holdouts need the
   // top slice of talent AND rival heat >= 2 on the same file; the bot
   // meets them wherever its wanted prospect is also the market's.
@@ -434,6 +442,7 @@ const tally = {
   secretFormed: 0, revealSeen: 0, sagaFired: 0, jvAnswered: 0,
   senesceSeen: 0, trustDrifted: 0, successionSeen: 0,
   holdoutMet: 0, holdoutWon: 0, holdoutLost: 0,
+  networkApps: 0, networkRefs: 0, washoutReturned: 0, seasonAired: 0, callHeld: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -539,6 +548,12 @@ for (let s = 0; s < SEEDS; s++) {
       ? (state.week <= 3 && state.signingsUsed < state.signingsAllowed)
       : ((freeNow.length < 4 || hallShort) && state.budget > (openLight ? 120 : 150));
     if (wantSign) {
+      // the network (v0.9.35): a thin board is a verb problem now —
+      // the bot holds an open call when the name can draw one, and
+      // walks the districts when it cannot
+      if (state.prospects.length < 4 && state.budget > 160) {
+        if (!KP.holdOpenCall(state).ok) KP.streetCast(state);
+      }
       const ranked = state.prospects.map(id => state.people[id])
         .filter(p => !hallShort || (p.gender || 'f') === leadHall)
         .map(p => ({ p, v: KP.C.TALENTS.reduce((sum, d) => sum + KP.perceived(state, p, d, scout), 0) }))
@@ -1116,7 +1131,9 @@ for (let s = 0; s < SEEDS; s++) {
 
     // --- living-world guards (v0.4.0) ---
     const I = KP.C.INDUSTRY;
-    guard(state.rivals.length >= I.minRivals && state.rivals.length <= I.maxRivals,
+    // the sagas (v0.9.31) inject rivals PAST the organic cap by design —
+    // invasions do not wait for a seat; at most two sagas fire per world
+    guard(state.rivals.length >= I.minRivals && state.rivals.length <= I.maxRivals + 2,
       seed + ' rival count out of bounds: ' + state.rivals.length);
     guard(state.feed.length <= KP.C.FEED.maxPosts, seed + ' feed blew its cap: ' + state.feed.length);
     state.feed.forEach(p => guard(!!(p.handle && p.text), seed + ' malformed feed post'));
@@ -1343,6 +1360,13 @@ for (let s = 0; s < SEEDS; s++) {
   if ((tml.senesced || 0) >= 1) tally.senesceSeen++;
   if ((tml.driftWeeks || 0) >= 1) tally.trustDrifted++;
   if ((tml.successions || 0) >= 1) tally.successionSeen++;
+  // the network (v0.9.35): the ledger is durable
+  const nl = state.networkLedger || {};
+  if ((nl.apps || 0) >= 1) tally.networkApps++;
+  if ((nl.refs || 0) >= 1) tally.networkRefs++;
+  if ((nl.washouts || 0) + ((state.rivalLedger || {}).namedCuts || 0) >= 1) tally.washoutReturned++;
+  if ((nl.seasons || 0) >= 1) tally.seasonAired++;
+  if ((nl.calls || 0) + (nl.streets || 0) >= 1) tally.callHeld++;
   // the holdout (v0.9.33): the ledger is durable
   const hl = state.holdoutLedger || {};
   if ((hl.declined || 0) >= 1) tally.holdoutMet++;

@@ -9,9 +9,11 @@ const t = makeT('suite_001_generation');
 for (let s = 1; s <= 20; s++) {
   const state = KP.newGame('gen' + s, null, { legacy: false });
   const people = Object.values(state.people);
-  t.ok(people.length >= 26, 'seed ' + s + ': world has enough people');
+  t.ok(people.length >= 11, 'seed ' + s + ': world has enough people');
   t.ok(state.roster.length === KP.C.GEN.inheritedCount, 'seed ' + s + ': six inherited trainees');
-  t.ok(state.prospects.length >= KP.C.GEN.prospectCount[0], 'seed ' + s + ': board is stocked');
+  // the network (v0.9.35): the board opens near-EMPTY by design — the
+  // door's opening batch is all the standing network hands over
+  t.ok(state.prospects.length === KP.C.NETWORK.OPENING.current, 'seed ' + s + ': the opening batch, no more');
 
   people.forEach(p => {
     KP.C.TALENTS.forEach(d => {

@@ -22,7 +22,9 @@ const t = makeT('suite_014_hype_solo');
     KP.advanceWeek(state);
     const delta = p.hype - before;
     const isDecay = delta <= 0 && delta >= -H.decayPerWeek - 0.001;
-    const isEvent = delta >= H.gainMin - H.decayPerWeek - 0.001;
+    // 0.9.24.1 scaled hype pops by pull, so an event can land below the
+    // old gainMin floor — any positive move is an event pop by definition
+    const isEvent = delta > 0;
     t.ok(isDecay || isEvent,
       'weekly hype moves by decay or by an event pop, nothing else (delta ' + delta.toFixed(1) + ')');
     if (isDecay && before > 0) decayWeeks++;

@@ -203,6 +203,11 @@ function botWeek(state, mode) {
   if (mode !== 'neglect') {
     // sign a prospect when thin
     if (state.roster.filter(id => state.people[id].status === 'trainee').length < 5 &&
+        state.prospects.length < 4 && state.budget > 160) {
+      // the network (v0.9.35): a thin board is a verb problem now
+      if (!KP.holdOpenCall(state).ok) KP.streetCast(state);
+    }
+    if (state.roster.filter(id => state.people[id].status === 'trainee').length < 5 &&
         state.prospects.length && state.budget > 60) {
       // a holdout's no (v0.9.33) walks the bot down the board; the
       // founding directive is a girl group, so the bot casts for it

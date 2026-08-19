@@ -13,7 +13,9 @@ const t = makeT('suite_075_blankpage');
   t.eq(s.door, 'blank', 'the fourth door stamps');
   t.eq(s.company.name, 'Glasshouse Records', 'the name on the door is YOURS');
   t.eq(s.roster.length, 0, 'the practice rooms are empty');
-  t.ok(s.prospects.length >= 15, 'the same open board as everyone else');
+  // the network (v0.9.35): the board opens EMPTY here — the talent all
+  // exists, but the blank page has to choose who it uncovers
+  t.eq(s.prospects.length, 0, 'and so is the board — nothing but the verbs');
   t.eq(s.budget, KP.C.BLANK.warChest, 'a seed round, not a budget');
   t.eq(s.signingsAllowed, KP.C.BLANK.signings, 'the founder’s allowance');
   t.ok(Object.values(s.company.reputation).every(v => v === KP.C.BLANK.rep),
@@ -53,11 +55,15 @@ const t = makeT('suite_075_blankpage');
 {
   const s = KP.newGame('bp-wall', null, { door: 'blank' });
   s.budget = 600;
+  // the network (v0.9.35): the blank board opens EMPTY — the wall test
+  // earns its file the way the door does, through an open call
+  KP.holdOpenCall(s);
   let p = null;
   for (const id of s.prospects) {
     const c = s.people[id];
     if (KP.hash01([s.seed, c.id, 'grateful'].join('|')) >= KP.C.HOLDOUT.gratefulShare) { p = c; break; }
   }
+  if (!p) p = s.people[s.prospects[0]];
   p.talents.dance = { cur: 70, ceilLo: 82, ceilHi: 90, growth: 1 };
   s.rivals[0].interest[p.id] = 2;
   t.eq(KP.holdoutBar(s, p), null, 'rep 25 on every lane: the sought-after will not take your calls');
@@ -68,11 +74,17 @@ const t = makeT('suite_075_blankpage');
 // ---- hard, not impossible: the door is playable ------------------------
 {
   const s = KP.newGame('bp-play', null, { door: 'blank' });
+  // the real door loop now: verbs + the trickle, then sign the class
   let signed = 0;
-  for (const id of s.prospects.slice()) {
-    if (signed >= 5) break;
-    if ((s.people[id].gender || 'f') !== 'f') continue;   // the directive is a girl group
-    if (KP.signProspect(s, id).ok) signed++;
+  let vguard = 0;
+  while (signed < 5 && vguard++ < 60) {
+    if (!KP.holdOpenCall(s).ok) KP.streetCast(s);
+    for (const id of s.prospects.slice()) {
+      if (signed >= 5) break;
+      if ((s.people[id].gender || 'f') !== 'f') continue;   // the directive is a girl group
+      if (KP.signProspect(s, id).ok) signed++;
+    }
+    if (signed < 5) KP.advanceWeek(s);
   }
   t.ok(signed >= 4, 'a founding class can be signed from the overlooked');
   const ids = s.roster.slice(0, Math.min(5, signed));

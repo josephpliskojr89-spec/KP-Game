@@ -461,13 +461,19 @@
             })
             .sort((a0, b0) => peakTalent(a0) - peakTalent(b0));
           floor.slice(0, R.namedMax).forEach(pc => {
-            pc.status = 'released';
+            // the washout returns (v0.9.35, §75): a named cut stops
+            // vanishing — the file lands on the open board, polish and
+            // history intact, for whoever values the overlooked
+            pc.status = 'prospect';
             pc.company = null;
+            pc.channel = 'washout';
+            pc.observations = Math.max(pc.observations || 0, 2);
+            state.prospects.push(pc.id);
             pc.history.push({ week: state.week,
               text: 'Cut at ' + rival.short + '’s seasonal evaluation. Years of practice rooms, one meeting.' });
             state.rivalLedger.namedCuts++;
             notes.push({ kind: 'scouting', personId: pc.id,
-              text: KP.fillPro(rival.short + ' cut ' + KP.displayName(pc) + ' at their seasonal evaluation — the same trainee their scouts took off our board. {She} deserved a company with a plan for {her}.', pc) });
+              text: KP.fillPro(rival.short + ' cut ' + KP.displayName(pc) + ' at their seasonal evaluation — the same trainee their scouts took off our board. {Pos} file is back on the open board, trained and overlooked, and {she} deserved a company with a plan for {her}.', pc) });
           });
         }
       }

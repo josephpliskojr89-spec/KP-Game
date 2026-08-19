@@ -104,7 +104,12 @@ async function main() {
   // --- scouting board: look, then sign ---
   await tap('[data-action=talent-sub][data-sub=board]');
   await page.waitForSelector('.talent-row');
-  ok(await page.$$eval('.talent-row', els => els.length) >= 20, 'prospect board is stocked');
+  // the network (v0.9.35): the board opens with the door's batch, not a
+  // crowd — and the network card with its verbs renders above it
+  ok(await page.$$eval('.talent-row', els => els.length) >= 4, 'the opening batch is on the board');
+  ok(/The network:/.test(await page.textContent('#screen')), 'the network read renders in words');
+  ok(await page.$('[data-action=street-cast]') !== null, 'street casting is a button');
+  ok(await page.$('[data-action=open-call]') !== null, 'and so is the open call');
   ok((await page.textContent('#screen')).match(/watching|interested|circling/), 'rival interest visible on the board');
   const budgetBefore = parseInt((await page.textContent('#tb-budget')).replace(/\D/g, ''), 10);
   const lookCost = await page.evaluate(() => KP.C.SCOUT.observeCost);
@@ -236,7 +241,8 @@ async function main() {
   await page.evaluate(() => { KP.App.state.budget += 40; KP.App.save(); });
   await tap('[data-nav=studio]');
   await page.waitForSelector('.demo-card');
-  ok(await page.$$eval('.demo-card', els => els.length) === 4, 'four demos on the desk');
+  // the pros pitch four; a member-written demo can make it five (v0.9.7)
+  ok(await page.$$eval('.demo-card', els => els.length) >= 4, 'the pitch meeting is stocked');
   await tap('.demo-card');
   await page.waitForSelector('.concept-scroll');
   ok((await page.textContent('#screen')).includes('✦'), 'the demo declares its natural lean');

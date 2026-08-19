@@ -83,6 +83,7 @@
       source: LANE_SOURCE[school.lane] });
     state.nextPersonId = KP.peekNextId();
     p.schoolId = school.id;
+    p.channel = 'school';   // the public landscape (v0.9.35): every desk sees a showcase
     if (school.rep > S.baseRep) {
       const bonus = Math.round((school.rep - S.baseRep) / (100 - S.baseRep) * S.repTalentBonus);
       const laneKeys = school.lane === 'allround' ? ['vocals', 'dance'] : [school.lane];

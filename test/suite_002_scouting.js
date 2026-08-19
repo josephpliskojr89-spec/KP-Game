@@ -83,7 +83,12 @@ t.ok(KP.C.SCOUT.baseReadWidth > KP.C.SCOUT.minReadWidth, 'fog actually narrows o
     return p2 && p2.status === 'prospect' &&
       p2.talents.vocals.cur + p2.talents.dance.cur + p2.talents.rap.cur > before[i];
   });
-  t.ok(grew.length >= 5, 'the academies kept training while the desk read old reports (' + grew.length + ' grew)');
+  // the network (v0.9.35): the opening board is a handful now, and a
+  // small board gets picked clean by rivals — the claim is that the
+  // SURVIVORS kept training, not a quota sized for the old crowd
+  const survivors = ids0.filter(id => st2.people[id] && st2.people[id].status === 'prospect');
+  t.ok(grew.length >= Math.max(1, survivors.length - 1),
+    'the academies kept training while the desk read old reports (' + grew.length + '/' + survivors.length + ' survivors grew)');
   // people in the building are never behind a dated report
   const tr = st.people[st.roster[0]];
   const eTr = KP.evaluate(st, tr);

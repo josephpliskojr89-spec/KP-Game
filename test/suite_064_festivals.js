@@ -130,7 +130,7 @@ function rideTo(state, absWeek, handler) {
   t.ok(!state.awardSeason, 'fixture: the ceremony resolved');
   t.ok(!state.awardNightPlan, 'the plan is consumed with the night');
   const spoke = speaker.history.some(h => /acceptance speech on year-end/.test(h.text));
-  const folded = state.inbox.some(n => /speech stayed folded/.test(n.text));
+  const folded = speaker.history.some(h => /stayed folded/.test(h.text));   // durable, trim-proof
   t.ok(spoke || folded, 'the night ends with the speech — given, or folded in a pocket');
   if (spoke) {
     t.ok((speaker.directed || []).some(d => d.kind === 'gaveTheSpeech'), 'and she remembers the mic');

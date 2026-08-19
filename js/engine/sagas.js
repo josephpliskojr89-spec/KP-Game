@@ -152,6 +152,7 @@
     for (let i = 0; i < n; i++) {
       const region = KP.C.REGIONS[Math.floor(rng.next() * KP.C.REGIONS.length)].id;
       const p = KP.generatePerson(rng, { status: 'prospect', usedNames, source: sourceLabel });
+      p.channel = 'audition';   // the pact's sweep is your tape (v0.9.35)
       p.origin = region;
       p.nativeLang = KP.marketLang(region);
       p.ko = rng.int(T.koStart[0], T.koStart[1]);

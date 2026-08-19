@@ -10,7 +10,9 @@ const t = makeT('suite_017_genrealism');
 
 // gather a big generated population
 const young = [], old = [], all = [];
-for (let s = 0; s < 30; s++) {
+// the network (v0.9.35): boards open with a handful, not a crowd —
+// the population sample needs more worlds to stay statistical
+for (let s = 0; s < 120; s++) {
   const st = KP.newGame('real' + s, null, { legacy: false });
   st.prospects.forEach(id => {
     const p = st.people[id];

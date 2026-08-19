@@ -4184,6 +4184,83 @@ never #1, clean through a bursting heir saga. Bots cast for the
 directive's gender now (the mixed board made group formation
 flaky in founded runs — fixed for all modes).
 
+## §75 The network (v0.9.35 — SHIPPED) — recruitment reshaped
+
+Owner, in full: *"we have no applicant system at all, and we aren't
+simulating a gap in scouting ability for a brand new company vs a
+major. a small, brand new company... would [lean] really on
+applicants, referrals, and whatever publicly visible prospects are
+out there. the washouts from other bigger programs; competition
+show contestants who didn't make it; social media; and street
+casting. holding auditions would be another option... essentially,
+I'm saying the board should be empty at game start. all of the
+prospects already exist, but you have to choose who you uncover.
+bigger companies already have the academy relationships, wide
+scouting networks, countless applicants, etc. we should simulate
+that."* Ruled the priority release: *"it reshapes a core system.
+the board was good for our needs but now we have the foundation to
+expand it."*
+
+**The inversion.** The board stops being the world and becomes what
+your NETWORK can see. No new meter — the network is read live from
+numbers that already exist (power-ranking score, best reputation
+lane, company age, school partnerships, debuted idols). The board
+opens near-empty and fills through CHANNELS, each with its own
+cost, quality, fog, and — the part that makes it a game —
+CONTESTEDNESS: private channels (applications, referrals, street
+casting, your audition calls) are yours alone — rival scouts never
+see your mail, so private kids rarely accrue the heat that makes a
+holdout — while the public landscape (school leads, washouts,
+season finalists, viral kids) is visible to every desk in the city
+and arrives contested. The small company's honest strategy is the
+private stream and the washouts; the major's is everything at once.
+
+**The channels.** Applications: inbound weekly, volume scaled by
+the network read and spiked by recent hits — a major gets the pile,
+an unproven letterhead gets envelopes. Referrals: the building's
+people know people — low volume, LOW FOG (a referral arrives
+half-read), scaled by roster and staff. Washouts: rival seasonal
+evaluations' named cuts stop vanishing — they return to the open
+board with their history stamped ("cut at Aurum's evaluation"),
+trained polish, and no letterhead loyalty; plus the anonymous
+stream of big-program washouts. The season: an annual generated
+competition show airs in the world and its finalists who didn't
+make it land on the public board with followings attached and heat
+already on them. Social media: the viral kid every desk sees the
+same morning. Street casting: the always-available verb — cheap,
+wide variance, the occasional gem. The open call: the audition
+verb comes home — turnout scales with your name (the major's line
+around the block, the blank page's folding chairs). Doors open
+with the network they'd really have: the major's standing channels
+deliver a wide board on day one; the inheritance a handful; the
+fresh label a couple of files; the blank page nothing but the
+verbs. Old saves keep their boards — channels govern arrivals,
+not history; channel-less files read as public.
+
+**As built (network.js, weekly order 618).** `KP.networkRead`
+calibrated at the doors (blank ~0.12, fresh ~0.14, inheritance
+~0.44, major ~0.65) — every term a lever the player already plays
+(ranking score, best rep lane, weeks alive, partnerships, debuted
+idols). Opening batches 12/5/3/0 (major/current/fresh/blank).
+Channel privacy is one filter in `pickRivalTarget`; referrals and
+washouts arrive WITH their dated report (`takeReads` at mint — the
+trusted look exists). The season: one of five generated show names
+per year, finale at week 34, ignores the board cap (world events
+do not check your desk). `KP.streetCast` (8, 4-wk cooldown, 15%
+gem) and `KP.holdOpenCall` (40, 30-wk cooldown, turnout 2 +
+floor(net×4)) are the verbs. Board cap 24. Two engine regressions
+the louder mail surfaced and fixed for good: the fiscal pressure
+letter now carries priority high (it was losing the weekly trim),
+and the folded acceptance speech writes a durable history line.
+Arrival notes yield the trim first (priority flavor). The board
+census: fiscalNoticed flipped ceiling→floor per its own v0.9.14
+note (second flap); the harness rival-count invariant learned the
+saga overflow (+2). Longhaul saves run ~100KB lighter — the world
+stopped minting speculative files nobody would ever see. Suite
+076 (26 checks); 13 suites re-pointed at the new world, each by
+its own rules; e2e 97 with the network card, both verbs, and the
+door-sized board asserted in the browser.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -6541,3 +6618,35 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 26), soak clean (182 bands), longhaul 7x620 clean, e2e 95,
 > lockstep 0.9.34. Rode to main. Slot 13 (the imprint — the
 > associate label) next, on approval.
+
+> **v0.9.35 — the network (§75).** Owner: "the board should be
+> empty at game start. all of the prospects already exist, but
+> you have to choose who you uncover... bigger companies already
+> have the academy relationships, wide scouting networks,
+> countless applicants. we should simulate that" — ruled the
+> priority release. The board is what your NETWORK can see, read
+> live from numbers that already exist (never stored). Boards
+> open at 12/5/3/0 by door and fill through channels: applications
+> (private, scaled by the name, spiked by hits, the occasional
+> believer), referrals (private, half-read, the building knows
+> people), washouts (rival named cuts stop vanishing — back on
+> the open board with history stamped; plus the anonymous
+> stream), the season (annual generated survival-show finale —
+> finalists with followings and heat, public and contested),
+> viral kids, school leads — and two verbs: street casting
+> (cheap, always available, occasional gem) and the open call
+> (turnout scales with the name: the major's line around the
+> block, the blank page's folding chairs). Channel privacy is
+> the game: rival scouts never see your mail, so private kids
+> rarely become holdouts — the small company's honest strategy,
+> exactly as planned in the sitting. Doors differentiate cleanly
+> in soak (blank lives on applications+referrals). Two latent
+> regressions fixed: the fiscal letter now outranks the mail
+> trim; the folded speech is durable history. fiscalNoticed
+> flipped ceiling->floor per its own note; rival-count invariant
+> learned the saga overflow. Saves ~100KB lighter at year 13.
+> Numbers: battery 76/76 (suite 076, 26; 13 suites re-pointed at
+> the new world by their own rules), soak clean (187 bands),
+> longhaul 7x620 clean, e2e 97 (network card + verbs asserted in
+> the browser), lockstep 0.9.35 (66 modules - network.js). Rode
+> to main. Slot 13 (the imprint) next, on approval.

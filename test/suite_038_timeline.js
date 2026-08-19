@@ -24,10 +24,13 @@ function debuted(seed) {
 {
   const { state, g } = debuted('tl-bias');
   const p = state.people[g.members[0]];
-  t.eq(Object.keys(state.feedCast || {}).length, 0, 'the cast starts unattached — taste is earned');
+  // the ride to debut can now produce an organic viral adoption (the
+  // network's stream shift) — the claim is that HER adoption is earned
+  // by HER moment, so measure her column, not the whole cast
+  const hers0 = KP.biasFor(state, p.id).length;
   KP.recordViral(state, p);
   const adopters = KP.biasFor(state, p.id);
-  t.ok(adopters.length >= 1, 'a viral moment gets her adopted (' + adopters.join(', ') + ')');
+  t.ok(adopters.length >= Math.max(1, hers0), 'a viral moment gets her adopted (' + adopters.join(', ') + ')');
   const before = adopters.slice();
   KP.recordViral(state, p);
   t.ok(KP.biasFor(state, p.id).length >= before.length, 'more moments, more devotion');

@@ -285,43 +285,10 @@
       notes.push({ kind: 'scouting', text: 'Scout Im thinned the board: ' + stale.length +
         ' long-listed lead' + (stale.length === 1 ? '' : 's') + ' aged past the market and signed elsewhere, or went back to school, or both. The board is for the ones still reachable.' });
     }
-    // fresh leads keep the board alive
-    if (rng.chance(S.newProspectChance)) {
-      // some walk-ins come through the regional schools (v0.9.16): the
-      // pipeline has addresses now, and reputation pulls the eye
-      if (state.schools && rng.chance(0.4)) {
-        const weighted = state.schools.map(s => ({ s, w: 1 + s.rep / 40 }));
-        const total = weighted.reduce((sum, x) => sum + x.w, 0);
-        let roll = rng.next() * total;
-        let school = weighted[weighted.length - 1].s;
-        for (const x of weighted) { roll -= x.w; if (roll <= 0) { school = x.s; break; } }
-        const p = KP.spawnSchoolLead(state, rng, school,
-          { firstLook: school.partnerUntil > state.week });
-        notes.push({ kind: 'scouting', text: 'New lead: ' + KP.displayName(p) + ', ' + p.age + ', out of ' +
-          school.name + ' (' + school.city + '). The school’s stamp is on the file.' });
-      } else {
-        // person ids come from state, never from module memory — saves depend on it
-        KP.resetIds(state.nextPersonId || KP.peekNextId());
-        const usedNames = new Set(Object.values(state.people).map(x => x.name.given.toLowerCase()));
-        // boys walk into open auditions too (v0.8.4) — and when the
-        // house is CASTING a boy group, the audition line answers the
-        // notice (0.9.26.1, owner: "trouble casting viable boy groups"
-        // — at a 25% male stream, a five-boy lineup meant signing every
-        // male lead unseen while girl lineups picked from triple the
-        // pool). Demand reads the open greenlights and the halls.
-        const wantBoys = (KP.openMandates ? KP.openMandates(state) : []).some(m =>
-          m.kind !== 'solo' && (m.gender === 'm' || (!m.gender &&
-            !KP.groups(state).some(g => g.debuted && !g.retiredWeek && g.gender === 'm'))));
-        const gender = rng.chance(wantBoys ? KP.C.GEN.maleCastingShare
-          : KP.C.GEN.maleLeadShare) ? 'm' : 'f';
-        const p = KP.generatePerson(rng, { status: 'prospect', usedNames, gender });
-        state.nextPersonId = KP.peekNextId();
-        state.people[p.id] = p;
-        state.prospects.push(p.id);
-        KP.socialOf(state, p);   // minted at the door, not on first look
-        notes.push({ kind: 'scouting', text: 'New lead: ' + KP.displayName(p) + ', ' + p.age + ', via ' + p.source.toLowerCase() + '. First report is on the board.' });
-      }
-    }
+    // fresh leads arrive through the NETWORK now (v0.9.35, §75):
+    // the walk-in stream moved to network.js, where channels scale
+    // with the company's real reach — this weekly keeps the rival
+    // side, the board's training, the call-back, and the age-out
     return notes;
   };
 
@@ -329,7 +296,12 @@
     // a partnered school's leads reach our desk first (v0.9.16): rival
     // scouts don't get a seat at those showcases until the window lapses
     const pool = state.prospects.map(id => state.people[id]).filter(Boolean)
-      .filter(p => (p.flags.firstLookUntil || 0) <= state.week);
+      .filter(p => (p.flags.firstLookUntil || 0) <= state.week)
+      // channel privacy (v0.9.35): rival scouts never see your mail —
+      // applicants, referrals, street finds, and your call tapes are
+      // yours alone until a signature makes them news. Channel-less
+      // files (old saves, the public landscape) stay open season.
+      .filter(p => !KP.CHANNEL_PRIVATE[p.channel]);
     if (!pool.length) return null;
     // rivals read through their own (coarse) fog: perceived best by philosophy
     const scored = pool.map(p => {

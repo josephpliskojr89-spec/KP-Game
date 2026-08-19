@@ -22,10 +22,23 @@
     } else {
       html.push('<div class="pad" style="margin:10px 0 2px;font-size:.74rem;color:var(--ink-dim)">' +
         'A targeted look costs ' + KP.C.SCOUT.observeCost + ' — one trip, a real read, the question marks come off. Reports date: the academies keep training. Signing costs rise when rivals circle.</div>');
+      // the network (v0.9.35): the board is what your reach can see
+      {
+        const net = KP.networkRead(state);
+        const scd = state.week - (state.streetCastWeek || -999) < KP.C.NETWORK.STREET.cooldownWeeks;
+        const ccd = state.week - (state.openCallWeek || -999) < KP.C.NETWORK.CALL.cooldownWeeks;
+        html.push('<div class="card" style="padding:12px">' +
+          '<div style="font-size:.74rem;color:var(--ink-dim);margin-bottom:8px">The network: ' + UI.esc(KP.networkWord(net)) +
+          '. Applications and referrals arrive on their own — and they are YOURS alone. The public landscape (washouts, season finalists, the viral kids) is every desk’s to fight over.</div>' +
+          '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+          '<button class="btn small"' + (scd ? ' disabled style="opacity:.4"' : '') + ' data-action="street-cast">Street casting · ' + KP.C.NETWORK.STREET.cost + '</button>' +
+          '<button class="btn small"' + (ccd ? ' disabled style="opacity:.4"' : '') + ' data-action="open-call">Open call · ' + KP.C.NETWORK.CALL.cost + '</button>' +
+          '</div></div>');
+      }
       state.prospects.map(id => state.people[id])
         .sort((a, b) => KP.rivalHeat(state, b.id).max - KP.rivalHeat(state, a.id).max)
         .forEach(p => html.push(prospectRow(state, p)));
-      if (!state.prospects.length) html.push('<div class="card">The board is empty. Leads arrive weekly.</div>');
+      if (!state.prospects.length) html.push('<div class="card">The board is empty — the talent is all out there, waiting to be uncovered. Applications find a name, referrals find a friend, the public landscape finds everyone at once, and shoe leather finds the rest.</div>');
       // the world's auditions (v0.9.29): fund a circuit, mint a class
       html.push('<div class="kicker">Global auditions</div>');
       html.push('<div class="card"><div style="font-size:.78rem;color:var(--ink-dim);margin-bottom:8px">Fund an audition tour — ' +
@@ -119,6 +132,12 @@
       '<div class="t-sub">' + p.age + ' · ' + UI.esc(sourceLabel(state, p)) + ' · ' + looksWord(state, p) + '</div>' +
       '<div class="t-read">“' + UI.esc(best.line) + '”</div>' +
       '<div class="t-chips">' + UI.heatChips(state, p.id) +
+      (p.channel && { application: 'applicant', referral: 'referred', street: 'street cast',
+        washout: 'washout', social: 'went viral', showKid: 'season finalist' }[p.channel]
+        ? '<span class="chip' + (KP.CHANNEL_PRIVATE[p.channel] ? ' cool' : '') + '">' +
+          { application: 'applicant', referral: 'referred', street: 'street cast',
+            washout: 'washout', social: 'went viral', showKid: 'season finalist' }[p.channel] + '</span>'
+        : '') +
       (KP.holdoutOf(state, p)
         ? '<span class="chip hot">' + ((p.holdout || {}).callback ? (p.gender === 'm' ? 'he called back' : 'she called back')
           : (p.holdout || {}).visits ? 'holding out · visit ' + p.holdout.visits

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.34',
+    VERSION: '0.9.35',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1429,6 +1429,44 @@
       signings: 6,         // the founder's allowance (a class needs 4-6)
       rep: 25,             // Unproven label, every lane
       trust: 55,           // the money believes in you — provisionally
+    },
+    // the network (v0.9.35, §75) — "the board should be empty at game
+    // start. all of the prospects already exist, but you have to choose
+    // who you uncover." The board is what your network can see; the
+    // network is READ from numbers that already exist, never stored.
+    // Private channels are yours alone (no rival heat = rarely
+    // holdouts); the public landscape arrives contested.
+    NETWORK: {
+      boardCap: 24,            // arrivals wait when the board is full
+                               // (the season's finale ignores the cap —
+                               // world events do not check your desk)
+      OPENING: { major: 12, current: 5, fresh: 3, blank: 0 },
+      APP: {                   // applications: inbound, scaled by the name
+        base: 0.06, perNetwork: 0.30,
+        hitSpike: 2.0, hitWindow: 10,  // a hot release spikes the pile
+        believerChance: 0.15,  // some kids apply because of your STORY
+      },
+      REF: {                   // referrals: the building knows people
+        base: 0.04, perRoster: 0.008,
+        observations: 2,       // a referral arrives half-read
+      },
+      WASH: { mintChance: 0.04, ageMin: 17, ageMax: 21, polishBump: 5 },
+      SHOW: {                  // the season: an annual competition show
+        finaleWoy: 34, minted: [2, 3], hype: [25, 45],
+        followers: [60000, 180000],
+        NAMES: ['STARFORGE', 'THE FINAL LINEUP', 'DEBUT OR NOTHING',
+          'CLASS OF NEXT YEAR', 'ELEVEN LIGHTS'],
+      },
+      SOCIAL: { chance: 0.03, hype: [20, 35] },
+      STREET: {                // shoe leather, not reputation
+        cost: 8, cooldownWeeks: 4, minted: [1, 2],
+        gemChance: 0.15, gemBump: 8,
+      },
+      CALL: {                  // the open call: turnout scales with the name
+        cost: 40, cooldownWeeks: 30, baseMinted: 2, perNetwork: 4,
+      },
+      schoolChance: 0.08,      // the school pipeline keeps walking in,
+      schoolPerNetwork: 0.12,  // wider for the connected house
     },
     // the portfolio (v0.9.26, §69) — "a major company might only debut
     // a new girl group once every 5 to 7 years. essentially one per

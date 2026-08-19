@@ -283,8 +283,14 @@
     // --- the regional schools (v0.9.16): the map exists before you do
     KP.generateSchools(state, rng);
 
-    // --- external prospect board
-    const count = rng.int(KP.C.GEN.prospectCount[0], KP.C.GEN.prospectCount[1]);
+    // --- external prospect board: near-EMPTY now (v0.9.35, §75 — "the
+    // board should be empty at game start... you have to choose who you
+    // uncover"). Each door opens with the network it would really have:
+    // the major's standing channels deliver a wide board on day one,
+    // the inheritance a handful, the fresh label a couple of files,
+    // the blank page nothing but the verbs.
+    const count = KP.C.NETWORK.OPENING[door] != null
+      ? KP.C.NETWORK.OPENING[door] : KP.C.NETWORK.OPENING.current;
     let mostCharismatic = null;
     for (let i = 0; i < count; i++) {
       // the opening board leans female (the mandate is a girl group) but
@@ -301,7 +307,8 @@
       state.prospects.push(p.id);
       if (!mostCharismatic || p.talents.charisma.cur > mostCharismatic.talents.charisma.cur) mostCharismatic = p;
     }
-    // scenario beat: two rivals already circle the most charismatic prospect
+    // scenario beat: two rivals already circle the most charismatic
+    // prospect (skipped naturally when a door opens with no board)
     if (mostCharismatic) {
       state.rivals.forEach(r => { r.interest[mostCharismatic.id] = 2; });
     }
@@ -338,7 +345,9 @@
     state.executive.intro = opener.intro;
     const open = [
       { kind: 'executive', urgent: true, text: state.executive.name + ' — ' + opener.intro + ' ' + opener.exec },
-      { kind: 'scouting', text: 'Scout Im left the prospect board on your desk with a sticky note: “The good ones never wait. Neither do Novaline and Aurum.”' },
+      { kind: 'scouting', text: count
+        ? 'Scout Im left the prospect board on your desk with a sticky note: “The good ones never wait. Neither do Novaline and Aurum.”'
+        : 'Scout Im left an EMPTY board on your desk, with a sticky note: “The talent is all out there. Applications, referrals, the washouts, the street, an open call when we can afford one — we choose who we uncover. That is the whole job.”' },
       { kind: 'company', text: opener.welcome },
     ];
     open.forEach(n => { n.week = 1; n.read = false; n.id = 'm' + (state.nextMsgId++); });
