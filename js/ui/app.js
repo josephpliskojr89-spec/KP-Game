@@ -129,7 +129,9 @@
   function startCareer() {
     const name = (document.getElementById('nc-name').value || '').trim() || 'A&R Manager';
     const seedRaw = (document.getElementById('nc-seed').value || '').trim();
-    App.state = KP.newGame(seedRaw || null, name, { door: App._door || 'current' });
+    const coEl = document.getElementById('nc-company');
+    App.state = KP.newGame(seedRaw || null, name, { door: App._door || 'current',
+      companyName: coEl ? coEl.value : '' });
     App.mode = 'game';
     App.save();
     go('desk');

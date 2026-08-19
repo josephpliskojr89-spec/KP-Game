@@ -204,8 +204,10 @@ function botWeek(state, mode) {
     // sign a prospect when thin
     if (state.roster.filter(id => state.people[id].status === 'trainee').length < 5 &&
         state.prospects.length && state.budget > 60) {
-      // a holdout's no (v0.9.33) walks the bot down the board
-      for (const pid of state.prospects.slice(0, 3)) {
+      // a holdout's no (v0.9.33) walks the bot down the board; the
+      // founding directive is a girl group, so the bot casts for it
+      const girls = state.prospects.filter(id => (state.people[id].gender || 'f') === 'f');
+      for (const pid of (girls.length ? girls : state.prospects).slice(0, 3)) {
         if (KP.signProspect(state, pid).ok) break;
       }
     }
@@ -213,7 +215,9 @@ function botWeek(state, mode) {
     const own = state.groups.filter(g => !g.legacy);
     const free = KP.freeTrainees(state);
     if (!own.length && free.length >= 5 && wk >= 16) {
-      const ids = free.slice(0, 5);   // freeTrainees returns ids
+      // one group, one gender — and the founding greenlight is female
+      const fFree = free.filter(id => (state.people[id].gender || 'f') === 'f');
+      const ids = (fFree.length >= 5 ? fFree : free).slice(0, 5);   // freeTrainees returns ids
       KP.proposeGroup(state, 'AUDITLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
     }
     // hiatus a worn group; comeback everything else on the calendar
@@ -279,11 +283,13 @@ const SCENARIOS = [
   { seed: 'haul-neglect', mode: 'neglect' },     // the world alone, 13 years
   { seed: 'haul-founder', mode: 'founder' },     // walk out mid-run, keep going
   { seed: 'haul-service', mode: 'service' },     // the boy-group decade (v0.9.23)
+  { seed: 'haul-blank', mode: 'blank' },         // hard mode from nothing (v0.9.34)
 ];
 
 const sizes = {};
 for (const sc of SCENARIOS) {
-  const state = KP.newGame(sc.seed);
+  const state = KP.newGame(sc.seed, null,
+    sc.mode === 'blank' ? { door: 'blank', companyName: 'Audit Blank House' } : undefined);
   if (sc.mode === 'service') seedBoyGroup(state);
   let founded = false;
   for (let w = 0; w < WEEKS; w++) {

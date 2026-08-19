@@ -411,20 +411,27 @@
     major: { title: 'The major', chips: '<span class="chip gold">top-three house</span><span class="chip cool">two flagships mid-era</span><span class="chip hot">everything to lose</span>',
       quote: '“Everything in this building works. Your job is to keep that true — and to know when the generation turns.”',
       copy: 'The infrastructure is in place: a girl-group flagship, a boy-group flagship, a deep bench, real money — and the doctrine active from day one. New groups come once a generation here. The game is stewardship: the clocks, the renewals, the overtake to defend. A major has everything, which is exactly the problem.' },
+    blank: { title: 'The blank page', chips: '<span class="chip">name your own company</span><span class="chip cool">empty practice rooms</span><span class="chip hot">hard mode</span>',
+      quote: '“The money is real and the patience is finite. Show us why you needed your own name on the door.”',
+      copy: 'Registered last month: no trainees, no catalog, no reputation — a name you choose and a seed round you answer for, to a board with three seats and a runway chart. The recruits everyone wants will not take your calls yet; you build from the overlooked until the ranking says otherwise, and the first time a holdout calls YOU back, you will know exactly what it cost.' },
   };
   UI.renderNewCareer = function (door) {
     door = door || 'current';
     const d = DOORS[door];
-    const card = k => '<button class="btn small' + (k === door ? ' primary' : ' ghost') + '" style="flex:1' +
+    const card = k => '<button class="btn small' + (k === door ? ' primary' : ' ghost') + '" style="flex:1 1 46%' +
       (k === door ? '' : ';border:1px solid var(--line)') + '" data-action="pick-door" data-door="' + k + '">' + DOORS[k].title + '</button>';
     return '<div class="nc-wrap">' +
       '<div style="margin-bottom:10px"><button class="btn small" data-action="title-back">‹ Title</button></div>' +
       '<div class="d-label">New career</div>' +
-      '<div class="nc-co">Hanseong<br>Culture Group</div>' +
-      '<div style="display:flex;gap:6px;margin:10px 0 4px">' + card('fresh') + card('current') + card('major') + '</div>' +
+      '<div class="nc-co">' + (door === 'blank' ? 'Your Name<br>Here' : 'Hanseong<br>Culture Group') + '</div>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px">' + card('fresh') + card('current') + card('major') + card('blank') + '</div>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px">' + d.chips + '</div>' +
       '<div class="nc-quote">' + (d.quote || '“I don’t need five perfect trainees. I need one group people remember.”') + '</div>' +
       '<div class="nc-p">' + d.copy + '</div>' +
+      (door === 'blank'
+        ? '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">Company name</label>' +
+          '<input class="nc-input" id="nc-company" placeholder="Paper Label" maxlength="28">'
+        : '') +
       '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">Your name</label>' +
       '<input class="nc-input" id="nc-name" placeholder="A&R Manager" maxlength="24">' +
       '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">World seed <span style="color:var(--ink-faint)">(optional)</span></label>' +

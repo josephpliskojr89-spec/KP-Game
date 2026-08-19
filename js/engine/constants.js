@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.33',
+    VERSION: '0.9.34',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1416,6 +1416,19 @@
       premium: 1.4,         // the market's read is priced in when she signs
       rivalPrestigeBar: 55, // she refuses the small houses too — only the
                             // heir's bankroll jumps her bar with money
+    },
+    // the blank page (v0.9.34, §74 second half) — the fourth door:
+    // "name your own company, start with no trainees, and no
+    // reputation. hard mode, essentially." Built as THE FOUNDING AT
+    // WEEK ONE, WITHOUT THE FAME: state.founded from day one, the
+    // founder's board (§73) as the pressure layer, the holdout
+    // (v0.9.33) as the wall — the sought-after kids will not take
+    // your calls until the ranking says otherwise.
+    BLANK: {
+      warChest: 240,       // the seed round — the runway memo fires at 25%
+      signings: 6,         // the founder's allowance (a class needs 4-6)
+      rep: 25,             // Unproven label, every lane
+      trust: 55,           // the money believes in you — provisionally
     },
     // the portfolio (v0.9.26, §69) — "a major company might only debut
     // a new girl group once every 5 to 7 years. essentially one per

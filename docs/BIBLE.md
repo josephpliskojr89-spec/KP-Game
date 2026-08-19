@@ -4077,7 +4077,7 @@ successionSeen (silence-asserted — era math says none inside 140
 weeks), longhaul invariants (non-founded ⇒ ≥1 succession; founded
 ⇒ board seated) plus the time ledger printed per scenario.
 
-## §74 The holdout + the blank page (holdout SHIPPED v0.9.33; the blank page next)
+## §74 The holdout + the blank page (BOTH SHIPPED — v0.9.33 + v0.9.34)
 
 Owner, in full: *"I'd like potential trainees to have agency. a
 particularly talented and highly sought after recruit wouldn't
@@ -4162,6 +4162,27 @@ until the ranking says otherwise and the first holdout calls YOU
 back. That arc (nobody → the call-back) is the door's whole
 fantasy, and the door tunes its war chest and signing cap against
 MEASURED holdout rates, not guesses.
+
+**As built (v0.9.34, newgame.js blankSeed + the §73 machinery).**
+`newGame(seed, name, {door:'blank', companyName})`: the inherited
+class is deleted whole (the shared seeding stream stays
+byte-identical across doors), roster empty, budget = the war chest
+(240; the §73 runway memo fires below 25% of it), trust 55,
+signings 6 (the founder's allowance), reputation 25 in every lane
+(Unproven label), `state.founded` stamped week zero so the
+founder's board seats itself at the first tick, no succession
+ever, no theOffer ever — you named it (custom input on the door
+card, default "Paper Label"), you own it, you answer to the
+money. The founding directive (girl group, 18 months) is the
+opening greenlight, same as every door; OPENERS.blank speaks the
+investor's line. The holdout is the wall exactly as planned: rep
+25 clears no lane and a four-row pond clears no rank — suite 075
+(26 checks) proves the no AND the playability (a class signed
+from the overlooked, debuted on the seed round, books intact).
+Longhaul gained haul-blank: 13 years from nothing, board seated,
+never #1, clean through a bursting heir saga. Bots cast for the
+directive's gender now (the mixed board made group formation
+flaky in founded runs — fixed for all modes).
 
 ## §18 Watch items
 
@@ -6500,3 +6521,23 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > longhaul 6x620 clean, e2e 95, lockstep 0.9.33. Rode to main.
 > The blank page (S74 second half) next, then slot 13, per the
 > delegated sequencing.
+
+> **v0.9.34 — the blank page (§74, second half).** Owner: "the
+> fourth door is a go." Name your own company, empty rooms, no
+> reputation — hard mode, built as the founding at week one
+> without the fame. blankSeed: inherited class deleted whole,
+> war chest 240 with the §73 board seated at the first tick (the
+> runway memo live from day one), trust 55, signings 6, rep 25
+> every lane, founded from week zero — no succession, no
+> theOffer, a custom company name on the door card (default
+> Paper Label). The holdout is the wall as designed: no lane, no
+> rank, build from the overlooked until the ranking says
+> otherwise. Suite 075 proves both halves — the sought-after say
+> no AND the door is playable (founding class signed, debuted on
+> the seed round, books intact). Longhaul gained haul-blank
+> (7 scenarios now): 13 years from nothing, never #1, clean
+> through a bursting heir saga; bots cast for the directive's
+> gender across all modes. Numbers: battery 75/75 (suite 075,
+> 26), soak clean (182 bands), longhaul 7x620 clean, e2e 95,
+> lockstep 0.9.34. Rode to main. Slot 13 (the imprint — the
+> associate label) next, on approval.

@@ -103,7 +103,29 @@
       state.company.reputation = { vocal: 30, girlGroup: 25, starMaker: 30, performance: 30 };
     } else if (door === 'major') {
       majorSeed();
+    } else if (door === 'blank') {
+      blankSeed();
     } else if (!opts || opts.legacy !== false) legacySeed();
+
+    function blankSeed() {
+      // the blank page (v0.9.34, §74): the founding at week one,
+      // without the fame. The rooms are EMPTY — the inherited class
+      // never existed here (files deleted whole, like the founding
+      // does; the shared seeding stream stays byte-identical)
+      state.roster.forEach(id => { delete state.people[id]; });
+      state.roster = [];
+      const B = KP.C.BLANK;
+      state.budget = B.warChest;
+      state.fiscal.monthStartBudget = B.warChest;
+      state.trust = B.trust;
+      state.signingsAllowed = B.signings;
+      state.founded = { week: 0, warChest: B.warChest };
+      const nm = ((opts && opts.companyName) || '').trim() || 'Paper Label';
+      state.company = { name: nm, short: nm.split(' ')[0].slice(0, 9),
+        blurb: 'Registered last month. One desk, one name on the door — yours — and a market with no reason to return your calls yet.',
+        reputation: { vocal: B.rep, girlGroup: B.rep, starMaker: B.rep, performance: B.rep } };
+      state.objective.text = 'Debut ' + nm + '’s first group within 18 months. Nobody is watching, which is both the mercy and the problem.';
+    }
 
     function majorSeed() {
       // the infrastructure is in place: two flagships mid-era, a deep
@@ -305,6 +327,11 @@
         intro: exec.intro,
         exec: 'The directive is on your desk: a 4–6 member girl group, debuted within 18 months. Budget covers three external signings.',
         welcome: 'Welcome to ' + state.company.name + '. ' + KP.DATA.playerCompany.reputationLine,
+      },
+      blank: {
+        intro: '“The money is real and the patience is finite. Show us why you needed your own name on the door.”',
+        exec: 'The seed round covers the room you are sitting in and not much more: sign a founding class off the open board, debut inside 18 months, and mind the runway — the board reads the chart every month, and the recruits everyone wants will not take this letterhead’s calls yet.',
+        welcome: 'Welcome to ' + state.company.name + '. Registered last month: no trainees, no catalog, no reputation — a name you chose and a war chest you answer for. Everything this label will ever be is currently a blank page.',
       },
     };
     const opener = OPENERS[door] || OPENERS.current;
