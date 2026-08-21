@@ -289,12 +289,15 @@ const SCENARIOS = [
   { seed: 'haul-founder', mode: 'founder' },     // walk out mid-run, keep going
   { seed: 'haul-service', mode: 'service' },     // the boy-group decade (v0.9.23)
   { seed: 'haul-blank', mode: 'blank' },         // hard mode from nothing (v0.9.34)
+  { seed: 'haul-major', mode: 'major' },         // stewardship decade (0.9.35.2 —
+                                                 // the 'fierce' crash hid here)
 ];
 
 const sizes = {};
 for (const sc of SCENARIOS) {
   const state = KP.newGame(sc.seed, null,
-    sc.mode === 'blank' ? { door: 'blank', companyName: 'Audit Blank House' } : undefined);
+    sc.mode === 'blank' ? { door: 'blank', companyName: 'Audit Blank House' }
+      : sc.mode === 'major' ? { door: 'major' } : undefined);
   if (sc.mode === 'service') seedBoyGroup(state);
   let founded = false;
   for (let w = 0; w < WEEKS; w++) {

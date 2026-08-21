@@ -6663,3 +6663,28 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > pins the leak closed. Owner on the door itself: "this is
 > ridiculously difficult. I love it" — the difficulty stays
 > exactly where it is. Rode to main.
+
+> **0.9.35.2 — the clip needs a letterhead (+ the fierce fix).**
+> Owner screenshot: an applicant trainee at the blank-page label
+> ("JP") with TWO viral clips and 43k followers in five months —
+> "entirely too many viral moments for a no name label." The
+> trainee viral roll now reads the same network number the board
+> does: vis = 0.35 + networkRead, squared on the event chance,
+> linear on the follower spike, and NOT applied to the hype gain
+> (when a no-name's clip does break through, the story is "who is
+> she?" — rarer, not smaller). Measured: a blank-page ace fell
+> from ~2 virals/20wk to ~0/40wk; the inheritance runs ~0.8/40wk
+> at 13k; a major's ace travels exactly as 0.9.24.1 measured.
+> suite_014's coverage claim re-pointed BOTH WAYS (found where the
+> letterhead is known 7/12; the no-name found less, asserted).
+> The measurement probe also flushed a REAL latent crash: the
+> major door's boy flagship carried concept 'fierce' — never a
+> valid id (v0.9.28) — detonating at the office-door challenge.
+> Fixed at the seed, healed by migration (any group/release
+> wearing an unknown concept -> 'dark'), versionLt extended to
+> 4-part compares so patch migrations actually fire, and the
+> longhaul gained haul-major (8 scenarios — the door this bug hid
+> in was the one door never longhauled). soloDebuts ceiling
+> retired per its own note (second flap; the floor was always the
+> alarm). Numbers: battery 76/76, soak clean (192 bands),
+> longhaul 8x620 clean, e2e 97, lockstep 0.9.35.2. Rode to main.

@@ -32,16 +32,24 @@ const t = makeT('suite_014_hype_solo');
   t.ok(decayWeeks >= 1, 'the window actually closes on quiet weeks (' + decayWeeks + '/12 decayed)');
 }
 
-// hype events find magnetic trainees across seeds
+// hype events find magnetic trainees — WHERE the letterhead is known.
+// 0.9.35.2 (owner: "entirely too many viral moments for a no name
+// label"): the clip needs a lens AND a letterhead, so the claim moved
+// doors — the established house still gets found; the no-name gets
+// found LESS, which is now the law, asserted both ways.
+// Measured at the change: inheritance 7/12, no-name 4/12.
 {
-  let orgsWithHype = 0;
+  let hi = 0, lo = 0;
   for (let s = 0; s < 12; s++) {
-    const state = KP.newGame('hs-events' + s, null, { legacy: false });
-    for (let w = 0; w < 40; w++) KP.advanceWeek(state);
-    const maxHype = Math.max.apply(null, state.roster.map(id => state.people[id].hype || 0));
-    if (maxHype >= 15) orgsWithHype++;
+    const a2 = KP.newGame('hs-events' + s, null, { legacy: true });
+    for (let w = 0; w < 40; w++) KP.advanceWeek(a2);
+    if (Math.max.apply(null, a2.roster.map(id => a2.people[id].hype || 0)) >= 15) hi++;
+    const b2 = KP.newGame('hs-events' + s, null, { legacy: false });
+    for (let w = 0; w < 40; w++) KP.advanceWeek(b2);
+    if (Math.max.apply(null, b2.roster.map(id => b2.people[id].hype || 0)) >= 15) lo++;
   }
-  t.ok(orgsWithHype >= 6, 'the internet finds someone in most orgs (' + orgsWithHype + '/12)');
+  t.ok(hi >= 5, 'the internet finds someone where the letterhead is known (' + hi + '/12)');
+  t.ok(lo <= hi, 'and the no-name label is found less — the algorithm needs a name (' + lo + ' vs ' + hi + ')');
 }
 
 // the hard directive: fires at threshold, met by a group debut including her

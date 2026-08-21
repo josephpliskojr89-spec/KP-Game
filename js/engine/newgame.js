@@ -174,7 +174,9 @@
           popularity: pop,
           lastReleaseWeek: -14,
           promoUntil: -14 + KP.C.COMEBACK.promoWeeks,
-          concept: gender === 'f' ? 'elegant' : 'fierce', conceptRun: 1,
+          // 'fierce' was never a real concept id (0.9.35.2 — latent
+          // since v0.9.28; detonated at the office-door challenge)
+          concept: gender === 'f' ? 'elegant' : 'dark', conceptRun: 1,
           trophies: { countdown: 3, popWave: 2 },
           releases: [],
         };

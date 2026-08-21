@@ -354,15 +354,26 @@
         // sat at 117k–191k; after, ≤45 pull lands mostly under 50k (some
         // never found), 50s land 17–81k, and 64–70 pull runs 150–230k —
         // which is exactly who the hype directive exists to force.
-        if (rng.chance(H.eventBase * Math.pow(KP.clamp(pull, 10, 95) / 70, 2))) {
+        // 0.9.35.2 (owner: "entirely too many viral moments for a no
+        // name label") — the clip needs a lens AND a letterhead: the
+        // algorithm pushes what it can attach to a name people already
+        // search. The same network read that scopes what you SEE now
+        // scopes who sees YOU. Blank page (net ~0.12) → vis ~0.47:
+        // event chance ~0.22×, spikes halved; the inheritance ~0.79 of
+        // old rates; a major's ace travels exactly as measured in
+        // 0.9.24.1. Same rng draw count — the stream keeps its shape.
+        const vis = KP.clamp(0.35 + KP.networkRead(state), 0.35, 1.0);
+        if (rng.chance(H.eventBase * Math.pow(KP.clamp(pull, 10, 95) / 70, 2) * vis * vis)) {
           eventFired = true;
+          // the gain stays pull-sized: when a no-name's clip DOES break
+          // through, the story is "who is she?" — rarer, not smaller
           p.hype = KP.clamp(p.hype +
             (H.gainMin + rng.next() * (H.gainMax - H.gainMin)) * KP.clamp(pull, 10, 95) / 70, 0, 100);
           const narNote = KP.recordViral(state, p,   // memory counts (v0.6.0)
             { kind: 'cover', label: 'a practice-room cover clip' });
           if (narNote) notes.push(narNote);
           KP.socialSpike(state, p,
-            Math.round(KP.C.SOCIAL.viralSpike * KP.clamp(pull, 10, 95) / 70), 'viral');
+            Math.round(KP.C.SOCIAL.viralSpike * KP.clamp(pull, 10, 95) / 70 * vis), 'viral');
           if (rng.chance(KP.C.DISCOURSE.fancamChance)) {               // a wave you can ride (v0.6.2)
             // 0.9.8.2: a trainee's viral clip is a cover, not a fancam —
             // she has no stages to film ("fancams of what, exactly?")

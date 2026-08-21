@@ -8,7 +8,9 @@
   KP.versionLt = function (a, b) {
     const pa = String(a || '0.0.0').split('.').map(Number);
     const pb = String(b || '0.0.0').split('.').map(Number);
-    for (let i = 0; i < 3; i++) {
+    // four parts (0.9.35.2): patch releases can carry migrations too —
+    // a 3-part compare made 0.9.35.1 == 0.9.35.2 and skipped the chain
+    for (let i = 0; i < 4; i++) {
       if ((pa[i] || 0) < (pb[i] || 0)) return true;
       if ((pa[i] || 0) > (pb[i] || 0)) return false;
     }
@@ -735,6 +737,19 @@
       kind: 'industry', week: state.week, read: false,
       id: 'm' + (state.nextMsgId++),
       text: 'The trades are formalizing what the fans always did loosely: generation numbers on every act, an annual power ranking every January, and era labels on every letterhead. The first ranking issue is already at the printer. Nobody asked the acts how they feel about carrying a number. That is what makes it journalism.',
+    });
+  } });
+
+  MIGRATIONS.push({ v: '0.9.35.2', fn: function (state) {
+    // the major door's boy flagship carried concept 'fierce' — never a
+    // real concept id (latent since v0.9.28; detonated at the office-
+    // door challenge). Heal any group or release wearing a concept the
+    // book does not have.
+    (state.groups || []).forEach(g => {
+      if (g.concept && !KP.conceptById(g.concept)) g.concept = 'dark';
+      (g.releases || []).forEach(r => {
+        if (r.conceptId && !KP.conceptById(r.conceptId)) r.conceptId = 'dark';
+      });
     });
   } });
 
