@@ -823,8 +823,15 @@
         acts[0].a.name + ' has been carrying this comeback season and I will not be taking questions.'));
       if (acts[1]) openers.push(fanPost(state, rng, used,
         'unpopular opinion: ' + acts[1].a.name + '’s title tracks all sound like the same demo with new synths. ' + acts[1].r.short + ' plays it SO safe.'));
-      openers.push(fanPost(state, rng, used,
-        'heard ' + state.company.short + ' is finally putting together a new girl group. six years of nothing… I want to believe.'));
+      // the third opener knows which door you walked through (0.9.35.1,
+      // owner screenshot: a blank-page start still carried the
+      // inheritance's "six years of nothing" backstory)
+      openers.push(fanPost(state, rng, used, {
+        current: 'heard ' + state.company.short + ' is finally putting together a new girl group. six years of nothing… I want to believe.',
+        fresh: 'new label alert: ' + state.company.short + ' just registered. no catalog, no history, no reason to care yet. bookmarking anyway. every giant has a day one',
+        major: state.company.short + ' quietly changed A&R leadership. when the top of the scene moves a chair, the whole industry checks the org chart. watching',
+        blank: 'some one-room label called ' + state.company.short + ' registered last month. no trainees, no catalog, one desk. saving this post in case it becomes a legend origin story or a cautionary tale. there is never an in-between',
+      }[state.door] || 'heard ' + state.company.short + ' is finally putting together a new girl group. six years of nothing… I want to believe.'));
       openers.forEach(p => state.feed.unshift(p));
     }
   };

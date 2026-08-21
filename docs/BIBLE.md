@@ -6650,3 +6650,16 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > longhaul 7x620 clean, e2e 97 (network card + verbs asserted in
 > the browser), lockstep 0.9.35 (66 modules - network.js). Rode
 > to main. Slot 13 (the imprint) next, on approval.
+
+> **0.9.35.1 — the feed knows the door.** Owner screenshot: a
+> blank-page start ("JP") opened with the fan feed's "six years
+> of nothing" post — the inheritance's backstory, hardcoded since
+> v0.4.0's seed. The third feed opener is door-aware now: the
+> inheritance keeps its six years, the fresh label gets "every
+> giant has a day one", the major gets the org-chart watchers,
+> and the blank page gets "legend origin story or cautionary
+> tale. there is never an in-between." Same rng shape (text only),
+> battery 76/76 untouched, e2e 97, lockstep 0.9.35.1. Suite 075
+> pins the leak closed. Owner on the door itself: "this is
+> ridiculously difficult. I love it" — the difficulty stays
+> exactly where it is. Rode to main.

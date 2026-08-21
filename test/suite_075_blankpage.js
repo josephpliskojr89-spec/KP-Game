@@ -25,6 +25,10 @@ const t = makeT('suite_075_blankpage');
   t.ok(!s.groups.length, 'no legacy group ever existed here');
   t.ok(s.inbox.some(n => /blank page/.test(n.text)), 'the door tells its own truth');
   t.ok(s.inbox.some(n => /patience is finite/.test(n.text)), 'and the money says its line');
+  // 0.9.35.1 (owner screenshot): the feed opener knows the door too —
+  // no six-years backstory on a label registered last month
+  t.ok(!s.feed.some(p => /six years/.test(p.text)), 'the feed carries no inherited history');
+  t.ok(s.feed.some(p => /one-room label/.test(p.text)), 'it carries the blank page own story');
 }
 
 // ---- the board seats itself, week one ---------------------------------
