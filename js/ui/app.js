@@ -368,6 +368,14 @@
         App.render();
         break;
       }
+      case 'hold-fancon': {
+        const r = KP.holdFancon(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast('Fancon held — ' + r.revenue + ' through the till, and the room got warmer.');
+        App.render();
+        break;
+      }
       case 'declare-hiatus': {
         const g = KP.groupById(s, t.dataset.id);
         if (!g) break;

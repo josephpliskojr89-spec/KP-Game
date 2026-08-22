@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.2',
+    VERSION: '0.10.3',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -816,6 +816,9 @@
         // the person in public (v0.10.2): she said a thing; a story broke
         gaffe: { label: 'the clip of what she said', negative: true, start: [20, 45],
           actions: ['statement', 'meme'] },
+        // the recurring money (v0.10.3): squeeze the fandom too hard
+        atmStory: { label: '"we are not ATMs"', negative: true, start: [25, 45],
+          actions: ['statement', 'meme'] },
         scandal: { label: 'the story', negative: true, start: [35, 60],
           actions: ['statement', 'meme'] },
         // the bad blood (v0.9.21): the fandom throws the gasoline
@@ -1439,6 +1442,33 @@
       titanSkew: 2.2, rumorSkew: 0.45,  // phys/dig ratio bars for the identity story
       FANBASE: { popPow: 1.55, popMult: 3.0, socialRoot: 12,
         lastMult: 0.25, preorderShare: 0.55 },
+    },
+    // the recurring money (v0.10.3, §80 findings 6+10) — the commerce
+    // that pays salaries between comebacks, and the catalog that pays
+    // forever. The fandom is a managed revenue RELATIONSHIP now.
+    MERCH: {
+      clubAt: 35,                 // fandom intensity that opens enrollment
+      TIERS: {                    // annual membership pricing — money vs love
+        gentle:   { rate: 0.9,  intensity: 2 },
+        standard: { rate: 1.4,  intensity: 0 },
+        steep:    { rate: 2.0,  intensity: -3 },
+      },
+      memberShare: 0.55,          // fanbase share that actually enrolls
+      perK: 6,                    // revenue per 1000 members at rate 1.0
+      greetingsWoy: 44,           // Season's Greetings ships in Q4
+      greetingsPerK: 3, greetingsLavishMult: 1.6, greetingsLavishCost: 8,
+      tourMerchPerK: 4,           // the merch line at every tour start
+      fanconCost: 10, fanconPerK: 7, fanconIntensity: 4,
+      fanconCooldown: 36, fanconFatigue: 5, fanconMinIntensity: 30,
+      atmWindow: 24, atmPushes: 3, atmChance: 0.35,  // squeeze too hard, get the story
+    },
+    CATALOG_PAY: {
+      perReception: 0.05,         // weekly, per release, x (reception-45)
+      floorDecay: 0.15,           // an old hit never pays zero
+      halfLifeWeeks: 48,          // the annuity's decay clock
+      royaltyEvery: 8,            // the writer's publishing check cadence
+      leverageAt: 12,             // accumulated royalties = "she doesn't
+                                  // need the re-sign the way the dancer does"
     },
     // the person in public (v0.10.2, §78 A) — "they might ask for
     // permission to go live or to start a video channel... things that

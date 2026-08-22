@@ -4478,7 +4478,7 @@ and suite_079 (30 checks) forcing every kind and both clause
 endings. No migration — ledger and clause self-init. Battery
 79/79, soak 40 clean, longhaul 9x620 clean, e2e 102.
 
-## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; 1+8+3 SHIPPED v0.10.0; 2+7+14 SHIPPED v0.10.1)
+## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; 1+8+3 SHIPPED v0.10.0; 2+7+14 SHIPPED v0.10.1; 6+10 SHIPPED v0.10.3)
 
 Owner: *"bring in a kpop expert, I want more depth. the width is
 excellent and some of our systems are deep, but I want the whole
@@ -4714,6 +4714,37 @@ ostDropped floor 0.05→0.02 (the grind era's fuller calendars
 bench idols out of second jobs — honest fiction, pipe
 suite-proven). Battery 81/81, soak 40 clean, longhaul 9x620
 clean, e2e 103.
+
+**As built (v0.10.3 — the recurring money, findings 6+10).** New
+module `commerce.js` (weekly order 756, before the books at 758 so
+the flows land in the same statement). **Fandom commerce:** paid
+membership opens as a scene once intensity hits 35 — the price is
+a sentence (warm +2 intensity, market rate, steep 2.0x rate at
+-3), dues arrive up front and renew on the anniversary; Season's
+Greetings every week-44 window (standard or lavish 1.6x with a
+production bill, skipping costs intensity — December does not
+reschedule); the tour merch table ships once per tour; and
+`KP.holdFancon` — the between-eras verb (Groups card button):
+guards on debut/quiet calendar/organized fandom/36wk cooldown,
+revenue off fanbaseRead, +4 intensity, member fatigue and a morale
+touch, cheap and impossible to review badly. All of it flows
+through `ledgerFlow('commerce')` and `settleShare`, so recurring
+money repays recoup and pays settled groups. **The ATM story:**
+every commerce event records a push on a 24-week rolling window;
+3+ pushes risk (35%) the "we are not ATMs" discourse — first soak
+measured 0/40 because only fancon+greetings pushed, so club
+enrollment and the tour table now count (structural fix, not a
+band edit; second soak 31/40). **The catalog annuity:** every
+released record with reception past 45 pays weekly under a
+halfLife-48 decay that floors at 0.15 — an old hit never pays
+zero — into a `catalog` stream the quarterly statement names.
+**Publishing follows the person:** writers credited on tracklists
+accrue royalty checks every 8 weeks; at 12 the ownMoney narrative
+forms ("she does not need the re-sign the way the others do") and
+a departed writer's quarterly letter keeps arriving after the
+door closes. Bands ruled: club/greetings/fancon/catalog floors
+0.90/0.80/0.70/0.90, atmStorm [0.15,0.95]. Battery 83/83, soak 40
+clean, longhaul 9x620 clean, e2e 103.
 
 ## §81 The v0.10 build order (RULED — owner: "I like all of them and
 I want to build them comprehensively. plan out the order first")
@@ -7611,3 +7642,17 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > stated goal. Battery 82/82, soak 40 clean (mic 40/40, stories
 > one per ~3-4 label-years), longhaul 9x620, e2e 103, lockstep
 > 0.10.2. Rode to main.
+
+> **0.10.3 — the recurring money (§80 findings 6+10).** commerce.js:
+> paid membership priced as a sentence (warm/market/steep) with
+> annual renewals, Season's Greetings every week-44, the tour merch
+> table, and the fancon verb — the between-eras money, all flowing
+> through the books and the settlement ledger. Squeeze 3+ commerce
+> pushes into 24 weeks and the "we are not ATMs" thread organizes
+> (structural fix: enrollment and the tour table count as pushes —
+> first soak measured the storm unreachable at 0/40, second 31/40).
+> The catalog annuity pays every shelf weekly, floored so an old
+> hit never pays zero; publishing royalties follow the PERSON every
+> 8 weeks, arm the ownMoney narrative at the renewal table, and
+> keep arriving after departure. Battery 83/83, soak 40 clean,
+> longhaul 9x620, e2e 103, lockstep 0.10.3. Rode to main.

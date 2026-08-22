@@ -917,6 +917,12 @@
         { persona: 'fan', text: 'holding the line on the ' + who + ' story until something is actually confirmed. the line is quiet tonight. the line holds anyway' },
         { persona: 'stan', text: 'the fandom rooms are split over the ' + who + ' story and the split is the real damage. whatever ' + co + ' says next decides which room grows' },
       ],
+      atmStory: [
+        { persona: 'fan', text: 'the "we are not ATMs" thread about ' + co + ' has receipts, timestamps, and a spreadsheet. membership, the package, the fancon, the versions — one season. we counted because we PAY' },
+        { persona: 'casual', text: 'fandom accounting thread going around: ' + co + ' ran the whole commerce calendar inside one quarter. the group is blameless, the invoice pile is not' },
+        { persona: 'press', text: 'The recurring-revenue playbook meets its recurring backlash: ' + co + '’s fandom has organized the complaint the industry never answers — where does the calendar end and the cash register begin?' },
+        { persona: 'stan', text: 'buying everything AND boosting the ATM thread. both things are true: the room is worth funding and ' + co + ' should be scared of how well we do math' },
+      ],
       fancam: [
         { persona: 'stan', text: 'the ' + who + ' fancam has TWO MILLION views and I contributed forty of them personally. no regrets' },
         { persona: 'casual', text: 'the algorithm decided everyone watches ' + who + ' today and honestly? the algorithm was right' },

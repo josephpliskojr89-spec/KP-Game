@@ -285,6 +285,19 @@ const BANDS = {
   gaffeLottery:      { lo: 0.50, hi: 1.00, label: 'orgs whose open mic slipped at least once' },
   storySeen:         { lo: 0.40, hi: 1.00, label: 'orgs a story broke on (the response desk opened)' },
   storyForced:       { lo: 0.10, hi: 0.90, label: 'orgs where a story forced a hiatus or the choice' },
+  // the recurring money (v0.10.3): ruled first soak — 40/40, 40/40,
+  // 40/40, 40/40, 31/40. Clubs open at intensity 35 (legacy soak orgs
+  // organize fast), greetings/fancons follow once the bot is idle+flush,
+  // and any shelf with reception>45 pays. The storm is the lottery on
+  // stacked seasons (3+ pushes/24wk, 35%): first measure was 0/40
+  // because only fancon+greetings pushed — club enrollment and the tour
+  // table now count, which is what made it reachable at all. Floors
+  // guard each mechanism against going dead, not against variance.
+  clubOpened:        { lo: 0.90, hi: 1.00, label: 'orgs whose fandom opened paid membership' },
+  greetingsOut:      { lo: 0.80, hi: 1.00, label: 'orgs that shipped a Season\'s Greetings' },
+  fanconHeld:        { lo: 0.70, hi: 1.00, label: 'orgs that held a fancon between eras' },
+  catalogPaying:     { lo: 0.90, hi: 1.00, label: 'orgs whose shelf pays the weekly annuity' },
+  atmStorm:          { lo: 0.15, hi: 0.95, label: 'orgs that squeezed into the ATM story' },
   chodongMinted:     { lo: 0.90, hi: 1.00, label: 'orgs whose releases printed a first-week number' },
   // ruled first soak: 25/40 and 36/40 across ~6 eras per world — the
   // gamble's two tails. Dead at 0 (the pressing choice stopped
@@ -513,6 +526,7 @@ const tally = {
   counterMet: 0, clauseLive: 0,
   chodongMinted: 0, pressSoldOut: 0, pressWarehouse: 0,
   channelSeen: 0, gaffeLottery: 0, storySeen: 0, storyForced: 0,
+  clubOpened: 0, greetingsOut: 0, fanconHeld: 0, catalogPaying: 0, atmStorm: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -690,6 +704,17 @@ for (let s = 0; s < SEEDS; s++) {
         .sort((a, b) => KP.derived(b).stagePresence - KP.derived(a).stagePresence)
         .slice(0, 2).map(m => m.id);
       if (picks.length === 2) KP.planUnitEra(state, g.id, picks, null);
+    });
+    // the recurring money (v0.10.3): a fancon when the calendar is quiet,
+    // the fandom is organized, and the room is rested — the between-eras
+    // verb a real label leans on
+    if (KP.holdFancon) state.groups.forEach(g => {
+      if (!g.debuted || g.retiredWeek || g.prep || g.tour || g.hiatus) return;
+      if (state.week <= (g.promoUntil || 0)) return;
+      if (!g.fandom || (g.fandom.intensity || 0) < KP.C.MERCH.fanconMinIntensity) return;
+      if (state.week - (g.lastFanconWeek || -999) < KP.C.MERCH.fanconCooldown) return;
+      if (state.budget < KP.C.MERCH.fanconCost + 80 || restRead(g) >= 50) return;
+      KP.holdFancon(state, g.id);
     });
     // the album promise gets kept (v0.9.25): produce her record when
     // the claim is open and the till can carry it
@@ -1495,6 +1520,13 @@ for (let s = 0; s < SEEDS; s++) {
   const scl = state.scandalLedger || {};
   if ((scl.broke || 0) >= 1) tally.storySeen++;
   if ((scl.forcedBreaks || 0) + (scl.choices || 0) >= 1) tally.storyForced++;
+  // the recurring money (v0.10.3): the ledger is durable
+  const cml = state.commerceLedger || {};
+  if ((cml.clubs || 0) >= 1) tally.clubOpened++;
+  if ((cml.greetings || 0) >= 1) tally.greetingsOut++;
+  if ((cml.fancons || 0) >= 1) tally.fanconHeld++;
+  if ((cml.catalogPaid || 0) >= 1) tally.catalogPaying++;
+  if ((cml.atmStorms || 0) >= 1) tally.atmStorm++;
   // the table (v0.9.38): the ledger is durable
   const tbl = state.tableLedger || {};
   if ((tbl.counters || 0) >= 1) tally.counterMet++;
