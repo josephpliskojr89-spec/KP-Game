@@ -4478,7 +4478,7 @@ and suite_079 (30 checks) forcing every kind and both clause
 endings. No migration — ledger and clause self-init. Battery
 79/79, soak 40 clean, longhaul 9x620 clean, e2e 102.
 
-## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; 1+8+3 SHIPPED v0.10.0; 2+7+14 SHIPPED v0.10.1; 6+10 SHIPPED v0.10.3; 5+12 SHIPPED v0.10.4; 11 SHIPPED v0.10.5)
+## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; 1+8+3 SHIPPED v0.10.0; 2+7+14 SHIPPED v0.10.1; 6+10 SHIPPED v0.10.3; 5+12 SHIPPED v0.10.4; 11 SHIPPED v0.10.5; 15+9 SHIPPED v0.10.7)
 
 Owner: *"bring in a kpop expert, I want more depth. the width is
 excellent and some of our systems are deep, but I want the whole
@@ -4821,6 +4821,40 @@ finally walked the path) fixed at both sites with a regression
 assert in suite_082. Bands ruled: demoLost floor 0.60, campHeld
 0.50, bondWorking 0.50. Battery 85/85, soak 40 clean, longhaul
 9x620 clean, e2e 104.
+
+**As built (v0.10.7 — the rituals, findings 15 + 9).** New module
+`rituals.js` plus shows.js surgery. **The monthly eval** (weekly
+order 612, hash-phased): the ranked showcase runs every 4th week
+for 3+ trainees; ranks come from PERCEIVED reads (the panel is the
+lead evaluator — the fog applies, so a fogged gem can rank low for
+months) plus stage presence and showcase nerves; every trainee
+carries the sheet on the file (cap 12), and the sheet posts with
+the top three and the room's biggest climber. Morale rides
+TRAJECTORY, capped ±3 — climbing feels like flying, sliding from
+first feels like falling — and two consecutive bottom-third
+rankings earn the after-eval talk (morale −2, the file line, the
+open-door note), composing with the practice room's quit and
+aging machinery through morale alone. The Talent row shows the
+last rank chip. **The point desk**: contenders() now carries its
+component read (general-public base, the live, the digital, the
+fan vote), and the post-air breakdown posts IN WORDS on the
+closest lost show week — "X carried; Y didn't come home" — never
+a formula, at most one a week. A loss inside 8 points is a
+NEAR-MISS: +2 fandom intensity, the injustice fuel the intensity
+machinery eats, and the note says the fandom is reading the
+margin out loud. `KP.pointNudge` is the ONE mobilization a week
+(6, marketing flow): the streaming party or the voting drive,
++7 score on this week's stages, buttons on the promo card.
+Repairs by pattern (the new weekly's stream shifts): the clause-
+growth fixture pinned fatigue+focus per tick (the plateau redirect
+rewrote focus over long horizons — and ages confounded the 12%
+edge); the credits fixture funds priced demos; the aging-talk
+fixture keeps her scene slot clear (the talk is a one-shot blocked
+by any scene on her). clamorHeld ceiling re-ruled 0.90→0.97 (the
+scout seat multiplies applicant flow — 37/40 held a transcendent).
+Bands ruled: evalRun .90, evalTalked .70, breakdownRead .80,
+nearMissFuel .50, nudgeRun .85. Battery 87/87, soak 40 clean,
+longhaul 9x620 clean, e2e 103.
 
 ## §81 The v0.10 build order (RULED — owner: "I like all of them and
 I want to build them comprehensively. plan out the order first")
@@ -7815,3 +7849,16 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > bought-out demo sheet nulls instead of freezing the pitch
 > machinery. Battery 86/86, soak 40 clean, longhaul 9x620,
 > e2e 104, lockstep 0.10.6. Rode to main.
+
+> **0.10.7 — the rituals (§80 findings 15+9).** rituals.js + the
+> point desk: the monthly eval ranks the practice room from
+> perceived reads (the fog applies), posts the sheet, swings
+> morale on trajectory not position, and holds the after-eval
+> talk at the bottom; the music shows publish their component
+> reads in words — "the digital carried; the fan vote didn't
+> come home" — a near-miss inside eight points feeds the fandom's
+> intensity, and the one mobilization a week (streaming party or
+> voting drive) is the player's push. Fixture repairs by pattern;
+> clamorHeld ceiling re-ruled for the scout seat's fuller
+> pipeline. Battery 87/87, soak 40 clean, longhaul 9x620,
+> e2e 103, lockstep 0.10.7. Rode to main.

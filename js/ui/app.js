@@ -368,6 +368,14 @@
         App.render();
         break;
       }
+      case 'point-nudge': {
+        const r = KP.pointNudge(s, t.dataset.id, t.dataset.kind);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast(t.dataset.kind === 'votes' ? 'The voting drive is live — the cafés have their orders.' : 'The streaming party is on — no muting, no skipping.');
+        App.render();
+        break;
+      }
       case 'song-camp': {
         const r = KP.holdSongCamp(s, t.dataset.id);
         if (!r.ok) { UI.toast(r.reason, true); break; }

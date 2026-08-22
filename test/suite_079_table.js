@@ -147,9 +147,16 @@ function worthy(s, id, channel) {
     p.personality.workEthic = 60; p.personality.coachability = 60;
     p.training = { focus: ['vocals'], intensity: 'standard' };
     p.fatigue = 10;
+    p.age = 16;   // equal age — ageGrowthMult would confound the clause edge
   });
   a.flags.trainClause = 1;
-  for (let i = 0; i < 10; i++) KP.advanceWeek(s);
+  // pinned weeks: fatigue and FOCUS re-pinned each tick — the plateau/
+  // redirect machinery rewrites focus over long horizons, and the x1.12
+  // guarantee is only visible while both rooms train the same lane
+  for (let i = 0; i < 20; i++) {
+    [a, b].forEach(p => { p.fatigue = 10; p.training = { focus: ['vocals'], intensity: 'standard' }; });
+    KP.advanceWeek(s);
+  }
   t.ok(a.talents.vocals.cur > b.talents.vocals.cur,
     'the bought room shows in the growth (' + a.talents.vocals.cur.toFixed(1) +
     ' vs ' + b.talents.vocals.cur.toFixed(1) + ')');

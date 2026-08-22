@@ -7,7 +7,7 @@ const vm = require('vm');
 
 const ENGINE_FILES = [
   'constants.js', 'kernel.js', 'rng.js', 'data.js', 'person.js', 'blurbs.js',
-  'development.js', 'relationships.js', 'scouting.js', 'network.js', 'publiceye.js', 'fame.js', 'bookings.js', 'product.js', 'money.js', 'commerce.js', 'pipeline.js', 'medical.js', 'market.js', 'hires.js', 'broadcast.js', 'scandal.js', 'schools.js', 'practice.js', 'songs.js',
+  'development.js', 'relationships.js', 'scouting.js', 'network.js', 'publiceye.js', 'fame.js', 'bookings.js', 'product.js', 'money.js', 'commerce.js', 'pipeline.js', 'medical.js', 'market.js', 'hires.js', 'rituals.js', 'broadcast.js', 'scandal.js', 'schools.js', 'practice.js', 'songs.js',
   'group.js', 'debut.js', 'events.js', 'career.js', 'gen.js', 'memory.js', 'social.js', 'discourse.js', 'industry.js', 'risefall.js', 'calendar.js', 'shows.js', 'regions.js', 'tongue.js', 'sagas.js', 'tour.js', 'fandom.js', 'deals.js', 'gigs.js', 'hiatus.js', 'catalog.js', 'gravity.js', 'badblood.js', 'festivals.js', 'military.js', 'awards.js', 'life.js', 'scenes.js', 'meeting.js', 'mandate.js', 'persona.js', 'secret.js', 'door.js', 'scars.js', 'staff.js', 'tenure.js', 'contracts.js', 'society.js', 'year.js', 'constituency.js', 'credits.js', 'founding.js', 'tracks.js', 'sim.js', 'newgame.js', 'save.js',
 ];
 

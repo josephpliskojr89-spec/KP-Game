@@ -212,11 +212,21 @@ function debuted(seed) {
   KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
   let guard = 0;
-  while (!g.debuted && guard++ < 10) KP.advanceWeek(state);
+  while (!g.debuted && guard++ < 10) {
+    // the talk is a ONE-SHOT blocked by any scene already on her —
+    // keep her slot clear so the mechanism under test can fire
+    state.scenes = (state.scenes || []).filter(x => x.personId !== watcher.id);
+    KP.advanceWeek(state);
+  }
   t.ok(watcher.flags.agingOut, 'the clock started when the debut walked past her');
   t.ok(watcher.history.some(h => /doorway/.test(h.text)), 'the doorway is on the file');
   t.eq(state.practiceLedger.agingFaced, 1, 'ledgered');
-  const sc = (state.scenes || []).find(x => x.kind === 'agingOutTalk');
+  let sc = (state.scenes || []).find(x => x.kind === 'agingOutTalk');
+  let scGuard = 0;   // the talk arrives on its own clock — stream shifts move the week
+  while (!sc && scGuard++ < 8) {
+    KP.advanceWeek(state);
+    sc = (state.scenes || []).find(x => x.kind === 'agingOutTalk');
+  }
   t.ok(sc && sc.personId === watcher.id, 'the question reached the desk');
   // ending: the kind cut
   const cut = KP.deserialize(KP.serialize(state));

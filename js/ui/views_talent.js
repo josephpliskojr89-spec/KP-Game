@@ -112,6 +112,8 @@
         ? '<span class="chip hot">' + UI.esc(p.medical.chronic.map(c => c.site).join(' · ')) + '</span>' : '') +
       (p.flags && p.flags.seatedUntil && state.week < p.flags.seatedUntil
         ? '<span class="chip">seated</span>' : '') +
+      (p.status === 'trainee' && p.evalHistory && p.evalHistory.length
+        ? '<span class="chip">eval ' + p.evalHistory[p.evalHistory.length - 1].rank + '/' + p.evalHistory[p.evalHistory.length - 1].of + '</span>' : '') +
       '</div></div>' +
       '<div class="t-side"><span class="chip">' + idolOrFocusChip(state, p, focus) + '</span></div>' +
       '</div>';

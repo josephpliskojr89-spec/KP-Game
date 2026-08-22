@@ -50,11 +50,18 @@
     const list = [];
     KP.groups(state).forEach(g => {
       if (!promoting(state, g) || !planFor(state, g).includes(showId)) return;
-      const score = (g.popularity || 0) * S.fandomW + livePerf(state, g) * S.liveW +
-        fresh(state.week - (g.lastReleaseWeek || 0)) * S.freshW +
-        KP.fandomIntensity(g) * KP.C.FANDOM.showVoteFactor +   // an organized fandom votes (v0.7.0)
+      const comp = {
+        base: (g.popularity || 0) * S.fandomW,
+        live: livePerf(state, g) * S.liveW,
+        dig: fresh(state.week - (g.lastReleaseWeek || 0)) * S.freshW,
+        vote: KP.fandomIntensity(g) * KP.C.FANDOM.showVoteFactor,   // an organized fandom votes (v0.7.0)
+      };
+      // the rituals (v0.10.7): the one mobilization push a week
+      const nudge = g.pointNudge && state.week - g.pointNudge.week <= 1
+        ? KP.C.POINTS.nudgeBoost : 0;
+      const score = comp.base + comp.live + comp.dig + comp.vote + nudge +
         KP.hash01([state.seed, showId, state.week, g.id].join('|')) * W.jitter;
-      list.push({ type: 'player', g, score });
+      list.push({ type: 'player', g, score, comp });
     });
     (state.rivals || []).forEach(r => (r.acts || []).forEach(a => {
       if (a.retired) return;
@@ -84,11 +91,20 @@
     const notes = [];
     const keep = n => { if (n) notes.push(n); };
 
+    const playerLosses = [];   // the rituals (v0.10.7): the point desk reads
     Object.keys(KP.C.SHOWS).forEach(showId => {
       const field = contenders(state, showId);
       const top = field[0];
       const winner = top && top.score >= KP.C.SHOWS[showId].floor ? top : null;
       const label = KP.showLabel(showId);
+      if (winner && winner.type !== 'player') {
+        const mine = field.find(c => c.type === 'player');
+        if (mine) {
+          playerLosses.push({ g: mine.g, comp: mine.comp, label,
+            gap: winner.score - mine.score,
+            winnerName: winner.type === 'rival' ? winner.act.name : winner.artist.name });
+        }
+      }
 
       if (winner && winner.type === 'player') {
         const g = winner.g;
@@ -169,6 +185,33 @@
         }
       }
     });
+
+    // the point breakdown (v0.10.7, §80 finding 9): the post-air
+    // component read, in WORDS, never a formula — one per week, on
+    // the closest loss; a near-miss is injustice fuel the intensity
+    // machinery eats
+    if (playerLosses.length && KP.pointLedger) {
+      const P = KP.C.POINTS;
+      const closest = playerLosses.sort((a, b) => a.gap - b.gap)[0];
+      const led = KP.pointLedger(state);
+      led.breakdowns++;
+      const WORDS = { base: 'the general-public base', live: 'the live',
+        dig: 'the digital', vote: 'the fan vote' };
+      const parts = Object.keys(closest.comp).map(k => ({ k, v: closest.comp[k] }))
+        .sort((a, b) => b.v - a.v);
+      const strong = WORDS[parts[0].k], weak = WORDS[parts[parts.length - 1].k];
+      const near = closest.gap <= P.nearMissGap;
+      if (near) {
+        led.nearMisses++;
+        KP.fandomGain(closest.g, P.nearMissIntensity);
+      }
+      keep({ kind: 'public', ind: 'pointBreakdown', priority: near ? 'high' : 'flavor',
+        groupId: closest.g.id,
+        text: 'The ' + closest.label + ' point breakdown posted: ' + strong + ' carried; ' + weak +
+          ' didn’t come home. ' + closest.g.name + ' finished behind ' + closest.winnerName +
+          (near ? ' by a margin thin enough to read out loud — and the fandom is reading it out loud, with timestamps. Nothing organizes a fan café like a number that was ALMOST enough.'
+                : '. The gap was honest this week; the spreadsheet crowd has already assigned next week’s homework.') });
+    }
 
     // the ending fairy: every show appearance ends on one face (v0.6.5)
     KP.groups(state).forEach(g => {

@@ -314,7 +314,14 @@
       html.push('<div class="card">The lineup exists on paper. It becomes real in the Studio: pick the song, the concept, and the date.' +
         '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Open the Studio</button></div></div>');
     } else if (promoting) {
-      html.push('<div class="card">Promotion week — music shows, fan signs, radio. The schedule is full and so are the members. Comeback planning opens when it winds down.</div>');
+      // the rituals (v0.10.7): the one mobilization push a week
+      const nudged = g.pointNudge && state.week - g.pointNudge.week <= 1;
+      html.push('<div class="card">Promotion week — music shows, fan signs, radio. The schedule is full and so are the members. Comeback planning opens when it winds down.' +
+        (nudged
+          ? '<div style="margin-top:8px;font-size:.75rem;color:var(--gold)">The fandom is mobilized — ' + (g.pointNudge.kind === 'votes' ? 'pre-voting drive' : 'streaming party') + ' running this week.</div>'
+          : '<div style="margin-top:10px;display:flex;gap:6px"><button class="btn small" data-action="point-nudge" data-id="' + g.id + '" data-kind="streams">Streaming party · ' + KP.C.POINTS.nudgeCost + '</button>' +
+            '<button class="btn small" data-action="point-nudge" data-id="' + g.id + '" data-kind="votes">Voting drive · ' + KP.C.POINTS.nudgeCost + '</button></div>') +
+        '</div>');
     } else if (g.hiatus && g.hiatus.service) {
       // the service chapter (v0.9.23): the wait is loyal, the date is real
       const back = g.members.map(id => state.people[id]).filter(Boolean)

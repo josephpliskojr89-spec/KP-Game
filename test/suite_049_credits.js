@@ -23,6 +23,7 @@ function debuted(seed) {
 function release(state, g, format) {
   state.week = Math.max(state.week, (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks + 1, (g.tourRestUntil || 0) + 1);
   g.lastTourWeek = g.lastTourWeek || -999;
+  state.budget = Math.max(state.budget, 400);   // priced demos still lock (v0.10.5)
   g.demos = KP.generateDemos(state, KP.rngFor(state), g);
   const r = KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
     format: format || 'single', week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });

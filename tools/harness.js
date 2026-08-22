@@ -171,7 +171,11 @@ const BANDS = {
   // first soak; ceilings are the day-one alarms.
   clamorBegan:       { lo: 0.05, hi: 1.00, label: 'orgs where the transcendence clamor began (the trades feature)' },
   clamorSettled:     { lo: 0.00, hi: 1.00, label: 'orgs that settled a clamor with the in-group solo' },
-  clamorHeld:        { lo: 0.00, hi: 0.90, label: 'orgs that held a transcendent and paid the resentment clock' },
+  // ceiling re-ruled 0.90→0.97 at v0.10.7 (37/40): the scout seat
+  // (v0.10.6) multiplies applicant flow, so long soak orgs sign a
+  // transcendent — and pay her clock — in most worlds now. Alive both
+  // ways while any world escapes it; watch for 40/40 wallpaper.
+  clamorHeld:        { lo: 0.00, hi: 0.97, label: 'orgs that held a transcendent and paid the resentment clock' },
   soloKnocked:       { lo: 0.00, hi: 1.00, label: 'orgs where she knocked with the rehearsed ask' },
   slumpSeen:         { lo: 0.00, hi: 0.80, label: 'orgs where somebody lost the nerve (the slump)' },
   footingFound:      { lo: 0.00, hi: 0.80, label: 'orgs where the nerve came back (the footing)' },
@@ -320,6 +324,14 @@ const BANDS = {
   // over long orgs; the outside call needs a "known" seat (results
   // built it); friction needs a bad-fit hire to sit ten weeks — the
   // fog-blind bot hires enough of them. Floors guard the mechanisms.
+  // the rituals (v0.10.7): ruled first soak — all five at 40/40 over
+  // long orgs (monthly sheets are constant; every career loses show
+  // weeks; the bot mobilizes every promo). Floors guard against dead.
+  evalRun:           { lo: 0.90, hi: 1.00, label: 'orgs whose practice room ran the monthly sheet' },
+  evalTalked:        { lo: 0.70, hi: 1.00, label: 'orgs that held the after-eval talk' },
+  breakdownRead:     { lo: 0.80, hi: 1.00, label: 'orgs that read a point breakdown out loud' },
+  nearMissFuel:      { lo: 0.50, hi: 1.00, label: 'orgs whose near-miss fed the fandom' },
+  nudgeRun:          { lo: 0.85, hi: 1.00, label: 'orgs that ran a mobilization drive' },
   interviewHeld:     { lo: 0.90, hi: 1.00, label: 'orgs where a candidate took the meeting' },
   seatHired:         { lo: 0.80, hi: 1.00, label: 'orgs that made a hire into the fog' },
   seatCalled:        { lo: 0.30, hi: 1.00, label: 'orgs whose staff got the outside call' },
@@ -564,6 +576,7 @@ const tally = {
   medCase: 0, medChronic: 0, flareFelt: 0,
   demoLost: 0, campHeld: 0, bondWorking: 0,
   interviewHeld: 0, seatHired: 0, seatCalled: 0, staffVoice: 0, meshFelt: 0,
+  evalRun: 0, evalTalked: 0, breakdownRead: 0, nearMissFuel: 0, nudgeRun: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -752,6 +765,13 @@ for (let s = 0; s < SEEDS; s++) {
       if (state.week - (g.lastFanconWeek || -999) < KP.C.MERCH.fanconCooldown) return;
       if (state.budget < KP.C.MERCH.fanconCost + 80 || restRead(g) >= 50) return;
       KP.holdFancon(state, g.id);
+    });
+    // the rituals (v0.10.7): a promo week gets its one mobilization
+    if (KP.pointNudge) state.groups.forEach(g => {
+      if (!g.debuted || g.prep || state.week > (g.promoUntil || 0)) return;
+      if (g.pointNudge && state.week - g.pointNudge.week <= 1) return;
+      if (state.budget < KP.C.POINTS.nudgeCost + 60) return;
+      KP.pointNudge(state, g.id, KP.fandomIntensity(g) >= 40 ? 'votes' : 'streams');
     });
     // the song market (v0.10.5): a flush boss camps when the cold sheet
     // has no hook worth the pitch meeting's time
@@ -1611,6 +1631,14 @@ for (let s = 0; s < SEEDS; s++) {
   if ((mdl.cases || 0) >= 1) tally.medCase++;
   if ((mdl.chronics || 0) >= 1) tally.medChronic++;
   if ((mdl.flares || 0) >= 1) tally.flareFelt++;
+  // the rituals (v0.10.7): both ledgers are durable
+  const evl = state.evalLedger || {};
+  if ((evl.sheets || 0) >= 1) tally.evalRun++;
+  if ((evl.talks || 0) >= 1) tally.evalTalked++;
+  const ptl = state.pointLedger || {};
+  if ((ptl.breakdowns || 0) >= 1) tally.breakdownRead++;
+  if ((ptl.nearMisses || 0) >= 1) tally.nearMissFuel++;
+  if ((ptl.nudges || 0) >= 1) tally.nudgeRun++;
   // the staff (v0.10.6): the ledger is durable
   const sfl = state.staffLedger2 || {};
   if ((sfl.candidates || 0) >= 1) tally.interviewHeld++;

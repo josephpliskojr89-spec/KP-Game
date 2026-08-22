@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.6',
+    VERSION: '0.10.7',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1471,6 +1471,24 @@
       royaltyEvery: 8,            // the writer's publishing check cadence
       leverageAt: 12,             // accumulated royalties = "she doesn't
                                   // need the re-sign the way the dancer does"
+    },
+    // the rituals (v0.10.7, §80 findings 15+9) — the monthly eval and
+    // the point breakdown. The LAW: the eval ranks what the coaches
+    // SEE (perceived reads — the fog applies), and morale swings on
+    // TRAJECTORY, not position; the show breakdown is words, never a
+    // formula, and the near-miss is injustice fuel the intensity eats.
+    EVAL: {
+      every: 4,               // the monthly showcase, hash-phased
+      minTrainees: 3,
+      swingCap: 3,            // morale by trajectory, capped
+      bottomTalkAfter: 2,     // consecutive bottom-third rankings
+      bottomMorale: 2,
+      historyCap: 12,
+    },
+    POINTS: {
+      nearMissGap: 8,         // close enough to hurt out loud
+      nearMissIntensity: 2,   // the fuel the fandom machinery eats
+      nudgeCost: 6, nudgeBoost: 7,   // ONE player push a week
     },
     // the staff (v0.10.6, §79) — the second fog. The LAW: the truth
     // (aptitude + style) is hash-stable per person and NEVER surfaces —
