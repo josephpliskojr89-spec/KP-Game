@@ -4478,7 +4478,7 @@ and suite_079 (30 checks) forcing every kind and both clause
 endings. No migration — ledger and clause self-init. Battery
 79/79, soak 40 clean, longhaul 9x620 clean, e2e 102.
 
-## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map)
+## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; finding 1+8+3 SHIPPED v0.10.0)
 
 Owner: *"bring in a kpop expert, I want more depth. the width is
 excellent and some of our systems are deep, but I want the whole
@@ -4634,6 +4634,51 @@ bottom-rank talk composing with practice.js quit/aging machinery.
 - **Singles**: 6 (commerce), 9 (points), 15 (evals) slot anywhere.
 - The standing queue (§78 A/B, §79 staff, §76 B regional) threads
   between phases on call.
+
+**As built (v0.10.0 — the product, findings 1+8+3).** New module
+`product.js`. `KP.fanbaseRead` — an ESTIMATE of core buyers,
+derived fresh: popularity^1.55 x3 + SQRT(members' social) x12
+scaled by fandom intensity + lastChodong x0.25 (the only number
+that stops being an estimate). The social term is deliberately
+sublinear and the feedback deliberately damped: the first
+calibration's linear/0.35 version compounded flagship chodongs x7
+over four eras and ran the soak's budget-runaway invariant off the
+road — the governor is structural, not a band edit. Calibrated
+arcs: rookie debut ~350 copies, mid flagship 10k growing to ~35k
+over four eras; revenue parity with the old economy at first eras
+(rookie 31 vs 27, flagship 76 vs 88) with fandom-built acts
+earning more, net of pressing bills. **The pressing sheet** joins
+planDebut (auto-suggested when absent — every old caller works):
+versions 1-4 (collectors buy the line, diminishing), POB tier,
+run preset (cautious 0.85 / suggested 1.25 / bold 1.9 x the
+pre-order read, which includes the sheet's own demand lift so the
+preset is TRUE headroom), sign rounds 0-3; the bill (version
+design + POB + per-unit manufacturing + rounds) charges at lock —
+one truth with the studio display, suite-checked. **The chodong**
+settles at resolution: demand = fanbase x sheet mults x sign
+boost x reception lift x noise (debuts anchor between the lock
+read and the settled hype); sold-out pays the reorder's 25% late
+and prints the story; run > demand x1.6 prints the warehouse
+memo; the number publishes with an era-over-era comparison and
+archives on the release. **The fan-sign inversion**: rounds sell
+albums (boost scaled by intensity), cost real member fatigue,
+mint the cut-line number publicly, and 2+ rounds roll the
+album-dumping storm (new discourse kind, aimed at the company).
+**The two publics**: digital = reception + standing (through
+format/overseas mults); physical = the chodong; revenue = their
+sum; skew mints identity narratives ('sellsLikeTitan' /
+'digitalDarling', both memory switches). UI: the pressing card in
+the studio (four segmented choices + the read), chodong chip +
+stream split on the results page. Census: chodongMinted floored
+90%; soldOut ruled [0.20,0.90], warehouse [0.30,1.00] — the
+gamble's two tails, dead-at-0 and wallpaper-at-1 both alarms.
+Repairs en route: suite_056's one-truth bill grew the pressing
+term; suite_053 asserts the CASTING not the offer count (a
+week-tick viral can legitimately arm a second call); suite_051's
+founded label now answers §76 A counters (low fame post-founding
+— the systems composing as designed). Battery 80/80, soak 40
+clean, longhaul 9x620 clean, e2e 103. No migration — old saves
+press their first sheet at the next lock.
 
 ## §81 The v0.10 build order (RULED — owner: "I like all of them and
 I want to build them comprehensively. plan out the order first")
@@ -7438,3 +7483,21 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > sitting. Battery 79/79, soak 40 clean, longhaul 9x620 clean
 > (organic counters in haul-founder/blank), e2e 102, lockstep
 > 0.9.38. Rode to main.
+
+> **0.10.0 — the product (§80 findings 1+8+3).** The v0.10 money
+> spine opens. product.js: the album is a product LINE — pressing
+> sheet at lock (versions, pre-order gifts, run preset against the
+> pre-order read, fan-sign rounds), the chodong settling at
+> release week as the fandom's PUBLIC scoreboard beside reception
+> (sold-out story / warehouse memo as the gamble's tails), the
+> fan-sign inversion (rounds sell albums, the cut line prints, the
+> album-dumping storm aims at the company), and the two publics —
+> revenue decomposed into digital (the general public streams the
+> song) + physical (the fandom buys the object), with skewed
+> profiles minting identity narratives. Fanbase read is sublinear
+> in social and damped in feedback: the first calibration
+> compounded flagship chodongs x7 and tripped the soak's
+> budget-runaway invariant — the governor is structural.
+> Calibrated: rookie ~350 copies, flagships 10k→35k across eras,
+> revenue parity at first eras. Battery 80/80, soak 40 clean,
+> longhaul 9x620, e2e 103, lockstep 0.10.0. Rode to main.

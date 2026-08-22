@@ -257,6 +257,11 @@ async function main() {
     'a booking chip toggles on tap');
   await page.waitForSelector('[data-action=studio-week]');
   await tap('[data-action=studio-week]');
+  // --- the product (v0.10.0): the pressing sheet is part of the plan ---
+  const studioPage = await page.textContent('#screen');
+  ok(studioPage.includes('The pressing'), 'the pressing sheet renders in the studio');
+  ok(/pre-orders read|Pre-order gifts/i.test(studioPage), 'with a pre-order read to bet against');
+
   await tap('[data-action=studio-lock]');
   await page.waitForTimeout(150);
   await closeModalIfOpen();   // staff may flag a worn roster at lock (v0.4.2)

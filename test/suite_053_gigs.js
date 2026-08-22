@@ -46,14 +46,18 @@ function famous(state, p) {
   KP.advanceWeek(state);
   G.offerBaseChance = old;
   const offers = KP.openGigOffers(state);
-  t.eq(offers.length, 1, 'one call came in');
-  t.eq(offers[0].personId, funny.id, 'for the funny one, by name');
-  t.eq(offers[0].kind, 'panel', 'and it is a panel seat — the market read the derived stat');
-  t.ok(G.SHOWS.includes(offers[0].show), 'the show has a name');
+  // the claim is the CASTING, not the count — a week-tick viral can
+  // push a second member past the social bar on any stream (0.10.0
+  // stream-shift lesson), and that second call is legitimate
+  const hers = offers.find(o => o.personId === funny.id);
+  t.ok(offers.length >= 1, 'the calls came in');
+  t.ok(hers, 'for the funny one, by name');
+  t.eq(hers.kind, 'panel', 'and it is a panel seat — the market read the derived stat');
+  t.ok(G.SHOWS.includes(hers.show), 'the show has a name');
   t.ok(state.inbox.some(n => n.ind === 'gigOffer'), 'the offer reaches the desk');
   // decline: the desk clears, nothing sticks to her file
-  const r = KP.respondGig(state, offers[0].id, false);
-  t.ok(r.ok && KP.openGigOffers(state).length === 0, 'declining clears the desk');
+  offers.forEach(o => t.ok(KP.respondGig(state, o.id, false).ok, 'declined: ' + o.kind));
+  t.ok(KP.openGigOffers(state).length === 0, 'declining clears the desk');
 }
 
 // ---- the voice gets the OST; the drop pays and can be a hit ----

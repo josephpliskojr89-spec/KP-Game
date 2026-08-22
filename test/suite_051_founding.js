@@ -105,7 +105,13 @@ function maturedCareer(seed) {
   // and the new label can climb: sign, form, debut
   const pool = state.prospects.map(id => state.people[id])
     .filter(p => p && p.gender === 'f').slice(0, 4);
-  pool.forEach(p => KP.signProspect(state, p.id));
+  state.budget = Math.max(state.budget, 400);
+  // the table (v0.9.38): a founded label is UNKNOWN again — worthwhile
+  // files counter, and the founder signs the terms
+  pool.forEach(p => {
+    const r = KP.signProspect(state, p.id);
+    if (!r.ok && r.counter) KP.signProspect(state, p.id, { answer: 'accept' });
+  });
   t.ok(state.roster.length >= 4, 'the second climb starts');
   // the 18-month founding window died during the 80-week war — the
   // founder asks the board they now own (v0.9.19)

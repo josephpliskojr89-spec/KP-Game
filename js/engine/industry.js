@@ -899,6 +899,12 @@
         { persona: 'press', text: 'The most-discussed member of the new lineup is the trainee who is not in it — which tells you everything about how ' + co + ' managed this announcement.' },
         { persona: 'casual', text: 'company builds public hype around a trainee for a year, skips her at the lineup, acts surprised the internet noticed. the management genre’s oldest own-goal' },
       ],
+      albumDump: [
+        { persona: 'casual', text: 'the ' + co + ' album-dumping photos are circulating again and the replies blaming FANS for a sales design built in an office are exhausting. who scheduled the rounds. who set the odds. start there' },
+        { persona: 'fan', text: 'we are allowed to love the group and hate the math. four rounds, one paycheck, lottery odds. ' + co + ' knows exactly what stack of albums that produces' },
+        { persona: 'press', text: 'Another cycle, another donation-bin photo. The sign-round economy converts devotion into first-week numbers, and the receipts pile up — literally — where ' + co + ' does not have to look at them.' },
+        { persona: 'stan', text: 'defending the chodong AND posting the dumping photo is not hypocrisy, it is literacy. both numbers are true. ' + co + ' set both of them' },
+      ],
       fancam: [
         { persona: 'stan', text: 'the ' + who + ' fancam has TWO MILLION views and I contributed forty of them personally. no regrets' },
         { persona: 'casual', text: 'the algorithm decided everyone watches ' + who + ' today and honestly? the algorithm was right' },

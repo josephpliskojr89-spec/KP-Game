@@ -46,7 +46,10 @@ function signDeal(state, p, over) {
     week: state.week + 6, rollout: [[], [], [], []],
     alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
   t.ok(r.ok, 'the lock succeeds');
-  t.eq(before - state.budget, KP.recordBill(g, 'modest', 'single'),
+  // the product (v0.10.0): the pressing sheet joined the bill — the
+  // one-truth check now sums both lines the studio shows
+  t.eq(before - state.budget,
+    KP.recordBill(g, 'modest', 'single') + KP.pressingBill(state, g, g.prep.pressing),
     'and charges exactly the bill the studio shows — one truth');
   // an undebuted group pays rookie prices
   const fresh = { debuted: false, popularity: 90 };

@@ -915,6 +915,10 @@
       }
       case 'studio-concept': App.studioDraft.conceptId = t.dataset.id; App.render(); break;
       case 'studio-promo': App.studioDraft.promo = t.dataset.promo; App.render(); break;
+      case 'press-versions': (App.studioDraft.pressing = App.studioDraft.pressing || {}).versions = parseInt(t.dataset.v, 10); App.render(); break;
+      case 'press-pob': (App.studioDraft.pressing = App.studioDraft.pressing || {}).pob = t.dataset.pob; App.render(); break;
+      case 'press-run': (App.studioDraft.pressing = App.studioDraft.pressing || {}).preset = t.dataset.preset; App.render(); break;
+      case 'press-signs': (App.studioDraft.pressing = App.studioDraft.pressing || {}).signRounds = parseInt(t.dataset.r, 10); App.render(); break;
       case 'studio-format': App.studioDraft.format = t.dataset.format; App.studioDraft.week = null; App.render(); break;
       case 'studio-rollact': {
         const d = App.studioDraft;
@@ -981,7 +985,7 @@
         const mash = (d.mashA && d.mashB && d.mashA !== d.mashB) ? [d.mashA, d.mashB] : null;
         const r = KP.planDebut(s, { groupId: sg.id, songId: d.songId, conceptId: d.conceptId || sel.conceptId,
           promo: d.promo, week: d.week, alloc: d.alloc, format: d.format, rollout: d.rollout, mash,
-          mv: d.mv || 'standard' });
+          mv: d.mv || 'standard', pressing: d.pressing || null });
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
         if (r.warning) {

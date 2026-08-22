@@ -124,7 +124,14 @@
     if (plan.promo && KP.C.DEBUT.promoCost[plan.promo] == null) {
       return { ok: false, reason: 'Marketing comes in three sizes: modest, standard, aggressive.' };
     }
-    const cost = KP.recordBill(g, plan.promo, format.id) + rolloutCost + mvCost;
+    // the product (v0.10.0, §80): the pressing sheet joins the plan —
+    // versions, pre-order gifts, the run against the read of THIS day
+    let pressing = null, pressingCost = 0;
+    if (KP.normalizePressing) {
+      pressing = KP.normalizePressing(state, g, plan.pressing);
+      pressingCost = KP.pressingBill(state, g, pressing);
+    }
+    const cost = KP.recordBill(g, plan.promo, format.id) + rolloutCost + mvCost + pressingCost;
     if (state.budget < cost) return { ok: false, reason: 'Budget cannot cover the record, the marketing AND this rollout. Trim something.' };
     state.budget -= cost;
 
@@ -142,6 +149,8 @@
       mv: mvTier,
       // the campaign (v0.9.37, §76 E): the run-up is played, not set
       campaign: { momentum: 0, worked: 0 },
+      // the product (v0.10.0): the object the fandom will buy
+      pressing,
     };
     if (showsSwapped) {
       KP.fameLedger(state).everClosed = true;
@@ -759,16 +768,33 @@
     if (avg('vocals') >= 62) rep.vocal = KP.clamp((rep.vocal || 60) + 4, 0, 100);
     if (breakout && reception >= 64) rep.starMaker = KP.clamp((rep.starMaker || 35) + (isDebut ? 8 : 4), 0, 100);
 
-    // revenue: a hit pays, an established fanbase buys albums, a bigger
-    // record multiplies both — and the overseas orders move first when
-    // the map is warm (v0.6.6)
+    // the two publics (v0.10.0, §80): the lump becomes streams. The
+    // GENERAL PUBLIC streams the song — digital scales with reception
+    // and standing. The FANDOM buys the OBJECT — physical is the
+    // chodong settling against the pressing sheet, where the money and
+    // the second scoreboard both live. Fandom intensity stopped being
+    // a multiplier here: it drives physical demand directly, once.
     const format = D.FORMATS.find(f => f.id === (g.prep.format || 'single')) || D.FORMATS[0];
     const overseasMult = 1 + KP.overseasAvg(g) * KP.C.REGIONAL.revenuePerOverseas;
-    // a devoted fandom buys everything twice (v0.7.0)
-    const fandomMult = 1 + KP.fandomIntensity(g) * KP.C.FANDOM.revenueFactor;
-    const revenue = Math.round((Math.max(0, reception - 30) * 1.6 + (isDebut ? 0 : (g.popularity || 0) * 0.4)) *
-      format.revenueMult * overseasMult * fandomMult *
-      (repack ? KP.C.REPACKAGE.revenueMult : 1));   // reprints sell real, not full
+    let revenue, product = null;
+    if (KP.settleProduct) {
+      const PRD = KP.C.PRODUCT;
+      const digital = Math.round((Math.max(0, reception - 30) * PRD.digitalPerReception +
+        (isDebut ? 0 : (g.popularity || 0) * PRD.digitalPopFactor)) *
+        format.revenueMult * overseasMult *
+        (repack ? KP.C.REPACKAGE.revenueMult : 1));
+      product = KP.settleProduct(state, g, reception, rng,
+        { overseasMult, repack: !!repack });
+      product.digital = digital;
+      revenue = digital + product.physRev;
+      product.notes.forEach(push);
+      push(KP.recordProfile(state, g, product.physRev, digital, product.chodong, reception));
+    } else {
+      const fandomMult = 1 + KP.fandomIntensity(g) * KP.C.FANDOM.revenueFactor;
+      revenue = Math.round((Math.max(0, reception - 30) * 1.6 + (isDebut ? 0 : (g.popularity || 0) * 0.4)) *
+        format.revenueMult * overseasMult * fandomMult *
+        (repack ? KP.C.REPACKAGE.revenueMult : 1));
+    }
     state.budget += revenue;
 
     // popularity: the debut founds the fanbase (hype converts into it);
@@ -835,6 +861,11 @@
         .concat(memRead.notes)
         .concat(hiaRead.note ? [hiaRead.note] : []),
       mash, fusionOutcome,
+      // the product (v0.10.0): the two publics, decomposed
+      product: product ? { chodong: product.chodong, run: product.run,
+        versions: product.versions, pob: product.pob, signRounds: product.signRounds,
+        soldOut: product.soldOut, overpress: product.overpress,
+        physRev: product.physRev, digital: product.digital } : null,
       // the grind (v0.9.37): the era's ground game, on the record
       wall: wall ? { fame: Math.round(wall.fame * 100) / 100, cap: wall.cap,
         waste: wall.waste, momLift: wall.momLift, walled: wall.walled,
@@ -888,6 +919,9 @@
       isDebut, format: format.id, tracks: format.tracks,
       anticipation,   // the countdown's cash-in, on the record (v0.9.19)
       returnRun: g.prep.returnRun || null,   // the alum on the sleeve (v0.9.25)
+      // the product (v0.10.0): the fandom's number, archived beside the public's
+      chodong: product ? product.chodong : null,
+      pressing: product ? { run: product.run, versions: product.versions, pob: product.pob } : null,
       // the release archives its OWN copy (0.9.13 audit L4: results and
       // releases shared one live array — identical today, a fork hazard
       // the first time anything edits a released tracklist)

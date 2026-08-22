@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.38',
+    VERSION: '0.10.0',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -809,6 +809,10 @@
         // the public eye (v0.9.36): the known trainee the lineup skipped
         aceSnub: { label: 'lineup snub story', negative: true, start: [30, 55],
           actions: ['statement', 'meme'] },
+        // the product (v0.10.0): heavy fan-sign rounds read as sales
+        // machinery — the dumping-photo story aims at the COMPANY
+        albumDump: { label: 'album-dumping story', negative: true, start: [25, 50],
+          actions: ['statement', 'meme'] },
         // the bad blood (v0.9.21): the fandom throws the gasoline
         didntStand: { label: 'distance watch', negative: true, start: [25, 45],
           actions: ['statement', 'meme'] },
@@ -1400,6 +1404,34 @@
     // WITH a hot market knows what she is worth. Money alone never
     // flips her — the paths past the bar are stature, her lane at real
     // height, and the courtship the powers never bother to make.
+    // the product (v0.10.0, §80 findings 1+8+3) — the album is a
+    // PRODUCT LINE and first-week sales are the fandom's public
+    // scoreboard. Revenue splits into two publics: the fandom buys the
+    // object (chodong), the general public streams the song (digital).
+    PRODUCT: {
+      versionCost: 6,          // each extra version: design, photobook, cards
+      pobCost:   { none: 0, standard: 4, lavish: 10 },
+      pobDemand: { none: 1.0, standard: 1.12, lavish: 1.22 },
+      pobMargin: { none: 1.0, standard: 1.05, lavish: 1.12 },
+      unitCostPerK: 0.55,      // manufacturing per 1000 units PRESSED
+      marginPerK: 1.55,        // gross per 1000 units SOLD (1.9 at first
+                               // calibration — the chodong feedback loop
+                               // compounded flagship budgets past the soak's
+                               // runaway invariant; the flywheel needed a governor)
+      versionDemand: [1, 1.14, 1.24, 1.30],  // collectors buy the line, diminishing
+      runPresets: { cautious: 0.85, suggested: 1.25, bold: 1.9 },  // x demand read
+      reorderShare: 0.25,      // a sold-out week reorders late, catches this much
+      chodongNoise: 0.15,      // the market is not a formula
+      overpressAt: 1.6,        // run past demand x this = the warehouse memo
+      repackDemand: 0.55,      // reprints sell real, not full (era heat carries)
+      signRoundCost: 3, signRoundBoost: 0.11, signRoundsMax: 3, signFatigue: 4,
+      cutSeatsPerRound: 80,    // seats per fan-sign round — the cut line divides
+      dumpRiskAt: 2, dumpChance: 0.30,  // heavy rounds roll the album-dump story
+      digitalPerReception: 1.25, digitalPopFactor: 0.25,
+      titanSkew: 2.2, rumorSkew: 0.45,  // phys/dig ratio bars for the identity story
+      FANBASE: { popPow: 1.55, popMult: 3.0, socialRoot: 12,
+        lastMult: 0.25, preorderShare: 0.55 },
+    },
     // the table (v0.9.38, §76 A) — "feels a little too easy to just
     // click the sign button as a brand new label competing against
     // established brands." Worthwhile files counter at the table when

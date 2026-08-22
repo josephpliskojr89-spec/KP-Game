@@ -308,6 +308,34 @@
         '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">The Countdown is the Sunday institution, Prime Stage rewards performers, Pop Wave takes chances on new faces — and every show week, somebody goes home with the trophy. Variety builds faces; fan signs buy loyalty; the challenge is cheap reach; rest is rest. They cannot be everywhere — pick.</div>' +
         '</div>');
 
+      // the product (v0.10.0, §80): the pressing sheet — the album is a
+      // product line, and the run is a bet against the pre-order read
+      if (KP.suggestPressing) {
+        const P = KP.C.PRODUCT;
+        if (!draft.pressing) draft.pressing = KP.suggestPressing(state, g);
+        const dp = draft.pressing;
+        const sheet = KP.normalizePressing(state, g, dp);
+        const bill = KP.pressingBill(state, g, sheet);
+        const preorders = KP.preorderRead(state, g);
+        html.push('<div class="kicker">The pressing · bill ' + bill + '</div>');
+        html.push('<div class="card">' +
+          '<div style="font-size:.7rem;color:var(--ink-dim);margin-bottom:4px">Versions — collectors buy the line</div>' +
+          '<div class="seg" style="margin-bottom:8px">' + [1, 2, 3, 4].map(v =>
+            '<button class="' + (sheet.versions === v ? 'on' : '') + '" data-action="press-versions" data-v="' + v + '">' + v + '</button>').join('') + '</div>' +
+          '<div style="font-size:.7rem;color:var(--ink-dim);margin-bottom:4px">Pre-order gifts</div>' +
+          '<div class="seg" style="margin-bottom:8px">' + Object.keys(P.pobCost).map(pb =>
+            '<button class="' + (sheet.pob === pb ? 'on' : '') + '" data-action="press-pob" data-pob="' + pb + '">' + pb + '</button>').join('') + '</div>' +
+          '<div style="font-size:.7rem;color:var(--ink-dim);margin-bottom:4px">The run — pre-orders read ' + KP.fmtCount(preorders) + '; press cautious, to the read, or brave</div>' +
+          '<div class="seg" style="margin-bottom:8px">' + Object.keys(P.runPresets).map(rp =>
+            '<button class="' + (sheet.preset === rp ? 'on' : '') + '" data-action="press-run" data-preset="' + rp + '">' + rp + '</button>').join('') + '</div>' +
+          '<div style="font-size:.7rem;color:var(--ink-dim);margin-bottom:4px">Fan-sign rounds — entry rides purchases; rounds sell albums and spend the members</div>' +
+          '<div class="seg">' + [0, 1, 2, 3].map(sr =>
+            '<button class="' + (sheet.signRounds === sr ? 'on' : '') + '" data-action="press-signs" data-r="' + sr + '">' + sr + '</button>').join('') + '</div>' +
+          '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">Pressing ' + KP.fmtCount(sheet.run) + ' units. Undersell the week that counts and the reorder catches only the diehards; overpress and the warehouse writes the memo. First-week sales print PUBLICLY — the fandom’s scoreboard, next to the public’s.' +
+          (sheet.signRounds >= P.dumpRiskAt ? ' <span style="color:var(--magenta)">Heavy rounds risk the album-dumping story.</span>' : '') + '</div>' +
+          '</div>');
+      }
+
       const minW = state.week + Math.max(KP.C.DEBUT.prepWeeksMin, fmt.minPrep);
       const options = [];
       const lastOption = (state.objective.status === 'open' && state.objective.type === 'debutGirlGroup')
@@ -428,7 +456,11 @@
       (r.nationalPeak != null ? '<span class="chip gold">national #' + r.nationalPeak + '</span>' : '') +
       (r.battle ? '<span class="chip ' + (r.battle.won ? 'gold' : 'hot') + '">' +
         (r.battle.won ? 'took the week vs ' : 'lost the week to ') + UI.esc(r.battle.actName) + '</span>' : '') +
-      '<span class="chip gold">revenue +' + r.revenue + '</span>' +
+      (r.product && r.product.chodong != null
+        ? '<span class="chip hot">chodong ' + KP.fmtCount(r.product.chodong) +
+          (r.product.soldOut ? ' · SOLD OUT' : '') + '</span>' : '') +
+      '<span class="chip gold">revenue +' + r.revenue +
+      (r.product ? ' (streams ' + r.product.digital + ' · albums ' + r.product.physRev + ')' : '') + '</span>' +
       '</div></div>');
 
     html.push('<div class="kicker">The public decided</div>');

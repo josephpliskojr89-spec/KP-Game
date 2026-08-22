@@ -270,6 +270,17 @@ const BANDS = {
   // the fame gates broke. The positive path is verified where low-fame
   // worlds exist: the longhaul's blank scenario asserts gigs played
   // and the wall felt (hard invariants), and suite_078 forces both.
+  // the product (v0.10.0): every resolution settles a pressing — a
+  // FLOOR like the §77 verdict band (falling means the hook came
+  // unwired). Sold-out and warehouse are the gamble's two tails; the
+  // dump storm needs 2+ sign rounds, which the auto sheet caps at 1.
+  // First soak — provisional on the tails, measure then rule.
+  chodongMinted:     { lo: 0.90, hi: 1.00, label: 'orgs whose releases printed a first-week number' },
+  // ruled first soak: 25/40 and 36/40 across ~6 eras per world — the
+  // gamble's two tails. Dead at 0 (the pressing choice stopped
+  // mattering), wallpaper at 1.0 for sellouts (press braver, always)
+  pressSoldOut:      { lo: 0.20, hi: 0.90, label: 'orgs that sold out a pressing (the sweet lost money)' },
+  pressWarehouse:    { lo: 0.30, hi: 1.00, label: 'orgs that ate a warehouse memo' },
   // the table (v0.9.38): counters need fame under 0.45 AND a file
   // worth arguing over — legacy soak orgs sit at 0.64, so this is a
   // CEILING like the wall bands (gates broken if famous orgs get
@@ -483,6 +494,7 @@ const tally = {
   expectSet: 0, snubSeen: 0, verdictSeen: 0, compared: 0,
   gigPlayed: 0, campaignRun: 0, gigViralSeen: 0, wallTouched: 0, breakSeen: 0,
   counterMet: 0, clauseLive: 0,
+  chodongMinted: 0, pressSoldOut: 0, pressWarehouse: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -1443,6 +1455,21 @@ for (let s = 0; s < SEEDS; s++) {
   if ((nl.washouts || 0) + ((state.rivalLedger || {}).namedCuts || 0) >= 1) tally.washoutReturned++;
   if ((nl.seasons || 0) >= 1) tally.seasonAired++;
   if ((nl.calls || 0) + (nl.streets || 0) >= 1) tally.callHeld++;
+  // the product (v0.10.0): the releases archive their own numbers
+  {
+    let minted = 0, sold = 0, ware = 0;
+    state.groups.forEach(g => (g.releases || []).forEach(r => {
+      if (r.chodong != null) minted++;
+    }));
+    state.groups.forEach(g => {
+      const pr = g.results && g.results.product;
+      if (pr && pr.soldOut) sold++;
+      if (pr && pr.overpress) ware++;
+    });
+    if (minted >= 1) tally.chodongMinted++;
+    if (sold >= 1) tally.pressSoldOut++;
+    if (ware >= 1) tally.pressWarehouse++;
+  }
   // the table (v0.9.38): the ledger is durable
   const tbl = state.tableLedger || {};
   if ((tbl.counters || 0) >= 1) tally.counterMet++;
