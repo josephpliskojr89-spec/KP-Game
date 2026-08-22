@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.36',
+    VERSION: '0.9.37',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1491,6 +1491,85 @@
       },
       compareChance: 0.55,     // a landing week draws the comparison post
       houseGapNote: 18,        // sibling gap that makes the inbox, not just the feed
+    },
+    // the grind (v0.9.37, §76 C) — "label reputation should have a
+    // direct impact on a song's ceiling. if no one knows who you are,
+    // it should be difficult to get the song out there, even if you
+    // spend big." fameRead is who knows YOU (networkRead is who you
+    // can find) — derived from durable facts, no stored meter.
+    FAME: {
+      base: 0.05,
+      repFloor: 20, repDiv: 130,    // best reputation lane's share
+      perChart: 0.03, chartMax: 0.12, hitReception: 60, // real hits, not weak-week peaks
+      perWin: 0.012, winMax: 0.10,  // music-show trophies
+      popFloor: 40, popDiv: 200, popMax: 0.15, // standing ABOVE "recently debuted"
+      perFace: 0.02, faceMax: 0.08, // publicly known names on the roster
+      perBreak: 0.05,               // a breakthrough moves the wall PERMANENTLY
+      wallBelow: 0.50,              // under this, the ceiling is real
+      capBase: 42, capSlope: 65,    // the ceiling: base + fame x slope
+      overCapKeep: 0.30,            // quality above the wall mostly goes unheard
+      paidFloor: 0.30, paidKnee: 0.55, // ad money converts through fame
+      showBar: 0.28,                // below this the music shows don't call back
+      camCapLift: 10,               // a phone-shot gig clip lifts the era's ceiling
+      sparkCapLift: 8,              // so does the defining stage clip
+      breakBelow: 0.45, breakMin: 62, // unknown label + a landing this loud = breakthrough
+      breakRep: 7, breakTrust: 3,   // the wall moves: rep jump, board notices
+      MOM: {                        // §76 E — earned reach converts through WORK
+        receptionPer: 0.12, receptionCap: 12,  // momentum into opening numbers
+        capLiftPer: 0.20,           // and into ceiling lift — the ground game pierces
+        decay: 2,                   // idle campaign weeks cool off
+        diminishAt: 140,            // pushes pay less as the era saturates
+        gigByRung: [4, 6, 8],       // a played booking feeds the era
+        WORDS: [                    // words, never meters (kernel law)
+          [0,  'nobody has heard a thing'],
+          [10, 'a murmur in the neighborhood'],
+          [25, 'the fansites are stirring'],
+          [45, 'people are talking'],
+          [70, 'the internet knows the date'],
+          [90, 'everywhere at once']],
+      },
+      PUSHES: {                     // campaign verbs — the run-up, played by hand
+        streetTeam:  { label: 'Street team week', cost: 1, mom: 7,  fatigue: 3 },
+        fanMeet:     { label: 'Pre-release fan-sign', cost: 2, mom: 6, fatigue: 3, fandom: 1 },
+        radioPush:   { label: 'Radio circuit push', cost: 3, mom: 8, fatigue: 2, needsFame: 0.22 },
+        contentDrop: { label: 'Content drop', cost: 2, mom: 7, fatigue: 2, social: 400 },
+        showcase:    { label: 'Small showcase', cost: 4, mom: 12, fatigue: 5, once: true, liveExp: 2 },
+      },
+    },
+    // the grind (v0.9.37, §76 D) — "a whole pile of bookings from the
+    // lowest rung of fame up, all generated as needed." The pile deals
+    // more than a group can take; choosing is the game.
+    BOOK: {
+      boardCap: 6, expireWeeks: 2, leadWeeks: [1, 3],  // offers land 1-3 weeks out
+      dealBands: [                 // fame → rungs dealt, offers per week
+        { under: 0.18, rungs: [0],    deals: [2, 3] },
+        { under: 0.32, rungs: [0, 1], deals: [2, 3] },
+        { under: 0.48, rungs: [1, 2], deals: [1, 2] },
+        { under: 0.62, rungs: [2],    deals: [0, 1] },
+      ],                           // above the last band the pile dries up
+      camBase: 0.022,              // the phone-camera lottery, per played gig
+      camSpikeMult: 1.2, camHype: 6,
+      flyerBoost: 1.35, flyerFatigue: 4,  // papering the neighborhood is work
+      TOWNS: ['Suwon', 'Jeonju', 'Changwon', 'Cheongju', 'Pohang', 'Bucheon',
+        'Anyang', 'Gimhae', 'Jeju City', 'Chuncheon', 'Mokpo', 'Gumi'],
+      KINDS: {
+        schoolShow:  { rung: 0, label: 'school assembly',       fee: [1, 2],  fans: [140, 300],  pop: 0.10, fatigue: 3, liveExp: 1.2, morale: 1,  viralMult: 1.3 },
+        wedding:     { rung: 0, label: 'wedding stage',         fee: [2, 3],  fans: [80, 200],   pop: 0.05, fatigue: 3, liveExp: 0.8, morale: -1, viralMult: 1.5 },
+        mallOpening: { rung: 0, label: 'mall opening',          fee: [1, 3],  fans: [200, 420],  pop: 0.12, fatigue: 3, liveExp: 1.0, morale: 0,  viralMult: 1.0 },
+        sportsDay:   { rung: 0, label: 'halftime stage',        fee: [1, 2],  fans: [160, 380],  pop: 0.10, fatigue: 3, liveExp: 1.0, morale: 0,  viralMult: 1.2 },
+        townFair:    { rung: 0, label: 'regional fair',         fee: [1, 2],  fans: [180, 400],  pop: 0.12, fatigue: 4, liveExp: 1.2, morale: 0,  viralMult: 1.0 },
+        theaterNight:{ rung: 0, label: 'small-theater night',   fee: [-2, -2], fans: [240, 520], pop: 0.16, fatigue: 4, liveExp: 1.8, morale: 1,  viralMult: 1.2, flyerable: true },
+        uniFestival: { rung: 1, label: 'university festival',   fee: [3, 5],  fans: [500, 1100], pop: 0.30, fatigue: 5, liveExp: 2.0, morale: 2,  viralMult: 1.6, seasonWoy: [[18, 23], [36, 41]] },
+        localRadio:  { rung: 1, label: 'local radio guesting',  fee: [1, 2],  fans: [260, 520],  pop: 0.12, fatigue: 2, liveExp: 0.4, morale: 0,  viralMult: 0.6 },
+        clubNight:   { rung: 1, label: 'club-circuit night',    fee: [2, 4],  fans: [340, 700],  pop: 0.16, fatigue: 5, liveExp: 2.2, morale: 0,  viralMult: 1.2, flyerable: true },
+        busking:     { rung: 1, label: 'busking permit',        fee: [0, 0],  fans: [300, 900],  pop: 0.10, fatigue: 4, liveExp: 1.6, morale: 1,  viralMult: 2.0 },
+        fanSignSmall:{ rung: 1, label: 'bookstore fan-sign',    fee: [1, 2],  fans: [280, 560],  pop: 0.08, fatigue: 3, liveExp: 0.2, morale: 2,  viralMult: 0.8, fandom: 1 },
+        cableSpot:   { rung: 1, label: 'cable variety spot',    fee: [2, 4],  fans: [420, 900],  pop: 0.14, fatigue: 4, liveExp: 0.3, morale: 0,  viralMult: 0.9, mediaExp: 2 },
+        showcase:    { rung: 2, label: 'showcase hall',         fee: [4, 7],  fans: [700, 1500], pop: 0.35, fatigue: 5, liveExp: 2.5, morale: 2,  viralMult: 1.4 },
+        brandStage:  { rung: 2, label: 'brand stage',           fee: [5, 8],  fans: [600, 1200], pop: 0.25, fatigue: 4, liveExp: 1.0, morale: 0,  viralMult: 1.0 },
+        radioTour:   { rung: 2, label: 'radio tour week',       fee: [2, 4],  fans: [500, 1000], pop: 0.20, fatigue: 4, liveExp: 0.5, morale: 0,  viralMult: 0.6, mediaExp: 3 },
+        openerSlot:  { rung: 2, label: 'festival opener slot',  fee: [3, 6],  fans: [800, 1600], pop: 0.30, fatigue: 5, liveExp: 2.2, morale: 1,  viralMult: 1.5 },
+      },
     },
     // the portfolio (v0.9.26, §69) — "a major company might only debut
     // a new girl group once every 5 to 7 years. essentially one per

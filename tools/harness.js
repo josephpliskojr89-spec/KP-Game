@@ -263,6 +263,20 @@ const BANDS = {
   // 40/40 first soak. Snubs need a KNOWN trainee left off a lineup
   // (measured 24/40); compares ride the 0.55 roll across many releases
   // (measured 40/40, floored lower for sampling room).
+  // the grind (v0.9.37): legacy soak orgs start FAMOUS (fame ~0.64),
+  // so the pile correctly never deals to them and the wall never
+  // bites — measured 0/40 first soak, by design. These are CEILINGS:
+  // if famous orgs start drawing wedding gigs or feeling the wall,
+  // the fame gates broke. The positive path is verified where low-fame
+  // worlds exist: the longhaul's blank scenario asserts gigs played
+  // and the wall felt (hard invariants), and suite_078 forces both.
+  gigPlayed:         { lo: 0.00, hi: 0.50, label: 'orgs that played a stage off the booking pile' },
+  // the bot works EVERY locked era (measured 40/40 first soak) — a
+  // floor: falling means the campaign verb came unwired
+  campaignRun:       { lo: 0.90, hi: 1.00, label: 'orgs that worked a release campaign by hand' },
+  gigViralSeen:      { lo: 0.00, hi: 0.50, label: 'orgs the phone-camera lottery paid out for' },
+  wallTouched:       { lo: 0.00, hi: 0.50, label: 'orgs whose release felt the obscurity wall' },
+  breakSeen:         { lo: 0.00, hi: 0.30, label: 'orgs that broke through the wall (the story)' },
   expectSet:         { lo: 0.90, hi: 1.00, label: 'orgs whose announcement minted public expectations' },
   snubSeen:          { lo: 0.20, hi: 0.95, label: 'orgs where a known trainee was passed over (the story)' },
   verdictSeen:       { lo: 0.90, hi: 1.00, label: 'orgs whose debut settled against its own announcement' },
@@ -408,7 +422,13 @@ const BANDS = {
   // ceiling 0.80→0.90 (v0.9.33): deeper rosters mean more organized
   // fandoms holding more grievances — 31/40 → 33/40 measured across the
   // stream shift. The ceiling still guards trucks-as-wallpaper.
-  truckParked:       { lo: 0.00, hi: 0.90, label: 'orgs that found a protest truck outside' },
+  // FLIPPED ceiling→floor (v0.9.37): the campaign adds real era
+  // workload, so the fandom noticing overwork became the norm across a
+  // 140-week run — 39/40 measured with the PACED bot (fatigue-aware,
+  // no gigs in promo weeks). One truck per ~2.5 label-years is honest
+  // fiction; within-world spam stays bounded by quietWeeks spacing.
+  // The alarm worth keeping is trucks VANISHING: constituency broke.
+  truckParked:       { lo: 0.30, hi: 1.00, label: 'orgs that found a protest truck outside' },
   fanMeetingHeld:    { lo: 0.30, hi: 1.00, label: 'orgs that held a fan meeting' },
   lightstickOut:     { lo: 0.30, hi: 1.00, label: 'orgs that launched the lightstick' },
   // v0.9.8 — the flagships. The owner's report ("every release straight
@@ -454,6 +474,7 @@ const tally = {
   holdoutMet: 0, holdoutWon: 0, holdoutLost: 0,
   networkApps: 0, networkRefs: 0, washoutReturned: 0, seasonAired: 0, callHeld: 0,
   expectSet: 0, snubSeen: 0, verdictSeen: 0, compared: 0,
+  gigPlayed: 0, campaignRun: 0, gigViralSeen: 0, wallTouched: 0, breakSeen: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -574,6 +595,35 @@ for (let s = 0; s < SEEDS; s++) {
       for (const cand of ranked.slice(0, 3)) {
         if (state.budget <= KP.signCost(state, cand.p) + 60) break;
         if (KP.signProspect(state, cand.p.id).ok) break;
+      }
+    }
+    // the grind (v0.9.37): the bot runs a simple campaign — one push a
+    // week on any locked era, and the first affordable stage off the
+    // pile. The human game is in taking the RIGHT ones; the bot just
+    // keeps the census honest.
+    const restRead = g => {
+      const ms = g.members.map(id => state.people[id]).filter(Boolean);
+      return ms.length ? ms.reduce((s2, m) => s2 + m.fatigue, 0) / ms.length : 100;
+    };
+    state.groups.forEach(g => {
+      if (!g.prep || g.retiredWeek) return;
+      const c = g.prep.campaign;
+      // paced, not relentless: a real staff skips the push week when the
+      // room is worn — the first soak's always-on bot benched members
+      // into a 40/40 protest-truck flood
+      if (c && c.lastPush !== state.week && state.budget > 40 && restRead(g) < 55) {
+        KP.campaignPush(state, g.id, 'streetTeam');
+      }
+    });
+    if (KP.openBookings && state.budget > 20) {
+      const offer = KP.openBookings(state).find(o => o.week > state.week && o.fee >= 0);
+      if (offer) {
+        const gs = state.groups.filter(g => !g.retiredWeek && !g.hiatus && !g.tour &&
+          g.members.length && (g.debuted || g.prep) &&
+          state.week > (g.promoUntil || 0) &&        // promo weeks are already full
+          restRead(g) < 50);                          // and worn rooms rest
+        const pick = gs.find(g => g.prep) || gs[0];
+        if (pick) KP.takeBooking(state, offer.id, pick.id);
       }
     }
     // the world auditions (v0.9.29): a flush boss funds a circuit —
@@ -1378,6 +1428,14 @@ for (let s = 0; s < SEEDS; s++) {
   if ((nl.washouts || 0) + ((state.rivalLedger || {}).namedCuts || 0) >= 1) tally.washoutReturned++;
   if ((nl.seasons || 0) >= 1) tally.seasonAired++;
   if ((nl.calls || 0) + (nl.streets || 0) >= 1) tally.callHeld++;
+  // the grind (v0.9.37): both ledgers are durable
+  const bl = state.bookingLedger || {};
+  if ((bl.played || 0) >= 1) tally.gigPlayed++;
+  if ((bl.pushes || 0) >= 1) tally.campaignRun++;
+  if ((bl.virals || 0) >= 1) tally.gigViralSeen++;
+  const fml = state.fameLedger || {};
+  if ((fml.walled || 0) + (fml.ground || 0) >= 1) tally.wallTouched++;
+  if ((fml.breaks || 0) >= 1) tally.breakSeen++;
   // the public eye (v0.9.36): the ledger is durable
   const pel = state.publicEyeLedger || {};
   if ((pel.expectSet || 0) >= 1) tally.expectSet++;
@@ -1447,7 +1505,10 @@ for (let s = 0; s < SEEDS; s++) {
   if (state.groups.some(g => g.gender === 'm')) tally.boyGroupFormed++;
   if (state.groups.filter(g => g.debuted).every(g => KP.managerOf(state, g)) &&
       state.groups.some(g => g.debuted)) tally.staffNamed++;
-  if ((state.convoLog || []).some(e => e.kind === 'boardSeason')) tally.boardFaced++;
+  // durable counter (v0.9.37): the convoLog read undercounted — its
+  // 40-entry cap evicts old seasons in busy worlds
+  if ((state.boardSeasonsFaced || 0) >= 1 ||
+      (state.convoLog || []).some(e => e.kind === 'boardSeason')) tally.boardFaced++;
   if (state.petProjectDone) tally.petAssigned++;
   // the clock census (v0.9.0): every debuted idol carries the stamp
   if (state.groups.some(g => g.debuted) &&

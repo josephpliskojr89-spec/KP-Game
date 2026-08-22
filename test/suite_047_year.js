@@ -44,6 +44,9 @@ function rideToWoy(state, target) {
   const { state, g } = debuted('yr-fest');
   const F = KP.C.FESTS;
   const f = F.LIST.find(x => x.id === 'cherryPoint');
+  // icon stamp: the invite must not ride the 75% roll, which rng-stream
+  // drift keeps knocking over (0.9.24.1 lesson, third application)
+  KP.recordEvidence(state, 'festivalIcons', 'group', g.id);
   rideToWoy(state, f.woy - F.inviteLead - 1);
   g.popularity = 45;
   KP.advanceWeek(state);

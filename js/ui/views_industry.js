@@ -78,6 +78,12 @@
       '<div class="rv-phil">' + repHeadline(state.company.reputation) + '</div>' +
       '<div class="rv-blurb">' + UI.esc(state.company.blurb || KP.DATA.playerCompany.reputationLine) + '</div>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">' + repChips(state.company.reputation) + '</div>' +
+      (KP.fameWord
+        ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:8px">Public profile: ' +
+          UI.esc(KP.fameWord(state)) +
+          (KP.showsOpen && !KP.showsOpen(state)
+            ? ' · <span style="color:var(--magenta)">the music shows do not return the calls yet</span>' : '') + '</div>'
+        : '') +
       (state.founded && state.board
         ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:8px">The board: ' +
           state.board.seats.map(s => UI.esc(s.name) + ' <span style="opacity:.7">(' + UI.esc(s.role) + ')</span>').join(' · ') + '</div>'

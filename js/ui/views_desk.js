@@ -116,6 +116,69 @@
       });
     }
 
+    // the grind (v0.9.37, §76 E): the era desk — a locked release is a
+    // campaign to RUN, not a date to wait for
+    KP.groups(state).filter(g => g.prep && !g.retiredWeek).forEach(g => {
+      const c = g.prep.campaign || { momentum: 0, worked: 0 };
+      const P = KP.C.FAME.PUSHES;
+      const pushedThisWeek = c.lastPush === state.week;
+      const fame = KP.fameRead ? KP.fameRead(state) : 1;
+      html.push('<div class="kicker">The campaign · ' + UI.esc(g.name) + '</div>' +
+        '<div class="war-card held"><div class="w-flag">Release week ' + g.prep.scheduledWeek +
+        ' · word of mouth: ' + UI.esc(KP.momentumWord(c.momentum)) + '</div>' +
+        '<div class="w-text">' + (c.worked ? c.worked + ' push' + (c.worked === 1 ? '' : 'es') + ' worked so far.' :
+          'Nobody has worked this era yet.') +
+        (fame < KP.C.FAME.wallBelow
+          ? ' At this label’s size, the ground game is the only marketing that converts at full rate — momentum lifts what the label’s name cannot.'
+          : ' Momentum stacks on top of the paid campaign.') +
+        (pushedThisWeek ? ' This week’s push is done — the members are not a media plan.' : '') + '</div>' +
+        '<div class="w-actions">' +
+        Object.keys(P).map(k => {
+          const disabled = pushedThisWeek || (P[k].once && c[k + 'Done']) ||
+            state.budget < P[k].cost || (P[k].needsFame && fame < P[k].needsFame);
+          return '<button class="btn small' + (disabled ? '' : ' primary') + '"' +
+            (disabled ? ' disabled' : '') +
+            ' data-action="campaign-push" data-group="' + g.id + '" data-kind="' + k + '">' +
+            UI.esc(P[k].label) + ' · ' + P[k].cost + '</button>';
+        }).join('') +
+        '</div></div>');
+    });
+
+    // the grind (v0.9.37, §76 D): the booking pile — the pile deals
+    // more than a group can take; choosing is the game
+    const offers = KP.openBookings ? KP.openBookings(state) : [];
+    const bookableGs = KP.groups(state).filter(g => !g.retiredWeek && !g.hiatus && !g.tour &&
+      g.members.length && (g.debuted || g.prep));
+    if (offers.length && bookableGs.length) {
+      html.push('<div class="kicker">The booking pile</div>');
+      offers.forEach(o => {
+        const K = KP.C.BOOK.KINDS[o.kindId] || {};
+        html.push('<div class="war-card held"><div class="w-flag">' + UI.esc(o.label) +
+          ' · week ' + o.week + ' · ' + (o.fee < 0 ? 'costs ' + (-o.fee) : 'fee ' + o.fee) + '</div>' +
+          '<div class="w-text">Answer by week ' + o.expiresWeek + '.' +
+          (K.flyerable ? ' A flyer week beforehand fills the room — and earns it twice.' : '') + '</div>' +
+          '<div class="w-actions">' +
+          bookableGs.map(g =>
+            '<button class="btn small primary" data-action="take-booking" data-offer="' + o.id +
+            '" data-group="' + g.id + '">Send ' + UI.esc(g.name) + '</button>' +
+            (K.flyerable && o.week > state.week
+              ? '<button class="btn small" data-action="take-booking" data-offer="' + o.id +
+                '" data-group="' + g.id + '" data-flyer="1">+ flyer week</button>' : '')
+          ).join('') +
+          '</div></div>');
+      });
+    }
+    const takenGigs = KP.takenBookings ? KP.takenBookings(state) : [];
+    if (takenGigs.length) {
+      html.push('<div class="kicker">Booked stages</div>');
+      takenGigs.forEach(o => {
+        const g = KP.groups(state).find(x => x.id === o.taken);
+        html.push('<div class="card" style="display:flex;gap:10px;align-items:center">' +
+          '<div style="flex:1;min-width:0"><b>' + (g ? UI.esc(g.name) : '?') + '</b> — ' +
+          UI.esc(o.label) + ' · week ' + o.week + (o.flyered ? ' · flyered' : '') + '</div></div>');
+      });
+    }
+
     // the second job (v0.9.11): productions call, the desk answers
     const gigOffers = KP.openGigOffers(state);
     if (gigOffers.length) {

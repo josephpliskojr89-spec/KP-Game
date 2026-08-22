@@ -201,6 +201,32 @@ function botWeek(state, mode) {
     state.groups.forEach(g => { if (KP.fandomEligible(state, g)) KP.nameFandom(state, g.id, 0); });
   }
   if (mode !== 'neglect') {
+    // the grind (v0.9.37): work every locked era, take a stage a week
+    const restRead = g => {
+      const ms = g.members.map(id => state.people[id]).filter(Boolean);
+      return ms.length ? ms.reduce((s2, m) => s2 + m.fatigue, 0) / ms.length : 100;
+    };
+    state.groups.forEach(g => {
+      if (!g.prep || g.retiredWeek) return;
+      const c = g.prep.campaign;
+      // paced, not relentless: a real staff skips the push week when the
+      // room is worn — the first soak's always-on bot benched members
+      // into a 40/40 protest-truck flood
+      if (c && c.lastPush !== state.week && state.budget > 40 && restRead(g) < 55) {
+        KP.campaignPush(state, g.id, 'streetTeam');
+      }
+    });
+    if (KP.openBookings && state.budget > 20) {
+      const offer = KP.openBookings(state).find(o => o.week > state.week && o.fee >= 0);
+      if (offer) {
+        const gs = state.groups.filter(g => !g.retiredWeek && !g.hiatus && !g.tour &&
+          g.members.length && (g.debuted || g.prep) &&
+          state.week > (g.promoUntil || 0) &&        // promo weeks are already full
+          restRead(g) < 50);                          // and worn rooms rest
+        const pick = gs.find(g => g.prep) || gs[0];
+        if (pick) KP.takeBooking(state, offer.id, pick.id);
+      }
+    }
     // sign a prospect when thin
     if (state.roster.filter(id => state.people[id].status === 'trainee').length < 5 &&
         state.prospects.length < 4 && state.budget > 160) {
@@ -225,6 +251,23 @@ function botWeek(state, mode) {
       const ids = (fFree.length >= 5 ? fFree : free).slice(0, 5);   // freeTrainees returns ids
       KP.proposeGroup(state, 'AUDITLINE', ids, KP.roleHints(state, ids.map(i => state.people[i])));
     }
+    // the first debut (v0.9.37): a formed lineup gets its era planned.
+    // The longhaul bot used to let AUDITLINE sit undebuted for 13
+    // years, which left every under-the-wall path unwitnessed here.
+    state.groups.forEach(g => {
+      if (g.legacy || g.debuted || g.prep || g.retiredWeek || !g.members.length) return;
+      if (state.budget < 90) return;
+      if (!g.demos) {
+        const rng = KP.rngFor(state);
+        g.demos = KP.generateDemos(state, rng, g);
+        state.rngState = rng.state();
+      }
+      if (g.demos && g.demos[0]) {
+        KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
+          week: state.week + Math.max(KP.C.DEBUT.prepWeeksMin, 5),
+          alloc: { vocals: 30, dance: 30, rap: 10, media: 30 } });
+      }
+    });
     // hiatus a worn group; comeback everything else on the calendar
     state.groups.forEach(g => {
       if (!g.debuted || g.prep || g.tour) return;
@@ -291,13 +334,17 @@ const SCENARIOS = [
   { seed: 'haul-blank', mode: 'blank' },         // hard mode from nothing (v0.9.34)
   { seed: 'haul-major', mode: 'major' },         // stewardship decade (0.9.35.2 —
                                                  // the 'fierce' crash hid here)
+  { seed: 'haul-fresh', mode: 'fresh' },         // the grind decade (v0.9.37):
+                                                 // a small label lives UNDER the
+                                                 // wall — gigs, pushes, the ladder
 ];
 
 const sizes = {};
 for (const sc of SCENARIOS) {
   const state = KP.newGame(sc.seed, null,
     sc.mode === 'blank' ? { door: 'blank', companyName: 'Audit Blank House' }
-      : sc.mode === 'major' ? { door: 'major' } : undefined);
+      : sc.mode === 'major' ? { door: 'major' }
+      : sc.mode === 'fresh' ? { door: 'fresh' } : undefined);
   if (sc.mode === 'service') seedBoyGroup(state);
   let founded = false;
   for (let w = 0; w < WEEKS; w++) {
@@ -377,6 +424,24 @@ for (const sc of SCENARIOS) {
   if ((sgl.fired || 0) > 2) {
     flag(sc.seed, state.week, sgl.fired + ' sagas fired — the deck deals at most two');
   }
+  // the grind (v0.9.37): the soak's legacy orgs are famous, so THIS is
+  // where the positive path gets verified — a blank/fresh house that
+  // debuted anybody in 620 weeks must have grinded: gigs off the pile,
+  // pushes worked, and the wall felt at least once at low fame
+  const bkl = state.bookingLedger || {};
+  const fml = state.fameLedger || {};
+  if ((sc.mode === 'blank' || sc.mode === 'fresh') &&
+      state.groups.some(g => g.debuted)) {
+    if ((bkl.played || 0) < 1) {
+      flag(sc.seed, state.week, 'a ' + sc.mode + ' house debuted without ever playing a stage off the pile');
+    }
+    if ((bkl.pushes || 0) < 1) {
+      flag(sc.seed, state.week, 'a ' + sc.mode + ' house ran an era with zero campaign pushes (bot policy broken)');
+    }
+    if ((fml.walled || 0) + (fml.ground || 0) + (fml.breaks || 0) < 1) {
+      flag(sc.seed, state.week, 'a ' + sc.mode + ' house released under the wall and never felt it');
+    }
+  }
   console.log(sc.seed + ': wk ' + state.week + ', ' + Math.round(total / 1024) + ' KB, ' +
     Object.keys(state.people).length + ' files | top: ' +
     top.map(([k, v]) => k + ' ' + Math.round(v / 1024) + 'K').join(', ') +
@@ -388,7 +453,11 @@ for (const sc of SCENARIOS) {
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +
     (sgl.heirStabilized ? ' heirStabilized' : '') + (sgl.heirBurst ? ' heirBurst' : '') +
     ' | time: ' + ['senesced', 'driftWeeks', 'successions', 'boardMemos']
-      .map(k => k + ' ' + (tml[k] || 0)).join(', '));
+      .map(k => k + ' ' + (tml[k] || 0)).join(', ') +
+    ' | grind: gigs ' + (bkl.played || 0) + ', pushes ' + (bkl.pushes || 0) +
+    ', cams ' + (bkl.virals || 0) + ', walled ' + (fml.walled || 0) +
+    ', ground ' + (fml.ground || 0) + ', breaks ' + (fml.breaks || 0) +
+    (fml.showsOpenWeek ? ', showsOpen@' + fml.showsOpenWeek : ''));
 }
 
 report();

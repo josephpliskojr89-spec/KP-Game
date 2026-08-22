@@ -143,6 +143,14 @@
       flags: {},
     };
     archetypes.forEach(a => ARCHETYPE_FX[a] && ARCHETYPE_FX[a](p));
+    // gifts stack raw (+8..+14 ceiling bumps) — cap the cone at the
+    // scale's edge or a lateBloomer born at 90 trains to 101 (found by
+    // the longhaul at v0.9.37; latent since the archetype table)
+    eachTalent(p, t => {
+      t.ceilHi = Math.min(100, t.ceilHi);
+      t.ceilLo = Math.min(t.ceilLo, t.ceilHi - 2);
+      t.cur = Math.min(t.cur, t.ceilHi);
+    });
     // re-clamp after archetype mutation
     PERSONALITY_TRAITS.forEach(k => { p.personality[k] = KP.clamp(p.personality[k], 2, 98); });
     eachTalent(p, t => {

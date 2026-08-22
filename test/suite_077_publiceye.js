@@ -56,13 +56,17 @@ function planFirst(s, memberIds, week) {
   // the miss: force loud expectations, tank the landing
   const s = world('pe-miss');
   const g = planFirst(s, s.roster.slice(0, 5));
-  g.prep.expectation = { pts: 30, level: 2, word: KP.C.PUBLIC.EXPECT.WORDS[2] };
+  g.prep.expectation = { pts: 45, level: 3, word: KP.C.PUBLIC.EXPECT.WORDS[3] };
+  // full talent objects with pinned ceilings — prep-week training was
+  // quietly raising tanked talents back up (the holdout-fixture lesson)
   g.members.forEach(id => { const m = s.people[id];
-    KP.C.TALENTS.forEach(d => { m.talents[d].cur = Math.min(m.talents[d].cur, 28); }); });
+    KP.C.TALENTS.forEach(d => {
+      m.talents[d] = { cur: 20, ceilLo: 24, ceilHi: 26, growth: 0.5 }; });
+    m.liveExp = 0; });
   let guard = 0;
   while (!g.debuted && guard++ < 12) KP.advanceWeek(s);
-  t.ok(g.results.reception < KP.C.PUBLIC.EXPECT.bar[2] - KP.C.PUBLIC.EXPECT.missMargin,
-    'fixture: the landing came in under the loud bar (' + g.results.reception + ')');
+  t.ok(g.results.reception < KP.C.PUBLIC.EXPECT.bar[3] - KP.C.PUBLIC.EXPECT.missMargin,
+    'fixture: the landing came in under the arena bar (' + g.results.reception + ')');
   t.eq(s.publicEyeLedger.underDelivered, 1, 'the miss is the story, ledgered');
   t.ok(KP.getNarrative(s, 'underDelivered', 'group', g.id), 'and on the record as narrative');
 }

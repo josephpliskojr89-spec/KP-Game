@@ -76,6 +76,17 @@
     if (!Array.isArray(rollout) || rollout.length !== R.weeks) {
       return { ok: false, reason: 'The rollout covers ' + R.weeks + ' promotion weeks. Plan all of them.' };
     }
+    // the grind (v0.9.37, §76): the broadcast circuit does not book
+    // labels it has never heard of. Show slots quietly become radio —
+    // the era is told once, out loud, below.
+    let showsSwapped = false;
+    if (KP.showsOpen && !KP.showsOpen(state)) {
+      rollout.forEach(wk => {
+        wk.forEach((a, j) => {
+          if (R.ACTIVITIES[a] && R.ACTIVITIES[a].show) { wk[j] = 'radio'; showsSwapped = true; }
+        });
+      });
+    }
     let rolloutCost = 0;
     for (const wk of rollout) {
       if (!Array.isArray(wk) || wk.length > R.slotsPerWeek) {
@@ -110,6 +121,9 @@
     if (!MV.TIERS[mvTier]) return { ok: false, reason: 'The video comes in three budgets: plain, standard, or cinema.' };
     const mvCost = Math.round(MV.TIERS[mvTier].cost * KP.statureCostMult(g));
 
+    if (plan.promo && KP.C.DEBUT.promoCost[plan.promo] == null) {
+      return { ok: false, reason: 'Marketing comes in three sizes: modest, standard, aggressive.' };
+    }
     const cost = KP.recordBill(g, plan.promo, format.id) + rolloutCost + mvCost;
     if (state.budget < cost) return { ok: false, reason: 'Budget cannot cover the record, the marketing AND this rollout. Trim something.' };
     state.budget -= cost;
@@ -126,7 +140,16 @@
       progress: 0,
       mash,
       mv: mvTier,
+      // the campaign (v0.9.37, §76 E): the run-up is played, not set
+      campaign: { momentum: 0, worked: 0 },
     };
+    if (showsSwapped) {
+      KP.fameLedger(state).everClosed = true;
+      KP.note(state, { kind: 'industry', ind: 'showsClosed', priority: 'high', groupId: g.id,
+        text: 'The Countdown, Prime Stage, Pop Wave: none returned the calls. No music-show ' +
+          'stages this era — nobody books a label they have never heard of. The rollout runs ' +
+          'radio instead, and the era will be won on the ground or not at all.' });
+    }
     // ---- the title fight (v0.9.17): the pick is also a pass ------------
     // Every advocate in the meeting hears the answer, and the passed
     // remember. One truth: the demos' own advocate stamps.
@@ -561,6 +584,13 @@
       groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
       popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod + hiaRead.mod + mvMod + anticipation + badBloodMod +
       (g.prep.returnRun ? KP.C.STAR.returnRunReception : 0)), 1, 100);
+    // the obscurity wall (v0.9.37, §76): paid reach converts through
+    // fame, earned reach converts through work — and under the wall
+    // the ceiling is real until a valve lifts it. Applied before the
+    // mash roll: "changed the industry" pierces any wall by definition.
+    const wall = KP.applyWall ? KP.applyWall(state, g, reception,
+      { paid: D.promoBoost[g.prep.promo] + Math.max(0, mvMod), spark: spark > 0 }) : null;
+    if (wall) reception = wall.reception;
     // the repackage rides the era's heat (v0.9.17)
     const repack = g.prep.repackage || null;
     if (repack && repack.reception >= KP.C.REPACKAGE.carryFrom) {
@@ -610,6 +640,24 @@
     // reputations; sensations and stumbles become stories
     const narrativeNotes = [];
     const push = n => { if (n) narrativeNotes.push(n); };
+    // the wall settles its account (v0.9.37): the story of the numbers
+    // is part of the record — and a landing this loud from a label this
+    // unknown moves the wall for good
+    if (wall && wall.under) {
+      if (KP.recordBreakthrough) push(KP.recordBreakthrough(state, g, reception, wall.fame));
+      if (wall.walled && !(g.eraBreakthrough === state.week)) {
+        push({ kind: 'public', ind: 'wallFelt', priority: 'normal', groupId: g.id,
+          text: 'The write-ups on “' + demo.title + '” are kinder than the numbers. ' +
+            'The song did its job; the label’s name could not open the doors the song deserved. ' +
+            (wall.momLift >= 8
+              ? 'The ground game closed part of the gap — the rest is a fame problem, and fame is built, not bought.'
+              : 'Nobody worked the ground this era, and it shows: reach is earned at this size, not ordered.') });
+      } else if (wall.momLift >= 8) {
+        push({ kind: 'public', ind: 'groundPaid', priority: 'flavor', groupId: g.id,
+          text: 'Every hall, fair, and flyer week of the “' + demo.title + '” campaign is visible in the ' +
+            'opening numbers: word of mouth carried this release further than the label’s name ever could.' });
+      }
+    }
     push(KP.recordBreakout(state, breakout));
     if (spark > 0) push(KP.recordViral(state, breakout,
       { kind: 'stage', label: 'the “' + demo.title + '” ' + (isDebut ? 'debut stage' : 'comeback stage') }));
@@ -787,6 +835,11 @@
         .concat(memRead.notes)
         .concat(hiaRead.note ? [hiaRead.note] : []),
       mash, fusionOutcome,
+      // the grind (v0.9.37): the era's ground game, on the record
+      wall: wall ? { fame: Math.round(wall.fame * 100) / 100, cap: wall.cap,
+        waste: wall.waste, momLift: wall.momLift, walled: wall.walled,
+        momentum: Math.round((g.prep.campaign || {}).momentum || 0),
+        worked: (g.prep.campaign || {}).worked || 0 } : null,
     };
     // the public eye (v0.9.36): the announcement's bar settles, and the
     // landing gets measured against the house and the week

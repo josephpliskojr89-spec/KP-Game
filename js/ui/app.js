@@ -299,6 +299,19 @@
         App.save(); UI.toast('The notice is up. Plain language, actual information.'); App.render();
         break;
       }
+      case 'campaign-push': {
+        const r = KP.campaignPush(s, t.dataset.group, t.dataset.kind);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast('Worked. Word of mouth: ' + KP.momentumWord(r.momentum) + '.'); App.render();
+        break;
+      }
+      case 'take-booking': {
+        const r = KP.takeBooking(s, t.dataset.offer, t.dataset.group,
+          { flyer: t.dataset.flyer === '1' });
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast('On the calendar. Small stage, real stage.'); App.render();
+        break;
+      }
       case 'fan-meeting': {
         const r = KP.fanMeeting(s, t.dataset.id);
         if (!r.ok) { UI.toast(r.reason, true); break; }

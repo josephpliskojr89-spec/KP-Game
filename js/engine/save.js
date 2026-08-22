@@ -753,6 +753,23 @@
     });
   } });
 
+  MIGRATIONS.push({ v: '0.9.37', fn: function (state) {
+    // archetype gifts stacked ceiling bumps past 100 (latent since the
+    // gift table; found by the longhaul when a lateBloomer trained to
+    // 101). Cap every cone, revealed ceiling, and current value.
+    Object.values(state.people || {}).forEach(p => {
+      KP.C.TALENTS.forEach(d => {
+        const t = p.talents && p.talents[d];
+        if (!t) return;
+        if (t.ceilHi > 100) t.ceilHi = 100;
+        if (t.ceilLo > t.ceilHi - 2) t.ceilLo = t.ceilHi - 2;
+        if (t.cur > 100) t.cur = 100;
+        const f = p.flags && p.flags['ceil_' + d];
+        if (f != null && f > 100) p.flags['ceil_' + d] = 100;
+      });
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

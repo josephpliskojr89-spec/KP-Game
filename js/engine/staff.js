@@ -192,6 +192,9 @@
       { id: 'artists', label: 'Point at the artists' },
     ],
     resolve: (state, sc, optionId) => {
+      // durable count (v0.9.37): the 40-entry convoLog evicts old
+      // seasons in busy worlds — the census needs a ledger, not a log
+      state.boardSeasonsFaced = (state.boardSeasonsFaced || 0) + 1;
       if (optionId === 'growth') {
         KP.openClaim(state, { type: 'growthPromise', subject: { kind: 'exec' },
           baseline: sc.popSum, byWeek: state.week + KP.C.WEEKS_PER_YEAR });

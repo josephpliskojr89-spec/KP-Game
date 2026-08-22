@@ -66,6 +66,7 @@
       case 'rivalMonsterRookies': return rivalAct() + ' are the monster rookies everyone else gets measured against.';
       case 'overDelivered': return group() + ' beat the expectations their own announcement set. The industry remembers upsets.';
       case 'underDelivered': return group() + ' debuted under the bar the company itself raised. The write-ups keep the receipts.';
+      case 'breakthrough': return group() + ' charted from a label nobody had heard of. The industry keeps a shelf for stories like that.';
       case 'hitStreak': return rivalAct() + ' has not missed in three releases. The streak is the story.';
       case 'flopEra': return rivalAct() + ' is in its flop era, and the internet is not kind about it.';
       case 'vocalHouse': return state.company.short + ' never misses on vocals.';
@@ -171,6 +172,7 @@
       case 'fadingHouse': return 'The word on ' + rivalCo() + ' is out: fading. Empty practice rooms, quiet releases. Watch their people — fading houses leak talent.';
       case 'overDelivered': return 'The write-ups agree on the rarest verdict: ' + group() + ' EXCEEDED the expectations the announcement set. Expectations met get forgotten by Friday. Expectations beaten get remembered by everyone, including the next announcement.';
       case 'underDelivered': return 'The verdict nobody in the building says out loud: ' + group() + ' debuted under the bar the company set for itself. The industry files this next to the announcement, where both will be read together forever.';
+      case 'breakthrough': return 'The story of the season: ' + group() + ' put up a real number from a label the coverage had to look up first. Doors that screened this company’s calls now ring back. Nobody forgets which venues took the booking BEFORE the clip.';
       case 'rivalMonsterRookies': return rivalAct() + ' just got the “monster rookies” treatment in every write-up. That is the bar our next debut gets measured against.';
       case 'hitStreak': return rivalAct() + ' has made it three hits in a row. The coverage stopped calling it luck, which means the pressure is now ours.';
       case 'flopEra': return 'The internet has declared ' + rivalAct() + ' officially in a “flop era.” Cruel, fast, and — for their company — very expensive.';

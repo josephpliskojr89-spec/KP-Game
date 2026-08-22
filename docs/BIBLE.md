@@ -4261,7 +4261,7 @@ stopped minting speculative files nobody would ever see. Suite
 its own rules; e2e 97 with the network card, both verbs, and the
 door-sized board asserted in the browser.
 
-## §76 The small label (PLANNING — approved for write-up, builds await the call)
+## §76 The small label (C+D+E SHIPPED v0.9.37 — the grind; A+B still planning)
 
 Five mechanisms, one through-line: **being small has to feel
 small.** The doors gave us hard starts; the network gave us a
@@ -4392,6 +4392,60 @@ trainee clips (network-driven) but must NOT apply to gig-cam
 rolls (fame-independent by design); tours/festivals/music shows
 keep their own systems — the pile generates AROUND them, never
 duplicates them.
+
+**As built (v0.9.37 — the grind).** Owner: *"this is the big one and
+I want it to feel like it. depth is the goal."* Two new modules.
+`fame.js` (rng-free): `KP.fameRead` derives the label's public
+profile fresh every call — best rep lane, HITS (reception ≥ 60,
+not weak-week chart peaks), trophies, standing above popularity 40,
+publicly known faces, and breakthroughs (+0.05 each, permanent).
+Calibrated: blank 0.09, fresh 0.13, current 0.45, legacy 0.64,
+major 0.88. The wall (`applyWall`, at resolve, before the mash —
+"changed the industry" pierces by definition): paid promo converts
+through fame (floor 0.30, knee 0.55 — an aggressive spend at blank
+fame wastes half), and under fame 0.50 a soft ceiling
+(42 + fame x 65) compresses everything above it to 30%. Valves lift
+the cap: momentum (x0.20), a gig-cam clip (+10), the defining
+stage spark (+8). Momentum converts to reception at FULL rate
+under the wall and HALF rate above it (first soak had street teams
+walking majors to #1 — the asymmetry is the design, both ways).
+A landing ≥ 62 from fame < 0.45 is a BREAKTHROUGH: +7 to the top
+two rep lanes, +3 trust, durable narrative, and the wall moves for
+good. Music shows gate at fame 0.28: below it show slots quietly
+become radio at plan-lock (told once, out loud) — and the
+call-back milestone only fires for a label that was ever actually
+locked out (a house born famous stamps the date silently).
+`bookings.js`: the pile mints named, dated, seasonal offers weekly
+(kind x town x lead-week grammar, 16 kinds across 3 rungs, board
+cap 6, deal bands keyed inversely to fame, dries up above 0.62);
+`takeBooking` (one stage per group-week, negative fees bill at
+signing, flyer week for flyerable rooms costs real fatigue and
+boosts the draw), resolution pays fee/exposure/liveExp/fatigue
+with quality read off the stage, and rolls the phone-camera
+lottery — camBase 2.2% x kind x stage quality, deliberately
+UNdamped by fame. The campaign: `campaignPush` (five verbs, one
+per group-week, diminishing returns at 140, decay 2/idle-week,
+radio gated by fame, showcase once) feeds momentum + §77 buildup.
+The era desk lives on the Desk (campaign card with momentum in
+WORDS + push row; booking pile with per-group send + flyer
+buttons); the company card carries the fame word and the
+shows-closed flag. Longhaul grew a 9th scenario (haul-fresh) plus
+a first-debut bot policy (AUDITLINE had sat undebuted for 13 years
+in every prior audit): the fresh house organically played 20 gigs,
+worked 62 pushes, caught one phone-cam viral, felt the wall,
+BROKE THROUGH, and got the shows call-back at week 23. Census:
+campaignRun floored 90%; gig/wall/break bands are CEILINGS on the
+famous legacy soak (gates broken if they rise) with the positive
+path verified in haul-fresh invariants + suite_078 (48 checks).
+Found and fixed along the way: archetype gifts stacked ceilings
+past 100 (lateBloomer at 90 trained to 101 — latent since the
+gift table; capped at generation + seed sites + migration
+'0.9.37'), planDebut accepted unknown promo tiers (NaN budget),
+same-week gig takes double-played, boardSeason census moved to a
+durable counter (the 40-entry convoLog evicted busy worlds), and
+truckParked flipped ceiling→floor (the campaign made the fandom
+noticing overwork the norm — the alarm is trucks VANISHING).
+Battery 78/78, soak 40 clean, longhaul 9x620 clean, e2e 102.
 
 ## §77 The public eye (v0.9.36 — SHIPPED) — the industry out loud
 
@@ -6914,3 +6968,24 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > sharpening, suite_064 icon stamp). Battery 77/77, soak 40 clean
 > (expectSet/verdictSeen floored 90%, snubSeen 24/40 measured),
 > longhaul 8x620 clean, e2e 97, lockstep 0.9.36. Rode to main.
+
+> **0.9.37 — the grind (§76 C+D+E).** The big one, by request: *"I
+> want it to be HARD as a fresh label... a whole pile of bookings
+> from the lowest rung of fame up... promotion becomes a game
+> within the game."* fame.js: the obscurity wall — paid promo
+> converts through fame, unknown labels fight a soft ceiling, and
+> piercing it while unknown is a BREAKTHROUGH that moves the wall
+> for good. Music shows below the fame bar do not return calls
+> (show slots become radio, told out loud; the call-back is a
+> milestone). bookings.js: the procedural pile (16 kinds, 3 rungs,
+> town x season grammar, inversely famous), the flyer week, the
+> phone-camera lottery fame cannot damp, and the campaign — five
+> pushes, momentum in words, full-rate conversion under the wall,
+> half above. Era desk + booking pile on the Desk. Longhaul grew
+> haul-fresh + a first-debut bot: the fresh house grinded, broke
+> through, and got the shows call-back at week 23, organically.
+> Fixed en route: archetype ceiling overflow past 100 (latent since
+> the gift table, migration 0.9.37), unknown promo tiers minting
+> NaN, double-played same-week gigs, boardSeason census eviction,
+> truckParked flipped to floor. Battery 78/78, soak 40 clean,
+> longhaul 9x620 clean, e2e 102, lockstep 0.9.37. Rode to main.

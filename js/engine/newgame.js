@@ -76,7 +76,7 @@
         KP.C.TALENTS.forEach(d => {
           const tal = p.talents[d];
           tal.cur = rng.int(40, 52);
-          tal.ceilLo = Math.max(tal.ceilLo, tal.cur + 4);
+          tal.ceilLo = Math.min(94, Math.max(tal.ceilLo, tal.cur + 4));
           tal.ceilHi = Math.min(100, Math.max(tal.ceilHi, tal.ceilLo + 6));
         });
         p.talents.charisma.cur = rng.int(48, 56);
@@ -146,8 +146,8 @@
             age: rng.int(21, 24) });
           ['vocals', 'dance', 'charisma', 'visuals'].forEach(d => {
             p.talents[d].cur = rng.int(58, 74);
-            p.talents[d].ceilLo = Math.max(p.talents[d].ceilLo, p.talents[d].cur + 2);
-            p.talents[d].ceilHi = Math.max(p.talents[d].ceilHi, p.talents[d].ceilLo + 4);
+            p.talents[d].ceilLo = Math.min(98, Math.max(p.talents[d].ceilLo, p.talents[d].cur + 2));
+            p.talents[d].ceilHi = Math.min(100, Math.max(p.talents[d].ceilHi, p.talents[d].ceilLo + 4));
           });
           p.liveExp = 60; p.mediaExp = 30;
           p.morale = rng.int(58, 70); p.fatigue = rng.int(20, 35);
@@ -226,8 +226,8 @@
         p.talents.visuals.cur = rng.int(52, 68);
         KP.C.TALENTS.forEach(d => {
           const tal = p.talents[d];
-          tal.ceilLo = Math.max(tal.ceilLo, tal.cur + 1);
-          tal.ceilHi = Math.max(tal.ceilHi, tal.ceilLo + 3);
+          tal.ceilLo = Math.min(97, Math.max(tal.ceilLo, tal.cur + 1));
+          tal.ceilHi = Math.min(100, Math.max(tal.ceilHi, tal.ceilLo + 3));
         });
         p.liveExp = 90; p.mediaExp = 45;
         p.morale = rng.int(52, 64); p.fatigue = rng.int(25, 40);

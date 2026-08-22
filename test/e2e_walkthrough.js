@@ -262,6 +262,23 @@ async function main() {
   await closeModalIfOpen();   // staff may flag a worn roster at lock (v0.4.2)
   ok((await page.textContent('#screen')).includes('Locked'), 'debut locked and in production');
 
+  // --- the grind (v0.9.37): a locked era opens the campaign desk ---
+  await tap('[data-nav=desk]');
+  const campDesk = await page.textContent('#screen');
+  ok(campDesk.includes('The campaign'), 'the era desk is open — promotion is played, not set');
+  ok(/word of mouth/.test(campDesk), 'momentum reads in words, never meters');
+  if (await page.$('[data-action=campaign-push]:not([disabled])')) {
+    await tap('[data-action=campaign-push]:not([disabled])');
+    await page.waitForTimeout(120);
+    const pushed = await page.evaluate(() => {
+      const g = KP.App.state.groups.find(x => x.prep);
+      return g && g.prep.campaign && g.prep.campaign.momentum > 0;
+    });
+    ok(pushed, 'a worked push builds real momentum');
+  }
+  ok(/booking pile|Booked stages|The campaign/.test(campDesk), 'the desk carries the grind');
+  await tap('[data-nav=studio]');
+
   // --- ride to the debut ---
   let resultsSeen = false;
   for (let i = 0; i < 10; i++) {
