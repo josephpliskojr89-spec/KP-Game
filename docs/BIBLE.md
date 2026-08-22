@@ -4635,6 +4635,90 @@ bottom-rank talk composing with practice.js quit/aging machinery.
 - The standing queue (§78 A/B, §79 staff, §76 B regional) threads
   between phases on call.
 
+## §81 The v0.10 build order (RULED — owner: "I like all of them and
+I want to build them comprehensively. plan out the order first")
+
+All fifteen consult findings (§80) plus the standing queue (§78 A/B,
+§79, §76 B), ordered by dependency and pacing. Three ordering laws:
+(1) MONEY FIRST — both audits named it the deepest gap, and half the
+roadmap's other systems want real revenue streams to land in;
+(2) SYSTEMS FEED FORWARD — each release builds surfaces the next
+one multiplies (the books read the product's streams; the staff
+seats multiply the studio the song market completes; Japan reuses
+the product's release machinery; scandals bite harder once there is
+real money to threaten); (3) VARIETY BEATS — big structural money
+releases interleave with play-texture releases so no stretch of the
+roadmap feels like accounting homework.
+
+**v0.10.0 — the product** (§80: 1 + 8 + 3). The pressing sheet
+(versions, POB tier, pressing size vs the pre-order read), the
+chodong number as the second public scoreboard, the fan-sign
+inversion (signs sell albums; the cut line), and the two-publics
+split (fandom sales vs public legs). The foundation: revenue
+becomes streams with real causes.
+
+**v0.10.1 — the settlement** (§80: 2 + 7 + 14). The jeongsan
+recoup ledger and contract split, FIRST SETTLEMENT as a scene, the
+quarterly books (revenue by stream, cost by group, era recoup —
+the exec and board re-anchor to them), and the distributor
+contract (starter deal's fat cut as one more brick in the wall;
+tiers, advances, the courting call). Depends on 0.10.0's streams.
+
+**v0.10.2 — the person in public** (§78 A + B). The channel/live
+permission asks and the content-agnostic scandal ladder. Placed
+here deliberately: a variety beat after two money releases, and
+scandals gain their real teeth from 0.10.1 — a sponsor pullout
+now hits a P&L somebody reads.
+
+**v0.10.3 — the recurring money** (§80: 6 + 10). Fandom commerce
+(membership enrollment, drops, Season's Greetings, the fancon) and
+the catalog annuity (weekly trickle + per-person publishing
+royalties). Both are between-comeback revenue; both land as line
+items in books that already exist; catalog royalties accelerate
+settlements from 0.10.1 and arm the renewal table.
+
+**v0.10.4 — the making** (§80: 5 + 12). The production pipeline
+(recording/line distribution, choreo, the MV shoot, jackets,
+slippage → postpone-or-crunch) and the medical desk (injuries and
+nodules as arcs, the diagnosis scene, chronic files). Medical
+hooks the pipeline's physical stations, so they ship together.
+
+**v0.10.5 — the song market** (§80: 11). Demo prices, circulating
+windows rivals can buy through, the song camp verb, producer
+relationships gating access. Completes the studio the pipeline
+deepened.
+
+**v0.10.6 — the staff** (§79). The second fog. Deliberately after
+0.10.4/0.10.5: every seat now has a deep system to multiply — A&R
+→ the song market, marketing → the campaign and the product,
+coaches → training and the pipeline, the road manager → tours,
+the scout → the network. Hiring somebody great finally has
+somewhere for the greatness to show up.
+
+**v0.10.7 — the rituals** (§80: 15 + 9). Monthly trainee
+evaluations (the ranked showcase, fog-true) and music-show point
+legibility (component breakdowns in words, one mobilization nudge
+a week). Two legibility rituals, one mid-size release, a breather
+before the world opens.
+
+**v0.10.8 — the Japan cycle** (§80: 4). The partner deal, the
+second release lane (JP-version / JP-original) on its own
+calendar, the Oricon-style board, the dome ladder, rival titans
+running the same cycle. Reuses the product machinery from 0.10.0.
+
+**v0.10.9 — the world circuit** (§80: 13). The overseas promo
+wing (convention slots, TV one-offs, the English-version lane) —
+the map's dead time filled, tour routing fed.
+
+**v0.10.10 — the regional founding** (§76 B). The last standing
+item: found away from Seoul — cheaper everything, a home-region
+floor, the longer road to the capital circuit. Lands last so the
+regional economics are legible in books that exist.
+
+Cadence: one release at a time, full ritual each, delegated
+sequencing within a release; the owner can reorder or interrupt at
+any point and the queue re-threads.
+
 ## §79 The staff (PLANNING — approved for write-up, build awaits the call)
 
 Owner: *"staff is another area we haven't explored nearly enough. I
