@@ -14,6 +14,21 @@
   const KP = root.KP = root.KP || {};
 
   function regionIds() { return KP.C.REGIONS.map(r => r.id); }
+  // ---- the regional founding (v0.10.10, §76 B) --------------------------
+  // one truth: state.homeCity, 'seoul' unless the founding said otherwise
+  KP.homeCity = function (state) { return state.homeCity || 'seoul'; };
+  KP.isRegionalHouse = function (state) { return KP.homeCity(state) !== 'seoul'; };
+  KP.homeCityLabel = function (state) {
+    const row = (KP.C.TOUR && KP.C.TOUR.KR_CITIES || []).find(c => c.id === KP.homeCity(state));
+    return row ? row.label : 'Seoul';
+  };
+  KP.homeCostMult = function (state) {
+    return KP.isRegionalHouse(state) ? KP.C.HOME.costMult : 1;
+  };
+  KP.homeNetMult = function (state) {
+    return KP.isRegionalHouse(state) ? KP.C.HOME.networkDamp : 1;
+  };
+
   KP.regionLabel = function (id) {
     const r = KP.C.REGIONS.find(x => x.id === id);
     return r ? r.label : id;

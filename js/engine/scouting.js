@@ -26,6 +26,9 @@
     // the holdout premium (v0.9.33): the market says she can wait,
     // and the price says so whether or not she takes your call
     if (KP.holdoutOf(state, person)) cost = Math.round(cost * KP.C.HOLDOUT.premium);
+    // the regional founding (v0.10.10): everything is cheaper away
+    // from Seoul, signing bonuses included
+    if (KP.homeCostMult) cost = Math.round(cost * KP.homeCostMult(state));
     return cost;
   };
 

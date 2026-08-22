@@ -83,7 +83,10 @@
       // the staff (v0.10.6): the head scout's reach moves who finds this
       // building at all
       const chance = KP.clamp((N.APP.base + net * N.APP.perNetwork) * (hot ? N.APP.hitSpike : 1) *
-        (KP.seatMult ? KP.seatMult(state, 'scout') : 1), 0, 0.9);
+        (KP.seatMult ? KP.seatMult(state, 'scout') : 1) *
+        // the regional founding (v0.10.10): Seoul's gravity — fewer
+        // kids mail tapes to an office they'd need a train to visit
+        (KP.homeNetMult ? KP.homeNetMult(state) : 1), 0, 0.9);
       if (rng.chance(chance)) {
         const p = mint(state, rng, { channel: 'application', source: 'Applicant' });
         led.apps++;

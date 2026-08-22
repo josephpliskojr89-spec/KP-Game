@@ -438,6 +438,17 @@
         ? '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">Company name</label>' +
           '<input class="nc-input" id="nc-company" placeholder="Paper Label" maxlength="28">'
         : '') +
+      (door === 'blank' || door === 'fresh'
+        ? '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">Home city <span style="color:var(--ink-faint)">(§76 B — the regional founding)</span></label>' +
+          '<select class="nc-input" id="nc-city">' +
+          '<option value="seoul">Seoul — the capital, full price, full gravity</option>' +
+          '<option value="busan">Busan — cheaper everything, longer road</option>' +
+          '<option value="incheon">Incheon — cheaper everything, longer road</option>' +
+          '<option value="daegu">Daegu — cheaper everything, longer road</option>' +
+          '<option value="gwangju">Gwangju — cheaper everything, longer road</option>' +
+          '<option value="daejeon">Daejeon — cheaper everything, longer road</option>' +
+          '</select>'
+        : '') +
       '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">Your name</label>' +
       '<input class="nc-input" id="nc-name" placeholder="A&R Manager" maxlength="24">' +
       '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">World seed <span style="color:var(--ink-faint)">(optional)</span></label>' +

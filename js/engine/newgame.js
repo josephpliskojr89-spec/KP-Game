@@ -10,6 +10,11 @@
   // mechanism suites run lean; the real game, the harness, and
   // suite_052 always open with the last group in the building
   KP.newGame = function (seed, playerName, opts) {
+    // the regional founding (v0.10.10, §76 B): where the company lives
+    // is decided once, at the founding, and everything reads it after
+    const homeCity = opts && opts.homeCity &&
+      ['busan', 'incheon', 'daegu', 'gwangju', 'daejeon'].includes(opts.homeCity)
+      ? opts.homeCity : 'seoul';
     const rng = new KP.Rng(seed == null ? String(Math.floor(Date.now() % 1e9)) : seed);
     KP.resetIds(1);
 
@@ -20,6 +25,8 @@
       week: 1,
       nextMsgId: 1,
       player: { name: playerName || 'You', title: 'A&R Manager' },
+      homeCity,   // the regional founding (v0.10.10) — after version in the JSON's spine
+
       company: {
         name: KP.DATA.playerCompany.name,
         short: KP.DATA.playerCompany.short,
@@ -353,6 +360,11 @@
       { kind: 'company', text: opener.welcome },
     ];
     open.forEach(n => { n.week = 1; n.read = false; n.id = 'm' + (state.nextMsgId++); });
+    if (homeCity !== 'seoul') {
+      const cityLabel = (KP.C.TOUR.KR_CITIES.find(c => c.id === homeCity) || {}).label || homeCity;
+      open.push({ week: 1, kind: 'company', ind: 'regionalFounding', priority: 'high',
+        text: 'The lease is signed in ' + cityLabel + ' — not Seoul, on purpose. The rent is honest, the practice rooms are twice the size for the money, and the neighborhood already knows the company by the sign. The trade is real on both sides: everything costs less here, the home rooms book their own, and the capital circuit is a longer drive for everyone including the reputation.' });
+    }
     state.inbox = open;
 
     // every face gets its public number at the door (v0.6.3)

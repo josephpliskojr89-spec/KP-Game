@@ -340,6 +340,8 @@ const SCENARIOS = [
   { seed: 'haul-major', mode: 'major' },         // stewardship decade (0.9.35.2 —
                                                  // the 'fierce' crash hid here)
   { seed: 'haul-fresh', mode: 'fresh' },         // the grind decade (v0.9.37):
+  { seed: 'haul-home', mode: 'home' },           // the regional decade (v0.10.10):
+                                                 // Busan founding, same fresh grind
                                                  // a small label lives UNDER the
                                                  // wall — gigs, pushes, the ladder
 ];
@@ -349,7 +351,8 @@ for (const sc of SCENARIOS) {
   const state = KP.newGame(sc.seed, null,
     sc.mode === 'blank' ? { door: 'blank', companyName: 'Audit Blank House' }
       : sc.mode === 'major' ? { door: 'major' }
-      : sc.mode === 'fresh' ? { door: 'fresh' } : undefined);
+      : sc.mode === 'fresh' ? { door: 'fresh' }
+      : sc.mode === 'home' ? { door: 'fresh', homeCity: 'busan' } : undefined);
   if (sc.mode === 'service') seedBoyGroup(state);
   let founded = false;
   for (let w = 0; w < WEEKS; w++) {
@@ -435,7 +438,7 @@ for (const sc of SCENARIOS) {
   // pushes worked, and the wall felt at least once at low fame
   const bkl = state.bookingLedger || {};
   const fml = state.fameLedger || {};
-  if ((sc.mode === 'blank' || sc.mode === 'fresh') &&
+  if ((sc.mode === 'blank' || sc.mode === 'fresh' || sc.mode === 'home') &&
       state.groups.some(g => g.debuted)) {
     if ((bkl.played || 0) < 1) {
       flag(sc.seed, state.week, 'a ' + sc.mode + ' house debuted without ever playing a stage off the pile');

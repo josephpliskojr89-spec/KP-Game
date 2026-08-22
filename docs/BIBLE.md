@@ -4261,7 +4261,7 @@ stopped minting speculative files nobody would ever see. Suite
 its own rules; e2e 97 with the network card, both verbs, and the
 door-sized board asserted in the browser.
 
-## §76 The small label (C+D+E SHIPPED v0.9.37; A SHIPPED v0.9.38 — the table; B still planning)
+## §76 The small label (C+D+E SHIPPED v0.9.37; A SHIPPED v0.9.38; B SHIPPED v0.10.10 — COMPLETE)
 
 Five mechanisms, one through-line: **being small has to feel
 small.** The doors gave us hard starts; the network gave us a
@@ -4378,6 +4378,29 @@ machinery (§74) down into ordinary signings for low-rep labels.
 from Seoul — cheaper everything, a home-region popularity floor,
 a weaker network read, and a longer road to the capital circuit.
 Rides the regions map that already exists.
+
+**As built (v0.10.10 — the regional founding).** The last item on
+the §81 roadmap. **The choice:** the fresh and blank doors gain a
+Home City select (Seoul, Busan, Incheon, Daegu, Gwangju, Daejeon —
+the KR_CITIES the home circuit already routes); `state.homeCity`
+is decided once at newGame (validated, Seoul fallback) and
+everything reads it through four regions.js helpers (homeCity /
+isRegionalHouse / homeCostMult / homeNetMult — one truth, no
+copy). A regional founding posts its own note: the trade, told
+honestly. **Cheaper everything (0.85x):** the era bill at
+planDebut (both lock sites, after the tightened belt) and every
+signing bonus. **The home rooms book their own:** 30% of the
+booking pile mints FROM the home town at a 1.35x local premium,
+stamped o.home; a hometown stage binds the fandom +1 on top of
+the kind's own gains. **Seoul's gravity:** the applicant pipeline
+runs at 0.85x (stacking with the scout seat's multiplier), and
+the broadcast circuit is a longer drive — showsOpen needs fame
+.28 + .06. The longhaul gained its tenth scenario, haul-home (a
+Busan fresh decade): showsOpen@66 against haul-fresh's @49 — the
+longer road, visible in the numbers — and the house still hit
+three scene No.1s. Fixture note: homeCity is keyed AFTER version
+in the state literal (the export spine starts with version).
+Battery 90/90, soak 40 clean, longhaul 10x620 clean, e2e 104.
 
 **Sequencing (delegated judgment):** C + D + E are ONE release —
 the wall without the valves is just frustration, the pile without
@@ -7942,3 +7965,15 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > departure sweep (dangling deals caught by invariant). Battery
 > 89/89, soak 40 clean, longhaul 9x620, e2e 104, lockstep
 > 0.10.9. Rode to main.
+
+> **0.10.10 — the regional founding (§76 B — the roadmap's last
+> item).** Found away from Seoul: the fresh and blank doors gain
+> the Home City choice, and the trade is real on both sides —
+> the whole bill at 0.85x and home-town pile rows at a 1.35x
+> premium that bind the fandom, against a thinner applicant
+> pipeline and a broadcast circuit six points of fame further
+> away. The longhaul's tenth scenario (a Busan fresh decade)
+> shows the road: music shows opened at week 66 vs Seoul's 49,
+> and the house climbed anyway. §76 is COMPLETE; the §81 v0.10
+> roadmap is COMPLETE. Battery 90/90, soak 40 clean, longhaul
+> 10x620, e2e 104, lockstep 0.10.10. Rode to main.

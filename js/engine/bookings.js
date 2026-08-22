@@ -91,15 +91,22 @@
     for (let i = 0; i < deals && KP.openBookings(state).length < B.boardCap; i++) {
       const kindId = kinds[Math.floor(rng.next() * kinds.length)];
       const K = B.KINDS[kindId];
-      const town = B.TOWNS[Math.floor(rng.next() * B.TOWNS.length)];
+      // the regional founding (v0.10.10): a house with a home town gets
+      // a share of its pile FROM that town, at the local premium — the
+      // rooms that book you because you are theirs
+      const home = KP.isRegionalHouse && KP.isRegionalHouse(state) &&
+        rng.next() < KP.C.HOME.homeChance;
+      const town = home ? KP.homeCityLabel(state)
+        : B.TOWNS[Math.floor(rng.next() * B.TOWNS.length)];
       const lead = B.leadWeeks[0] +
         Math.floor(rng.next() * (B.leadWeeks[1] - B.leadWeeks[0] + 1));
-      const fee = K.fee[0] + Math.round(rng.next() * (K.fee[1] - K.fee[0]));
+      let fee = K.fee[0] + Math.round(rng.next() * (K.fee[1] - K.fee[0]));
+      if (home) fee = Math.round(fee * KP.C.HOME.homeFeeMult);
       board(state).push({
         id: 'bk' + (state.nextBookingId++), kindId, rung: K.rung,
         label: venueLabel(state, kindId, town, (woy + lead) % 48), town,
         week: state.week + lead, expiresWeek: state.week + B.expireWeeks,
-        fee, taken: null, flyered: false,
+        fee, taken: null, flyered: false, home: home || undefined,
       });
     }
   }
@@ -172,6 +179,8 @@
     });
     if (K.pop && g.debuted) g.popularity = KP.clamp((g.popularity || 0) + K.pop * q, 0, 100);
     if (K.fandom && g.fandom) KP.fandomGain(g, K.fandom);
+    // the home crowd (v0.10.10): a hometown stage binds tighter
+    if (o.home && g.fandom) KP.fandomGain(g, KP.C.HOME.homeFandom);
     led.played++;
     led.fees += o.fee;
     led.byRung[o.rung] = (led.byRung[o.rung] || 0) + 1;

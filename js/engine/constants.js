@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.9',
+    VERSION: '0.10.10',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1471,6 +1471,18 @@
       royaltyEvery: 8,            // the writer's publishing check cadence
       leverageAt: 12,             // accumulated royalties = "she doesn't
                                   // need the re-sign the way the dancer does"
+    },
+    // the regional founding (v0.10.10, §76 B) — found away from Seoul.
+    // The LAW: the trade is real on both sides — cheaper everything and
+    // a home crowd that shows up, against Seoul's gravity: a thinner
+    // applicant pipeline and a longer road to the capital circuit.
+    HOME: {
+      costMult: 0.85,           // rent, studios, signings — the whole bill
+      networkDamp: 0.85,        // the industry's gravity is Seoul
+      showsGateLift: 0.06,      // the broadcast circuit is a longer drive
+      homeChance: 0.30,         // pile rows that come from the home town
+      homeFeeMult: 1.35,        // the local premium
+      homeFandom: 1,            // the home crowd converts
     },
     // the world circuit (v0.10.9, §80 finding 13) — the overseas promo
     // wing. The LAW: the circuit is how mid-tiers actually break the

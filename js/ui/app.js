@@ -130,8 +130,10 @@
     const name = (document.getElementById('nc-name').value || '').trim() || 'A&R Manager';
     const seedRaw = (document.getElementById('nc-seed').value || '').trim();
     const coEl = document.getElementById('nc-company');
+    const cityEl = document.getElementById('nc-city');
     App.state = KP.newGame(seedRaw || null, name, { door: App._door || 'current',
-      companyName: coEl ? coEl.value : '' });
+      companyName: coEl ? coEl.value : '',
+      homeCity: cityEl ? cityEl.value : 'seoul' });
     App.mode = 'game';
     App.save();
     go('desk');

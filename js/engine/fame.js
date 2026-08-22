@@ -153,7 +153,10 @@
 
   // ---- the music shows return your calls, or don't ---------------------
   KP.showsOpen = function (state) {
-    return KP.fameRead(state) >= KP.C.FAME.showBar;
+    // the regional founding (v0.10.10): the broadcast circuit is a
+    // longer drive from anywhere that is not Seoul
+    const lift = KP.isRegionalHouse && KP.isRegionalHouse(state) ? KP.C.HOME.showsGateLift : 0;
+    return KP.fameRead(state) >= KP.C.FAME.showBar + lift;
   };
 
   // ---- the timeline reacts ---------------------------------------------

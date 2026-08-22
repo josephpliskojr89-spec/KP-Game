@@ -136,6 +136,8 @@
     let cost = KP.recordBill(g, plan.promo, format.id) + rolloutCost + mvCost + pressingCost + (demo.price || 0);
     // the red ledger (v0.10.1): the tightened belt trims the next era once
     if (g.tightBelt) { cost = Math.round(cost * KP.C.BOOKS.tightBeltCut); delete g.tightBelt; }
+    // the regional founding (v0.10.10): the whole bill runs cheaper here
+    if (KP.homeCostMult) cost = Math.round(cost * KP.homeCostMult(state));
     if (state.budget < cost) return { ok: false, reason: 'Budget cannot cover the record, the marketing AND this rollout. Trim something.' };
     state.budget -= cost;
     // jeongsan (v0.10.1): every era's bills accrue to the group's ledger
