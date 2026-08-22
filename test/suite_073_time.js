@@ -94,8 +94,14 @@ const S = () => KP.C.TIME;
   const state = KP.newGame('tt-board', null, { legacy: true });
   for (let w = 0; w < 8; w++) KP.advanceWeek(state);
   state.founded = { week: state.week, from: 'Novaline', warChest: 300 };
-  state.budget = 50;   // burning the chest
-  KP.advanceWeek(state);
+  // v0.10.14 stream shift: a hot income week can climb back over the
+  // burn line before the board reads the books — hold the burn until a
+  // quiet week lets the memo land (the board reads END-OF-WEEK books)
+  let guardB = 0;
+  while (!(state.board && state.board.burnNoted) && guardB++ < 8) {
+    state.budget = 5;   // burning the chest
+    KP.advanceWeek(state);
+  }
   t.ok(state.board && state.board.seats.length === 3, 'three seats, three reasons to be in the room');
   t.ok(state.board.seats.some(s => s.role === 'lead investor') &&
        state.board.seats.some(s => s.role === 'first believer'), 'the money and the believer');

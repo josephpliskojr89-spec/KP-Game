@@ -71,6 +71,7 @@ function debuted(seed, n) {
 {
   const { state, g } = debuted('aud-h3');
   state.week = Math.max(state.week, (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks + 1);
+  state.budget = Math.max(state.budget, 600);   // the tightened economy drains the ride (v0.10.14 stream shift)
   g.demos = KP.generateDemos(state, KP.rngFor(state), g);
   KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest', format: 'mini',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });

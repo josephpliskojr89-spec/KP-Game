@@ -427,6 +427,11 @@ const BANDS = {
   schoolTrip:        { lo: 0.30, hi: 1.00, label: 'orgs that took the scouting trip (the train to the regions)' },
   schoolPartner:     { lo: 0.20, hi: 1.00, label: 'orgs that signed a first-look school partnership' },
   schoolHot:         { lo: 0.00, hi: 0.60, label: 'worlds where a school got HOT off its graduates' },
+  // measured 26/40 at v0.10.14 intro (openChance 0.012/wk over 140wk)
+  schoolOpened:      { lo: 0.30, hi: 1.00, label: 'worlds where a new school opened its doors' },
+  // closures need rep<30 held half a year — a longhaul-scale event, 0/40
+  // in the 140-week soak by design; the suite pins the mechanism
+  schoolClosed:      { lo: 0.00, hi: 0.60, label: 'worlds where a quiet school became a math hagwon' },
   evalHeld:          { lo: 0.80, hi: 1.00, label: 'orgs whose practice room held evaluation days' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
@@ -609,6 +614,7 @@ const tally = {
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
   schoolLead: 0, schoolClass: 0, schoolTrip: 0, schoolPartner: 0, schoolHot: 0,
+  schoolOpened: 0, schoolClosed: 0,
   evalHeld: 0, projectTalkSeen: 0, traineeQuitAsked: 0, traineeGone: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
@@ -1786,6 +1792,10 @@ for (let s = 0; s < SEEDS; s++) {
   if (sch.some(s => s.visitedWeek != null)) tally.schoolTrip++;
   if (sch.some(s => (s.partnerUntil || 0) > 0)) tally.schoolPartner++;
   if (sch.some(s => s.hotWeek != null)) tally.schoolHot++;
+  // the school map (v0.10.14): the population breathes
+  const schl = state.schoolLedger || {};
+  if ((schl.opened || 0) >= 1) tally.schoolOpened++;
+  if ((schl.closed || 0) >= 1) tally.schoolClosed++;
   const pl = state.practiceLedger || {};
   if ((pl.evals || 0) >= 1) tally.evalHeld++;
   if ((pl.speculations || 0) >= 1) tally.projectTalkSeen++;

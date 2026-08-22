@@ -26,8 +26,16 @@ function throughDebut(seed) {
   const state = KP.newGame('open-cap', null, { legacy: false });
   t.ok(KP.signingsCapped(state), 'signings are capped before the first debut');
   state.budget = 500;
-  for (let i = 0; i < 3; i++) KP.signProspect(state, state.prospects[0]);
-  const fourth = KP.signProspect(state, state.prospects[0]);
+  // v0.10.14 stream shift: a prospect can counter or hold out — the
+  // rail claim needs THREE COMPLETED signings, however many asks it takes
+  let tries = 0;
+  while (state.signingsUsed < 3 && tries++ < 20) {
+    KP.signProspect(state, state.prospects[0], { answer: 'accept' });
+    if (state.signingsUsed < 3 && state.prospects.length > 1 && tries % 2 === 0) {
+      state.prospects.push(state.prospects.shift());   // rotate past a holdout
+    }
+  }
+  const fourth = KP.signProspect(state, state.prospects[0], { answer: 'accept' });
   t.ok(!fourth.ok && /allowance/.test(fourth.reason), 'the tutorial rail holds pre-debut');
 }
 

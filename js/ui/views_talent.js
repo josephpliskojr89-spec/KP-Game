@@ -59,10 +59,8 @@
     if (!schools.length) return '';
     const S = KP.C.SCHOOLS;
     const html = ['<div class="pad" style="margin:14px 0 2px;font-size:.74rem;color:var(--ink-dim)">' +
-      'The regional schools. A trip (' + S.tripCost + ') buys sharper reads on a school’s class; a partnership (' + S.partnerCost + ') buys first look before any rival scout gets a seat.' +
-      (KP.isRegionalHouse && KP.isRegionalHouse(state)
-        ? ' The ' + UI.esc(KP.homeCityLabel(state)) + ' academy is up the road — a visit is a walk (' + KP.C.HOME.homeTripCost + '), not a train.'
-        : '') + '</div>'];
+      'The training schools. A trip buys sharper reads on a school’s class; a partnership buys first look before any rival scout gets a seat. ' +
+      'The prices are the map: your own city is a walk, the rest is train fare — and a school with a name charges for the seat. Schools open and close; the directory is never finished.</div>'];
     // one trip per week (0.9.16.1): Scout Im is one person on one train
     const trippedThisWeek = schools.some(s => s.visitedWeek === state.week);
     schools.slice().sort((a, b) => b.rep - a.rep).forEach(s => {
@@ -72,7 +70,8 @@
       // the atlas (v0.10.12): the home-city school bills the walk, not
       // the train — the button reads the same truth the verb bills
       const tripCost = KP.schoolTripCost ? KP.schoolTripCost(state, s) : S.tripCost;
-      const local = tripCost !== S.tripCost;
+      const partnerCost = KP.schoolPartnerCost ? KP.schoolPartnerCost(state, s) : S.partnerCost;
+      const local = s.cityId === (KP.homeCity ? KP.homeCity(state) : 'seoul');
       html.push('<div class="card" style="padding:12px">' +
         '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">' +
         '<span style="font-weight:800">' + UI.esc(s.name) + '</span>' +
@@ -93,7 +92,7 @@
         (cooling ? 'Visited' : trippedThisWeek ? 'Next week'
           : (local ? 'Walk over · ' : 'Trip · ') + tripCost) + '</button>' +
         '<button class="btn small" data-action="school-partner" data-id="' + s.id + '"' +
-        (partnered || state.budget < S.partnerCost ? ' disabled' : '') + '>' + (partnered ? 'Partnered' : 'Partner · ' + S.partnerCost) + '</button>' +
+        (partnered || state.budget < partnerCost ? ' disabled' : '') + '>' + (partnered ? 'Partnered' : 'Partner · ' + partnerCost) + '</button>' +
         '</div></div>');
     });
     return html.join('');

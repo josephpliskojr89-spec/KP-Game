@@ -56,7 +56,8 @@ function debuted(seed) {
   const obsBefore = boardFromSchool.map(p => p.observations || 0);
   const r = KP.scoutingTrip(state, school.id);
   t.ok(r.ok, 'the train ran');
-  t.eq(state.budget, before - KP.C.SCHOOLS.tripCost, 'the trip costs what it costs');
+  // the school map (v0.10.14): the fare derives from the map + the name
+  t.eq(state.budget, before - KP.schoolTripCost(state, school), 'the trip costs what it costs');
   boardFromSchool.forEach((p, i) => t.ok((p.observations || 0) >= Math.min(obsBefore[i] + 1, KP.C.SCOUT.maxObservations),
     'the visit sharpened the read on ' + p.name.display));
   t.ok(state.prospects.map(id => state.people[id]).some(p => p.schoolId === school.id && !boardFromSchool.includes(p)),
@@ -249,6 +250,61 @@ function debuted(seed) {
   t.ok((last.claims || []).some(cl => cl.type === 'debutByPromise' && cl.resolved === 'met'),
     'and the promise resolved KEPT');
   t.eq(KP.validateState(last).length, 0, 'no integrity cost across all of it');
+}
+
+// ---- the school map (v0.10.14, §83): the pond gets a geography ----
+{
+  const S = KP.C.SCHOOLS;
+  // A: 6-12 per save, gravity-drawn, with the guarantees
+  const counts = [];
+  for (let i = 0; i < 6; i++) {
+    const w = KP.newGame('pr-map-' + i, null, { legacy: false });
+    counts.push(w.schools.length);
+    t.ok(w.schools.some(x => x.cityId === 'seoul'), 'Seoul always has a school (pr-map-' + i + ')');
+    const lanes = new Set(w.schools.map(x => x.lane));
+    t.ok(lanes.size === 3, 'every lane exists somewhere (pr-map-' + i + ')');
+  }
+  t.ok(counts.every(c => c >= S.minSchools && c <= S.maxSchools) && counts.some(c => c !== counts[0]),
+    'the population is 6-12 and varies by world (' + counts.join(',') + ')');
+  const dg = KP.newGame('pr-map-dg', null, { legacy: false, door: 'fresh', homeCity: 'daegu' });
+  t.ok(dg.schools.some(x => x.cityId === 'daegu'), 'a regional founding has its academy up the road');
+  // C: the city sets the pond — same rep, different depth
+  const probe = (cityId) => {
+    const fork = KP.deserialize(KP.serialize(dg));
+    const sch = { id: 'schP', name: 'Probe', cityId, city: cityId, lane: 'vocals',
+      rep: S.baseRep, alumni: [], partnerUntil: 0 };
+    fork.schools.push(sch);
+    const rng = KP.rngFor(fork);
+    let sum = 0;
+    for (let i = 0; i < 10; i++) sum += KP.spawnSchoolLead(fork, rng, sch).talents.vocals.cur;
+    return sum / 10;
+  };
+  t.ok(probe('seoul') > probe('daejeon') + 4,
+    'a Seoul class out-drills a small-town class at the SAME reputation');
+  // D: the price is the map — one truth, distance-monotonic, name premium
+  const mk = (cityId, rep) => ({ id: 'x', name: 'X', cityId, city: cityId, lane: 'dance', rep, alumni: [] });
+  t.eq(KP.schoolTripCost(dg, mk('daegu', 45)), KP.C.HOME.homeTripCost, 'your own city is a walk');
+  t.ok(KP.schoolTripCost(dg, mk('busan', 30)) < KP.schoolTripCost(dg, mk('seoul', 30)),
+    'from Daegu, Busan is the shorter train');
+  t.eq(KP.schoolTripCost(dg, mk('seoul', 80)) - KP.schoolTripCost(dg, mk('seoul', 30)),
+    S.repPremium[4], 'a hot school charges for the seat');
+  t.eq(KP.schoolPartnerCost(dg, mk('busan', 80)) - KP.schoolPartnerCost(dg, mk('busan', 30)),
+    S.partnerRepMult * S.repPremium[4], 'the retainer prices the name');
+  // B: the map breathes — pin the dice, sink a school, ride
+  const w2 = KP.newGame('pr-breathe', null, { legacy: false });
+  w2.budget = 2000;
+  const oc = S.closeChance, oo = S.openChance;
+  KP.C.SCHOOLS.closeChance = 0.5; KP.C.SCHOOLS.openChance = 0.25;
+  w2.schools[1].rep = 20;
+  for (let i = 0; i < 60; i++) { KP.advanceWeek(w2); if (w2.budget < 200) w2.budget = 500; }
+  KP.C.SCHOOLS.closeChance = oc; KP.C.SCHOOLS.openChance = oo;
+  t.ok((w2.schoolLedger.closed || 0) >= 1 && (w2.schoolLedger.opened || 0) >= 1,
+    'schools close and open (' + w2.schoolLedger.closed + '/' + w2.schoolLedger.opened + ')');
+  t.ok(w2.schools.length >= S.floorSchools && w2.schools.length <= S.maxSchools,
+    'inside the rails (' + w2.schools.length + ')');
+  t.eq(Object.values(w2.people).filter(p2 =>
+    p2.schoolId && !w2.schools.some(x => x.id === p2.schoolId)).length, 0,
+    'no file points at a closed school');
 }
 
 // ---- determinism ----

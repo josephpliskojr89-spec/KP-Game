@@ -492,7 +492,10 @@
     KP.C.TALENTS.forEach(d => {
       if (p.flags['ceil_' + d] == null) {
         const t = p.talents[d];
-        p.flags['ceil_' + d] = Math.round(t.ceilLo + rng.next() * (t.ceilHi - t.ceilLo));
+        // the destiny can't land below demonstrated skill (latent bug,
+        // v0.10.14 soak): prep training grows toward ceilHi unresolved
+        p.flags['ceil_' + d] = Math.max(Math.ceil(t.cur),
+          Math.round(t.ceilLo + rng.next() * (t.ceilHi - t.ceilLo)));
       }
     });
     const focus = KP.idolFocus(state, p);

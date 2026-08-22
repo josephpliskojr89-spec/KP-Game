@@ -118,7 +118,7 @@ async function main() {
   ok(budgetAfterLook === budgetBefore - lookCost, 'a targeted look costs budget');
   // --- the regional schools (v0.9.16): the map under the board ---
   const boardText = await page.textContent('#screen');
-  ok(/The regional schools/.test(boardText), 'the schools directory renders under the board');
+  ok(/The training schools/.test(boardText), 'the schools directory renders under the board');
   ok((await page.$$eval('[data-action=school-trip]', els => els.length)) >= 3, 'every school offers the trip');
   const budgetBeforeTrip = parseInt((await page.textContent('#tb-budget')).replace(/\D/g, ''), 10);
   await tap('[data-action=school-trip]');

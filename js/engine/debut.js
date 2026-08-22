@@ -652,8 +652,12 @@
       }
     }
     const band = D.receptionBands.find(b => reception >= b.min);
-    const centerOvershadowed = !isSolo && breakout.id !== g.roles.center &&
-      pulls.find(x => x.m.id === g.roles.center).pull < pulls[0].pull - 8;
+    // a group can reach its release with NO center (a scandal release
+    // deletes the role without reassigning — latent since v0.10.2,
+    // found by the v0.10.14 soak). No center, nobody to overshadow.
+    const centerRow = !isSolo && pulls.find(x => x.m.id === g.roles.center);
+    const centerOvershadowed = !isSolo && !!centerRow && breakout.id !== g.roles.center &&
+      centerRow.pull < pulls[0].pull - 8;
 
     // --- consequences
     members.forEach(m => {

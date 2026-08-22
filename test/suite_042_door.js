@@ -167,8 +167,10 @@ function rideToKnock(state, maxWeeks) {
   const { state, g } = debuted('door-pacing');
   calm(state);
   const her = state.people[g.members[0]];
-  her.fatigue = 90;
-  const sc = rideToKnock(state, 20);
+  // v0.10.14 stream shift: pin the exhaustion through the ride — the
+  // fixture's claim needs a knock, and recovery was un-knocking her
+  let sc = null, guardK = 0;
+  while (!sc && guardK++ < 40) { her.fatigue = 90; KP.advanceWeek(state); sc = doorScene(state); }
   t.ok(sc && sc.personId === her.id, 'fixture: she knocked');
   KP.resolveScene(state, sc.id, 'decline');
   her.fatigue = 90;                                    // still exhausted

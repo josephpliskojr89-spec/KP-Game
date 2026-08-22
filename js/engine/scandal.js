@@ -225,6 +225,13 @@
         // the dorm re-partitions around the empty chair (latent v0.10.2
         // bug: the room chart kept the released member)
         if (g.rooms) { g.rooms = null; if (g.members.length) KP.assignRooms(state, g); }
+        // the maknae is a fact (latent v0.10.2 gap, found by longhaul):
+        // the release path never recomputed it
+        if (!g.members.length) g.maknae = null;
+        else if (g.maknae === p.id) {
+          g.maknae = g.members.map(id => state.people[id]).filter(Boolean)
+            .sort((a, b) => a.age - b.age)[0].id;
+        }
       }
       p.status = 'released';
       state.roster = state.roster.filter(id => id !== p.id);
@@ -252,6 +259,11 @@
         Object.keys(g.roles || {}).forEach(r => { if (g.roles[r] === p.id) delete g.roles[r]; });
         if (g.fandom) g.fandom.intensity = KP.clamp(g.fandom.intensity - KP.C.SCANDAL.releaseFandom - 5, 0, 100);
         if (g.rooms) { g.rooms = null; if (g.members.length) KP.assignRooms(state, g); }
+        if (!g.members.length) g.maknae = null;
+        else if (g.maknae === p.id) {
+          g.maknae = g.members.map(id => state.people[id]).filter(Boolean)
+            .sort((a, b) => a.age - b.age)[0].id;
+        }
       }
       p.status = 'released';
       state.roster = state.roster.filter(id => id !== p.id);

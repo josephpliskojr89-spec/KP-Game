@@ -57,8 +57,13 @@ const t = makeT('suite_090_home');
   // the local school is a walk, not a train — and the BUTTON reads the
   // same truth the verb bills (v0.10.13.1: the card showed 10, billed 2)
   t.eq(KP.schoolTripCost(gw, sch), KP.C.HOME.homeTripCost, 'one truth: the home trip price helper');
-  t.eq(KP.schoolTripCost(gw, gw.schools.find(x => x.cityId !== 'gwangju')), KP.C.SCHOOLS.tripCost,
-    'and the away price stays the train fare');
+  // the school map (v0.10.14): away fares derive from map distance +
+  // the school's name — more than a walk, bounded by the far corner
+  const awaySch = gw.schools.find(x => x.cityId !== 'gwangju');
+  const awayPrice = KP.schoolTripCost(gw, awaySch);
+  t.ok(awayPrice > KP.C.HOME.homeTripCost && awayPrice <= KP.C.SCHOOLS.tripBase +
+    Math.round(0.9 * KP.C.SCHOOLS.fareScale) + KP.C.SCHOOLS.repPremium[4],
+    'and the away price is a real fare (' + awayPrice + ')');
   const b0 = gw.budget;
   const r = KP.scoutingTrip(gw, sch.id);
   t.ok(r.ok && b0 - gw.budget === KP.C.HOME.homeTripCost, 'the home school bills lunch money (' + (b0 - gw.budget) + ')');
@@ -66,8 +71,8 @@ const t = makeT('suite_090_home');
   KP.advanceWeek(gw);
   const away = gw.schools.find(x => x.cityId !== 'gwangju');
   const b1 = gw.budget;
-  t.ok(KP.scoutingTrip(gw, away.id).ok && b1 - gw.budget === KP.C.SCHOOLS.tripCost,
-    'the away school still bills the train');
+  t.ok(KP.scoutingTrip(gw, away.id).ok && b1 - gw.budget === KP.schoolTripCost(gw, away),
+    'the away school bills the derived fare');
   // a Seoul house pays no commute and gets no discount anywhere
   const se = KP.newGame('hm-atlas-se', null, { legacy: false, door: 'fresh' });
   t.ok(KP.homeCostMult(se) === 1 && KP.homeCommute(se) === 0 && KP.homeGateLift(se) === 0,

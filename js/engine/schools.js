@@ -20,34 +20,70 @@
   const LANE_LABELS = { vocals: 'vocal', dance: 'dance', allround: 'all-round' };
   const LANE_SOURCE = { vocals: 'Vocal academy', dance: 'Dance academy', allround: 'School performance' };
 
+  // ---- geography (v0.10.14, §83): one map, every distance derives -------
+  function cityRow(id) {
+    return KP.C.TOUR.KR_CITIES.find(c => c.id === id) || null;
+  }
+  KP.cityDistance = function (a, b) {
+    const ra = cityRow(a), rb = cityRow(b);
+    if (!ra || !rb || a === b) return 0;
+    return Math.sqrt(Math.pow(ra.x - rb.x, 2) + Math.pow(ra.y - rb.y, 2));
+  };
+
   // ---- creation (newgame calls this; the weekly phase migrates) ---------
+  // the school map (v0.10.14, §83 A): 6–12 per save, cities drawn by
+  // their gravity — Seoul carries the most, the small towns sometimes
+  // none. Every lane exists somewhere; Seoul always has a school, and a
+  // regional founding always has one up the road (the atlas trade).
+  function mkSchool(state, rng, cityId, lane, rep) {
+    const c = cityRow(cityId);
+    const used = new Set((state.schools || []).map(x => x.name));
+    const pool = NAME_POOLS[lane].filter(n => !used.has(n));
+    let name = pool.length ? rng.pick(pool)
+      : NAME_POOLS[lane][rng.int(0, NAME_POOLS[lane].length - 1)] + ' ' + c.label;
+    if (used.has(name)) name = 'New ' + name;
+    // the atlas (v0.10.12, §82 A): the arts city's academy opens with
+    // a name — a world fact, not a player bonus
+    const artsRep = (KP.C.HOME.CITIES && KP.C.HOME.CITIES[cityId] &&
+      KP.C.HOME.CITIES[cityId].schoolRep) || 0;
+    state.nextSchoolId = state.nextSchoolId || 1;
+    return {
+      id: 'sch' + (state.nextSchoolId++), name, cityId, city: c.label, lane,
+      rep: rep + artsRep,
+      alumni: [], hot: false, hotWeek: null,
+      visitedWeek: null, partnerUntil: 0,
+    };
+  }
+  function drawCity(rng, bonusCity, bonusMult) {
+    const cities = KP.C.TOUR.KR_CITIES;
+    const weighted = cities.map(c => ({ id: c.id,
+      w: c.w * (c.id === bonusCity ? (bonusMult || 1) : 1) }));
+    const total = weighted.reduce((s2, x) => s2 + x.w, 0);
+    let roll = rng.next() * total;
+    for (const x of weighted) { roll -= x.w; if (roll <= 0) return x.id; }
+    return weighted[weighted.length - 1].id;
+  }
   KP.generateSchools = function (state, rng) {
     const S = KP.C.SCHOOLS;
-    const cities = KP.C.TOUR.KR_CITIES;
-    const used = new Set();
+    const n = rng.int(S.minSchools, S.maxSchools);
+    const picks = ['seoul'];
+    const home = KP.homeCity ? KP.homeCity(state) : 'seoul';
+    if (home !== 'seoul') picks.push(home);
+    while (picks.length < n) picks.push(drawCity(rng));
     // every lane exists somewhere; the rest of the map rolls its own mix
     const lanes = ['vocals', 'dance', 'allround'];
-    while (lanes.length < cities.length) lanes.push(rng.pick(['vocals', 'dance', 'allround']));
+    while (lanes.length < n) lanes.push(rng.pick(['vocals', 'dance', 'allround']));
     // deterministic shuffle so Seoul is not always the vocal town
     for (let i = lanes.length - 1; i > 0; i--) {
       const j = rng.int(0, i);
       const t = lanes[i]; lanes[i] = lanes[j]; lanes[j] = t;
     }
-    state.schools = cities.map((c, i) => {
-      const lane = lanes[i];
-      const pool = NAME_POOLS[lane].filter(n => !used.has(n));
-      const name = pool.length ? rng.pick(pool) : NAME_POOLS[lane][0] + ' ' + c.label;
-      used.add(name);
-      // the atlas (v0.10.12, §82 A): the arts city's academy opens with
-      // a name — a world fact, not a player bonus
-      const artsRep = (KP.C.HOME.CITIES && KP.C.HOME.CITIES[c.id] &&
-        KP.C.HOME.CITIES[c.id].schoolRep) || 0;
-      return {
-        id: 'sch' + (i + 1), name, cityId: c.id, city: c.label, lane,
-        rep: rng.int(S.startRep[0], S.startRep[1]) + artsRep,
-        alumni: [], hot: false, hotWeek: null,
-        visitedWeek: null, partnerUntil: 0,
-      };
+    state.nextSchoolId = 1;
+    state.schoolLedger = state.schoolLedger || { opened: 0, closed: 0 };
+    state.schools = [];
+    picks.slice(0, n).forEach((cid, i) => {
+      state.schools.push(mkSchool(state, rng, cid, lanes[i],
+        rng.int(S.startRep[0], S.startRep[1])));
     });
     return state.schools;
   };
@@ -55,13 +91,31 @@
   KP.schoolById = function (state, id) {
     return (state.schools || []).find(s => s.id === id) || null;
   };
-  // the atlas (v0.10.12; helper v0.10.13.1): ONE truth for what a trip
-  // bills — the verb and the button both read it. The home-city school
-  // is a walk, not a train
+  // the school map (v0.10.14, §83 D): ONE truth for what access bills —
+  // the verb and the button both read it. Your own city is a walk (any
+  // house, Seoul included); everywhere else is the train fare by the
+  // map plus a premium for the school's name.
+  KP.schoolRepPremium = function (school) {
+    const S = KP.C.SCHOOLS;
+    const tier = school.rep >= S.hotAt ? 4 : school.rep >= 68 ? 3
+      : school.rep >= 55 ? 2 : school.rep >= 38 ? 1 : 0;
+    return S.repPremium[tier];
+  };
   KP.schoolTripCost = function (state, school) {
-    const local = KP.homeCity && KP.isRegionalHouse(state) &&
-      school && school.cityId === KP.homeCity(state);
-    return local ? KP.C.HOME.homeTripCost : KP.C.SCHOOLS.tripCost;
+    const S = KP.C.SCHOOLS;
+    if (!school) return S.tripCost;
+    const home = KP.homeCity ? KP.homeCity(state) : 'seoul';
+    if (school.cityId === home) return KP.C.HOME.homeTripCost;
+    const fare = Math.round(KP.cityDistance(home, school.cityId) * S.fareScale);
+    return S.tripBase + fare + KP.schoolRepPremium(school);
+  };
+  KP.schoolPartnerCost = function (state, school) {
+    const S = KP.C.SCHOOLS;
+    if (!school) return S.partnerCost;
+    const home = KP.homeCity ? KP.homeCity(state) : 'seoul';
+    const fare = school.cityId === home ? 0
+      : Math.round(KP.cityDistance(home, school.cityId) * S.fareScale);
+    return S.partnerBase + S.partnerRepMult * KP.schoolRepPremium(school) + fare;
   };
   // reputation is shown as a word — the number stays in the building
   KP.schoolRepWord = function (rep) {
@@ -96,12 +150,19 @@
     state.nextPersonId = KP.peekNextId();
     p.schoolId = school.id;
     p.channel = 'school';   // the public landscape (v0.9.35): every desk sees a showcase
-    if (school.rep > S.baseRep) {
-      const bonus = Math.round((school.rep - S.baseRep) / (100 - S.baseRep) * S.repTalentBonus);
+    // the school map (v0.10.14, §83 C): the city sets the pond — a
+    // Seoul class arrives better drilled than a Daejeon class at the
+    // same reputation. Depth is training, not destiny: ceilings untouched
+    const cw = (cityRow(school.cityId) || { w: 0.6 }).w;
+    const depth = Math.round((cw - 0.5) / 0.5 * S.depthTalentSpan);
+    const repBonus = school.rep > S.baseRep
+      ? Math.round((school.rep - S.baseRep) / (100 - S.baseRep) * S.repTalentBonus) : 0;
+    if (repBonus + depth > 0) {
       const laneKeys = school.lane === 'allround' ? ['vocals', 'dance'] : [school.lane];
       laneKeys.forEach(k => {
         const t = p.talents[k];
-        const lift = school.lane === 'allround' ? Math.round(bonus / 2) : bonus;
+        const lift = school.lane === 'allround'
+          ? Math.round((repBonus + depth) / 2) : repBonus + depth;
         t.cur = Math.min(t.ceilLo - 1, t.cur + lift);
       });
     }
@@ -166,12 +227,60 @@
       }
     });
 
+    // ---- the map breathes (v0.10.14, §83 B) ----------------------------
+    state.schoolLedger = state.schoolLedger || { opened: 0, closed: 0 };
+    if (!state.nextSchoolId) {
+      state.nextSchoolId = state.schools.reduce((m, s) =>
+        Math.max(m, parseInt(s.id.slice(3), 10) || 0), 0) + 1;
+    }
+    // the closing: half a year under the waterline, unpartnered, and the
+    // weekly dice can call it — the map never thins below the floor
+    state.schools.forEach(s => {
+      if (s.rep < S.closeRep && !(s.partnerUntil > state.week)) {
+        if (!s.lowSince) s.lowSince = state.week;
+      } else delete s.lowSince;
+    });
+    const dying = state.schools.find(s =>
+      s.lowSince && state.week - s.lowSince >= S.closeAfterWeeks);
+    if (dying && state.schools.length > S.floorSchools && rng.chance(S.closeChance)) {
+      state.schools = state.schools.filter(s => s !== dying);
+      Object.values(state.people).forEach(p => {
+        if (p.schoolId === dying.id) delete p.schoolId;
+      });
+      state.schoolLedger.closed++;
+      const wasHome = KP.homeCity && dying.cityId === KP.homeCity(state);
+      inbox.push({ kind: 'industry', ind: 'schoolClosed', priority: wasHome ? 'high' : 'normal',
+        text: dying.name + ' in ' + dying.city + ' closed its doors — too many quiet years, and the lease does not care about potential. The space is becoming a math hagwon; the mirrors sold separately.' +
+          (wasHome ? ' That was the academy up the road. The neighborhood kids train in front of shop windows now, and the scouts noticed the same thing you did: somebody should build a room here.' :
+            ' The current class scattered to whoever answered the phone.') });
+    }
+    // the opening: a new door toward the cap, cities drawn by gravity —
+    // and a famous local label pulls the scene home
+    if (state.schools.length < S.maxSchools && rng.chance(S.openChance)) {
+      const home = KP.homeCity ? KP.homeCity(state) : 'seoul';
+      const famous = KP.fameRead && KP.fameRead(state) >= 0.30;
+      const cid = drawCity(rng, famous && home !== 'seoul' ? home : null, S.openHomeFameBonus);
+      const lane = rng.pick(['vocals', 'dance', 'allround']);
+      const born = mkSchool(state, rng, cid, lane, rng.int(30, 46));
+      state.schools.push(born);
+      state.schoolLedger.opened++;
+      inbox.push({ kind: 'industry', ind: 'schoolOpened',
+        priority: cid === home ? 'high' : 'normal',
+        text: born.name + ' opened in ' + born.city + ' — new mirrors, a rented floor, and a director with strong opinions about the ' +
+          LANE_LABELS[lane] + ' fundamentals. Every school on the map started exactly this unproven.' +
+          (cid === home && home !== 'seoul' ? ' It is a ten-minute walk from this office, and everyone involved knows exactly whose alumni wall they are hoping to build.' : '') });
+    }
+
     // ---- casting is open: the schools submit ---------------------------
     const S2 = KP.C.SCOUT;
     const castingOpen = !!state.project || (state.rivals || []).some(r =>
       r.nextDebutWeek != null && state.week >= r.nextDebutWeek - S2.rivalHungerWindow);
     if (castingOpen && rng.chance(S.classChance)) {
-      const weighted = state.schools.map(s => ({ s, w: 1 + Math.pow(s.rep / 40, 2) }));
+      // §83 C: bigger cities submit more — Seoul's schools can field a
+      // class every casting season; a small-town academy, not always
+      const weighted = state.schools.map(s => ({ s,
+        w: (1 + Math.pow(s.rep / 40, 2)) *
+           (S.depthClassWeight + (cityRow(s.cityId) || { w: 0.6 }).w) }));
       const total = weighted.reduce((sum, x) => sum + x.w, 0);
       let roll = rng.next() * total;
       let school = weighted[weighted.length - 1].s;
@@ -199,7 +308,7 @@
     // the atlas (v0.10.12, §82 A): the home-city school is up the road —
     // owner: "scouting the local school should essentially be free"
     const tripCost = KP.schoolTripCost(state, s);
-    const local = tripCost !== S.tripCost;
+    const local = s.cityId === (KP.homeCity ? KP.homeCity(state) : 'seoul');
     if (state.budget < tripCost) return { ok: false, reason: 'No budget for the train ticket, let alone the trip.' };
     if (s.visitedWeek && state.week - s.visitedWeek < S.tripCooldownWeeks) {
       return { ok: false, reason: 'The staff were just there. A second visit this soon reads as desperation.' };
@@ -237,8 +346,11 @@
     const s = KP.schoolById(state, schoolId);
     if (!s) return { ok: false, reason: 'No such school on the map.' };
     if (s.partnerUntil > state.week) return { ok: false, reason: 'The agreement with ' + s.name + ' is already running.' };
-    if (state.budget < S.partnerCost) return { ok: false, reason: 'A retainer is real money, and we do not have it.' };
-    state.budget -= S.partnerCost;
+    // the school map (v0.10.14, §83 D): the retainer prices the school's
+    // name and the distance to its door
+    const cost = KP.schoolPartnerCost(state, s);
+    if (state.budget < cost) return { ok: false, reason: 'The retainer is ' + cost + ' — a school with this name, this far away, bills like it. We do not have it.' };
+    state.budget -= cost;
     s.partnerUntil = state.week + S.partnerWeeks;
     const note = { kind: 'scouting', ind: 'schoolPartner',
       text: 'Signed: a first-look partnership with ' + s.name + ' (' + s.city + '). For the next half year their best files reach our desk pre-read, before any rival scout gets a seat at their showcases. The headmaster framed the agreement. We framed the invoice.' };

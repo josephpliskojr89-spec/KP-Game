@@ -40,6 +40,10 @@ function debuted(seed) {
   // make her read as transcendent whatever the fixture math says
   const realRead = KP.transcendRead;
   KP.transcendRead = () => KP.C.GRAVITY.transcendAt + 10;
+  // v0.10.14 stream shift: the album clamor ignites ONCE, at the split
+  // tick — a full discourse board that week eats it silently (the
+  // suite_080 maxLive pattern). Keep the board clear through the split.
+  state.discourses = [];
   KP.advanceWeek(state);
   t.ok(g.gravity && !g.gravity.settled && g.gravity.rung === 2,
     'the conversation returns — and it is about the ALBUM now');
@@ -48,18 +52,22 @@ function debuted(seed) {
   let guard = 0;
   while (!(state.discourses || []).some(d => d.kind === 'albumClamor') && guard++ < 30) {
     // keep the discourse cap clear — the campaign needs a live slot
-    KP.liveDiscourses(state).forEach(d => {
-      if (d.kind !== 'albumClamor' && !d.responded) {
-        KP.respondDiscourse(state, d.id, KP.C.DISCOURSE.KINDS[d.kind].actions[0]);
-      }
-    });
+    state.discourses = (state.discourses || []).filter(d => d.kind === 'albumClamor');
     KP.advanceWeek(state);
   }
   t.ok((state.discourses || []).some(d => d.kind === 'albumClamor'),
     'the fandom is CAMPAIGNING for the album');
-  // the knock at rung 2: the promise is the album
+  // the knock at rung 2: the promise is the album. v0.10.14 stream
+  // shift: keep her dominance pinned through the longer ride — the
+  // knock needs the pull to stay album-tier every week it rolls
   guard = 0;
-  while (!(state.scenes || []).some(sc => sc.kind === 'soloKnock') && guard++ < 30) {
+  while (!(state.scenes || []).some(sc => sc.kind === 'soloKnock') && guard++ < 60) {
+    read();
+    // the knock waits while ANY scene sits on her (the engine's own
+    // guard) — sweep unrelated scenes so the fixture tests the knock,
+    // not the week's traffic (suite_058 one-shot pattern)
+    state.scenes = (state.scenes || []).filter(sc =>
+      !(sc.personId === star.id && sc.kind !== 'soloKnock'));
     KP.advanceWeek(state);
   }
   const knock = (state.scenes || []).find(sc => sc.kind === 'soloKnock');

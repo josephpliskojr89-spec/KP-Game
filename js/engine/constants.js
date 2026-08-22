@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.13.1',
+    VERSION: '0.10.14',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -221,16 +221,34 @@
       classChance: 0.22,         // weekly while casting is open: a school submits
       classSize: [1, 2],
       repTalentBonus: 8,         // lane-skill lift at rep 100 (scaled from base)
-      // 12→10 in soak calibration: the desk's combined spend (~170 a
-      // career at first prices) tipped marginal orgs into trust-hitting
-      // fiscal warnings — measured by A/B probe with the desk disabled
-      tripCost: 10,
+      // the school map (v0.10.14, §83): the flat fares became a
+      // geography — tripCost/partnerCost survive as the FALLBACK terms
+      // the derived prices build from (and as old fixtures' anchors)
+      tripCost: 10,              // legacy flat fare (pre-map saves only)
+      tripBase: 3,               // the train ticket's floor
+      fareScale: 10,             // fare = round(map distance × this)
+      // access premium by reputation word: quiet/steady/respected/
+      // name-brand/hot — a hot school's door costs what it is worth
+      repPremium: [0, 1, 2, 4, 6],
       tripCooldownWeeks: 8,      // a visit is a trip, not a subscription
-      partnerCost: 32,           // one-time retainer (40→32, same calibration)
+      partnerCost: 32,           // legacy flat retainer (pre-map anchors)
+      partnerBase: 22,           // retainer floor…
+      partnerRepMult: 3,         // …plus 3× the access premium + the fare
       partnerWeeks: 26,          // half a year of first look
       partnerObs: 2,             // partnered leads arrive pre-read
       firstLookWeeks: 4,         // rivals can't circle a protected lead
       maxAlumni: 12,             // the ledger keeps the names that matter
+      // §83 A+B: the population breathes
+      minSchools: 6, maxSchools: 12,
+      floorSchools: 5,           // closures never thin the map below this
+      closeRep: 30,              // under this, unpartnered, the clock runs…
+      closeAfterWeeks: 26,       // …for half a year before
+      closeChance: 0.06,         // …the weekly dice can call it
+      openChance: 0.012,         // a new door opens toward the cap
+      openHomeFameBonus: 2,      // a famous local label pulls the scene home
+      // §83 C: the city sets the pond — lead polish depth term
+      depthTalentSpan: 10,       // lane cur lift at w=1.0 vs w=0.5
+      depthClassWeight: 0.5,     // submission weight floor for small towns
     },
 
     // ---- The practice room years (v0.9.16): trainee life has weather ---
@@ -897,13 +915,15 @@
       // not one show — Seoul always, then every city whose room the
       // promoter believes the fanbase can fill at this scale. Cities
       // whose pre-sales blow past the ceiling get a SECOND NIGHT.
+      // the school map (v0.10.14, §83): rough normalized map coordinates
+      // — one geography, every distance derives from it
       KR_CITIES: [
-        { id: 'seoul',   label: 'Seoul',   w: 1.00 },
-        { id: 'busan',   label: 'Busan',   w: 0.80 },
-        { id: 'incheon', label: 'Incheon', w: 0.70 },
-        { id: 'daegu',   label: 'Daegu',   w: 0.62 },
-        { id: 'gwangju', label: 'Gwangju', w: 0.55 },
-        { id: 'daejeon', label: 'Daejeon', w: 0.52 },
+        { id: 'seoul',   label: 'Seoul',   w: 1.00, x: 0.42, y: 0.18 },
+        { id: 'busan',   label: 'Busan',   w: 0.80, x: 0.72, y: 0.72 },
+        { id: 'incheon', label: 'Incheon', w: 0.70, x: 0.36, y: 0.19 },
+        { id: 'daegu',   label: 'Daegu',   w: 0.62, x: 0.62, y: 0.58 },
+        { id: 'gwangju', label: 'Gwangju', w: 0.55, x: 0.32, y: 0.72 },
+        { id: 'daejeon', label: 'Daejeon', w: 0.52, x: 0.45, y: 0.45 },
       ],
       datesPerWeek: 2,           // two stages a week is a schedule, not a stunt
       maxKrDates: 9,             // routed dates + earned encores, capped

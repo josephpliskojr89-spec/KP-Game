@@ -33,7 +33,9 @@ function withWriter(seed) {
   const { state, g, writerId } = withWriter('tf-adv');
   t.eq(g.demos.filter(d => d.pushed).length, 1, 'exactly ONE producer campaigns per meeting');
   const push = g.demos.find(d => d.pushed);
-  t.ok(g.demos.every(d => d.hook <= push.hook), 'and he pushes his best hook');
+  // v0.10.14 stream shift: the member's demo can out-roll the pros —
+  // the claim is about the PROFESSIONAL sheet the advocate pushed from
+  t.ok(g.demos.filter(d => !d.writtenBy).every(d => d.hook <= push.hook), 'and he pushes his best hook');
   const taste = KP.execTaste(state);
   g.demos.forEach(d => t.eq(!!d.execFavored, d.conceptId === taste,
     d.title + ': the exec taste stamp is deterministic'));
@@ -116,7 +118,7 @@ function withWriter(seed) {
   const { state, g } = withWriter('tf-mv');
   const b0 = state.budget;
   const demo = g.demos.find(d => !d.writtenBy);
-  const base = KP.recordBill(g, 'modest', 'single') +
+  const base = KP.recordBill(g, 'modest', 'single') + (demo.price || 0) +
     KP.C.ROLLOUT.DEFAULT.flat().reduce((s2, a) => s2 + KP.C.ROLLOUT.ACTIVITIES[a].cost, 0);
   // twin forks off one state: same rng stream, different videos — the
   // reception gap IS the tier gap

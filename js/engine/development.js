@@ -52,7 +52,12 @@
     KP.C.TALENTS.forEach(d => {
       if (person.flags['ceil_' + d] == null) {
         const t = person.talents[d];
-        person.flags['ceil_' + d] = Math.round(t.ceilLo + rng.next() * (t.ceilHi - t.ceilLo));
+        // the destiny can't land below demonstrated skill (latent bug,
+        // found by the v0.10.14 soak): prep-period training grows toward
+        // ceilHi while unresolved, so a late roll under cur broke the
+        // ceiling invariant. Reality outranks the cone.
+        person.flags['ceil_' + d] = Math.max(Math.ceil(t.cur),
+          Math.round(t.ceilLo + rng.next() * (t.ceilHi - t.ceilLo)));
       }
     });
 

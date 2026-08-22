@@ -5510,6 +5510,80 @@ stream; the majors' cuts are the ones the public knows. Soak:
 castoffSeen 40/40 (band floor 0.70 holds). Battery 90/90, longhaul
 10x620, e2e 104.
 
+## §83 The school map (SHIPPED v0.10.14 — the pond gets a geography)
+
+Owner: "how would you go about pricing the schools based on, like, a
+combination of distance and prestige rating and not locking it to 6?
+6 to 12 can generate per save, that number can fluctuate as schools
+open and close, and they develop a reputation just like we do and the
+staff does. the Daegu school realistically shouldn't have the depth of
+talent that the Seoul schools would."
+
+**A. The population.** 6–12 schools per save, cities drawn by their
+gravity (`KR_CITIES.w`) — Seoul typically carries three or four,
+Daejeon zero or one. Guarantees: every lane exists somewhere, Seoul
+always has at least one school, and a regional founding always has one
+up the road (the atlas trade depends on it). Old saves keep their six;
+the map starts breathing on the next tick.
+
+**B. The breathing.** A school whose reputation sits under 30 for
+half a year, unpartnered, can quietly close ("the academy became a
+math hagwon — the mirrors sold separately"); the map never thins below
+five. New schools open toward the cap, cities drawn by gravity — with
+a thumb on the scale for the player's home city once the label is
+famous, because a working label IS the reason a scene grows. Ledgered
+(schoolLedger.opened/closed); closures clear their dangling schoolId
+stamps; partnerships die with the building.
+
+**C. The depth.** The city sets the pond: a school's lead polish now
+carries a depth term from city gravity on top of the rep term — a
+Seoul school's class arrives noticeably better drilled than a Daejeon
+school's AT THE SAME reputation, and Seoul schools submit casting
+classes more often. Daegu's ponds are real but shallow; that is what
+the discount was always paying for. (Ceilings stay untouched — depth
+is training, not destiny; the fog laws hold.)
+
+**D. The price.** `KR_CITIES` rows gain rough map coordinates; a trip
+bills walk (2) in your own city — Seoul houses included now — or
+base 3 + fare by distance (+1 next door, +6 across the country) + a
+prestige premium by rep word (quiet +0 → hot +6). A hot Busan school
+from a Daegu office is a short cheap train; the same school from
+Incheon is a day and real money. The partnership retainer scales the
+same way (base 22 + 3x the rep premium + the fare) — a hot school's
+first look costs what it is worth. One truth per price:
+`KP.schoolTripCost` / `KP.schoolPartnerCost`, read by verb and button
+alike.
+
+**As built (v0.10.14 — the school map).** All four §83 parts, one
+architecture note each. **A:** `generateSchools` draws 6–12 by city
+gravity (`KR_CITIES.w`) — measured avg 2.6 Seoul schools per world —
+with Seoul guaranteed, the home city guaranteed, every lane
+somewhere, and `mkSchool`/`state.nextSchoolId` shared with the
+opening event (name pool exhaustion falls back to city-suffixed and
+'New '-prefixed names). Old saves keep their six; the weekly heals
+the id counter. **B:** rep < 30 unpartnered for half a year arms a
+6%/week closing roll (floor five schools; dangling schoolId stamps
+cleared, home-city closures priority-high); openings roll 1.2%/week
+toward twelve, city by gravity with a 2x home-city thumb once
+fameRead ≥ .30. Ledgered; bands ruled 0.30 open (26/40) / closures
+suite-held. **C:** `spawnSchoolLead` adds a depth term —
+round((w−.5)/.5×10) lane polish, Seoul +10 → Daejeon +0 at equal
+rep (measured class gap ~7 points); class submissions weight by
+(0.5 + w). Ceilings untouched. **D:** `KR_CITIES` rows carry map
+coords; `KP.cityDistance` + `schoolRepPremium` (quiet 0 → hot 6)
+derive `schoolTripCost` (own city = walk 2, ANY house incl. Seoul;
+else 3 + fare + premium — from Daegu: Busan 5, Seoul-quiet 7,
+Seoul-hot 13) and `schoolPartnerCost` (22 + 3×premium + fare, 24–48
+measured). **The finds:** the deeper stream shift surfaced three
+latent engine bugs — a scandal release deleting the center role
+leaves resolveDebut crashing on a center-less lineup (guarded); the
+lazy ceiling resolution could roll BELOW skill already demonstrated
+during prep training toward ceilHi (both resolution sites now floor
+at ceil(cur): reality outranks the cone); and the maknae survived
+its own departure at the scandal-release sites and on an emptied
+lineup (all exits recompute or clear). Ten suites re-fixtured.
+Battery 90/90, soak 40 clean, longhaul 10x620, e2e 104.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -8194,3 +8268,17 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > price both sites read; the home school card now says "Walk over ·
 > 2" with a home chip, and the schools header names the walk.
 > Battery 90/90, e2e 104, lockstep 0.10.13.1. Rode to main.
+
+> **0.10.14 — the school map.** Owner: "6 to 12 can generate per
+> save… schools open and close… the Daegu school realistically
+> shouldn't have the depth of talent that the Seoul schools would."
+> The pond got a geography: a gravity-drawn 6–12 school population
+> that breathes (closings at sustained low rep, openings toward the
+> cap with a famous-local-label thumb), city depth on every class
+> (Seoul out-drills Daejeon at equal rep), and prices derived from
+> map distance + reputation word through one-truth helpers the
+> buttons share. The deep stream shift also flushed three latent
+> bugs: center-less lineups crashing resolveDebut, ceiling
+> resolutions landing below demonstrated skill, and the maknae
+> outliving her own departure. Battery 90/90, soak 40 clean,
+> longhaul 10x620, e2e 104, lockstep 0.10.14. Rode to main.

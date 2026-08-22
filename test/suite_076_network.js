@@ -76,8 +76,12 @@ const N = () => KP.C.NETWORK;
   KP.C.TALENTS.forEach(d => { pc.talents[d].cur = Math.min(pc.talents[d].cur, 40); });
   pc.history.push({ week: -50, text: 'Signed to ' + r.short + ' — off our board.' });
   r.rosterCount = 40;   // force the purge path at the next evaluation
+  // v0.10.14 stream shift: a rival DEBUT can cast the fixture signee
+  // into a lineup, where the cull cannot touch her — the claim is about
+  // the evaluation, so hold the debut calendar off
+  r.nextDebutWeek = 9999;
   let guard = 0;
-  while (pc.status === 'rival' && guard++ < 60) KP.advanceWeek(s);
+  while (pc.status === 'rival' && guard++ < 60) { r.nextDebutWeek = 9999; KP.advanceWeek(s); }
   t.eq(pc.status, 'prospect', 'the named cut stops vanishing');
   t.eq(pc.channel, 'washout', 'and lands on the open board as a washout');
   t.ok(s.prospects.includes(pc.id), 'file and history intact');

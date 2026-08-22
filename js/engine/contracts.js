@@ -350,7 +350,8 @@
       }
       if (g.rooms) { g.rooms = null; if (g.members.length) KP.assignRooms(state, g); }
       // the maknae is a fact — recompute it when the youngest walks (0.9.13)
-      if (g.maknae === p.id && g.members.length) {
+      if (!g.members.length) g.maknae = null;   // the last one out (v0.10.14)
+      else if (g.maknae === p.id) {
         g.maknae = g.members.map(id => state.people[id]).filter(Boolean)
           .sort((a, b) => a.age - b.age)[0].id;
       }

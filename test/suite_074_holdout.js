@@ -153,7 +153,10 @@ function world(seed) {
   let guard = 0;
   while (p.status === 'prospect' && guard++ < 80) KP.advanceWeek(state);
   t.eq(p.status, 'rival', 'the power came knocking');
-  t.eq(state.holdoutLedger.lostToPowers, 1, 'ledgered');
+  // v0.10.14 stream shift: the richer board can hold a SECOND organic
+  // holdout the power also takes — the ledger counts the world, the
+  // claim is about her
+  t.ok(state.holdoutLedger.lostToPowers >= 1, 'ledgered');
   t.ok(p.history.some(h => /off our board/.test(h.text)), 'off the board, honestly');
 }
 
