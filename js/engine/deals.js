@@ -36,7 +36,9 @@
     // active deals pay and cost — a declined solo request cools the wire
     KP.activeDeals(state).forEach(d => {
       d.weeksLeft--;
-      state.budget += d.cooled ? Math.max(0, d.weekly - D.cooledWeeklyCut) : d.weekly;
+      const dpay = d.cooled ? Math.max(0, d.weekly - D.cooledWeeklyCut) : d.weekly;
+      state.budget += dpay;
+      if (KP.ledgerFlow) KP.ledgerFlow(state, 'deals', dpay);
       const p = state.people[d.personId];
       if (p && d.weeksLeft % 4 === 0) {
         p.fatigue = KP.clamp(p.fatigue + D.shootFatigue, 0, 100);   // the shoots are real
@@ -170,6 +172,7 @@
         led.soloAllowed++;
         const fee = d ? Math.round(d.lump * D.soloBonusMult) : 0;
         state.budget += fee;
+        if (KP.ledgerFlow) KP.ledgerFlow(state, 'deals', fee);
         if (p) {
           KP.socialSpike(state, p, D.soloSpike, 'sponsorsolo');
           p.hype = (p.hype || 0) + 6;
@@ -238,6 +241,7 @@
         (p ? KP.displayName(p) : '{She}') + ' keeps {pos} schedule; the brand keeps calling other agencies.', p) };
     }
     state.budget += o.lump;
+    if (KP.ledgerFlow) KP.ledgerFlow(state, 'deals', o.lump);
     deals(state).push({ id: o.id, brand: o.brand, personId: o.personId,
       lump: o.lump, weekly: o.weekly, weeksLeft: o.weeks, signedWeek: state.week });
     if (p) {

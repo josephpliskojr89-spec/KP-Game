@@ -160,7 +160,7 @@
     const members = g.members.map(id => state.people[id]).filter(Boolean);
     const stage = stageRead(state, g);
     const q = KP.clamp((stage - 30) / 50, 0.25, 1.3) * (o.flyered ? B.flyerBoost : 1);
-    if (o.fee > 0) state.budget += o.fee;
+    if (o.fee > 0) { state.budget += o.fee; if (KP.ledgerFlow) KP.ledgerFlow(state, 'appearances', o.fee); }
     const fans = Math.round((K.fans[0] + rng.next() * (K.fans[1] - K.fans[0])) * q);
     members.forEach(m => {
       if (KP.onBreak(m)) return;
@@ -273,6 +273,7 @@
       return { ok: false, reason: 'The radio circuit does not return this label’s calls yet. Get a little more known first.' };
     }
     state.budget -= P.cost;
+    if (KP.ledgerFlow) KP.ledgerFlow(state, 'marketing', -P.cost);
     const rng = KP.rngFor(state);
     const gain = addMomentum(state, g, P.mom);
     c.worked++; c.lastPush = state.week;

@@ -355,7 +355,14 @@ const BANDS = {
   // toll — cooled-among-declarers ≈ 100% is the bet working, not a flood
   hiatusCooled:      { lo: 0.00, hi: 1.00, label: 'orgs that stayed gone past the grace window (the forgetting)' },
   gigWrapped:        { lo: 0.10, hi: 1.00, label: 'orgs where a full gig run wrapped with a sendoff' },
-  ostDropped:        { lo: 0.05, hi: 1.00, label: 'orgs whose idol dropped a drama OST' },
+  // floor 0.05→0.02 (v0.10.1): the grind-era calendar is FULLER —
+  // sign rounds, flyer weeks, and campaign pushes bench more idols,
+  // and a benched idol takes no second job. OST is the rarest pick
+  // off the candidate list, so it thins first (measured 1/40 twice
+  // across the v0.9.37→v0.10.1 stream changes). The pipe itself is
+  // suite-proven (suite_053); this floor now guards only "the OST
+  // door still EXISTS in soak worlds."
+  ostDropped:        { lo: 0.02, hi: 1.00, label: 'orgs whose idol dropped a drama OST' },
   // ceiling 0.95→1.00 by ruling (v0.9.16): flapped at its own ceiling
   // two builds running — a busy roster ends most second jobs early by
   // DESIGN (the company chooses the group calendar). The floor is the

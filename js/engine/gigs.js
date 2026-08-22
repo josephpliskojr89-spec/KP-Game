@@ -76,7 +76,7 @@
       if (!p || p.status !== 'idol') { gig.weeksLeft = 0; return; }   // departures end everything
       gig.weeksLeft--;
       gig.weeksRun = (gig.weeksRun || 0) + 1;
-      if (gig.weekly) state.budget += gig.weekly;
+      if (gig.weekly) { state.budget += gig.weekly; if (KP.ledgerFlow) KP.ledgerFlow(state, 'appearances', gig.weekly); }
       p.fatigue = KP.clamp(p.fatigue + G.gigFatigue, 0, 100);
       if (gig.weeksRun % G.mediaExpEvery === 0) p.mediaExp = KP.clamp(p.mediaExp + 1, 0, 100);
       if (gig.kind !== 'ost' && gig.weeksRun % 2 === 0) {
@@ -129,6 +129,7 @@
             ((KP.groupOf(state, p.id) || {}).popularity || 0) * 0.15 + rng.int(-8, 12)), 20, 96);
           gig.reception = rec;
           state.budget += gig.lump || 0;
+          if (KP.ledgerFlow) KP.ledgerFlow(state, 'appearances', gig.lump || 0);
           p.flags.ostDrops = (p.flags.ostDrops || 0) + 1;
           p.history.push({ week: state.week, text: 'Sang the ' + gig.show + ' OST. Reception ' + rec + '.' });
           const hit = rec >= G.ostHitAt;

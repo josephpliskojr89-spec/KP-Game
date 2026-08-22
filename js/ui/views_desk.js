@@ -116,6 +116,23 @@
       });
     }
 
+    // the settlement (v0.10.1): the quarterly books, on the desk
+    const stmt = KP.lastStatement ? KP.lastStatement(state) : null;
+    if (stmt) {
+      html.push('<div class="kicker">The books · Q' + stmt.quarter + ', year ' + stmt.year + '</div>');
+      html.push('<div class="card" style="font-size:.78rem;line-height:1.6">' +
+        stmt.lines.map(l => '<div>' + UI.esc(l) + '</div>').join('') +
+        '<div>Operations & payroll: ' + (stmt.other > 0 ? '+' : '') + stmt.other + '</div>' +
+        '<div style="margin-top:6px;font-weight:600;color:' + (stmt.net >= 0 ? 'var(--gold)' : 'var(--magenta)') + '">NET: ' +
+        (stmt.net > 0 ? '+' : '') + stmt.net + '</div>' +
+        KP.groups(state).filter(g => g.debuted && g.recoup && !g.retiredWeek).map(g =>
+          '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:4px">' + UI.esc(g.name) + ': ' +
+          (g.recoup.settledWeek != null
+            ? 'settled · paid out ' + g.recoup.paid + ' to date'
+            : 'unrecouped · ' + Math.max(0, Math.round(g.recoup.debt)) + ' on the ledger') + '</div>').join('') +
+        '</div>');
+    }
+
     // the grind (v0.9.37, §76 E): the era desk — a locked release is a
     // campaign to RUN, not a date to wait for
     KP.groups(state).filter(g => g.prep && !g.retiredWeek).forEach(g => {

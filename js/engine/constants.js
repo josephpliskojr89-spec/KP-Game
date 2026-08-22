@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.0',
+    VERSION: '0.10.1',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1414,7 +1414,10 @@
       pobDemand: { none: 1.0, standard: 1.12, lavish: 1.22 },
       pobMargin: { none: 1.0, standard: 1.05, lavish: 1.12 },
       unitCostPerK: 0.55,      // manufacturing per 1000 units PRESSED
-      marginPerK: 1.55,        // gross per 1000 units SOLD (1.9 at first
+      marginPerK: 2.0,         // gross per 1000 units SOLD, PRE-distributor
+                               // cut (v0.10.1 raised 1.55 so standard-tier
+                               // net matches the pre-distributor calibration;
+                               // 1.9 at first
                                // calibration — the chodong feedback loop
                                // compounded flagship budgets past the soak's
                                // runaway invariant; the flywheel needed a governor)
@@ -1431,6 +1434,32 @@
       titanSkew: 2.2, rumorSkew: 0.45,  // phys/dig ratio bars for the identity story
       FANBASE: { popPow: 1.55, popMult: 3.0, socialRoot: 12,
         lastMult: 0.25, preorderShare: 0.55 },
+    },
+    // the settlement (v0.10.1, §80 findings 2+7+14) — jeongsan: idols
+    // see no pay until the label recoups; the quarterly books; the
+    // distributor who puts the record in stores for a cut.
+    SETTLE: {
+      groupShare: 0.30,          // the group's contract share of era/tour revenue
+      trainingDebtPerMember: 15, // the practice years, on the ledger at debut
+      backpay: 10,               // the fair first settlement pays it warm
+      fairMorale: 8, leanMorale: 3,
+      grindAt: 120,              // unsettled this long after debut = the grievance
+      grindEvery: 48,            // ...renewed yearly in the directed ledger
+      paidMorale: 1,             // every settled era pays a little pride too
+    },
+    BOOKS: {
+      quarterWeeks: 12,          // 48-week year, four statements
+      redErasAt: 3,              // loss-making eras in a row = the hard talk
+      tightBeltCut: 0.85,        // the cost-cut option trims the next era's bills
+    },
+    DIST: {
+      TIERS: [
+        { id: 'indie',    label: 'a regional distributor', cut: 0.30, reach: 0.85, bar: 0 },
+        { id: 'standard', label: 'a national distributor',  cut: 0.25, reach: 1.00, bar: 8000 },
+        { id: 'major',    label: 'a major distribution arm', cut: 0.18, reach: 1.12, bar: 30000 },
+      ],
+      advance: 60, advanceVig: 1.15, advanceRepayShare: 0.5,
+      fameTier: [0.30, 0.60],    // lazy init: fame below/between/above → tier
     },
     // the table (v0.9.38, §76 A) — "feels a little too easy to just
     // click the sign button as a brand new label competing against

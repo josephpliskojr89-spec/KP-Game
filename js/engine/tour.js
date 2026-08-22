@@ -96,6 +96,7 @@
     const cost = Math.round(scale.costPerLeg * costUnits * pacing.costMult);
     if (state.budget < cost) return { ok: false, reason: 'The production budget is ' + cost + ' and the account cannot cover it.' };
     state.budget -= cost;
+    if (KP.ledgerFlow) { KP.ledgerFlow(state, 'tours', -cost); KP.accrueDebt(state, g, cost); }
     g.tour = {
       scale: plan.scale, pacing: plan.pacing || 'punishing', setlist: plan.setlist || 'hits',
       legs: legs.slice(), legIdx: 0, weekInLeg: 0, startWeek: state.week, cost,
@@ -171,6 +172,7 @@
       }
       revenue = Math.round(revenue);
       state.budget += revenue;
+      if (KP.ledgerFlow) { KP.ledgerFlow(state, 'tours', revenue); KP.settleShare(state, g, revenue); }
       if (weekSold) {
         members.forEach(m => { m.morale = KP.clamp(m.morale + T.soldOutMorale, 0, 100); });
         state.company.reputation.girlGroup = KP.clamp((state.company.reputation.girlGroup || 40) + 1, 0, 100);
@@ -264,6 +266,7 @@
     }
     revenue = Math.round(revenue);
     state.budget += revenue;
+    if (KP.ledgerFlow) { KP.ledgerFlow(state, 'tours', revenue); KP.settleShare(state, g, revenue); }
 
     if (soldOut) {
       tour.soldOut++;

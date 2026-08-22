@@ -193,6 +193,7 @@
       }
     }
     state.budget -= cost;
+    if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -cost);
     state.signingsUsed++;
     if (state.fiscal) state.fiscal.monthSignings = (state.fiscal.monthSignings || 0) + 1;
     p.status = 'trainee';

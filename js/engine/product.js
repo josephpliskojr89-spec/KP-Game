@@ -114,8 +114,11 @@
     const reorder = soldOut ? Math.round((demand - sheet.run) * P.reorderShare) : 0;
     const units = chodong + reorder;
     const overpress = !soldOut && sheet.run > demand * P.overpressAt;
+    // the distributor (v0.10.1) takes the cut and supplies the reach —
+    // the starter deal is one more brick in the obscurity wall
     const physRev = Math.round((units / 1000) * P.marginPerK *
-      P.pobMargin[sheet.pob] * ((opts && opts.overseasMult) || 1));
+      P.pobMargin[sheet.pob] * ((opts && opts.overseasMult) || 1) *
+      (KP.distCut ? KP.distCut(state) : 1));
     const last = g.lastChodong || 0;
     g.lastChodong = units;
     if (sheet.signRounds > 0) {

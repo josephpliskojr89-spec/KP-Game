@@ -131,9 +131,16 @@
       pressing = KP.normalizePressing(state, g, plan.pressing);
       pressingCost = KP.pressingBill(state, g, pressing);
     }
-    const cost = KP.recordBill(g, plan.promo, format.id) + rolloutCost + mvCost + pressingCost;
+    let cost = KP.recordBill(g, plan.promo, format.id) + rolloutCost + mvCost + pressingCost;
+    // the red ledger (v0.10.1): the tightened belt trims the next era once
+    if (g.tightBelt) { cost = Math.round(cost * KP.C.BOOKS.tightBeltCut); delete g.tightBelt; }
     if (state.budget < cost) return { ok: false, reason: 'Budget cannot cover the record, the marketing AND this rollout. Trim something.' };
     state.budget -= cost;
+    // jeongsan (v0.10.1): every era's bills accrue to the group's ledger
+    if (KP.accrueDebt) {
+      KP.accrueDebt(state, g, cost);
+      KP.ledgerFlow(state, 'production', -cost);
+    }
 
     g.eraLeftovers = null;   // a new era starts a new drawer
     g.prep = {
@@ -796,6 +803,28 @@
         (repack ? KP.C.REPACKAGE.revenueMult : 1));
     }
     state.budget += revenue;
+    // the settlement (v0.10.1): the streams hit the books, the group's
+    // share moves against the ledger, the advance repays itself
+    if (KP.settleShare) {
+      if (product) {
+        KP.ledgerFlow(state, 'albums', product.physRev);
+        KP.ledgerFlow(state, 'streams', product.digital);
+      } else {
+        KP.ledgerFlow(state, 'streams', revenue);
+      }
+      if (isDebut) {
+        g.debutWeek = state.week;
+        KP.accrueDebt(state, g, members.length * KP.C.SETTLE.trainingDebtPerMember);
+        g.eraSpend = (g.eraSpend || 0) - members.length * KP.C.SETTLE.trainingDebtPerMember;
+      }
+      push(KP.settleShare(state, g, revenue));
+      push(KP.repayAdvance(state, product));
+      // the red ledger: a loss-making era is counted, a profitable one clears
+      g.lastEraNet = revenue - (g.eraSpend || 0);
+      if (g.lastEraNet < 0) g.redEras = (g.redEras || 0) + 1;
+      else { g.redEras = 0; g.redTalkDone = false; }
+      g.eraSpend = 0;
+    }
 
     // popularity: the debut founds the fanbase (hype converts into it);
     // comebacks compound or cool it
