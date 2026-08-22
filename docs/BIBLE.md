@@ -4478,6 +4478,163 @@ and suite_079 (30 checks) forcing every kind and both clause
 endings. No migration — ledger and clause self-init. Battery
 79/79, soak 40 clean, longhaul 9x620 clean, e2e 102.
 
+## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map)
+
+Owner: *"bring in a kpop expert, I want more depth. the width is
+excellent and some of our systems are deep, but I want the whole
+game to feel like you're really managing a label and that requires
+depth across the board."* An independent industry-expert pass over
+the Bible and engine, merged with the in-house engine audit. The
+headline both audits reached separately: **the money is not real
+yet.** Revenue is one line minted at release resolution; members
+are never paid; nothing is ever pressed, recouped, distributed, or
+settled. The deepest remaining distance between this sim and
+"really managing a label" is the business itself.
+
+**The fifteen findings**, condensed (full expert prose preserved in
+the session record):
+
+**1. Album versions & the chodong number** (HIGH). An album is a
+product line — versions, photocards, pre-order benefits, a pressing
+decision made against pre-order data — and first-week sales
+(chodong) are the PUBLIC scoreboard of fandom size. Game: revenue
+is one lump; photocards are feed jokes. Mechanism: a pressing
+sheet at release lock (versions 1-4, POB tier, pressing size vs a
+pre-order read fed by buildup/momentum); release week mints a
+chodong number reported beside reception — the §77 comparison
+machinery reads it free; under/over-pressing is the sold-out story
+or the warehouse memo.
+
+**2. Jeongsan — settlement & trainee debt** (HIGH). Idols see no
+pay until the label recoups its investment; "our first settlement"
+is a stock interview line and the #1 renewal-fight driver. Game:
+budget is company-only; every won of training spend vanishes.
+Mechanism: a per-group recoup ledger (pre-debut costs + era
+bills), a contract split routing the group's share against the
+debt, FIRST SETTLEMENT as a scene and permanent history; unsettled
+grind writes a neverPaid directed entry renewalRead weighs;
+individual income settles faster and breeds in-room envy; renewal
+negotiates the SPLIT.
+
+**3. The two publics — physical vs digital** (HIGH). Fandom-wallet
+and general-public-ears are near-independent markets; careers are
+strategized around which one you're selling to. Game: one
+reception number. Mechanism: split the landing into FANDOM SALES
+(chodong) and PUBLIC LEGS (digital tenure); concepts/demos get a
+lean; the exec wants the GP hit, the books want the physical
+floor; the profile becomes identity ("sells like a titan, streams
+like a rumor").
+
+**4. The Japan cycle** (HIGH). A second discography on its own
+calendar — partner label, JP versions/originals, Oricon, the
+hall→arena→dome ladder; groups vanish from Korea for a quarter.
+Game: Japan is a passive region. Mechanism: partner licensing deal
+past a JP threshold opens a second release lane (JP-version cheap /
+JP-original real) claiming real in-country weeks, an Oricon-style
+board, dome as the crown; rival titans run it too.
+
+**5. The production pipeline** (HIGH). Recording (line
+distribution!), choreo creation, the MV shoot, jacket shoots —
+stations that slip into public postponement notices. Game: prep is
+an opaque countdown. Mechanism: the runway auto-schedules stations
+with cost/event surfaces — sick vocalist pushes recording, the
+per-era named choreographer defines live difficulty, the MV shoot
+is the fatigue spike + on-set clip lottery, line distribution is a
+one-card decision the fandom litigates; slippage forces postpone
+(expectation cools) or crunch.
+
+**6. Fandom commerce** (HIGH-MED). Paid membership, merch drops,
+Season's Greetings (Q4), fancons — the steady commerce paying
+salaries between comebacks. Game: the fandom is never sold
+anything. Mechanism: fanclub enrollment at an intensity threshold
+(price tier trades money vs intensity), seasonal drops on the year
+system, the fancon as a between-eras booking; overreach rolls the
+"we are not ATMs" storm.
+
+**7. The quarterly books** (HIGH-MED). Revenue by segment, cost by
+group, per-era recoup — the question "is this group profitable"
+starts real boardroom conversations. Game: one budget number.
+Mechanism: a quarterly statement card (revenue streams, cost per
+group, era recoup lines); exec/board trust re-anchors to segment
+truths; a group red 4+ quarters opens the hard conversation as a
+scene. Cheap to build — mostly aggregation.
+
+**8. The fan-sign inversion** (MED-HIGH). Real fan signs SELL
+albums — lottery entry per copy, the "cut line" as a public
+fandom metric. Game's causality is backwards (a gift you pay
+for). Mechanism: sign rounds convert intensity into album units in
+the first-week window, mint a cut-line number, escalate
+exploitation-discourse risk and fatigue; the morale payoff stays —
+both things are true.
+
+**9. The point system** (MED). Music shows publish component
+scores; fandoms campaign against the exact formula. Game: opaque
+win math. Mechanism: post-air component breakdown in words ("the
+digital carried; the live vote didn't come home"), fandom
+auto-mobilizes by intensity, ONE player nudge per week; near-miss
+legibility is injustice fuel the intensity system eats.
+
+**10. The catalog annuity** (MED). Back catalog pays monthly
+forever; publishing royalties follow the PERSON — a member who
+wrote a hit gets paid after leaving. Game: catalog is a lottery
+ticket, credits are reputational. Mechanism: weekly catalog
+trickle (reception-weighted decay, spiking on revivals); member
+writing credits attach personal royalty streams that accelerate
+her settlement and become renewal leverage.
+
+**11. The song market** (MED). Demos cost money and have other
+suitors; passing on a future hit is the A&R story. Game: four free
+demos. Mechanism: asking prices folded into the bill; hot hooks
+marked "circulating" with a dated window rivals can buy through;
+the song camp as a spend verb; producer relationships gate who
+shows you their best — the §79 A&R seat gets its multiplier.
+
+**12. The medical desk** (MED). Injuries and vocal damage as arcs
+— the seated-performance notice, push-through-or-protect judged
+forever. Game: one reversible fatigue meter. Mechanism: rare
+injury events off high-fatigue physical weeks with a diagnosis
+scene (full rest / partial participation / push through with
+compounding risk); nodules for vocalists; chronic files accumulate
+— the veteran's knee is a character.
+
+**13. The overseas promo circuit** (MED). Convention festivals, TV
+one-offs, English versions — how mid-tiers actually break NA/EU
+between tours. Game: the map is passive between tours. Mechanism:
+the festival machinery grows an overseas wing (region-keyed slots,
+travel bills, tongue-gated results); the English version joins the
+JP-version lane; circuit gains improve the next tour's routing.
+
+**14. The distributor** (MED). Somebody else puts the record in
+stores for 20-30% — and decides whether a no-name label reaches
+retail at all; graduating deals is a small-label milestone. Game:
+revenue arrives frictionless. Mechanism: a distribution contract
+as company state (starter deal: fat cut, no reach — one more brick
+in the obscurity wall), better tiers unlocked by fame/chodong,
+advances against royalties, the courting call after a
+breakthrough.
+
+**15. Monthly evaluations** (MED — in-house addition). Trainee
+life runs on the monthly eval: ranked showcases, posted results,
+elimination pressure — the ritual that makes practice years FELT.
+Game: practice rooms exist, the ceremony doesn't. Mechanism: a
+monthly eval week (hash-timed) minting ranks from perceived reads
+(the fog applies — the coaches rank what they SEE), morale swings
+by trajectory not position, rank history on the file, the
+bottom-rank talk composing with practice.js quit/aging machinery.
+
+**The proposed shape of v0.10 (delegated sequencing, owner rules):**
+- **Phase M — the money** (the spine): 1 + 8 + 3 as one release
+  (the product: pressing sheet, chodong, fan-sign inversion, two
+  publics), then 2 + 7 + 14 (the settlement: jeongsan, quarterly
+  books, the distributor). Nothing would move "really managing a
+  label" further.
+- **Phase P — the making**: 5 + 12 (pipeline + medical), then 11
+  (song market).
+- **Phase W — the world**: 4 (Japan), 13 (circuit), 10 (catalog).
+- **Singles**: 6 (commerce), 9 (points), 15 (evals) slot anywhere.
+- The standing queue (§78 A/B, §79 staff, §76 B regional) threads
+  between phases on call.
+
 ## §79 The staff (PLANNING — approved for write-up, build awaits the call)
 
 Owner: *"staff is another area we haven't explored nearly enough. I
