@@ -55,6 +55,14 @@
   KP.schoolById = function (state, id) {
     return (state.schools || []).find(s => s.id === id) || null;
   };
+  // the atlas (v0.10.12; helper v0.10.13.1): ONE truth for what a trip
+  // bills — the verb and the button both read it. The home-city school
+  // is a walk, not a train
+  KP.schoolTripCost = function (state, school) {
+    const local = KP.homeCity && KP.isRegionalHouse(state) &&
+      school && school.cityId === KP.homeCity(state);
+    return local ? KP.C.HOME.homeTripCost : KP.C.SCHOOLS.tripCost;
+  };
   // reputation is shown as a word — the number stays in the building
   KP.schoolRepWord = function (rep) {
     return rep >= KP.C.SCHOOLS.hotAt ? 'hot' : rep >= 68 ? 'name-brand'
@@ -190,8 +198,8 @@
     if (!s) return { ok: false, reason: 'No such school on the map.' };
     // the atlas (v0.10.12, §82 A): the home-city school is up the road —
     // owner: "scouting the local school should essentially be free"
-    const local = KP.homeCity && s.cityId === KP.homeCity(state) && KP.isRegionalHouse(state);
-    const tripCost = local ? KP.C.HOME.homeTripCost : S.tripCost;
+    const tripCost = KP.schoolTripCost(state, s);
+    const local = tripCost !== S.tripCost;
     if (state.budget < tripCost) return { ok: false, reason: 'No budget for the train ticket, let alone the trip.' };
     if (s.visitedWeek && state.week - s.visitedWeek < S.tripCooldownWeeks) {
       return { ok: false, reason: 'The staff were just there. A second visit this soon reads as desperation.' };

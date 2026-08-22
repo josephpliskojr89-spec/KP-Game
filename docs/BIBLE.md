@@ -8186,3 +8186,11 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > machinery enforces the promise. Battery 90/90, soak 40 clean
 > (castoffSeen 40/40), longhaul 10x620, e2e 104, lockstep 0.10.13.
 > Rode to main.
+
+> **0.10.13.1 — the walk-over button.** Owner, from a Daegu save:
+> "still not seeing any discount for the Daegu school." The verb
+> billed 2; the card said 10 — a one-truth violation between engine
+> and UI. New `KP.schoolTripCost(state, school)` helper is the single
+> price both sites read; the home school card now says "Walk over ·
+> 2" with a home chip, and the schools header names the walk.
+> Battery 90/90, e2e 104, lockstep 0.10.13.1. Rode to main.

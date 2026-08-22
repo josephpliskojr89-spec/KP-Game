@@ -54,7 +54,11 @@ const t = makeT('suite_090_home');
   const sch = gw.schools.find(x => x.cityId === 'gwangju');
   t.ok(sch.rep >= KP.C.SCHOOLS.startRep[0] + KP.C.HOME.CITIES.gwangju.schoolRep,
     'the gwangju academy opens with the head start (' + sch.rep + ')');
-  // the local school is a walk, not a train
+  // the local school is a walk, not a train — and the BUTTON reads the
+  // same truth the verb bills (v0.10.13.1: the card showed 10, billed 2)
+  t.eq(KP.schoolTripCost(gw, sch), KP.C.HOME.homeTripCost, 'one truth: the home trip price helper');
+  t.eq(KP.schoolTripCost(gw, gw.schools.find(x => x.cityId !== 'gwangju')), KP.C.SCHOOLS.tripCost,
+    'and the away price stays the train fare');
   const b0 = gw.budget;
   const r = KP.scoutingTrip(gw, sch.id);
   t.ok(r.ok && b0 - gw.budget === KP.C.HOME.homeTripCost, 'the home school bills lunch money (' + (b0 - gw.budget) + ')');
