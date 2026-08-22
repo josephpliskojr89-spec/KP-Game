@@ -4478,6 +4478,91 @@ and suite_079 (30 checks) forcing every kind and both clause
 endings. No migration — ledger and clause self-init. Battery
 79/79, soak 40 clean, longhaul 9x620 clean, e2e 102.
 
+## §79 The staff (PLANNING — approved for write-up, build awaits the call)
+
+Owner: *"staff is another area we haven't explored nearly enough. I
+don't want to do explicit staff attributes — I think that's the lazy
+approach. I want a combination of personality, experience, and
+reputation. what a potential hire is known for may not necessarily
+be what they're best at. allows you to take a risk on an unknown
+with little reputation and find out you hired a genius, or spend on
+a well known name only to find out their style doesn't mesh with
+your setup. the attributes remain under the hood at all times."*
+
+**The law: the second fog.** Trainees already live behind a fog the
+player pierces with observation. Staff get the same architecture
+with a crueler twist: the fog NEVER fully lifts. No stat sheet, no
+reveal moment, no number in any blurb, ever. The truth exists under
+the hood (hash-stable per person — aptitude for the seat they hold,
+plus a style) and the player reads three surfaces that each tell
+part of it, none of it straight:
+
+**Personality** — observable the way people are observable: how
+they talk in interviews and staff notes, how they handle a bad
+week, what the rest of the building says. The staff-read machinery
+(v0.9.3) generalizes: your CURRENT staff read a candidate's
+personality with their own bias and their own accuracy. Personality
+is true and learnable — it is also not skill.
+
+**Experience** — the résumé: verifiable facts. Years in, seats
+held, rooms they were in — which acts, which companies, which eras.
+Facts are TRUE but selection-biased: a résumé says where somebody
+was, never what they did there. "Three years at a top-three house
+during a famous era" is either the architect or the person who
+booked the practice rooms. The résumé will not tell you which.
+
+**Reputation** — what the industry SAYS they are known for, with a
+tier (unknown / working / known / a name) and a known-for tag.
+Reputation is the PRICE — a name costs multiples — and reputation
+is correlated with truth imperfectly, by construction: some names
+are riding one lucky credit the industry misattributed to them;
+some unknowns are the genius nobody has caught yet (the gem roll,
+same family as street casting). What a hire is known for may not
+be what they are best at — the tag and the truth can point at
+different seats entirely.
+
+**The seats and their fingerprints.** Each seat quietly multiplies
+the system it runs: the scout seat moves read widths and network
+reach; the vocal and dance coach seats move training gains; the
+performance director moves stage/live development; the A&R seat
+moves the demo distribution the producers pitch; the marketing
+seat moves campaign momentum efficiency and the margins of paid
+conversion (§76); the road manager moves tour wear. The player
+never sees the multiplier — they see RESULTS, months of them,
+tangled with every other cause. The attribution problem IS the
+game: was the good era the new coach or a strong class? The sim
+knows and will not say. Firing a genius because the kids were weak
+is the tragedy; keeping a dud because the name reassures the board
+is the trap. Staff notes arrive in each person's voice — prose
+evidence, personality-true, skill-ambiguous.
+
+**Mesh — the style clash.** Separate from aptitude: a STYLE
+(drillmaster / nurturer, big-machine / scrappy, classicist /
+trend-chaser) that meshes or grinds against YOUR setup — company
+size, doctrine, the roster's personalities, the other seats. A
+genuine genius built for a major's machine underperforms their own
+truth in a one-room label; a scrappy nurturer punches above their
+tier in exactly that room. Mesh is discoverable only by working
+together, and the notes hint at friction in prose long before the
+numbers would prove it.
+
+**The market.** Candidates surface procedurally through the
+network (§75) and the fame read (§76): unknowns apply to unknown
+labels; names take the meeting only when the label is worth being
+seen at and the money is real. The interview is a scene —
+personality legibility only, zero skill signal. And the door
+swings both ways: your results build your staff's reputations, and
+rivals poach the people your success made famous — keep them with
+raises, or lose them and become the school everyone hires from.
+The incumbent trio (Coach Baek, Director Cha, Scout Im) and the
+building's named staff become the founding hires: replaceable,
+retirable, poachable, and — for the first time — actually somebody.
+
+**Sequencing (delegated judgment):** sits in the queue beside §78;
+natural order is §78 A (the channel), then either §79 or §78 B by
+feel at the time. §76 B (regional founding) remains ready. All
+await the call.
+
 ## §78 The person in public (PLANNING — approved for write-up, builds await the call)
 
 Owner: *"let's begin planning to give trainees and idols even more
