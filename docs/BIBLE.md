@@ -4261,6 +4261,98 @@ stopped minting speculative files nobody would ever see. Suite
 its own rules; e2e 97 with the network card, both verbs, and the
 door-sized board asserted in the browser.
 
+## §76 The small label (PLANNING — approved for write-up, builds await the call)
+
+Four mechanisms, one through-line: **being small has to feel
+small.** The doors gave us hard starts; the network gave us a
+scouting gap; but the RELEASE side still treats a one-room label
+like a major waiting to pop. Owner, across two sittings:
+
+*"feels a little too easy to just click the sign button as a
+brand new label competing against established brands"* — and —
+*"establish your label away from Seoul as an option to save
+money"* — and — *"I want it to be HARD as a fresh label. Label
+reputation should have a direct impact on a song's ceiling. if no
+one knows who you are, it should be difficult to get the song out
+there, even if you spend big. makes it a risk to spend big money
+when it could return very little."* — and — *"a database of
+procedural bookings for your groups. right now, the system is
+built for majors... small labels with one group and a dream
+aren't getting those bookings. they're getting a performance at
+an elementary school. a small theater they have to pass out
+flyers by hand for to fill. weddings. small sporting events.
+University events... we're kind of just treating a fresh start
+like it's a major label just waiting to pop when you debut.
+getting that first successful comeback should mean something. and
+it might require the luck of one of your small gigs going viral
+because someone recorded it on their phone."*
+
+**C. The obscurity wall — reputation caps the ceiling.** A new
+derived truth, `KP.fameRead(state)`: the label's PUBLIC profile —
+best reputation lane, total fandom, charting history (entries on
+the scene chart, music-show wins). Distinct from `networkRead` by
+design: the network is who YOU can find; fame is who knows YOU.
+Two teeth, both at release resolution: (1) promo spend efficiency
+scales with fame — at blank-start fame, a won-tier campaign
+converts at a fraction (posters nobody stops for; playlists that
+do not add you; radio that does not return calls) — spending big
+while unknown is a genuine gamble, exactly as asked; (2) a soft
+reception ceiling keyed to fame — an unknown label's song
+struggles to be HEARD past a bar no matter its quality. Soft,
+never absolute: quality still matters under the wall, and the
+valves pierce it. **The valves:** a viral clip during the era, a
+gig-cam moment (below), a member's social video, a discourse
+storm, a music-show win. A release that beats the wall through a
+valve is the breakthrough story — fame jumps hard, the wall moves
+permanently, and §77's underdog-ambush verdict is the write-up.
+That is what "the first successful comeback should mean
+something" cashes out to: the wall is why it is hard, the jump is
+why it matters. Majors never feel this system — their fame starts
+above it. Blank/fresh doors live inside it for years.
+
+**D. The gig ladder — procedural small bookings.** New module
+(bookings.js): a weekly procedural booking board, offer tier keyed
+INVERSELY to fame. Tier 0 (unknown): the elementary school
+assembly, the wedding stage, the mall opening, the amateur
+sporting event, the small theater — with the flyer week as a real
+verb: spend the group's week papering the neighborhood to fill
+the room. Tier 1 (rising): university festivals, local radio,
+the club circuit, regional festival opening slots. Tier 2: the
+existing majors' circuit (music shows, festivals, tours) takes
+over and small offers dry up — the ladder retires itself. Each
+booking: small fee, small exposure (followers, regional
+popularity trickle, a breath of hype), fatigue, and a feed line
+in the gig's own voice (content law: the comedy is the situation,
+never the members). **The phone-camera lottery:** every played
+gig rolls a tiny viral chance scaled by stage quality and star
+presence — and deliberately NOT damped by fame or networkRead.
+The phone camera does not care who you are; that is the point.
+It is the one channel obscurity cannot close, which makes it the
+small label's lottery ticket and the wall's most cinematic valve.
+**Music-show gating moves into the ladder:** below the fame bar
+the music shows do not book an unknown label at all (today they
+auto-run for everyone — the exact "built for majors" complaint).
+The first music-show booking becomes a milestone the feed marks.
+
+**A. Contract negotiation** (prior sitting, shape held): signing
+stops being one click. Prospects counter at the table — terms,
+training guarantees, debut-by clauses — generalizing the holdout
+machinery (§74) down into ordinary signings for low-rep labels.
+
+**B. Regional founding** (prior sitting, shape held): found away
+from Seoul — cheaper everything, a home-region popularity floor,
+a weaker network read, and a longer road to the capital circuit.
+Rides the regions map that already exists.
+
+**Sequencing (delegated judgment):** C + D are ONE release — the
+wall without the valves is just frustration, the ladder without
+the wall is just flavor. They ship together as the next major
+build on approval. A and B follow as their own builds. Interlocks
+noted for build time: fameRead feeds §77 expectationRead's rep
+term naturally; the 0.9.35.2 viral-visibility damp stays on
+trainee clips (network-driven) but must NOT apply to gig-cam
+rolls (fame-independent by design).
+
 ## §77 The public eye (v0.9.36 — SHIPPED) — the industry out loud
 
 Owner, in full: *"I also want a fandom and industry that remembers.
