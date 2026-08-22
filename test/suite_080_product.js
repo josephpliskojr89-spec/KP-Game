@@ -99,7 +99,10 @@ function firstEra(s, pressing) {
   const DC = KP.C.PRODUCT.dumpChance;
   KP.C.PRODUCT.dumpChance = 1;   // pin the storm for the fixture
   let guard = 0;
-  while (!(g.results && g.results.product) && guard++ < 15) KP.advanceWeek(s);
+  while (!(g.results && g.results.product) && guard++ < 15) {
+    s.discourses = [];   // hold the live slots open — maxLive would
+    KP.advanceWeek(s);   // otherwise eat the storm under test
+  }
   KP.C.PRODUCT.dumpChance = DC;
   t.eq(g.results.product.signRounds, 3, 'the rounds ran');
   t.ok(s.inbox.some(n => n.ind === 'cutLine'), 'the cut line is a public number');

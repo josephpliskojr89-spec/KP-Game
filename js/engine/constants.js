@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.5',
+    VERSION: '0.10.6',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1471,6 +1471,39 @@
       royaltyEvery: 8,            // the writer's publishing check cadence
       leverageAt: 12,             // accumulated royalties = "she doesn't
                                   // need the re-sign the way the dancer does"
+    },
+    // the staff (v0.10.6, §79) — the second fog. The LAW: the truth
+    // (aptitude + style) is hash-stable per person and NEVER surfaces —
+    // no stat, no reveal, no number in any blurb, ever. The player
+    // reads personality (true, not skill), the résumé (true facts,
+    // selection-biased), and reputation (the PRICE, imperfectly
+    // correlated with truth by construction). Results arrive tangled
+    // with every other cause; the attribution problem IS the game.
+    HIRES: {
+      SEATS: [
+        { id: 'vocal', label: 'head vocal coach' },
+        { id: 'dance', label: 'head dance coach' },
+        { id: 'perf', label: 'performance director' },
+        { id: 'scout', label: 'head scout' },
+        { id: 'anr', label: 'A&R lead' },
+        { id: 'marketing', label: 'marketing lead' },
+      ],
+      REP_TIERS: ['unknown', 'working', 'known', 'a name'],
+      hireCost: { 'unknown': 8, 'working': 18, 'known': 40, 'a name': 80 },
+      // the hidden range — never printed anywhere
+      multLo: 0.88, multHi: 1.15, meshSpan: 0.06,
+      offSeatDamp: 0.8,          // best at one seat, hired into another
+      knownForMatch: 0.6,        // the tag points at the true seat this often
+      gemChance: 0.18,           // the unknown genius nobody has caught
+      tierFloor: { 'unknown': 0.10, 'working': 0.25, 'known': 0.38, 'a name': 0.48 },
+      tierSpan: 0.55,            // + hash * this = aptitude
+      candidateChance: 0.05,     // per week, one interview at a time
+      fameForKnown: 0.30, fameForName: 0.55,   // who takes the meeting
+      noteChance: 0.04,          // a staff note in their voice
+      meshNoteAfter: 10,         // friction shows in prose first
+      repRiseAt: 68, repRiseChance: 0.30,   // hits polish the seats' names
+      poachTierMin: 2, poachChance: 0.010, poachCooldown: 30,
+      raiseCost: 25,
     },
     // the song market (v0.10.5, §80 finding 11) — demos cost money and
     // have other suitors. The LAW: passing on a hot hook is a bet with

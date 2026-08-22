@@ -275,7 +275,8 @@
     state.budget -= P.cost;
     if (KP.ledgerFlow) KP.ledgerFlow(state, 'marketing', -P.cost);
     const rng = KP.rngFor(state);
-    const gain = addMomentum(state, g, P.mom);
+    // the staff (v0.10.6): the marketing seat moves what a push buys
+    const gain = addMomentum(state, g, P.mom * (KP.seatMult ? KP.seatMult(state, 'marketing') : 1));
     c.worked++; c.lastPush = state.week;
     if (P.once) c[kindId + 'Done'] = true;
     const members = g.members.map(id => state.people[id]).filter(Boolean);

@@ -50,7 +50,9 @@
         conceptId: concept.id,
         toBrief,
         bonded,
-        hook: KP.clamp(q(rng) + (toBrief ? D.briefHookBonus : 0) - (snubbed ? P.snubHookMalus : 0) + (bonded ? MK.bondHookBonus : 0) + (camp ? MK.campHookShift : 0), 10, 95),
+        // the staff (v0.10.6): the A&R seat moves what the producers
+        // even bother pitching this room
+        hook: KP.clamp(q(rng) + (toBrief ? D.briefHookBonus : 0) - (snubbed ? P.snubHookMalus : 0) + (bonded ? MK.bondHookBonus : 0) + (camp ? MK.campHookShift : 0) + (KP.seatMult ? Math.round((KP.seatMult(state, 'anr') - 1) * 30) : 0), 10, 95),
         vocalDemand: q(rng), rapDemand: KP.clamp(q(rng) - 15, 5, 95),
         choreoPotential: q(rng), trendFit: q(rng),
       });

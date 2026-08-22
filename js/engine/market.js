@@ -68,10 +68,12 @@
           text: '“' + d.title + '” came off the market — ' + d.producer + '’s people called to say ' +
             (buyer ? buyer.short : 'another label') + ' met the asking price while this desk deliberated. The dated window on a circulating hook is not a decoration. The A&R team has opinions about the deliberating.' });
       });
-      g.demos = keep;
+      // a sheet bought down to nothing goes back to the producers —
+      // null, not [], so the pitch machinery re-tools next cycle
+      g.demos = keep.length ? keep : null;
       // the bond census: a sheet showing a house regular is the
       // relationship machinery working
-      if (g.demos.some(d => d.bonded)) led.bondsSeen++;
+      if (g.demos && g.demos.some(d => d.bonded)) led.bondsSeen++;
     });
   });
 

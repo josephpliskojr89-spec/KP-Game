@@ -80,7 +80,10 @@
     if (!full(state)) {
       const hot = KP.groups(state).some(g => (g.releases || []).some(r =>
         state.week - r.week <= N.APP.hitWindow && (r.reception || 0) >= 70));
-      const chance = KP.clamp((N.APP.base + net * N.APP.perNetwork) * (hot ? N.APP.hitSpike : 1), 0, 0.9);
+      // the staff (v0.10.6): the head scout's reach moves who finds this
+      // building at all
+      const chance = KP.clamp((N.APP.base + net * N.APP.perNetwork) * (hot ? N.APP.hitSpike : 1) *
+        (KP.seatMult ? KP.seatMult(state, 'scout') : 1), 0, 0.9);
       if (rng.chance(chance)) {
         const p = mint(state, rng, { channel: 'application', source: 'Applicant' });
         led.apps++;

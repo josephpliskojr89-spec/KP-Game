@@ -524,7 +524,9 @@
       0.2 * Math.min(1.15, Math.max.apply(null, members.map(m => m.talents.rap.cur)) / Math.max(25, demo.rapDemand));
     const liveRel = members.reduce((s, m) => s + KP.derived(m).liveReliability, 0) / members.length;
     const fatigueAvg = members.reduce((s, m) => s + m.fatigue, 0) / members.length;
-    const prepBonus = Math.min(10, (g.prep.progress || 0) * 1.1);
+    // the staff (v0.10.6): the performance director's rehearsal room
+    let prepBonus = Math.min(10, (g.prep.progress || 0) * 1.1);
+    if (KP.seatMult) prepBonus *= KP.seatMult(state, 'perf');
     // members benched by medical staff (v0.4.2) cost the stage directly
     const benched = members.filter(m => KP.onBreak(m));
     // the making (v0.10.4): punishing choreography vs a room that can't

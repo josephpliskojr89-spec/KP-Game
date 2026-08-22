@@ -315,6 +315,16 @@ const BANDS = {
   // deliberates like everyone else); camps fire whenever a cold sheet
   // meets a flush till; bonds form from repeat collaboration. Floors
   // guard against going dead.
+  // the staff (v0.10.6): ruled first soak — 40/40, 40/40, 31/40,
+  // 40/40, 40/40. Interviews and notes are steady weekly lotteries
+  // over long orgs; the outside call needs a "known" seat (results
+  // built it); friction needs a bad-fit hire to sit ten weeks — the
+  // fog-blind bot hires enough of them. Floors guard the mechanisms.
+  interviewHeld:     { lo: 0.90, hi: 1.00, label: 'orgs where a candidate took the meeting' },
+  seatHired:         { lo: 0.80, hi: 1.00, label: 'orgs that made a hire into the fog' },
+  seatCalled:        { lo: 0.30, hi: 1.00, label: 'orgs whose staff got the outside call' },
+  staffVoice:        { lo: 0.90, hi: 1.00, label: 'orgs that heard a staff note in their voice' },
+  meshFelt:          { lo: 0.60, hi: 1.00, label: 'orgs whose corridor read named the friction' },
   demoLost:          { lo: 0.60, hi: 1.00, label: 'orgs that lost a circulating hook to a faster checkbook' },
   campHeld:          { lo: 0.50, hi: 1.00, label: 'orgs that held a song camp' },
   bondWorking:       { lo: 0.50, hi: 1.00, label: 'orgs whose house regular showed his best' },
@@ -553,6 +563,7 @@ const tally = {
   stationRun: 0, slipDecided: 0, clipCaught: 0, lineCarded: 0, lineWarSeen: 0,
   medCase: 0, medChronic: 0, flareFelt: 0,
   demoLost: 0, campHeld: 0, bondWorking: 0,
+  interviewHeld: 0, seatHired: 0, seatCalled: 0, staffVoice: 0, meshFelt: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -1073,6 +1084,18 @@ for (let s = 0; s < SEEDS; s++) {
         }
         return;
       }
+      if (sc.kind === 'theInterview') {
+        // the staff (v0.10.6): a flush boss takes the bet — the fog
+        // means the bot cannot cherry-pick, which is the point
+        KP.resolveScene(state, sc.id,
+          state.budget > KP.C.HIRES.hireCost[sc.cand.tier] + 200 ? 'hire' : 'pass');
+        return;
+      }
+      if (sc.kind === 'seatPoach') {
+        KP.resolveScene(state, sc.id,
+          state.budget > KP.C.HIRES.raiseCost + 100 ? 'raise' : 'walk');
+        return;
+      }
       if (sc.kind === 'lineCard') {
         // the making (v0.10.4): front-load a real ace, else trust the
         // producer — a boss with a breakout plays the hand it built
@@ -1588,6 +1611,13 @@ for (let s = 0; s < SEEDS; s++) {
   if ((mdl.cases || 0) >= 1) tally.medCase++;
   if ((mdl.chronics || 0) >= 1) tally.medChronic++;
   if ((mdl.flares || 0) >= 1) tally.flareFelt++;
+  // the staff (v0.10.6): the ledger is durable
+  const sfl = state.staffLedger2 || {};
+  if ((sfl.candidates || 0) >= 1) tally.interviewHeld++;
+  if ((sfl.hires || 0) >= 1) tally.seatHired++;
+  if ((sfl.poachCalls || 0) >= 1) tally.seatCalled++;
+  if ((sfl.notes || 0) >= 1) tally.staffVoice++;
+  if ((sfl.meshNotes || 0) >= 1) tally.meshFelt++;
   // the song market (v0.10.5): the ledger is durable
   const mkl = state.marketLedger || {};
   if ((mkl.lost || 0) >= 1) tally.demoLost++;

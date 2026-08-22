@@ -4906,7 +4906,7 @@ Cadence: one release at a time, full ritual each, delegated
 sequencing within a release; the owner can reorder or interrupt at
 any point and the queue re-threads.
 
-## §79 The staff (PLANNING — approved for write-up, build awaits the call)
+## §79 The staff (SHIPPED v0.10.6 — the second fog)
 
 Owner: *"staff is another area we haven't explored nearly enough. I
 don't want to do explicit staff attributes — I think that's the lazy
@@ -4990,6 +4990,44 @@ retirable, poachable, and — for the first time — actually somebody.
 natural order is §78 A (the channel), then either §79 or §78 B by
 feel at the time. §76 B (regional founding) remains ready. All
 await the call.
+
+**As built (v0.10.6 — the staff).** New module `hires.js` (weekly
+order 791). **The seats:** six — vocal coach, dance coach,
+performance director, head scout, A&R lead, marketing lead. The
+incumbent trio seed four chairs at "working" tier (Coach Baek,
+a dance Coach, Director Cha, Scout Im — now with hidden truths of
+their own, so some worlds' founding staff are quiet geniuses and
+some are duds nobody ever proves); A&R and marketing start EMPTY.
+**The truth:** `KP.staffTruth` — computed from hashes, never
+stored, never printed: aptitude = tier floor + hash span (an
+"unknown" 0.10–0.65, "a name" 0.48–1.0), the 18% gem roll lifting
+an unknown to 0.72+, an off-seat damp (best seat is its own hash;
+the knownFor tag matches it only 60% of the time), and MESH — a
+style (drillmaster/nurturer, bigMachine/scrappy, classicist/
+trendChaser) read against the actual building (group count, roster
+professionalism, concept identity) worth ±0.06. `KP.seatMult`
+resolves it all to one bare multiplier in [0.85, 1.18] (empty
+chair = 1.0), consumed silently at five sites: training gains
+(inside gainFor, BEFORE the ceiling logic — the first pass pushed
+gains past resolved ceilings, 287 soak violations), the
+performance director's rehearsal room, the scout's applicant
+reach, the A&R shift on every professional hook, and what a
+marketing push buys. **The surfaces:** theInterview scene —
+personality read, résumé facts with the disclaimer printed ("says
+where they were, never what they did there"), rep tier as the
+price (8/18/40/80); fame gates who takes the meeting (known at
+.30, a name at .55). Staff notes arrive in each person's voice
+(candor-keyed, skill-ambiguous); mesh friction reaches the
+corridor read in prose after ten weeks, never as a number.
+**The market swings both ways:** hit eras (rec 68+) polish seat
+reputations; known+ seats draw the seatPoach call — match it or
+the chair opens, and "was that a loss?" stays unanswerable by
+design. Hygiene: the market's bought-out sheet now nulls (an
+empty [] froze the pitch machinery); two pinned fixtures repaired
+against stream shifts (sev-bias fade, maxLive-eaten dump storm).
+Bands ruled: interviews .90, hires .80, calls .30, notes .90,
+friction .60. Battery 86/86, soak 40 clean, longhaul 9x620 clean,
+e2e 104.
 
 **As built (v0.10.2).** Two modules. `broadcast.js` — the platform
 is WeCast (invented). Asks arrive weekly (5%, one public-person
@@ -7762,3 +7800,18 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > scandal releases now re-partition dorm rooms (321 soak
 > violations when the path finally fired). Battery 85/85, soak 40
 > clean, longhaul 9x620, e2e 104, lockstep 0.10.5. Rode to main.
+
+> **0.10.6 — the staff (§79).** hires.js: the second fog. Six
+> seats whose hidden hash-truth (aptitude, best seat, style, the
+> gem roll) resolves to one silent multiplier consumed by
+> training, the rehearsal room, the applicant pipeline, the pitch
+> sheet, and the campaign desk. The player reads personality
+> (true, not skill), the résumé (true, selection-biased), and
+> reputation (the price, imperfectly correlated) — and months of
+> tangled results. The incumbent trio become somebody; empty
+> chairs are baseline; hit eras build reputations rivals call;
+> mesh friction reaches the corridor in prose, never a number.
+> Fixed: coach gains now multiply inside the ceiling logic; a
+> bought-out demo sheet nulls instead of freezing the pitch
+> machinery. Battery 86/86, soak 40 clean, longhaul 9x620,
+> e2e 104, lockstep 0.10.6. Rode to main.

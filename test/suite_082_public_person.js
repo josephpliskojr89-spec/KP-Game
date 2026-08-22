@@ -113,7 +113,10 @@ function pinnedAskWeek(s) {
   t.ok((s.discourses || []).some(d => d.kind === 'scandal'), 'the storm machinery carries it');
   KP.resolveScene(s, sc.id, 'statement');
   t.ok(p.scandal && p.scandal.answered === 'statement', 'the frame is taken');
-  // survivable stories age off
+  // survivable stories age off — pin the FILE to a survivable weight:
+  // the publicEye bias can push even a pinned deck to sev 4, and the
+  // fade mechanism (not the severity draw) is what this block tests
+  p.scandal.sev = Math.min(p.scandal.sev, 2);
   p.scandalFading = s.week;
   KP.advanceWeek(s);
   t.ok(!p.scandal, 'a survivable story ages off the file');

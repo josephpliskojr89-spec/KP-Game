@@ -6,7 +6,7 @@
   'use strict';
   const KP = root.KP = root.KP || {};
 
-  function gainFor(person, domain, rng, focusCount, driveMult) {
+  function gainFor(person, domain, rng, focusCount, driveMult, seatMult) {
     const T = KP.C.TRAIN;
     const t = person.talents[domain];
     const per = person.personality;
@@ -27,6 +27,9 @@
     if (person.fatigue > T.fatigueSoftCap) {
       g *= Math.max(0.2, 1 - (person.fatigue - T.fatigueSoftCap) / 40);
     }
+    // the staff (v0.10.6): the coach seat multiplies the room — BEFORE
+    // the ceiling logic, so no coach ever pushes past a resolved ceiling
+    if (seatMult) g *= seatMult;
     // ceiling crawl: the last steps are the hardest
     const trueCeil = person.flags['ceil_' + domain] != null
       ? person.flags['ceil_' + domain] : (t.ceilLo + t.ceilHi) / 2;
@@ -70,7 +73,11 @@
 
     // gains on focused domains
     focus.forEach(domain => {
-      const g = gainFor(person, domain, rng, focus.length, driveMult);
+      // the staff (v0.10.6): the coach seats quietly multiply the room —
+      // the player sees months of results, never the multiplier
+      const coachMult = KP.seatMult && (domain === 'vocals' || domain === 'dance')
+        ? KP.seatMult(state, domain === 'vocals' ? 'vocal' : 'dance') : 1;
+      const g = gainFor(person, domain, rng, focus.length, driveMult, coachMult);
       if (g > 0) person.talents[domain].cur = Math.min(100, person.talents[domain].cur + g);
     });
 

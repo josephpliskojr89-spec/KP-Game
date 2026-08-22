@@ -116,6 +116,21 @@
       });
     }
 
+    // the staff (v0.10.6): the building's seats — names, files, no numbers
+    if (KP.staffSeats) {
+      const S = KP.staffSeats(state);
+      const rows = KP.C.HIRES.SEATS.map(seat => {
+        const st = S[seat.id];
+        return '<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0">' +
+          '<span>' + UI.esc(seat.label) + '</span>' +
+          (st ? '<span>' + UI.esc(st.name) + ' · <span style="color:var(--ink-dim)">' + UI.esc(st.tier) + '</span></span>'
+              : '<span style="color:var(--ink-dim)">— chair open —</span>') + '</div>';
+      }).join('');
+      html.push('<div class="kicker">The building</div>');
+      html.push('<div class="card">' + rows +
+        '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">The file shows who they are and what the industry says. What they are actually worth, only the months say — and never in a number.</div></div>');
+    }
+
     // the settlement (v0.10.1): the quarterly books, on the desk
     const stmt = KP.lastStatement ? KP.lastStatement(state) : null;
     if (stmt) {
