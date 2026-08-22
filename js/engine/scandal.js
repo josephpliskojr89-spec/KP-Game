@@ -225,6 +225,10 @@
       p.status = 'released';
       state.roster = state.roster.filter(id => id !== p.id);
       delete p.flags.personalHiatus;
+      // the departure sweep (latent v0.10.2 bug): her deals wind down
+      // and her scenes come off the desk with her, like every other exit
+      if (state.deals) state.deals = state.deals.filter(d => d.personId !== p.id);
+      if (state.scenes) state.scenes = state.scenes.filter(x => x.personId !== p.id);
       p.history.push({ week: state.week, text: 'Released. The statement used the word “mutual,” and nobody anywhere believed it. The story won.' });
       KP.note(state, { kind: 'public', ind: 'scandalRelease', priority: 'high', personId: p.id,
         groupId: g ? g.id : undefined,
@@ -249,6 +253,8 @@
       state.roster = state.roster.filter(id => id !== p.id);
       delete p.flags.personalHiatus;
       delete p.scandal;
+      if (state.deals) state.deals = state.deals.filter(d => d.personId !== p.id);
+      if (state.scenes) state.scenes = state.scenes.filter(x => x.personId !== p.id);
       p.history.push({ week: state.week, text: 'Released by a company that never held the meeting. The silence was the decision.' });
       return { kind: 'public', ind: 'scandalRelease', priority: 'high', personId: p.id,
         text: 'The departure announced itself: no meeting, no defense, one paragraph. The fandom will remember that the company chose by not choosing.' };

@@ -333,6 +333,13 @@ const BANDS = {
   // together — a crown, not wallpaper. Positive dome path is
   // suite-held (forced fans); the ceiling watches for wallpaper if
   // the economy ever inflates jp fans.
+  // the world circuit (v0.10.9): ruled first soak — 31/40, 31/40,
+  // 40/40. Invites need a warm far region AND an idle rested group;
+  // most orgs that play also flop at least once (the tongue is rare);
+  // every long org cuts a version off some hit. Floors guard dead.
+  circuitPlayed:     { lo: 0.30, hi: 1.00, label: 'orgs that played a far-market convention' },
+  circuitFlopped:    { lo: 0.15, hi: 1.00, label: 'orgs whose interview needed the interpreter' },
+  enVersioned:       { lo: 0.85, hi: 1.00, label: 'orgs that cut the English version' },
   jpSigned:          { lo: 0.90, hi: 1.00, label: 'orgs that signed the Japan partnership' },
   jpDropped:         { lo: 0.85, hi: 1.00, label: 'orgs that posted a record to the Nichion weekly' },
   jpRungUp:          { lo: 0.70, hi: 1.00, label: 'orgs that climbed a rung of the JP ladder' },
@@ -588,6 +595,7 @@ const tally = {
   interviewHeld: 0, seatHired: 0, seatCalled: 0, staffVoice: 0, meshFelt: 0,
   evalRun: 0, evalTalked: 0, breakdownRead: 0, nearMissFuel: 0, nudgeRun: 0,
   jpSigned: 0, jpDropped: 0, jpRungUp: 0, jpDomed: 0,
+  circuitPlayed: 0, circuitFlopped: 0, enVersioned: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -787,6 +795,16 @@ for (let s = 0; s < SEEDS; s++) {
       const lane = (KP.regionsOf(g).jp || 0) >= 55 ? 'original' : 'version';
       if (state.budget < KP.C.JAPAN.LANES[lane].cost + 150 || restRead(g) >= 50) return;
       KP.planJapanRelease(state, g.id, lane);
+    });
+    // the world circuit (v0.10.9): a hit between eras earns its re-cut
+    if (KP.cutEnglishVersion) state.groups.forEach(g => {
+      if (!g.debuted || g.retiredWeek || g.prep || g.tour || g.hiatus || g.jpAway) return;
+      if (state.week <= (g.promoUntil || 0)) return;
+      const last = (g.releases || [])[g.releases ? g.releases.length - 1 : 0];
+      if (!last || (last.reception || 0) < KP.C.CIRCUIT.EN.minRec) return;
+      if (state.week - (g.lastEnWeek || -999) < KP.C.CIRCUIT.EN.cooldown) return;
+      if (state.budget < KP.C.CIRCUIT.EN.cost + 120) return;
+      KP.cutEnglishVersion(state, g.id);
     });
     // the rituals (v0.10.7): a promo week gets its one mobilization
     if (KP.pointNudge) state.groups.forEach(g => {
@@ -1124,6 +1142,15 @@ for (let s = 0; s < SEEDS; s++) {
           KP.resolveScene(state, sc.id, avg >= 50 && lineupComing ? 'promise'
             : avg >= 45 ? 'honest' : 'release');
         }
+        return;
+      }
+      if (sc.kind === 'circuitInvite') {
+        // the world circuit (v0.10.9): take the weekend when flush and
+        // the room is rested — that is what the far markets cost
+        const g2 = KP.groupById(state, sc.groupId);
+        const avgF2 = g2 ? g2.members.reduce((s2, id) => s2 + (state.people[id] ? state.people[id].fatigue : 0), 0) /
+          (g2.members.length || 1) : 100;
+        KP.resolveScene(state, sc.id, state.budget > 80 && avgF2 < 60 ? 'accept' : 'decline');
         return;
       }
       if (sc.kind === 'theInterview') {
@@ -1653,6 +1680,11 @@ for (let s = 0; s < SEEDS; s++) {
   if ((mdl.cases || 0) >= 1) tally.medCase++;
   if ((mdl.chronics || 0) >= 1) tally.medChronic++;
   if ((mdl.flares || 0) >= 1) tally.flareFelt++;
+  // the world circuit (v0.10.9): the ledger is durable
+  const cir = state.circuitLedger || {};
+  if ((cir.played || 0) >= 1) tally.circuitPlayed++;
+  if ((cir.tongueFlops || 0) >= 1) tally.circuitFlopped++;
+  if ((cir.enCuts || 0) >= 1) tally.enVersioned++;
   // the Japan cycle (v0.10.8): the ledger is durable
   const jpl = state.jpLedger || {};
   if ((jpl.signed || 0) >= 1) tally.jpSigned++;

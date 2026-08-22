@@ -361,6 +361,10 @@
           ? '<div style="margin-top:8px;display:flex;gap:6px">' +
             '<button class="btn small" data-action="jp-release" data-id="' + g.id + '" data-lane="version">JP-version · ' + KP.C.JAPAN.LANES.version.cost + '</button>' +
             '<button class="btn small" data-action="jp-release" data-id="' + g.id + '" data-lane="original">JP-original · ' + KP.C.JAPAN.LANES.original.cost + '</button></div>' : '') +
+        (KP.cutEnglishVersion && (g.releases || []).length &&
+         (g.releases[g.releases.length - 1].reception || 0) >= KP.C.CIRCUIT.EN.minRec &&
+         state.week - (g.lastEnWeek || -999) >= KP.C.CIRCUIT.EN.cooldown
+          ? '<div style="margin-top:8px"><button class="btn small" data-action="en-version" data-id="' + g.id + '">Cut the English version · ' + KP.C.CIRCUIT.EN.cost + '</button></div>' : '') +
         '<div style="margin-top:8px"><button class="btn small ghost" style="border:1px solid var(--line)" data-action="declare-hiatus" data-id="' + g.id + '">Declare an official hiatus</button></div></div>');
       // the units on the record (v0.9.26)
       (g.units || []).forEach(u => {

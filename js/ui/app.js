@@ -368,6 +368,14 @@
         App.render();
         break;
       }
+      case 'en-version': {
+        const r = KP.cutEnglishVersion(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast('The English version drops — ' + r.revenue + ' off the playlists, two markets warmer.');
+        App.render();
+        break;
+      }
       case 'jp-release': {
         const r = KP.planJapanRelease(s, t.dataset.id, t.dataset.lane);
         if (!r.ok) { UI.toast(r.reason, true); break; }

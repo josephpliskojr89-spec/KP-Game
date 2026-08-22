@@ -4478,7 +4478,7 @@ and suite_079 (30 checks) forcing every kind and both clause
 endings. No migration — ledger and clause self-init. Battery
 79/79, soak 40 clean, longhaul 9x620 clean, e2e 102.
 
-## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; 1+8+3 SHIPPED v0.10.0; 2+7+14 SHIPPED v0.10.1; 6+10 SHIPPED v0.10.3; 5+12 SHIPPED v0.10.4; 11 SHIPPED v0.10.5; 15+9 SHIPPED v0.10.7; 4 SHIPPED v0.10.8)
+## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; 1+8+3 SHIPPED v0.10.0; 2+7+14 SHIPPED v0.10.1; 6+10 SHIPPED v0.10.3; 5+12 SHIPPED v0.10.4; 11 SHIPPED v0.10.5; 15+9 SHIPPED v0.10.7; 4 SHIPPED v0.10.8; 13 SHIPPED v0.10.9)
 
 Owner: *"bring in a kpop expert, I want more depth. the width is
 excellent and some of our systems are deep, but I want the whole
@@ -4884,6 +4884,33 @@ fork only). Bands ruled: signed .90, dropped .85, rungUp .70,
 domed [0,.60] — the dome is a crown the paced bot rarely strings
 four cycles for; the positive path is suite-held. Battery 88/88,
 soak 40 clean, longhaul 9x620 clean, e2e 103.
+
+**As built (v0.10.9 — the world circuit, finding 13).** New module
+`circuit.js` (weekly order 748, beside the festivals). **The
+invites:** 4.5%/week, one at a time, region-keyed to any far
+market (cn/sea/na/latam/eu) warmed past 12 for an idle debuted
+group with a pulse (pop 30+) — a NAMED convention per region
+(Island Wave Manila, K-Wave Con Dallas, Hallyu Expo Berlin, Ola
+Coreana CDMX, and friends; all invented). The circuitInvite scene:
+take the stage (travel bill priced by distance against a modest
+fee, weekend fatigue, appearances flow) or pass. **The tongue
+collects:** with a speaker in the room (KP.voiceAbroad) the market
+warms +6 and the fanchant comes back on the first try; without one
+the gains halve and the interpreter-pause clip circulates — the
+§55.5 media-obligation law, now priced on every far stage. **The
+English version:** `KP.cutEnglishVersion` — the last record at
+55+ reception re-cut for the west (18, 16-week cooldown, between
+eras only): playlists pay by the reception, NA and EU warm at
+once, tongue-damped, with a Groups-card button beside the JP
+lanes. **The routing loop:** circuit gains feed the next tour
+through region warmth — the one truth the map already keeps; no
+second meter. Hygiene: scandal releases now run the FULL departure
+sweep (deals wound down, scenes off the desk — the second latent
+v0.10.2 exit-path gap, caught by the active-deal invariant at
+5 violations); suite_087's breakdown-note asserts guard on the
+note surviving the weekly budget. Bands ruled: played .30,
+flopped .15, enVersioned .85. Battery 89/89, soak 40 clean,
+longhaul 9x620 clean, e2e 104.
 
 ## §81 The v0.10 build order (RULED — owner: "I like all of them and
 I want to build them comprehensively. plan out the order first")
@@ -7902,3 +7929,16 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > hall-arena-DOME ladder, with the dome minting the industry's
 > one unarguable list as a narrative. Battery 88/88, soak 40
 > clean, longhaul 9x620, e2e 103, lockstep 0.10.8. Rode to main.
+
+> **0.10.9 — the world circuit (§80 finding 13).** circuit.js:
+> the overseas promo wing. Named convention invites arrive
+> region-keyed to warmed far markets — travel bills, weekend
+> fatigue, and the tongue pricing every stage (a speaker earns
+> full warmth and the singalong; without one the gains halve and
+> the interpreter clip circulates). The English version re-cuts
+> the last hit for the west, warming NA and EU at once. Circuit
+> gains feed tour routing through region warmth — one truth, no
+> second meter. Fixed: scandal releases now run the full
+> departure sweep (dangling deals caught by invariant). Battery
+> 89/89, soak 40 clean, longhaul 9x620, e2e 104, lockstep
+> 0.10.9. Rode to main.

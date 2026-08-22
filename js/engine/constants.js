@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.8',
+    VERSION: '0.10.9',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1471,6 +1471,24 @@
       royaltyEvery: 8,            // the writer's publishing check cadence
       leverageAt: 12,             // accumulated royalties = "she doesn't
                                   // need the re-sign the way the dancer does"
+    },
+    // the world circuit (v0.10.9, §80 finding 13) — the overseas promo
+    // wing. The LAW: the circuit is how mid-tiers actually break the
+    // far markets between tours — a weekend flight, a travel bill, a
+    // tongue-gated stage — and its gains feed the next tour's routing
+    // through region warmth, the one truth the map already keeps.
+    CIRCUIT: {
+      inviteChance: 0.045,      // per week, one invite at a time
+      minWarmth: 12,            // the region has to have heard of them
+      minPop: 30,               // conventions book acts with a pulse
+      travelBase: 12,           // the bill, plus distance
+      travelFar: { na: 8, latam: 10, eu: 8, cn: 2, sea: 3 },
+      warmthGain: 6,            // a stage that lands
+      tongueDamp: 0.5,          // no speaker: half gains + the awkward clip
+      fatigue: 6,
+      fee: 10,                  // conventions pay, modestly
+      EN: { cost: 18, cooldown: 16, minRec: 55,   // the English-version lane
+        warmth: 7, rev: 0.35 },                    // x last reception
     },
     // the Japan cycle (v0.10.8, §80 finding 4) — the second discography
     // on its own calendar. The LAW: Japan is a real quarter, not a
