@@ -442,7 +442,29 @@
           state.rivalLedger = state.rivalLedger || { culls: 0, namedCuts: 0 };
           state.rivalLedger.culls++;
           pushMove(rival, 'Cut ' + cut + ' trainee' + (cut === 1 ? '' : 's'));
-          if (cut >= R.cullNoteAt) {
+          // the castoff market (v0.10.12, §82 C): the cull stops being a
+          // counter decrement — some of the cut land on the open board,
+          // briefly, with the company's name on the file. The rest went
+          // home to think; the words carry them.
+          const CF = KP.C.NETWORK.CASTOFF;
+          let boarded = [];
+          if (KP.mintCastoff && rng.chance(CF.cullChance)) {
+            const k = Math.min(cut, rng.int(1, CF.cullMax));
+            for (let ci = 0; ci < k; ci++) {
+              const pc = KP.mintCastoff(state, rng, {
+                source: rival.short + ' castoff',
+                historyText: 'Cut at ' + rival.short + '’s seasonal evaluation. Years of practice rooms, one meeting.',
+              });
+              if (pc) boarded.push(pc);
+            }
+            state.rivalLedger.castoffs = (state.rivalLedger.castoffs || 0) + boarded.length;
+          }
+          if (boarded.length) {
+            notes.push({ kind: 'scouting', ind: 'castoffs', priority: 'high',
+              text: rival.short + '’s seasonal evaluation cut ' + cut + ' from the trainee floor. ' +
+                boarded.map(pc => KP.displayName(pc) + ', ' + pc.age).join(' and ') +
+                (boarded.length === 1 ? ' is' : ' are') + ' taking meetings — trained, dated files, and a short window before the market or the quiet takes them. The rest went home to think about it, and some of them will stay home.' });
+          } else if (cut >= R.cullNoteAt) {
             notes.push({ kind: 'industry', text: rival.short + '’s seasonal evaluation cut ' +
               cut + ' from the trainee floor. The company calls it aligning the room with the roadmap. The room calls it Tuesday.' });
           }
@@ -525,6 +547,22 @@
         const rel = rivalRelease(state, rival, act, rng, true);
         (rel.narNotes || []).forEach(n => notes.push(n));
         pushMove(rival, 'Debuted ' + act.name);
+        // the castoff market (v0.10.12, §82 C): a debut day has a losing
+        // room too — the one who missed the final lineup by a hair walks
+        // out polished, known, and briefly on the open board
+        if (KP.mintCastoff && rng.chance(KP.C.NETWORK.CASTOFF.debutChance)) {
+          const pc = KP.mintCastoff(state, rng, {
+            source: rival.short + ' — final lineup cut',
+            hype: rng.int(6, 14),
+            historyText: 'Trained for ' + rival.short + '’s ' + act.name + ' debut and missed the final lineup in the last round. Watched the showcase from the practice room.',
+          });
+          if (pc) {
+            state.rivalLedger = state.rivalLedger || { culls: 0, namedCuts: 0 };
+            state.rivalLedger.castoffs = (state.rivalLedger.castoffs || 0) + 1;
+            notes.push({ kind: 'scouting', ind: 'castoffs', priority: 'high', personId: pc.id,
+              text: KP.fillPro(KP.displayName(pc) + ', ' + pc.age + ', trained for the ' + act.name + ' lineup at ' + rival.short + ' and missed the final cut in the last round — the kind of file that is only on the open board because one meeting went the other way. Debut-ready polish, a company-sized bruise, and a window that will not stay open.', pc) });
+          }
+        }
         // a face we lost hurts more than a name we never knew
         const lost = members.map(id => state.people[id]).find(p => p && !p.flags.rivalNative);
         notes.push({ kind: 'industry', ind: 'rivalDebut', actName: act.name, company: rival.short,

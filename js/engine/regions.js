@@ -22,11 +22,31 @@
     const row = (KP.C.TOUR && KP.C.TOUR.KR_CITIES || []).find(c => c.id === KP.homeCity(state));
     return row ? row.label : 'Seoul';
   };
+  // the atlas (v0.10.12, §82 A): each city carries its own trade. One
+  // profile object is the truth; every consumer reads through a helper.
+  KP.homeCityProfile = function (state) {
+    if (!KP.isRegionalHouse(state)) return null;
+    return (KP.C.HOME.CITIES || {})[KP.homeCity(state)] || null;
+  };
   KP.homeCostMult = function (state) {
-    return KP.isRegionalHouse(state) ? KP.C.HOME.costMult : 1;
+    const c = KP.homeCityProfile(state);
+    return c ? c.costMult : (KP.isRegionalHouse(state) ? KP.C.HOME.costMult : 1);
   };
   KP.homeNetMult = function (state) {
-    return KP.isRegionalHouse(state) ? KP.C.HOME.networkDamp : 1;
+    const c = KP.homeCityProfile(state);
+    return c ? c.networkDamp : (KP.isRegionalHouse(state) ? KP.C.HOME.networkDamp : 1);
+  };
+  KP.homeGateLift = function (state) {
+    const c = KP.homeCityProfile(state);
+    return c ? c.gateLift : (KP.isRegionalHouse(state) ? KP.C.HOME.showsGateLift : 0);
+  };
+  KP.homePileChance = function (state) {
+    const c = KP.homeCityProfile(state);
+    return c ? c.pileChance : KP.C.HOME.homeChance;
+  };
+  KP.homeCommute = function (state) {
+    const c = KP.homeCityProfile(state);
+    return c ? (c.commute || 0) : 0;
   };
 
   KP.regionLabel = function (id) {

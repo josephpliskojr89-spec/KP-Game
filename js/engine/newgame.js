@@ -362,8 +362,12 @@
     open.forEach(n => { n.week = 1; n.read = false; n.id = 'm' + (state.nextMsgId++); });
     if (homeCity !== 'seoul') {
       const cityLabel = (KP.C.TOUR.KR_CITIES.find(c => c.id === homeCity) || {}).label || homeCity;
+      // the atlas (v0.10.12, §82 A): the letter says THIS city's trade
+      const dossier = (KP.C.HOME.CITIES || {})[homeCity];
       open.push({ week: 1, kind: 'company', ind: 'regionalFounding', priority: 'high',
-        text: 'The lease is signed in ' + cityLabel + ' — not Seoul, on purpose. The rent is honest, the practice rooms are twice the size for the money, and the neighborhood already knows the company by the sign. The trade is real on both sides: everything costs less here, the home rooms book their own, and the capital circuit is a longer drive for everyone including the reputation.' });
+        text: 'The lease is signed in ' + cityLabel + ' — not Seoul, on purpose. ' +
+          (dossier ? 'What this address means, plainly: ' + dossier.trade + '. ' : '') +
+          'The local academy is a walk from the office, the home rooms book their own, and the capital circuit is exactly as far away as it looks on the map. The trade is real on both sides; you chose which sides.' });
     }
     state.inbox = open;
 

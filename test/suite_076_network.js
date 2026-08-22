@@ -102,6 +102,55 @@ const N = () => KP.C.NETWORK;
   t.ok(r3.minted > r2.minted, 'the major’s call out-draws the blank page’s (' + r3.minted + ' vs ' + r2.minted + ')');
 }
 
+// ---- the ladder rebalance (v0.10.12, §82 B) ----------------------------
+// owner: "why would I ever host an open call for 40 when I can street
+// cast 5 times…" — the verbs mint different SHAPES now
+{
+  const s = KP.newGame('nw-ladder', null, { door: 'current' });
+  s.budget = 900;
+  s.prospects = [];
+  KP.streetCast(s);
+  const street = s.prospects.map(id => s.people[id]);
+  const avgCur = ps => ps.reduce((t2, p) => t2 + KP.C.TALENTS.reduce((u, d) => u + p.talents[d].cur, 0) / KP.C.TALENTS.length, 0) / ps.length;
+  t.ok(street.every(p => (p.observations || 0) === 0), 'the districts hand you full fog');
+  t.ok(avgCur(street) < 30, 'and extremely raw hands (' + avgCur(street).toFixed(1) + ' avg current)');
+  s.openCallWeek = -999;
+  KP.holdOpenCall(s);
+  const call = s.prospects.map(id => s.people[id]).filter(p => p.channel === 'audition');
+  t.ok(call.length >= KP.C.NETWORK.CALL.baseMinted, 'the call fills the room (' + call.length + ')');
+  t.ok(call.every(p => (p.observations || 0) >= 1), 'everyone in the line performed — the tape is watched');
+  t.ok(avgCur(call) > avgCur(street) + 5,
+    'the line that chose to audition out-polishes the districts (' +
+    avgCur(call).toFixed(1) + ' vs ' + avgCur(street).toFixed(1) + ')');
+}
+
+// ---- the castoff market (v0.10.12, §82 C) ------------------------------
+// owner: "released trainees from other companies… should all at least
+// be briefly available to look at"
+{
+  const s = KP.newGame('nw-cast', null, { door: 'current' });
+  s.budget = 900;
+  const rng = KP.rngFor(s);
+  const pc = KP.mintCastoff(s, rng, { source: 'Aozora Records castoff',
+    historyText: 'Cut at the seasonal evaluation.' });
+  s.rngState = rng.state();
+  t.ok(pc && s.prospects.includes(pc.id), 'the castoff lands on the open board');
+  t.eq(pc.castoffUntil, s.week + KP.C.NETWORK.CASTOFF.window, 'with a short window stamped');
+  t.eq(pc.observations, KP.C.NETWORK.CASTOFF.obs, 'and a real file — somebody trained them');
+  t.ok(/Aozora/.test(pc.source), 'the company’s name travels with the file');
+  t.ok((pc.history || []).some(h => /seasonal evaluation/.test(h.text)), 'the history says what happened');
+  s.week = pc.castoffUntil + 1;
+  KP.advanceWeek(s);
+  t.ok(!s.people[pc.id], 'past the window, the market or the quiet took them');
+  t.ok((s.inbox || []).some(n => /came off the open board/.test(n.text || '')), 'and the desk hears it');
+  // the organic stream: a long ride sees rival culls put faces on the board
+  const s2 = KP.newGame('nw-cast2', null, { door: 'current' });
+  s2.budget = 2000;
+  for (let w = 0; w < 160; w++) { KP.advanceWeek(s2); if (s2.budget < 200) s2.budget = 500; }
+  t.ok(((s2.rivalLedger || {}).castoffs || 0) >= 1,
+    'three years of rival evaluations shed real files (' + ((s2.rivalLedger || {}).castoffs || 0) + ')');
+}
+
 // ---- old saves: channel-less files read as public ---------------------
 {
   const s = KP.newGame('nw-compat', null, {});

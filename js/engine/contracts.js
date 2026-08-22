@@ -341,6 +341,11 @@
           ['mainVocal', 'mainDancer', 'mainRapper'].forEach(r => {
             if (g.roles[r] === p.id) delete g.roles[r];
           });
+        } else {
+          // the last one out turns off the lights (latent v0.9.20 bug,
+          // found by longhaul invariant): an emptied lineup holds no
+          // roles — stale ids on a retired group otherwise live forever
+          g.roles = {};
         }
       }
       if (g.rooms) { g.rooms = null; if (g.members.length) KP.assignRooms(state, g); }
@@ -454,6 +459,8 @@
         if (g.roles.center === p.id) g.roles.center = remaining.slice().sort((a, b) =>
           KP.derived(b).centerPull - KP.derived(a).centerPull)[0].id;
         ['mainVocal', 'mainDancer', 'mainRapper'].forEach(r => { if (g.roles[r] === p.id) delete g.roles[r]; });
+      } else {
+        g.roles = {};   // the last one out turns off the lights (see lineupSurgery)
       }
     }
     if (g.rooms) { g.rooms = null; if (g.members.length) KP.assignRooms(state, g); }

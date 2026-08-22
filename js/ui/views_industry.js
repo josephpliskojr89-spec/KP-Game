@@ -442,12 +442,13 @@
         ? '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">Home city <span style="color:var(--ink-faint)">(§76 B — the regional founding)</span></label>' +
           '<select class="nc-input" id="nc-city">' +
           '<option value="seoul">Seoul — the capital, full price, full gravity</option>' +
-          '<option value="busan">Busan — cheaper everything, longer road</option>' +
-          '<option value="incheon">Incheon — cheaper everything, longer road</option>' +
-          '<option value="daegu">Daegu — cheaper everything, longer road</option>' +
-          '<option value="gwangju">Gwangju — cheaper everything, longer road</option>' +
-          '<option value="daejeon">Daejeon — cheaper everything, longer road</option>' +
-          '</select>'
+          '<option value="busan">Busan — the second city: a real scene, a fair discount</option>' +
+          '<option value="incheon">Incheon — Seoul without the address: full price, plus the train</option>' +
+          '<option value="daegu">Daegu — the deep discount, at the far end of the line</option>' +
+          '<option value="gwangju">Gwangju — the arts city: cheap, remote, a school with a name</option>' +
+          '<option value="daejeon">Daejeon — the rail hub: mid price, everything an hour away</option>' +
+          '</select>' +
+          '<div style="font-size:.66rem;color:var(--ink-dim);line-height:1.5;margin-top:2px">Every address is a trade — rent and rooms against the pull of the capital circuit. Wherever you land, the local academy is a walk, not a train.</div>'
         : '') +
       '<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">Your name</label>' +
       '<input class="nc-input" id="nc-name" placeholder="A&R Manager" maxlength="24">' +

@@ -95,7 +95,7 @@
       // a share of its pile FROM that town, at the local premium — the
       // rooms that book you because you are theirs
       const home = KP.isRegionalHouse && KP.isRegionalHouse(state) &&
-        rng.next() < KP.C.HOME.homeChance;
+        rng.next() < (KP.homePileChance ? KP.homePileChance(state) : KP.C.HOME.homeChance);
       const town = home ? KP.homeCityLabel(state)
         : B.TOWNS[Math.floor(rng.next() * B.TOWNS.length)];
       const lead = B.leadWeeks[0] +

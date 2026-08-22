@@ -439,6 +439,22 @@
     // the board is a market, not a museum (0.9.13 audit A2): leads who
     // aged past the market without a signature move on — file and all,
     // because nobody here ever met them
+    // the castoff market (v0.10.12, §82 C): known quantities move fast —
+    // a castoff past the window took another meeting, or went home
+    const goneCastoffs = (state.prospects || []).filter(id => {
+      const pr = state.people[id];
+      return pr && pr.castoffUntil && state.week > pr.castoffUntil;
+    });
+    if (goneCastoffs.length) {
+      const names = goneCastoffs.map(id => KP.displayName(state.people[id]));
+      goneCastoffs.forEach(id => {
+        (state.rivals || []).forEach(r => { if (r.interest) delete r.interest[id]; });
+        delete state.people[id];
+      });
+      state.prospects = state.prospects.filter(id => state.people[id]);
+      notes.push({ kind: 'scouting', priority: 'normal', text: names.join(' and ') +
+        ' came off the open board — a castoff’s window is short, and it closed the way they always do: another company’s pen, or a bus ticket home. The board only ever showed the ones still deciding.' });
+    }
     const stale = (state.prospects || []).filter(id => {
       const pr = state.people[id];
       return pr && pr.age >= S.prospectAgeOut;

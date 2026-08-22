@@ -182,18 +182,29 @@
     const names = [];
     for (let i = 0; i < n; i++) {
       const p = mintPublicless(state, rng);
+      // the ladder rebalance (v0.10.12, §82 B): the districts hand you
+      // somebody who moves well in a crowd, not a trainee — current
+      // skill goes RAW, and the ceiling fog swings both ways
+      KP.C.TALENTS.forEach(d => {
+        p.talents[d].cur = Math.max(1, Math.round(p.talents[d].cur * S.rawFactor));
+      });
       if (rng.chance(S.gemChance)) {
         KP.C.TALENTS.forEach(d => {
           p.talents[d].ceilLo = Math.min(100, p.talents[d].ceilLo + S.gemBump);
           p.talents[d].ceilHi = Math.min(100, p.talents[d].ceilHi + S.gemBump);
         });
         led.gems++;
+      } else if (rng.chance(S.dudChance)) {
+        KP.C.TALENTS.forEach(d => {
+          p.talents[d].ceilLo = Math.max(p.talents[d].cur + 2, p.talents[d].ceilLo - S.dudDrop);
+          p.talents[d].ceilHi = Math.max(p.talents[d].ceilLo + 2, p.talents[d].ceilHi - S.dudDrop);
+        });
       }
       names.push(KP.displayName(p));
     }
     state.rngState = rng.state();
     const note = KP.note(state, { kind: 'scouting',
-      text: 'Street casting run: the scouts worked the districts with a stack of cards and an eye for the way somebody moves through a crowd. ' + names.join(', ') + ' took a card. Wide variance, honest fog — and every so often the districts hand you the one everybody else walked past.' });
+      text: 'Street casting run: the scouts worked the districts with a stack of cards and an eye for the way somebody moves through a crowd. ' + names.join(', ') + ' took a card. Nobody in this stack has touched a practice room — the card is a bet on a walk, a laugh, the way the light hit. Most of these go nowhere. The one that doesn’t is why the scouts keep walking.' });
     return { ok: true, minted: n, note: note.text };
 
     function mintPublicless(state2, rng2) {
@@ -218,7 +229,16 @@
     led.calls++;
     const names = [];
     for (let i = 0; i < n; i++) {
+      // the ladder rebalance (v0.10.12, §82 B): everyone in that line
+      // CHOSE to audition — a real polish floor, and you watched the
+      // tape, so the first read arrives collapsed
       const p = mint(state, rng, { channel: 'audition', source: 'Open call' });
+      ['vocals', 'dance', 'charisma'].forEach(d => {
+        p.talents[d].cur = Math.min(p.talents[d].ceilLo - 1,
+          p.talents[d].cur + C.polishBump);
+      });
+      p.observations = C.observations;   // the tape exists — the read is of the performance
+      KP.takeReads(state, p);
       led.callMinted++;
       names.push(KP.displayName(p));
     }
@@ -229,6 +249,27 @@
         ? 'The open call was an EVENT — the line bent around the block, the sign-in sheets ran out, and the judges worked until the building closed. ' + n + ' callbacks made the board: ' + names.join(', ') + '. This is what a name is for.'
         : 'The open call ran in a rented room with folding chairs and a hand-lettered sign. ' + n + ' sign-ups made the tape: ' + names.join(', ') + '. Small turnout, honest room — and every major started with one exactly like it.' });
     return { ok: true, minted: n, note: note.text };
+  };
+
+  // ---- the castoff market (v0.10.12, §82 C) -----------------------------
+  // industry.js calls this when a rival's cull or debut sheds real
+  // people — the file carries the company's name, the polish is real,
+  // and the window is short: the market moves fast on known quantities
+  KP.mintCastoff = function (state, rng, opts) {
+    if (full(state)) return null;
+    const CF = KP.C.NETWORK.CASTOFF;
+    const p = mint(state, rng, { channel: 'castoff', source: opts.source,
+      age: rng.int(CF.ageMin, CF.ageMax) });
+    ['vocals', 'dance'].forEach(d => {
+      p.talents[d].cur = Math.min(p.talents[d].ceilLo - 1,
+        p.talents[d].cur + CF.polishBump);
+    });
+    p.observations = CF.obs;   // somebody trained them; the file is real
+    KP.takeReads(state, p);
+    p.castoffUntil = state.week + CF.window;
+    if (opts.hype) p.hype = opts.hype;
+    p.history.push({ week: state.week, text: opts.historyText });
+    return p;
   };
 
   // ---- the timeline reacts ---------------------------------------------

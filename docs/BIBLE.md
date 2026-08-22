@@ -5370,6 +5370,121 @@ warning rides the same channel; suite_064 decline block got the
 0.9.24.1 icon stamp), soak 40 clean, longhaul 8×620 clean, e2e 97.
 No migration — the ledger self-initializes.
 
+## §82 The atlas (SHIPPED v0.10.12 — three owner reports, one release)
+
+Owner, in one sitting: (1) "I'd like to give the different cities we
+can establish an agency in their own positives and negatives… the
+obvious positive is that scouting the local school should essentially
+be free, since there's no travel… if you pick Daegu it might be much
+cheaper but you are extremely removed from Seoul. Incheon on the other
+hand is right there… the downside is you're still prisoner to the
+Seoul market while having to travel there. that could cost something."
+(2) "why would I ever host an open call for 40 when I can street cast
+5 times and find more prospects without a noticeable drop off in
+talent? …street casting… should feel like a total crapshoot heavily
+weighed towards extremely raw prospects. chasing upside is the risk.
+…if I spend 60 to go to Japan, I should get a decent list of
+prospects, even if they aren't all that good or even interested. an
+open audition should either improve quality or provide more
+prospects." (3) "I'm still not seeing any released trainees from
+other companies pop up anywhere. they should all at least be briefly
+available to look at, even if some choose to retire."
+
+**A. The city dossiers.** v0.10.10 shipped ONE regional identity worn
+by five cities (flat 0.85 cost / 0.85 net / +0.06 gate). Now each city
+is a real trade, kept in `HOME.CITIES` and read through the existing
+helpers (homeCostMult / homeNetMult / new homeGateLift, homePileChance,
+homeCommute — one truth per number, consumers unchanged):
+- **Busan** — the second city. Modest discount (0.88), the industry
+  half-knows the address (net 0.90, gate +0.05), and a real local
+  scene: the richest home pile (0.35).
+- **Incheon** — Seoul without the address. Almost no discount (0.97),
+  almost no gate (+0.015), the network barely notices (0.97) — and a
+  monthly COMMUTE line (3) folded into operations at the month
+  boundary, because every music show, every meeting, every pile date
+  is a train ride. Thin home pile (0.15): the city drains to Seoul.
+- **Daegu** — the deep discount (0.78) at the far end of the line:
+  net 0.78, gate +0.09. The cheapest house in the industry, and the
+  industry knows exactly how far away it is.
+- **Gwangju** — cheap (0.82), remote (net 0.82, gate +0.08), and the
+  arts city: its school opens with a reputation head start (+6 at
+  generation) — the pond you moved next to is a good pond.
+- **Daejeon** — the rail hub. Mid discount (0.85), the smallest
+  regional gate (+0.04, everything is an hour away by KTX), but a
+  transient town: the thinnest scene after Incheon (pile 0.20, net
+  0.88).
+- **Everywhere but Seoul:** the local school is up the road — a
+  scouting trip to the home-city school bills 2 instead of 10 (lunch
+  money, not a train ticket). The founding letter and the new-career
+  door say each city's trade out loud (words, not multipliers).
+
+**B. The scouting ladder.** The inconsistency is real: all three
+verbs mint from the same talent distribution, so five street runs
+(40) strictly beat one open call (40) and embarrass the 60-cost
+audition tour. The fix is SHAPE, not price:
+- **Street casting (8)** becomes the crapshoot it claims to be:
+  arrivals are RAW — current skill scaled to ~60%, and the ceiling
+  fog swings BOTH ways (25% dud: ceilings −8; 12% gem: ceilings +10,
+  up from the old flat 15%/+8). The districts hand you teenagers who
+  move well in a crowd, not trainees. Chasing upside is the risk;
+  years of practice-room investment are the price.
+- **The open call (40)** is self-selected and witnessed: everyone in
+  that line CHOSE to audition — arrivals carry a real polish floor
+  (+5 current across performance lanes) and one observation (you
+  watched the tape; the fog starts collapsed). Turnout still scales
+  with the name (3 base + net×5, up from 2+4). Quality AND quantity —
+  that is what the room, the judges, and the tape buy.
+- **The audition tour (60)** returns a LIST: 4–6 callbacks (was 2–3),
+  and the honest kind — the +6 ceiling bet now lands on ~60% of the
+  class; the rest are filler the scouts flew home anyway. Decent
+  list, mixed quality, same half-guesswork fog. The bet stays the
+  point.
+
+**C. The castoff market.** The seasonal evaluation at every rival
+company already cuts trainees — as a NUMBER (`rosterCount -= cut`)
+that never becomes a person (only ex-board named signees land, via
+v0.9.35). Now the culls have faces: a counter cull mints 1–2 named
+castoffs onto the open board (channel 'castoff', the rival's name on
+the file, observations 2 — somebody trained them, the file is real —
+a vocals/dance polish bump, age 17–21), and a rival DEBUT sheds one
+final-lineup cut (the one who missed by a hair, hype intact) at 45%.
+Castoffs are BRIEFLY available: `castoffUntil` (10 weeks) — the sweep
+that ages the board moves them on ("took another meeting, or went
+home") — and the cut note says the honest arithmetic: N cut, k taking
+meetings, the rest went home to think. Some retire unseen; the words
+carry them. Board-cap respected (the season finale stays the only
+world event that ignores your desk).
+
+**As built (v0.10.12 — the atlas).** All three parts landed as
+planned, one architecture note each. **A:** `HOME.CITIES` profiles
+read through five helpers in regions.js (homeCityProfile / CostMult /
+NetMult / new GateLift / PileChance / Commute) — consumers in fame.js,
+bookings.js, sim.js (commute rides the operations residual, NOT the
+trainee line), scouting sign costs, and the network damp all switched
+from the flat constants without changing shape; old saves fall back to
+the flat profile. Gwangju's +6 school rep applies at world generation
+(a world fact); the home-school trip re-prices inside `scoutingTrip`
+(2 vs 10) and the note walks instead of taking the train. The
+new-career door select and the founding letter both say the trades in
+words. **B:** street mints scale cur ×0.6 with a 25% dud / 12% gem
+ceiling swing (both ways, was one-way 15%); the call mints 3+net×5
+with +5 polish on vocals/dance/charisma and one observation taken
+AFTER the polish (the tape shows the performance); the tour mints 4–6
+with the +6 ceiling landing at 60%. Measured effect: call class avg
+current ~40 vs street ~20. **C:** `KP.mintCastoff` (network.js)
+mints named files (obs 2, +6 vocals/dance polish, age 17–21,
+`castoffUntil` week+10); industry.js calls it from the seasonal cull
+(55%, 1–2 files, note carries the went-home arithmetic) and the rival
+debut (45%, the final-lineup cut with hype 6–14); scouting.js's board
+sweep retires expired windows with a one-line letter. Soak: 37/40
+worlds saw a castoff — band ruled 0.70. **The find:** the reshuffled
+stream surfaced a latent v0.9.20 bug — a lineup emptied by its FINAL
+departure kept stale role ids on the retired group forever
+(haul-major's AEMER held four roles for a man who left at week 300).
+Both surgery sites (lineupSurgery, graduateToSolo) now clear roles
+when the last one leaves; regression in suite_045. Battery 90/90,
+soak 40 clean, longhaul 10x620, e2e 104.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -8020,3 +8135,18 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > latent unguarded debits clamped (scandal statement, secret
 > protection). Battery 90/90, soak 40 clean, longhaul 10x620,
 > e2e 104, lockstep 0.10.11. Rode to main.
+
+> **0.10.12 — the atlas.** Three owner reports in one sitting, one
+> release: every founding city is now its own trade (Busan's scene,
+> Incheon's commute, Daegu's deep discount, Gwangju's academy,
+> Daejeon's KTX — and the home school billing lunch money
+> everywhere); the scouting ladder minted shapes instead of one
+> distribution (street = raw crapshoot with two-way ceiling fog,
+> open call = polished witnessed class, audition tour = an honest
+> 4–6 list); and rival trainee cuts stopped being a counter — named
+> castoffs land on the board for ten weeks with the company on the
+> file, and the notes carry the ones who went home. Bonus: the
+> stream shift exposed a latent v0.9.20 bug (stale roles on a
+> group emptied by its last departure) — fixed at both surgery
+> sites. Battery 90/90, soak 40 clean, longhaul 10x620, e2e 104,
+> lockstep 0.10.12. Rode to main.

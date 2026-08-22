@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.11',
+    VERSION: '0.10.12',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1271,8 +1271,13 @@
       homeRegionBoost: 14,       // her corner of the map, from day one
       airportMorale: 8,          // the hometown airport, full
       AUDITION: {
-        cost: 60, cooldownWeeks: 40, minted: [2, 3],
+        // §82 B: 60 buys a LIST now — owner: "I should get a decent
+        // list of prospects, even if they aren't all that good." The
+        // ceiling bet lands on most of the class; the rest are filler
+        // the scouts flew home anyway.
+        cost: 60, cooldownWeeks: 40, minted: [4, 6],
         ceilingBump: 6,          // higher ceiling…
+        betChance: 0.6,          // …on the ones the bet is actually about
         fogObservations: 0,      // …harder to read
       },
       // origin name pools (§55.15: data work, done with care) — modest,
@@ -1477,12 +1482,27 @@
     // a home crowd that shows up, against Seoul's gravity: a thinner
     // applicant pipeline and a longer road to the capital circuit.
     HOME: {
-      costMult: 0.85,           // rent, studios, signings — the whole bill
+      costMult: 0.85,           // fallback profile (pre-atlas saves)
       networkDamp: 0.85,        // the industry's gravity is Seoul
       showsGateLift: 0.06,      // the broadcast circuit is a longer drive
       homeChance: 0.30,         // pile rows that come from the home town
       homeFeeMult: 1.35,        // the local premium
       homeFandom: 1,            // the home crowd converts
+      // the atlas (v0.10.12, §82): each city is a real trade — owner:
+      // "all of the cities we use have strategic implications"
+      CITIES: {
+        busan:   { costMult: 0.88, networkDamp: 0.90, gateLift: 0.050, pileChance: 0.35, commute: 0,
+                   trade: 'the second city — a real scene of its own, and the industry half-knows the address' },
+        incheon: { costMult: 0.97, networkDamp: 0.97, gateLift: 0.015, pileChance: 0.15, commute: 3,
+                   trade: 'Seoul without the address — Seoul prices, Seoul access, and a monthly commute for the privilege' },
+        daegu:   { costMult: 0.78, networkDamp: 0.78, gateLift: 0.090, pileChance: 0.30, commute: 0,
+                   trade: 'the deep discount at the far end of the line — cheapest house in the industry, and everyone knows how far away it is' },
+        gwangju: { costMult: 0.82, networkDamp: 0.82, gateLift: 0.080, pileChance: 0.30, commute: 0, schoolRep: 6,
+                   trade: 'the arts city — cheap, remote, and the local academy opens with a name' },
+        daejeon: { costMult: 0.85, networkDamp: 0.88, gateLift: 0.040, pileChance: 0.20, commute: 0,
+                   trade: 'the rail hub — everything is an hour away by KTX, and nobody stays long enough to build a scene' },
+      },
+      homeTripCost: 2,          // the home-city school is up the road — lunch money, not a train ticket
     },
     // the world circuit (v0.10.9, §80 finding 13) — the overseas promo
     // wing. The LAW: the circuit is how mid-tiers actually break the
@@ -1787,12 +1807,31 @@
           'CLASS OF NEXT YEAR', 'ELEVEN LIGHTS'],
       },
       SOCIAL: { chance: 0.03, hype: [20, 35] },
-      STREET: {                // shoe leather, not reputation
+      STREET: {                // shoe leather, not reputation.
+        // the ladder rebalance (v0.10.12, §82 B) — owner: "it should
+        // feel like a total crapshoot heavily weighed towards extremely
+        // raw prospects. chasing upside is the risk." The districts hand
+        // you teenagers who move well in a crowd, not trainees.
         cost: 8, cooldownWeeks: 4, minted: [1, 2],
-        gemChance: 0.15, gemBump: 8,
+        rawFactor: 0.6,        // current skill scaled — years from a stage
+        dudChance: 0.25, dudDrop: 8,    // the fog swings down too now
+        gemChance: 0.12, gemBump: 10,   // …and higher when it swings up
       },
-      CALL: {                  // the open call: turnout scales with the name
-        cost: 40, cooldownWeeks: 30, baseMinted: 2, perNetwork: 4,
+      CALL: {                  // the open call: turnout scales with the name.
+        // §82 B: everyone in that line CHOSE to audition — a real polish
+        // floor, a collapsed first read (you watched the tape), and a
+        // bigger class. Quality AND quantity; that is what 40 buys.
+        cost: 40, cooldownWeeks: 30, baseMinted: 3, perNetwork: 5,
+        polishBump: 5, observations: 1,
+      },
+      CASTOFF: {               // the castoff market (v0.10.12, §82 C) —
+        // owner: "released trainees from other companies… should all at
+        // least be briefly available to look at, even if some choose to
+        // retire." Rival culls stop being a counter decrement.
+        cullChance: 0.55, cullMax: 2,   // a seasonal cull sheds real files
+        debutChance: 0.45,              // the one who missed the lineup by a hair
+        polishBump: 6, ageMin: 17, ageMax: 21, obs: 2,
+        window: 10,                     // weeks on the board — the market moves fast on known quantities
       },
       schoolChance: 0.08,      // the school pipeline keeps walking in,
       schoolPerNetwork: 0.12,  // wider for the connected house

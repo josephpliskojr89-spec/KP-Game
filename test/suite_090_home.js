@@ -31,8 +31,43 @@ const t = makeT('suite_090_home');
   const pa = a.people[Object.keys(a.people)[0]], pb = b.people[Object.keys(b.people)[0]];
   t.ok(KP.signCost(a, pa) < KP.signCost(b, pb),
     'the same signature costs less here (' + KP.signCost(a, pa) + ' vs ' + KP.signCost(b, pb) + ')');
-  t.eq(KP.homeCostMult(a), KP.C.HOME.costMult, 'the whole bill runs at the regional rate');
-  t.eq(KP.homeNetMult(a), KP.C.HOME.networkDamp, 'and Seoul’s gravity thins the mail');
+  // the atlas (v0.10.12): the rate is the CITY's now, not one flat number
+  t.eq(KP.homeCostMult(a), KP.C.HOME.CITIES.daegu.costMult, 'the whole bill runs at the city’s rate');
+  t.eq(KP.homeNetMult(a), KP.C.HOME.CITIES.daegu.networkDamp, 'and Seoul’s gravity thins the mail');
+}
+
+// ---- the atlas (v0.10.12, §82 A): every address is a different trade ---
+{
+  const mk = c => KP.newGame('hm-atlas-' + c, null, { legacy: false, door: 'fresh', homeCity: c });
+  const daegu = mk('daegu'), incheon = mk('incheon'), busan = mk('busan');
+  t.ok(KP.homeCostMult(daegu) < KP.homeCostMult(busan) && KP.homeCostMult(busan) < KP.homeCostMult(incheon),
+    'the discount ladder: daegu < busan < incheon (' + KP.homeCostMult(daegu) + ' < ' +
+    KP.homeCostMult(busan) + ' < ' + KP.homeCostMult(incheon) + ')');
+  t.ok(KP.homeGateLift(daegu) > KP.homeGateLift(busan) && KP.homeGateLift(busan) > KP.homeGateLift(incheon),
+    'and the remoteness ladder runs the other way');
+  t.eq(KP.homeCommute(incheon), KP.C.HOME.CITIES.incheon.commute, 'incheon pays the train');
+  t.eq(KP.homeCommute(daegu), 0, 'daegu does not — it simply is not going');
+  t.ok((daegu.inbox || []).some(n => n.ind === 'regionalFounding' && /deep discount/.test(n.text)),
+    'the founding letter says THIS city’s trade out loud');
+  // the arts city: gwangju's academy opens with a name
+  const gw = mk('gwangju');
+  const sch = gw.schools.find(x => x.cityId === 'gwangju');
+  t.ok(sch.rep >= KP.C.SCHOOLS.startRep[0] + KP.C.HOME.CITIES.gwangju.schoolRep,
+    'the gwangju academy opens with the head start (' + sch.rep + ')');
+  // the local school is a walk, not a train
+  const b0 = gw.budget;
+  const r = KP.scoutingTrip(gw, sch.id);
+  t.ok(r.ok && b0 - gw.budget === KP.C.HOME.homeTripCost, 'the home school bills lunch money (' + (b0 - gw.budget) + ')');
+  t.ok(/walked to/.test(r.note.text), 'and the note walks');
+  KP.advanceWeek(gw);
+  const away = gw.schools.find(x => x.cityId !== 'gwangju');
+  const b1 = gw.budget;
+  t.ok(KP.scoutingTrip(gw, away.id).ok && b1 - gw.budget === KP.C.SCHOOLS.tripCost,
+    'the away school still bills the train');
+  // a Seoul house pays no commute and gets no discount anywhere
+  const se = KP.newGame('hm-atlas-se', null, { legacy: false, door: 'fresh' });
+  t.ok(KP.homeCostMult(se) === 1 && KP.homeCommute(se) === 0 && KP.homeGateLift(se) === 0,
+    'Seoul is the baseline on every axis');
 }
 
 // ---- the longer road to the capital circuit ----------------------------
@@ -61,10 +96,11 @@ const t = makeT('suite_090_home');
   while (!g.demos && guard++ < 5) KP.advanceWeek(s);
   KP.planDebut(s, { groupId: g.id, songId: g.demos[0].id, promo: 'modest', week: s.week + 6,
     alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
-  const HC = KP.C.HOME.homeChance;
-  KP.C.HOME.homeChance = 1;   // pin: every minted row comes from home
+  // the atlas (v0.10.12): the pile reads the CITY profile now — pin that
+  const HC = KP.C.HOME.CITIES.busan.pileChance;
+  KP.C.HOME.CITIES.busan.pileChance = 1;   // pin: every minted row comes from home
   for (let i = 0; i < 8; i++) KP.advanceWeek(s);
-  KP.C.HOME.homeChance = HC;
+  KP.C.HOME.CITIES.busan.pileChance = HC;
   const home = KP.openBookings(s).filter(o => o.home);
   t.ok(home.length >= 1, 'the home town takes its share of the pile');
   t.ok(home.every(o => o.town === 'Busan'), 'by name, on every card');

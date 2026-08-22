@@ -72,11 +72,15 @@
       const given = rng.pick(pool.given);
       p.name = { family: rng.pick(pool.fam), given,
         display: given };
-      // higher ceiling, harder read — the whole bet of going abroad
-      KP.C.TALENTS.forEach(d => {
-        p.talents[d].ceilLo = Math.min(100, p.talents[d].ceilLo + A.ceilingBump);
-        p.talents[d].ceilHi = Math.min(100, p.talents[d].ceilHi + A.ceilingBump);
-      });
+      // higher ceiling, harder read — the whole bet of going abroad.
+      // §82 B: the bet lands on most of the class, not all of it — the
+      // rest are filler the scouts flew home anyway. The list is honest.
+      if (rng.chance(A.betChance)) {
+        KP.C.TALENTS.forEach(d => {
+          p.talents[d].ceilLo = Math.min(100, p.talents[d].ceilLo + A.ceilingBump);
+          p.talents[d].ceilHi = Math.min(100, p.talents[d].ceilHi + A.ceilingBump);
+        });
+      }
       p.observations = A.fogObservations;
       state.people[p.id] = p;
       state.prospects.push(p.id);
@@ -88,7 +92,7 @@
     state.rngState = rng.state();
     const note = KP.note(state, { kind: 'scouting', priority: 'high', ind: 'auditionTour',
       text: 'The ' + KP.regionLabel(regionId) + ' audition tour wrapped — ' + n + ' callbacks made the tape: ' +
-        names.join(', ') + '. Higher ceilings than the home board, and a read the scouts admit is half guesswork: new city, new stage habits, and the tape does not show what a practice room shows. The bet is the point. Files are on the board.' });
+        names.join(', ') + '. A real list, honestly mixed: two or three the scouts argued about on the flight home, and the rest are the flight home. The reads are half guesswork — new city, new stage habits, and the tape does not show what a practice room shows. The bet is the point. Files are on the board.' });
     return { ok: true, minted: n, note: note.text };
   };
 

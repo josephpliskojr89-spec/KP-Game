@@ -259,6 +259,9 @@ const BANDS = {
   networkApps:       { lo: 0.00, hi: 1.00, label: 'orgs whose application pile produced a file' },
   networkRefs:       { lo: 0.00, hi: 1.00, label: 'orgs the building referred somebody to' },
   washoutReturned:   { lo: 0.00, hi: 1.00, label: 'worlds where a program washout hit the open board' },
+  // measured 37/40 at v0.10.12 intro — culls fire on every rival's clock;
+  // the misses are boards that stayed full when the dice came up
+  castoffSeen:       { lo: 0.70, hi: 1.00, label: 'worlds where a rival cut put a face on the board' },
   seasonAired:       { lo: 0.50, hi: 1.00, label: 'worlds whose annual season finale aired (calendar law)' },
   callHeld:          { lo: 0.00, hi: 1.00, label: 'orgs that held an open call or walked the districts' },
   // the public eye (v0.9.36): every announcement mints an expectation
@@ -587,6 +590,7 @@ const tally = {
   senesceSeen: 0, trustDrifted: 0, successionSeen: 0,
   holdoutMet: 0, holdoutWon: 0, holdoutLost: 0,
   networkApps: 0, networkRefs: 0, washoutReturned: 0, seasonAired: 0, callHeld: 0,
+  castoffSeen: 0,
   expectSet: 0, snubSeen: 0, verdictSeen: 0, compared: 0,
   gigPlayed: 0, campaignRun: 0, gigViralSeen: 0, wallTouched: 0, breakSeen: 0,
   counterMet: 0, clauseLive: 0,
@@ -1764,6 +1768,8 @@ for (let s = 0; s < SEEDS; s++) {
   const rl = state.rivalLedger || {};
   if ((rl.culls || 0) >= 1) tally.rivalCulled++;
   if ((rl.namedCuts || 0) >= 1) tally.rivalNamedCut++;
+  // the castoff market (v0.10.12): rival cuts put faces on the board
+  if ((rl.castoffs || 0) >= 1) tally.castoffSeen++;
   // the title fight (v0.9.17): releases and producers carry the stamps
   const allRels = state.groups.flatMap(g => g.releases || []);
   if (((state.pitchLedger || {}).memberDemos || 0) >= 1) tally.memberDemoSeen++;

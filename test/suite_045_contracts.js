@@ -243,6 +243,22 @@ function makeStrained(state, p) {
   t.eq(KP.validateState(state).length, 0, 'still sound after a full post-departure cycle');
 }
 
+// ---- the last one out turns off the lights (v0.10.12 regression) -------
+// found by the longhaul invariant: a lineup emptied by its final
+// departure kept stale role ids on the retired group forever
+{
+  const s = KP.newGame('ct-lights', null, { legacy: true });
+  const g = s.groups[0];
+  // walk every member out through the same surgery the clock uses
+  const ids = g.members.slice();
+  ids.forEach(id => {
+    const p = s.people[id];
+    KP.lineupSurgery(s, g, p, true, () => {});
+  });
+  t.eq(g.members.length, 0, 'fixture: the lineup emptied');
+  t.eq(Object.keys(g.roles || {}).length, 0, 'and no role points at anyone who left');
+}
+
 // ---- the cold departure reads colder ----
 {
   const { state, g } = debuted('ct-cold');

@@ -213,6 +213,10 @@
       //    and a headline
       if ((state.week - 1) % KP.C.WEEKS_PER_MONTH === 0) {
         const upkeep = Math.round(state.roster.length * KP.C.ECON.weeklyTrainingCostPerTrainee * KP.C.WEEKS_PER_MONTH);
+        // the atlas (v0.10.12, §82 A): Incheon's monthly commute — every
+        // music show and pile date is a train ride to Seoul. Rides in the
+        // operations residual, not the trainee line
+        const commute = KP.homeCommute ? KP.homeCommute(state) : 0;
         // the practice-room invoice (v0.10.11): the trainees' cost is a
         // TRACKED line now, not a residual the stipend nets away silently
         if (upkeep > 0 && KP.ledgerFlow) KP.ledgerFlow(state, 'trainees', -upkeep);
@@ -230,7 +234,7 @@
           g.debuted && !g.retiredWeek && g.members.length
             ? s + g.members.length * KP.C.ECON.idolPayrollPerMember
             : s, 0);
-        state.budget = Math.max(0, state.budget + KP.C.ECON.monthlyStipend - upkeep - payroll);
+        state.budget = Math.max(0, state.budget + KP.C.ECON.monthlyStipend - upkeep - payroll - commute);
 
         // fiscal pressure (v0.2.3): once the signing cap lifts, the CEO
         // reads the books on a rolling quarter — one big album month is

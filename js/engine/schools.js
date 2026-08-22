@@ -38,9 +38,13 @@
       const pool = NAME_POOLS[lane].filter(n => !used.has(n));
       const name = pool.length ? rng.pick(pool) : NAME_POOLS[lane][0] + ' ' + c.label;
       used.add(name);
+      // the atlas (v0.10.12, §82 A): the arts city's academy opens with
+      // a name — a world fact, not a player bonus
+      const artsRep = (KP.C.HOME.CITIES && KP.C.HOME.CITIES[c.id] &&
+        KP.C.HOME.CITIES[c.id].schoolRep) || 0;
       return {
         id: 'sch' + (i + 1), name, cityId: c.id, city: c.label, lane,
-        rep: rng.int(S.startRep[0], S.startRep[1]),
+        rep: rng.int(S.startRep[0], S.startRep[1]) + artsRep,
         alumni: [], hot: false, hotWeek: null,
         visitedWeek: null, partnerUntil: 0,
       };
@@ -184,7 +188,11 @@
     const S = KP.C.SCHOOLS;
     const s = KP.schoolById(state, schoolId);
     if (!s) return { ok: false, reason: 'No such school on the map.' };
-    if (state.budget < S.tripCost) return { ok: false, reason: 'No budget for the train ticket, let alone the trip.' };
+    // the atlas (v0.10.12, §82 A): the home-city school is up the road —
+    // owner: "scouting the local school should essentially be free"
+    const local = KP.homeCity && s.cityId === KP.homeCity(state) && KP.isRegionalHouse(state);
+    const tripCost = local ? KP.C.HOME.homeTripCost : S.tripCost;
+    if (state.budget < tripCost) return { ok: false, reason: 'No budget for the train ticket, let alone the trip.' };
     if (s.visitedWeek && state.week - s.visitedWeek < S.tripCooldownWeeks) {
       return { ok: false, reason: 'The staff were just there. A second visit this soon reads as desperation.' };
     }
@@ -194,7 +202,7 @@
       return { ok: false, reason: 'Scout Im is already on a train this week. The regions are not going anywhere.' };
     }
     const rng = KP.rngFor(state);
-    state.budget -= S.tripCost;
+    state.budget -= tripCost;
     s.visitedWeek = state.week;
     let sharpened = 0;
     (state.prospects || []).forEach(id => {
@@ -207,7 +215,9 @@
     const lead = KP.spawnSchoolLead(state, rng, s, { observed: true, firstLook: s.partnerUntil > state.week });
     state.rngState = rng.state();
     const note = { kind: 'scouting', ind: 'schoolTrip',
-      text: 'Scout Im took the ' + s.city + ' train: a day at ' + s.name + ' watching the ' + LANE_LABELS[s.lane] + ' classes from the back row. ' +
+      text: (local
+        ? 'Scout Im walked to ' + s.name + ' — the home-town academy, ten minutes up the road, no train ticket. A day watching the ' + LANE_LABELS[s.lane] + ' classes from the back row. '
+        : 'Scout Im took the ' + s.city + ' train: a day at ' + s.name + ' watching the ' + LANE_LABELS[s.lane] + ' classes from the back row. ') +
         (sharpened ? 'Sharper reads on ' + sharpened + ' file' + (sharpened === 1 ? '' : 's') + ' already on our board, and one' : 'One') +
         ' new name worth the notebook: ' + KP.displayName(lead) + ', ' + lead.age + '. The room smelled like floor polish and ambition.' };
     KP.note(state, note);

@@ -22,6 +22,9 @@ function debuted(seed) {
   return state;
 }
 function planFor(state, g) {
+  // the practice-room invoice (v0.10.11) drains the idle years; the
+  // fixture's claim is about fatigue, not solvency
+  state.budget = Math.max(state.budget, 600);
   if (!g.demos) g.demos = KP.generateDemos(state, KP.rngFor(state));
   return KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });

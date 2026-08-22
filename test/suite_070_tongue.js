@@ -28,7 +28,8 @@ function debuted(seed) {
   t.ok(r.ok, 'the circuit runs');
   t.eq(state.budget, budget0 - KP.C.TONGUE.AUDITION.cost, 'venues, judges, flights, tape');
   const minted = state.prospects.slice(before).map(id => state.people[id]);
-  t.ok(minted.length >= 2, 'callbacks made the tape');
+  // §82 B (v0.10.12): 60 buys a LIST — "even if they aren't all that good"
+  t.ok(minted.length >= KP.C.TONGUE.AUDITION.minted[0], 'a real list came home (' + minted.length + ')');
   t.ok(minted.every(p => p.origin === 'jp' && p.nativeLang === 'Japanese'),
     'home region and native language on the file');
   t.ok(minted.every(p => p.ko >= KP.C.TONGUE.koStart[0] && p.ko <= KP.C.TONGUE.koStart[1]),
