@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.10',
+    VERSION: '0.10.11',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1581,6 +1581,11 @@
       repRiseAt: 68, repRiseChance: 0.30,   // hits polish the seats' names
       poachTierMin: 2, poachChance: 0.010, poachCooldown: 30,
       raiseCost: 25,
+      // the help wanted (v0.10.11): act on the market instead of
+      // waiting for it — and fire into the fog, severance attached
+      searchCost: 12, searchCooldown: 8,
+      severanceMult: 0.5, severanceMin: 4,
+      fireTrustTierMin: 2,     // letting a KNOWN name go costs boardroom trust
     },
     // the song market (v0.10.5, §80 finding 11) — demos cost money and
     // have other suitors. The LAW: passing on a hot hook is a bet with
@@ -2283,7 +2288,10 @@
       // quarter, so one big album month is business, three deficit months
       // are a problem. Level 2+ costs trust.
       PRESSURE: { quarterBurnWarn: 90, trustHitL2: -3, trustHitL3: -5 },
-      weeklyTrainingCostPerTrainee: 0.25,
+      // the practice-room invoice (v0.10.11): a trainee is a real
+      // monthly cost, not a rounding error the stipend swallows —
+      // owner: "I'm not seeing any debit from accounts as I advance"
+      weeklyTrainingCostPerTrainee: 0.75,
       productionCost: 30,
       monthlyStipend: 12,
       // the retainer (0.9.13, simplified v0.9.14): a flat per-idol monthly

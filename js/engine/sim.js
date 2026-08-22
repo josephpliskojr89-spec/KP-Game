@@ -213,6 +213,15 @@
       //    and a headline
       if ((state.week - 1) % KP.C.WEEKS_PER_MONTH === 0) {
         const upkeep = Math.round(state.roster.length * KP.C.ECON.weeklyTrainingCostPerTrainee * KP.C.WEEKS_PER_MONTH);
+        // the practice-room invoice (v0.10.11): the trainees' cost is a
+        // TRACKED line now, not a residual the stipend nets away silently
+        if (upkeep > 0 && KP.ledgerFlow) KP.ledgerFlow(state, 'trainees', -upkeep);
+        if (upkeep > KP.C.ECON.monthlyStipend && !state.upkeepNoted) {
+          state.upkeepNoted = true;
+          inbox.push({ kind: 'company', ind: 'upkeepBites', priority: 'high',
+            text: 'The month-end practice-room invoice — dorms, meals, coaches, rooms — came to ' + upkeep +
+              ' this month, past the operating stipend for the first time. Every trainee on the roster is a bet the company pays monthly to keep open. The accountant did not editorialize. The number did.' });
+        }
         // success payroll (0.9.13 audit B1): income scaled with stature but
         // every cost was flat, so year-5+ budgets ran away and the fiscal
         // system went silent. Established acts bill like established acts:

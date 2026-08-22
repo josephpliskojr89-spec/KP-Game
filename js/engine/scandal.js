@@ -128,8 +128,12 @@
       const led = ledger(state);
       p.scandal.answered = optionId;
       if (optionId === 'statement') {
-        state.budget -= S.statementCost;
-        if (KP.ledgerFlow) KP.ledgerFlow(state, 'marketing', -S.statementCost);
+        // a broke company still puts a statement out — PR bills what's
+        // there (found by the v0.10.11 upkeep tightening: this was the
+        // one scene arm that could take the account below zero)
+        const spent = Math.min(S.statementCost, Math.max(0, state.budget));
+        state.budget -= spent;
+        if (spent && KP.ledgerFlow) KP.ledgerFlow(state, 'marketing', -spent);
         p.morale = KP.clamp(p.morale - 2, 0, 100);
       }
       if (optionId === 'deny') {

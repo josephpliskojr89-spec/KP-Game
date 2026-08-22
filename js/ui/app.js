@@ -370,6 +370,34 @@
         App.render();
         break;
       }
+      case 'seat-search': {
+        const r = KP.openSearch(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast('The posting is up. Somebody takes the meeting within the week.');
+        App.render();
+        break;
+      }
+      case 'seat-release': {
+        const seat = KP.C.HIRES.SEATS.find(x => x.id === t.dataset.id);
+        const st = (s.seats || {})[t.dataset.id];
+        if (!st) { UI.toast('The chair is already open.', true); break; }
+        UI.modal('Let ' + st.name + ' go?',
+          '<div class="pad" style="font-size:.88rem;line-height:1.5;color:var(--ink-dim)">The ' + UI.esc(seat.label) +
+          ' chair opens, the severance is paid, and here is the part nobody will ever resolve: you will never know for certain whether they were the problem. Firing into the fog is still firing.</div>',
+          '<button class="btn" data-action="close-modal" style="flex:1">Keep them</button>' +
+          '<button class="btn primary" data-action="seat-release-confirm" data-id="' + t.dataset.id + '" style="flex:1">Let them go</button>');
+        break;
+      }
+      case 'seat-release-confirm': {
+        const r = KP.releaseSeat(s, t.dataset.id);
+        UI.closeModal();
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast('The chair is open. Whether that was right, the fog keeps.');
+        App.render();
+        break;
+      }
       case 'en-version': {
         const r = KP.cutEnglishVersion(s, t.dataset.id);
         if (!r.ok) { UI.toast(r.reason, true); break; }

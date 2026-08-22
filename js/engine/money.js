@@ -202,6 +202,7 @@
     ['signings', 'Signings & scouting'], ['artistPay', 'Artist settlement'],
     ['commerce', 'Fandom commerce'], ['catalog', 'Catalog royalties'],
     ['japan', 'Japan cycle'],
+    ['trainees', 'Practice rooms & stipends'],
   ];
   KP.lastStatement = function (state) { return (state.books || {}).last || null; };
   KP.registerWeekly('books', 758, function (state, rng, inbox) {

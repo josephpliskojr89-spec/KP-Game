@@ -92,6 +92,7 @@ function debuted(seed, conceptId) {
   warm.jpPartner = { name: 'Fixture Label', since: 0 };
   cold.jpPartner = { name: 'Fixture Label', since: 0 };
   [warm, cold].forEach(s => {
+    s.budget = 600;   // the practice-room invoice (v0.10.11) drains the idle years
     const sg = s.groups[0];
     sg.demos = KP.generateDemos(s, KP.rngFor(s));
     KP.planDebut(s, { groupId: sg.id, songId: sg.demos[0].id, promo: 'modest',
@@ -109,6 +110,7 @@ function debuted(seed, conceptId) {
   const { state, g } = debuted('rg-loud');
   while (state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) KP.advanceWeek(state);
   KP.C.REGIONS.forEach(x => { g.regions[x.id] = 38; });   // one release from loud
+  state.budget = 600;   // the practice-room invoice (v0.10.11) drains the idle years
   g.demos = KP.generateDemos(state, KP.rngFor(state));
   KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });

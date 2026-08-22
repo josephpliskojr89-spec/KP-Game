@@ -158,6 +158,28 @@ function era(s, g, debtAfterLock) {
   t.ok(s.distributor.advanceOwed > KP.C.DIST.advance, 'and is owed back with the vig');
 }
 
+// ---- the practice-room invoice (v0.10.11) ------------------------------
+// owner report: "I'm not seeing any debit from accounts as I advance" —
+// upkeep was real but netted silently against the stipend. It is a
+// tracked line now, and the first month it outruns the stipend, a letter.
+{
+  const s = world('mn-upkeep', 'fresh');
+  t.ok(s.roster.length > 0, 'fixture: a fresh label has trainees');
+  for (let w = 0; w < 5; w++) KP.advanceWeek(s);
+  const monthly = Math.round(s.roster.length * KP.C.ECON.weeklyTrainingCostPerTrainee * KP.C.WEEKS_PER_MONTH);
+  t.ok(s.books.cur.trainees <= -Math.min(monthly, 1), 'the trainees line shows the debit (' + s.books.cur.trainees + ')');
+  if (monthly > KP.C.ECON.monthlyStipend) {
+    t.ok(s.upkeepNoted === true, 'past the stipend, the accountant’s letter fires');
+    const seen = (s.inbox || []).filter(n => n.ind === 'upkeepBites').length;
+    for (let w = 0; w < 4; w++) KP.advanceWeek(s);
+    t.eq((s.inbox || []).filter(n => n.ind === 'upkeepBites').length, seen, 'and only once');
+  }
+  // and the quarter closes with the line named on the statement
+  while (s.week < 15) KP.advanceWeek(s);
+  t.ok(s.books.last && s.books.last.lines.some(l => /Practice rooms/.test(l)),
+    'the Q1 statement names the practice rooms (' + JSON.stringify((s.books.last || {}).lines) + ')');
+}
+
 // ---- determinism through the money ------------------------------------
 {
   const s = world('mn-fork');

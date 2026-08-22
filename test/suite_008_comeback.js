@@ -44,6 +44,7 @@ function throughDebut(seed) {
   const rng = KP.rngFor(state);
   state.demos = KP.generateDemos(state, rng);
   state.rngState = rng.state();
+  state.budget = Math.max(state.budget, 600);   // the practice-room invoice (v0.10.11) drains the rest window
   const plan = KP.planDebut(state, { songId: state.demos[0].id, promo: 'standard',
     week: state.week + 6, alloc: { vocals: 30, dance: 30, rap: 10, media: 30 } });
   t.ok(plan.ok, 'comeback planning succeeds through the same studio path');

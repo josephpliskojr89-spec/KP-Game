@@ -75,6 +75,7 @@ function debuted(seed) {
   // This fixture isolates the continuous revenue leg alone.
   hot.groups[0].fandom.intensity = 45; cold.groups[0].fandom.intensity = 0;
   [hot, cold].forEach(s => {
+    s.budget = 600;   // the practice-room invoice (v0.10.11) drains the idle years
     const sg = s.groups[0];
     sg.demos = KP.generateDemos(s, KP.rngFor(s), sg);
     KP.planDebut(s, { groupId: sg.id, songId: sg.demos[0].id, promo: 'modest',

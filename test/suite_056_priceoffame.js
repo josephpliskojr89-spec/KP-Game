@@ -135,6 +135,9 @@ function signDeal(state, p, over) {
   t.ok(d2.cooled, 'the brand cools');
   t.ok((p2.directed || []).some(a => a.kind === 'heldBack'), 'she heard about the no');
   t.ok(KP.renewalRead(s2, p2).score <= read0 - 2, 'and the renewal table reads it — through the ledger AND the mood, not kindly');
+  // the practice-room invoice (v0.10.11): don't measure the weekly pay
+  // across a month boundary — the invoice would swamp the 2/week signal
+  while (s2.week % KP.C.WEEKS_PER_MONTH === 0) KP.advanceWeek(s2);
   const cash2 = s2.budget;
   KP.advanceWeek(s2);
   t.eq(s2.budget - cash2 >= 0 && s2.deals[0].cooled ? Math.max(0, d2.weekly - KP.C.DEALS.cooledWeeklyCut) : -1,

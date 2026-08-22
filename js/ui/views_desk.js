@@ -116,18 +116,32 @@
       });
     }
 
-    // the staff (v0.10.6): the building's seats — names, files, no numbers
+    // the staff (v0.10.6): the building's seats — names, files, no numbers.
+    // the help wanted (v0.10.11): the two verbs live on the rows
     if (KP.staffSeats) {
       const S = KP.staffSeats(state);
+      const HR = KP.C.HIRES;
+      const searchBusy = !!state.staffSearch ||
+        (state.scenes || []).some(sc => sc.kind === 'theInterview');
       const rows = KP.C.HIRES.SEATS.map(seat => {
         const st = S[seat.id];
-        return '<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0">' +
-          '<span>' + UI.esc(seat.label) + '</span>' +
-          (st ? '<span>' + UI.esc(st.name) + ' · <span style="color:var(--ink-dim)">' + UI.esc(st.tier) + '</span></span>'
-              : '<span style="color:var(--ink-dim)">— chair open —</span>') + '</div>';
+        const sev = st ? Math.max(HR.severanceMin,
+          Math.round((HR.hireCost[st.tier] || HR.hireCost.working) * HR.severanceMult)) : 0;
+        const cooled = state.week - ((state.seatSearchCooldowns || {})[seat.id] || -999) >= HR.searchCooldown;
+        return '<div style="display:flex;justify-content:space-between;align-items:center;font-size:.78rem;padding:3px 0;gap:6px">' +
+          '<span style="flex:1">' + UI.esc(seat.label) +
+          (st ? '<br><span style="color:var(--ink-dim)">' + UI.esc(st.name) + ' · ' + UI.esc(st.tier) + '</span>'
+              : '<br><span style="color:var(--ink-dim)">— chair open —</span>') + '</span>' +
+          '<span style="display:flex;gap:4px;flex-shrink:0">' +
+          (st ? '<button class="btn small ghost" style="border:1px solid var(--line);font-size:.62rem" data-action="seat-release" data-id="' + seat.id + '">let go · ' + sev + '</button>' : '') +
+          (!searchBusy && cooled
+            ? '<button class="btn small" style="font-size:.62rem" data-action="seat-search" data-id="' + seat.id + '">help wanted · ' + HR.searchCost + '</button>' : '') +
+          '</span></div>';
       }).join('');
       html.push('<div class="kicker">The building</div>');
       html.push('<div class="card">' + rows +
+        (state.staffSearch
+          ? '<div style="font-size:.7rem;color:var(--gold);margin-top:6px">A posting is up — somebody takes the meeting within the week.</div>' : '') +
         '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">The file shows who they are and what the industry says. What they are actually worth, only the months say — and never in a number.</div></div>');
     }
 

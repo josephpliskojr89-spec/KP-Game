@@ -22,9 +22,64 @@
     state.staffLedger2 = state.staffLedger2 ||
       { candidates: 0, hires: 0, passes: 0, repRises: 0, poachCalls: 0,
         raises: 0, walked: 0, notes: 0, meshNotes: 0 };
+    // the help wanted (v0.10.11) — fields added post-ship, healed lazily
+    if (state.staffLedger2.searches == null) {
+      state.staffLedger2.searches = 0;
+      state.staffLedger2.fired = 0;
+    }
     return state.staffLedger2;
   }
   KP.hiresLedger = ledger;
+
+  // ---- the help wanted (v0.10.11): act on the market ---------------------
+  KP.openSearch = function (state, seatId) {
+    const HR = KP.C.HIRES;
+    const seat = HR.SEATS.find(x => x.id === seatId);
+    if (!seat) return { ok: false, reason: 'No such chair in this building.' };
+    if (state.staffSearch) return { ok: false, reason: 'One search at a time — the industry reads a company posting two as a company on fire.' };
+    if ((state.scenes || []).some(sc => sc.kind === 'theInterview')) {
+      return { ok: false, reason: 'A candidate is already in the building. Finish that meeting first.' };
+    }
+    state.seatSearchCooldowns = state.seatSearchCooldowns || {};
+    if (state.week - (state.seatSearchCooldowns[seatId] || -999) < HR.searchCooldown) {
+      return { ok: false, reason: 'The posting for that chair is still warm. The market noticed the first one.' };
+    }
+    if (state.budget < HR.searchCost) return { ok: false, reason: 'Recruiters bill up front — ' + HR.searchCost + '.' };
+    state.budget -= HR.searchCost;
+    if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -HR.searchCost);
+    state.staffSearch = { seatId, week: state.week };
+    state.seatSearchCooldowns[seatId] = state.week;
+    ledger(state).searches++;
+    KP.note(state, { kind: 'company', ind: 'searchPosted', priority: 'flavor',
+      text: 'The posting goes up for the ' + seat.label + ' chair — through the recruiters, the industry boards, and the version of the industry that is three group chats. Somebody will take the meeting within the week. Who shows up is the market’s answer to what this company currently looks like from outside.' });
+    return { ok: true };
+  };
+
+  KP.releaseSeat = function (state, seatId) {
+    const HR = KP.C.HIRES;
+    const S = seats(state);
+    const st = S[seatId];
+    const seat = HR.SEATS.find(x => x.id === seatId);
+    if (!seat) return { ok: false, reason: 'No such chair in this building.' };
+    if (!st) return { ok: false, reason: 'The chair is already open.' };
+    const severance = Math.max(HR.severanceMin,
+      Math.round((HR.hireCost[st.tier] || HR.hireCost.working) * HR.severanceMult));
+    if (state.budget < severance) return { ok: false, reason: 'The severance is ' + severance + ' and the account cannot cover a clean goodbye. An unclean one is not on the menu.' };
+    state.budget -= severance;
+    if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -severance);
+    delete S[seatId];
+    if (state.scenes) state.scenes = state.scenes.filter(sc =>
+      !(sc.kind === 'seatPoach' && sc.seatId === seatId));
+    const led = ledger(state);
+    led.fired++;
+    // letting a name the trades know go raises boardroom eyebrows
+    if (HR.REP_TIERS.indexOf(st.tier) >= HR.fireTrustTierMin) {
+      state.trust = KP.clamp(state.trust - 1, 0, 100);
+    }
+    KP.note(state, { kind: 'company', ind: 'seatReleased', priority: 'high',
+      text: st.name + ' and the company part ways — the ' + seat.label + ' chair is open, the severance is paid, and the building spends a week discussing it in doorways. Here is the part nobody will ever resolve: if the results turn around now, it proves you right; if they don’t, it proves nothing, because everything else changed too. Firing into the fog is still firing.' });
+    return { ok: true, severance };
+  };
 
   // ---- the people ------------------------------------------------------
   const FAM = ['Baek', 'Cha', 'Im', 'Joo', 'Gil', 'Weon', 'Pyo', 'Sa', 'Byun', 'Ma'];
@@ -216,15 +271,24 @@
     const HR = KP.C.HIRES;
     const led = ledger(state);
     const S = seats(state);
-    // a candidate takes the meeting — rep gated by the fame read
-    if (!(state.scenes || []).some(sc => sc.kind === 'theInterview') &&
-        rng.chance(HR.candidateChance)) {
+    // a candidate takes the meeting — rep gated by the fame read. A
+    // posted search (v0.10.11) guarantees the meeting; otherwise the
+    // market knocks on its own clock
+    const searching = state.staffSearch && !(state.scenes || []).some(sc => sc.kind === 'theInterview');
+    if (searching || (!(state.scenes || []).some(sc => sc.kind === 'theInterview') &&
+        rng.chance(HR.candidateChance))) {
       const fame = KP.fameRead ? KP.fameRead(state) : 0.5;
-      const open = HR.SEATS.filter(x => !S[x.id]);
-      const pool = open.length && rng.chance(0.7) ? open
-        : HR.SEATS.filter(x => !S[x.id] || state.week - (S[x.id].since || 0) > 30);
-      if (pool.length) {
-        const seat = pool[rng.int(0, pool.length - 1)];
+      let seat = null;
+      if (searching) {
+        seat = HR.SEATS.find(x => x.id === state.staffSearch.seatId) || null;
+        delete state.staffSearch;
+      } else {
+        const open = HR.SEATS.filter(x => !S[x.id]);
+        const pool = open.length && rng.chance(0.7) ? open
+          : HR.SEATS.filter(x => !S[x.id] || state.week - (S[x.id].since || 0) > 30);
+        if (pool.length) seat = pool[rng.int(0, pool.length - 1)];
+      }
+      if (seat) {
         const tiers = ['unknown', 'working'];
         if (fame >= HR.fameForKnown) tiers.push('known');
         if (fame >= HR.fameForName) tiers.push('a name');
@@ -232,7 +296,8 @@
         led.candidates++;
         KP.openScene(state, { kind: 'theInterview', cand, expiresWeek: state.week + 2 });
         inbox.push({ kind: 'company', ind: 'interviewSet', priority: 'high',
-          text: cand.name + ' is in the building about the ' + seat.label + ' chair — ' + cand.tier +
+          text: cand.name + ' is in the building about the ' + seat.label + ' chair — ' +
+            (searching ? 'answering the posting, ' : '') + cand.tier +
             ' by the industry’s file, priced accordingly. The interview will tell you who they are. It will tell you nothing about how good they are. That part costs a year.' });
       }
     }

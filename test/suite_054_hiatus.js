@@ -74,6 +74,7 @@ function debuted(seed) {
   KP.declareHiatus(state, g.id);
   for (let w = 0; w < 10; w++) KP.advanceWeek(state);
   g.demos = KP.generateDemos(state, KP.rngFor(state), g);
+  state.budget = Math.max(state.budget, 600);   // the practice-room invoice (v0.10.11) drains the ten dark weeks
   const r = KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
   t.ok(r.ok, 'the return locks');

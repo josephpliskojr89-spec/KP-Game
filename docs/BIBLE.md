@@ -5142,6 +5142,37 @@ Bands ruled: interviews .90, hires .80, calls .30, notes .90,
 friction .60. Battery 86/86, soak 40 clean, longhaul 9x620 clean,
 e2e 104.
 
+**As built (v0.10.11 — the help wanted + the practice-room
+invoice).** Two player reports in one sitting, both about agency
+over money. **The help wanted:** the building card grows two
+verbs. `KP.openSearch(seatId)` (12 up front, one posting at a
+time, an 8-week per-chair cooldown) guarantees the meeting: the
+weekly candidate roll is bypassed and next week's interview is
+for THAT chair, the letter opening "answering the posting" —
+who shows up is still the market's read of the company, and the
+fog on what they're worth never thins. `KP.releaseSeat(seatId)`
+fires into the fog: severance at half the reputation price
+(floor 4), pending poach calls die with the chair, and letting a
+KNOWN name go costs a point of boardroom trust — "if the results
+turn around now, it proves you right; if they don't, it proves
+nothing, because everything else changed too." The bot posts
+when flush and a chair sits empty (band ruled .85 after a 40/40
+measure); firing stays suite-held, a judgment call no bot should
+make. **The practice-room invoice** (owner: "I'm not seeing any
+debit from accounts as I advance"): upkeep was real but 0.25/wk
+netted silently against the +12 stipend inside one max() — a
+working mechanism that violated money-is-real. Now 0.75/wk
+(3/month per trainee), recorded to a new tracked 'trainees'
+stream ("Practice rooms & stipends") on the quarterly statement,
+with a one-shot high letter the first month the invoice outruns
+the stipend. A fresh label's ten trainees bill 30 against the 12
+— the invoice bites from month one, which is the point of a
+hard fresh start. The tightening exposed the one scene arm that
+could take the account below zero (the scandal statement, now
+"PR bills what's there") and the secret-protection weekly got
+the same clamp; six suites re-fixtured for the leaner idle
+years. Battery 90/90, soak 40 clean, longhaul 10x620, e2e 104.
+
 **As built (v0.10.2).** Two modules. `broadcast.js` — the platform
 is WeCast (invented). Asks arrive weekly (5%, one public-person
 scene at a time): the outgoing knock with the LIVE ask or — the
@@ -7977,3 +8008,15 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > and the house climbed anyway. §76 is COMPLETE; the §81 v0.10
 > roadmap is COMPLETE. Battery 90/90, soak 40 clean, longhaul
 > 10x620, e2e 104, lockstep 0.10.10. Rode to main.
+
+> **0.10.11 — the help wanted + the practice-room invoice.** The
+> owner asked for a posting verb and asked whether trainee
+> contracts actually charge. They did — invisibly, 1/month/
+> trainee swallowed by the stipend. Now: openSearch (guaranteed
+> meeting, posted chair, 12 + cooldown) and releaseSeat
+> (severance, trust cost on known+ names) on the building card;
+> upkeep tripled to 3/month/trainee and surfaced as the tracked
+> 'trainees' stream plus a first-time-over-stipend letter. Two
+> latent unguarded debits clamped (scandal statement, secret
+> protection). Battery 90/90, soak 40 clean, longhaul 10x620,
+> e2e 104, lockstep 0.10.11. Rode to main.

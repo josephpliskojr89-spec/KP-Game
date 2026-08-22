@@ -172,6 +172,60 @@ function pinInterview(s) {
   t.eq(KP.seatMult(s, sp.seatId), 1, 'and the room returns to baseline — was that a loss? the fog holds');
 }
 
+// ---- the help wanted (v0.10.11): act on the market ---------------------
+{
+  const s = world('sf-post');
+  s.scenes = (s.scenes || []).filter(sc => sc.kind !== 'theInterview');
+  t.ok(!KP.openSearch(s, 'nosuch').ok, 'no posting for a chair the building does not have');
+  const b0 = s.budget;
+  const r = KP.openSearch(s, 'anr');
+  t.ok(r.ok, 'the posting goes up');
+  t.eq(b0 - s.budget, KP.C.HIRES.searchCost, 'recruiters bill up front');
+  t.ok(s.books.cur.signings <= -KP.C.HIRES.searchCost, 'and the fee is a signings line, not a residual');
+  t.ok(!KP.openSearch(s, 'vocal').ok, 'one search at a time');
+  t.eq(s.staffLedger2.searches, 1, 'ledgered');
+  // the guarantee: no rng pin needed — the posting IS the meeting
+  KP.advanceWeek(s);
+  const sc = (s.scenes || []).find(x => x.kind === 'theInterview');
+  t.ok(sc && sc.cand.seatId === 'anr', 'somebody answers the posting within the week, for THAT chair');
+  t.ok(!s.staffSearch, 'the posting is consumed by the meeting');
+  t.ok((s.inbox || []).some(n => n.ind === 'interviewSet' && /answering the posting/.test(n.text)),
+    'the letter says they came for the ad');
+  KP.resolveScene(s, sc.id, 'pass');
+  t.ok(!KP.openSearch(s, 'anr').ok, 'the same chair cannot be re-posted while the first ad is warm');
+  t.ok(KP.openSearch(s, 'marketing').ok, 'a different chair can');
+}
+
+// ---- the firing (v0.10.11): severance, trust, the fog ------------------
+{
+  const s = world('sf-fire');
+  t.ok(!KP.releaseSeat(s, 'anr').ok, 'an open chair has nobody to let go');
+  s.seats.dance = { id: 'sfFIRE1', name: 'Byun Yeo-reum', tier: 'known', seatId: 'dance',
+    style: 'drill', warmth: 50, candor: 50, since: 1, resume: [] };
+  // a poach call pending on the same chair must not outlive the firing
+  s.scenes = s.scenes || [];
+  KP.openScene(s, { kind: 'seatPoach', seatId: 'dance', rivalName: 'Aozora Records', expiresWeek: s.week + 3 });
+  const t0 = s.trust, b0 = s.budget;
+  const rr = KP.releaseSeat(s, 'dance');
+  t.ok(rr.ok, 'the goodbye is clean');
+  t.eq(rr.severance, Math.round(KP.C.HIRES.hireCost.known * KP.C.HIRES.severanceMult),
+    'severance is half the reputation price');
+  t.eq(b0 - s.budget, rr.severance, 'and it leaves the account');
+  t.ok(!s.seats.dance, 'the chair opens');
+  t.eq(KP.seatMult(s, 'dance'), 1, 'the room returns to baseline');
+  t.eq(s.trust, t0 - 1, 'letting a KNOWN name go raises boardroom eyebrows');
+  t.ok(!s.scenes.some(x => x.kind === 'seatPoach' && x.seatId === 'dance'),
+    'the rival’s offer dies with the chair');
+  t.eq(s.staffLedger2.fired, 1, 'ledgered');
+  // below the trades' radar, no trust cost
+  s.seats.marketing = { id: 'sfFIRE2', name: 'Gil Sang-cheol', tier: 'unknown', seatId: 'marketing',
+    style: 'drill', warmth: 50, candor: 50, since: 1, resume: [] };
+  const t1 = s.trust;
+  const rr2 = KP.releaseSeat(s, 'marketing');
+  t.ok(rr2.ok && rr2.severance === KP.C.HIRES.severanceMin, 'an unknown gets the floor severance');
+  t.eq(s.trust, t1, 'and nobody outside the building notices');
+}
+
 // ---- determinism -------------------------------------------------------
 {
   const a = KP.newGame('sf-fork', null, { legacy: true });

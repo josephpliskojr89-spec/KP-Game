@@ -232,6 +232,7 @@ function makeStrained(state, p) {
   while (state.week <= Math.max((g.promoUntil || 0) + KP.C.COMEBACK.restWeeks, g.tourRestUntil || 0) && guard2++ < 30) KP.advanceWeek(state);
   guard2 = 0;
   while (!g.demos && guard2++ < 10) KP.advanceWeek(state);
+  state.budget = Math.max(state.budget, 600);   // the practice-room invoice (v0.10.11) drains the long ride
   const plan = KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
   t.ok(plan.ok, 'the comeback locks as four');

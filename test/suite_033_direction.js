@@ -15,6 +15,8 @@ function fresh(seed) {
   return { state, g: state.groups[0] };
 }
 function release(state, g, conceptId) {
+  // the practice-room invoice (v0.10.11) drains the idle years between locks
+  state.budget = Math.max(state.budget, 600);
   g.demos = KP.generateDemos(state, KP.rngFor(state), g);
   const demo = conceptId
     ? (g.demos.find(d => d.conceptId === conceptId) || g.demos[0])

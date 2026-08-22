@@ -354,6 +354,10 @@ const BANDS = {
   seatCalled:        { lo: 0.30, hi: 1.00, label: 'orgs whose staff got the outside call' },
   staffVoice:        { lo: 0.90, hi: 1.00, label: 'orgs that heard a staff note in their voice' },
   meshFelt:          { lo: 0.60, hi: 1.00, label: 'orgs whose corridor read named the friction' },
+  // measured 40/40 at v0.10.11 intro: legacy worlds open with the A&R and
+  // marketing chairs empty and the bot posts when flush — the floor says
+  // the verb stays reachable, not that every playstyle uses it
+  searchPosted:      { lo: 0.85, hi: 1.00, label: 'orgs that posted a help wanted' },
   demoLost:          { lo: 0.60, hi: 1.00, label: 'orgs that lost a circulating hook to a faster checkbook' },
   campHeld:          { lo: 0.50, hi: 1.00, label: 'orgs that held a song camp' },
   bondWorking:       { lo: 0.50, hi: 1.00, label: 'orgs whose house regular showed his best' },
@@ -593,6 +597,7 @@ const tally = {
   medCase: 0, medChronic: 0, flareFelt: 0,
   demoLost: 0, campHeld: 0, bondWorking: 0,
   interviewHeld: 0, seatHired: 0, seatCalled: 0, staffVoice: 0, meshFelt: 0,
+  searchPosted: 0,
   evalRun: 0, evalTalked: 0, breakdownRead: 0, nearMissFuel: 0, nudgeRun: 0,
   jpSigned: 0, jpDropped: 0, jpRungUp: 0, jpDomed: 0,
   circuitPlayed: 0, circuitFlopped: 0, enVersioned: 0,
@@ -1199,6 +1204,17 @@ for (let s = 0; s < SEEDS; s++) {
       if (state.budget > 150) KP.fanMeeting(state, g.id);
     });
 
+    // the help wanted (v0.10.11): a flush boss with an empty chair posts
+    // for it instead of waiting on the market's clock — firing stays a
+    // player judgment call (suite-held), the bot never releases a seat
+    if (KP.openSearch && !state.staffSearch &&
+        state.budget > KP.C.HIRES.searchCost + 150 &&
+        !(state.scenes || []).some(sc => sc.kind === 'theInterview')) {
+      const S2 = state.seats || {};
+      const openSeat = KP.C.HIRES.SEATS.find(x => !S2[x.id]);
+      if (openSeat) KP.openSearch(state, openSeat.id);
+    }
+
     // the touring desk (v0.6.8): when the calendar is open and the map
     // is warm, the bot takes the road — scale by fanbase, legs by warmth
     state.groups.forEach(g => {
@@ -1706,6 +1722,8 @@ for (let s = 0; s < SEEDS; s++) {
   if ((sfl.poachCalls || 0) >= 1) tally.seatCalled++;
   if ((sfl.notes || 0) >= 1) tally.staffVoice++;
   if ((sfl.meshNotes || 0) >= 1) tally.meshFelt++;
+  // the help wanted (v0.10.11): the bot posts when a chair sits empty
+  if ((sfl.searches || 0) >= 1) tally.searchPosted++;
   // the song market (v0.10.5): the ledger is durable
   const mkl = state.marketLedger || {};
   if ((mkl.lost || 0) >= 1) tally.demoLost++;

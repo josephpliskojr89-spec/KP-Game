@@ -70,7 +70,7 @@
       const g = KP.groupOf(state, p.id);
       const promoting = g && g.debuted && state.week <= (g.promoUntil || 0);
       let risk = S.riskBase + fameOf(state, p) * S.riskPerFame + (promoting ? S.riskPromo : 0);
-      if (p.flags.protectedLife) { risk *= S.protectFactor; state.budget -= S.protectCost; led.protectedWeeks++; }
+      if (p.flags.protectedLife) { risk *= S.protectFactor; state.budget = Math.max(0, state.budget - S.protectCost); led.protectedWeeks++; }
       if (rng.chance(risk)) {
         sec.revealed = true;
         sec.revealedWeek = state.week;

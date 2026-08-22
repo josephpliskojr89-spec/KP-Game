@@ -85,6 +85,7 @@ function ride(state, g, weeks) {
 {
   const mk = (seed, pacing, leadership) => {
     const { state, g } = debuted(seed);
+    state.budget = 600;   // the practice-room invoice (v0.10.11) drains the ride
     g.popularity = 60;
     KP.regionsOf(g).jp = 35;   // a market warm enough for theaters
     state.people[g.roles.leader].personality.leadership = leadership;
