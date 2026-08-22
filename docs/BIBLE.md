@@ -4263,7 +4263,7 @@ door-sized board asserted in the browser.
 
 ## §76 The small label (PLANNING — approved for write-up, builds await the call)
 
-Four mechanisms, one through-line: **being small has to feel
+Five mechanisms, one through-line: **being small has to feel
 small.** The doors gave us hard starts; the network gave us a
 scouting gap; but the RELEASE side still treats a one-room label
 like a major waiting to pop. Owner, across two sittings:
@@ -4310,29 +4310,64 @@ something" cashes out to: the wall is why it is hard, the jump is
 why it matters. Majors never feel this system — their fame starts
 above it. Blank/fresh doors live inside it for years.
 
-**D. The gig ladder — procedural small bookings.** New module
-(bookings.js): a weekly procedural booking board, offer tier keyed
-INVERSELY to fame. Tier 0 (unknown): the elementary school
-assembly, the wedding stage, the mall opening, the amateur
-sporting event, the small theater — with the flyer week as a real
-verb: spend the group's week papering the neighborhood to fill
-the room. Tier 1 (rising): university festivals, local radio,
-the club circuit, regional festival opening slots. Tier 2: the
-existing majors' circuit (music shows, festivals, tours) takes
-over and small offers dry up — the ladder retires itself. Each
-booking: small fee, small exposure (followers, regional
-popularity trickle, a breath of hype), fatigue, and a feed line
-in the gig's own voice (content law: the comedy is the situation,
-never the members). **The phone-camera lottery:** every played
-gig rolls a tiny viral chance scaled by stage quality and star
-presence — and deliberately NOT damped by fame or networkRead.
-The phone camera does not care who you are; that is the point.
-It is the one channel obscurity cannot close, which makes it the
-small label's lottery ticket and the wall's most cinematic valve.
-**Music-show gating moves into the ladder:** below the fame bar
-the music shows do not book an unknown label at all (today they
-auto-run for everyone — the exact "built for majors" complaint).
-The first music-show booking becomes a milestone the feed marks.
+**D. The booking pile — a comprehensive procedural gig economy.**
+Owner: *"there should be a whole pile of bookings from the lowest
+rung of fame up, all generated as needed."* New module
+(bookings.js): a procedural OFFER GENERATOR, not a fixed list — a
+grammar of venue × occasion × region × season that mints concrete,
+named engagements on demand, always more than the group can take,
+so choosing is the game. The rungs, bottom to top: **rung 0, the
+anything-for-exposure circuit** — the elementary school assembly,
+the wedding stage, the shopping-mall opening, the amateur sporting
+event, the retirement-home show, the local product launch, the
+small theater with the flyer week as a real verb (spend the
+group's week papering the neighborhood to fill the room); **rung
+1, the working circuit** — university festivals, local radio
+guestings, the club circuit, busking permits, cable variety one-
+offs, regional festival opening slots, bookstore fan-signs; **rung
+2, the industry circuit** — showcase halls, brand stages, radio
+tours, music-show debuts; **rung 3** — the existing majors'
+machinery (music shows weekly, festivals, tours) takes over and
+the pile thins out above you: the ladder retires itself. Offers
+carry a fee (sometimes negative — you PAY for the theater), an
+exposure profile (followers, regional popularity, a breath of
+hype, occasionally fandom), fatigue, a calendar week, and a feed
+line in the gig's own voice (content law: the comedy is the
+situation, never the members). Seasonality keys the grammar to
+the year that already exists — wedding season, school festivals
+in spring and fall, university season, sports calendars.
+**The phone-camera lottery:** every played gig rolls a tiny viral
+chance scaled by stage quality and star presence — deliberately
+NOT damped by fame or networkRead. The phone camera does not care
+who you are; that is the point. It is the one channel obscurity
+cannot close. **Music-show gating moves into the ladder:** below
+the fame bar the music shows do not book an unknown label at all
+(today they auto-run for everyone — the exact "built for majors"
+complaint). The first music-show booking is a milestone the feed
+marks.
+
+**E. The campaign — promotion is played, not set.** Owner:
+*"promotion of a debut or comeback itself becomes a game within
+the game, rather than just choosing a few settings and advancing.
+how you promote matters. how much you commit to your group
+matters."* Locking a release opens a CAMPAIGN over the run-up and
+promo weeks: each week the booking pile deals era-flavored offers
+alongside campaign verbs (flyer week, showcase, fan-sign, radio
+push, content drop), and the group's limited weekly slots get
+placed by hand — schedule Tetris under fatigue, budget, and
+calendar pressure. Campaign work accrues MOMENTUM, the era's
+earned-media truth: momentum feeds §77 buildup, converts into
+reception at resolution, and is the legitimate small-label route
+UNDER the obscurity wall — paid promo converts through fame (the
+wall's tooth #1), but a ground campaign converts through work.
+Commitment is measured, not declared: a label that grinds the
+weeks lands loud; a label that clicks advance gets the quiet
+landing it earned. The old promo tiers survive as the PAID layer
+(the ad buy) — the campaign is the EARNED layer stacked on top,
+and at low fame the earned layer is the only one that pays. The
+bot plays a simple campaign (take the best offer each week) so
+soak keeps measuring honest worlds; the human game is in taking
+the RIGHT ones.
 
 **A. Contract negotiation** (prior sitting, shape held): signing
 stops being one click. Prospects counter at the table — terms,
@@ -4344,14 +4379,19 @@ from Seoul — cheaper everything, a home-region popularity floor,
 a weaker network read, and a longer road to the capital circuit.
 Rides the regions map that already exists.
 
-**Sequencing (delegated judgment):** C + D are ONE release — the
-wall without the valves is just frustration, the ladder without
-the wall is just flavor. They ship together as the next major
-build on approval. A and B follow as their own builds. Interlocks
-noted for build time: fameRead feeds §77 expectationRead's rep
-term naturally; the 0.9.35.2 viral-visibility damp stays on
+**Sequencing (delegated judgment):** C + D + E are ONE release —
+the wall without the valves is just frustration, the pile without
+the campaign is just flavor, the campaign without the wall has
+nothing to push against. Together they are the biggest build since
+the network; it ships as the next major release on approval, with
+the campaign UI as its own full screen (the era desk). A and B
+follow as their own builds. Interlocks noted for build time:
+fameRead feeds §77 expectationRead's rep term naturally; momentum
+feeds §77 buildup; the 0.9.35.2 viral-visibility damp stays on
 trainee clips (network-driven) but must NOT apply to gig-cam
-rolls (fame-independent by design).
+rolls (fame-independent by design); tours/festivals/music shows
+keep their own systems — the pile generates AROUND them, never
+duplicates them.
 
 ## §77 The public eye (v0.9.36 — SHIPPED) — the industry out loud
 
