@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.12',
+    VERSION: '0.10.13',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1824,14 +1824,20 @@
         cost: 40, cooldownWeeks: 30, baseMinted: 3, perNetwork: 5,
         polishBump: 5, observations: 1,
       },
-      CASTOFF: {               // the castoff market (v0.10.12, §82 C) —
-        // owner: "released trainees from other companies… should all at
-        // least be briefly available to look at, even if some choose to
-        // retire." Rival culls stop being a counter decrement.
-        cullChance: 0.55, cullMax: 2,   // a seasonal cull sheds real files
+      CASTOFF: {               // the castoff market (v0.10.12, §82 C;
+        // reworked v0.10.13) — owner: "if it's public knowledge that
+        // Aurum released 3 trainees, it's public knowledge that they're
+        // at least theoretically available." EVERY announced cut boards.
         debutChance: 0.45,              // the one who missed the lineup by a hair
         polishBump: 6, ageMin: 17, ageMax: 21, obs: 2,
         window: 10,                     // weeks on the board — the market moves fast on known quantities
+        // v0.10.13: some are done with the industry — the offer gets
+        // made, the offer gets declined, the file leaves the board
+        doneChance: 0.30,
+        // the majors' castoffs: trained at a big agency, known to the
+        // public, and they sign on THEIR terms — debut in writing, at
+        // a premium
+        majorPrestige: 55, majorPremium: 1.4, majorHype: [8, 18],
       },
       schoolChance: 0.08,      // the school pipeline keeps walking in,
       schoolPerNetwork: 0.12,  // wider for the connected house

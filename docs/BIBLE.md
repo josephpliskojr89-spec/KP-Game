@@ -5485,6 +5485,31 @@ Both surgery sites (lineupSurgery, graduateToSolo) now clear roles
 when the last one leaves; regression in suite_045. Battery 90/90,
 soak 40 clean, longhaul 10x620, e2e 104.
 
+**As built (v0.10.13 — the released).** Owner, on seeing v0.10.12:
+"I want every named trainee cut to show up… if it's public knowledge
+that Aurum released 3 trainees, it's public knowledge that they're at
+least theoretically available. and they come with the debut guaranteed
+contract demand and a higher price, since they've already trained at
+a bigger agency… the majors are trainees the public knows." Three
+changes, all riding existing machinery. **Every cut boards:** the
+seasonal cull mints ALL of the announced number (was 55% for 1–2) —
+board-cap respected, and the note says when the board only had room
+for some. **The decline:** ~30% of castoffs are done with the
+industry — decided by hash at mint, revealed only at the OFFER:
+signProspect returns the meeting where she says thank you and goes
+home, the file leaves the board, no money moves (rivalLedger
+.castoffGone). The file never hints; some availability was always
+only theoretical. **The majors' terms:** castoffs from prestige-55+
+rivals arrive half-famous (hype 8–18, agency on the file), bill a
+1.4x signing premium (the coaching a bigger company paid for), and
+counterOf returns an UNCONDITIONAL debutBy demand — no fame gate, no
+talent gate, because the demand is about her history, not your size —
+enforced by the §76 A table clause the game already knows how to keep
+and break. The washout channel stays as-is: that IS the small-agency
+stream; the majors' cuts are the ones the public knows. Soak:
+castoffSeen 40/40 (band floor 0.70 holds). Battery 90/90, longhaul
+10x620, e2e 104.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -8150,3 +8175,14 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > group emptied by its last departure) — fixed at both surgery
 > sites. Battery 90/90, soak 40 clean, longhaul 10x620, e2e 104,
 > lockstep 0.10.12. Rode to main.
+
+> **0.10.13 — the released.** The castoff market grows teeth the
+> owner asked for by name: every announced rival cut now boards
+> (public knowledge = theoretical availability), roughly a third of
+> them decline the offer at the meeting because they are done with
+> the industry (hash-decided, revealed only when you ask), and the
+> majors' castoffs arrive half-famous with an unconditional
+> debut-in-writing demand plus a 1.4x premium — the table clause
+> machinery enforces the promise. Battery 90/90, soak 40 clean
+> (castoffSeen 40/40), longhaul 10x620, e2e 104, lockstep 0.10.13.
+> Rode to main.

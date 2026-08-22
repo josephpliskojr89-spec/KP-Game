@@ -268,6 +268,13 @@
     KP.takeReads(state, p);
     p.castoffUntil = state.week + CF.window;
     if (opts.hype) p.hype = opts.hype;
+    // the majors' castoffs (v0.10.13): trained at a big agency, known
+    // to the public — the file says so, the price and the demand follow
+    if (opts.major) {
+      p.castoffMajor = 1;
+      if (!p.hype) p.hype = rng.int(CF.majorHype[0], CF.majorHype[1]);
+    }
+    if (opts.from) p.castoffFrom = opts.from;
     p.history.push({ week: state.week, text: opts.historyText });
     return p;
   };

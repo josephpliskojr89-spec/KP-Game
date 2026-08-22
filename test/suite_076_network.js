@@ -151,6 +151,55 @@ const N = () => KP.C.NETWORK;
     'three years of rival evaluations shed real files (' + ((s2.rivalLedger || {}).castoffs || 0) + ')');
 }
 
+// ---- the released (v0.10.13): every cut, the decline, the majors' terms
+// owner: "if it's public knowledge that Aurum released 3 trainees, it's
+// public knowledge that they're at least theoretically available… they
+// come with the debut guaranteed contract demand and a higher price"
+{
+  const CF = KP.C.NETWORK.CASTOFF;
+  const s = KP.newGame('nw-rel', null, { door: 'current' });
+  s.budget = 900;
+  const rng = KP.rngFor(s);
+  const mintUntil = (major, wantDone) => {
+    for (let i = 0; i < 40; i++) {
+      const c = KP.mintCastoff(s, rng, { source: 'Aurum castoff', major, from: 'Aurum',
+        historyText: 'Cut at Aurum’s seasonal evaluation.' });
+      if (c && (KP.hash01([s.seed, c.id, 'castoffDone'].join('|')) < CF.doneChance) === wantDone) return c;
+    }
+    return null;
+  };
+  // the majors' terms
+  const pc = mintUntil(true, false);
+  s.rngState = rng.state();
+  t.ok(pc && pc.castoffMajor === 1 && (pc.hype || 0) >= CF.majorHype[0],
+    'a major’s castoff arrives half-famous, agency on the file');
+  const plain = Object.assign({}, pc); delete plain.castoffMajor;
+  t.eq(KP.signCost(s, pc), Math.round(KP.signCost(s, plain) * CF.majorPremium),
+    'the price reflects who paid for the coaching');
+  const r1 = KP.signProspect(s, pc.id);
+  t.ok(!r1.ok && r1.counter && r1.counter.kind === 'debutBy' && /Aurum/.test(r1.counter.text),
+    'the demand is unconditional: the debut, in writing, from the company that cut her');
+  t.ok(KP.signProspect(s, pc.id, { answer: 'accept' }).ok &&
+    s.people[pc.id].clause && s.people[pc.id].clause.kind === 'debutBy',
+    'accepting the terms signs her with the clause the table already knows how to enforce');
+  // the decline
+  const rng2 = KP.rngFor(s);
+  const done = (() => {
+    for (let i = 0; i < 40; i++) {
+      const c = KP.mintCastoff(s, rng2, { source: 'Nabi Ent. castoff', from: 'Nabi Ent.', historyText: 'Cut.' });
+      if (c && KP.hash01([s.seed, c.id, 'castoffDone'].join('|')) < CF.doneChance) return c;
+    }
+    return null;
+  })();
+  s.rngState = rng2.state();
+  t.ok(!!done, 'fixture: a castoff who is done with the industry');
+  const b0 = s.budget;
+  const rd = KP.signProspect(s, done.id);
+  t.ok(!rd.ok && rd.gone && s.budget === b0, 'the offer is declined and no money moves');
+  t.ok(!s.people[done.id], 'she went home — availability was always only theoretical');
+  t.eq(s.rivalLedger.castoffGone, 1, 'ledgered');
+}
+
 // ---- old saves: channel-less files read as public ---------------------
 {
   const s = KP.newGame('nw-compat', null, {});

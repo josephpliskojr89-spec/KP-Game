@@ -144,8 +144,15 @@ function openCalendar(state, g) {
   const mate = state.rivals[0].acts[0];
   mate.retired = false;
   mate.debutWeek = g.debutWeek;
+  mate.popularity = Math.max(mate.popularity || 0, 40);   // the lifecycle must not disband the fixture
   let guard = 0;
-  while (!state.inbox.some(n => n.ind === 'debutClass') && guard++ < 120) KP.advanceWeek(state);
+  while (!state.inbox.some(n => n.ind === 'debutClass') && guard++ < 120) {
+    // v0.10.13 stream shift: the world can retire the classmate mid-ride
+    // — the fixture's claim NEEDS a living same-year act, so keep it one
+    mate.retired = false;
+    mate.debutWeek = g.debutWeek;
+    KP.advanceWeek(state);
+  }
   const note = state.inbox.find(n => n.ind === 'debutClass');
   t.ok(note, 'award season lines the class up (needs a same-year rival debut)');
   if (note) t.ok(/debut class/.test(note.text) && note.text.includes(g.name), 'the class includes the group');

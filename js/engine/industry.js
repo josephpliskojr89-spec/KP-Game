@@ -442,17 +442,19 @@
           state.rivalLedger = state.rivalLedger || { culls: 0, namedCuts: 0 };
           state.rivalLedger.culls++;
           pushMove(rival, 'Cut ' + cut + ' trainee' + (cut === 1 ? '' : 's'));
-          // the castoff market (v0.10.12, §82 C): the cull stops being a
-          // counter decrement — some of the cut land on the open board,
-          // briefly, with the company's name on the file. The rest went
-          // home to think; the words carry them.
+          // the castoff market (v0.10.12, §82 C; reworked v0.10.13) —
+          // owner: "if it's public knowledge that Aurum released 3
+          // trainees, it's public knowledge that they're at least
+          // theoretically available." EVERY announced cut becomes a
+          // file. Whether they'll actually sign, you learn at the
+          // offer — some are done with the industry.
           const CF = KP.C.NETWORK.CASTOFF;
+          const major = (rival.prestige || 40) >= CF.majorPrestige;
           let boarded = [];
-          if (KP.mintCastoff && rng.chance(CF.cullChance)) {
-            const k = Math.min(cut, rng.int(1, CF.cullMax));
-            for (let ci = 0; ci < k; ci++) {
+          if (KP.mintCastoff) {
+            for (let ci = 0; ci < cut; ci++) {
               const pc = KP.mintCastoff(state, rng, {
-                source: rival.short + ' castoff',
+                source: rival.short + ' castoff', major, from: rival.short,
                 historyText: 'Cut at ' + rival.short + '’s seasonal evaluation. Years of practice rooms, one meeting.',
               });
               if (pc) boarded.push(pc);
@@ -461,9 +463,12 @@
           }
           if (boarded.length) {
             notes.push({ kind: 'scouting', ind: 'castoffs', priority: 'high',
-              text: rival.short + '’s seasonal evaluation cut ' + cut + ' from the trainee floor. ' +
-                boarded.map(pc => KP.displayName(pc) + ', ' + pc.age).join(' and ') +
-                (boarded.length === 1 ? ' is' : ' are') + ' taking meetings — trained, dated files, and a short window before the market or the quiet takes them. The rest went home to think about it, and some of them will stay home.' });
+              text: rival.short + '’s seasonal evaluation cut ' + cut + ' from the trainee floor' +
+                (boarded.length < cut ? ' — the board only had room for the files that fit' : '') + ': ' +
+                boarded.map(pc => KP.displayName(pc) + ', ' + pc.age).join('; ') + '. ' +
+                (major
+                  ? 'These are ' + rival.short + '-trained names the public already half-knows — they take meetings on THEIR terms: the debut in writing, at a price that reflects who paid for the coaching. And some of them are done with all of it, which you find out when you make the offer.'
+                  : 'Trained, dated files, and a short window before the market or the quiet takes them. Some of them are already done with the industry — the file does not say which.') });
           } else if (cut >= R.cullNoteAt) {
             notes.push({ kind: 'industry', text: rival.short + '’s seasonal evaluation cut ' +
               cut + ' from the trainee floor. The company calls it aligning the room with the roadmap. The room calls it Tuesday.' });
@@ -554,6 +559,8 @@
           const pc = KP.mintCastoff(state, rng, {
             source: rival.short + ' — final lineup cut',
             hype: rng.int(6, 14),
+            major: (rival.prestige || 40) >= KP.C.NETWORK.CASTOFF.majorPrestige,
+            from: rival.short,
             historyText: 'Trained for ' + rival.short + '’s ' + act.name + ' debut and missed the final lineup in the last round. Watched the showcase from the practice room.',
           });
           if (pc) {

@@ -26,6 +26,9 @@
     // the holdout premium (v0.9.33): the market says she can wait,
     // and the price says so whether or not she takes your call
     if (KP.holdoutOf(state, person)) cost = Math.round(cost * KP.C.HOLDOUT.premium);
+    // the majors' castoffs (v0.10.13): trained at a bigger agency, and
+    // the price knows it — the years of coaching are on the invoice
+    if (person.castoffMajor) cost = Math.round(cost * KP.C.NETWORK.CASTOFF.majorPremium);
     // the regional founding (v0.10.10): everything is cheaper away
     // from Seoul, signing bonuses included
     if (KP.homeCostMult) cost = Math.round(cost * KP.homeCostMult(state));
@@ -120,6 +123,16 @@
     if (!T || p.status !== 'prospect') return null;
     if (p.channel === 'application') return null;
     if (KP.holdoutOf && KP.holdoutOf(state, p)) return null;
+    // the majors' castoffs (v0.10.13): the demand is about THEIR
+    // history, not your size — no fame gate, no talent gate. They
+    // trained years at a big agency; they sign with the debut in
+    // writing or they do not sign
+    if (p.castoffMajor) {
+      return { kind: 'debutBy', price: 0, text: KP.fillPro(
+        KP.displayName(p) + ' trained for years at ' + (p.castoffFrom || 'a major') +
+        ' and got cut one meeting from a stage. {She} is not bitter; {she} is SPECIFIC: the debut goes in the contract — ' +
+        T.debutByWeeks + ' weeks, in writing, or {she} walks free — and the fee reflects the coaching a bigger company already paid for. Take the terms or leave the file.', p) };
+    }
     if (KP.fameRead && KP.fameRead(state) >= T.fameBar) return null;
     const avg = KP.C.TALENTS.reduce((s2, d) =>
       s2 + KP.perceived(state, p, d, null), 0) / KP.C.TALENTS.length;
@@ -145,6 +158,24 @@
   KP.signProspect = function (state, personId, opts) {
     const p = state.people[personId];
     if (!p || p.status !== 'prospect') return { ok: false, reason: 'No longer available.' };
+    // the castoff who is done (v0.10.13) — owner: "you might just make
+    // an offer and they turn it down as they're leaving the industry."
+    // Public availability was always only theoretical for some of them.
+    // Hash, not rng: the answer was decided before you asked.
+    if (p.castoffUntil &&
+        KP.hash01([state.seed, p.id, 'castoffDone'].join('|')) < KP.C.NETWORK.CASTOFF.doneChance) {
+      state.rivalLedger = state.rivalLedger || { culls: 0, namedCuts: 0 };
+      state.rivalLedger.castoffGone = (state.rivalLedger.castoffGone || 0) + 1;
+      const name = KP.displayName(p);
+      const reason = KP.fillPro(name + ' took the meeting to say thank you. ' +
+        '{She} listened to the whole offer, folded the printout in half, and said {she} promised {herself} that the last evaluation was the last one — {she} is going home. ' +
+        'The file comes off the board. Some availability was always only theoretical.', p);
+      (state.rivals || []).forEach(r => { if (r.interest) delete r.interest[p.id]; });
+      state.prospects = state.prospects.filter(id => id !== p.id);
+      delete state.people[p.id];
+      KP.note(state, { kind: 'scouting', priority: 'normal', text: reason });
+      return { ok: false, gone: true, reason };
+    }
     let cost = KP.signCost(state, p);
     if (state.budget < cost) return { ok: false, reason: 'The budget cannot cover this signing.' };
     if (KP.signingsCapped(state) && state.signingsUsed >= state.signingsAllowed) {
