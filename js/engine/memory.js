@@ -68,6 +68,8 @@
       case 'underDelivered': return group() + ' debuted under the bar the company itself raised. The write-ups keep the receipts.';
       case 'breakthrough': return group() + ' charted from a label nobody had heard of. The industry keeps a shelf for stories like that.';
       case 'sellsLikeTitan': return group() + ' sells albums like a fandom twice its chart size. The wallets are the story.';
+      case 'weatheredStory': return idol() + ' weathered a story and kept working. The file shows the scar; the career shows the shape.';
+      case 'stoodByHer': return 'When the story came for ' + idol() + ', the company stood in front of it. The whole roster watched which way the label leaned.';
       case 'firstSettlement': return group() + ' reached first settlement — the career became a job that pays. The members remember the date better than any chart peak.';
       case 'digitalDarling': return group() + ' streams everywhere and sells modestly — the general public’s pick, the light-fandom profile.';
       case 'hitStreak': return rivalAct() + ' has not missed in three releases. The streak is the story.';
@@ -176,6 +178,8 @@
       case 'overDelivered': return 'The write-ups agree on the rarest verdict: ' + group() + ' EXCEEDED the expectations the announcement set. Expectations met get forgotten by Friday. Expectations beaten get remembered by everyone, including the next announcement.';
       case 'underDelivered': return 'The verdict nobody in the building says out loud: ' + group() + ' debuted under the bar the company set for itself. The industry files this next to the announcement, where both will be read together forever.';
       case 'breakthrough': return 'The story of the season: ' + group() + ' put up a real number from a label the coverage had to look up first. Doors that screened this company’s calls now ring back. Nobody forgets which venues took the booking BEFORE the clip.';
+      case 'weatheredStory': return 'The file on ' + idol() + ' now includes a weathered story — the industry euphemism for a week that would have ended a thinner career. Survival is a credential here; everyone who books {her} knows {she} has it.';
+      case 'stoodByHer': return 'The industry keeps a short list of companies that stood in front of a story instead of behind it, and ' + state.company.short + ' is on it now — for ' + idol() + ', at real cost, on the record. Trainees ask about that list by name.';
       case 'firstSettlement': return 'The milestone the industry undercovers and the members never forget: ' + group() + ' reached FIRST SETTLEMENT. Every won of the practice years and the productions has been paid back, and from here the share is theirs. Careers divide into before this meeting and after it.';
       case 'sellsLikeTitan': return 'The trades ran the comparison chart: ' + group() + ' moves physical albums at a weight class above its streaming numbers. Translation the whole industry understands — the fandom is organized, funded, and buying the LINE, not the song. Concert promoters call companies like this first.';
       case 'digitalDarling': return 'The profile is now official: ' + group() + ' is the general public’s act — everywhere on streaming, modest on the shelves. It is the harder profile to monetize and the easier one to keep: nobody organizes a bulk-buy, and nobody organizes a boycott either.';

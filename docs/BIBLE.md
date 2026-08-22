@@ -4884,7 +4884,51 @@ natural order is §78 A (the channel), then either §79 or §78 B by
 feel at the time. §76 B (regional founding) remains ready. All
 await the call.
 
-## §78 The person in public (PLANNING — approved for write-up, builds await the call)
+**As built (v0.10.2).** Two modules. `broadcast.js` — the platform
+is WeCast (invented). Asks arrive weekly (5%, one public-person
+scene at a time): the outgoing knock with the LIVE ask or — the
+creative ones — the CHANNEL deck; low professionalism (<32)
+sometimes does not ask, and the unsanctioned live reaches the desk
+after the fact (slide / mandatory training / reprimand — sliding
+emboldens, reprimand chills the mic for a year and lands in the
+directed ledger). Answers: allow / media training first (cost 4,
+gaffe rate halved for life) / decline (morale, keptOffline
+directed, the ask returns). A running channel uploads weekly:
+follower drip personality-scaled and — the law — fame-UNdamped
+(the camera does not care who you are; the drip math is
+suite-asserted identical across doors); upload virals (4%,
+presence-scaled) mint hype and recordViral; every mic rolls the
+GAFFE (base 3.5%, professionalism/resilience-priced,
+training-halved, lives run 2x hot): on a KNOWN face (publicEye or
+pop ≥ 55) it is priority-high news, the gaffe discourse storm, and
+active deals cooling at 40% — on an unknown it reads as candor and
+does small charming numbers, teaching the lesson for later.
+"Really help a small unknown, really hurt a major," mechanized.
+`scandal.js` — the story breaks rare (base 0.0009/person-week x
+professionalism/resilience pricing x exposure surface: channel,
+deals, gigs each add 35%), named at ALTITUDE from a four-shape
+deck, severity 1-4 (58/25/12/5, publicEye biases up, fame < 0.30
+caps at 2 — the unknown label's story dies on page four). The
+response desk: statement (buy the frame) / silence / deny — the
+deny trap re-breaks at 35% inside 12 weeks, +1 severity, trust
+−3, "the second story has an author." Severity 2 cools every deal
+and dents popularity; 3 forces the hiatus nobody planned
+(declareMemberBreak + a 12-week clock that auto-returns); 4 opens
+THE CHOICE: protect (cost 40, trust −4, fandom −8, the stoodByHer
+narrative the whole roster reads) or release (status released,
+the empty chair, fandom −15, the four-sentence statement) — and
+an unanswered choice answers itself, worst. Survivable stories
+age off with a weatheredStory scar narrative. Rivals draw from
+the same deck weekly (1.2%). Census ruled first soak: mic 40/40
+(floor 0.80), gaffes 36/40 (0.50), stories 31/40 (0.40 — one
+every ~3-4 label-years), forced 15/40 ([0.10,0.90]). Repairs:
+suite_014's absolute floor retired for the directional law (the
+empirical bar cost a repair per release), suite_022 accepts a
+rival signing the returned washout off the OPEN board, suite_049
+pen count is career-cumulative. Battery 82/82, soak 40 clean,
+longhaul 9x620 clean, e2e 103. No migration.
+
+## §78 The person in public (A+B SHIPPED v0.10.2 — WeCast + the scandals)
 
 Owner: *"let's begin planning to give trainees and idols even more
 personality. they might ask for permission to go live or to start a
@@ -7552,3 +7596,18 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > quarterly notes re-phased every legacy stream. Battery 81/81,
 > soak 40 clean, longhaul 9x620, e2e 103, lockstep 0.10.1. Rode
 > to main.
+
+> **0.10.2 — the person in public (§78 A+B).** WeCast and the
+> scandals. broadcast.js: the live ask, the channel deck, the
+> unsanctioned live the company hears about after; growth
+> fame-UNdamped (the camera does not care who you are), the gaffe
+> blast scaled by the public eye — candor at a no-name, a sponsor
+> call at a major. scandal.js: stories named at altitude from a
+> four-shape deck, severity 1-4, the response desk with the deny
+> trap, the forced hiatus nobody planned, and THE CHOICE — protect
+> her at real cost or release her into a four-sentence statement;
+> the unknown label's story still dies on page four. Rivals draw
+> the same deck. Personality prices everything — the owner's
+> stated goal. Battery 82/82, soak 40 clean (mic 40/40, stories
+> one per ~3-4 label-years), longhaul 9x620, e2e 103, lockstep
+> 0.10.2. Rode to main.

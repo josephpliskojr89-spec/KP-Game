@@ -905,6 +905,18 @@
         { persona: 'press', text: 'Another cycle, another donation-bin photo. The sign-round economy converts devotion into first-week numbers, and the receipts pile up — literally — where ' + co + ' does not have to look at them.' },
         { persona: 'stan', text: 'defending the chodong AND posting the dumping photo is not hypocrisy, it is literacy. both numbers are true. ' + co + ' set both of them' },
       ],
+      gaffe: [
+        { persona: 'casual', text: 'the ' + who + ' clip discourse is at the stage where nobody arguing has watched the clip. ' + co + ' will release a statement into this exact void' },
+        { persona: 'fan', text: 'we have the full context for the ' + who + ' clip and are distributing timestamps like field medics. the caption lied. captions always lie' },
+        { persona: 'press', text: 'The clip of what ' + who + ' said is doing the numbers the full broadcast never did. ' + co + '’s next decision matters more than her sentence did.' },
+        { persona: 'stan', text: 'ratio the caption, stream the VOD, do not feed the quote posts. the ' + who + ' defense protocol is ACTIVE and it is organized' },
+      ],
+      scandal: [
+        { persona: 'press', text: 'The ' + who + ' story is in its second cycle and ' + co + '’s response desk is writing under the industry’s oldest deadline: the frame belongs to whoever takes it first.' },
+        { persona: 'casual', text: 'the ' + who + ' story is everywhere and confirmed nowhere, and the internet has already held the trial. ' + co + '’s statement will be read as a verdict either way' },
+        { persona: 'fan', text: 'holding the line on the ' + who + ' story until something is actually confirmed. the line is quiet tonight. the line holds anyway' },
+        { persona: 'stan', text: 'the fandom rooms are split over the ' + who + ' story and the split is the real damage. whatever ' + co + ' says next decides which room grows' },
+      ],
       fancam: [
         { persona: 'stan', text: 'the ' + who + ' fancam has TWO MILLION views and I contributed forty of them personally. no regrets' },
         { persona: 'casual', text: 'the algorithm decided everyone watches ' + who + ' today and honestly? the algorithm was right' },

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.1',
+    VERSION: '0.10.2',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -813,6 +813,11 @@
         // machinery — the dumping-photo story aims at the COMPANY
         albumDump: { label: 'album-dumping story', negative: true, start: [25, 50],
           actions: ['statement', 'meme'] },
+        // the person in public (v0.10.2): she said a thing; a story broke
+        gaffe: { label: 'the clip of what she said', negative: true, start: [20, 45],
+          actions: ['statement', 'meme'] },
+        scandal: { label: 'the story', negative: true, start: [35, 60],
+          actions: ['statement', 'meme'] },
         // the bad blood (v0.9.21): the fandom throws the gasoline
         didntStand: { label: 'distance watch', negative: true, start: [25, 45],
           actions: ['statement', 'meme'] },
@@ -1434,6 +1439,46 @@
       titanSkew: 2.2, rumorSkew: 0.45,  // phys/dig ratio bars for the identity story
       FANBASE: { popPow: 1.55, popMult: 3.0, socialRoot: 12,
         lastMult: 0.25, preorderShare: 0.55 },
+    },
+    // the person in public (v0.10.2, §78 A) — "they might ask for
+    // permission to go live or to start a video channel... things that
+    // could really help a small unknown and really hurt a major group
+    // depending on what's said." The platform is WeCast (invented).
+    // The LAW: her own voice is a lever whose throw scales with how
+    // known she is — growth is fame-UNdamped (phone-camera law), the
+    // gaffe blast scales with the public eye.
+    CAST: {
+      askChance: 0.05,           // weekly, when somebody eligible wants the mic
+      askConfidence: 55, askWarmth: 50,  // who wants it: the outgoing
+      unsancProfessionalism: 32, // below this, she sometimes just... goes live
+      unsancChance: 0.20,        // of the ask that week being unsanctioned instead
+      trainCost: 4, trainGaffeMult: 0.5, // media training halves the lottery
+      declineMorale: 3,          // "the company does not trust me"
+      liveFollowers: 2500,       // a one-off live, personality-scaled
+      drip: 700,                 // weekly channel growth, personality-scaled
+      viralChance: 0.04,         // an upload breaks out (fame-UNdamped)
+      gaffeBase: 0.035,          // weekly, scaled by personality + training
+      gaffeMoraleKnown: 5, gaffeCharm: 400,  // hurt when known; charming when not
+      hypePerViral: 5,
+    },
+    // the person in public (v0.10.2, §78 B) — the scandals. The house
+    // philosophy holds: the sim names the SHAPE at altitude, never the
+    // contents. Consequences and institutions, never bodies.
+    SCANDAL: {
+      base: 0.0009,              // per public person-week, before the scalers
+      exposurePer: 0.35,         // each public surface (channel, deal, gig) adds
+      SHAPES: ['an old post resurfacing', 'a remark caught on the record',
+        'a story with legs', 'an entanglement making the rounds'],
+      sevWeights: [0.58, 0.25, 0.12, 0.05],  // storm / sponsors / hiatus / choice
+      smallFameCap: 0.30,        // below this fame, severity caps at 2 —
+                                 // the unknown label's scandal dies on
+                                 // page four (its own bleak mercy)
+      hiatusWeeks: 12,           // the forced break, severity 3
+      protectCost: 40, protectTrust: 4, protectFandom: 8,
+      releaseFandom: 15,         // the fandom wound that heals
+      denyRebreakChance: 0.35, denyWindow: 12,  // the trap, same as the secret
+      statementCost: 3,
+      rivalChance: 0.012,        // the world draws from the same deck weekly
     },
     // the settlement (v0.10.1, §80 findings 2+7+14) — jeongsan: idols
     // see no pay until the label recoups; the quarterly books; the

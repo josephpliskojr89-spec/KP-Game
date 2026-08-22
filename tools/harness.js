@@ -275,6 +275,16 @@ const BANDS = {
   // unwired). Sold-out and warehouse are the gamble's two tails; the
   // dump storm needs 2+ sign rounds, which the auto sheet caps at 1.
   // First soak — provisional on the tails, measure then rule.
+  // the person in public (v0.10.2): first soak — provisional. Asks are
+  // rare by design (5%/wk gated on an eligible ask-er and an empty
+  // scene slot); scandals are rarer (personality-priced per person-week).
+  // ruled first soak: 40/40, 36/40, 31/40, 15/40 — the mic is common,
+  // the slip is the lottery working, a story every ~3-4 label-years,
+  // and the heavy end stays a minority of worlds
+  channelSeen:       { lo: 0.80, hi: 1.00, label: 'orgs where somebody got the mic (channel or live)' },
+  gaffeLottery:      { lo: 0.50, hi: 1.00, label: 'orgs whose open mic slipped at least once' },
+  storySeen:         { lo: 0.40, hi: 1.00, label: 'orgs a story broke on (the response desk opened)' },
+  storyForced:       { lo: 0.10, hi: 0.90, label: 'orgs where a story forced a hiatus or the choice' },
   chodongMinted:     { lo: 0.90, hi: 1.00, label: 'orgs whose releases printed a first-week number' },
   // ruled first soak: 25/40 and 36/40 across ~6 eras per world — the
   // gamble's two tails. Dead at 0 (the pressing choice stopped
@@ -502,6 +512,7 @@ const tally = {
   gigPlayed: 0, campaignRun: 0, gigViralSeen: 0, wallTouched: 0, breakSeen: 0,
   counterMet: 0, clauseLive: 0,
   chodongMinted: 0, pressSoldOut: 0, pressWarehouse: 0,
+  channelSeen: 0, gaffeLottery: 0, storySeen: 0, storyForced: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -1477,6 +1488,13 @@ for (let s = 0; s < SEEDS; s++) {
     if (sold >= 1) tally.pressSoldOut++;
     if (ware >= 1) tally.pressWarehouse++;
   }
+  // the person in public (v0.10.2): both ledgers are durable
+  const cstl = state.castLedger || {};
+  if ((cstl.channels || 0) + (cstl.lives || 0) + (cstl.unsanctioned || 0) >= 1) tally.channelSeen++;
+  if ((cstl.gaffes || 0) >= 1) tally.gaffeLottery++;
+  const scl = state.scandalLedger || {};
+  if ((scl.broke || 0) >= 1) tally.storySeen++;
+  if ((scl.forcedBreaks || 0) + (scl.choices || 0) >= 1) tally.storyForced++;
   // the table (v0.9.38): the ledger is durable
   const tbl = state.tableLedger || {};
   if ((tbl.counters || 0) >= 1) tally.counterMet++;

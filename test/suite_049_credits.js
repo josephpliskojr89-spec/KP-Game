@@ -122,7 +122,9 @@ function release(state, g, format) {
   t.ok(penned.length <= C.writeCapPerRecord, 'capped — a record, not a mixtape');
   const writer = state.people[penned[0].writtenBy];
   t.ok(g.members.includes(writer.id), 'the writer is in the room');
-  t.eq(writer.flags.writerCredits, penned.filter(tk => tk.writtenBy === writer.id).length,
+  // writerCredits is the CAREER total — the fixture ride can hand the
+  // writer an earlier credit on any stream, so this-record is a floor
+  t.ok(writer.flags.writerCredits >= penned.filter(tk => tk.writtenBy === writer.id).length,
     'the pen count is on the file');
   t.ok(writer.history.some(h => /First songwriting credit/.test(h.text)), 'the first credit is history');
   t.ok(state.inbox.some(n => n.ind === 'memberWrote'), 'and the booklet gets read out loud');
