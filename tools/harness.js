@@ -257,6 +257,16 @@ const BANDS = {
   washoutReturned:   { lo: 0.00, hi: 1.00, label: 'worlds where a program washout hit the open board' },
   seasonAired:       { lo: 0.50, hi: 1.00, label: 'worlds whose annual season finale aired (calendar law)' },
   callHeld:          { lo: 0.00, hi: 1.00, label: 'orgs that held an open call or walked the districts' },
+  // the public eye (v0.9.36): every announcement mints an expectation
+  // and every debut settles against it, so these are FLOORS — if they
+  // fall the announcement/settle hooks came unwired. Measured 40/40 and
+  // 40/40 first soak. Snubs need a KNOWN trainee left off a lineup
+  // (measured 24/40); compares ride the 0.55 roll across many releases
+  // (measured 40/40, floored lower for sampling room).
+  expectSet:         { lo: 0.90, hi: 1.00, label: 'orgs whose announcement minted public expectations' },
+  snubSeen:          { lo: 0.20, hi: 0.95, label: 'orgs where a known trainee was passed over (the story)' },
+  verdictSeen:       { lo: 0.90, hi: 1.00, label: 'orgs whose debut settled against its own announcement' },
+  compared:          { lo: 0.75, hi: 1.00, label: 'orgs the write-ups compared in-house or across the week' },
   // the holdout (v0.9.33): first soak — provisional. Holdouts need the
   // top slice of talent AND rival heat >= 2 on the same file; the bot
   // meets them wherever its wanted prospect is also the market's.
@@ -443,6 +453,7 @@ const tally = {
   senesceSeen: 0, trustDrifted: 0, successionSeen: 0,
   holdoutMet: 0, holdoutWon: 0, holdoutLost: 0,
   networkApps: 0, networkRefs: 0, washoutReturned: 0, seasonAired: 0, callHeld: 0,
+  expectSet: 0, snubSeen: 0, verdictSeen: 0, compared: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -1367,6 +1378,12 @@ for (let s = 0; s < SEEDS; s++) {
   if ((nl.washouts || 0) + ((state.rivalLedger || {}).namedCuts || 0) >= 1) tally.washoutReturned++;
   if ((nl.seasons || 0) >= 1) tally.seasonAired++;
   if ((nl.calls || 0) + (nl.streets || 0) >= 1) tally.callHeld++;
+  // the public eye (v0.9.36): the ledger is durable
+  const pel = state.publicEyeLedger || {};
+  if ((pel.expectSet || 0) >= 1) tally.expectSet++;
+  if ((pel.snubs || 0) >= 1) tally.snubSeen++;
+  if ((pel.overDelivered || 0) + (pel.underDelivered || 0) + (pel.met || 0) >= 1) tally.verdictSeen++;
+  if ((pel.houseCompares || 0) + (pel.sceneCompares || 0) >= 1) tally.compared++;
   // the holdout (v0.9.33): the ledger is durable
   const hl = state.holdoutLedger || {};
   if ((hl.declined || 0) >= 1) tally.holdoutMet++;

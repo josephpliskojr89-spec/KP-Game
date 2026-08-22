@@ -4261,6 +4261,84 @@ stopped minting speculative files nobody would ever see. Suite
 its own rules; e2e 97 with the network card, both verbs, and the
 door-sized board asserted in the browser.
 
+## §77 The public eye (v0.9.36 — SHIPPED) — the industry out loud
+
+Owner, in full: *"I also want a fandom and industry that remembers.
+if one of my trainees goes viral, we declare her the ace, and she's
+publicly known, then doesn't make the next lineup, that should be a
+story. and company announcing a new group in the works should come
+with expectations. comparisons should be made between groups both
+within one company and the industry as a whole. I think this is the
+biggest thing we have to work on. just how public the whole
+industry is. make more use of the feed, with more unique posts."*
+
+The diagnosis: the sim already KNOWS all of it — hype, lineups,
+siblings, generations, announcement build-ups — but the public
+never says it out loud. The world remembers privately; this release
+makes it remember PUBLICLY. Four mechanisms, all reaction, no new
+verbs (the bots already play it):
+
+**The public trainee.** `KP.publicEye` — hype or following past the
+line means the public knows her name before a single stage. While
+she is known and unassigned, the feed keeps asking (the ace watch).
+
+**The snub.** A debut lineup locking WITHOUT a publicly known
+trainee is a story the moment it goes public: her quiet morale hit,
+a history line written with care (the story aims at the company's
+CHOICE, never at her), a directed-ledger entry the walkout math
+reads, and a discourse storm ("where IS she?") with the company on
+the answering end. The flip prints too: the known ace IN the lineup
+seeds the countdown.
+
+**Announcement expectations.** A planned debut mints an expectation
+read at announcement — company reputation, ranking seat, and the
+public names in the lineup — spoken in words (quiet curiosity /
+the industry is watching / loud / arena-sized), grown by the
+countdown, and SETTLED at the debut: over-deliver and the world
+says nobody saw it coming (the underdog story is the level-zero
+exceed — the blank page's whole arc); land short of loud
+expectations and the miss is the story, on the record as narrative.
+
+**The comparisons.** Releases stop landing in a vacuum: the house's
+own siblings get measured against each other (one house, two
+weathers), and the week's rival landings supply the industry-wide
+yardstick — rookie against rookie, gen against gen, all read from
+the week-ledger that already exists.
+
+Every string family ships with deep template pools — the feed's
+whole register widens. Verification: forced-fire suite, soak bands
+per mechanism (measure-first), and the content law linted where the
+snub is written.
+
+**As built (v0.9.36).** New module `publiceye.js` (weekly order 596,
+rng only via action-time `KP.rngFor` inside the announcement + the
+weekly tick). The public line: `KP.publicEye` = hype ≥ 25 or social
+≥ 60k. `KP.expectationRead` prices an announcement — company rep,
+recent top-3 record, and every public name IN the lineup — into
+four levels (quiet ear / people watching / loud / arena-sized), and
+`KP.publicAnnouncement` mints it at `planDebut`: expectSet note,
+aceMadeIt buildup (+6), and the snub loop — every public trainee
+LEFT OFF loses morale (−6), takes a `passedOver` directed entry
+(the walkout math reads it), gets a careful history line, and
+ignites the `aceSnub` discourse aimed at the company's choice,
+never at her. Second snub reads harsher. `settleExpectations` runs
+at `resolveDebut`: buildup ≥ 30 raises the level one more, bars
+[38/50/60/70], beat it by 12 → overDelivered (fandom +3, narrative,
+level-0 text is the underdog ambush), miss a loud bar by 10 →
+underDelivered (member morale −4, narrative "debuted under the bar
+the company itself raised"), else met — the announcement always
+gets an answer. `publicCompare` writes the house-sibling gap note
+(|gap| ≥ 18 goes priority high) and the same-week scene yardstick
+(chance 0.55 each). Weekly ace-watch: known unassigned trainees
+draw feed chatter (5%). Eight feed-reaction families, 3-4 voices
+each. Ledger `publicEyeLedger` durable; census floors expectSet /
+verdictSeen at 90% (hook-unwired alarms), snubSeen measured 24/40,
+compared floored 75%. Battery 77/77 (two stream-shift repairs:
+suite_021 sharpened to the fatigue lecture — a producer-relations
+warning rides the same channel; suite_064 decline block got the
+0.9.24.1 icon stamp), soak 40 clean, longhaul 8×620 clean, e2e 97.
+No migration — the ledger self-initializes.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -6688,3 +6766,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > retired per its own note (second flap; the floor was always the
 > alarm). Numbers: battery 76/76, soak clean (192 bands),
 > longhaul 8x620 clean, e2e 97, lockstep 0.9.35.2. Rode to main.
+
+> **0.9.36 — the public eye (§77).** The owner's biggest ask: *"a
+> fandom and industry that remembers... just how public the whole
+> industry is."* New `publiceye.js`: announcements mint priced
+> expectations (rep + record + public names, four levels), the
+> known trainee left off the lineup IS a story (morale, passedOver
+> directed entry, careful history line, aceSnub storm aimed at the
+> company's choice — never at her), debuts settle against their own
+> announcement (overDelivered / underDelivered / met, narratives on
+> the record), and releases land in company (house-sibling gap
+> notes, same-week scene yardstick). Weekly ace-watch chatter for
+> known unassigned trainees; eight new feed-reaction families. Two
+> stream-shift battery repairs (suite_021 fatigue-lecture
+> sharpening, suite_064 icon stamp). Battery 77/77, soak 40 clean
+> (expectSet/verdictSeen floored 90%, snubSeen 24/40 measured),
+> longhaul 8x620 clean, e2e 97, lockstep 0.9.36. Rode to main.

@@ -73,7 +73,9 @@ function planFor(state, g) {
   while (s2.week <= g2.promoUntil + KP.C.COMEBACK.restWeeks) KP.advanceWeek(s2);
   g2.members.forEach(id => { s2.people[id].fatigue = 20; });
   const r2 = planFor(s2, g2);
-  t.ok(r2.ok && !r2.warning, 'a rested roster locks without a lecture');
+  // other desks may still have notes (producer relations rides this
+  // stream) — the claim is that the FATIGUE lecture stays quiet
+  t.ok(r2.ok && !/still worn/.test(r2.warning || ''), 'a rested roster locks without a lecture');
 }
 
 // ---- overwork: pushing gassed members eventually benches one ----

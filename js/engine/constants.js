@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.35.2',
+    VERSION: '0.9.36',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -806,6 +806,9 @@
         // the star's clock (v0.9.25): the fans call for the ALBUM
         albumClamor: { label: 'solo-album campaign', negative: false, start: [40, 65],
           actions: ['statement', 'meme'] },
+        // the public eye (v0.9.36): the known trainee the lineup skipped
+        aceSnub: { label: 'lineup snub story', negative: true, start: [30, 55],
+          actions: ['statement', 'meme'] },
         // the bad blood (v0.9.21): the fandom throws the gasoline
         didntStand: { label: 'distance watch', negative: true, start: [25, 45],
           actions: ['statement', 'meme'] },
@@ -1467,6 +1470,27 @@
       },
       schoolChance: 0.08,      // the school pipeline keeps walking in,
       schoolPerNetwork: 0.12,  // wider for the connected house
+    },
+    // the public eye (v0.9.36, §77) — "just how public the whole
+    // industry is." The sim knew; now the public SAYS it: known
+    // trainees, snub stories, announcement expectations, comparisons.
+    PUBLIC: {
+      knownHype: 25,           // hype past this = the public knows her name
+      knownSocial: 60000,      // …or a following that big
+      aceWatchChance: 0.05,    // weekly ambient "where is she" while known+unassigned
+      snubMorale: 6,           // watching the lineup announced without you
+      snubDirected: -1,        // the ledger the walkout math reads
+      EXPECT: {
+        watchingAt: 12, loudAt: 24, arenaAt: 40,   // expectation points → level
+        WORDS: ['quiet curiosity', 'the industry is watching',
+          'loud — the announcement made the trades', 'arena-sized expectations'],
+        bar: [38, 50, 60, 70],   // reception the world calls "delivering", per level
+        exceedMargin: 12, missMargin: 10,
+        buildupRaises: 30,       // a countdown this deep raises the bar a level
+        exceedFandom: 3, missMorale: 4,
+      },
+      compareChance: 0.55,     // a landing week draws the comparison post
+      houseGapNote: 18,        // sibling gap that makes the inbox, not just the feed
     },
     // the portfolio (v0.9.26, §69) — "a major company might only debut
     // a new girl group once every 5 to 7 years. essentially one per

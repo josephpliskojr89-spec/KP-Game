@@ -204,6 +204,10 @@
         : g.debuted
         ? g.name + '’s comeback is official: ' + KP.weekLabel(plan.week).text + ', on every calendar the fandom keeps. The reply section is already fighting about the concept from one dark teaser image and a font.'
         : state.company.short + ' put a date on the debut everyone suspected: ' + g.name + ', ' + KP.weekLabel(plan.week).text + '. The industry-watcher accounts have opinions. The trainees’ old academy classmates have screenshots.' });
+    // the public eye (v0.9.36, §77): a NEW group's announcement mints
+    // expectations, prints the ace who made it — and the known trainee
+    // it skipped becomes the story the owner asked for
+    if (!g.debuted && KP.publicAnnouncement) KP.publicAnnouncement(state, g);
     // chapter two (v0.9.25): the first era after the star's graduation
     // announces itself as a NEW CHAPTER, not a diminished one
     if (g.newEra && state.week - g.newEra.week <= KP.C.STAR.launchNewEraWeeks && g.debuted) {
@@ -784,6 +788,14 @@
         .concat(hiaRead.note ? [hiaRead.note] : []),
       mash, fusionOutcome,
     };
+    // the public eye (v0.9.36): the announcement's bar settles, and the
+    // landing gets measured against the house and the week
+    if (KP.settleExpectations) {
+      const eyeNotes = [];
+      KP.settleExpectations(state, g, reception, eyeNotes);
+      KP.publicCompare(state, g, reception, eyeNotes, rng);
+      eyeNotes.forEach(push);
+    }
     // the bad blood (v0.9.21): a unit track shared by named rivals is a
     // dispute the booklet cannot hide — once per era, both pay
     {

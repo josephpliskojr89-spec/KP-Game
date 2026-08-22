@@ -91,6 +91,9 @@ function rideTo(state, absWeek, handler) {
 {
   const { state, g } = debuted('fs-decline');
   g.popularity = 50;
+  // icon stamp: same 0.9.24.1 lesson as above — the invite must not
+  // ride the 75% roll, which rng-stream drift keeps knocking over
+  KP.recordEvidence(state, 'festivalIcons', 'group', g.id);
   const F = KP.C.FESTS;
   const f = F.LIST.find(x => x.id === 'hanRiver');
   rideTo(state, f.woy - F.inviteLead, () => { g.popularity = Math.max(g.popularity, 50); });

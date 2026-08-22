@@ -893,6 +893,12 @@
         { persona: 'fan', text: KP.fillPro(who + ' pulled from schedules… hope {she} is actually resting and not just hidden. companies lie about this constantly', pSub) },
         { persona: 'stan', text: 'get well soon ' + who + '. and ' + co + '— maybe fewer 5am send-offs going forward? just a thought. from all of us' },
       ],
+      aceSnub: [
+        { persona: 'fan', text: 'day three of asking ' + co + ' why ' + who + ' is not in the lineup. the clips have millions of views. the lineup has a hole shaped exactly like her. we can all see it' },
+        { persona: 'stan', text: 'the ' + who + ' snub megathread hit page forty. receipts, timelines, evaluation clips. nobody is being mean. everybody is being THOROUGH' },
+        { persona: 'press', text: 'The most-discussed member of the new lineup is the trainee who is not in it — which tells you everything about how ' + co + ' managed this announcement.' },
+        { persona: 'casual', text: 'company builds public hype around a trainee for a year, skips her at the lineup, acts surprised the internet noticed. the management genre’s oldest own-goal' },
+      ],
       fancam: [
         { persona: 'stan', text: 'the ' + who + ' fancam has TWO MILLION views and I contributed forty of them personally. no regrets' },
         { persona: 'casual', text: 'the algorithm decided everyone watches ' + who + ' today and honestly? the algorithm was right' },
