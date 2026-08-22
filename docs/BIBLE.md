@@ -4261,7 +4261,7 @@ stopped minting speculative files nobody would ever see. Suite
 its own rules; e2e 97 with the network card, both verbs, and the
 door-sized board asserted in the browser.
 
-## §76 The small label (C+D+E SHIPPED v0.9.37 — the grind; A+B still planning)
+## §76 The small label (C+D+E SHIPPED v0.9.37; A SHIPPED v0.9.38 — the table; B still planning)
 
 Five mechanisms, one through-line: **being small has to feel
 small.** The doors gave us hard starts; the network gave us a
@@ -4446,6 +4446,112 @@ durable counter (the 40-entry convoLog evicted busy worlds), and
 truckParked flipped ceiling→floor (the campaign made the fandom
 noticing overwork the norm — the alarm is trucks VANISHING).
 Battery 78/78, soak 40 clean, longhaul 9x620 clean, e2e 102.
+
+**As built (v0.9.38 — the table, §76 A).** Owner: *"let's keep
+moving forward with contract negotiations."* In scouting.js beside
+the holdout it generalizes: `KP.counterOf` — a file worth arguing
+over (perceived avg ≥ 48) counters when fame < 0.45. Exemptions
+are the fiction: holdouts (their premium IS the table), the
+application pile (believers came to YOU), the famous (the name
+closes). What she asks for is who she is, hash-stable per file:
+washouts demand the DEBUT-BY CLAUSE ("never again on a
+handshake"), high work ethic asks for the TRAINING GUARANTEE
+(fee 15 up front, growth x1.12 delivered by development.js), the
+rest price the risk as a SIGNING BONUS (signCost x 0.5 x (1−fame),
+min 8). `signProspect` grew an opts param: the first call returns
+the counter (counted once), `{answer:'accept'}` signs the terms —
+refusing the terms is refusing the signature, and the board has
+other suitors. The clause has teeth (weekly 'table', order 616):
+kept = a debut ("the paper goes in a frame," morale +4, ledger);
+a formed lineup holds the clock's breath; the date passing opens
+the clauseCall scene — honor the paper (she walks free, clean,
+`releaseTrainee`, the practice room re-reads its contracts) or
+plead ONCE (+24 weeks, morale −8, directed 'heldToPaper'); the
+second deadline and an expired scene both walk her, colder.
+Red-flag warning note 12 weeks out; debut-by + training chips on
+the talent row; the counter renders as a table sheet off the sign
+modal (walk away / sign the terms). tableLedger durable; census
+counterMet/clauseLive are CEILINGS on the famous legacy soak
+(0/40 measured, by design) with organic witnesses in the longhaul
+(haul-founder met 2 bonus counters under the bar, haul-blank 1)
+and suite_079 (30 checks) forcing every kind and both clause
+endings. No migration — ledger and clause self-init. Battery
+79/79, soak 40 clean, longhaul 9x620 clean, e2e 102.
+
+## §78 The person in public (PLANNING — approved for write-up, builds await the call)
+
+Owner: *"let's begin planning to give trainees and idols even more
+personality. they might ask for permission to go live or to start a
+video channel a la YouTube (don't use the yt name.) things that
+could really help a small unknown and really hurt a major group
+depending on what's said. and scandals. no need to go in with what
+the scandals are per our philosophy, but they absolutely do happen.
+could force hiatuses or a member being let go. makes personality
+matter even more."*
+
+Two mechanisms, one law: **the person's own voice is a lever whose
+throw scales with how known she is.** For a nobody, the upside is
+proportionally enormous and the downside is chatter; for a famous
+face, the upside is marginal and the downside is the front page.
+That asymmetry is the whole design — it composes §76's fame with
+§77's public eye and makes personality the risk model.
+
+**A. The ask — going live, and the channel.** The office door
+(v0.8.2) already lets idols knock; this adds two asks the
+personality engine generates: permission for a one-off LIVE, and
+permission to start a PERSONAL VIDEO CHANNEL on the game's own
+platform (an invented name — never the real one; the feed's social
+platform gets a video sibling). Who asks is personality: high
+confidence + warmth + creativity knock early and often; high
+professionalism asks properly; LOW professionalism sometimes does
+not ask at all — the unsanctioned live is its own event, and the
+company finding out afterward is a scene. The desk's answers:
+allow / allow after media training (a real cost, a delay, a
+lowered gaffe rate — the staff read from v0.9.3 prices the risk
+out loud) / decline (morale, a directed-ledger entry, "the company
+does not trust me," and the ask returns harder). A RUNNING channel
+is a weekly presence: content in her voice (personality-keyed
+flavor), follower growth that runs through the phone-camera law —
+fame does NOT damp it, which makes it the small label's second
+lottery ticket and a real §76 valve (a beloved channel feeds the
+fame read's known-faces term). And every upload rolls the GAFFE:
+she said a thing. At an unknown label a gaffe is survivable
+chatter, maybe even charming; on a known face (§77 publicEye) it
+ignites discourse, spooks brand deals, and hands the machine a
+story. High judgment/professionalism rarely gaffe; low ones are a
+lottery the player chose to run. The staff warned you.
+
+**B. The scandals.** Per the house philosophy the sim never says
+WHAT happened — the same discretion the secret (v0.9.30) keeps.
+A scandal is a STORY with a severity, a shape drawn from an
+abstract deck (an old post resurfaced; a remark on the record; a
+conduct story with legs; an entanglement — named at that altitude,
+never lower), and a subject. The base rate is rare and
+hash-scheduled; personality moves it (low professionalism and low
+judgment raise the surface, high resilience survives it better),
+and EXPOSURE moves it — a channel, lives, variety seats, tour
+seasons: the person in public has more public to answer to.
+Severity ladder: (1) a storm — discourse machinery, survivable;
+(2) sponsors flinch — a deal suspends, music shows quietly skip a
+week; (3) the forced hiatus — the individual-hiatus machinery
+(v0.9.20) fires with a public reason the company did not choose;
+(4) the unsurvivable — the company chooses: release her (the
+member-desk machinery, a fandom wound that heals) or protect her
+(money, trust, a fandom SPLIT that scars, and the story on her
+file forever). The response desk mirrors the secret's: statement /
+silence / deny — and deny is still the trap if the story
+re-breaks. Rivals draw from the same deck; the feed reads their
+weeks the way it reads ours. Interlocks: §77 publicEye scales the
+blast radius; §76 fame scales the stakes (the unknown label's
+scandal dies on page four — its own bleak mercy); the walkout
+math, standing, and scars all read the aftermath. Personality
+matters more at every step — the owner's stated goal — and the
+content law holds: consequences and institutions, never bodies.
+
+**Sequencing (delegated judgment):** A then B, or both as one
+release if the channel's exposure surface is built first — B
+without A has less to feed on. Both sit behind §76 A (the table,
+building now as v0.9.38).
 
 ## §77 The public eye (v0.9.36 — SHIPPED) — the industry out loud
 
@@ -6989,3 +7095,20 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > NaN, double-played same-week gigs, boardSeason census eviction,
 > truckParked flipped to floor. Battery 78/78, soak 40 clean,
 > longhaul 9x620 clean, e2e 102, lockstep 0.9.37. Rode to main.
+
+> **0.9.38 — the table (§76 A).** *"feels a little too easy to just
+> click the sign button as a brand new label."* Signing stops being
+> one click: files worth arguing over counter when fame is under
+> the bar — the washout wants the debut-by clause in writing, the
+> worker wants the training guarantee paid up front, the
+> pragmatist prices the unknown label with a signing bonus.
+> Holdouts, believers, and the famous are exempt (each for its own
+> fictional reason). The clause has real teeth: kept closes with a
+> debut and a frame; due opens the scene — honor the paper and she
+> walks free, or plead once and the next deadline is not a
+> conversation. Counters surface as the table sheet; clause chips
+> ride the talent rows. §78 (the person in public: channel/live
+> asks + content-agnostic scandals) written to planning the same
+> sitting. Battery 79/79, soak 40 clean, longhaul 9x620 clean
+> (organic counters in haul-founder/blank), e2e 102, lockstep
+> 0.9.38. Rode to main.

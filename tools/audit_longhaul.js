@@ -239,7 +239,12 @@ function botWeek(state, mode) {
       // founding directive is a girl group, so the bot casts for it
       const girls = state.prospects.filter(id => (state.people[id].gender || 'f') === 'f');
       for (const pid of (girls.length ? girls : state.prospects).slice(0, 3)) {
-        if (KP.signProspect(state, pid).ok) break;
+        // the table (v0.9.38): meet the counter when the books allow
+        let r = KP.signProspect(state, pid);
+        if (!r.ok && r.counter && state.budget > (r.counter.price || 0) + 100) {
+          r = KP.signProspect(state, pid, { answer: 'accept' });
+        }
+        if (r.ok) break;
       }
     }
     // form a group when none of ours exists
@@ -457,7 +462,13 @@ for (const sc of SCENARIOS) {
     ' | grind: gigs ' + (bkl.played || 0) + ', pushes ' + (bkl.pushes || 0) +
     ', cams ' + (bkl.virals || 0) + ', walled ' + (fml.walled || 0) +
     ', ground ' + (fml.ground || 0) + ', breaks ' + (fml.breaks || 0) +
-    (fml.showsOpenWeek ? ', showsOpen@' + fml.showsOpenWeek : ''));
+    (fml.showsOpenWeek ? ', showsOpen@' + fml.showsOpenWeek : '') +
+    ' | table: counters ' + ((state.tableLedger || {}).counters || 0) +
+    ', clauses ' + ((state.tableLedger || {}).clausesTaken || 0) +
+    ' (kept ' + ((state.tableLedger || {}).clausesKept || 0) +
+    ', walked ' + ((state.tableLedger || {}).walkedFree || 0) + ')' +
+    ', bonuses ' + ((state.tableLedger || {}).bonusesPaid || 0) +
+    ', trained ' + ((state.tableLedger || {}).trained || 0));
 }
 
 report();

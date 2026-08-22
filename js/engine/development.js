@@ -18,6 +18,11 @@
     // time takes its share (v0.9.32): past the line, the explosive
     // gains are behind her — the growth curve senesces, never to zero
     if (KP.ageGrowthMult) g *= KP.ageGrowthMult(person);
+    // the table (v0.9.38): a training guarantee bought at signing is
+    // delivered by the coaches, not just the contract
+    if (person.flags && person.flags.trainClause && person.status === 'trainee') {
+      g *= KP.C.TABLE.trainGrowth;
+    }
     // fatigue drag
     if (person.fatigue > T.fatigueSoftCap) {
       g *= Math.max(0.2, 1 - (person.fatigue - T.fatigueSoftCap) / 40);

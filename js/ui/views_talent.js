@@ -104,6 +104,10 @@
       (grp ? '<span class="chip gold">' + UI.esc(grp.name) + '</span>' : '') +
       (p.status === 'idol' ? '<span class="chip gold">debuted</span>' : '') +
       ((p.hype || 0) >= 35 ? '<span class="chip hot">' + UI.esc(KP.hypeWord(p.hype)) + '</span>' : '') +
+      (p.clause && p.clause.kind === 'debutBy'
+        ? '<span class="chip' + (state.week > p.clause.byWeek - KP.C.TABLE.warnAt ? ' hot' : '') +
+          '">debut-by wk ' + p.clause.byWeek + '</span>' : '') +
+      (p.flags && p.flags.trainClause ? '<span class="chip">training clause</span>' : '') +
       '</div></div>' +
       '<div class="t-side"><span class="chip">' + idolOrFocusChip(state, p, focus) + '</span></div>' +
       '</div>';

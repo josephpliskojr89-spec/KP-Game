@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.9.37',
+    VERSION: '0.9.38',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1400,6 +1400,25 @@
     // WITH a hot market knows what she is worth. Money alone never
     // flips her — the paths past the bar are stature, her lane at real
     // height, and the courtship the powers never bother to make.
+    // the table (v0.9.38, §76 A) — "feels a little too easy to just
+    // click the sign button as a brand new label competing against
+    // established brands." Worthwhile files counter at the table when
+    // the label's name cannot close on its own. Holdouts are exempt —
+    // their premium IS the table; applications came to YOU.
+    TABLE: {
+      fameBar: 0.45,        // above this, the name closes deals — one click
+      talentBar: 48,        // ordinary files sign standard; the table is
+                            // for the ones worth arguing over (perceived avg)
+      bonusMult: 0.5,       // signing bonus counter: extra signCost share…
+      bonusMin: 8,          // …scaled by how unknown the label is
+      debutByWeeks: 72,     // the debut-by clause: about 18 months, in writing
+      extendWeeks: 24,      // one plead buys half a year, once
+      warnAt: 12,           // the clock gets a warning letter this far out
+      trainFee: 15,         // the training guarantee: facility money up front…
+      trainGrowth: 1.12,    // …and the coaches actually deliver it
+      pleadMorale: 8,       // asking her to wait past her own clause
+      keptMorale: 4,        // a promise kept in writing lands warmer
+    },
     HOLDOUT: {
       talentMin: 64,        // real peak talent — the top slice of the board
                             // (measured: fresh boards run top-5 ≈ 72–78,

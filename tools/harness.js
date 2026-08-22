@@ -270,6 +270,13 @@ const BANDS = {
   // the fame gates broke. The positive path is verified where low-fame
   // worlds exist: the longhaul's blank scenario asserts gigs played
   // and the wall felt (hard invariants), and suite_078 forces both.
+  // the table (v0.9.38): counters need fame under 0.45 AND a file
+  // worth arguing over — legacy soak orgs sit at 0.64, so this is a
+  // CEILING like the wall bands (gates broken if famous orgs get
+  // countered); the positive path lives in haul-fresh/blank and
+  // suite_079. First soak — provisional, measure then rule.
+  counterMet:        { lo: 0.00, hi: 0.50, label: 'orgs a worthwhile file countered at the table' },
+  clauseLive:        { lo: 0.00, hi: 0.50, label: 'orgs that signed a debut-by clause (paper with teeth)' },
   gigPlayed:         { lo: 0.00, hi: 0.50, label: 'orgs that played a stage off the booking pile' },
   // the bot works EVERY locked era (measured 40/40 first soak) — a
   // floor: falling means the campaign verb came unwired
@@ -475,6 +482,7 @@ const tally = {
   networkApps: 0, networkRefs: 0, washoutReturned: 0, seasonAired: 0, callHeld: 0,
   expectSet: 0, snubSeen: 0, verdictSeen: 0, compared: 0,
   gigPlayed: 0, campaignRun: 0, gigViralSeen: 0, wallTouched: 0, breakSeen: 0,
+  counterMet: 0, clauseLive: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -591,10 +599,17 @@ for (let s = 0; s < SEEDS; s++) {
         .map(p => ({ p, v: KP.C.TALENTS.reduce((sum, d) => sum + KP.perceived(state, p, d, scout), 0) }))
         .sort((a, b) => b.v - a.v);
       // the holdout (v0.9.33): a declined offer is an answer, not an
-      // error — the bot walks down the board like a real scout would
+      // error — the bot walks down the board like a real scout would.
+      // the table (v0.9.38): a counter gets met when the books allow —
+      // a real scout signs the terms, not just the cheap files
       for (const cand of ranked.slice(0, 3)) {
         if (state.budget <= KP.signCost(state, cand.p) + 60) break;
-        if (KP.signProspect(state, cand.p.id).ok) break;
+        let r = KP.signProspect(state, cand.p.id);
+        if (!r.ok && r.counter &&
+            state.budget > KP.signCost(state, cand.p) + (r.counter.price || 0) + 60) {
+          r = KP.signProspect(state, cand.p.id, { answer: 'accept' });
+        }
+        if (r.ok) break;
       }
     }
     // the grind (v0.9.37): the bot runs a simple campaign — one push a
@@ -1428,6 +1443,10 @@ for (let s = 0; s < SEEDS; s++) {
   if ((nl.washouts || 0) + ((state.rivalLedger || {}).namedCuts || 0) >= 1) tally.washoutReturned++;
   if ((nl.seasons || 0) >= 1) tally.seasonAired++;
   if ((nl.calls || 0) + (nl.streets || 0) >= 1) tally.callHeld++;
+  // the table (v0.9.38): the ledger is durable
+  const tbl = state.tableLedger || {};
+  if ((tbl.counters || 0) >= 1) tally.counterMet++;
+  if ((tbl.clausesTaken || 0) >= 1) tally.clauseLive++;
   // the grind (v0.9.37): both ledgers are durable
   const bl = state.bookingLedger || {};
   if ((bl.played || 0) >= 1) tally.gigPlayed++;

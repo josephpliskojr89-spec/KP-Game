@@ -670,6 +670,27 @@
         const r = KP.signProspect(s, t.dataset.id);
         UI.closeModal();
         if (r.ok) { UI.toast(s.people[t.dataset.id].name.display + ' is ours.'); App.save(); App.view = null; App.stack.length = 0; App.render(); }
+        else if (r.counter) {
+          // the table (v0.9.38): she counters — the terms are the terms
+          const p2 = s.people[t.dataset.id];
+          const K = r.counter;
+          const priceLine = K.kind === 'bonus' ? 'Bonus on top: ₩ ' + K.price + '.'
+            : K.kind === 'training' ? 'Facility guarantee, up front: ₩ ' + K.price + '.'
+            : 'No extra money — a debut date in writing, with teeth.';
+          UI.modal('The table · ' + p2.name.display,
+            '<div class="pad" style="font-size:.88rem;line-height:1.55;color:var(--ink-dim)">' +
+            UI.esc(K.text) + '<div style="margin-top:8px;color:var(--gold)">' + priceLine + '</div></div>',
+            '<button class="btn" data-action="close-modal" style="flex:1">Walk away</button>' +
+            '<button class="btn primary" data-action="sign-terms" data-id="' + p2.id + '" style="flex:1">Sign the terms</button>');
+          App.save();
+        }
+        else UI.toast(r.reason, true);
+        break;
+      }
+      case 'sign-terms': {
+        const r = KP.signProspect(s, t.dataset.id, { answer: 'accept' });
+        UI.closeModal();
+        if (r.ok) { UI.toast(s.people[t.dataset.id].name.display + ' signs — on those terms, in writing.'); App.save(); App.view = null; App.stack.length = 0; App.render(); }
         else UI.toast(r.reason, true);
         break;
       }
