@@ -4478,7 +4478,7 @@ and suite_079 (30 checks) forcing every kind and both clause
 endings. No migration — ledger and clause self-init. Battery
 79/79, soak 40 clean, longhaul 9x620 clean, e2e 102.
 
-## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; finding 1+8+3 SHIPPED v0.10.0)
+## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; 1+8+3 SHIPPED v0.10.0; 2+7+14 SHIPPED v0.10.1)
 
 Owner: *"bring in a kpop expert, I want more depth. the width is
 excellent and some of our systems are deep, but I want the whole
@@ -4679,6 +4679,41 @@ founded label now answers §76 A counters (low fame post-founding
 — the systems composing as designed). Battery 80/80, soak 40
 clean, longhaul 9x620 clean, e2e 103. No migration — old saves
 press their first sheet at the next lock.
+
+**As built (v0.10.1 — the settlement, findings 2+7+14).** New module
+`money.js`. **Jeongsan:** every era's bills (`accrueDebt` at
+planDebut, tour costs too) plus the practice years (15/member at
+debut) sit on a per-group recoup ledger; the group's 30% share of
+release and tour revenue pays it down ON PAPER (the label keeps
+the cash) until the ledger crosses zero — then the firstSettlement
+scene: pay it warm with backpay (morale +8, the framed-deposit
+history line) or to the letter (a leanSettlement directed entry
+each; an unheld meeting is the coldest option and says so).
+Post-settlement the share is PAID — real money leaves every era,
+plus a morale trickle. Unsettled 120+ weeks after debut renews a
+neverPaid directed entry yearly with a note naming it what it is —
+the number-one reason renewal tables go cold. **The books:**
+`ledgerFlow` tracks streams at their sites (albums, streams,
+tours, deals, appearances, distributor, production, marketing,
+signings, artistPay); every 12th week closes a statement — tracked
+lines + operations-as-residual + net, the exec initialing or
+red-penning — rendered as a card on the Desk with per-group recoup
+status. Three loss-making eras in a row open the redInk scene:
+back them (trust −2, morale +4) or tighten the belt (next era's
+bills x0.85). **The distributor:** tiers indie/standard/major
+(cut 30/25/18%, reach 0.85/1.0/1.12) applied inside settleProduct
+— marginPerK recalibrated 1.55→2.0 so standard-tier nets match;
+lazy-init by fame (no migration); a chodong past the next tier's
+bar draws the courting call (sign / sign with an advance at 15%
+vig repaid from pressings / stay). Battery hunt: the quarterly
+notes' feed draws re-phased every legacy stream and suite_014's
+40-week hype-peak sample collapsed CORRELATED across seeds —
+rewritten to assert the deterministic mechanism (networkRead gap)
+plus a 60-week sample where the law reasserts (15/24 vs 4/24);
+ostDropped floor 0.05→0.02 (the grind era's fuller calendars
+bench idols out of second jobs — honest fiction, pipe
+suite-proven). Battery 81/81, soak 40 clean, longhaul 9x620
+clean, e2e 103.
 
 ## §81 The v0.10 build order (RULED — owner: "I like all of them and
 I want to build them comprehensively. plan out the order first")
@@ -7501,3 +7536,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Calibrated: rookie ~350 copies, flagships 10k→35k across eras,
 > revenue parity at first eras. Battery 80/80, soak 40 clean,
 > longhaul 9x620, e2e 103, lockstep 0.10.0. Rode to main.
+
+> **0.10.1 — the settlement (§80 findings 2+7+14).** The money
+> spine's second vertebra. money.js: jeongsan — era bills and the
+> practice years on a per-group recoup ledger, the 30% share
+> repaying it on paper until FIRST SETTLEMENT (a scene: warm with
+> backpay, to the letter, or the unheld meeting that says the
+> most), real payouts after, and the neverPaid grievance renewing
+> yearly on the long grind. The quarterly books: streams tracked
+> at their sites, statements every 12 weeks with
+> operations-as-residual, the Desk card, and the redInk scene
+> after three losing eras. The distributor: three tiers cutting
+> and reaching every pressing, the courting call off a real
+> chodong, the advance with vig. suite_014 rewritten after the
+> quarterly notes re-phased every legacy stream. Battery 81/81,
+> soak 40 clean, longhaul 9x620, e2e 103, lockstep 0.10.1. Rode
+> to main.
