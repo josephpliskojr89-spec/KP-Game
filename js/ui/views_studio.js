@@ -214,13 +214,28 @@
       (g.debuted && g.results ? '<div style="font-size:.76rem;color:var(--ink-dim);margin-top:8px">Last release: “' + UI.esc(g.results.songTitle) + '” — ' + UI.esc(g.results.receptionLabel.toLowerCase()) + ', scene #' + g.results.chartPeak + (g.results.nationalPeak != null ? ' · national #' + g.results.nationalPeak : '') + '. The room is ' + KP.popularityWord(g.popularity) + '.</div>' : '') +
       '</div>');
 
+    // the song camp (v0.10.5): the spend verb that summons a hotter sheet
+    const campReady = state.week - (g.lastCampWeek || -999) >= KP.C.MARKET.campCooldown &&
+      state.budget >= KP.C.MARKET.campCost;
     html.push('<div class="kicker">Demos on the desk</div>');
+    if (campReady) {
+      html.push('<div class="pad" style="padding-top:0"><button class="btn small" data-action="song-camp" data-id="' + g.id + '">Hold a song camp · ' + KP.C.MARKET.campCost + '</button>' +
+        '<span style="font-size:.68rem;color:var(--ink-dim);margin-left:8px">flights, studios, a deeper and hotter sheet</span></div>');
+    }
     g.demos.forEach(demo => {
       const on = draft.songId === demo.id;
       // the advocates (v0.9.17): the meeting has politics, worn openly
       const advocates = [];
       if (demo.pushed) advocates.push('<span class="chip hot">the producer’s push</span>');
       if (demo.execFavored) advocates.push('<span class="chip gold">' + UI.esc(state.executive.name.split(' ')[0]) + '’s kind of record</span>');
+      // the song market (v0.10.5): the sheet shows its prices and clocks
+      if (demo.bonded) advocates.push('<span class="chip gold">house regular</span>');
+      if (demo.circUntil) {
+        const left = demo.circUntil - state.week;
+        advocates.push('<span class="chip hot">circulating · ' +
+          (left > 0 ? left + ' wk window' : 'window CLOSED') + '</span>');
+      }
+      if (demo.price > 0) advocates.push('<span class="chip">asking ' + demo.price + '</span>');
       if (demo.writtenBy) {
         const w = state.people[demo.writtenBy];
         advocates.push('<span class="chip hot">written by ' + UI.esc(w ? KP.publicGiven(w) : 'a member') + '</span>');

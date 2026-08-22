@@ -62,8 +62,12 @@ function throughDebut(seed, planExtra) {
   // the rollout desk (v0.6.3): the staff plan is billed at lock too
   const R9 = KP.C.ROLLOUT;
   const staffPlanCost = R9.DEFAULT.flat().reduce((s, a) => s + R9.ACTIVITIES[a].cost, 0);
-  t.eq(state.budget, budgetBefore - mini.cost - KP.C.DEBUT.promoCost.modest - staffPlanCost,
-    'cost = record + promotion + rollout');
+  // the song market (v0.10.5): the demo's asking price rides the bill —
+  // planDebut reads the group's own sheet first, so price the same copy
+  const locked9 = (state.groups[0].demos || state.demos).find(d => d.id === state.groups[0].prep.songId);
+  t.eq(state.budget, budgetBefore - mini.cost - KP.C.DEBUT.promoCost.modest - staffPlanCost -
+    ((locked9 && locked9.price) || 0),
+    'cost = record + promotion + rollout + the asking price');
   t.eq(state.groups[0].prep.format, 'mini', 'format stored on the plan');
   let guard = 0;
   while (!state.groups[0].debuted && guard++ < 14) KP.advanceWeek(state);

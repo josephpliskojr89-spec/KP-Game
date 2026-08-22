@@ -126,7 +126,8 @@ function era(s, g, debtAfterLock) {
     const defRoll = R.DEFAULT.flat().reduce((x, a) => x + (R.ACTIVITIES[a] ? R.ACTIVITIES[a].cost : 0), 0);
     const mvCost = Math.round(KP.C.MV.TIERS.standard.cost * KP.statureCostMult(g2));
     const full = KP.recordBill(g2, 'standard', 'single') + defRoll + mvCost +
-      KP.pressingBill(s, g2, g2.prep.pressing);
+      KP.pressingBill(s, g2, g2.prep.pressing) +
+      ((g2.demos.find(d => d.id === g2.prep.songId) || {}).price || 0);   // the song market (v0.10.5)
     t.ok(b0 - s.budget <= Math.round(full * KP.C.BOOKS.tightBeltCut) + 1,
       'the trimmed bill charges under the full rate (' + (b0 - s.budget) + ' vs ' + full + ')');
   }

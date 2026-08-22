@@ -131,7 +131,8 @@
       pressing = KP.normalizePressing(state, g, plan.pressing);
       pressingCost = KP.pressingBill(state, g, pressing);
     }
-    let cost = KP.recordBill(g, plan.promo, format.id) + rolloutCost + mvCost + pressingCost;
+    // the song market (v0.10.5): the demo's asking price rides the bill
+    let cost = KP.recordBill(g, plan.promo, format.id) + rolloutCost + mvCost + pressingCost + (demo.price || 0);
     // the red ledger (v0.10.1): the tightened belt trims the next era once
     if (g.tightBelt) { cost = Math.round(cost * KP.C.BOOKS.tightBeltCut); delete g.tightBelt; }
     if (state.budget < cost) return { ok: false, reason: 'Budget cannot cover the record, the marketing AND this rollout. Trim something.' };

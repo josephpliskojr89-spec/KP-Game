@@ -8,8 +8,10 @@
   // producers write TO the brief: most demos in-lane and a little
   // sharper for it, one adjacent to stretch, one wildcard they push
   // anyway — producers gonna produce.
-  KP.generateDemos = function (state, rng, group) {
+  KP.generateDemos = function (state, rng, group, opts) {
     const S = KP.C.SONG;
+    const MK = KP.C.MARKET;
+    const camp = !!(opts && opts.camp);
     const D = KP.C.DIRECTION;
     const P = KP.C.PITCH;
     const demos = [];
@@ -17,7 +19,7 @@
     // titles already in any discography stay retired — no accidental reissues
     KP.groups(state).forEach(g => (g.releases || []).forEach(r => { usedTitles[r.songTitle] = true; }));
     const direction = group && group.concept ? KP.conceptById(group.concept) : null;
-    for (let i = 0; i < S.demoCount; i++) {
+    for (let i = 0; i < S.demoCount + (camp ? MK.campDemos : 0); i++) {
       const title = KP.genSongTitle(rng, usedTitles);
       let concept;
       if (direction && i < D.laneSlots) {
@@ -35,6 +37,11 @@
       // pass his pushes twice and the good hooks go elsewhere — where
       // they become ghost demos, which was always the ghost's origin story
       const snubbed = group && pr.snubs && (pr.snubs[group.id] || 0) >= P.snubsAt;
+      // the song market (v0.10.5): a producer with records made HERE
+      // shows this room his best — repeat collaboration is a discount
+      // paid in access, not money
+      const bonded = !!(group && pr.works &&
+        pr.works.filter(w => w.groupId === group.id).length >= MK.bondAt);
       demos.push({
         id: 'song' + (i + 1),
         title,
@@ -42,7 +49,8 @@
         producerId: pr.id,
         conceptId: concept.id,
         toBrief,
-        hook: KP.clamp(q(rng) + (toBrief ? D.briefHookBonus : 0) - (snubbed ? P.snubHookMalus : 0), 10, 95),
+        bonded,
+        hook: KP.clamp(q(rng) + (toBrief ? D.briefHookBonus : 0) - (snubbed ? P.snubHookMalus : 0) + (bonded ? MK.bondHookBonus : 0) + (camp ? MK.campHookShift : 0), 10, 95),
         vocalDemand: q(rng), rapDemand: KP.clamp(q(rng) - 15, 5, 95),
         choreoPotential: q(rng), trendFit: q(rng),
       });
@@ -81,6 +89,18 @@
         });
       }
     }
+    // the song market (v0.10.5): the sheet gets prices and clocks.
+    // A member's own demo is hers (price 0); everyone else's asking
+    // price scales with the hook and the producer's heat, and a hook
+    // hot enough is CIRCULATING — a dated window before other rooms
+    // may buy it out from under this one.
+    demos.forEach(d => {
+      if (d.writtenBy) { d.price = 0; return; }
+      const pr2 = d.producerId && KP.producerById(state, d.producerId);
+      const heat = pr2 ? KP.producerHeat(pr2) : 'unproven';
+      d.price = Math.max(0, Math.round((d.hook - MK.priceFloorHook) * MK.pricePerHook * (MK.heatMult[heat] || 1)));
+      if (d.hook >= MK.circulatingAt) d.circUntil = state.week + MK.windowWeeks;
+    });
     function q(r) { return KP.clamp(Math.round(r.normal(S.qualityMean, S.qualitySd)), 10, 95); }
     return demos;
   };

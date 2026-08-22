@@ -4478,7 +4478,7 @@ and suite_079 (30 checks) forcing every kind and both clause
 endings. No migration — ledger and clause self-init. Battery
 79/79, soak 40 clean, longhaul 9x620 clean, e2e 102.
 
-## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; 1+8+3 SHIPPED v0.10.0; 2+7+14 SHIPPED v0.10.1; 6+10 SHIPPED v0.10.3; 5+12 SHIPPED v0.10.4)
+## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; 1+8+3 SHIPPED v0.10.0; 2+7+14 SHIPPED v0.10.1; 6+10 SHIPPED v0.10.3; 5+12 SHIPPED v0.10.4; 11 SHIPPED v0.10.5)
 
 Owner: *"bring in a kpop expert, I want more depth. the width is
 excellent and some of our systems are deep, but I want the whole
@@ -4792,6 +4792,34 @@ stationRun/lineCarded floors 0.90, slipDecided 0.15, clipCaught
 0.20, lineWarSeen [0.05,0.80] (bot centers a hyped ace at 12+ —
 0/40 at threshold 25), medCase 0.60, medChronic [0.05,0.80],
 flareFelt [0.02,0.80]. Battery 84/84, soak 40 clean, longhaul
+9x620 clean, e2e 104.
+
+**As built (v0.10.5 — the song market, finding 11).** New module
+`market.js` (weekly order 155, right after the pitch phase) plus
+songs.js surgery. **The prices:** every professional demo carries
+an ASKING PRICE — (hook past 45) × 0.5 × the producer's heat
+(in-demand 1.6x down to cold-streak 0.7x); a member's own demo is
+hers, price 0. The price rides planDebut's bill as its own line
+(five suite fixtures learned the new arithmetic). **The window:**
+a hook at 68+ is CIRCULATING with a 3-week dated window shown on
+the pitch sheet; sit past it and each week rolls 30% — the demo
+comes off the desk, a named rival's checkbook gets the credit,
+and the song enters the ghost-demo drawer where the v0.9.7
+machinery already turns passed demos into rival hits with the
+A&R story attached. Locked records and member demos are never
+bought. **The camp:** `KP.holdSongCamp` — 25 up front (a
+production flow), 12-week cooldown, closed while a record is
+locked; the sheet regenerates deeper (+2 demos) and hotter (+6
+hook shift) — the spend verb for a cold cycle, with a Studio
+button. **The bond:** a producer with 2+ records made with THIS
+group shows the room his best (+5 hook, the "house regular" chip)
+— repeat collaboration is a discount paid in access, feeding the
+signatureSound narrative it already earns. Hygiene: scandal.js's
+member release (both doors) now re-partitions the dorm rooms —
+a latent v0.10.2 bug (321 room-chart violations when a soak world
+finally walked the path) fixed at both sites with a regression
+assert in suite_082. Bands ruled: demoLost floor 0.60, campHeld
+0.50, bondWorking 0.50. Battery 85/85, soak 40 clean, longhaul
 9x620 clean, e2e 104.
 
 ## §81 The v0.10 build order (RULED — owner: "I like all of them and
@@ -7721,3 +7749,16 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > promoted to must-keep; the wall invariant now asserts
 > engagement via underEras. Battery 84/84, soak 40 clean,
 > longhaul 9x620, e2e 104, lockstep 0.10.4. Rode to main.
+
+> **0.10.5 — the song market (§80 finding 11).** market.js + the
+> pitch sheet repriced: demos carry asking prices (hook × the
+> producer's heat) that ride the era bill; hooks at 68+ circulate
+> on a dated 3-week window — sit past it and a named rival buys
+> the song into the ghost drawer, where it comes back as their
+> hit with everyone knowing whose desk it crossed. The song camp
+> is the spend verb (deeper, hotter sheet, cooldown); a producer
+> with two records made here shows the room his best — the house
+> regular discount, paid in access. Fixed latent v0.10.2 bug:
+> scandal releases now re-partition dorm rooms (321 soak
+> violations when the path finally fired). Battery 85/85, soak 40
+> clean, longhaul 9x620, e2e 104, lockstep 0.10.5. Rode to main.

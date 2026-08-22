@@ -368,6 +368,14 @@
         App.render();
         break;
       }
+      case 'song-camp': {
+        const r = KP.holdSongCamp(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast('Camp held — ' + r.count + ' demos on the desk, and the hallway is humming one of them.');
+        App.render();
+        break;
+      }
       case 'hold-fancon': {
         const r = KP.holdFancon(s, t.dataset.id);
         if (!r.ok) { UI.toast(r.reason, true); break; }

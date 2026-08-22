@@ -39,7 +39,8 @@ function rideToDebut(state, g) {
     R.ACTIVITIES.variety.cost + R.ACTIVITIES.fanSign.cost;
   t.ok(planWith(state, g, plan).ok, 'a legal plan locks');
   t.eq(budgetBefore - state.budget,
-    KP.C.DEBUT.promoCost.modest + KP.C.DEBUT.FORMATS[0].cost + planCost,
+    KP.C.DEBUT.promoCost.modest + KP.C.DEBUT.FORMATS[0].cost + planCost +
+    (g.demos[0].price || 0),   // the song market (v0.10.5)
     'the rollout is billed at lock, per booking');
   t.ok(planWith(state, g, plan).ok === false, 'a release is already locked');
 }

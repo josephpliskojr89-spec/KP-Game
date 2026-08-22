@@ -49,7 +49,8 @@ function signDeal(state, p, over) {
   // the product (v0.10.0): the pressing sheet joined the bill — the
   // one-truth check now sums both lines the studio shows
   t.eq(before - state.budget,
-    KP.recordBill(g, 'modest', 'single') + KP.pressingBill(state, g, g.prep.pressing),
+    KP.recordBill(g, 'modest', 'single') + KP.pressingBill(state, g, g.prep.pressing) +
+    (g.demos.find(d => d.id === g.prep.songId).price || 0),   // the song market (v0.10.5)
     'and charges exactly the bill the studio shows — one truth');
   // an undebuted group pays rookie prices
   const fresh = { debuted: false, popularity: 90 };

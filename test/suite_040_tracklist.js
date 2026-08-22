@@ -12,6 +12,7 @@ function ready(seed, n) {
   const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, n || 5);
   KP.proposeGroup(state, 'TRAX', ids, KP.roleHints(state, ids.map(i => state.people[i])));
+  state.budget = 600;   // the song market (v0.10.5): priced demos still lock
   return { state, g: state.groups[0] };
 }
 function lock(state, g, format, week) {

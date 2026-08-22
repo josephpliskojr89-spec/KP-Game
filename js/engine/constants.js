@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.4',
+    VERSION: '0.10.5',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1471,6 +1471,22 @@
       royaltyEvery: 8,            // the writer's publishing check cadence
       leverageAt: 12,             // accumulated royalties = "she doesn't
                                   // need the re-sign the way the dancer does"
+    },
+    // the song market (v0.10.5, §80 finding 11) — demos cost money and
+    // have other suitors. The LAW: passing on a hot hook is a bet with
+    // a clock on it, and the ghost story is the industry collecting.
+    MARKET: {
+      priceFloorHook: 45,       // below this a demo is relationship-priced (free)
+      pricePerHook: 0.5,        // asking ≈ (hook − floor) × this × heat
+      heatMult: { 'in demand': 1.6, reliable: 1.2, workmanlike: 1.0,
+        'cold streak': 0.7, unproven: 0.85 },
+      circulatingAt: 68,        // hooks this hot are shopping while you read
+      windowWeeks: 3,           // the dated window before rivals may buy
+      buyChance: 0.30,          // per week past the window
+      campCost: 25, campDemos: 2, campHookShift: 6,   // the spend verb
+      campCooldown: 12,
+      bondAt: 2,                // records together = a working relationship
+      bondHookBonus: 5,         // a bonded producer shows you his best
     },
     // the making (v0.10.4, §80 finding 5) — prep stops being an opaque
     // countdown: the runway auto-schedules STATIONS with surfaces. The

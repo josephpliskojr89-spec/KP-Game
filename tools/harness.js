@@ -310,6 +310,14 @@ const BANDS = {
   clipCaught:        { lo: 0.20, hi: 1.00, label: 'orgs whose MV set leaked the free trailer' },
   lineCarded:        { lo: 0.90, hi: 1.00, label: 'orgs that answered the line-distribution card' },
   lineWarSeen:       { lo: 0.05, hi: 0.80, label: 'orgs audited by the stopwatch thread' },
+  // the song market (v0.10.5): ruled first soak — 40/40, 39/40, 39/40.
+  // Hot hooks sit past windows constantly over long orgs (the bot
+  // deliberates like everyone else); camps fire whenever a cold sheet
+  // meets a flush till; bonds form from repeat collaboration. Floors
+  // guard against going dead.
+  demoLost:          { lo: 0.60, hi: 1.00, label: 'orgs that lost a circulating hook to a faster checkbook' },
+  campHeld:          { lo: 0.50, hi: 1.00, label: 'orgs that held a song camp' },
+  bondWorking:       { lo: 0.50, hi: 1.00, label: 'orgs whose house regular showed his best' },
   medCase:           { lo: 0.60, hi: 1.00, label: 'orgs whose desk saw a diagnosis' },
   medChronic:        { lo: 0.05, hi: 0.80, label: 'orgs carrying a chronic file' },
   flareFelt:         { lo: 0.02, hi: 0.80, label: 'orgs whose veteran worked around the file' },
@@ -544,6 +552,7 @@ const tally = {
   clubOpened: 0, greetingsOut: 0, fanconHeld: 0, catalogPaying: 0, atmStorm: 0,
   stationRun: 0, slipDecided: 0, clipCaught: 0, lineCarded: 0, lineWarSeen: 0,
   medCase: 0, medChronic: 0, flareFelt: 0,
+  demoLost: 0, campHeld: 0, bondWorking: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -732,6 +741,16 @@ for (let s = 0; s < SEEDS; s++) {
       if (state.week - (g.lastFanconWeek || -999) < KP.C.MERCH.fanconCooldown) return;
       if (state.budget < KP.C.MERCH.fanconCost + 80 || restRead(g) >= 50) return;
       KP.holdFancon(state, g.id);
+    });
+    // the song market (v0.10.5): a flush boss camps when the cold sheet
+    // has no hook worth the pitch meeting's time
+    if (KP.holdSongCamp) state.groups.forEach(g => {
+      if (!g.debuted || g.retiredWeek || g.prep || g.tour || g.hiatus) return;
+      if (state.week <= (g.promoUntil || 0)) return;
+      if (!g.demos || !g.demos.length) return;
+      if (Math.max.apply(null, g.demos.map(d => d.hook)) >= 60) return;
+      if (state.budget < KP.C.MARKET.campCost + 150) return;
+      KP.holdSongCamp(state, g.id);
     });
     // the album promise gets kept (v0.9.25): produce her record when
     // the claim is open and the till can carry it
@@ -1569,6 +1588,11 @@ for (let s = 0; s < SEEDS; s++) {
   if ((mdl.cases || 0) >= 1) tally.medCase++;
   if ((mdl.chronics || 0) >= 1) tally.medChronic++;
   if ((mdl.flares || 0) >= 1) tally.flareFelt++;
+  // the song market (v0.10.5): the ledger is durable
+  const mkl = state.marketLedger || {};
+  if ((mkl.lost || 0) >= 1) tally.demoLost++;
+  if ((mkl.camps || 0) >= 1) tally.campHeld++;
+  if ((mkl.bondsSeen || 0) >= 1) tally.bondWorking++;
   // the recurring money (v0.10.3): the ledger is durable
   const cml = state.commerceLedger || {};
   if ((cml.clubs || 0) >= 1) tally.clubOpened++;

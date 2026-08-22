@@ -147,6 +147,7 @@ function openCal(state, g) {
   const { state, g } = debuted('ct-credits');
   organize(g);
   openCal(state, g);
+  state.budget = 900;   // the song market (v0.10.5): a priced demo must still lock
   g.demos = KP.generateDemos(state, KP.rngFor(state), g);
   KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest', format: 'mini',
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });

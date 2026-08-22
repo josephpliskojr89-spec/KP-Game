@@ -171,6 +171,11 @@ function pinnedAskWeek(s) {
   KP.resolveScene(b.s, b.ch.id, 'release');
   t.eq(pb.status, 'released', 'letting her go is the other door');
   t.ok(!gb || !gb.members.includes(pb.id), 'the chair is empty');
+  // the dorm re-partitions around the empty chair (latent-bug regression)
+  if (gb && gb.rooms) {
+    t.eq(gb.rooms.flat().sort().join(), gb.members.slice().sort().join(),
+      'and the room chart partitions the lineup that remains');
+  }
   t.ok(b.s.inbox.some(n => n.ind === 'scandalRelease'), 'and the statement runs four sentences');
 }
 {
