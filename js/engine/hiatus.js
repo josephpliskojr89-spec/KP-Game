@@ -58,7 +58,9 @@
         if (g.fandom) g.fandom.intensity = KP.clamp((g.fandom.intensity || 0) - H.fandomCoolPerWeek, 0, 100);
         if (!g.hiatus.coolNoted) {
           g.hiatus.coolNoted = true;
-          inbox.push({ kind: 'company', groupId: g.id,
+          // one-shot milestone: the stamp burns whether or not the note
+          // survives the weekly budget, so the note must survive it
+          inbox.push({ kind: 'company', ind: 'hiatusCooling', priority: 'high', groupId: g.id,
             text: 'The weekly numbers for ' + g.name + ' have started their slow walk down — the announcement bought ' + H.graceWeeks +
               ' weeks of patience and the patience is spent. Rest is still working. So is forgetting. Both compound.' });
         }

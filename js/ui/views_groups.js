@@ -293,9 +293,23 @@
     html.push('<div class="kicker">Next step</div>');
     if (g.prep) {
       const inW = g.prep.scheduledWeek - state.week;
+      // the making (v0.10.4): the production board, not a countdown
+      const ST_LABEL = { recording: 'Recording', choreo: 'Choreography', mv: 'MV shoot', jacket: 'Jacket shoot' };
+      const board = (g.prep.stations || []).map(st => {
+        const label = ST_LABEL[st.id] || st.id;
+        const extra = st.id === 'choreo' && st.done && g.prep.choreo
+          ? ' · ' + UI.esc(g.prep.choreo.name) : '';
+        return '<div style="display:flex;justify-content:space-between;font-size:.8rem;opacity:' + (st.done ? '.55' : '1') + '">' +
+          '<span>' + (st.done ? '✓ ' : '· ') + label + extra + '</span>' +
+          '<span>' + (st.done ? 'done' : st.week <= state.week ? 'this week' : 'wk ' + (st.week - state.week) + ' out') + '</span></div>';
+      }).join('');
       html.push('<div class="card">' + (g.debuted ? 'Comeback' : 'Debut') + ' scheduled for <b>' + UI.esc(KP.weekLabel(g.prep.scheduledWeek).text) + '</b>' +
         (inW > 0 ? ' — ' + inW + ' week' + (inW === 1 ? '' : 's') + ' out.' : ' — this week.') +
-        ' Rehearsals have replaced individual training for the members.</div>');
+        ' Rehearsals have replaced individual training for the members.' +
+        (board ? '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">' + board + '</div>' : '') +
+        (g.prep.crunchUntil && state.week <= g.prep.crunchUntil
+          ? '<div style="margin-top:6px;font-size:.75rem;color:var(--warn,#c66)">CRUNCH — the date holds and the room pays. The medical desk is watching.</div>' : '') +
+        '</div>');
     } else if (!g.debuted) {
       html.push('<div class="card">The lineup exists on paper. It becomes real in the Studio: pick the song, the concept, and the date.' +
         '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Open the Studio</button></div></div>');

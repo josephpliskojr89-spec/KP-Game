@@ -260,7 +260,9 @@
         // the departed writer's checks keep arriving — a quiet letter
         if ((p.status === 'released' || p.status === 'departed') &&
             state.week % (C.royaltyEvery * 6) === 0) {
-          inbox.push({ kind: 'company', ind: 'departedRoyalty', priority: 'flavor', personId: p.id,
+          // rare (every ~year per departed writer) and load-bearing for
+          // the fiction — must survive a busy week's note budget
+          inbox.push({ kind: 'company', ind: 'departedRoyalty', priority: 'high', personId: p.id,
             text: 'The quarterly publishing statement includes, as it always will, the songs ' + KP.displayName(p) + ' wrote here. The checks follow the person. The credits stay in the booklet. Some doors never fully close.' });
         }
       });

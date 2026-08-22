@@ -526,9 +526,14 @@
     const prepBonus = Math.min(10, (g.prep.progress || 0) * 1.1);
     // members benched by medical staff (v0.4.2) cost the stage directly
     const benched = members.filter(m => KP.onBreak(m));
+    // the making (v0.10.4): punishing choreography vs a room that can't
+    // carry it is a bill the stage collects — reach priced against grasp
+    const PIPE = KP.C.PIPE;
+    const hardChoreo = !!(g.prep.choreo && g.prep.choreo.difficulty >= PIPE.diffHard);
+    const choreoBill = hardChoreo && avg('dance') < PIPE.hardDanceFloor ? PIPE.hardPerfPenalty : 0;
     const performance = KP.clamp(
       skillVsDemand * 52 + liveRel * 0.28 + prepBonus - Math.max(0, fatigueAvg - 60) * 0.3
-      - benched.length * KP.C.COMEBACK.OVERWORK.perfPenalty, 5, 100);
+      - benched.length * KP.C.COMEBACK.OVERWORK.perfPenalty - choreoBill, 5, 100);
 
     // --- group concept fit + chemistry
     const fits = members.map(m => KP.conceptFit(m, concept));
@@ -740,7 +745,8 @@
     }
     // the internet reacts to the stage itself (v0.6.2)
     const DD = KP.C.DISCOURSE;
-    if (performance < 45 && rng.chance(DD.encoreChance)) {
+    // hard choreography raises the stakes of the live (v0.10.4)
+    if (performance < 45 && rng.chance(DD.encoreChance + (hardChoreo ? KP.C.PIPE.hardEncoreBonus : 0))) {
       const shaky = members.slice().sort((a, b) => KP.derived(a).liveReliability - KP.derived(b).liveReliability)[0];
       push(KP.igniteDiscourse(state, rng, 'encore', 'idol', shaky.id, g.id));
     }
@@ -960,6 +966,9 @@
       producerId: demo.producerId || null, producer: demo.producer,
       mv: mvTier, writtenBy: demo.writtenBy || null,
       repackageOf: repack ? repack.of : null,
+      // the making (v0.10.4): who built the stage, and whose lines it was
+      choreo: g.prep.choreo || null,
+      lineCard: g.prep.lineCard || null,
     });
     // the return run lands (v0.9.25): the alum stood in her old spot
     if (g.prep.returnRun) {

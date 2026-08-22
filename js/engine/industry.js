@@ -917,6 +917,11 @@
         { persona: 'fan', text: 'holding the line on the ' + who + ' story until something is actually confirmed. the line is quiet tonight. the line holds anyway' },
         { persona: 'stan', text: 'the fandom rooms are split over the ' + who + ' story and the split is the real damage. whatever ' + co + ' says next decides which room grows' },
       ],
+      lineShare: [
+        { persona: 'fan', text: 'the line distribution spreadsheet is out. eight seconds. EIGHT. we timed it three times with three different stopwatches because we did not want it to be true' },
+        { persona: 'stan', text: 'not arguing that the hook slaps. arguing that the hook could slap with more than one voice in it. ' + co + ' knows exactly what sheet they approved' },
+        { persona: 'casual', text: 'every comeback, one fandom discovers timestamps and one company discovers silence. the line-distribution audit is the industry’s most renewable resource' },
+      ],
       atmStory: [
         { persona: 'fan', text: 'the "we are not ATMs" thread about ' + co + ' has receipts, timestamps, and a spreadsheet. membership, the package, the fancon, the versions — one season. we counted because we PAY' },
         { persona: 'casual', text: 'fandom accounting thread going around: ' + co + ' ran the whole commerce calendar inside one quarter. the group is blameless, the invoice pile is not' },

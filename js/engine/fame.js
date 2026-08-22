@@ -120,6 +120,10 @@
       if (walled) led.walled++;
       if (momLift >= 8) led.ground++;
       led.wasted += waste;
+      // mechanism census (v0.10.4): a release CAN fit inside its cap
+      // with zero waste and no breakthrough — the wall still gated it.
+      // The longhaul asserts engagement, not any particular outcome.
+      led.underEras = (led.underEras || 0) + 1;
     }
     return { reception: KP.clamp(Math.round(r), 1, 100),
       fame, waste, momLift, cap, walled, under };

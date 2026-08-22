@@ -298,6 +298,21 @@ const BANDS = {
   fanconHeld:        { lo: 0.70, hi: 1.00, label: 'orgs that held a fancon between eras' },
   catalogPaying:     { lo: 0.90, hi: 1.00, label: 'orgs whose shelf pays the weekly annuity' },
   atmStorm:          { lo: 0.15, hi: 0.95, label: 'orgs that squeezed into the ATM story' },
+  // the making (v0.10.4): ruled first soak — 40/40, 28/40, 30/40,
+  // 40/40, 11/40, 39/40, 10/40, 8/40. Stations and the line card ride
+  // every prep (floors); slips/clips are calendar lotteries; the
+  // stopwatch audit needs a centered card (bot centers a hyped ace at
+  // 12+, first measure was 0/40 at threshold 25 — hype builds late);
+  // chronics need the push door, which the bot walks only under
+  // schedule pressure. Floors guard against going dead.
+  stationRun:        { lo: 0.90, hi: 1.00, label: 'orgs whose eras ran the production board' },
+  slipDecided:       { lo: 0.15, hi: 1.00, label: 'orgs that faced postpone-or-crunch' },
+  clipCaught:        { lo: 0.20, hi: 1.00, label: 'orgs whose MV set leaked the free trailer' },
+  lineCarded:        { lo: 0.90, hi: 1.00, label: 'orgs that answered the line-distribution card' },
+  lineWarSeen:       { lo: 0.05, hi: 0.80, label: 'orgs audited by the stopwatch thread' },
+  medCase:           { lo: 0.60, hi: 1.00, label: 'orgs whose desk saw a diagnosis' },
+  medChronic:        { lo: 0.05, hi: 0.80, label: 'orgs carrying a chronic file' },
+  flareFelt:         { lo: 0.02, hi: 0.80, label: 'orgs whose veteran worked around the file' },
   chodongMinted:     { lo: 0.90, hi: 1.00, label: 'orgs whose releases printed a first-week number' },
   // ruled first soak: 25/40 and 36/40 across ~6 eras per world — the
   // gamble's two tails. Dead at 0 (the pressing choice stopped
@@ -527,6 +542,8 @@ const tally = {
   chodongMinted: 0, pressSoldOut: 0, pressWarehouse: 0,
   channelSeen: 0, gaffeLottery: 0, storySeen: 0, storyForced: 0,
   clubOpened: 0, greetingsOut: 0, fanconHeld: 0, catalogPaying: 0, atmStorm: 0,
+  stationRun: 0, slipDecided: 0, clipCaught: 0, lineCarded: 0, lineWarSeen: 0,
+  medCase: 0, medChronic: 0, flareFelt: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -1037,6 +1054,27 @@ for (let s = 0; s < SEEDS; s++) {
         }
         return;
       }
+      if (sc.kind === 'lineCard') {
+        // the making (v0.10.4): front-load a real ace, else trust the
+        // producer — a boss with a breakout plays the hand it built
+        const g2 = KP.groupById(state, sc.groupId);
+        const ace = g2 && state.people[g2.roles && g2.roles.center];
+        // hype builds late in an era — at recording time even a modest
+        // read on the center is enough for a boss to play the hand
+        KP.resolveScene(state, sc.id, ace && (ace.hype || 0) >= 12 ? 'center' : 'trust');
+        return;
+      }
+      if (sc.kind === 'theDiagnosis') {
+        // schedule pressure is the industry default: mid-promo takes the
+        // chair, mid-prep/tour pushes through, a quiet calendar rests —
+        // all three doors get walked, which is the census's point
+        const p2 = state.people[sc.personId];
+        const g2 = p2 ? KP.groupOf(state, p2.id) : null;
+        const pick = g2 && state.week <= (g2.promoUntil || 0) ? 'seated'
+          : g2 && (g2.prep || g2.tour) ? 'push' : 'rest';
+        KP.resolveScene(state, sc.id, pick);
+        return;
+      }
       const def = KP.sceneDef(sc.kind);
       if (def) KP.resolveScene(state, sc.id, def.options(state, sc)[0].id);
     });
@@ -1520,6 +1558,17 @@ for (let s = 0; s < SEEDS; s++) {
   const scl = state.scandalLedger || {};
   if ((scl.broke || 0) >= 1) tally.storySeen++;
   if ((scl.forcedBreaks || 0) + (scl.choices || 0) >= 1) tally.storyForced++;
+  // the making (v0.10.4): both ledgers are durable
+  const ppl = state.pipeLedger || {};
+  if ((ppl.stationsRun || 0) >= 1) tally.stationRun++;
+  if ((ppl.postponed || 0) + (ppl.crunched || 0) >= 1) tally.slipDecided++;
+  if ((ppl.clips || 0) >= 1) tally.clipCaught++;
+  if ((ppl.lineCards || 0) >= 1) tally.lineCarded++;
+  if ((ppl.lineWars || 0) >= 1) tally.lineWarSeen++;
+  const mdl = state.medLedger || {};
+  if ((mdl.cases || 0) >= 1) tally.medCase++;
+  if ((mdl.chronics || 0) >= 1) tally.medChronic++;
+  if ((mdl.flares || 0) >= 1) tally.flareFelt++;
   // the recurring money (v0.10.3): the ledger is durable
   const cml = state.commerceLedger || {};
   if ((cml.clubs || 0) >= 1) tally.clubOpened++;

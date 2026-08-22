@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.3',
+    VERSION: '0.10.4',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -813,11 +813,17 @@
         // machinery — the dumping-photo story aims at the COMPANY
         albumDump: { label: 'album-dumping story', negative: true, start: [25, 50],
           actions: ['statement', 'meme'] },
-        // the person in public (v0.10.2): she said a thing; a story broke
+        // the person in public (v0.10.2): she said a thing; a story
+        // broke. One kind for both the WeCast slip and the v0.6.8
+        // posting incident — a duplicate key here used to shadow this
+        // entry entirely (fixed v0.10.4)
         gaffe: { label: 'the clip of what she said', negative: true, start: [20, 45],
-          actions: ['statement', 'meme'] },
+          actions: ['apology', 'statement', 'meme'] },
         // the recurring money (v0.10.3): squeeze the fandom too hard
         atmStory: { label: '"we are not ATMs"', negative: true, start: [25, 45],
+          actions: ['statement', 'meme'] },
+        // the making (v0.10.4): the line distribution the fandom audits
+        lineShare: { label: 'line-distribution audit', negative: true, start: [22, 42],
           actions: ['statement', 'meme'] },
         scandal: { label: 'the story', negative: true, start: [35, 60],
           actions: ['statement', 'meme'] },
@@ -834,10 +840,6 @@
         // fancams — she has no stages to film
         coverClip: { label: 'cover-clip wave', negative: false, start: [30, 55],
           actions: ['meme', 'livestream'] },
-        // v0.6.8 — the posting incident: an idol's post reads wrong.
-        // Delete-and-apologize, add context, or lean into the joke.
-        gaffe:     { label: 'posting incident', negative: true, start: [22, 42],
-          actions: ['apology', 'statement', 'meme'] },
       },
       // response base success; personality and context shift these
       baseSuccess: { statement: 0.55, apology: 0.8, legal: 0.7, meme: 0.5, livestream: 0.6 },
@@ -1469,6 +1471,44 @@
       royaltyEvery: 8,            // the writer's publishing check cadence
       leverageAt: 12,             // accumulated royalties = "she doesn't
                                   // need the re-sign the way the dancer does"
+    },
+    // the making (v0.10.4, §80 finding 5) — prep stops being an opaque
+    // countdown: the runway auto-schedules STATIONS with surfaces. The
+    // LAW: slippage is a decision (postpone or crunch), never silent.
+    PIPE: {
+      place: { recording: 0.30, choreo: 0.50, mv: 0.72, jacket: 0.86 },
+      recSickFatigue: 74,         // a lead vocalist above this pushes recording
+      slipTrigger: 1,             // any slip inside the final stretch opens the scene
+      finalStretch: 3,            // weeks-out where a slip threatens the date
+      postponeWeeks: 2,           // the notice nobody wants to write
+      postponeBuildup: 8,         // expectation cools with the date
+      crunchFatigue: 9,           // per member, the week the crunch eats
+      crunchRiskWeeks: 3,         // the medical desk watches the crunch
+      mvFatigue: 7, mvClipChance: 0.07, mvClipBuildup: 6,
+      jacketBuildup: 3,
+      choreoCount: 8,             // the named pool, like the writers' room
+      diffHard: 68,               // at/above: "punishing" choreography
+      hardDanceFloor: 58,         // avg dance below this pays on stage
+      hardPerfPenalty: 6,         // the stage bill for reach > grasp
+      hardEncoreBonus: 0.08,      // and the encore lottery watches closer
+      lineWarChance: 0.30,        // a center-cut line card gets audited
+    },
+    // the medical desk (v0.10.4, §80 finding 12) — injuries as arcs,
+    // not a meter: the diagnosis scene, the chronic file, the flare.
+    // Push-through-or-protect is judged forever (the directed ledger).
+    MEDICAL: {
+      base: 0.0011,               // per member-week, before multipliers
+      fatigueAt: 68, fatigueMult: 3.0,
+      loadMult: 1.9,              // promo, tour, crunch weeks
+      chronicMult: 1.5,           // per chronic entry — bodies keep books
+      restMin: 3, restMax: 6,     // the full-rest arc
+      seatedWeeks: 4,             // partial participation, seated
+      pushChronicChance: 0.35,    // pushing through mints a chronic file
+      pushWatchWeeks: 8, pushWatchMult: 2.0,
+      nodulesBase: 0.0015,        // vocal cords in singing-load weeks
+      flareChance: 0.05,          // per chronic, in high-load weeks
+      flareFatigue: 6,
+      playedHurtAt: 2,            // pushes before the world names it
     },
     // the person in public (v0.10.2, §78 A) — "they might ask for
     // permission to go live or to start a video channel... things that

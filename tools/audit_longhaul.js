@@ -443,7 +443,14 @@ for (const sc of SCENARIOS) {
     if ((bkl.pushes || 0) < 1) {
       flag(sc.seed, state.week, 'a ' + sc.mode + ' house ran an era with zero campaign pushes (bot policy broken)');
     }
-    if ((fml.walled || 0) + (fml.ground || 0) + (fml.breaks || 0) < 1) {
+    // the mechanism assert (v0.10.4): a modest-promo debut can fit
+    // INSIDE its cap with zero measurable waste and no breakthrough —
+    // the wall still gated it. underEras counts every under-wall
+    // release applyWall processed; zero there means the wall system
+    // genuinely never engaged for a low-fame house, which is the bug
+    // this invariant exists to catch.
+    if ((fml.walled || 0) + (fml.ground || 0) + (fml.breaks || 0) +
+        (fml.wasted || 0) + (fml.underEras || 0) < 1) {
       flag(sc.seed, state.week, 'a ' + sc.mode + ' house released under the wall and never felt it');
     }
   }

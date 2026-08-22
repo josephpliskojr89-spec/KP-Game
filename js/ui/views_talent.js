@@ -108,6 +108,10 @@
         ? '<span class="chip' + (state.week > p.clause.byWeek - KP.C.TABLE.warnAt ? ' hot' : '') +
           '">debut-by wk ' + p.clause.byWeek + '</span>' : '') +
       (p.flags && p.flags.trainClause ? '<span class="chip">training clause</span>' : '') +
+      (p.medical && p.medical.chronic && p.medical.chronic.length
+        ? '<span class="chip hot">' + UI.esc(p.medical.chronic.map(c => c.site).join(' · ')) + '</span>' : '') +
+      (p.flags && p.flags.seatedUntil && state.week < p.flags.seatedUntil
+        ? '<span class="chip">seated</span>' : '') +
       '</div></div>' +
       '<div class="t-side"><span class="chip">' + idolOrFocusChip(state, p, focus) + '</span></div>' +
       '</div>';

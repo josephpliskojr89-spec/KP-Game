@@ -4478,7 +4478,7 @@ and suite_079 (30 checks) forcing every kind and both clause
 endings. No migration — ledger and clause self-init. Battery
 79/79, soak 40 clean, longhaul 9x620 clean, e2e 102.
 
-## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; 1+8+3 SHIPPED v0.10.0; 2+7+14 SHIPPED v0.10.1; 6+10 SHIPPED v0.10.3)
+## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; 1+8+3 SHIPPED v0.10.0; 2+7+14 SHIPPED v0.10.1; 6+10 SHIPPED v0.10.3; 5+12 SHIPPED v0.10.4)
 
 Owner: *"bring in a kpop expert, I want more depth. the width is
 excellent and some of our systems are deep, but I want the whole
@@ -4745,6 +4745,54 @@ a departed writer's quarterly letter keeps arriving after the
 door closes. Bands ruled: club/greetings/fancon/catalog floors
 0.90/0.80/0.70/0.90, atmStorm [0.15,0.95]. Battery 83/83, soak 40
 clean, longhaul 9x620 clean, e2e 103.
+
+**As built (v0.10.4 — the making, findings 5+12).** Two modules.
+`pipeline.js` (weekly order 120, right after prep fatigue) — prep
+stops being an opaque countdown: locking an era auto-schedules
+STATIONS on the runway (recording 30%, choreo 50%, MV 72%, jackets
+86%; short runways stack into the last prep week). Recording needs
+a healthy lead vocal — benched or wrecked (fatigue 74+) slips the
+station, and a slip inside the final 3 weeks opens theSlip:
+postpone (+2 weeks, momentum −8, the notice in the flat font) or
+crunch (date holds, +9 fatigue each, a crunch window the medical
+desk watches; the expire default is crunch — the industry's).
+Recording done opens the LINE CARD: trust the producer / every
+voice (morale spread) / front-load the ace (hype +4, a thin-lined
+low-professionalism member files a linesCut grievance) — a
+center-cut card is audited at release (30%: the lineShare
+stopwatch discourse, new KINDS entry). Choreography comes from a
+NAMED pool of eight (styles precision/theatrical/minimal/athletic
+with base difficulty; a punishing rating ≥68 against a room under
+58 avg dance costs 6 performance on the stage and raises the
+encore-lottery odds — reach priced against grasp); the MV shoot
+spikes fatigue 7 and runs the on-set clip lottery (7%, momentum
++6); jackets warm the era +3. Release archives choreo + lineCard.
+`medical.js` (weekly order 290, after the tour's load) — injuries
+as ARCS: risk per idol-week (base 0.0011 × fatigue≥68 ×3 × heavy
+weeks ×1.9 × chronic files ×1.5 each × push-watch ×2) opens
+theDiagnosis, one desk at a time, the report naming a SHAPE at
+altitude (the knee, the voice — never lower). Three doors, judged
+forever: full rest (burnout bench with an end date, directed
+protectedHealth +), the seated arrangement (4 weeks, the
+industry's most photographed chair), or push through (directed
+pushedThrough −, watch window, 35% chronic file; at 2 pushes the
+playedHurt narrative — both memory switches). Chronic files flare
+on heavy weeks (5%/file, +6 fatigue) — the veteran's knee is a
+character. Vocal strain rolls separately for singing-load weeks.
+Trainees stay under practice-room rules — the desk watches the
+working schedule. Hygiene: the duplicate DISCOURSE.KINDS 'gaffe'
+key (v0.6.8 posting incident shadowing v0.10.2's entry) merged
+into one; the hiatus walk-down note and departed-royalty letter
+promoted to must-keep priority after the new weeklies' rng shift
+budget-cut them (one-shot milestones survive busy weeks now);
+fameLedger gained underEras and the longhaul wall invariant now
+asserts ENGAGEMENT (a modest debut can legally fit inside its cap
+with zero waste — the wall still gated it). Bands ruled:
+stationRun/lineCarded floors 0.90, slipDecided 0.15, clipCaught
+0.20, lineWarSeen [0.05,0.80] (bot centers a hyped ace at 12+ —
+0/40 at threshold 25), medCase 0.60, medChronic [0.05,0.80],
+flareFelt [0.02,0.80]. Battery 84/84, soak 40 clean, longhaul
+9x620 clean, e2e 104.
 
 ## §81 The v0.10 build order (RULED — owner: "I like all of them and
 I want to build them comprehensively. plan out the order first")
@@ -7656,3 +7704,20 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 8 weeks, arm the ownMoney narrative at the renewal table, and
 > keep arriving after departure. Battery 83/83, soak 40 clean,
 > longhaul 9x620, e2e 103, lockstep 0.10.3. Rode to main.
+
+> **0.10.4 — the making (§80 findings 5+12).** pipeline.js: prep
+> becomes a production board — stations auto-scheduled on the
+> runway, recording gated on a healthy lead vocal, the line-
+> distribution card the fandom audits with stopwatches, a named
+> choreographer pool whose punishing ratings the stage bills
+> against weak rooms, the MV fatigue spike and on-set clip
+> lottery — and slippage as a decision: postpone (the flat-font
+> notice) or crunch (the date holds, the room pays, the medical
+> desk watches). medical.js: injuries as arcs — the diagnosis
+> scene's three doors judged forever in the directed ledger, the
+> seated arrangement, chronic files that flare on heavy weeks,
+> and the playedHurt narrative when the schedule keeps winning.
+> Hygiene: duplicate gaffe KINDS key merged; two one-shot notes
+> promoted to must-keep; the wall invariant now asserts
+> engagement via underEras. Battery 84/84, soak 40 clean,
+> longhaul 9x620, e2e 104, lockstep 0.10.4. Rode to main.
