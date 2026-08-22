@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.7',
+    VERSION: '0.10.8',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1471,6 +1471,35 @@
       royaltyEvery: 8,            // the writer's publishing check cadence
       leverageAt: 12,             // accumulated royalties = "she doesn't
                                   // need the re-sign the way the dancer does"
+    },
+    // the Japan cycle (v0.10.8, §80 finding 4) — the second discography
+    // on its own calendar. The LAW: Japan is a real quarter, not a
+    // stat — the lane claims in-country weeks the Korean calendar
+    // cannot use, the partner takes a real cut, and the dome is a
+    // crown you climb to, not a payout. Chart and labels invented
+    // (content law): the Nichion weekly, not the real one.
+    JAPAN: {
+      partnerAt: 35,            // jp warmth that draws the partner call
+      partnerCut: 0.25,         // the partner label's share, forever
+      LANES: {
+        version: { cost: 25, weeks: 3, mult: 0.62,
+          word: 'a JP-version single — the hit re-cut, quick and warm' },
+        original: { cost: 60, weeks: 6, mult: 1.0,
+          word: 'a JP-original — written for the market, a real record' },
+      },
+      minWarmth: 22,            // the lane needs a room that knows them
+      cooldown: 20,             // between JP releases per group
+      revPerScore: 1.6,         // pre-partner-cut
+      warmthGain: { version: 4, original: 8 },
+      fansPerScore: 22,         // the JP fanbase the ladder climbs on
+      noVoiceDamp: 0.82,        // no JP speaker: interviews flop (§55.5)
+      titans: ['AOI GATE', 'Shirahama Eight', 'Kaguya Moon', 'Denkou City'],
+      titanBase: [78, 70, 62, 55],
+      LADDER: [
+        { id: 'hall', at: 800, word: 'the hall tour', rev: 25 },
+        { id: 'arena', at: 2600, word: 'the arena run', rev: 70 },
+        { id: 'dome', at: 5200, word: 'THE DOME', rev: 180 },
+      ],
     },
     // the rituals (v0.10.7, §80 findings 15+9) — the monthly eval and
     // the point breakdown. The LAW: the eval ranks what the coaches

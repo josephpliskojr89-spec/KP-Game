@@ -329,6 +329,11 @@
         .reduce((w, m) => Math.max(w, m.flags.military.until), 0);
       html.push('<div class="card"><b>The service chapter</b> — the group enlisted together and the fandom is running the wait like a project. Nothing cools while the reason is the law. Last discharge expected ' +
         (back ? UI.esc(KP.weekLabel(back).text) : 'soon') + ' — and the next date after that is not a comeback, it is a return.</div>');
+    } else if (g.jpAway) {
+      // the Japan cycle (v0.10.8): in-country weeks, on the record
+      const lane = KP.C.JAPAN.LANES[g.jpAway.lane];
+      html.push('<div class="card"><b>In Japan</b> — ' + UI.esc(lane.word) + ', back in ' +
+        Math.max(0, g.jpAway.until - state.week) + ' week(s). The Korean calendar is quiet on purpose: the second discography claims real weeks, and the Nichion chart posts when the record drops.</div>');
     } else if (g.hiatus) {
       // the disappearance (v0.9.12): parked on purpose, counted weekly
       const hw = state.week - g.hiatus.since;
@@ -351,6 +356,11 @@
         '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Plan the comeback</button></div>' +
         (unitReady ? '<div style="margin-top:8px"><button class="btn small" data-action="plan-unit" data-id="' + g.id + '">Plan a unit era · ' + KP.C.PORTFOLIO.UNIT.cost + '</button></div>' : '') +
         (fanconReady ? '<div style="margin-top:8px"><button class="btn small" data-action="hold-fancon" data-id="' + g.id + '">Hold a fancon · ' + KP.C.MERCH.fanconCost + '</button></div>' : '') +
+        (state.jpPartner && (KP.regionsOf(g).jp || 0) >= KP.C.JAPAN.minWarmth &&
+         state.week - (g.lastJpWeek || -999) >= KP.C.JAPAN.cooldown
+          ? '<div style="margin-top:8px;display:flex;gap:6px">' +
+            '<button class="btn small" data-action="jp-release" data-id="' + g.id + '" data-lane="version">JP-version · ' + KP.C.JAPAN.LANES.version.cost + '</button>' +
+            '<button class="btn small" data-action="jp-release" data-id="' + g.id + '" data-lane="original">JP-original · ' + KP.C.JAPAN.LANES.original.cost + '</button></div>' : '') +
         '<div style="margin-top:8px"><button class="btn small ghost" style="border:1px solid var(--line)" data-action="declare-hiatus" data-id="' + g.id + '">Declare an official hiatus</button></div></div>');
       // the units on the record (v0.9.26)
       (g.units || []).forEach(u => {

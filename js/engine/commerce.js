@@ -42,7 +42,7 @@
     const M = KP.C.MERCH;
     const g = KP.groups(state).find(x => x.id === groupId);
     if (!g || !g.debuted || g.retiredWeek) return { ok: false, reason: 'A fancon needs a debuted act and a room that wants it.' };
-    if (g.prep || g.tour || g.hiatus) return { ok: false, reason: 'The calendar is spoken for.' };
+    if (g.prep || g.tour || g.hiatus || g.jpAway) return { ok: false, reason: 'The calendar is spoken for.' };
     if (state.week <= (g.promoUntil || 0)) return { ok: false, reason: 'Mid-promotion. The fancon is for the quiet between.' };
     if (!g.fandom || (g.fandom.intensity || 0) < M.fanconMinIntensity) {
       return { ok: false, reason: 'A fancon for an unorganized fandom is a theater rental with extra sadness. Build the room first.' };

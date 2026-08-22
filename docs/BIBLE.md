@@ -4478,7 +4478,7 @@ and suite_079 (30 checks) forcing every kind and both clause
 endings. No migration — ledger and clause self-init. Battery
 79/79, soak 40 clean, longhaul 9x620 clean, e2e 102.
 
-## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; 1+8+3 SHIPPED v0.10.0; 2+7+14 SHIPPED v0.10.1; 6+10 SHIPPED v0.10.3; 5+12 SHIPPED v0.10.4; 11 SHIPPED v0.10.5; 15+9 SHIPPED v0.10.7)
+## §80 The label consult (EXPERT DEPTH AUDIT — the v0.10 map; 1+8+3 SHIPPED v0.10.0; 2+7+14 SHIPPED v0.10.1; 6+10 SHIPPED v0.10.3; 5+12 SHIPPED v0.10.4; 11 SHIPPED v0.10.5; 15+9 SHIPPED v0.10.7; 4 SHIPPED v0.10.8)
 
 Owner: *"bring in a kpop expert, I want more depth. the width is
 excellent and some of our systems are deep, but I want the whole
@@ -4855,6 +4855,35 @@ scout seat multiplies applicant flow — 37/40 held a transcendent).
 Bands ruled: evalRun .90, evalTalked .70, breakdownRead .80,
 nearMissFuel .50, nudgeRun .85. Battery 87/87, soak 40 clean,
 longhaul 9x620 clean, e2e 103.
+
+**As built (v0.10.8 — the Japan cycle, finding 4).** New module
+`japan.js` (weekly order 762) + a `japan` stream in the books.
+**The partner call:** once any debuted group's jp warmth crosses
+35, a partner label (invented pool — Aozora Records, Hoshiboshi,
+Kagayaki Tokyo, Umineko Label) flies in with the licensing table:
+sign (25% of everything Japan, forever) or decline (24-week
+re-offer clock). **The lane:** `KP.planJapanRelease(groupId,
+'version'|'original')` — the JP-version single (25, 3 weeks,
+0.62x) or the JP-original (60, 6 weeks, full weight). The lane
+claims REAL in-country weeks: g.jpAway blocks planDebut, tours,
+and fancons (guards at all three), the members pay fatigue on the
+ground, and the Korean calendar goes quiet on purpose. **The
+board:** the record posts to the Nichion weekly (invented, per the
+content law) against four hash-pulsing titans (AOI GATE, Shirahama
+Eight, Kaguya Moon, Denkou City); score = jp warmth x .55 + last
+reception x .45 x lane weight, damped 0.82 without a JP speaker
+(KP.voiceAbroad — the tongue's media-obligation law collecting);
+rank, revenue after the partner's cut (flowing through the japan
+stream + settleShare + accrueDebt), warmth +4/+8, and jpFans
+accruing. **The ladder:** hall at 800 fans, arena at 2600, THE
+DOME at 5200 — each rung a one-shot booking with revenue, the
+dome minting the domeNight narrative (both memory switches) and
+the critical note. Fixture repair: suite_032's warm/cold fork now
+pre-signs both partners (a warm jp map drew the offer rng in one
+fork only). Bands ruled: signed .90, dropped .85, rungUp .70,
+domed [0,.60] — the dome is a crown the paced bot rarely strings
+four cycles for; the positive path is suite-held. Battery 88/88,
+soak 40 clean, longhaul 9x620 clean, e2e 103.
 
 ## §81 The v0.10 build order (RULED — owner: "I like all of them and
 I want to build them comprehensively. plan out the order first")
@@ -7862,3 +7891,14 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > clamorHeld ceiling re-ruled for the scout seat's fuller
 > pipeline. Battery 87/87, soak 40 clean, longhaul 9x620,
 > e2e 103, lockstep 0.10.7. Rode to main.
+
+> **0.10.8 — the Japan cycle (§80 finding 4).** japan.js: the
+> second discography on its own calendar. The partner call past
+> the warmth line (invented labels, 25% forever), the JP lane
+> claiming real in-country weeks (no Korean release, no tour, no
+> fancon from Tokyo), the Nichion weekly against four pulsing
+> titans, revenue through its own book stream after the cut, a
+> speaker-damp when nobody carries the interviews — and the
+> hall-arena-DOME ladder, with the dome minting the industry's
+> one unarguable list as a narrative. Battery 88/88, soak 40
+> clean, longhaul 9x620, e2e 103, lockstep 0.10.8. Rode to main.

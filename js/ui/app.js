@@ -368,6 +368,14 @@
         App.render();
         break;
       }
+      case 'jp-release': {
+        const r = KP.planJapanRelease(s, t.dataset.id, t.dataset.lane);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast('The flight is booked. The Korean calendar goes quiet; the second one starts counting.');
+        App.render();
+        break;
+      }
       case 'point-nudge': {
         const r = KP.pointNudge(s, t.dataset.id, t.dataset.kind);
         if (!r.ok) { UI.toast(r.reason, true); break; }

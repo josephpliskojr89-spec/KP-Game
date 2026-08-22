@@ -327,6 +327,16 @@ const BANDS = {
   // the rituals (v0.10.7): ruled first soak — all five at 40/40 over
   // long orgs (monthly sheets are constant; every career loses show
   // weeks; the bot mobilizes every promo). Floors guard against dead.
+  // the Japan cycle (v0.10.8): ruled first soak — 40/40, 40/40, 40/40,
+  // 0/40. Legacy soak orgs all sign, drop, and climb the first rungs;
+  // the DOME needs ~4 stacked cycles the paced bot rarely strings
+  // together — a crown, not wallpaper. Positive dome path is
+  // suite-held (forced fans); the ceiling watches for wallpaper if
+  // the economy ever inflates jp fans.
+  jpSigned:          { lo: 0.90, hi: 1.00, label: 'orgs that signed the Japan partnership' },
+  jpDropped:         { lo: 0.85, hi: 1.00, label: 'orgs that posted a record to the Nichion weekly' },
+  jpRungUp:          { lo: 0.70, hi: 1.00, label: 'orgs that climbed a rung of the JP ladder' },
+  jpDomed:           { lo: 0.00, hi: 0.60, label: 'orgs that played the dome' },
   evalRun:           { lo: 0.90, hi: 1.00, label: 'orgs whose practice room ran the monthly sheet' },
   evalTalked:        { lo: 0.70, hi: 1.00, label: 'orgs that held the after-eval talk' },
   breakdownRead:     { lo: 0.80, hi: 1.00, label: 'orgs that read a point breakdown out loud' },
@@ -577,6 +587,7 @@ const tally = {
   demoLost: 0, campHeld: 0, bondWorking: 0,
   interviewHeld: 0, seatHired: 0, seatCalled: 0, staffVoice: 0, meshFelt: 0,
   evalRun: 0, evalTalked: 0, breakdownRead: 0, nearMissFuel: 0, nudgeRun: 0,
+  jpSigned: 0, jpDropped: 0, jpRungUp: 0, jpDomed: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
   memberDemoSeen: 0, memberTitleChosen: 0, producerCooled: 0,
   repackaged: 0, mvCinema: 0, mvPlain: 0,
@@ -765,6 +776,17 @@ for (let s = 0; s < SEEDS; s++) {
       if (state.week - (g.lastFanconWeek || -999) < KP.C.MERCH.fanconCooldown) return;
       if (state.budget < KP.C.MERCH.fanconCost + 80 || restRead(g) >= 50) return;
       KP.holdFancon(state, g.id);
+    });
+    // the Japan cycle (v0.10.8): an idle warm group flies out — the
+    // bot runs the version lane (cheap) unless the room is devoted
+    if (KP.planJapanRelease && state.jpPartner) state.groups.forEach(g => {
+      if (!g.debuted || g.retiredWeek || g.prep || g.tour || g.hiatus || g.jpAway) return;
+      if (state.week <= (g.promoUntil || 0)) return;
+      if ((KP.regionsOf(g).jp || 0) < KP.C.JAPAN.minWarmth) return;
+      if (state.week - (g.lastJpWeek || -999) < KP.C.JAPAN.cooldown) return;
+      const lane = (KP.regionsOf(g).jp || 0) >= 55 ? 'original' : 'version';
+      if (state.budget < KP.C.JAPAN.LANES[lane].cost + 150 || restRead(g) >= 50) return;
+      KP.planJapanRelease(state, g.id, lane);
     });
     // the rituals (v0.10.7): a promo week gets its one mobilization
     if (KP.pointNudge) state.groups.forEach(g => {
@@ -1631,6 +1653,12 @@ for (let s = 0; s < SEEDS; s++) {
   if ((mdl.cases || 0) >= 1) tally.medCase++;
   if ((mdl.chronics || 0) >= 1) tally.medChronic++;
   if ((mdl.flares || 0) >= 1) tally.flareFelt++;
+  // the Japan cycle (v0.10.8): the ledger is durable
+  const jpl = state.jpLedger || {};
+  if ((jpl.signed || 0) >= 1) tally.jpSigned++;
+  if ((jpl.releases || 0) >= 1) tally.jpDropped++;
+  if ((jpl.rungs || 0) >= 1) tally.jpRungUp++;
+  if ((jpl.domes || 0) >= 1) tally.jpDomed++;
   // the rituals (v0.10.7): both ledgers are durable
   const evl = state.evalLedger || {};
   if ((evl.sheets || 0) >= 1) tally.evalRun++;

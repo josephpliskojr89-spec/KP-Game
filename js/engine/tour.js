@@ -46,6 +46,7 @@
     if (g.prep) return { ok: false, reason: 'A release is in production. One calendar at a time.' };
     if (g.tour) return { ok: false, reason: 'They are already on the road.' };
     if (g.hiatus) return { ok: false, reason: 'They are officially gone. A hiatus with tour dates is called a tour.' };
+    if (g.jpAway) return { ok: false, reason: 'They are in Japan. One country at a time.' };
     if (state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) {
       return { ok: false, reason: 'The release calendar (promo + rest) has the room. The road waits.' };
     }

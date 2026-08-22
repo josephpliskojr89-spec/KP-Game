@@ -40,6 +40,7 @@
       return { ok: false, reason: 'Every member is in service. The record waits for the discharge — that is what makes it a return.' };
     }
     if (g.prep) return { ok: false, reason: 'A release is already locked.' };
+    if (g.jpAway) return { ok: false, reason: 'They are in Japan — the second calendar has these weeks.' };
     if (g.tour) return { ok: false, reason: 'They are on tour. The studio can wait for the road to end.' };
     if (state.week <= (g.tourRestUntil || 0)) {
       return { ok: false, reason: 'Post-tour rest is contractual. The calendar reopens ' + KP.weekLabel((g.tourRestUntil || 0) + 1).text + '.' };
@@ -313,6 +314,7 @@
     if (g.retiredWeek || !g.members.length) return { ok: false, reason: 'That chapter is closed.' };
     if (!g.debuted) return { ok: false, reason: 'An era has to exist before it extends.' };
     if (g.prep) return { ok: false, reason: 'A release is already locked.' };
+    if (g.jpAway) return { ok: false, reason: 'They are in Japan — the second calendar has these weeks.' };
     if (g.tour) return { ok: false, reason: 'They are on tour. The reissue can wait for the road.' };
     const last = (g.releases || [])[(g.releases || []).length - 1];
     if (!last) return { ok: false, reason: 'An era has to exist before it extends.' };

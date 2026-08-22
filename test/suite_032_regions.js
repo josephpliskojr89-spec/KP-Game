@@ -87,6 +87,10 @@ function debuted(seed, conceptId) {
   const json = KP.serialize(state);
   const warm = KP.deserialize(json), cold = KP.deserialize(json);
   KP.C.REGIONS.forEach(x => { warm.groups[0].regions[x.id] = 70; cold.groups[0].regions[x.id] = 0; });
+  // the Japan cycle (v0.10.8): a warm jp map draws the partner-call rng
+  // in one fork only — pre-sign BOTH so the streams stay identical
+  warm.jpPartner = { name: 'Fixture Label', since: 0 };
+  cold.jpPartner = { name: 'Fixture Label', since: 0 };
   [warm, cold].forEach(s => {
     const sg = s.groups[0];
     sg.demos = KP.generateDemos(s, KP.rngFor(s));
