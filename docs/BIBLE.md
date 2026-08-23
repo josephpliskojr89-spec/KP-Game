@@ -8451,3 +8451,14 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > file — the phone tree runs on what the room knows, not what your
 > unread board guesses. Battery 91/91, soak 40 clean (calls 25/40),
 > longhaul 10x620, e2e 109, lockstep 0.10.17.1. Rode to main.
+
+> **0.10.17.2 — the story on the file.** Owner: "little flavor in the
+> history of street castings explaining how your scout found them…
+> they don't mean anything, just a story." Fourteen vignettes of how
+> the card actually changed hands — the window of an academy she was
+> not enrolled in, the fried-chicken counter hosted like a variety
+> show, noraebang room 7 with the door open, GO SEE ABOUT THIS ONE
+> scrawled in the notebook. Hash-picked per person (flavor never
+> touches the stream), pronoun-templated, written to the file's
+> history at the mint. Battery 91/91, soak 40 clean, longhaul 10x620,
+> e2e 109, lockstep 0.10.17.2. Rode to main.

@@ -184,6 +184,26 @@
   });
 
   // ---- street casting: shoe leather, not reputation ---------------------
+  // the story on the file (0.10.17.2, owner: "little flavor in the
+  // history of street castings explaining how your scout found them…
+  // they don't mean anything, just a story"). Hash-picked — flavor
+  // never touches the stream.
+  const STREET_STORIES = [
+    '{She} was pressed to the window of a dance academy {she} was not enrolled in, mouthing the choreography from the sidewalk. Scout Im watched for a full minute before offering the card.',
+    '{She} was working the closing shift at a fried-chicken counter, hosting the last customers like a variety show. Scout Im ordered nothing and left a card.',
+    'Scout Im caught {her} mid-song at a subway busking circle — somebody else’s stage, {pos} crowd by the second chorus. The card changed hands over the guitar case.',
+    '{She} was filming a friend’s dance cover in the park and kept stealing the frame from behind the camera. Scout Im handed the card to the wrong one first, then corrected the mistake.',
+    '{She} sang a whole bus stop into silence without noticing — headphones on, eyes closed, forty strangers pretending not to listen. Scout Im was one of them.',
+    '{She} was handing out hagwon flyers in the cold with a patter so good people came BACK for seconds. Scout Im traded the card for a flyer.',
+    '{She} held a hallway of strangers through the open door of noraebang room 7. The staff let it happen. So did Scout Im, until the song ended.',
+    '{She} walked out of another company’s audition line, said something that made the whole line laugh, and left. Scout Im followed {her} half a block to make the offer.',
+    '{She} was teaching {pos} little cousins this year’s biggest dance in front of a phone-store display wall — full commitment, no audience. {She} was wrong about the audience.',
+    '{She} talked a market vendor down on gimbap with such stage presence the vendor applauded the performance. Scout Im paid for the gimbap and produced the card.',
+    '{She} crossed the big intersection in the rain like the walk light was a cue. Scout Im cannot explain it better than the notebook entry: GO SEE ABOUT THIS ONE.',
+    '{She} was the only person outside the music show recording watching the CROWD, conducting the fan-chant timing with two fingers. Scout Im stopped watching the door too.',
+    '{She} kept a dead convenience-store night shift entertained with a one-person drama staged between the ramyeon and the drinks fridge. Scout Im bought a coffee {she} narrated.',
+    '{She} was singing harmony over the mall speakers — the wrong line, on purpose, better. Security asked {her} to stop. Scout Im asked {her} to continue somewhere with mirrors.',
+  ];
   KP.streetCast = function (state) {
     const S = KP.C.NETWORK.STREET;
     if (state.week - (state.streetCastWeek || -999) < S.cooldownWeeks) {
@@ -221,6 +241,9 @@
       }
       const knownBy = stampPreKnown(state, p);
       if (knownBy) preKnown.push(KP.displayName(p) + ' (' + knownBy.short + ')');
+      // how the card actually changed hands — the story lives on the file
+      p.history.push({ week: state.week, text: KP.fillPro(STREET_STORIES[
+        Math.floor(KP.hash01([state.seed, p.id, 'streetStory'].join('|')) * STREET_STORIES.length)], p) });
       names.push(KP.displayName(p));
     }
     state.rngState = rng.state();
