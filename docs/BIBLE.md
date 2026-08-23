@@ -5584,6 +5584,95 @@ its own departure at the scandal-release sites and on an emptied
 lineup (all exits recompute or clear). Ten suites re-fixtured.
 Battery 90/90, soak 40 clean, longhaul 10x620, e2e 104.
 
+## §84 The academy's game (planning — the third actor wakes up)
+
+Owner: "right now they're just a name and a location with a rep. they
+have no goals. they have no one to be selfish. imagine you're a
+little known Daegu academy and you have an unusually talented girl…
+the local unknown Daegu label comes in and shows interest (in our
+case, a targeted look). What would you as an owner of this academy
+do? Just let her go to the tiny label and forget about her, or call
+your contacts around the industry and tell them they need to see
+this girl before the no-name label signs her?"
+
+The frame: the practice-room triangle has three actors and only two
+of them are alive. The GIRL has agency (§74, the holdout — her own
+bar, her own no). The LABELS have agency (rival interest, the
+circling, the sign-away). The SCHOOL between them is furniture. And
+the sharpest consequence hiding in the current code: a targeted look
+is INFORMATION, and the player leaks it for free. §84 makes the leak
+cost what it costs.
+
+**A. The temper.** Every school gets a hash-stable disposition,
+stamped at generation, printed only as prose once you've dealt with
+them (words, never a stat):
+- **the loyalist** — values the label that keeps showing up; a
+  relationship is worth more than a bidding war.
+- **the auctioneer** — every gem is a fundraiser. "Doing right by
+  the student" and doing well by the tuition wing are, by a
+  wonderful coincidence, the same phone calls.
+- **the starstruck** — wants an alumna under a MAJOR letterhead,
+  full stop. Your label is a rounding error until it isn't.
+- **the guardian** — wants the right home, not the biggest one;
+  watches what you DO with alumni and remembers.
+
+**B. The leak.** A targeted look (or a trip's sharpened read) at a
+school kid whose read comes back strong is a tell the school
+notices. What happens next is the temper:
+- The auctioneer SHOPS HER: within a couple of weeks, one or two
+  rival interest levels tick up, and the note says so — "by Friday
+  three A&R departments had the same clip." No new machinery
+  fires after that; the EXISTING machinery is the punishment: rival
+  heat accelerates the sign-away clock (rivalSignHotChance) AND
+  raises her signing price (signCost already reads heat). The
+  player's own look made her expensive and contested.
+- The starstruck calls the powers only: the top-prestige rival
+  goes straight to circling-hard.
+- The loyalist and the guardian sit on it — or, at a warm
+  relationship, send the heads-up INSTEAD: "two other labels
+  called this week; your first look holds."
+- The chain the systems produce for free: the shop raises her heat,
+  and heat is the holdout system's entry condition — the calls can
+  talk a girl into her own bar. The academy's selfishness
+  manufactures trainee agency. Nobody writes this as a script; it
+  emerges.
+
+**C. The defenses — all of them existing verbs, repriced by
+meaning.** Sign fast on a worse read (fewer looks = no leak = the
+fog you accepted). Buy the partnership FIRST (first-look gains a
+second job: a partnered school does not shop you — the retainer was
+always hush money, now the game says so). Or build the relationship
+until the school is effectively yours.
+
+**D. The bond.** A per-school relationship (hidden small int, worded
+cold / civil / warm / theirs-to-lose), moved by durable facts: the
+partnership, visits (the courtship pattern §74 already taught),
+signing their kids, their alumni DEBUTING under your roof (the
+photo in the lobby is the whole economy of these places), versus
+cutting their alumni or letting one age out unsigned on your board.
+Warm+ unlocks the heads-up call; at the top, the school brings its
+gem to YOU first — a private showcase lead, pre-read, before the
+board ever sees her. The mirror at high fame: once you ARE a power,
+the auctioneers call YOU about other labels' local discoveries —
+the leak, working for you, with somebody else's fingerprints on the
+bill.
+
+**E. The goal line.** Each school card carries its ambition in
+words — "wants an alumna on a Seoul stage this generation," "wants
+the new mirror wing funded," "wants a label that finishes what it
+starts" — the legible WHY behind the temper, and the hook the
+player-owned academy (the shelf item) will eventually inherit:
+owning a school means owning its interests.
+
+Laws: temper and bond are hash/stored-hidden and PRINT only as
+prose; the leak draws rng in the weekly, never at render; one note
+per shop event, cooldown per school; content law throughout (snark
+at directors' invoices, never at children); bot answers nothing new
+(no scene required — the leak is weather, the defenses are existing
+verbs); measure-first bands for shopped/headsUp/broughtFirst.
+Target: v0.10.17, and it is the deliberate prequel to the
+player-owned academy.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
