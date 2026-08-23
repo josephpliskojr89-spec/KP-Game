@@ -8294,3 +8294,22 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > with somebody in it. Today keeps a one-line pointer card. The fog
 > holds: nothing on a card is a number about worth. Battery 90/90,
 > e2e 108, lockstep 0.10.15. Rode to main.
+
+> **0.10.16 — the clean exits.** The housekeeping release the
+> stream-shift bug family earned. (1) The loophole: hiring over a
+> filled chair was quietly cheaper than firing — a replacement hire
+> now pays the outgoing's severance on top, carries the same
+> known-name trust cost, and ledgers as a goodbye; the interview
+> button prices it honestly. (2) The audit: every door out of a
+> lineup (departure warm/cold, removal, graduation, both scandal
+> releases) now ends in KP.lineupPointerSweep — one backstop over
+> roles, maknae, rooms, live gravity, the gravity watch, the exec
+> ask, and tracklist credits. The validator holds the contract
+> permanently (suites, soak, and longhaul all run it), a 0.10.16
+> migration heals stale saves, and suite_091 drives every door ×
+> every pointer. One design truth surfaced: a star LEAVING settles
+> her clamor as spinout history — the sweep settles gravity, never
+> deletes it, because the reclamor ladder reads that record.
+> Battery 91/91, soak 40 clean, longhaul 10x620, e2e 108, lockstep
+> 0.10.16. Rode to main. The family is extinct until proven
+> otherwise — and now something is always watching for otherwise.

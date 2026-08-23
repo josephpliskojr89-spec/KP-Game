@@ -770,6 +770,47 @@
     });
   } });
 
+  MIGRATIONS.push({ v: '0.10.16', fn: function (state) {
+    // the clean exits: saves written before the pointer backstop can
+    // carry stale ids on groups whose members already left — the same
+    // family the longhaul caught three of. Heal every live pointer.
+    (state.groups || []).forEach(g => {
+      const members = g.members || [];
+      if (g.roles) {
+        Object.keys(g.roles).forEach(r => {
+          if (g.roles[r] && !members.includes(g.roles[r])) delete g.roles[r];
+        });
+        if (!members.length) g.roles = {};
+      }
+      if (g.maknae && !members.includes(g.maknae)) {
+        g.maknae = members.length
+          ? members.map(id => state.people[id]).filter(Boolean)
+              .sort((a, b) => a.age - b.age).map(p => p.id)[0] || null
+          : null;
+      }
+      if (g.gravity && !g.gravity.settled && !members.includes(g.gravity.personId)) {
+        g.gravity.settled = 'spinout'; g.gravity.settledWeek = state.week;
+      }
+      if (g.gravityWatch && !members.includes(g.gravityWatch.personId)) delete g.gravityWatch;
+      if (g.prep && g.prep.tracks) g.prep.tracks.forEach(tr => {
+        if (!tr.credit) return;
+        if (tr.credit.type === 'solo' && !members.includes(tr.credit.memberId)) tr.credit = null;
+        else if (tr.credit.type === 'unit') {
+          tr.credit.memberIds = (tr.credit.memberIds || []).filter(id => members.includes(id));
+          if (tr.credit.memberIds.length < 2) tr.credit = null;
+        }
+      });
+      if (g.rooms && g.rooms.flat().some(id => !members.includes(id))) {
+        g.rooms = null;
+        if (members.length && KP.assignRooms) KP.assignRooms(state, g);
+      }
+    });
+    if (state.gravityExecAsk) {
+      const eg = (state.groups || []).find(x => x.id === state.gravityExecAsk.groupId);
+      if (!eg || !eg.members.includes(state.gravityExecAsk.personId)) delete state.gravityExecAsk;
+    }
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

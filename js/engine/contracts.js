@@ -322,6 +322,47 @@
   // one truth for taking a person OUT of a lineup (v0.9.20): the
   // departure, the termination, and the removal verb all run the
   // same surgery — roles, rooms, maknae, credits, the left-behind
+  // ---- the clean exits (v0.10.16): the pointer backstop ------------------
+  // ONE sweeper every lineup exit runs LAST, whatever else it did first.
+  // The specific paths keep their smarter reassignment (a new leader by
+  // leadership, a new center by pull); this guarantees the invariant no
+  // matter which door she left through. Settled gravity and centerHistory
+  // are history and stay; everything live must point at a member.
+  KP.lineupPointerSweep = function (state, g, pid) {
+    if (!g) return;
+    if (g.roles) {
+      Object.keys(g.roles).forEach(r => { if (g.roles[r] === pid) delete g.roles[r]; });
+      if (!g.members.length) g.roles = {};
+    }
+    if (!g.members.length) g.maknae = null;
+    else if (g.maknae === pid) {
+      g.maknae = g.members.map(id => state.people[id]).filter(Boolean)
+        .sort((a, b) => a.age - b.age)[0].id;
+    }
+    // the star leaving IS the settlement — the engine's own weekly says
+    // so (gravity.js "settles it from outside"). Settle, never delete:
+    // the reclamor ladder reads settledWeek and rung from this record.
+    if (g.gravity && !g.gravity.settled && g.gravity.personId === pid) {
+      g.gravity.settled = 'spinout'; g.gravity.settledWeek = state.week;
+    }
+    if (g.gravityWatch && g.gravityWatch.personId === pid) delete g.gravityWatch;
+    if (state.gravityExecAsk && state.gravityExecAsk.personId === pid) delete state.gravityExecAsk;
+    if (g.prep && g.prep.tracks) {
+      g.prep.tracks.forEach(tr => {
+        if (!tr.credit) return;
+        if (tr.credit.type === 'solo' && tr.credit.memberId === pid) tr.credit = null;
+        else if (tr.credit.type === 'unit' && (tr.credit.memberIds || []).includes(pid)) {
+          tr.credit.memberIds = tr.credit.memberIds.filter(id => id !== pid);
+          if (tr.credit.memberIds.length < 2) tr.credit = null;
+        }
+      });
+    }
+    if (g.rooms && g.rooms.flat().includes(pid)) {
+      g.rooms = null;
+      if (g.members.length) KP.assignRooms(state, g);
+    }
+  };
+
   KP.lineupSurgery = function (state, g, p, warm, push) {
     const C = KP.C.CONTRACT;
       g.members = g.members.filter(id => id !== p.id);
@@ -390,6 +431,8 @@
         push({ kind: 'public', priority: 'high', groupId: g.id,
           text: g.name + '’s chapter closes with the last contract — the company statement thanks the fans for every era, and means it. The scheduled work comes off the calendar. The catalog stays.' });
       }
+      // the clean exits (v0.10.16): the backstop runs LAST, always
+      KP.lineupPointerSweep(state, g, p.id);
   };
 
   KP.departIdol = function (state, personId, mode, inbox) {
@@ -477,6 +520,7 @@
       centerHistory: [{ week: state.week, id: p.id }],
       debuted: false, prep: null, results: null, demos: null, releases: [],
     });
+    KP.lineupPointerSweep(state, g, p.id);   // the clean exits (v0.10.16)
     p.history.push({ week: state.week, text: 'Graduated from ' + g.name + ' into solo management. Same building, new door on it.' });
     return { ok: true, note: KP.fillPro(KP.displayName(p) + ' graduates from ' + g.name + ' into solo management — same company, {pos} own calendar now. The fandom grieves the lineup for a week and then starts the solo-debut countdown clock.', p) };
   };

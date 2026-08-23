@@ -232,6 +232,8 @@
           g.maknae = g.members.map(id => state.people[id]).filter(Boolean)
             .sort((a, b) => a.age - b.age)[0].id;
         }
+        // the clean exits (v0.10.16): the backstop runs LAST, always
+        if (KP.lineupPointerSweep) KP.lineupPointerSweep(state, g, p.id);
       }
       p.status = 'released';
       state.roster = state.roster.filter(id => id !== p.id);
@@ -264,6 +266,8 @@
           g.maknae = g.members.map(id => state.people[id]).filter(Boolean)
             .sort((a, b) => a.age - b.age)[0].id;
         }
+        // the clean exits (v0.10.16): the backstop runs LAST, always
+        if (KP.lineupPointerSweep) KP.lineupPointerSweep(state, g, p.id);
       }
       p.status = 'released';
       state.roster = state.roster.filter(id => id !== p.id);

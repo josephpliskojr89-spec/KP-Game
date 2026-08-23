@@ -207,10 +207,20 @@
           (HR.SEATS.find(x => x.id === c.knownForTag) || seat).label + ' work' : '') +
         '. The fee is ' + HR.hireCost[c.tier] + '. The résumé says where they were. It does not say what they did there.';
     },
-    options: (state, sc) => [
-      { id: 'hire', label: 'Hire · ' + KP.C.HIRES.hireCost[sc.cand.tier] },
-      { id: 'pass', label: 'Pass' },
-    ],
+    options: (state, sc) => {
+      // the clean exits (v0.10.16): replacing a sitter pays their
+      // severance ON TOP — hiring over somebody was quietly cheaper
+      // than firing them, and a company is not allowed that arithmetic
+      const HR = KP.C.HIRES;
+      const prev = seats(state)[sc.cand.seatId];
+      const sev = prev ? Math.max(HR.severanceMin,
+        Math.round((HR.hireCost[prev.tier] || HR.hireCost.working) * HR.severanceMult)) : 0;
+      return [
+        { id: 'hire', label: 'Hire · ' + (HR.hireCost[sc.cand.tier] + sev) +
+          (sev ? ' (incl. ' + prev.name.split(' ')[0] + '’s severance)' : '') },
+        { id: 'pass', label: 'Pass' },
+      ];
+    },
     resolve: (state, sc, optionId) => {
       const HR = KP.C.HIRES;
       const led = ledger(state);
@@ -218,16 +228,25 @@
         led.passes++;
         return { toast: 'Passed. The chair stays as it was; the meeting stays a meeting.' };
       }
-      const cost = HR.hireCost[sc.cand.tier];
-      if (state.budget < cost) { led.passes++; return { toast: 'The fee outran the account. The candidate’s agent stopped returning calls.' }; }
+      const prev = seats(state)[sc.cand.seatId];
+      const sev = prev ? Math.max(HR.severanceMin,
+        Math.round((HR.hireCost[prev.tier] || HR.hireCost.working) * HR.severanceMult)) : 0;
+      const cost = HR.hireCost[sc.cand.tier] + sev;
+      if (state.budget < cost) { led.passes++; return { toast: 'The fee' + (sev ? ' — and the severance a replacement owes —' : '') + ' outran the account. The candidate’s agent stopped returning calls.' }; }
       state.budget -= cost;
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -cost);
-      const prev = seats(state)[sc.cand.seatId];
+      if (prev) {
+        led.fired++;
+        // letting a name go by replacement raises the same eyebrows
+        if (HR.REP_TIERS.indexOf(prev.tier) >= HR.fireTrustTierMin) {
+          state.trust = KP.clamp(state.trust - 1, 0, 100);
+        }
+      }
       seats(state)[sc.cand.seatId] = Object.assign({}, sc.cand, { since: state.week });
       led.hires++;
       KP.note(state, { kind: 'company', ind: 'seatFilled', priority: 'high',
         text: sc.cand.name + ' signs on as ' + HR.SEATS.find(x => x.id === sc.cand.seatId).label +
-          (prev ? ', taking the chair from ' + prev.name + ' — the building notices chairs' : '') +
+          (prev ? ', taking the chair from ' + prev.name + ' — severance paid, and the building notices chairs' : '') +
           '. What the hire actually is, only the months will say: the results arrive tangled with everything else, which is the whole job of judging them.' });
       return { toast: 'Hired. Now comes the only interview that counts: the next year.' };
     },

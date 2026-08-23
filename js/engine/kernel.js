@@ -194,7 +194,34 @@
         if (!isFinite(val)) bad(g.name + ' region ' + k + ' is ' + val);
       });
       if (!isFinite(g.popularity || 0)) bad(g.name + ' popularity NaN');
+      // the clean exits (v0.10.16): every LIVE pointer targets a member.
+      // Settled gravity and centerHistory are history and exempt.
+      Object.entries(g.roles || {}).forEach(([r, id]) => {
+        if (id && !g.members.includes(id)) bad(g.name + ' role ' + r + ' held by non-member ' + id);
+      });
+      if (g.maknae && !g.members.includes(g.maknae)) bad(g.name + ' maknae is a non-member');
+      if (g.gravity && !g.gravity.settled && !g.members.includes(g.gravity.personId)) {
+        bad(g.name + ' unsettled gravity on non-member ' + g.gravity.personId);
+      }
+      if (g.gravityWatch && !g.members.includes(g.gravityWatch.personId)) {
+        bad(g.name + ' gravity watch on non-member');
+      }
+      if (g.prep && g.prep.tracks) g.prep.tracks.forEach(tr => {
+        if (!tr.credit) return;
+        if (tr.credit.type === 'solo' && !g.members.includes(tr.credit.memberId)) {
+          bad(g.name + ' tracklist credits non-member ' + tr.credit.memberId);
+        } else if (tr.credit.type === 'unit' &&
+            (tr.credit.memberIds || []).some(id => !g.members.includes(id))) {
+          bad(g.name + ' unit track credits a non-member');
+        }
+      });
     });
+    if (state.gravityExecAsk) {
+      const eg = (state.groups || []).find(x => x.id === state.gravityExecAsk.groupId);
+      if (!eg || !eg.members.includes(state.gravityExecAsk.personId)) {
+        bad('gravity exec ask points at a non-member');
+      }
+    }
     Object.values(state.people).forEach(p => {
       if (!isFinite(p.fatigue) || !isFinite(p.morale)) bad(p.id + ' vital NaN');
       KP.C.TALENTS.forEach(d => { if (!isFinite(p.talents[d].cur)) bad(p.id + ' ' + d + ' NaN'); });
