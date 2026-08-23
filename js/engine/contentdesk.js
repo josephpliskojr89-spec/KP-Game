@@ -222,6 +222,9 @@
           KP.fmtCount(views) + ' views and climbing, reposted by accounts that do not know this label’s name yet. In-house, no budget, all reach. This is why the desk keeps filming.' });
     }
     if (p) p.morale = KP.clamp(p.morale + C.featureMorale, 0, 100);
+    // the ad settlement (v0.10.20): every view banks toward the
+    // quarterly check — "your total views compound over time" (owner)
+    state.adViews = (state.adViews || 0) + views;
     state.contentCatalog = state.contentCatalog || [];
     state.contentCatalog.push({ week: state.week, topic: t.id,
       line: p ? KP.fillPro(open.line, p) : open.line, views, hit: hit ? 1 : 0 });
@@ -235,7 +238,50 @@
       line: p ? KP.fillPro(open.line, p) : open.line };
   };
 
+  // ---- the ad settlement (v0.10.20) -------------------------------------
+  // Owner: "it should produce SOMETHING… 1 won per x amount of views
+  // feels easiest. your total views compound over time." Views bank
+  // continuously — company posts at the upload, the archive's long
+  // tail weekly, every live member channel weekly by her following —
+  // and the bank converts at the platform's flat rate on the closing
+  // quarter, as its own line on the statement. Order 756: the check
+  // lands BEFORE the investor's toll (757) and the books close (758),
+  // so the fund takes its cut of ad money too. The toll is the toll.
+  KP.registerWeekly('adRevenue', 756, function (state, rng, inbox) {
+    const C = KP.C.CONTENT;
+    const led = ledger(state);
+    // the archive keeps getting watched: the long tail compounds as
+    // the lifetime library grows
+    state.adViews = (state.adViews || 0) + Math.round((led.views || 0) * C.adCatalogTail);
+    // the member channels: her weekly upload pulls a slice of her
+    // following — no rng, the audience is the audience
+    (state.roster || []).map(id => state.people[id]).forEach(p => {
+      if (!p || !p.broadcast) return;
+      if (p.flags.personalHiatus || p.flags.military || KP.onBreak(p)) return;
+      state.adViews += Math.round(KP.socialOf(state, p) * C.adChannelShare);
+    });
+    // the quarterly conversion: flat rate, remainder carries
+    const woy = ((state.week - 1) % KP.C.WEEKS_PER_YEAR) + 1;
+    if (woy % KP.C.BOOKS.quarterWeeks === 0 && state.week > 4 && state.adViews >= C.adViewsPerWon) {
+      const won = Math.floor(state.adViews / C.adViewsPerWon);
+      state.adViews -= won * C.adViewsPerWon;
+      state.budget += won;
+      if (KP.ledgerFlow) KP.ledgerFlow(state, 'adRevenue', won);
+      const first = !(led.adPaid > 0);
+      led.adPaid = (led.adPaid || 0) + won;
+      if (first) {
+        inbox.push({ kind: 'company', ind: 'adFirstCheck', priority: 'high',
+          text: 'WeCast’s quarterly ad settlement cleared for the first time: ' + won +
+            ' won, wired against every view the videos ever pulled. It is not tour money. It is not album money. It is money the CAMERA made while everyone was doing something else — and it will clear again next quarter, bigger if the archive grows.' });
+      }
+    }
+  });
+
   // ---- the timeline reacts ---------------------------------------------
+  KP.onFeedEvent('adFirstCheck', (state, n, rng) => rng.pick([
+    { persona: 'fan', text: 'the label just learned their videos make actual money and honestly? deserved. keep feeding us content, the algorithm pays in real currency now' },
+    { persona: 'casual', text: 'small agency discovers ad revenue, a coming-of-age story. the fried-chicken-counter vlogs were monetized the whole time' },
+  ]));
   KP.onFeedEvent('contentHit', (state, n, rng) => rng.pick([
     { persona: 'fan', text: 'the OFFICIAL account posted actual content and it is genuinely good?? in-house era. whoever runs that channel deserves a raise and a nap' },
     { persona: 'casual', text: 'algorithm handed me a small label’s company video and I watched the whole thing. no ad budget, just a camera and people who like each other. more of this' },

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.19.1',
+    VERSION: '0.10.20',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1756,6 +1756,11 @@
       hitFollowShare: 0.06,      // hit views that convert to followers
       featureMorale: 1,          // being in the frame feels good
       maxCatalog: 60,            // the shelf keeps the recent archive
+      // the ad settlement (v0.10.20): owner — "1 won per x amount of
+      // views feels easiest. your total views compound over time."
+      adViewsPerWon: 10000,      // the platform's flat rate, quarterly
+      adChannelShare: 0.04,      // weekly views a live channel pulls, per follower
+      adCatalogTail: 0.01,       // the archive keeps getting watched: 1%/wk of lifetime
     },
     CAST: {
       askChance: 0.05,           // weekly, when somebody eligible wants the mic

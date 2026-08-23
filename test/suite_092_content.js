@@ -121,6 +121,37 @@ function debuted(seed) {
   t.ok(KP.feedReactionFor('contentHit'), 'and the timeline answers through the registry');
 }
 
+// ---- the ad settlement (v0.10.20): views bank, the quarter pays ----
+{
+  const { state } = debuted('cd-ads');
+  const C = KP.C.CONTENT;
+  state.budget = 300;
+  const open = KP.contentTopics(state).find(x => x.open);
+  const r = KP.postContent(state, open.id);
+  t.ok((state.adViews || 0) >= r.views, 'the upload banks its views on the meter');
+  // a live member channel pulls its weekly slice of her following
+  const p = state.people[state.roster[0]];
+  p.broadcast = { since: state.week, uploads: 1 };
+  const bank0 = state.adViews;
+  KP.advanceWeek(state);
+  t.ok(state.adViews > bank0, 'the channel and the archive tail keep the meter moving');
+  // force a fat bank and ride to the quarterly close
+  state.adViews = C.adViewsPerWon * 7 + 123;
+  const cash0 = state.budget;
+  let guard = 0;
+  const woyAt = () => ((state.week - 1) % KP.C.WEEKS_PER_YEAR) + 1;
+  while (woyAt() % KP.C.BOOKS.quarterWeeks !== 0 && guard++ < 13) {
+    state.budget = Math.max(state.budget, 100);
+    KP.advanceWeek(state);
+  }
+  t.ok(state.contentLedger.adPaid >= 7, 'the settlement cleared at the flat rate (' +
+    state.contentLedger.adPaid + ' won)');
+  t.ok(state.adViews < C.adViewsPerWon || state.adViews < 123 + C.adViewsPerWon,
+    'the remainder carries to next quarter');
+  t.ok(state.inbox.some(n => n.ind === 'adFirstCheck'), 'the first check gets its moment');
+  t.ok(KP.feedReactionFor('adFirstCheck'), 'and the timeline answers');
+}
+
 // ---- determinism ----
 {
   const { state: a } = debuted('cd-fork');

@@ -8667,3 +8667,23 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > the booked-stages line, the campaign card's release week, and the
 > debut-by chip on talent rows. Battery 93/93, e2e 112, lockstep
 > 0.10.19.1. Rode to main.
+
+> **0.10.20 — the ad settlement.** Owner: "it should produce
+> SOMETHING. Even several 1000 view videos produce a few bucks IRL…
+> 1 won per x amount of views feels easiest. your total views
+> compound over time." Shipped exactly that: an ad meter
+> (state.adViews) that banks continuously — company uploads at the
+> post, the archive's long tail weekly (1% of lifetime views — the
+> compounding), and every live member WeCast channel weekly at 4% of
+> her following (no rng; the audience is the audience). At each
+> quarterly close the bank converts at the platform's flat rate — 1
+> won per 10,000 views, remainder carried — onto the books as its
+> own "WeCast ad revenue" line, landing BEFORE the investor's toll
+> so a revenue-share fund taxes ad money too. The first check ever
+> gets its Rescene moment in the inbox ("money the CAMERA made"),
+> the content tab shows the meter, and the scale is honest: a
+> thousand-view operation banks toward eventually-a-won, a real
+> channel buys groceries, a viral quarter drops a check. One band
+> widened with history (masterTurned .70→.75 — bot cashflow drift,
+> one org). Battery 93/93, soak 40 clean, longhaul 10x620, e2e 112,
+> lockstep 0.10.20. Rode to main.

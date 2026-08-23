@@ -204,6 +204,7 @@
     ['japan', 'Japan cycle'],
     ['trainees', 'Practice rooms & stipends'],
     ['financing', 'Financing'],   // the runway (v0.10.19): raises in, the toll out
+    ['adRevenue', 'WeCast ad revenue'],   // the ad settlement (v0.10.20)
   ];
   KP.lastStatement = function (state) { return (state.books || {}).last || null; };
   KP.registerWeekly('books', 758, function (state, rng, inbox) {

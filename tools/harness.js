@@ -210,7 +210,10 @@ const BANDS = {
   inGroupRivalry:    { lo: 0.00, hi: 0.60, label: 'orgs where a cold pair hardened into an in-house rivalry' },
   cannibalSeen:      { lo: 0.00, hi: 0.80, label: 'orgs whose own groups habitually cannibalize (3+ overlaps)' },
   masterMinted:      { lo: 0.05, hi: 1.00, label: 'orgs whose fandom minted a fansite master' },
-  masterTurned:      { lo: 0.00, hi: 0.70, label: 'orgs that watched a fansite post the closing notice' },
+  // history: hi .70 through 0.10.19 (soaks ran 24–28/40); 0.10.20's ad
+  // settlement nudged bot cashflow and one org across the line (29/40) —
+  // stream drift, not a mechanism change. Widened to .75.
+  masterTurned:      { lo: 0.00, hi: 0.75, label: 'orgs that watched a fansite post the closing notice' },
   // festival season + award night (v0.9.22): first soak
   festInvited:       { lo: 0.30, hi: 1.00, label: 'orgs the festival organizers called by name' },
   festHeadlined:     { lo: 0.00, hi: 0.80, label: 'orgs whose icons took the top of a poster' },

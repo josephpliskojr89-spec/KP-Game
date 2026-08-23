@@ -351,6 +351,10 @@
       '<span style="font-size:.76rem;color:var(--ink-dim)">' + (led.posted || 0) + ' upload' + (led.posted === 1 ? '' : 's') +
       ' · ' + KP.fmtCount(led.views || 0) + ' lifetime views' +
       ((led.hits || 0) ? ' · ' + led.hits + ' broke containment' : '') + '</span></div>' +
+      '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:4px">The ad meter: ' +
+      KP.fmtCount(state.adViews || 0) + ' views banked · pays ' + '1 per ' +
+      KP.fmtCount(KP.C.CONTENT.adViewsPerWon) + ' at each quarterly close' +
+      ((led.adPaid || 0) ? ' · ' + led.adPaid + ' earned lifetime' : ' · nothing settled yet') + '</div>' +
       (posted ? '<div style="font-size:.74rem;color:var(--gold);margin-top:5px">This week’s upload is out. The editor is rendering feelings.</div>' : '') +
       '</div>');
     // the menu
