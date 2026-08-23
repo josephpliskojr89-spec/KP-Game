@@ -316,6 +316,10 @@
       state.prospects.push(p.id);
       if (!mostCharismatic || p.talents.charisma.cur > mostCharismatic.talents.charisma.cur) mostCharismatic = p;
     }
+    // the persistent class (v0.10.17): generateSchools stamps
+    // nextPersonId while enrolling students, so every later minter's
+    // resetIds() would rewind over this board — keep the stamp current
+    state.nextPersonId = KP.peekNextId();
     // scenario beat: two rivals already circle the most charismatic
     // prospect (skipped naturally when a door opens with no board)
     if (mostCharismatic) {

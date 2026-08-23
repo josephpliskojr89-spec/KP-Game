@@ -69,6 +69,24 @@
   function full(state) {
     return (state.prospects || []).length >= KP.C.NETWORK.boardCap;
   }
+  // the powers' head start (v0.10.17, §84 B): even off the street, some
+  // faces are already in somebody's file. Owner: "I might see girls that
+  // bigger companies already know about." Hash, not rng — whether the
+  // industry saw her first was never your draw.
+  function stampPreKnown(state, p) {
+    const chance = KP.C.NETWORK.preKnownChance || 0;
+    if (!chance || KP.hash01([state.seed, p.id, 'preKnown'].join('|')) >= chance) return null;
+    const tops = (state.rivals || []).slice()
+      .sort((a, b) => (b.prestige || 0) - (a.prestige || 0)).slice(0, 3);
+    if (!tops.length) return null;
+    p.industryKnown = 1;
+    const r = tops[Math.floor(KP.hash01([state.seed, p.id, 'preKnownWho'].join('|')) * tops.length)];
+    r.interest = r.interest || {};
+    const lvl = KP.hash01([state.seed, p.id, 'preKnownLvl'].join('|')) < 0.5 ? 1 : 2;
+    r.interest[p.id] = Math.max(r.interest[p.id] || 0, lvl);
+    p.flags.preKnownBy = r.short;
+    return r;
+  }
 
   // ---- the weekly: the channels deliver (order 618) ---------------------
   KP.registerWeekly('network', 618, function (state, rng, inbox) {
@@ -180,6 +198,7 @@
     led.streets++;
     const n = rng.int(S.minted[0], S.minted[1]);
     const names = [];
+    const preKnown = [];
     for (let i = 0; i < n; i++) {
       const p = mintPublicless(state, rng);
       // the ladder rebalance (v0.10.12, §82 B): the districts hand you
@@ -200,11 +219,14 @@
           p.talents[d].ceilHi = Math.max(p.talents[d].ceilLo + 2, p.talents[d].ceilHi - S.dudDrop);
         });
       }
+      const knownBy = stampPreKnown(state, p);
+      if (knownBy) preKnown.push(KP.displayName(p) + ' (' + knownBy.short + ')');
       names.push(KP.displayName(p));
     }
     state.rngState = rng.state();
     const note = KP.note(state, { kind: 'scouting',
-      text: 'Street casting run: the scouts worked the districts with a stack of cards and an eye for the way somebody moves through a crowd. ' + names.join(', ') + ' took a card. Nobody in this stack has touched a practice room — the card is a bet on a walk, a laugh, the way the light hit. Most of these go nowhere. The one that doesn’t is why the scouts keep walking.' });
+      text: 'Street casting run: the scouts worked the districts with a stack of cards and an eye for the way somebody moves through a crowd. ' + names.join(', ') + ' took a card. Nobody in this stack has touched a practice room — the card is a bet on a walk, a laugh, the way the light hit. Most of these go nowhere. The one that doesn’t is why the scouts keep walking.' +
+        (preKnown.length ? ' One catch: ' + preKnown.join(' and ') + ' had already taken a card from somebody else — the bigger scouting departments walk these districts too.' : '') });
     return { ok: true, minted: n, note: note.text };
 
     function mintPublicless(state2, rng2) {
@@ -228,6 +250,7 @@
     const led = ledger(state);
     led.calls++;
     const names = [];
+    const preKnown = [];
     for (let i = 0; i < n; i++) {
       // the ladder rebalance (v0.10.12, §82 B): everyone in that line
       // CHOSE to audition — a real polish floor, and you watched the
@@ -240,14 +263,17 @@
       p.observations = C.observations;   // the tape exists — the read is of the performance
       KP.takeReads(state, p);
       led.callMinted++;
+      const knownBy = stampPreKnown(state, p);
+      if (knownBy) preKnown.push(KP.displayName(p) + ' (' + knownBy.short + ')');
       names.push(KP.displayName(p));
     }
     state.rngState = rng.state();
     const big = net >= 0.45;
     const note = KP.note(state, { kind: 'scouting', ind: 'openCall', priority: 'high',
-      text: big
+      text: (big
         ? 'The open call was an EVENT — the line bent around the block, the sign-in sheets ran out, and the judges worked until the building closed. ' + n + ' callbacks made the board: ' + names.join(', ') + '. This is what a name is for.'
-        : 'The open call ran in a rented room with folding chairs and a hand-lettered sign. ' + n + ' sign-ups made the tape: ' + names.join(', ') + '. Small turnout, honest room — and every major started with one exactly like it.' });
+        : 'The open call ran in a rented room with folding chairs and a hand-lettered sign. ' + n + ' sign-ups made the tape: ' + names.join(', ') + '. Small turnout, honest room — and every major started with one exactly like it.') +
+        (preKnown.length ? ' The judges recognized a face: ' + preKnown.join(' and ') + ' had auditioned somewhere bigger first, and that tape exists too.' : '') });
     return { ok: true, minted: n, note: note.text };
   };
 

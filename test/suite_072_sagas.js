@@ -126,11 +126,14 @@ function fire(state, kind, nameIdx) {
   rival.prestige = 30;
   rival.bankroll.until = state.week + 1;
   KP.advanceWeek(state);
+  // the clamp lands the week the tap closes — a signing a week LATER is
+  // the scene absorbing the class, not a burst leak (v0.10.17 shift)
+  const roomAfterBurst = rival.rosterCount;
   KP.advanceWeek(state);
   t.ok(!rival.bankroll, 'the runway ends');
   t.eq(state.sagaLedger.heirBurst, 1, 'the tap closes on a miss');
   t.eq(KP.freeAgentCost(state, fa), cost0, 'and the market drifts back');
-  t.ok(rival.rosterCount <= KP.C.SAGA.HEIR.burstRoster, 'the room empties');
+  t.ok(roomAfterBurst <= KP.C.SAGA.HEIR.burstRoster, 'the room empties');
 }
 
 // ---- the second capital -----------------------------------------------

@@ -77,6 +77,9 @@ function debuted(seed) {
 {
   const state = KP.newGame('pr-partner', null, { legacy: false });
   const school = state.schools[0];
+  // §84 E: the gate is tested in its own block below — pin it open here
+  const bar0 = KP.C.SCHOOLS.partnerFameBar;
+  KP.C.SCHOOLS.partnerFameBar = -1;
   const r = KP.schoolPartnership(state, school.id);
   t.ok(r.ok && school.partnerUntil > state.week, 'the retainer buys the window');
   t.ok(!KP.schoolPartnership(state, school.id).ok, 'one agreement at a time per school');
@@ -89,6 +92,113 @@ function debuted(seed) {
   for (let w = 0; w < 3; w++) KP.advanceWeek(state);
   const heat = KP.rivalHeat(state, lead.id).max;
   t.eq(heat, 0, 'no rival circled the protected lead while the window held');
+  KP.C.SCHOOLS.partnerFameBar = bar0;
+}
+
+// ---- the academy's game (v0.10.17, §84): the persistent class ----
+{
+  const state = KP.newGame('pr-class', null, { legacy: false, door: 'fresh' });
+  const CL = KP.C.SCHOOLS.CLASS;
+  // A: the classes exist from day one, sized by the city's gravity
+  state.schools.forEach(s => {
+    const cls = KP.schoolClass(state, s);
+    t.ok(cls.length >= CL.sizeBase, s.name + ' has a room with people in it (' + cls.length + ')');
+    cls.forEach(p => t.ok(p.age >= CL.enrollAge[0] && p.age <= CL.enrollAge[1] + 1,
+      'enrolled at academy age'));
+  });
+  const students0 = Object.values(state.people).filter(p => p.status === 'student');
+  t.eq(students0.filter(p => state.prospects.includes(p.id)).length, 0,
+    'students are not on the board — the fog holds them');
+  // every school has a temper, and the word exists
+  state.schools.forEach(s => t.ok(KP.schoolTemperProse(s).length > 0, s.name + ' has a director with a temper'));
+  // B: the powers' head start — hash-known students carry interest BEFORE we meet them
+  const known = students0.filter(p => p.industryKnown);
+  t.ok(known.length >= 1, 'some students are already in the industry’s files (' + known.length + ')');
+  known.forEach(p => t.ok((state.rivals || []).some(r => (r.interest || {})[p.id] >= CL.knownInterest),
+    'a top letterhead is already circling ' + p.name.display));
+  // the head-start interest survives the weekly sweep
+  for (let w = 0; w < 3; w++) KP.advanceWeek(state);
+  const stillKnown = Object.values(state.people).filter(p => p.status === 'student' && p.industryKnown);
+  stillKnown.forEach(p => t.ok((state.rivals || []).some(r => (r.interest || {})[p.id] >= 1),
+    'the fog does not erase their interest in ' + p.name.display));
+  // the class persists across trips: revealing never re-mints
+  state.budget = 800;
+  const s0 = state.schools.find(s => KP.schoolClass(state, s).length >= 2);
+  const clsIds = KP.schoolClass(state, s0).map(p => p.id);
+  const r1 = KP.scoutingTrip(state, s0.id);
+  t.ok(r1.ok, 'the trip ran');
+  const revealedIds = state.prospects.filter(id => clsIds.includes(id));
+  t.ok(revealedIds.length >= 1, 'the trip revealed real students, not minted strangers');
+  revealedIds.forEach(id => {
+    const p = state.people[id];
+    t.eq(p.status, 'prospect', 'revealed to the board');
+    t.ok(!!p.reads, 'with a dated read');
+  });
+  // C: the director's calls — pin the temper and the dice, show interest
+  const strong = KP.schoolClass(state, s0)[0];
+  if (strong) {
+    ['vocals', 'dance', 'charisma'].forEach(k => { strong.talents[k].cur = 70; strong.talents[k].ceilLo = 71; strong.talents[k].ceilHi = 78; });
+    // reveal her via a later trip week
+    state.week += KP.C.SCHOOLS.tripCooldownWeeks;
+    state.schools.forEach(s2 => { if (s2.visitedWeek === state.week) s2.visitedWeek = 0; });
+    s0.temper = 'auctioneer';   // 0.90 call chance
+    const cc = KP.C.SCHOOLS.CLASS.callChance.auctioneer;
+    KP.C.SCHOOLS.CLASS.callChance.auctioneer = 1.0;
+    state.budget = 800;
+    let guard = 12;
+    while (state.people[strong.id] && state.people[strong.id].status === 'student' && guard-- > 0) {
+      const rt = KP.scoutingTrip(state, s0.id);
+      if (!rt.ok) break;
+      state.week += KP.C.SCHOOLS.tripCooldownWeeks;
+      state.schools.forEach(s2 => { if (s2.visitedWeek >= state.week) s2.visitedWeek = 0; });
+      state.budget = 800;
+    }
+    KP.C.SCHOOLS.CLASS.callChance.auctioneer = cc;
+    if (state.people[strong.id] && state.people[strong.id].status === 'prospect') {
+      t.eq(strong.flags.directorCalled, 1, 'the director made the calls — once, ever, per student');
+      const tops = (state.rivals || []).slice().sort((a, b) => (b.prestige || 0) - (a.prestige || 0))
+        .slice(0, KP.C.SCHOOLS.CLASS.callRivals);
+      t.ok(tops.some(r => (r.interest || {})[strong.id] >= KP.C.SCHOOLS.CLASS.callInterest),
+        'and the biggest letterheads arrived circling that week');
+      t.ok(state.inbox.some(n => n.ind === 'directorCalls'),
+        'the desk heard about it in plain language');
+    }
+  }
+}
+
+// ---- §84 E: the partnership gate + §84 B: the street's head start ----
+{
+  const state = KP.newGame('pr-gate', null, { legacy: false, door: 'fresh' });
+  const s0 = state.schools[0];
+  state.budget = 500;
+  const r = KP.schoolPartnership(state, s0.id);
+  t.ok(!r.ok && /declined the retainer/.test(r.reason),
+    'a nothing label’s retainer is refused, in the director’s voice');
+  t.ok(KP.schoolPartnerLocked(state), 'one truth: the button reads the same lock');
+  // a school kid on a debut stage under this roof opens every door
+  const kid = Object.values(state.people).find(p => p.status === 'student');
+  kid.status = 'idol';
+  t.ok(!KP.schoolPartnerLocked(state), 'an alumna on a stage IS the reference letter');
+  kid.status = 'student';
+  // street casting: some faces were already in somebody's file (hash-truth)
+  const seen = { known: 0, minted: 0 };
+  for (let i = 0; i < 12; i++) {
+    const w2 = KP.newGame('pr-street-' + i, null, { legacy: false, door: 'fresh' });
+    w2.budget = 500;
+    const rs = KP.streetCast(w2);
+    if (!rs.ok) continue;
+    w2.prospects.map(id => w2.people[id]).forEach(p => {
+      if (p.channel !== 'street') return;
+      seen.minted++;
+      if (p.industryKnown) {
+        seen.known++;
+        t.ok((w2.rivals || []).some(rv => (rv.interest || {})[p.id] >= 1),
+          'the pre-known street face arrives with a letterhead already circling');
+        t.ok(!!p.flags.preKnownBy, 'and the file names who saw her first');
+      }
+    });
+  }
+  t.ok(seen.minted >= 12, 'the street sample ran (' + seen.minted + ' minted)');
 }
 
 // ---- the alumni ledger and the moving reputation ----
@@ -120,7 +230,9 @@ function debuted(seed) {
   delete state.schools;
   const revived = KP.deserialize(KP.serialize(state));
   KP.advanceWeek(revived);
-  t.eq((revived.schools || []).length, KP.C.TOUR.KR_CITIES.length, 'an old save grows the schools in one tick');
+  t.ok((revived.schools || []).length >= KP.C.SCHOOLS.minSchools &&
+    (revived.schools || []).length <= KP.C.SCHOOLS.maxSchools,
+    'an old save grows the schools in one tick, inside the rails (' + (revived.schools || []).length + ')');
 }
 
 // ---- evaluation day: the board goes up and the room reads it ----
@@ -172,6 +284,8 @@ function debuted(seed) {
   t.ok(p, 'fixture: one trainee stayed behind');
   p.morale = 20;
   p.signedWeek = state.week - 100;
+  // stream shift (v0.10.17): an unrelated scene on her blocks the letter
+  state.scenes = (state.scenes || []).filter(x => x.personId !== p.id);
   const P = KP.C.PRACTICE;
   const oldChance = P.quitBaseChance;
   P.quitBaseChance = 1;

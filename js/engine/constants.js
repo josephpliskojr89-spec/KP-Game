@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.16',
+    VERSION: '0.10.17',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -249,6 +249,33 @@
       // §83 C: the city sets the pond — lead polish depth term
       depthTalentSpan: 10,       // lane cur lift at w=1.0 vs w=0.5
       depthClassWeight: 0.5,     // submission weight floor for small towns
+      // the academy's game (v0.10.17, §84) — the persistent class and
+      // the powers' head start. Owner: "they always exist, we just
+      // don't know who they are until we've visited enough times."
+      CLASS: {
+        sizeBase: 4, sizePerGravity: 4,   // Seoul rooms run ~8, small towns ~6
+        enrollAge: [14, 16], leaveAge: 19,   // the 14 floor is the owner's law (v0.3.1)
+        enrollChance: 0.06,              // weekly top-up toward the size
+        growChance: 0.3,                 // weekly: the lane grows toward the cone
+        revealPerTrip: [1, 2],           // the back row shows you one or two
+        // the head start: at enrollment, the obviously-talented are
+        // ALREADY known — chance scales with her ceiling and the
+        // school's name
+        knownBase: 0.06, knownCeilSlope: 0.5, knownCeilFloor: 55,
+        knownRepBonus: 0.15,             // a hot school's class is watched
+        knownInterest: 2,                // the powers arrive circling
+        // the fog poach: a known unrevealed student can be signed away
+        // before you ever meet her — the clock ticks in the dark
+        fogPoachChance: 0.008,
+        // the director's calls: shown interest in a strong student can
+        // summon the biggest letterheads THAT WEEK, by temper
+        callBar: 58,                     // perceived read that reads "strong"
+        callChance: { loyalist: 0.15, guardian: 0.30, starstruck: 0.75, auctioneer: 0.90 },
+        callInterest: 2, callRivals: 2,  // top-prestige letterheads, circling
+      },
+      // §84 E: the partnership gate — a nothing label's retainer is
+      // refused. Real fame, or an alum debuted under your roof.
+      partnerFameBar: 0.16,
     },
 
     // ---- The practice room years (v0.9.16): trainee life has weather ---
@@ -1827,6 +1854,9 @@
           'CLASS OF NEXT YEAR', 'ELEVEN LIGHTS'],
       },
       SOCIAL: { chance: 0.03, hype: [20, 35] },
+      // §84 D (v0.10.17): the private channels, imperfectly — sometimes
+      // the girl you found has been seen before, and the file says so
+      preKnownChance: 0.10,
       STREET: {                // shoe leather, not reputation.
         // the ladder rebalance (v0.10.12, §82 B) — owner: "it should
         // feel like a total crapshoot heavily weighed towards extremely

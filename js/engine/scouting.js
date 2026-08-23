@@ -94,6 +94,15 @@
     state.budget -= cost;
     p.observations = (p.observations || 0) + 1;
     KP.takeReads(state, p);
+    // the academy's game (v0.10.17, §84 C): a targeted look at a school
+    // kid is interest SHOWN — the director watched you watch her, and a
+    // strong student can summon the biggest letterheads that week
+    if (p.schoolId && KP.schoolInterestShown) {
+      const rng = KP.rngFor(state);
+      const call = KP.schoolInterestShown(state, rng, p);
+      state.rngState = rng.state();
+      if (call) KP.note(state, call);
+    }
     return { ok: true };
   };
 
@@ -399,6 +408,10 @@
       // attempt signings on interested prospects
       Object.keys(rival.interest).forEach(pid => {
         const p = state.people[pid];
+        // the academy's game (v0.10.17, §84 B): interest in a STUDENT is
+        // the powers' head start — it persists in the fog; the sign-away
+        // happens on the school's clock (schools.js), not this one
+        if (p && p.status === 'student') return;
         if (!p || p.status !== 'prospect') { delete rival.interest[pid]; return; }
         const lvl = rival.interest[pid];
         let chance = lvl >= 3 ? S.rivalSignHotChance : lvl === 2 ? S.rivalSignBaseChance : 0;

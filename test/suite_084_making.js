@@ -75,6 +75,9 @@ function debutWorld(seed, weeks) {
     const sc = (s.scenes || []).find(x => x.kind === 'lineCard');
     if (sc) KP.resolveScene(s, sc.id, 'center');
   }
+  // the discourse cap can be holding coverClips from the run-up — clear
+  // the floor so the audit's one-shot has a slot (suite_080 pattern)
+  s.discourses = [];
   KP.advanceWeek(s);   // the audit reads the fresh record on the next tick
   KP.C.PIPE.lineWarChance = LW;
   t.ok((s.discourses || []).some(d => d.kind === 'lineShare'), 'the stopwatch thread organizes');

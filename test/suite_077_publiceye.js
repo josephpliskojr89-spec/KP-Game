@@ -137,7 +137,9 @@ function planFirst(s, memberIds, week) {
   KP.advanceWeek(s);
   KP.C.PUBLIC.aceWatchChance = AW;
   t.ok(s.publicEyeLedger.aceWatch >= 1, 'while she is known and unassigned, the feed keeps asking');
-  t.ok((s.feed || []).some(p => /lineup news|debut news|soon/.test(p.text)), 'in its own voice');
+  t.ok((s.feed || []).some(p =>
+    /lineup news|debut news|soon|put her in a group|still not debuting/.test(p.text)),
+    'in its own voice');
 }
 
 // ---- determinism through an announcement ------------------------------

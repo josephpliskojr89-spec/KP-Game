@@ -30,6 +30,11 @@ for (let s = 1; s <= 20; s++) {
     // performers and run older by design (debut-aged to veteran, v0.4.3)
     if (p.status === 'rival') {
       t.ok(p.age >= KP.C.GEN.ageRange[0] && p.age <= 26, p.id + ' rival idol age plausible (' + p.age + ')');
+    } else if (p.status === 'student') {
+      // the academy's game (v0.10.17, §84 A): the class enrolls young and
+      // ages toward the leaving age on the same birthdays as everyone
+      t.ok(p.age >= KP.C.SCHOOLS.CLASS.enrollAge[0] &&
+        p.age <= KP.C.SCHOOLS.CLASS.leaveAge, p.id + ' student age in range');
     } else {
       t.ok(p.age >= KP.C.GEN.ageRange[0] && p.age <= KP.C.GEN.ageRange[1], p.id + ' age in range');
     }
@@ -54,8 +59,11 @@ for (let s = 1; s <= 20; s++) {
   const ages = [];
   for (let s = 0; s < 20; s++) {
     const st = KP.newGame('agedist' + s, null, { legacy: false });
-    // the law measures the scouting pipeline — rival idols run older by design
-    Object.values(st.people).forEach(p => { if (p.status !== 'rival') ages.push(p.age); });
+    // the law measures the scouting pipeline — rival idols run older by
+    // design, and academy students enroll younger (v0.10.17, §84 A)
+    Object.values(st.people).forEach(p => {
+      if (p.status !== 'rival' && p.status !== 'student') ages.push(p.age);
+    });
   }
   const mean = ages.reduce((a, b) => a + b, 0) / ages.length;
   const bulk = ages.filter(a => a >= 14 && a <= 18).length / ages.length;

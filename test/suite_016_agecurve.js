@@ -42,7 +42,11 @@ const t = makeT('suite_016_agecurve');
   t.ok(mean <= 17.6, 'reborn board skews young (mean ' + mean.toFixed(1) + ')');
   t.ok(back.inbox.some(m => /cleared the board/.test(m.text)), 'the rebirth is narrated by Scout Im');
   back.rivals.forEach(r => {
-    Object.keys(r.interest).forEach(pid => t.ok(back.prospects.includes(pid), 'rival interest points at real prospects'));
+    // the academy's game (v0.10.17, §84 B): interest can also sit on an
+    // unrevealed STUDENT — the powers' head start lives in the fog
+    Object.keys(r.interest).forEach(pid => t.ok(back.prospects.includes(pid) ||
+      (back.people[pid] || {}).status === 'student',
+      'rival interest points at real prospects or fog students'));
   });
   t.ok(back.rivals.some(r => Object.keys(r.interest).length > 0), 'rivals circle the new board too');
 

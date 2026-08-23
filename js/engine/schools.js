@@ -35,6 +35,19 @@
   // their gravity — Seoul carries the most, the small towns sometimes
   // none. Every lane exists somewhere; Seoul always has a school, and a
   // regional founding always has one up the road (the atlas trade).
+  // the academy's game (v0.10.17, §84): the temper — who the director
+  // is when your interest becomes their information. Words only.
+  const TEMPERS = ['loyalist', 'auctioneer', 'starstruck', 'guardian'];
+  const TEMPER_PROSE = {
+    loyalist: 'returns calls in the order of who kept showing up',
+    auctioneer: 'believes every gem is, by wonderful coincidence, a fundraiser',
+    starstruck: 'wants an alumna under a MAJOR letterhead and says so unprompted',
+    guardian: 'asks what you did with the last one before discussing the next one',
+  };
+  KP.schoolTemperProse = function (school) {
+    return TEMPER_PROSE[school.temper] || '';
+  };
+
   function mkSchool(state, rng, cityId, lane, rep) {
     const c = cityRow(cityId);
     const used = new Set((state.schools || []).map(x => x.name));
@@ -47,13 +60,128 @@
     const artsRep = (KP.C.HOME.CITIES && KP.C.HOME.CITIES[cityId] &&
       KP.C.HOME.CITIES[cityId].schoolRep) || 0;
     state.nextSchoolId = state.nextSchoolId || 1;
+    const id = 'sch' + (state.nextSchoolId++);
     return {
-      id: 'sch' + (state.nextSchoolId++), name, cityId, city: c.label, lane,
+      id, name, cityId, city: c.label, lane,
       rep: rep + artsRep,
+      temper: TEMPERS[Math.floor(KP.hash01([state.seed, id, 'temper'].join('|')) * TEMPERS.length)],
       alumni: [], hot: false, hotWeek: null,
       visitedWeek: null, partnerUntil: 0,
     };
   }
+
+  // ---- the persistent class (v0.10.17, §84 A+B) ------------------------
+  // Real people, training in the fog: status 'student', aged by the
+  // same birthdays as everyone, revealed only by visits and showcases.
+  KP.schoolClass = function (state, school) {
+    return Object.values(state.people)
+      .filter(p => p.status === 'student' && p.schoolId === school.id);
+  };
+  function classTarget(school) {
+    const CL = KP.C.SCHOOLS.CLASS;
+    const w = (cityRow(school.cityId) || { w: 0.6 }).w;
+    return Math.round(CL.sizeBase + w * CL.sizePerGravity);
+  }
+  // §83 C, one truth: the city sets the pond, the name sets the drilling.
+  // Depth is training, not destiny: ceilings untouched.
+  function applySchoolPolish(p, school) {
+    const S = KP.C.SCHOOLS;
+    const cw = (cityRow(school.cityId) || { w: 0.6 }).w;
+    const depth = Math.round((cw - 0.5) / 0.5 * S.depthTalentSpan);
+    const repBonus = school.rep > S.baseRep
+      ? Math.round((school.rep - S.baseRep) / (100 - S.baseRep) * S.repTalentBonus) : 0;
+    if (repBonus + depth <= 0) return;
+    const laneKeys = school.lane === 'allround' ? ['vocals', 'dance'] : [school.lane];
+    laneKeys.forEach(k => {
+      const t = p.talents[k];
+      const lift = school.lane === 'allround'
+        ? Math.round((repBonus + depth) / 2) : repBonus + depth;
+      t.cur = Math.min(t.ceilLo - 1, t.cur + lift);
+    });
+  }
+  function schoolLedgerOf(state) {
+    state.schoolLedger = state.schoolLedger || { opened: 0, closed: 0 };
+    return state.schoolLedger;
+  }
+  function enrollStudent(state, rng, school) {
+    const CL = KP.C.SCHOOLS.CLASS;
+    KP.resetIds(state.nextPersonId || KP.peekNextId());
+    const usedNames = new Set(Object.values(state.people).map(x => x.name.given.toLowerCase()));
+    const gender = rng.chance(KP.C.GEN.maleLeadShare) ? 'm' : 'f';
+    const p = KP.generatePerson(rng, { status: 'prospect', usedNames, gender,
+      source: LANE_SOURCE[school.lane], age: rng.int(CL.enrollAge[0], CL.enrollAge[1]) });
+    state.nextPersonId = KP.peekNextId();
+    p.status = 'student';
+    p.schoolId = school.id;
+    p.channel = 'school';
+    applySchoolPolish(p, school);
+    state.people[p.id] = p;
+    schoolLedgerOf(state).enrolled = (schoolLedgerOf(state).enrolled || 0) + 1;
+    // the powers' head start: the obviously-talented are ALREADY known —
+    // hash, not rng: whether the industry saw her was never your draw
+    const peakCeil = Math.max(p.talents.vocals.ceilHi, p.talents.dance.ceilHi,
+      p.talents.charisma.ceilHi);
+    const knownChance = KP.C.SCHOOLS.CLASS.knownBase +
+      Math.max(0, peakCeil - CL.knownCeilFloor) / 100 * CL.knownCeilSlope +
+      (school.rep >= KP.C.SCHOOLS.hotAt ? CL.knownRepBonus : 0);
+    if (KP.hash01([state.seed, p.id, 'known'].join('|')) < knownChance) {
+      p.industryKnown = 1;
+      (state.rivals || []).slice().sort((a, b) => (b.prestige || 0) - (a.prestige || 0))
+        .slice(0, 2).forEach(r => {
+          r.interest = r.interest || {};
+          r.interest[p.id] = Math.max(r.interest[p.id] || 0, CL.knownInterest);
+        });
+    }
+    return p;
+  }
+  // revelation: she stops being the fog's and becomes a board fact —
+  // and you learn WHO ELSE already knew
+  function revealStudent(state, p, opts) {
+    p.status = 'prospect';
+    state.prospects.push(p.id);
+    KP.socialOf(state, p);
+    p.observations = Math.max(p.observations || 0, (opts && opts.observations) || 1);
+    KP.takeReads(state, p);
+    if ((opts || {}).firstLook) p.flags.firstLookUntil = state.week + KP.C.SCHOOLS.firstLookWeeks;
+    schoolLedgerOf(state).revealed = (schoolLedgerOf(state).revealed || 0) + 1;
+    return p;
+  }
+  // the room fills once, at the school's birth — after that the weekly
+  // enrollment drip is the only door in
+  function fillClass(state, rng, school) {
+    let guard = 24;
+    while (KP.schoolClass(state, school).length < classTarget(school) && guard-- > 0) {
+      enrollStudent(state, rng, school);
+    }
+    school.classBuilt = 1;
+  }
+
+  // ---- the director's calls (v0.10.17, §84 C) --------------------------
+  // Interest is a tell in ANY form. A strong student + a shown look =
+  // a chance the biggest letterheads arrive circling THAT WEEK.
+  KP.schoolInterestShown = function (state, rng, p) {
+    const CL = KP.C.SCHOOLS.CLASS;
+    if (!p.schoolId || p.flags.directorCalled) return null;
+    const school = KP.schoolById(state, p.schoolId);
+    if (!school) return null;
+    const peak = Math.max(KP.perceived(state, p, 'vocals', null),
+      KP.perceived(state, p, 'dance', null), KP.perceived(state, p, 'charisma', null));
+    if (peak < CL.callBar) return null;
+    p.flags.directorCalled = 1;   // one phone tree per student
+    if (!rng.chance(CL.callChance[school.temper] || 0.4)) return null;
+    const tops = (state.rivals || []).slice()
+      .sort((a, b) => (b.prestige || 0) - (a.prestige || 0)).slice(0, CL.callRivals);
+    tops.forEach(r => {
+      r.interest = r.interest || {};
+      r.interest[p.id] = Math.max(r.interest[p.id] || 0, CL.callInterest);
+    });
+    state.schoolLedger = state.schoolLedger || { opened: 0, closed: 0 };
+    state.schoolLedger.directorCalls = (state.schoolLedger.directorCalls || 0) + 1;
+    return { kind: 'scouting', ind: 'directorCalls', priority: 'high', personId: p.id,
+      text: KP.fillPro('Your interest in ' + KP.displayName(p) + ' did not stay in the room. ' +
+        school.name + '’s director ' + TEMPER_PROSE[school.temper] + ' — and by the end of the week ' +
+        tops.map(r => r.short).join(' and ') + ' had requested {pos} tape. The academy calls it doing right by the student. Your signing window calls it something else.', p) };
+  };
   function drawCity(rng, bonusCity, bonusMult) {
     const cities = KP.C.TOUR.KR_CITIES;
     const weighted = cities.map(c => ({ id: c.id,
@@ -85,6 +213,8 @@
       state.schools.push(mkSchool(state, rng, cid, lanes[i],
         rng.int(S.startRep[0], S.startRep[1])));
     });
+    // §84 A: the classes exist from day one — whether or not you ever visit
+    state.schools.forEach(s => fillClass(state, rng, s));
     return state.schools;
   };
 
@@ -245,6 +375,12 @@
     if (dying && state.schools.length > S.floorSchools && rng.chance(S.closeChance)) {
       state.schools = state.schools.filter(s => s !== dying);
       Object.values(state.people).forEach(p => {
+        // §84 A: the students we never met scatter with the school —
+        // the fog closes over them for good
+        if (p.schoolId === dying.id && p.status === 'student') {
+          delete state.people[p.id];
+          return;
+        }
         if (p.schoolId === dying.id) delete p.schoolId;
       });
       state.schoolLedger.closed++;
@@ -263,6 +399,7 @@
       const lane = rng.pick(['vocals', 'dance', 'allround']);
       const born = mkSchool(state, rng, cid, lane, rng.int(30, 46));
       state.schools.push(born);
+      fillClass(state, rng, born);   // §84 A: a new door opens with a room behind it
       state.schoolLedger.opened++;
       inbox.push({ kind: 'industry', ind: 'schoolOpened',
         priority: cid === home ? 'high' : 'normal',
@@ -270,6 +407,60 @@
           LANE_LABELS[lane] + ' fundamentals. Every school on the map started exactly this unproven.' +
           (cid === home && home !== 'seoul' ? ' It is a ten-minute walk from this office, and everyone involved knows exactly whose alumni wall they are hoping to build.' : '') });
     }
+
+    // ---- the persistent class breathes (v0.10.17, §84 A+B) -------------
+    // They always exist; we just don't know who they are. Old worlds get
+    // their tempers and their rooms on this tick — the fog was always there.
+    const CL = S.CLASS;
+    state.schools.forEach(s => {
+      if (!s.temper) {
+        s.temper = TEMPERS[Math.floor(KP.hash01([state.seed, s.id, 'temper'].join('|')) * TEMPERS.length)];
+      }
+      if (!s.classBuilt) fillClass(state, rng, s);
+      const cls = KP.schoolClass(state, s);
+      // a seat opens, a kid moves cities, the room refills toward the size
+      if (cls.length < classTarget(s) && rng.chance(CL.enrollChance)) enrollStudent(state, rng, s);
+      cls.forEach(p => {
+        // graduation: at the leaving age, the ones we never met walk out
+        // of the game — the fog does not owe you a forwarding address
+        if (p.age >= CL.leaveAge) {
+          delete state.people[p.id];
+          schoolLedgerOf(state).graduated = (schoolLedgerOf(state).graduated || 0) + 1;
+          if (s.visitedWeek) {
+            inbox.push({ kind: 'scouting', priority: 'flavor',
+              text: 'A face aged out of ' + s.name + '’s class this season — one of the students Scout Im never got a read on. Somewhere in ' + s.city + ' a family is having the conversation about college. The board will never know what it missed, which is the point of visiting more often.' });
+          }
+          return;
+        }
+        // training in the dark: the lane grows toward the cone's floor
+        if (rng.chance(CL.growChance)) {
+          const keys = s.lane === 'allround' ? ['vocals', 'dance'] : [s.lane];
+          keys.forEach(k => {
+            const t = p.talents[k];
+            t.cur = Math.min(t.ceilLo - 1, t.cur + 1);
+          });
+        }
+        // the fog poach (§84 B): a student the industry already knows can
+        // be signed away before you ever meet her — the clock ticks in
+        // the dark, and the trades do not cover academy paperwork
+        if (p.industryKnown && rng.chance(CL.fogPoachChance)) {
+          const top = (state.rivals || []).slice()
+            .sort((a, b) => (b.prestige || 0) - (a.prestige || 0))[0];
+          if (top) {
+            p.status = 'rival';
+            p.company = top.short;
+            KP.schoolRecordAlum(state, p, top.short);
+            top.rosterCount = (top.rosterCount || 0) + 1;
+            (state.rivals || []).forEach(r => { if (r.interest) delete r.interest[p.id]; });
+            schoolLedgerOf(state).fogPoached = (schoolLedgerOf(state).fogPoached || 0) + 1;
+            if (s.visitedWeek) {
+              inbox.push({ kind: 'scouting', ind: 'fogPoach', priority: 'high',
+                text: top.short + ' signed a trainee contract out of ' + s.name + ' this week — a student Scout Im never got in front of. Their scouts knew the name before we knew the face. That is what a scouting department the size of a building buys.' });
+            }
+          }
+        }
+      });
+    });
 
     // ---- casting is open: the schools submit ---------------------------
     const S2 = KP.C.SCOUT;
@@ -285,18 +476,27 @@
       let roll = rng.next() * total;
       let school = weighted[weighted.length - 1].s;
       for (const x of weighted) { roll -= x.w; if (roll <= 0) { school = x.s; break; } }
-      school.classesSent = (school.classesSent || 0) + 1;
-      const n = rng.int(S.classSize[0], S.classSize[1]);
-      const names = [];
-      for (let i = 0; i < n; i++) {
-        const p = KP.spawnSchoolLead(state, rng, school,
-          { firstLook: school.partnerUntil > state.week });
-        names.push(KP.displayName(p) + ', ' + p.age);
+      // §84 A: a showcase reveals REAL students — the same people a trip
+      // would have met. Nothing is minted; the class is the class.
+      const pool = KP.schoolClass(state, school);
+      const n = Math.min(pool.length, rng.int(S.classSize[0], S.classSize[1]));
+      if (n > 0) {
+        school.classesSent = (school.classesSent || 0) + 1;
+        const names = [];
+        const circling = [];
+        for (let i = 0; i < n; i++) {
+          const p = pool.splice(rng.int(0, pool.length - 1), 1)[0];
+          revealStudent(state, p, { observations: 1,
+            firstLook: school.partnerUntil > state.week });
+          if (p.industryKnown) circling.push(KP.displayName(p));
+          names.push(KP.displayName(p) + ', ' + p.age);
+        }
+        inbox.push({ kind: 'scouting', ind: 'schoolClass',
+          text: 'Casting is open somewhere in this industry and ' + school.name + ' (' + school.city + ') can smell it: students from their current class auditioned this week — ' +
+            names.join('; ') + '. The school’s stamp is on the files' +
+            (school.partnerUntil > state.week ? ', and our first-look agreement means we read them before anyone else circles' : ', and every company in town got the same tape') + '.' +
+            (circling.length ? ' One thing the tape does not show: ' + circling.join(' and ') + (circling.length > 1 ? ' were' : ' was') + ' already in bigger companies’ files before this week.' : '') });
       }
-      inbox.push({ kind: 'scouting', ind: 'schoolClass',
-        text: 'Casting is open somewhere in this industry and ' + school.name + ' (' + school.city + ') can smell it: their current class auditioned this week — ' +
-          names.join('; ') + '. The school’s stamp is on the files' +
-          (school.partnerUntil > state.week ? ', and our first-look agreement means we read them before anyone else circles' : ', and every company in town got the same tape') + '.' });
     }
   });
 
@@ -329,23 +529,59 @@
         sharpened++;
       }
     });
-    const lead = KP.spawnSchoolLead(state, rng, s, { observed: true, firstLook: s.partnerUntil > state.week });
+    // §84 A: the trip reveals who was ALWAYS in the room — the back row
+    // shows you one or two of the students you had not met yet
+    const CL = S.CLASS;
+    const pool = KP.schoolClass(state, s);
+    const reveal = Math.min(pool.length, rng.int(CL.revealPerTrip[0], CL.revealPerTrip[1]));
+    const partnered = s.partnerUntil > state.week;
+    const met = [];
+    const calls = [];
+    let knownAlready = 0;
+    for (let i = 0; i < reveal; i++) {
+      const p = pool.splice(rng.int(0, pool.length - 1), 1)[0];
+      revealStudent(state, p, { observations: partnered ? S.partnerObs : 1,
+        firstLook: partnered });
+      if (p.industryKnown) knownAlready++;
+      met.push(KP.displayName(p) + ', ' + p.age);
+      // §84 C: a look IS interest, and interest is a tell — the director
+      // watched Scout Im watch her
+      const call = KP.schoolInterestShown(state, rng, p);
+      if (call) calls.push(call);
+    }
+    const left = KP.schoolClass(state, s).length;
     state.rngState = rng.state();
     const note = { kind: 'scouting', ind: 'schoolTrip',
       text: (local
         ? 'Scout Im walked to ' + s.name + ' — the home-town academy, ten minutes up the road, no train ticket. A day watching the ' + LANE_LABELS[s.lane] + ' classes from the back row. '
         : 'Scout Im took the ' + s.city + ' train: a day at ' + s.name + ' watching the ' + LANE_LABELS[s.lane] + ' classes from the back row. ') +
-        (sharpened ? 'Sharper reads on ' + sharpened + ' file' + (sharpened === 1 ? '' : 's') + ' already on our board, and one' : 'One') +
-        ' new name worth the notebook: ' + KP.displayName(lead) + ', ' + lead.age + '. The room smelled like floor polish and ambition.' };
+        (sharpened ? 'Sharper reads on ' + sharpened + ' file' + (sharpened === 1 ? '' : 's') + ' already on our board. ' : '') +
+        (met.length
+          ? 'New name' + (met.length === 1 ? '' : 's') + ' worth the notebook: ' + met.join('; ') + '.' +
+            (knownAlready ? ' The notebook had company — ' + knownAlready + ' of them ' + (knownAlready === 1 ? 'was' : 'were') + ' already in bigger companies’ files before we ever sat down.' : '')
+          : 'No new faces this term — we know this class already.') +
+        (left ? ' The class is bigger than one visit: ' + left + ' more student' + (left === 1 ? '' : 's') + ' train in that room whom we have not met.' : ' There is nobody left in that room we have not met.') +
+        ' The room smelled like floor polish and ambition.' };
     KP.note(state, note);
+    calls.forEach(c => KP.note(state, c));
     return { ok: true, note };
   };
 
+  // §84 E, one truth for the gate: a nothing label's retainer is refused.
+  // Real fame, or a school kid you took all the way to a debut stage.
+  KP.schoolPartnerLocked = function (state) {
+    const fame = KP.fameRead ? KP.fameRead(state) : 0;
+    if (fame >= KP.C.SCHOOLS.partnerFameBar) return false;
+    return !Object.values(state.people).some(p => p.status === 'idol' && p.schoolId);
+  };
   KP.schoolPartnership = function (state, schoolId) {
     const S = KP.C.SCHOOLS;
     const s = KP.schoolById(state, schoolId);
     if (!s) return { ok: false, reason: 'No such school on the map.' };
     if (s.partnerUntil > state.week) return { ok: false, reason: 'The agreement with ' + s.name + ' is already running.' };
+    if (KP.schoolPartnerLocked(state)) {
+      return { ok: false, reason: s.name + '’s director took the meeting, kept the coffee short, and declined the retainer. A first look is for labels that can DO something with one — come back with a real name, or with one of these kids on a debut stage. The director ' + TEMPER_PROSE[s.temper] + '; none of that helps an unknown letterhead.' };
+    }
     // the school map (v0.10.14, §83 D): the retainer prices the school's
     // name and the distance to its door
     const cost = KP.schoolPartnerCost(state, s);

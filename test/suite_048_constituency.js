@@ -68,11 +68,13 @@ function openCal(state, g) {
 {
   const FU = KP.C.FUSION;
   const saved = { s: FU.shiftBase, sp: FU.shiftPerCreativity, a: FU.acclaimBase,
-    ap: FU.acclaimPerCreativity, f: FU.flopBase };
+    ap: FU.acclaimPerCreativity, f: FU.flopBase, fl: FU.flopLessPerCreativity };
   function runWith(pin, seed) {
     FU.shiftBase = pin === 'shift' ? 1 : 0; FU.shiftPerCreativity = 0;
     FU.acclaimBase = pin === 'acclaim' ? 1 : 0; FU.acclaimPerCreativity = 0;
-    FU.flopBase = pin === 'flop' ? 1 : 0;
+    // pin the flop FLAT too — a creative room discounts flopBase, and
+    // the stream decides the room (v0.10.17 shift exposed the loose pin)
+    FU.flopBase = pin === 'flop' ? 1 : 0; FU.flopLessPerCreativity = 0;
     const { state, g } = debuted(seed);
     openCal(state, g);
     KP.setGroupConcept(state, g.id, 'fusion');
@@ -97,6 +99,7 @@ function openCal(state, g) {
   t.ok(flop.g.results.reception <= KP.C.FUSION.flopReceptionCap, 'the floor is real');
   FU.shiftBase = saved.s; FU.shiftPerCreativity = saved.sp;
   FU.acclaimBase = saved.a; FU.acclaimPerCreativity = saved.ap; FU.flopBase = saved.f;
+  FU.flopLessPerCreativity = saved.fl;
 }
 
 // ---- the truck: grievance + organization + the three doors ----

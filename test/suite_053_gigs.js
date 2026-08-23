@@ -109,9 +109,16 @@ function famous(state, p) {
   state.week = Math.max(state.week, (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks + 1);   // idle group: no clash
   state.gigs = [{ id: 'gig1', kind: 'panel', personId: p.id, show: 'Off-Duty',
     weeksLeft: 6, weekly: 3, lump: 0, signedWeek: state.week, strain: 0, weeksRun: 0 }];
-  const media0 = p.mediaExp, social0 = p.social || 0, pop0 = g.popularity;
+  const media0 = p.mediaExp, social0 = p.social || 0;
+  // the wrap bump (+completePop) measures against the week it LANDS —
+  // an idle group's popularity drifts down across the six-week run, and
+  // the stream decides how much (v0.10.17 shift exposed the loose read)
+  let pop0 = g.popularity;
   let guard = 0;
-  while (KP.activeGigs(state).length && guard++ < 10) KP.advanceWeek(state);
+  while (KP.activeGigs(state).length && guard++ < 10) {
+    pop0 = g.popularity;
+    KP.advanceWeek(state);
+  }
   t.ok(p.mediaExp > media0, 'taping weeks build media reps (' + media0 + ' → ' + p.mediaExp + ')');
   t.ok((p.social || 0) > social0, 'the clips drip followers');
   t.eq(p.flags.panelArcs, 1, 'the wrapped arc is counted');

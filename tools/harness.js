@@ -432,6 +432,13 @@ const BANDS = {
   // closures need rep<30 held half a year — a longhaul-scale event, 0/40
   // in the 140-week soak by design; the suite pins the mechanism
   schoolClosed:      { lo: 0.00, hi: 0.60, label: 'worlds where a quiet school became a math hagwon' },
+  // the academy's game (v0.10.17, §84) — measured 40/24/40 of 40 at
+  // intro (trips + showcases reveal everywhere; calls need a strong
+  // student met while the temper dice cooperate; the fog ALWAYS eats
+  // somebody in 140 weeks, which is the owner's ruling working)
+  classRevealed:     { lo: 0.80, hi: 1.00, label: 'worlds where the fog gave up a student (trip or showcase)' },
+  directorCalled:    { lo: 0.20, hi: 1.00, label: 'worlds where a director phoned the majors about shown interest' },
+  fogPoached:        { lo: 0.30, hi: 1.00, label: 'worlds where a known student signed away before anyone met her' },
   evalHeld:          { lo: 0.80, hi: 1.00, label: 'orgs whose practice room held evaluation days' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
@@ -615,6 +622,7 @@ const tally = {
   repackaged: 0, mvCinema: 0, mvPlain: 0,
   schoolLead: 0, schoolClass: 0, schoolTrip: 0, schoolPartner: 0, schoolHot: 0,
   schoolOpened: 0, schoolClosed: 0,
+  classRevealed: 0, directorCalled: 0, fogPoached: 0,
   evalHeld: 0, projectTalkSeen: 0, traineeQuitAsked: 0, traineeGone: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
@@ -1549,9 +1557,13 @@ for (let s = 0; s < SEEDS; s++) {
 
   // living-world census (v0.4.0)
   if (state.rivals.some(r => (r.acts || []).some(a => a.debutWeek > 1))) tally.rivalActDebut++;
-  // save-size telemetry (v0.5.1): bloat must not sneak up on the quota
+  // save-size telemetry (v0.5.1): bloat must not sneak up on the quota.
+  // History: cap 400 through v0.10.16 (soaks ran ~350–380). v0.10.17's
+  // persistent classes add ~60 KB of REAL people (≈64 students × 1 KB,
+  // bounded by classTarget × school cap) — measured 402–441 across 40
+  // orgs at intro. Cap 480 holds the same headroom over the new floor.
   const sizeKB = KP.saveSizeKB(state);
-  guard(sizeKB <= 400, seed + ' save size runaway: ' + sizeKB + ' KB after 140 weeks');
+  guard(sizeKB <= 480, seed + ' save size runaway: ' + sizeKB + ' KB after 140 weeks');
   totalSaveKB += sizeKB;
 
   // discourse census + guards (v0.6.2)
@@ -1796,6 +1808,9 @@ for (let s = 0; s < SEEDS; s++) {
   const schl = state.schoolLedger || {};
   if ((schl.opened || 0) >= 1) tally.schoolOpened++;
   if ((schl.closed || 0) >= 1) tally.schoolClosed++;
+  if ((schl.revealed || 0) >= 1) tally.classRevealed++;
+  if ((schl.directorCalls || 0) >= 1) tally.directorCalled++;
+  if ((schl.fogPoached || 0) >= 1) tally.fogPoached++;
   const pl = state.practiceLedger || {};
   if ((pl.evals || 0) >= 1) tally.evalHeld++;
   if ((pl.speculations || 0) >= 1) tally.projectTalkSeen++;

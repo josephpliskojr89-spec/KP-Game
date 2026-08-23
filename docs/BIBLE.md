@@ -5584,94 +5584,108 @@ its own departure at the scandal-release sites and on an emptied
 lineup (all exits recompute or clear). Ten suites re-fixtured.
 Battery 90/90, soak 40 clean, longhaul 10x620, e2e 104.
 
-## §84 The academy's game (planning — the third actor wakes up)
+## §84 The academy's game (RULED — the powers' head start)
 
-Owner: "right now they're just a name and a location with a rep. they
-have no goals. they have no one to be selfish. imagine you're a
-little known Daegu academy and you have an unusually talented girl…
-the local unknown Daegu label comes in and shows interest (in our
-case, a targeted look). What would you as an owner of this academy
-do? Just let her go to the tiny label and forget about her, or call
-your contacts around the industry and tell them they need to see
-this girl before the no-name label signs her?"
+Owner's first pass framed the player as the information leak; the
+ruling inverted it: "I shouldn't be the one with an information
+advantage unless it's a street casting or our own auditions… we're
+against bigger companies and their massive information and scouting
+advantage. so I think every academy needs to have a persistent
+class. they always exist, we just don't know who they are until
+we've visited enough times. and if we do show interest in any form,
+there's a chance the biggest labels instantly show up as interested,
+simulating the director of the academy making calls. that's the plan
+I want." Also ruled: "why would an academy partner with my label
+that has done literally nothing? they wouldn't. that's the point of
+establishing your own academy."
 
-The frame: the practice-room triangle has three actors and only two
-of them are alive. The GIRL has agency (§74, the holdout — her own
-bar, her own no). The LABELS have agency (rival interest, the
-circling, the sign-away). The SCHOOL between them is furniture. And
-the sharpest consequence hiding in the current code: a targeted look
-is INFORMATION, and the player leaks it for free. §84 makes the leak
-cost what it costs.
+**A. The persistent class.** Every school holds a real standing
+class — full generated people (status 'student', aged by the same
+birthdays as everyone), sized by city gravity (Seoul rooms are
+bigger), enrolled and graduated on the school's own clock. The class
+EXISTS whether or not you ever visit; visits progressively reveal it
+(a trip reveals one or two students from the back row and sharpens
+the files you already hold; casting submissions reveal publicly).
+Revealed students become board prospects; unrevealed ones live in
+the fog, training, aging, and — this is the point — being seen by
+people who are not you.
 
-**A. The temper.** Every school gets a hash-stable disposition,
-stamped at generation, printed only as prose once you've dealt with
-them (words, never a stat):
-- **the loyalist** — values the label that keeps showing up; a
-  relationship is worth more than a bidding war.
-- **the auctioneer** — every gem is a fundraiser. "Doing right by
-  the student" and doing well by the tuition wing are, by a
-  wonderful coincidence, the same phone calls.
-- **the starstruck** — wants an alumna under a MAJOR letterhead,
-  full stop. Your label is a rounding error until it isn't.
-- **the guardian** — wants the right home, not the biggest one;
-  watches what you DO with alumni and remembers.
+**B. The powers' head start.** Talented students are ALREADY KNOWN.
+At enrollment, a hash roll scaled by the student's ceiling and the
+school's reputation marks her as industry-known — and known students
+carry top-label rival interest BEFORE the player ever meets them.
+Revelation is therefore two discoveries at once: the girl, and the
+fact that Aozora's A&R has been taking the same train for a year.
+Known unrevealed students can even be SIGNED AWAY in the fog — the
+class you saw in spring lost its best kid and you find out on the
+next visit. The early game IS this fight.
 
-**B. The leak.** A targeted look (or a trip's sharpened read) at a
-school kid whose read comes back strong is a tell the school
-notices. What happens next is the temper:
-- The auctioneer SHOPS HER: within a couple of weeks, one or two
-  rival interest levels tick up, and the note says so — "by Friday
-  three A&R departments had the same clip." No new machinery
-  fires after that; the EXISTING machinery is the punishment: rival
-  heat accelerates the sign-away clock (rivalSignHotChance) AND
-  raises her signing price (signCost already reads heat). The
-  player's own look made her expensive and contested.
-- The starstruck calls the powers only: the top-prestige rival
-  goes straight to circling-hard.
-- The loyalist and the guardian sit on it — or, at a warm
-  relationship, send the heads-up INSTEAD: "two other labels
-  called this week; your first look holds."
-- The chain the systems produce for free: the shop raises her heat,
-  and heat is the holdout system's entry condition — the calls can
-  talk a girl into her own bar. The academy's selfishness
-  manufactures trainee agency. Nobody writes this as a script; it
-  emerges.
+**C. The director's calls.** Interest is a tell in ANY form — a
+targeted look, a trip that reveals her. If the student reads
+strong, there is a chance (temper-scaled: the auctioneer nearly
+always, the loyalist rarely) the director calls the biggest
+letterheads THAT WEEK: top-prestige rivals arrive at
+circling-hard instantly, with the note narrating the phone calls.
+The punishment is the existing machinery — heat accelerates the
+sign-away clock, raises her price, and can talk her into her own
+holdout bar. Your look made her contested; the director made sure.
 
-**C. The defenses — all of them existing verbs, repriced by
-meaning.** Sign fast on a worse read (fewer looks = no leak = the
-fog you accepted). Buy the partnership FIRST (first-look gains a
-second job: a partnered school does not shop you — the retainer was
-always hush money, now the game says so). Or build the relationship
-until the school is effectively yours.
+**D. The private channels, imperfectly.** Street casting and your
+own auditions stay channel-private (§75) — the true information
+edge of the small label. But even there, a small pre-known chance:
+sometimes the girl you found in the districts has been seen before,
+and the file says so on arrival.
 
-**D. The bond.** A per-school relationship (hidden small int, worded
-cold / civil / warm / theirs-to-lose), moved by durable facts: the
-partnership, visits (the courtship pattern §74 already taught),
-signing their kids, their alumni DEBUTING under your roof (the
-photo in the lobby is the whole economy of these places), versus
-cutting their alumni or letting one age out unsigned on your board.
-Warm+ unlocks the heads-up call; at the top, the school brings its
-gem to YOU first — a private showcase lead, pre-read, before the
-board ever sees her. The mirror at high fame: once you ARE a power,
-the auctioneers call YOU about other labels' local discoveries —
-the leak, working for you, with somebody else's fingerprints on the
-bill.
+**E. The partnership gate.** First-look partnerships now require a
+label the director can put in a brochure: real fame, or an alum of
+that school debuted under your roof. A nothing label's retainer is
+refused in the director's own voice. The early game has exactly the
+defenses it should: sign fast on a foggy read, or lose her to the
+machine — and the long answer is the player-owned academy (the
+shelf item this section is the prequel to).
 
-**E. The goal line.** Each school card carries its ambition in
-words — "wants an alumna on a Seoul stage this generation," "wants
-the new mirror wing funded," "wants a label that finishes what it
-starts" — the legible WHY behind the temper, and the hook the
-player-owned academy (the shelf item) will eventually inherit:
-owning a school means owning its interests.
+Tempers survive from the first draft as the CALL-CHANCE modifier
+and card prose (loyalist / auctioneer / starstruck / guardian),
+hash-stamped at creation, words only.
 
-Laws: temper and bond are hash/stored-hidden and PRINT only as
-prose; the leak draws rng in the weekly, never at render; one note
-per shop event, cooldown per school; content law throughout (snark
-at directors' invoices, never at children); bot answers nothing new
-(no scene required — the leak is weather, the defenses are existing
-verbs); measure-first bands for shopped/headsUp/broughtFirst.
-Target: v0.10.17, and it is the deliberate prequel to the
-player-owned academy.
+**As built (v0.10.17).** Everything above shipped as ruled, one
+truth per number in SCHOOLS.CLASS (sizeBase 4 + gravity×4 per room,
+enroll 14–16, leave at 19, weekly enroll drip .06, grow .3,
+reveal 1–2 per trip) plus NETWORK.preKnownChance .10 and
+SCHOOLS.partnerFameBar .16. The class is REAL people: status
+'student', minted at worldgen (and when a school opens), aged by the
+same birthdays as everyone, deleted unseen at graduation or closure.
+The head start is hash-truth at enrollment — knownBase .06 +
+ceiling slope + hot-school bonus puts the obviously-talented in the
+top-2 letterheads' files (interest 2) before any trip; that interest
+survives the weekly sweep (students exempted from the
+prospects-only purge) and the fog poach (.008/wk) can sign her away
+sight unseen — the note prints only if you had visited (else the
+fog just closes). Trips REVEAL instead of minting: revealPerTrip
+students become prospects with a dated read (partnered trips pre-read
+at partnerObs and protect with first look), the note names who was
+already in bigger files, and casting showcases reveal from the same
+class — nothing is minted while the room has people. The director's
+calls hang off ANY shown interest: reveal-on-trip and the targeted
+look both run KP.schoolInterestShown (perceived peak ≥ callBar 58,
+one phone tree per student, temper-scaled — loyalist .15 / guardian
+.30 / starstruck .75 / auctioneer .90 — top-2 prestige rivals to
+interest 2, 'directorCalls' note in the director's temper prose).
+The partnership gate is one truth (KP.schoolPartnerLocked): fame ≥
+.16 OR a school kid of yours on a stage; the verb refuses in the
+director's voice and the Talent page locks the button with the same
+read. Street/open-call mints hash-roll preKnown (a top-3 letterhead
+already circling at 1–2, flags.preKnownBy on the file, 'already
+scouted' chip). Ledger: schoolLedger {enrolled, revealed,
+directorCalls, fogPoached, graduated}; harness bands ruled off the
+first 40-org read (revealed 40/40 → [.80,1], calls 24/40 → [.20,1],
+fog poach 40/40 → [.30,1] — the fog ALWAYS eats somebody across 140
+weeks, which is the ruling working). Save cap raised 400→480 KB for
+the ~60 KB of real students (bounded by classTarget × school cap).
+One worldgen law learned the hard way: enrollStudent stamps
+nextPersonId mid-worldgen, so newgame.js re-stamps after the board
+mints — otherwise seedIndustry's resetIds rewinds the counter and
+rival rosters overwrite the opening board (the pr-alum ghost).
 
 ## §18 Watch items
 
@@ -8402,3 +8416,24 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Battery 91/91, soak 40 clean, longhaul 10x620, e2e 108, lockstep
 > 0.10.16. Rode to main. The family is extinct until proven
 > otherwise — and now something is always watching for otherwise.
+
+> **0.10.17 — the academy's game.** §84 shipped as ruled. Every
+> school runs a persistent class of real students — enrolled at
+> worldgen, aged by birthdays, revealed only by trips and showcases,
+> graduated or scattered unseen. The powers' head start is
+> hash-truth: the obviously-talented are in the majors' files before
+> you ever visit, the fog can sign them away sight unseen, and
+> street/open-call finds carry a pre-known chance ("I might see
+> girls that bigger companies already know about"). Interest in any
+> form is a tell: reveals and targeted looks run the director's
+> calls — temper-scaled, once per student — and the biggest
+> letterheads arrive circling THAT WEEK. Partnerships gate on a
+> label worth partnering with (fame or a debuted school kid), refused
+> in the director's voice. Fixture archaeology: the worldgen id
+> re-stamp (rival rosters overwriting the opening board), the
+> prospects-only interest purge exempting students, and five
+> stream-shift repairs (flop pin, gig-wrap read, heir burst timing,
+> aceWatch voice regex, battle-picks-the-biggest). Battery 91/91,
+> soak 40 clean (three §84 bands ruled), longhaul 10x620, e2e 109,
+> lockstep 0.10.17. Rode to main. The early game is now a fight
+> against the machine's information advantage — exactly as ordered.

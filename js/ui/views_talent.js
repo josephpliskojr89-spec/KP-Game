@@ -58,9 +58,11 @@
     const schools = state.schools || [];
     if (!schools.length) return '';
     const S = KP.C.SCHOOLS;
+    const partnerLocked = KP.schoolPartnerLocked && KP.schoolPartnerLocked(state);
     const html = ['<div class="pad" style="margin:14px 0 2px;font-size:.74rem;color:var(--ink-dim)">' +
-      'The training schools. A trip buys sharper reads on a school’s class; a partnership buys first look before any rival scout gets a seat. ' +
-      'The prices are the map: your own city is a walk, the rest is train fare — and a school with a name charges for the seat. Schools open and close; the directory is never finished.</div>'];
+      'The training schools. Every academy runs a persistent class — real students, training whether or not we visit. A trip meets one or two of them; a partnership buys first look before any rival scout gets a seat. ' +
+      'The prices are the map: your own city is a walk, the rest is train fare — and a school with a name charges for the seat.' +
+      (partnerLocked ? ' <b>The retainers are refused for now:</b> no director partners with a label that has done nothing. Build a real name — or put one of their kids on a debut stage.' : '') + '</div>'];
     // one trip per week (0.9.16.1): Scout Im is one person on one train
     const trippedThisWeek = schools.some(s => s.visitedWeek === state.week);
     schools.slice().sort((a, b) => b.rep - a.rep).forEach(s => {
@@ -72,6 +74,9 @@
       const tripCost = KP.schoolTripCost ? KP.schoolTripCost(state, s) : S.tripCost;
       const partnerCost = KP.schoolPartnerCost ? KP.schoolPartnerCost(state, s) : S.partnerCost;
       const local = s.cityId === (KP.homeCity ? KP.homeCity(state) : 'seoul');
+      const clsN = KP.schoolClass ? KP.schoolClass(state, s).length : 0;
+      const onBoard = (state.prospects || []).filter(id =>
+        (state.people[id] || {}).schoolId === s.id).length;
       html.push('<div class="card" style="padding:12px">' +
         '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">' +
         '<span style="font-weight:800">' + UI.esc(s.name) + '</span>' +
@@ -86,13 +91,24 @@
           ? 'Alumni ledger: ' + s.alumni.slice(-3).map(a => UI.esc(a.name)).reverse().join(', ') +
             (grads ? ' — ' + grads + ' on debut stages' : '')
           : 'No signed alumni yet. Every ledger starts blank.') + '</div>' +
+        // the persistent class (v0.10.17, §84): the size is public — the
+        // room has a headcount. The names are not; a visit buys those.
+        '<div style="font-size:.76rem;color:var(--ink-dim);margin-top:4px">' +
+        (clsN
+          ? 'The current class: ' + clsN + ' student' + (clsN === 1 ? '' : 's') +
+            (onBoard ? ' — ' + onBoard + ' of the class on our board' : ' — none of them met yet')
+          : onBoard
+            ? 'We have met the whole class — ' + onBoard + ' on our board'
+            : 'The class list is between terms') +
+        (s.visitedWeek ? '. The director ' + UI.esc(KP.schoolTemperProse(s)) + '.' : '.') + '</div>' +
         '<div style="display:flex;gap:8px;margin-top:9px">' +
         '<button class="btn small" data-action="school-trip" data-id="' + s.id + '"' +
         (state.budget < tripCost || cooling || trippedThisWeek ? ' disabled' : '') + '>' +
         (cooling ? 'Visited' : trippedThisWeek ? 'Next week'
           : (local ? 'Walk over · ' : 'Trip · ') + tripCost) + '</button>' +
         '<button class="btn small" data-action="school-partner" data-id="' + s.id + '"' +
-        (partnered || state.budget < partnerCost ? ' disabled' : '') + '>' + (partnered ? 'Partnered' : 'Partner · ' + partnerCost) + '</button>' +
+        (partnered || partnerLocked || state.budget < partnerCost ? ' disabled' : '') + '>' +
+        (partnered ? 'Partnered' : partnerLocked ? 'No retainer' : 'Partner · ' + partnerCost) + '</button>' +
         '</div></div>');
     });
     return html.join('');
@@ -112,6 +128,10 @@
       (grp ? '<span class="chip gold">' + UI.esc(grp.name) + '</span>' : '') +
       (p.status === 'idol' ? '<span class="chip gold">debuted</span>' : '') +
       ((p.hype || 0) >= 35 ? '<span class="chip hot">' + UI.esc(KP.hypeWord(p.hype)) + '</span>' : '') +
+      // the powers' head start (v0.10.17, §84 B): the file says so —
+      // somebody bigger saw her before we did
+      (p.status === 'prospect' && p.industryKnown
+        ? '<span class="chip hot">already scouted</span>' : '') +
       (p.clause && p.clause.kind === 'debutBy'
         ? '<span class="chip' + (state.week > p.clause.byWeek - KP.C.TABLE.warnAt ? ' hot' : '') +
           '">debut-by wk ' + p.clause.byWeek + '</span>' : '') +

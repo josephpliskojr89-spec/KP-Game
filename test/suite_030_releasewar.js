@@ -122,7 +122,10 @@ function firstAct(state) { return state.rivals[0].acts[0]; }
   while (!g.debuted && guard++ < 10) KP.advanceWeek(state);
   t.ok(g.results.battle, 'a same-week landing is a battle even without an ambush');
   t.ok(g.results.battle.won, 'the stronger release takes the week');
-  t.eq(g.feuds[act.id].wins, 1, 'the feud ledger opens with the win');
+  // the engine fights the BIGGEST same-week landing — the stream can put
+  // an organic comeback on our date too (v0.10.17 shift); read the feud
+  // through the battle's own record
+  t.eq((g.feuds[g.results.battle.actId] || {}).wins, 1, 'the feud ledger opens with the win');
   t.ok(state.inbox.some(m => /the numbers are in/.test(m.text)), 'the week has a headline');
 
   const { state: s2, g: g2 } = ready('war-loss');
