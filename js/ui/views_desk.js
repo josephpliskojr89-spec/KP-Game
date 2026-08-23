@@ -164,7 +164,7 @@
       const pushedThisWeek = c.lastPush === state.week;
       const fame = KP.fameRead ? KP.fameRead(state) : 1;
       html.push('<div class="kicker">The campaign · ' + UI.esc(g.name) + '</div>' +
-        '<div class="war-card held"><div class="w-flag">Release week ' + g.prep.scheduledWeek +
+        '<div class="war-card held"><div class="w-flag">Release ' + UI.esc(KP.weekLabel(g.prep.scheduledWeek).text) +
         ' · word of mouth: ' + UI.esc(KP.momentumWord(c.momentum)) + '</div>' +
         '<div class="w-text">' + (c.worked ? c.worked + ' push' + (c.worked === 1 ? '' : 'es') + ' worked so far.' :
           'Nobody has worked this era yet.') +
@@ -194,8 +194,8 @@
       offers.forEach(o => {
         const K = KP.C.BOOK.KINDS[o.kindId] || {};
         html.push('<div class="war-card held"><div class="w-flag">' + UI.esc(o.label) +
-          ' · week ' + o.week + ' · ' + (o.fee < 0 ? 'costs ' + (-o.fee) : 'fee ' + o.fee) + '</div>' +
-          '<div class="w-text">Answer by week ' + o.expiresWeek + '.' +
+          ' · ' + UI.esc(KP.weekLabel(o.week).text) + ' · ' + (o.fee < 0 ? 'costs ' + (-o.fee) : 'fee ' + o.fee) + '</div>' +
+          '<div class="w-text">Answer by ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '.' +
           (K.flyerable ? ' A flyer week beforehand fills the room — and earns it twice.' : '') + '</div>' +
           '<div class="w-actions">' +
           bookableGs.map(g =>
@@ -215,7 +215,7 @@
         const g = KP.groups(state).find(x => x.id === o.taken);
         html.push('<div class="card" style="display:flex;gap:10px;align-items:center">' +
           '<div style="flex:1;min-width:0"><b>' + (g ? UI.esc(g.name) : '?') + '</b> — ' +
-          UI.esc(o.label) + ' · week ' + o.week + (o.flyered ? ' · flyered' : '') + '</div></div>');
+          UI.esc(o.label) + ' · ' + UI.esc(KP.weekLabel(o.week).text) + (o.flyered ? ' · flyered' : '') + '</div></div>');
       });
     }
 

@@ -8657,3 +8657,13 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > hard; it just has a door now. Battery 93/93 (suite_093 new), soak
 > 40 clean (three bands measured then ruled), longhaul 10x620, e2e
 > 112, lockstep 0.10.19. Rode to main.
+
+> **0.10.19.1 — the calendar speaks everywhere.** Owner: "what's
+> going on with these dates? I'm in Jan w2 y2" — the booking pile
+> said "week 51." Nothing was stale: the year is 48 weeks, so week
+> 51 was simply NEXT WEEK wearing the engine's internal numbering.
+> Five raw-week leaks translated to calendar labels (the one truth
+> the top bar speaks): the booking pile's stage date and answer-by,
+> the booked-stages line, the campaign card's release week, and the
+> debut-by chip on talent rows. Battery 93/93, e2e 112, lockstep
+> 0.10.19.1. Rode to main.
