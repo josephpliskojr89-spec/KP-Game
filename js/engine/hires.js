@@ -86,6 +86,16 @@
   const GIV = ['Ki-tae', 'Seon-mi', 'Do-hwan', 'Yeo-reum', 'Sang-cheol', 'In-na',
     'Moo-young', 'Ha-eun', 'Chul-soo', 'Bo-ra'];
   const STYLES = ['drillmaster', 'nurturer', 'bigMachine', 'scrappy', 'classicist', 'trendChaser'];
+  // the building directory (v0.10.15): ONE truth for how a staff file
+  // reads — the interview and the card speak the same sentences
+  KP.staffFileRead = function (st) {
+    return {
+      warmth: st.warmth >= 50 ? 'warm, easy in the room' : 'reserved, hard to warm',
+      candor: st.candor >= 50 ? 'answers straight even when it costs' : 'answers carefully, edges sanded',
+      style: STYLE_WORD[st.style] || '',
+    };
+  };
+
   const STYLE_WORD = {
     drillmaster: 'counts in eights and forgives nothing before noon',
     nurturer: 'learns every trainee’s coffee order before their range',

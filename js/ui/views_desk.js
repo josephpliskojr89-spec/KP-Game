@@ -12,9 +12,11 @@
     const html = [];
     html.push('<div class="pad" style="margin-top:2px"><div class="seg">' +
       '<button class="' + (sub === 'today' ? 'on' : '') + '" data-action="desk-sub" data-sub="today">Today</button>' +
+      '<button class="' + (sub === 'building' ? 'on' : '') + '" data-action="desk-sub" data-sub="building">The building</button>' +
       '<button class="' + (sub === 'record' ? 'on' : '') + '" data-action="desk-sub" data-sub="record">The record</button>' +
       '</div></div>');
     if (sub === 'record') return html.join('') + renderRecord(state);
+    if (sub === 'building') return html.join('') + renderBuilding(state);
 
     // objective banner
     html.push('<div class="objective">' +
@@ -116,33 +118,23 @@
       });
     }
 
-    // the staff (v0.10.6): the building's seats — names, files, no numbers.
-    // the help wanted (v0.10.11): the two verbs live on the rows
+    // the building (v0.10.6; directory tab v0.10.15): Today keeps the
+    // at-a-glance line — the cards and the verbs live on the tab
     if (KP.staffSeats) {
       const S = KP.staffSeats(state);
-      const HR = KP.C.HIRES;
-      const searchBusy = !!state.staffSearch ||
-        (state.scenes || []).some(sc => sc.kind === 'theInterview');
-      const rows = KP.C.HIRES.SEATS.map(seat => {
-        const st = S[seat.id];
-        const sev = st ? Math.max(HR.severanceMin,
-          Math.round((HR.hireCost[st.tier] || HR.hireCost.working) * HR.severanceMult)) : 0;
-        const cooled = state.week - ((state.seatSearchCooldowns || {})[seat.id] || -999) >= HR.searchCooldown;
-        return '<div style="display:flex;justify-content:space-between;align-items:center;font-size:.78rem;padding:3px 0;gap:6px">' +
-          '<span style="flex:1">' + UI.esc(seat.label) +
-          (st ? '<br><span style="color:var(--ink-dim)">' + UI.esc(st.name) + ' · ' + UI.esc(st.tier) + '</span>'
-              : '<br><span style="color:var(--ink-dim)">— chair open —</span>') + '</span>' +
-          '<span style="display:flex;gap:4px;flex-shrink:0">' +
-          (st ? '<button class="btn small ghost" style="border:1px solid var(--line);font-size:.62rem" data-action="seat-release" data-id="' + seat.id + '">let go · ' + sev + '</button>' : '') +
-          (!searchBusy && cooled
-            ? '<button class="btn small" style="font-size:.62rem" data-action="seat-search" data-id="' + seat.id + '">help wanted · ' + HR.searchCost + '</button>' : '') +
-          '</span></div>';
-      }).join('');
+      const open = KP.C.HIRES.SEATS.filter(seat => !S[seat.id]);
       html.push('<div class="kicker">The building</div>');
-      html.push('<div class="card">' + rows +
+      html.push('<div class="card" data-action="desk-sub" data-sub="building" style="cursor:pointer">' +
+        '<div style="font-size:.78rem">' +
+        KP.C.HIRES.SEATS.filter(seat => S[seat.id]).map(seat =>
+          UI.esc(S[seat.id].name) + ' <span style="color:var(--ink-dim)">(' + UI.esc(seat.label) + ')</span>').join(' · ') +
+        '</div>' +
+        (open.length ? '<div style="font-size:.74rem;color:var(--gold);margin-top:4px">' +
+          open.length + ' chair' + (open.length === 1 ? '' : 's') + ' open: ' +
+          open.map(seat => UI.esc(seat.label)).join(', ') + '</div>' : '') +
         (state.staffSearch
-          ? '<div style="font-size:.7rem;color:var(--gold);margin-top:6px">A posting is up — somebody takes the meeting within the week.</div>' : '') +
-        '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">The file shows who they are and what the industry says. What they are actually worth, only the months say — and never in a number.</div></div>');
+          ? '<div style="font-size:.7rem;color:var(--gold);margin-top:4px">A posting is up — somebody takes the meeting within the week.</div>' : '') +
+        '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">The files, the reads, and the verbs are on The Building tab.</div></div>');
     }
 
     // the settlement (v0.10.1): the quarterly books, on the desk
@@ -332,6 +324,80 @@
 
   // the record (owner request): past conversations and every promise —
   // open ones with their clocks, settled ones with their verdicts
+  // ---- the building directory (v0.10.15): the staff, on cards ----------
+  // Everything the file legitimately knows — the interview read, the
+  // résumé, the tenure, the industry's word — and NOTHING the fog keeps.
+  const SEAT_BLURBS = {
+    vocal: 'runs the vocal room — what the practice weeks actually buy',
+    dance: 'runs the dance room — what the practice weeks actually buy',
+    perf: 'runs the rehearsal room before every stage',
+    scout: 'decides how far the company’s name reaches when it looks for people',
+    anr: 'sits over the demo sheet — what lands on it, and how it is heard',
+    marketing: 'decides what a campaign push actually buys',
+  };
+  function renderBuilding(state) {
+    const html = [];
+    const S = KP.staffSeats ? KP.staffSeats(state) : {};
+    const HR = KP.C.HIRES;
+    const searchBusy = !!state.staffSearch ||
+      (state.scenes || []).some(sc => sc.kind === 'theInterview');
+    html.push('<div class="pad" style="font-size:.74rem;color:var(--ink-dim);margin-top:4px">' +
+      'Six chairs. The file on each shows who they are, where they were, and what the industry says — never what they are worth. That part costs a year, and it never prints.</div>');
+    if (state.staffSearch) {
+      const seat = HR.SEATS.find(x => x.id === state.staffSearch.seatId);
+      html.push('<div class="card" style="border-color:var(--gold)"><div style="font-size:.78rem;color:var(--gold)">A posting is up for the ' +
+        UI.esc(seat ? seat.label : 'open') + ' chair — somebody takes the meeting within the week.</div></div>');
+    }
+    if ((state.scenes || []).some(sc => sc.kind === 'theInterview')) {
+      html.push('<div class="card" style="border-color:var(--gold)"><div style="font-size:.78rem;color:var(--gold)">A candidate is in the building — the meeting is waiting on Today.</div></div>');
+    }
+    HR.SEATS.forEach(seat => {
+      const st = S[seat.id];
+      const cooled = state.week - ((state.seatSearchCooldowns || {})[seat.id] || -999) >= HR.searchCooldown;
+      if (!st) {
+        html.push('<div class="card">' +
+          '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">' +
+          '<span style="font-weight:800">' + UI.esc(seat.label) + '</span>' +
+          '<span class="chip">chair open</span></div>' +
+          '<div style="font-size:.76rem;color:var(--ink-dim);margin-top:5px">Whoever sits here ' +
+          UI.esc(SEAT_BLURBS[seat.id] || 'runs a room') + '. Right now, nobody does — the room runs at whatever baseline is.</div>' +
+          (!searchBusy && cooled
+            ? '<div style="margin-top:9px"><button class="btn small" data-action="seat-search" data-id="' + seat.id + '">Help wanted · ' + HR.searchCost + '</button></div>'
+            : !cooled ? '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:7px">The posting for this chair is still warm.</div>' : '') +
+          '</div>');
+        return;
+      }
+      const read = KP.staffFileRead ? KP.staffFileRead(st) : null;
+      const weeks = state.week - (st.since || 1);
+      const sev = Math.max(HR.severanceMin,
+        Math.round((HR.hireCost[st.tier] || HR.hireCost.working) * HR.severanceMult));
+      const knownFor = st.knownForTag
+        ? (HR.SEATS.find(x => x.id === st.knownForTag) || seat).label : null;
+      html.push('<div class="card">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">' +
+        '<span style="font-weight:800">' + UI.esc(st.name) + '</span>' +
+        '<span style="font-size:.72rem;color:var(--ink-dim)">' + UI.esc(seat.label) + '</span></div>' +
+        '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">' +
+        '<span class="chip">' + UI.esc(st.tier) + '</span>' +
+        (knownFor ? '<span class="chip">known for ' + UI.esc(knownFor) + ' work</span>' : '') +
+        '<span class="chip">' + (weeks < 2 ? 'just arrived' : weeks + ' weeks in the chair') + '</span>' +
+        '</div>' +
+        (read ? '<div style="font-size:.76rem;line-height:1.5;margin-top:7px">The read across the table: ' +
+          UI.esc(read.warmth) + '; ' + UI.esc(read.candor) + '. By every account, ' + UI.esc(read.style) + '.</div>' : '') +
+        ((st.resume || []).length
+          ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:6px">The résumé: ' +
+            UI.esc(st.resume.join('; ')) + '.</div>' : '') +
+        '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:4px">This chair ' + UI.esc(SEAT_BLURBS[seat.id] || 'runs a room') + '.</div>' +
+        '<div style="display:flex;gap:6px;margin-top:9px">' +
+        '<button class="btn small ghost" style="border:1px solid var(--line)" data-action="seat-release" data-id="' + seat.id + '">Let go · ' + sev + '</button>' +
+        (!searchBusy && cooled
+          ? '<button class="btn small" data-action="seat-search" data-id="' + seat.id + '">Help wanted · ' + HR.searchCost + '</button>' : '') +
+        '</div></div>');
+    });
+    html.push('<div class="pad" style="font-size:.68rem;color:var(--ink-dim);margin-bottom:12px">The résumé says where they were. The industry file says the price. What they actually do to your rooms, only the months say — and never in a number. That is the whole job of judging them.</div>');
+    return html.join('');
+  }
+
   function renderRecord(state) {
     const html = [];
     const claims = state.claims || [];

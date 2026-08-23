@@ -267,6 +267,16 @@ async function main() {
   await closeModalIfOpen();   // staff may flag a worn roster at lock (v0.4.2)
   ok((await page.textContent('#screen')).includes('Locked'), 'debut locked and in production');
 
+  // --- the building directory (v0.10.15): staff on cards ---
+  await tap('[data-nav=desk]');
+  await tap('[data-action=desk-sub][data-sub=building]');
+  const bld = await page.textContent('#screen');
+  ok(/The read across the table/.test(bld), 'the building tab reads the staff files in the interview’s words');
+  ok(/The résumé:/.test(bld), 'and the résumés print');
+  ok((await page.$$eval('[data-action=seat-release]', els => els.length)) >= 3, 'every filled chair offers the goodbye');
+  ok(/chair open/.test(bld), 'open chairs say so, with the help wanted next to them');
+  await tap('[data-action=desk-sub][data-sub=today]');
+
   // --- the grind (v0.9.37): a locked era opens the campaign desk ---
   await tap('[data-nav=desk]');
   const campDesk = await page.textContent('#screen');

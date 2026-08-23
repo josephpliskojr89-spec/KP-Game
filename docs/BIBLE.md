@@ -8282,3 +8282,15 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > resolutions landing below demonstrated skill, and the maknae
 > outliving her own departure. Battery 90/90, soak 40 clean,
 > longhaul 10x620, e2e 104, lockstep 0.10.14. Rode to main.
+
+> **0.10.15 — the building directory.** Owner: "add a tab for 'The
+> Building' where I can actually view my staff. right now I have no
+> cards to view to keep track of what I know about them." Third Desk
+> sub-tab: one card per chair carrying everything the file
+> legitimately knows — the interview read verbatim (KP.staffFileRead,
+> one truth with the interview scene), the résumé, tier and
+> known-for chips, weeks in the chair, what the chair touches (in
+> words), and the two verbs. Open chairs say what the room would do
+> with somebody in it. Today keeps a one-line pointer card. The fog
+> holds: nothing on a card is a number about worth. Battery 90/90,
+> e2e 108, lockstep 0.10.15. Rode to main.
