@@ -8487,3 +8487,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > migration back-fills audition files (and sweeps street again,
 > harmlessly). Battery 91/91, soak 40 clean, longhaul 10x620, e2e
 > 109, lockstep 0.10.17.4. Rode to main.
+
+> **0.10.17.5 — the exec reads her own board.** Owner: the "which
+> trainee is closest to ready?" question "comes up a lot and is pretty
+> redundant with the rankings existing now." Two fixes. (1) One
+> promise on the books at a time: while an unresolved readyTrainee
+> claim stands (the 40-week window), the Monday meeting never re-asks
+> — the cadence drops from every-meeting-pre-debut to once per promise
+> cycle. (2) The question stopped being information: when the eval
+> board has a number one, the exec CITES it — "The evaluation board
+> keeps printing [her] at number one. I can read a ranking — what I
+> cannot read is a date. Whose debut lands first?" — and the options
+> order by the board's own latest ranking, so answering with a
+> different name is disagreeing with the board on the record. The
+> claim machinery (payoff/miss/silence trust) is untouched; only the
+> redundancy died. Battery 91/91, soak 40 clean, longhaul 10x620, e2e
+> 109, lockstep 0.10.17.5. Rode to main.

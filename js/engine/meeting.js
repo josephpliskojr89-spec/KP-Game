@@ -51,13 +51,30 @@
     const free = KP.freeTrainees(state).map(id => state.people[id])
       .filter(p => p.status === 'trainee');
     const debutedGroups = KP.groups(state).filter(g => g.debuted && !g.prep && !g.tour && !g.retiredWeek && g.members.length);
-    if ((wantReady || !debutedGroups.length) && free.length >= 2) {
-      const opts = free.slice()
-        .sort((a, b) => (b.talents.vocals.cur + b.talents.dance.cur + b.talents.charisma.cur) -
-          (a.talents.vocals.cur + a.talents.dance.cur + a.talents.charisma.cur))
-        .slice(0, 3);
+    // 0.10.17.5 (owner: the question "comes up a lot and is pretty
+    // redundant with the rankings"): one promise on the books at a
+    // time — while a readiness claim stands, the exec does not re-ask
+    const readyOpen = (state.claims || []).some(c => !c.resolved && c.type === 'readyTrainee');
+    if (!readyOpen && (wantReady || !debutedGroups.length) && free.length >= 2) {
+      // she READS the eval board now (it exists since the rituals) —
+      // the question is no longer information, it is a date. Options
+      // ordered by the board's own latest ranking; disagreeing with
+      // the board is exactly what going on the record means.
+      const ranked = free.slice().sort((a, b) => {
+        const ra = a.evalHistory && a.evalHistory.length ? a.evalHistory[a.evalHistory.length - 1].rank : 99;
+        const rb = b.evalHistory && b.evalHistory.length ? b.evalHistory[b.evalHistory.length - 1].rank : 99;
+        if (ra !== rb) return ra - rb;
+        return (b.talents.vocals.cur + b.talents.dance.cur + b.talents.charisma.cur) -
+          (a.talents.vocals.cur + a.talents.dance.cur + a.talents.charisma.cur);
+      });
+      const opts = ranked.slice(0, 3);
+      const top = opts[0];
+      const topRanked = top.evalHistory && top.evalHistory.length &&
+        top.evalHistory[top.evalHistory.length - 1].rank === 1;
       return { type: 'readyTrainee', week: state.week,
-        text: 'Which trainee is closest to ready?',
+        text: topRanked
+          ? 'The evaluation board keeps printing ' + KP.displayName(top) + ' at number one. I can read a ranking — what I cannot read is a date. Whose debut lands first?'
+          : 'Which trainee is closest to ready?',
         options: opts.map(p => ({ id: p.id, label: KP.displayName(p) })) };
     }
     // the second lineup (v0.8.4): one debuted group + a full trainee

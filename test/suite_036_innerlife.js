@@ -110,6 +110,31 @@ function debuted(seed) {
   t.eq(g.rooms.flat().length, g.members.length, 'nobody sleeps in the van');
 }
 
+// ---- the meeting reads the board (0.10.17.5): the ready question is
+// a DATE, asked once per promise — not a ranking the evals already print
+{
+  const state = KP.newGame('il-board', null, { legacy: false });
+  let guard = 0;
+  while (!KP.execScene(state) && guard++ < 40) KP.advanceWeek(state);
+  const sc = KP.execScene(state);
+  t.ok(sc && sc.q.type === 'readyTrainee', 'pre-debut, the first Monday question is readiness');
+  const free = KP.freeTrainees(state).map(id => state.people[id]);
+  const board1 = free.find(p => p.evalHistory && p.evalHistory.length &&
+    p.evalHistory[p.evalHistory.length - 1].rank === 1);
+  if (board1) {
+    t.ok(/I can read a ranking/.test(sc.q.text), 'the exec cites the eval board instead of asking for it');
+    t.eq(sc.q.options[0].id, board1.id, 'and the board’s number one leads the options');
+  }
+  KP.answerMeeting(state, 0);
+  t.ok((state.claims || []).some(c => !c.resolved && c.type === 'readyTrainee'),
+    'the date goes on the record');
+  // while the promise stands, the question does not come back
+  for (let w = 0; w < KP.C.MEETING.everyWeeks + 3; w++) KP.advanceWeek(state);
+  const again = KP.execScene(state);
+  t.ok(!again || again.q.type !== 'readyTrainee',
+    'one promise on the books at a time — the exec does not re-ask');
+}
+
 // ---- the Monday meeting: claims go on the record, the record bites ----
 {
   const { state } = debuted('il-meeting');
