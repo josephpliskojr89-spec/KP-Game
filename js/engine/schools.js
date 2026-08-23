@@ -135,13 +135,17 @@
     return p;
   }
   // revelation: she stops being the fog's and becomes a board fact —
-  // and you learn WHO ELSE already knew
+  // and you learn WHO ELSE already knew. A reveal is a NAME, not a
+  // report (0.10.17.1, owner: "the walk gave me two fully scouted
+  // prospects… that eliminated the targeted look"): the file arrives
+  // unread unless somebody paid for the reading — the partnership's
+  // pre-read is exactly what the retainer sells.
   function revealStudent(state, p, opts) {
     p.status = 'prospect';
     state.prospects.push(p.id);
     KP.socialOf(state, p);
-    p.observations = Math.max(p.observations || 0, (opts && opts.observations) || 1);
-    KP.takeReads(state, p);
+    p.observations = Math.max(p.observations || 0, (opts && opts.observations) || 0);
+    if ((p.observations || 0) > 0) KP.takeReads(state, p);
     if ((opts || {}).firstLook) p.flags.firstLookUntil = state.week + KP.C.SCHOOLS.firstLookWeeks;
     schoolLedgerOf(state).revealed = (schoolLedgerOf(state).revealed || 0) + 1;
     return p;
@@ -164,8 +168,10 @@
     if (!p.schoolId || p.flags.directorCalled) return null;
     const school = KP.schoolById(state, p.schoolId);
     if (!school) return null;
-    const peak = Math.max(KP.perceived(state, p, 'vocals', null),
-      KP.perceived(state, p, 'dance', null), KP.perceived(state, p, 'charisma', null));
+    // the director reads HER, not your file (0.10.17.1): the phone tree
+    // runs on what the room actually knows — reveals arrive unread now,
+    // and the powers' information advantage is the whole point of §84
+    const peak = Math.max(p.talents.vocals.cur, p.talents.dance.cur, p.talents.charisma.cur);
     if (peak < CL.callBar) return null;
     p.flags.directorCalled = 1;   // one phone tree per student
     if (!rng.chance(CL.callChance[school.temper] || 0.4)) return null;
@@ -486,7 +492,10 @@
         const circling = [];
         for (let i = 0; i < n; i++) {
           const p = pool.splice(rng.int(0, pool.length - 1), 1)[0];
-          revealStudent(state, p, { observations: 1,
+          // everyone got the same tape, but a tape is not a report —
+          // only the first-look retainer delivers the file pre-read
+          revealStudent(state, p, { observations:
+            school.partnerUntil > state.week ? KP.C.SCHOOLS.partnerObs : 0,
             firstLook: school.partnerUntil > state.week });
           if (p.industryKnown) circling.push(KP.displayName(p));
           names.push(KP.displayName(p) + ', ' + p.age);
@@ -540,7 +549,8 @@
     let knownAlready = 0;
     for (let i = 0; i < reveal; i++) {
       const p = pool.splice(rng.int(0, pool.length - 1), 1)[0];
-      revealStudent(state, p, { observations: partnered ? S.partnerObs : 1,
+      // the back row shows you WHO exists; the retainer buys the read
+      revealStudent(state, p, { observations: partnered ? S.partnerObs : 0,
         firstLook: partnered });
       if (p.industryKnown) knownAlready++;
       met.push(KP.displayName(p) + ', ' + p.age);
@@ -558,6 +568,8 @@
         (sharpened ? 'Sharper reads on ' + sharpened + ' file' + (sharpened === 1 ? '' : 's') + ' already on our board. ' : '') +
         (met.length
           ? 'New name' + (met.length === 1 ? '' : 's') + ' worth the notebook: ' + met.join('; ') + '.' +
+            (partnered ? ' The first-look agreement means the files arrived pre-read.'
+              : ' Names, not reads — a day in the back row tells you who exists; a targeted look is what a report costs.') +
             (knownAlready ? ' The notebook had company — ' + knownAlready + ' of them ' + (knownAlready === 1 ? 'was' : 'were') + ' already in bigger companies’ files before we ever sat down.' : '')
           : 'No new faces this term — we know this class already.') +
         (left ? ' The class is bigger than one visit: ' + left + ' more student' + (left === 1 ? '' : 's') + ' train in that room whom we have not met.' : ' There is nobody left in that room we have not met.') +

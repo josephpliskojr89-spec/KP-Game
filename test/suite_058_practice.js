@@ -132,8 +132,17 @@ function debuted(seed) {
   revealedIds.forEach(id => {
     const p = state.people[id];
     t.eq(p.status, 'prospect', 'revealed to the board');
-    t.ok(!!p.reads, 'with a dated read');
+    // 0.10.17.1: a reveal is a NAME — the read still costs the look
+    t.ok(!p.reads && (p.observations || 0) === 0,
+      'and UNREAD — the fog holds until a targeted look is paid for');
   });
+  if (revealedIds.length) {
+    const p = state.people[revealedIds[0]];
+    state.week += 1;
+    state.budget = 200;
+    t.ok(KP.observeProspect(state, p.id).ok && !!p.reads,
+      'the targeted look is how the file gets real, at its real price');
+  }
   // C: the director's calls — pin the temper and the dice, show interest
   const strong = KP.schoolClass(state, s0)[0];
   if (strong) {

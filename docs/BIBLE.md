@@ -8437,3 +8437,17 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > soak 40 clean (three §84 bands ruled), longhaul 10x620, e2e 109,
 > lockstep 0.10.17. Rode to main. The early game is now a fight
 > against the machine's information advantage — exactly as ordered.
+
+> **0.10.17.1 — names, not reads.** The owner's first walk to the
+> home academy handed back two fully-read prospects for 2 won — "that
+> eliminated the targeted look and makes my expenses insanely low."
+> Correct. The reveal was overdelivering: a day in the back row now
+> tells you WHO exists (name, age, full fog); the report still costs
+> the targeted look, at its real price. The first-look partnership
+> keeps its pre-read — that is literally what the retainer sells, and
+> it sits behind the §84 E gate a fresh label cannot pass. Showcase
+> reveals follow the same rule (unread unless partnered). And the
+> director's calls now read HER true peak instead of your perceived
+> file — the phone tree runs on what the room knows, not what your
+> unread board guesses. Battery 91/91, soak 40 clean (calls 25/40),
+> longhaul 10x620, e2e 109, lockstep 0.10.17.1. Rode to main.
