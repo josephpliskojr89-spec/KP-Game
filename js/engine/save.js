@@ -817,12 +817,30 @@
     // before the vignettes existed gets the SAME hash-picked story a
     // fresh mint would have written — history becomes what it always
     // was. Idempotent: skip anyone already carrying their story.
+    // (guard widened in 0.10.17.4: the deepened pool reshuffles the
+    // hash pick, so "already has a story" must match the whole pool)
     if (!KP.streetStoryOf) return;
     Object.values(state.people || {}).forEach(p => {
-      if (p.channel !== 'street' || !p.history) return;
-      const story = KP.streetStoryOf(state, p);
-      if (p.history.some(h => h.text === story)) return;
-      p.history.unshift({ week: (p.history[0] && p.history[0].week) || 1, text: story });
+      if (p.channel !== 'street' || !p.history || KP.hasStreetStory(state, p)) return;
+      p.history.unshift({ week: (p.history[0] && p.history[0].week) || 1,
+        text: KP.streetStoryOf(state, p) });
+    });
+  } });
+
+  MIGRATIONS.push({ v: '0.10.17.4', fn: function (state) {
+    // the room remembers too: open-call files from before the audition
+    // vignettes get theirs — and a belt-and-braces street sweep, since
+    // both checks are idempotent against the whole pool
+    if (!KP.callStoryOf) return;
+    Object.values(state.people || {}).forEach(p => {
+      if (!p.history) return;
+      if (p.channel === 'audition' && !KP.hasCallStory(state, p)) {
+        p.history.unshift({ week: (p.history[0] && p.history[0].week) || 1,
+          text: KP.callStoryOf(state, p) });
+      } else if (p.channel === 'street' && !KP.hasStreetStory(state, p)) {
+        p.history.unshift({ week: (p.history[0] && p.history[0].week) || 1,
+          text: KP.streetStoryOf(state, p) });
+      }
     });
   } });
 

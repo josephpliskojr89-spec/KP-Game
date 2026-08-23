@@ -203,15 +203,56 @@
     '{She} was the only person outside the music show recording watching the CROWD, conducting the fan-chant timing with two fingers. Scout Im stopped watching the door too.',
     '{She} kept a dead convenience-store night shift entertained with a one-person drama staged between the ramyeon and the drinks fridge. Scout Im bought a coffee {she} narrated.',
     '{She} was singing harmony over the mall speakers — the wrong line, on purpose, better. Security asked {her} to stop. Scout Im asked {her} to continue somewhere with mirrors.',
+    // the pool deepens (0.10.17.4) — APPEND ONLY: growing the list
+    // reshuffles the hash pick, so the dedupe below matches the whole
+    // pool, never one index
+    '{She} was beatboxing the bus timetable for two bored kids who demanded encores. Scout Im missed the bus on purpose.',
+    '{She} used an umbrella as a mic stand in the rain and committed to the bit through the whole chorus. The card was slightly damp by the time it changed hands.',
+    '{She} had a crowd of strangers coaching {her} through a claw machine and turned every miss into a cliffhanger. Scout Im stayed for the win and the curtain call.',
+    '{She} was on a blanket at the river singing quiet harmonies back at a busker who could not hear {her}. Scout Im could, and crossed the grass.',
+    '{She} directed {pos} friends’ group photo like a stage manager — marks, angles, a countdown, a reshoot. The photo is great. Scout Im has seen worse blocking on television.',
+    '{She} ran a sweet-potato cart’s evening rush with regulars who clearly came for the banter and stayed for the potatoes. Scout Im became a regular for exactly one night.',
+    '{She} spotted the agency lanyard from across the street, walked over, and pitched {herself} in under a minute. Scout Im wrote down the whole pitch and then handed over the card it asked for.',
+    '{She} was in the hallway OUTSIDE the dance studio, copying the class through the glass — half a beat behind and somehow cleaner. Scout Im never went inside.',
+    '{She} kept a stalled train car calm with a running commentary that had strangers making eye contact and laughing. The card changed hands somewhere under the river.',
+    '{She} and two friends sang a store jingle in three-part harmony at the register, straight-faced, like it was a title track. The cashier bowed. Scout Im carded all three; {she} was the arrangement.',
   ];
-  // one truth for the story: the mint writes it, and the 0.10.17.3
-  // migration back-fills the SAME story onto street finds from before
-  // the vignettes existed — hash-picked, so history is retroactively
-  // what it always was
+  // the open call (0.10.17.4, same owner ask): everyone in that room
+  // CHOSE to walk in — the story is the room, the number tag, and the
+  // moment the judges stopped writing
+  const CALL_STORIES = [
+    '{She} came in with a number tag pinned crooked and re-pinned it mid-introduction without losing the sentence. The judges’ notes start with the word “composed.”',
+    'Halfway through {pos} first verse the judges stopped writing. On the tape you can hear a pen click shut.',
+    '{She} brought {pos} backing track on a USB with a handwritten label and a backup CD “in case.” The preparation was the audition.',
+    '{She} stopped {pos} own song eight bars in, apologized once, restarted in a different key, and was right about the key.',
+    '{She} had waited in the line outside since before the doors opened, and walked in with the energy of someone who had NOT been standing in a line.',
+    'The room was small, so {she} sang the big note quietly — and it landed harder than the full version would have. The judges argued about this for a while after {she} left.',
+    '{She} did the choreography in a winter jacket because the room’s heating was broken, and made the jacket look like a styling decision.',
+    '{Pos} mother waited outside the whole time. {She} bowed to the room, then to the door, on the way out. The panel noticed both.',
+    'When the judges asked for something else, {she} asked what the label was looking for — took the answer, thought for three seconds, and DID it.',
+    '{She} performed the fan-chant version of {pos} own audition song, chanting {pos} own name in the gaps, completely deadpan. It should not have worked. The tape says otherwise.',
+    '{She} announced {she} was nervous, and then was not — steady hands, level voice, clean landing. The contrast was the tell.',
+    '{She} auditioned last, after the room had heard the same three songs all day, and picked a fourth. Strategy noted. Executed, also.',
+    '{She} finished, thanked the panel, and fixed the microphone stand for the next number on {pos} way out. Scout Im underlined that part instead of the vocal notes.',
+    'The tape ran out of battery halfway through {pos} audition. The judges asked {her} to start over and nobody in the room minded hearing it twice.',
+  ];
+  // one truth for the story: the mint writes it, the migrations
+  // back-fill it — hash-picked, so history is retroactively what it
+  // always was. The has* checks match ANY pool entry, because a
+  // deepened pool reshuffles the pick for a given hash.
   KP.streetStoryOf = function (state, p) {
     return KP.fillPro(STREET_STORIES[
       Math.floor(KP.hash01([state.seed, p.id, 'streetStory'].join('|')) * STREET_STORIES.length)], p);
   };
+  KP.callStoryOf = function (state, p) {
+    return KP.fillPro(CALL_STORIES[
+      Math.floor(KP.hash01([state.seed, p.id, 'callStory'].join('|')) * CALL_STORIES.length)], p);
+  };
+  function hasStoryFrom(pool, p) {
+    return (p.history || []).some(h => pool.some(t => KP.fillPro(t, p) === h.text));
+  }
+  KP.hasStreetStory = function (state, p) { return hasStoryFrom(STREET_STORIES, p); };
+  KP.hasCallStory = function (state, p) { return hasStoryFrom(CALL_STORIES, p); };
   KP.streetCast = function (state) {
     const S = KP.C.NETWORK.STREET;
     if (state.week - (state.streetCastWeek || -999) < S.cooldownWeeks) {
@@ -292,6 +333,8 @@
       });
       p.observations = C.observations;   // the tape exists — the read is of the performance
       KP.takeReads(state, p);
+      // the moment the room remembers — the story lives on the file
+      p.history.push({ week: state.week, text: KP.callStoryOf(state, p) });
       led.callMinted++;
       const knownBy = stampPreKnown(state, p);
       if (knownBy) preKnown.push(KP.displayName(p) + ' (' + knownBy.short + ')');

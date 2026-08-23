@@ -8473,3 +8473,17 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > already carrying theirs); KP.streetStoryOf is the one truth both
 > the mint and the migration read. Battery 91/91, soak 40 clean,
 > longhaul 10x620, e2e 109, lockstep 0.10.17.3. Rode to main.
+
+> **0.10.17.4 — the room remembers.** Owner: "these are great. let's
+> deepen the pool of them and add the open calls like you suggested."
+> The street pool grows 14 → 24 (the umbrella mic stand, the hallway
+> outside the dance studio, the self-pitch to the lanyard), and open
+> calls get their own fourteen — number tags, the pen clicking shut,
+> the fan-chant audition, the mic stand fixed on the way out. One law
+> learned: the pool is APPEND-ONLY and the dedupe guards
+> (KP.hasStreetStory / KP.hasCallStory) match the WHOLE pool, because
+> deepening reshuffles the hash pick — a save stamped under the old
+> fourteen keeps its story and never gains a double. 0.10.17.4
+> migration back-fills audition files (and sweeps street again,
+> harmlessly). Battery 91/91, soak 40 clean, longhaul 10x620, e2e
+> 109, lockstep 0.10.17.4. Rode to main.

@@ -240,6 +240,41 @@ const N = () => KP.C.NETWORK;
     t.eq(p.history.filter(h => h.text === KP.streetStoryOf(twice, p)).length, 1,
       'one story per file, no matter how many round trips');
   });
+  // the pool-wide guard (0.10.17.4): a save whose stories are ALREADY
+  // stamped, re-run through the whole migration chain, gains nothing —
+  // this is what protects old saves when the pool deepens and the
+  // hash pick reshuffles
+  const stamped = JSON.parse(KP.serialize(back));
+  stamped.version = '0.10.17.2';
+  const rerun = KP.deserialize(JSON.stringify(stamped));
+  Object.values(rerun.people).filter(p => p.channel === 'street').forEach(p => {
+    t.eq(p.history.filter(h => KP.hasStreetStory(rerun, { ...p, history: [h] })).length, 1,
+      'the re-run chain never doubles a stamped file');
+  });
+}
+
+// ---- the room remembers: open-call stories (0.10.17.4) ----------------
+{
+  const s = KP.newGame('nw-callstory', null, { door: 'fresh' });
+  s.budget = 500;
+  const r = KP.holdOpenCall(s);
+  t.ok(r.ok, 'fixture: the folding chairs were set out');
+  const called = Object.values(s.people).filter(p => p.channel === 'audition');
+  t.ok(called.length >= 1, 'somebody made the tape');
+  called.forEach(p => t.ok(p.history.some(h => h.text === KP.callStoryOf(s, p)),
+    'the file remembers the moment the room remembers'));
+  // retroactive: strip, version back, round-trip — the story returns
+  const raw = JSON.parse(KP.serialize(s));
+  Object.values(raw.people || {}).forEach(p => {
+    if (p.channel === 'audition') p.history = (p.history || []).filter(h =>
+      h.text !== KP.callStoryOf(s, p));
+  });
+  raw.version = '0.10.17.3';
+  const back = KP.deserialize(JSON.stringify(raw));
+  Object.values(back.people).filter(p => p.channel === 'audition').forEach(p => {
+    t.eq(p.history[0] && p.history[0].text, KP.callStoryOf(back, p),
+      'the migration wrote the audition story to the front of ' + p.name.display + '’s file');
+  });
 }
 
 // ---- determinism through the channels ---------------------------------
