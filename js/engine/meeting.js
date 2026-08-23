@@ -17,7 +17,10 @@
     state.nextMeetingWeek = state.nextMeetingWeek || (M.everyWeeks + 1);
     const pending = (state.scenes || []).some(sc => sc.kind === 'execQuestion');
     if (!pending && state.week >= state.nextMeetingWeek) {
-      state.nextMeetingWeek = state.week + M.everyWeeks;
+      // the board seat (v0.10.19, §85 B): a second reader at the table —
+      // the questions come twice as often while the fund holds the chair
+      state.nextMeetingWeek = state.week + (KP.boardSeatActive && KP.boardSeatActive(state)
+        ? Math.ceil(M.everyWeeks / 2) : M.everyWeeks);
       const q = buildQuestion(state);
       if (q) {
         KP.openScene(state, { kind: 'execQuestion', q,
@@ -191,7 +194,8 @@
             : '{She} debuted, as you said. The debut itself we will discuss another day.', p) + '”' }] };
     }
     if (!p || p.status === 'released' || state.week > c.byWeek) {
-      state.trust = KP.clamp(state.trust + M.missTrust, 0, 100);
+      state.trust = KP.clamp(state.trust + M.missTrust *
+        (KP.boardSeatActive && KP.boardSeatActive(state) ? 2 : 1), 0, 100);   // §85 B: a missed promise costs twice the face under the board seat
       return { resolved: 'missed',
         notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “You told me in ' +
           KP.weekLabel(c.week).text + ' that ' + c.personName + ' was closest to ready. ' +
@@ -210,7 +214,8 @@
           ' came back inside the window you promised. A calendar that means something — refreshing.”' }] };
     }
     if (state.week > c.byWeek) {
-      state.trust = KP.clamp(state.trust + M.missTrust, 0, 100);
+      state.trust = KP.clamp(state.trust + M.missTrust *
+        (KP.boardSeatActive && KP.boardSeatActive(state) ? 2 : 1), 0, 100);   // §85 B: a missed promise costs twice the face under the board seat
       return { resolved: 'missed',
         notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “You promised the ' +
           (g ? g.name : '') + ' comeback by ' + KP.weekLabel(c.byWeek).text +
@@ -227,7 +232,8 @@
         notes: [{ kind: 'executive', text: state.executive.name + ': “A second lineup, inside the window. This building is starting to look like a company.”' }] };
     }
     if (state.week > c.byWeek) {
-      state.trust = KP.clamp(state.trust + M.missTrust, 0, 100);
+      state.trust = KP.clamp(state.trust + M.missTrust *
+        (KP.boardSeatActive && KP.boardSeatActive(state) ? 2 : 1), 0, 100);   // §85 B: a missed promise costs twice the face under the board seat
       return { resolved: 'missed',
         notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “A year ago the trainee room was full and you said a second lineup was coming. The room is still full. Rooms do not debut, ' + 'unfortunately.”' }] };
     }

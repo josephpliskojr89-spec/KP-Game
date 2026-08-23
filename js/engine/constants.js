@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.18',
+    VERSION: '0.10.19',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1715,6 +1715,34 @@
     // The LAW: her own voice is a lever whose throw scales with how
     // known she is — growth is fame-UNdamped (phone-camera law), the
     // gaffe blast scales with the public eye.
+    // the runway (v0.10.19, §85): financing, the Rescene path. Money
+    // is a bridge, not a rescue — every won arrives with a hand
+    // attached. Priced on observables ONLY.
+    FINANCE: {
+      pitchCost: 2,              // the data room: printing, coffee, one good suit
+      pitchCooldown: 12,         // funds remember last quarter's deck
+      answerWeeks: 1,            // the fund reads the room, then calls
+      sheetFuseWeeks: 3,         // a term sheet has a fuse
+      // the read: observables, weighted — fame, the chart line, the
+      // fandom, the archive, the personal channels ("the channels can
+      // pay off" — owner)
+      wFame: 0.35, wChart: 0.20, wFandom: 0.15, wCatalog: 0.15, wChannels: 0.15,
+      catalogViewsFull: 150000,  // archive views that read as "a real library"
+      channelFull: 3,            // this many live member channels reads as max
+      passBar: 0.05,             // below this read, the answer is a pass
+      passClosedChance: 0.5,     // a closed window passes on half of everyone
+      offerBase: 70, offerScale: 400,
+      covenantMult: 1.35, boardMult: 1.15,   // the poison prices the money
+      closedMult: 0.55,          // harsh money is smaller money
+      burnedMult: 0.7,           // a missed covenant follows you
+      repBonus: 0.15,            // each kept covenant re-prices the next round
+      revSharePct: 0.12, revShareWeeks: 104,  // the settlement line, two years
+      boardWeeks: 104,           // the seat, two years
+      covenantWeeks: 44,         // the milestone clock
+      covenantPeak: 40,          // "a charting release" = national top 40
+      covenantKeptTrust: 2, covenantMissTrust: -3,
+      windowShare: 0.55,         // years the mother-fund allocation is open
+    },
     // the content desk (v0.10.18): the company account. Owner: "you
     // can only choose a topic that's relevant. if you aren't touring,
     // you can't post a tour vlog."

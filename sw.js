@@ -1,7 +1,7 @@
 /* Service worker — cache key rides the version lockstep. */
 'use strict';
-const CACHE = 'kpam-0.10.18';
-const V = '0.10.18';
+const CACHE = 'kpam-0.10.19';
+const V = '0.10.19';
 const PRECACHE = [
   '.',
   'index.html',
@@ -33,6 +33,7 @@ const PRECACHE = [
   'js/engine/circuit.js?v=' + V,
   'js/engine/broadcast.js?v=' + V,
   'js/engine/contentdesk.js?v=' + V,
+  'js/engine/finance.js?v=' + V,
   'js/engine/scandal.js?v=' + V,
   'js/engine/schools.js?v=' + V,
   'js/engine/practice.js?v=' + V,

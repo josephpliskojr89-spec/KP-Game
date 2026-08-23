@@ -5767,6 +5767,39 @@ fund is "the content mother-fund" as an institution, investor
 letterheads generated). Numbers unruled — measure-first. Candidate
 slot: v0.10.18.
 
+**As built (v0.10.19).** Everything above shipped, one truth per
+number in FINANCE. The read (KP.financeRead): fame .35 + chart .20
+(best national peak) + fandom .15 + archive .15 (contentLedger
+views / 150k) + channels .15 (live member channels / 3) — the
+content desk's grind and the members' channels literally price the
+round ("the channels can pay off" — owner). The pitch: 2 to print
+the deck, cooldown 12, one hand on the label at a time
+(KP.financingBusy is the one truth the verb and the button read);
+the answer lands next week — a sheet, or a PASS in writing (score
+< .05, or a closed-window coin) that names what the observables
+did not add up to. The sheet: a 3-week fuse, walk free (options[0]
+— the bot never raises by default), or one of three structures —
+revenue share (base, 12% of quarterly gross for 104w, clamped so
+the toll never overdraws, printed as the Financing line on the
+statement it closes against), board seat (×1.15, 104w — Monday
+meetings at half cadence and misses cost 2× face via
+KP.boardSeatActive), covenant (×1.35 — a REAL claim on the record:
+national top-40 release in 44w for a debuted label, a debut
+otherwise; kept → trust +2 and reputation re-prices the next round
++15%; missed → trust −3 and financing.burned follows you at ×0.7
+forever). The window: yearly hash (55% open), announced in the
+trades at week 1 like weather; closed years price at ×0.55 and
+pass half of everyone. Invented letterheads (Hana Bridge, Seongsu
+Capital, Mokran, Paldo Content Fund, BlueGate, Yeouido Growth).
+UI: "The runway" card on the record tab beside the books — the
+read in words, active instruments, the pitch button reading the
+same locks. Bot: pitches when broke past week 40, takes the
+revenue share; bands measured then ruled (pitched 32/40 → [.40,1],
+financed 25/40 → [.30,1], passed 12/40 → [.05,.90]). One clamp-law
+bug caught at the soak: the unclamped toll drove three orgs
+negative — the fund now takes what exists, not what the formula
+says.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -8607,3 +8640,20 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > ruled: posted 40/40 → [.80,1], hits 36/40 → [.40,1]. Battery 92/92
 > (suite_092 new), soak 40 clean, longhaul 10x620, e2e 112, lockstep
 > 0.10.18. Rode to main.
+
+> **0.10.19 — the runway.** §85 shipped as planned: financing, the
+> Rescene path. The pitch prices observables only — and the content
+> archive and member channels are live inputs, closing the loop the
+> owner ordered ("the channels can pay off"). Three poisons at
+> signature: the revenue share (the toll line on every quarterly
+> statement, clamped to what exists), the board seat (Monday
+> meetings at double cadence, misses at double face), the covenant
+> (a real claim: top-40 or debut in 44 weeks — kept re-prices the
+> next round, missed burns you at every fund in town). The
+> mother-fund window is yearly weather: open years take meetings,
+> closed years pass on half of everyone and price the rest as
+> bridge money. A pass is an answer, in writing, and the trades
+> hear. Money is a bridge, not a rescue — the blank page stays
+> hard; it just has a door now. Battery 93/93 (suite_093 new), soak
+> 40 clean (three bands measured then ruled), longhaul 10x620, e2e
+> 112, lockstep 0.10.19. Rode to main.

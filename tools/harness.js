@@ -436,6 +436,11 @@ const BANDS = {
   // intro (trips + showcases reveal everywhere; calls need a strong
   // student met while the temper dice cooperate; the fog ALWAYS eats
   // somebody in 140 weeks, which is the owner's ruling working)
+  // the runway (v0.10.19, §85) — measured 32/25/12 of 40 at intro (the
+  // bot pitches when broke past week 40; takes the revenue share)
+  fundPitched:       { lo: 0.40, hi: 1.00, label: 'orgs that printed a deck and pitched the funds' },
+  fundFinanced:      { lo: 0.30, hi: 1.00, label: 'orgs that took fund money (any structure)' },
+  fundPassed:        { lo: 0.05, hi: 0.90, label: 'orgs a fund passed on — a pass is an answer' },
   // the content desk (v0.10.18) — measured 40/36 of 40 at intro (the
   // bot films every other week; hits ride hitChance .05 over 140wk)
   contentPosted:     { lo: 0.80, hi: 1.00, label: 'orgs whose company account posted in-house content' },
@@ -628,6 +633,7 @@ const tally = {
   schoolOpened: 0, schoolClosed: 0,
   classRevealed: 0, directorCalled: 0, fogPoached: 0,
   contentPosted: 0, contentHit: 0,
+  fundPitched: 0, fundFinanced: 0, fundPassed: 0,
   evalHeld: 0, projectTalkSeen: 0, traineeQuitAsked: 0, traineeGone: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
@@ -914,6 +920,14 @@ for (let s = 0; s < SEEDS; s++) {
       const open = KP.contentTopics(state).find(tp => tp.open && state.budget > tp.cost + 30);
       if (open) KP.postContent(state, open.id);
     }
+    // the runway (v0.10.19, §85): the bot pitches when broke — and when
+    // a sheet lands, it takes the revenue share (the survivable poison)
+    if (KP.pitchFinancing && state.week > 40 && state.budget < 60 &&
+        !KP.financingBusy(state)) {
+      KP.pitchFinancing(state);
+    }
+    const sheet = (state.scenes || []).find(sc2 => sc2.kind === 'termSheet');
+    if (sheet) KP.resolveScene(state, sheet.id, 'revshare');
     // form the first group around week 20; a second lineup once the first
     // has debuted and the trainee room can field one (v0.2.2)
     // v0.9.10: the legacy group is start-content — the bot's OWN groups
@@ -1825,6 +1839,10 @@ for (let s = 0; s < SEEDS; s++) {
   const cnl = state.contentLedger || {};
   if ((cnl.posted || 0) >= 1) tally.contentPosted++;
   if ((cnl.hits || 0) >= 1) tally.contentHit++;
+  const fnl = state.financeLedger || {};
+  if ((fnl.pitches || 0) >= 1) tally.fundPitched++;
+  if ((fnl.taken || 0) >= 1) tally.fundFinanced++;
+  if ((fnl.passes || 0) >= 1) tally.fundPassed++;
   const pl = state.practiceLedger || {};
   if ((pl.evals || 0) >= 1) tally.evalHeld++;
   if ((pl.speculations || 0) >= 1) tally.projectTalkSeen++;

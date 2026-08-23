@@ -320,6 +320,12 @@
         App.save(); UI.toast('The fan meeting happened. Somebody brought a cake shaped like the road manager.'); App.render();
         break;
       }
+      case 'fund-pitch': {
+        const r = KP.pitchFinancing(s);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast('The deck went out. Funds answer within the week — watch the Desk.'); App.render();
+        break;
+      }
       case 'content-post': {
         const r = KP.postContent(s, t.dataset.topic);
         if (!r.ok) { UI.toast(r.reason, true); break; }

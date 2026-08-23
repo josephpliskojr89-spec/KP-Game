@@ -468,7 +468,33 @@
     const claims = state.claims || [];
     const who = c => c.subject.kind === 'exec' ? state.executive.name
       : c.subject.kind === 'idol' ? (state.people[c.subject.id || c.personId] ? KP.displayName(state.people[c.subject.id || c.personId]) : 'her')
+      : c.subject.kind === 'fund' ? (c.fundName || 'the fund')
       : c.subject.kind;
+    // ---- the runway (v0.10.19, §85): financing lives with the books ----
+    if (KP.financeRead) {
+      const f = state.financing || {};
+      const open = KP.fundWindowOpen(state);
+      const read = KP.financeRead(state);
+      const busy = KP.financingBusy(state);
+      const cooling = state.week - (f.lastPitchWeek || -999) < KP.C.FINANCE.pitchCooldown;
+      html.push('<div class="kicker">The runway</div>');
+      html.push('<div class="card" style="padding:12px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">' +
+        '<span style="font-weight:800">Financing</span>' +
+        '<span class="chip' + (open ? ' gold' : '') + '">' + (open ? 'mother-fund open' : 'window closed') + '</span></div>' +
+        '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:5px">What a fund can see: ' +
+        UI.esc(read.words.join(', ')) + '. That is the entire pitch — the observables are the deck.</div>' +
+        (f.board && state.week < f.board.until
+          ? '<div style="font-size:.74rem;color:var(--gold);margin-top:5px">' + UI.esc(f.board.fund) + ' holds the board seat until ' + UI.esc(KP.weekLabel(f.board.until).text) + ' — twice the questions, twice the cost of a miss.</div>' : '') +
+        (f.revShare && state.week < f.revShare.until
+          ? '<div style="font-size:.74rem;color:var(--gold);margin-top:5px">' + UI.esc(f.revShare.fund) + ' takes ' + Math.round(f.revShare.pct * 100) + '% of gross until ' + UI.esc(KP.weekLabel(f.revShare.until).text) + ' — the toll line on every statement.</div>' : '') +
+        '<div style="display:flex;gap:8px;margin-top:9px">' +
+        '<button class="btn small" data-action="fund-pitch"' +
+        (busy || cooling || state.budget < KP.C.FINANCE.pitchCost ? ' disabled' : '') + '>' +
+        (busy ? 'Committed' : cooling ? 'Deck is stale' : 'Pitch the funds · ' + KP.C.FINANCE.pitchCost) + '</button></div>' +
+        (busy ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:5px">' + UI.esc(busy) + '</div>' : '') +
+        '</div>');
+    }
     const what = c => {
       if (c.type === 'readyTrainee') return '“' + UI.esc(c.personName || '') + ' is closest to ready” — a debut that lands';
       if (c.type === 'comebackPromise') { const g = KP.groupById(state, c.groupId); return 'the ' + (g ? UI.esc(g.name) : '') + ' comeback, on the calendar'; }

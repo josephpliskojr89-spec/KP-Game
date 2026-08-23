@@ -203,6 +203,7 @@
     ['commerce', 'Fandom commerce'], ['catalog', 'Catalog royalties'],
     ['japan', 'Japan cycle'],
     ['trainees', 'Practice rooms & stipends'],
+    ['financing', 'Financing'],   // the runway (v0.10.19): raises in, the toll out
   ];
   KP.lastStatement = function (state) { return (state.books || {}).last || null; };
   KP.registerWeekly('books', 758, function (state, rng, inbox) {
