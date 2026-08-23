@@ -5687,6 +5687,86 @@ nextPersonId mid-worldgen, so newgame.js re-stamps after the board
 mints — otherwise seedIndustry's resetIds rewinds the counter and
 rival rosters overwrite the opening board (the pr-alum ghost).
 
+## §85 The runway (PLANNED — financing, the Rescene path)
+
+Owner: "the money is definitely tight in my save, but it SHOULD be
+tight for a new label. and it opens another path that we absolutely
+need. a small label like this would absolutely be searching for
+financing." The named inspiration is Rescene / The Muze
+Entertainment, the real small-agency miracle: founded with ₩10M and
+three people (the executives kept the books and drove the van),
+debut track invisible at #904 on the daily chart, two years and
+~1,500 self-produced videos in the dark — then a member's personal
+channel mints a catchphrase in spring 2026, the two-year-old song
+runs 904-to-1 on the big chart, and the label's ₩6.19B of financing
+turns out to be ~89% venture money riding the government content
+mother-fund, with a ~₩2B Series A landing right as the song broke.
+The lesson is structural: small Korean labels raise like startups,
+the state's content fund is the tide those investors float on, and
+financing is not a rescue — it is a bridge that keeps you alive
+long enough for the world's variance to find you.
+
+**The thesis.** Tight money is the blank page working as designed.
+Financing does not loosen it; it converts future control into
+present runway. Every won raised arrives with a hand attached.
+
+**A. The pitch (the verb).** A financing round is a scene you
+initiate from the Desk: the data room goes out, the meeting
+happens, terms come back (or nothing does — a pass is an answer,
+and the trades hear about pitches). The fund prices you on
+OBSERVABLES ONLY — fame read, chart history, fandom size, catalog
+depth, content output, chodong receipts — never your private reads.
+The §84 law wears a suit here: the investor has an information
+DISadvantage about your trainees and prices the risk in.
+
+**B. The terms (the teeth).** Money always costs one of three
+things, chosen at signature: (1) the board seat — exec oversight
+tightens; quarterly reviews get teeth, mandates arrive harder, the
+trust machinery reads a second master; (2) the revenue share — a
+percentage off every settlement (the jeongsan already itemizes;
+the investor becomes a line on it) for a defined horizon; (3) the
+covenant — a milestone on the record as a REAL CLAIM (debut by
+week N, a charting release, a fandom bar), checked by the existing
+claim machinery. A kept covenant re-prices the next round in your
+favor. A missed one bites: bridge terms only, a forced-action
+window (the exec mandate rails exist), or the fund walks and the
+walk is public.
+
+**C. The windows (the world breathes).** The content mother-fund
+runs SEASONS on a multi-year cadence — when the policy window is
+open, venture terms soften and small labels get real meetings;
+when it closes, only harsh money answers the phone (the sponsor's
+invoice tier — expensive, strings visible from space). When you
+raise matters as much as whether. The window state is a world
+fact, hash/world-driven, reported in the trades like weather.
+
+**D. The collateral (the grind is an asset).** The two years of
+videos are not flavor — they are the data room. Channel output
+(§78), catalog size, clip virality history, and the fandom's
+commerce numbers (§80) all feed the pricing read. This is the
+Rescene loop closing: the self-content grind you do to survive
+obscurity is ALSO what makes you financeable, and the catalog you
+build in the dark is the lottery ticket a reverse run (v0.9.15
+machinery, already live) can cash years later.
+
+**E. The failure ladder.** Financing inserts a rung between "the
+board memo" and "the founder sells." Decline to raise and the
+existing fiscal pressure stands unchanged — that is a legitimate
+hard-mode choice. Raise too often and the terms compound: enough
+accumulated hands on the label and the exec's patience mechanics
+effectively answer to the cap table. The endgame question §85
+plants on purpose: at what point did you stop owning the thing you
+founded?
+
+Implementation notes (for the build sitting): reuse claims
+(covenants), quarterly books (revenue share line), fameRead +
+public-eye observables (pricing), scenes registry (the pitch;
+options[0] = walk away, the bot never raises), world cadence for
+windows; financeLedger for the harness; all names invented (the
+fund is "the content mother-fund" as an institution, investor
+letterheads generated). Numbers unruled — measure-first. Candidate
+slot: v0.10.18.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
