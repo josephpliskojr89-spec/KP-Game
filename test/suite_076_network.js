@@ -211,6 +211,37 @@ const N = () => KP.C.NETWORK;
   t.ok(!KP.CHANNEL_PRIVATE[p.channel], 'the opening batch is open season, like every old-save file');
 }
 
+// ---- the story on the file, retroactively (0.10.17.3) -----------------
+{
+  const s = KP.newGame('nw-story', null, { door: 'fresh' });
+  s.budget = 500;
+  KP.streetCast(s);
+  const streets = Object.values(s.people).filter(p => p.channel === 'street');
+  t.ok(streets.length >= 1, 'fixture: the districts delivered');
+  streets.forEach(p => t.ok(p.history.some(h => h.text === KP.streetStoryOf(s, p)),
+    'a fresh mint carries how the card changed hands'));
+  // an old save: same people, no stories — sign one so the migration
+  // covers the roster too, then strip and round-trip
+  KP.signProspect(s, streets[0].id, { answer: 'accept' });
+  const raw = JSON.parse(KP.serialize(s));
+  Object.values(raw.people || {}).forEach(p => {
+    if (p.channel === 'street') p.history = (p.history || []).filter(h =>
+      h.text !== KP.streetStoryOf(s, p));
+  });
+  raw.version = '0.10.17.2';
+  const back = KP.deserialize(JSON.stringify(raw));
+  Object.values(back.people).filter(p => p.channel === 'street').forEach(p => {
+    t.eq(p.history[0] && p.history[0].text, KP.streetStoryOf(back, p),
+      'the migration wrote the SAME story to the front of ' + p.name.display + '’s file');
+  });
+  // idempotent: a second pass never doubles the entry
+  const twice = KP.deserialize(KP.serialize(back));
+  Object.values(twice.people).filter(p => p.channel === 'street').forEach(p => {
+    t.eq(p.history.filter(h => h.text === KP.streetStoryOf(twice, p)).length, 1,
+      'one story per file, no matter how many round trips');
+  });
+}
+
 // ---- determinism through the channels ---------------------------------
 {
   const s = KP.newGame('nw-fork', null, { door: 'fresh' });

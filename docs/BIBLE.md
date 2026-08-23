@@ -8462,3 +8462,14 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > touches the stream), pronoun-templated, written to the file's
 > history at the mint. Battery 91/91, soak 40 clean, longhaul 10x620,
 > e2e 109, lockstep 0.10.17.2. Rode to main.
+
+> **0.10.17.3 — the stories catch up.** Owner: "can you apply it
+> retroactively to those already signed?" A migration back-fills the
+> street vignettes onto every street-cast file in an existing save —
+> prospect, trainee, or idol. Because the story is hash-picked per
+> person, the migration writes the SAME story a fresh mint would
+> have: history becomes what it always was, unshifted to the front of
+> the file at the earliest recorded week. Idempotent (skip anyone
+> already carrying theirs); KP.streetStoryOf is the one truth both
+> the mint and the migration read. Battery 91/91, soak 40 clean,
+> longhaul 10x620, e2e 109, lockstep 0.10.17.3. Rode to main.

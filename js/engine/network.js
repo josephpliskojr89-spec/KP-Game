@@ -204,6 +204,14 @@
     '{She} kept a dead convenience-store night shift entertained with a one-person drama staged between the ramyeon and the drinks fridge. Scout Im bought a coffee {she} narrated.',
     '{She} was singing harmony over the mall speakers — the wrong line, on purpose, better. Security asked {her} to stop. Scout Im asked {her} to continue somewhere with mirrors.',
   ];
+  // one truth for the story: the mint writes it, and the 0.10.17.3
+  // migration back-fills the SAME story onto street finds from before
+  // the vignettes existed — hash-picked, so history is retroactively
+  // what it always was
+  KP.streetStoryOf = function (state, p) {
+    return KP.fillPro(STREET_STORIES[
+      Math.floor(KP.hash01([state.seed, p.id, 'streetStory'].join('|')) * STREET_STORIES.length)], p);
+  };
   KP.streetCast = function (state) {
     const S = KP.C.NETWORK.STREET;
     if (state.week - (state.streetCastWeek || -999) < S.cooldownWeeks) {
@@ -242,8 +250,7 @@
       const knownBy = stampPreKnown(state, p);
       if (knownBy) preKnown.push(KP.displayName(p) + ' (' + knownBy.short + ')');
       // how the card actually changed hands — the story lives on the file
-      p.history.push({ week: state.week, text: KP.fillPro(STREET_STORIES[
-        Math.floor(KP.hash01([state.seed, p.id, 'streetStory'].join('|')) * STREET_STORIES.length)], p) });
+      p.history.push({ week: state.week, text: KP.streetStoryOf(state, p) });
       names.push(KP.displayName(p));
     }
     state.rngState = rng.state();

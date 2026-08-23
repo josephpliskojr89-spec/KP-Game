@@ -811,6 +811,21 @@
     }
   } });
 
+  MIGRATIONS.push({ v: '0.10.17.3', fn: function (state) {
+    // the story on the file, retroactively (owner: "can you apply it
+    // retroactively to those already signed?"): every street find from
+    // before the vignettes existed gets the SAME hash-picked story a
+    // fresh mint would have written — history becomes what it always
+    // was. Idempotent: skip anyone already carrying their story.
+    if (!KP.streetStoryOf) return;
+    Object.values(state.people || {}).forEach(p => {
+      if (p.channel !== 'street' || !p.history) return;
+      const story = KP.streetStoryOf(state, p);
+      if (p.history.some(h => h.text === story)) return;
+      p.history.unshift({ week: (p.history[0] && p.history[0].week) || 1, text: story });
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {
