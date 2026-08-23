@@ -8583,3 +8583,27 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > claim machinery (payoff/miss/silence trust) is untouched; only the
 > redundancy died. Battery 91/91, soak 40 clean, longhaul 10x620, e2e
 > 109, lockstep 0.10.17.5. Rode to main.
+
+> **0.10.18 — the content desk.** Owner: "we need a way to produce
+> content in house… a content desk on the home screen under the
+> building tab. and you can only choose a topic that's relevant. if
+> you aren't touring, you can't post a tour vlog." Shipped: a Content
+> sub-tab on the Desk — the company account, one upload a week,
+> fourteen topics whose gates READ the state that makes them true
+> (release → dance practice, prep → choreo teaser + countdown, promo
+> → waiting-room cam, tour → tour vlog, rooms → dorm vlog, calendar →
+> birthday cam + anniversary film, maknae, evals, fresh signature,
+> society friendship → dance challenge, roster → cover; the fancam is
+> free because the tape exists). Locked topics say why, in words, and
+> the verb refuses with the SAME sentence (one truth). Views price
+> who was in the frame (base + featured following share + group
+> popularity), a 5% hit breaks containment (hype, follower share,
+> feed reaction, high note), the archive keeps the shelf (§85 D's
+> collateral, now real), and the member WeCast channels finally
+> PRINT — who, since when, uploads, followers, trained/chilled — in
+> the same tab. New module contentdesk.js (82 in the precache);
+> signProspect stamps lastSigningWeek for the first-day photo; the
+> soak and longhaul bots film what happens. Bands measured then
+> ruled: posted 40/40 → [.80,1], hits 36/40 → [.40,1]. Battery 92/92
+> (suite_092 new), soak 40 clean, longhaul 10x620, e2e 112, lockstep
+> 0.10.18. Rode to main.

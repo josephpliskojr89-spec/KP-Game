@@ -436,6 +436,10 @@ const BANDS = {
   // intro (trips + showcases reveal everywhere; calls need a strong
   // student met while the temper dice cooperate; the fog ALWAYS eats
   // somebody in 140 weeks, which is the owner's ruling working)
+  // the content desk (v0.10.18) — measured 40/36 of 40 at intro (the
+  // bot films every other week; hits ride hitChance .05 over 140wk)
+  contentPosted:     { lo: 0.80, hi: 1.00, label: 'orgs whose company account posted in-house content' },
+  contentHit:        { lo: 0.40, hi: 1.00, label: 'orgs with an upload that broke containment' },
   classRevealed:     { lo: 0.80, hi: 1.00, label: 'worlds where the fog gave up a student (trip or showcase)' },
   directorCalled:    { lo: 0.20, hi: 1.00, label: 'worlds where a director phoned the majors about shown interest' },
   fogPoached:        { lo: 0.30, hi: 1.00, label: 'worlds where a known student signed away before anyone met her' },
@@ -623,6 +627,7 @@ const tally = {
   schoolLead: 0, schoolClass: 0, schoolTrip: 0, schoolPartner: 0, schoolHot: 0,
   schoolOpened: 0, schoolClosed: 0,
   classRevealed: 0, directorCalled: 0, fogPoached: 0,
+  contentPosted: 0, contentHit: 0,
   evalHeld: 0, projectTalkSeen: 0, traineeQuitAsked: 0, traineeGone: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
@@ -902,6 +907,12 @@ for (let s = 0; s < SEEDS; s++) {
         !state.schools.some(sc2 => sc2.partnerUntil > state.week)) {
       const best = state.schools.slice().sort((a, b) => b.rep - a.rep)[0];
       KP.schoolPartnership(state, best.id);
+    }
+    // the content desk (v0.10.18): the bot films what is happening —
+    // cheapest of survival habits, every other week when solvent
+    if (KP.contentTopics && fiscalCalm && state.budget > 40 && state.week % 2 === 0) {
+      const open = KP.contentTopics(state).find(tp => tp.open && state.budget > tp.cost + 30);
+      if (open) KP.postContent(state, open.id);
     }
     // form the first group around week 20; a second lineup once the first
     // has debuted and the trainee room can field one (v0.2.2)
@@ -1811,6 +1822,9 @@ for (let s = 0; s < SEEDS; s++) {
   if ((schl.revealed || 0) >= 1) tally.classRevealed++;
   if ((schl.directorCalls || 0) >= 1) tally.directorCalled++;
   if ((schl.fogPoached || 0) >= 1) tally.fogPoached++;
+  const cnl = state.contentLedger || {};
+  if ((cnl.posted || 0) >= 1) tally.contentPosted++;
+  if ((cnl.hits || 0) >= 1) tally.contentHit++;
   const pl = state.practiceLedger || {};
   if ((pl.evals || 0) >= 1) tally.evalHeld++;
   if ((pl.speculations || 0) >= 1) tally.projectTalkSeen++;

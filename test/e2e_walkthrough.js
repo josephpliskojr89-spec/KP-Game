@@ -275,6 +275,13 @@ async function main() {
   ok(/The résumé:/.test(bld), 'and the résumés print');
   ok((await page.$$eval('[data-action=seat-release]', els => els.length)) >= 3, 'every filled chair offers the goodbye');
   ok(/chair open/.test(bld), 'open chairs say so, with the help wanted next to them');
+
+  // --- the content desk (v0.10.18): the company account ---
+  await tap('[data-action=desk-sub][data-sub=content]');
+  const cnt = await page.textContent('#screen');
+  ok(/official/.test(cnt), 'the company account has a masthead');
+  ok(/locked/.test(cnt), 'irrelevant topics are locked, visibly');
+  ok(/van is parked|tour actually running/.test(cnt), 'and the tour vlog lock explains itself');
   await tap('[data-action=desk-sub][data-sub=today]');
 
   // --- the grind (v0.9.37): a locked era opens the campaign desk ---

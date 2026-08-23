@@ -233,6 +233,11 @@ function botWeek(state, mode) {
       // the network (v0.9.35): a thin board is a verb problem now
       if (!KP.holdOpenCall(state).ok) KP.streetCast(state);
     }
+    // the content desk (v0.10.18): the long game films what happens
+    if (KP.contentTopics && state.budget > 60 && state.week % 3 === 0) {
+      const openTopic = KP.contentTopics(state).find(tp => tp.open && state.budget > tp.cost + 40);
+      if (openTopic) KP.postContent(state, openTopic.id);
+    }
     if (state.roster.filter(id => state.people[id].status === 'trainee').length < 5 &&
         state.prospects.length && state.budget > 60) {
       // a holdout's no (v0.9.33) walks the bot down the board; the

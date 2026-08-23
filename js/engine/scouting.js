@@ -241,6 +241,7 @@
     if (state.fiscal) state.fiscal.monthSignings = (state.fiscal.monthSignings || 0) + 1;
     p.status = 'trainee';
     p.signedWeek = state.week;
+    state.lastSigningWeek = state.week;   // the content desk films first days (v0.10.18)
     if (p.origin && state.tongueLedger) state.tongueLedger.intlSigned++;   // v0.9.29
     // the paper clock (v0.9.19): three years, the industry standard
     p.traineeContract = { start: state.week, years: KP.C.TRAINEE_CONTRACT.years, term: 1 };

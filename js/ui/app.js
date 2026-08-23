@@ -320,6 +320,16 @@
         App.save(); UI.toast('The fan meeting happened. Somebody brought a cake shaped like the road manager.'); App.render();
         break;
       }
+      case 'content-post': {
+        const r = KP.postContent(s, t.dataset.topic);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast(r.hit
+          ? 'Posted — and it is MOVING. ' + KP.fmtCount(r.views) + ' views and climbing.'
+          : 'Posted. ' + KP.fmtCount(r.views) + ' views by the weekly report.');
+        App.render();
+        break;
+      }
       case 'school-trip': {
         const r = KP.scoutingTrip(s, t.dataset.id);
         if (!r.ok) { UI.toast(r.reason, true); break; }

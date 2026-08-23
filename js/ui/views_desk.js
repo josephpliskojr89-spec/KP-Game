@@ -13,10 +13,12 @@
     html.push('<div class="pad" style="margin-top:2px"><div class="seg">' +
       '<button class="' + (sub === 'today' ? 'on' : '') + '" data-action="desk-sub" data-sub="today">Today</button>' +
       '<button class="' + (sub === 'building' ? 'on' : '') + '" data-action="desk-sub" data-sub="building">The building</button>' +
+      '<button class="' + (sub === 'content' ? 'on' : '') + '" data-action="desk-sub" data-sub="content">Content</button>' +
       '<button class="' + (sub === 'record' ? 'on' : '') + '" data-action="desk-sub" data-sub="record">The record</button>' +
       '</div></div>');
     if (sub === 'record') return html.join('') + renderRecord(state);
     if (sub === 'building') return html.join('') + renderBuilding(state);
+    if (sub === 'content') return html.join('') + renderContent(state);
 
     // objective banner
     html.push('<div class="objective">' +
@@ -335,6 +337,69 @@
     anr: 'sits over the demo sheet — what lands on it, and how it is heard',
     marketing: 'decides what a campaign push actually buys',
   };
+  // ---- the content desk (v0.10.18): the company account ----------------
+  // The law of the menu: only what is actually happening can be filmed —
+  // and a locked topic says why, in words.
+  function renderContent(state) {
+    const html = [];
+    const led = KP.contentLedger(state);
+    const posted = state.contentPostWeek === state.week;
+    html.push('<div class="pad" style="font-size:.74rem;color:var(--ink-dim);margin-top:4px">' +
+      'The ' + UI.esc(state.company.short) + ' official account. One upload a week, filmed in-house: the menu only offers what is actually happening in this building — no tour vlog while the van is parked. The archive is an asset; somebody will price it one day.</div>');
+    html.push('<div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">' +
+      '<span style="font-weight:800">' + UI.esc(state.company.short) + ' official</span>' +
+      '<span style="font-size:.76rem;color:var(--ink-dim)">' + (led.posted || 0) + ' upload' + (led.posted === 1 ? '' : 's') +
+      ' · ' + KP.fmtCount(led.views || 0) + ' lifetime views' +
+      ((led.hits || 0) ? ' · ' + led.hits + ' broke containment' : '') + '</span></div>' +
+      (posted ? '<div style="font-size:.74rem;color:var(--gold);margin-top:5px">This week’s upload is out. The editor is rendering feelings.</div>' : '') +
+      '</div>');
+    // the menu
+    KP.contentTopics(state).forEach(t => {
+      html.push('<div class="card" style="padding:11px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">' +
+        '<span style="font-weight:800;' + (t.open ? '' : 'color:var(--ink-dim)') + '">' + UI.esc(t.label) + '</span>' +
+        (t.open
+          ? '<button class="btn small" data-action="content-post" data-topic="' + t.id + '"' +
+            (posted || state.budget < t.cost ? ' disabled' : '') + '>' +
+            (t.cost ? 'Film · ' + t.cost : 'Post · free') + '</button>'
+          : '<span class="chip">locked</span>') + '</div>' +
+        '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:4px">' +
+        UI.esc(t.open ? t.blurb : t.reason) + '</div></div>');
+    });
+    // the archive
+    const cat = (state.contentCatalog || []).slice(-8).reverse();
+    if (cat.length) {
+      html.push('<div class="pad" style="margin:12px 0 2px;font-size:.74rem;color:var(--ink-dim)">The archive — most recent first.</div>');
+      cat.forEach(v => {
+        html.push('<div class="card" style="padding:10px">' +
+          '<div style="font-size:.8rem">' + UI.esc(v.line) + '</div>' +
+          '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:4px">' +
+          UI.esc(KP.weekLabel(v.week).text) + ' · ' + KP.fmtCount(v.views) + ' views' +
+          (v.hit ? ' · <span class="chip hot">broke containment</span>' : '') + '</div></div>');
+      });
+    }
+    // the member channels (v0.10.2 machinery, finally visible)
+    const channels = (state.roster || []).map(id => state.people[id])
+      .filter(p => p && p.broadcast);
+    html.push('<div class="pad" style="margin:12px 0 2px;font-size:.74rem;color:var(--ink-dim)">The personal channels — their voices, their numbers. The company account shares the building, not the mic.</div>');
+    if (!channels.length) {
+      html.push('<div class="card"><div style="font-size:.76rem;color:var(--ink-dim)">Nobody holds a personal WeCast channel yet. The asks come through the Desk when somebody wants the mic.</div></div>');
+    }
+    channels.forEach(p => {
+      html.push('<div class="card" style="padding:11px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">' +
+        '<span style="font-weight:800">' + UI.esc(KP.displayName(p)) + '</span>' +
+        '<span style="font-size:.76rem;color:var(--ink-dim)">' + KP.fmtCount(KP.socialOf(state, p)) + ' followers</span></div>' +
+        '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:4px">Channel since ' + UI.esc(KP.weekLabel(p.broadcast.since).text) +
+        ' · ' + (p.broadcast.uploads || 0) + ' upload' + (p.broadcast.uploads === 1 ? '' : 's') + '</div>' +
+        '<div style="margin-top:5px">' +
+        (p.flags.mediaTrained ? '<span class="chip">media-trained</span>' : '') +
+        (p.flags.castChilled && state.week < p.flags.castChilled ? '<span class="chip hot">reprimanded — quiet</span>' : '') +
+        '</div></div>');
+    });
+    return html.join('');
+  }
+
   function renderBuilding(state) {
     const html = [];
     const S = KP.staffSeats ? KP.staffSeats(state) : {};

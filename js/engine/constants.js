@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.17.5',
+    VERSION: '0.10.18',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1715,6 +1715,20 @@
     // The LAW: her own voice is a lever whose throw scales with how
     // known she is — growth is fame-UNdamped (phone-camera law), the
     // gaffe blast scales with the public eye.
+    // the content desk (v0.10.18): the company account. Owner: "you
+    // can only choose a topic that's relevant. if you aren't touring,
+    // you can't post a tour vlog."
+    CONTENT: {
+      baseViews: 900,            // the floor an unknown account pulls
+      viewsPerSocial: 0.05,      // + a share of the featured following
+      viewsPerPop: 120,          // + the group's name recognition
+      hitChance: 0.05,           // an upload breaks containment
+      hitViewsMult: 8,
+      hitHype: 4,                // the featured face feels the numbers
+      hitFollowShare: 0.06,      // hit views that convert to followers
+      featureMorale: 1,          // being in the frame feels good
+      maxCatalog: 60,            // the shelf keeps the recent archive
+    },
     CAST: {
       askChance: 0.05,           // weekly, when somebody eligible wants the mic
       askConfidence: 55, askWarmth: 50,  // who wants it: the outgoing
