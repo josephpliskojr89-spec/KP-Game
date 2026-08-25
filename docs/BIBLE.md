@@ -5821,6 +5821,111 @@ total, offers capped ~770. What the audit confirmed already held:
 the pass bar, paid-promo pricing, brand-deal caps, the booking
 pile, chodong sublinearity.
 
+## §86 The last statement (PLANNED — insolvency & the second chances)
+
+Owner (ruling, after the hostile audit flagged that no fail state
+exists): "insolvency should mean game over, at least for that
+company. now if you've managed to have some success but the economic
+reality of being a small label just won, your reputation should at
+least provide the possibility of getting another job, I would think.
+with another small label, or maybe investors come to you to help
+with a new project? there could be a few possibilities so that's
+it's never truly game over. we can discuss and plan."
+
+The shape: the COMPANY can die; the CAREER survives it if the
+career earned survival. Losing the label is a chapter ending, not a
+title screen — the game already knows how to scatter people (§76's
+castoff market, v0.10.13's released, v0.10.16's clean exits), how
+to open doors (v0.9.28's three, v0.9.34's blank page), and how to
+found a label mid-save (v0.9.9). Insolvency is the machinery that
+connects them.
+
+**A. The red weeks (what insolvency IS).** Broke is not dead —
+labels run on fumes, and the clamp law (0.10.11) means a zero
+budget already pays nobody. Insolvency is UNPAID OBLIGATIONS
+SUSTAINED: each week, sum what the clamps swallowed (payroll,
+practice-room invoice, trainee upkeep, the clawback, the toll) —
+any week that sum is positive ticks the red counter; a week paid
+in full cools it (decay, not reset — a label lurching in and out
+of default is still dying). The ladder is legible the whole way:
+the accountant's memo (first red week), the staff meeting nobody
+called (departure risk multiplies — the fog eats a drowning
+company first), the creditors' letters (funds, distributor, the
+building), the FINAL NOTICE with a date on it. Numbers unruled —
+measure-first — but the feel target: a competent broke label can
+always see the cliff coming and has 2–3 moves left (release
+someone, sell the shelf, pitch if unburned); a label that ignores
+four warnings deserves the ending. Candidate default: ~10–12 red
+weeks to dissolution, cooled by any clean week.
+
+**B. The dissolution (the chapter ends).** The company closes ON
+THE RECORD: contracts void through the existing exit paths (the
+released board the castoff market with real history; students
+return to their schools; staff scatter into the fog where rivals
+hire them — the world REMEMBERS, §60 machinery), the catalog goes
+to the distributor against debts (the shelf you built keeps
+existing in the world — a reverse run on a dead label's song
+should be possible and devastating), and the feed writes the
+obituary in the game's voice: institutions get the snark, the
+people get the dignity. Then the epilogue screen: the last
+statement — what you built, who you built, where they all went.
+NOT a fail screen; an accounting.
+
+**C. The second chances (reputation opens doors).** After the
+last statement, the game reads the CAREER — observables only, the
+financing law — and offers what the career earned. Candidate
+doors, each gated on things the save already tracks:
+
+1. THE SALARIED CHAPTER — another small label hires you to run
+   their roster. Gate: peak trust / a debuted act that charted.
+   You inherit THEIR half-built situation (their people, their
+   debts, their exec) — the current-label door (v0.9.28) machinery
+   pointed at a generated small company. The humbling: someone
+   else's name on the building.
+2. THE INVESTOR'S CALL — a fund you never burned backs a NEW
+   label around you. Gate: kept covenants and !financing.burned.
+   The catch is §85's whole thesis: the money arrives with hands
+   attached from week 1 (a board seat or toll pre-installed) —
+   funded founding is the blank page with a landlord.
+3. THE PROTÉGÉ'S DOOR — someone you developed who got big (a
+   released idol whose new chapter flourished, a graduated
+   trainee, a poached staffer who rose) brings you in. Gate: a
+   specific PERSON with a specific bond history — the relationship
+   engine paying off at the lowest moment. Rarest, best-feeling.
+4. THE BLANK PAGE, AGAIN — no reputation, no calls. Start from
+   nothing (v0.9.34) in the SAME world, carrying only the scar.
+   Always available: the floor is never a locked save.
+
+**D. What follows you (carry-over).** Money: none — the estate
+settled. Roster: none — contracts died with the company... with
+ONE possible exception, the one who stayed: a person with a deep
+enough bond refusing to scatter (walks into the next chapter with
+you). Powerful, expensive to balance, maybe door-3-only. What DOES
+carry: memory (the world's and yours), relationships, reputation
+observables, financing.burned (the funds' ledger survives your
+company), and a founder scar the feed can reference for years.
+
+**E. To rule before build.** (1) The clock: how many red weeks,
+and does difficulty scale it? (2) The world: second chances run in
+the SAME save/world (recommended — the dead label becomes world
+memory, your ex-idols chart against you) vs. a fresh seed. (3)
+Scope: does the employed-CEO start (exec/board doors) get FIRED by
+this same ladder — board patience as parallel insolvency — or is
+that a separate mechanic for a later slot? (4) The one who stayed:
+in or out for v1? (5) Bot policy: the harness bot must be ALLOWED
+to die in the neglect scenario — a longhaul where haul-neglect
+dissolves is the proof the teeth are real; bands then guard that
+standard play survives.
+
+Implementation notes: red counter lives beside the books (one
+truth: the clamps REPORT what they swallowed, the counter reads
+the report); dissolution is a scene (options[0] = read the last
+statement); doors reuse newGame's door plumbing against the LIVING
+world state rather than a fresh seed; epilogue text generated from
+the ledger, not adjectives. Harness: red-week census band; longhaul
+gains a haul-insolvent scenario. Candidate slot: v0.11.0 — it is a
+chapter mechanic, not a patch.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
