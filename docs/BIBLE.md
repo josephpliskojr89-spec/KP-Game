@@ -8715,3 +8715,29 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > + rotation), soak 40 clean, longhaul 10x620, e2e 112, lockstep
 > 0.10.21. Rode to main. The early game is now exactly as unfair as
 > ordered.
+
+> **0.10.22 — the room holds what the room holds.** Owner: "I'd also
+> specifically like it to abuse tours. they feel like a money cheat."
+> The probe convicted them: a pop-50 group spamming CLUB tours earned
+> +118/tour risk-free, and undersizing strictly beat right-sizing
+> (clubs 118 > arenas 62 per tour) — revenue scaled with demand but
+> no capacity ever capped it; the label was selling seats the room
+> did not have, with encore doubles stacking on top. Three fixes:
+> (1) the capacity law — the revenue demand term caps at sweetSpot ×
+> soldOutAt on every date, home and overseas (a sold-out club is a
+> great night, not a great business); (2) production up ~25%
+> (clubs 8→10, halls 16→20, arenas 30→38 per unit); (3) the ambient
+> revenue floor trimmed .5→.4. After: right-sizing wins at every
+> size (pop-50: halls 78 > clubs 70 > arenas 46; pop-80: arenas 258
+> ≫ clubs 72) and the road pays in fatigue-priced instalments, not
+> free money. Second find: the tour fix exposed the national board
+> thinning between pool releases (soak org at national #3 while
+> scene #11) — the titans' catalog now holds the big board's top the
+> same way the scene rotation holds the scene (rotationTitans 3 ×
+> fame ×.72, refreshed weekly, never decaying). The soak bot's
+> financing trigger recalibrated for the leaner economy (pitches at
+> budget <100 past week 30 — a poorer label raises MORE); finance
+> bands re-measured 35/27/9 of 40, all inside their rails. A hostile
+> exploit-hunting agent is sweeping the wider verb surface; its
+> findings land as follow-ups. Battery 93/93, soak 40 clean,
+> longhaul 10x620, e2e 112, lockstep 0.10.22. Rode to main.

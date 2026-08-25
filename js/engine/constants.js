@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.21',
+    VERSION: '0.10.22',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -683,6 +683,10 @@
       titanCadenceBonus: 4,        // titans release a little slower, land harder
       scoreMult: [0.95, 1.25],     // release score = fame × this roll
       decay: 0.93,                 // national songs have longevity the scene lacks
+      // the standing rotation, national edition (v0.10.22): the titans'
+      // catalog holds the top of the big board between releases
+      rotationTitans: 3,
+      rotationFame: 0.72,          // rotation score = titan fame × this ± 10%
       titanDecay: 0.972,           // titan hits linger — the summit is defended
       megaChance: 0.55,            // a titan release is often a cultural moment…
       megaMult: 1.45,              // …that parks on top for a season
@@ -919,9 +923,11 @@
       cooldownWeeks: 20,         // between tours — the road is not a lifestyle
       minPopularity: 30,         // nobody tours a debut with no fanbase
       SCALES: {
-        clubs:  { label: 'Club halls',  costPerLeg: 8,  revBase: 18, sweetSpot: 18, fatiguePerWeek: 5 },
-        halls:  { label: 'Theaters',    costPerLeg: 16, revBase: 38, sweetSpot: 38, fatiguePerWeek: 6 },
-        arenas: { label: 'Arenas',      costPerLeg: 30, revBase: 75, sweetSpot: 60, fatiguePerWeek: 7 },
+        // v0.10.22 rebalance (the tour-abuse probe): production up —
+        // the road pays the crew before it pays the label
+        clubs:  { label: 'Club halls',  costPerLeg: 10, revBase: 18, sweetSpot: 18, fatiguePerWeek: 5 },
+        halls:  { label: 'Theaters',    costPerLeg: 20, revBase: 38, sweetSpot: 38, fatiguePerWeek: 6 },
+        arenas: { label: 'Arenas',      costPerLeg: 38, revBase: 75, sweetSpot: 60, fatiguePerWeek: 7 },
       },
       // demand/sweetSpot ratio decides the narration and the money
       soldOutAt: 1.35, softBelow: 0.75,

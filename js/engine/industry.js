@@ -214,15 +214,38 @@
   function nationalWeek(state, rng) {
     const N = KP.C.NATIONAL;
     state.national = state.national || { artists: [], entries: [] };
-    state.national.entries.forEach(e => { e.score *= (e.decayRate || N.decay); e.weeksOn++; });
-    state.national.entries = state.national.entries.filter(e => e.score >= N.dropBelow);
+    state.national.entries.forEach(e => {
+      if (e.rotation) return;   // the standing catalog refreshes below
+      e.score *= (e.decayRate || N.decay); e.weeksOn++;
+    });
+    state.national.entries = state.national.entries.filter(e => e.rotation || e.score >= N.dropBelow);
+    // the standing rotation, national edition (v0.10.22): between
+    // releases the titans' catalog holds the top of the big board —
+    // the national #1 is a mountain even in a quiet month
+    const NT = state.national.artists.filter(ar => ar.tier === 'titan')
+      .sort((a, b) => b.fame - a.fame).slice(0, N.rotationTitans);
+    state.national.entries = state.national.entries.filter(e => !e.rotation ||
+      NT.some(t => t.name === e.rotation));
+    NT.forEach(ar => {
+      const jitter = KP.hash01([state.seed, 'natrotation', ar.name, state.week].join('|'));
+      const score = Math.round(ar.fame * N.rotationFame * (0.9 + jitter * 0.2));
+      let e = state.national.entries.find(x => x.rotation === ar.name);
+      if (!e) {
+        e = { rotation: ar.name, title: ar.lastTitle || 'the standing catalog',
+          act: ar.name, company: ar.typeLabel, isPlayer: false, pool: true,
+          score, entered: state.week, weeksOn: 0, pos: null, lastPos: null, peakPos: null };
+        state.national.entries.push(e);
+      } else e.score = score;
+    });
     state.national.artists.forEach(ar => {
       if (state.week < ar.nextRelease) return;
       let mult = N.scoreMult[0] + rng.next() * (N.scoreMult[1] - N.scoreMult[0]);
       const titan = ar.tier === 'titan';
       if (titan && rng.chance(N.megaChance)) mult *= N.megaMult;   // a cultural moment
+      const relTitle = KP.genSongTitle(rng, nationalTitles(state));
+      ar.lastTitle = relTitle;
       KP.nationalEnter(state, {
-        title: KP.genSongTitle(rng, nationalTitles(state)),
+        title: relTitle,
         act: ar.name, company: ar.typeLabel, isPlayer: false, pool: true,
         decayRate: titan ? N.titanDecay : undefined,
         score: ar.fame * mult, entered: state.week,

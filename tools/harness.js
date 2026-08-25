@@ -923,9 +923,11 @@ for (let s = 0; s < SEEDS; s++) {
       const open = KP.contentTopics(state).find(tp => tp.open && state.budget > tp.cost + 30);
       if (open) KP.postContent(state, open.id);
     }
-    // the runway (v0.10.19, §85): the bot pitches when broke — and when
-    // a sheet lands, it takes the revenue share (the survivable poison)
-    if (KP.pitchFinancing && state.week > 40 && state.budget < 60 &&
+    // the runway (v0.10.19, §85): the bot pitches when money is tight —
+    // and when a sheet lands, it takes the revenue share (the survivable
+    // poison). Threshold raised at v0.10.22: the tour rebalance made the
+    // whole economy leaner, and a real label raises MORE when poorer.
+    if (KP.pitchFinancing && state.week > 30 && state.budget < 100 &&
         !KP.financingBusy(state)) {
       KP.pitchFinancing(state);
     }

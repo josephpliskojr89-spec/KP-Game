@@ -146,7 +146,12 @@
         const ratio = demand / scale.sweetSpot;
         const soldOut = ratio >= T.soldOutAt;
         const soft = ratio < T.softBelow;
-        let rev = scale.revBase * city.w * (0.5 + demand / 80) * (setlist.revMult || 1);
+        // the room holds what the room holds (v0.10.22): revenue's
+        // demand term caps at the venue's capacity — a sold-out club
+        // is a great NIGHT, not a great business. Undersizing stopped
+        // being the money button; right-sizing is the whole job.
+        const paidDemand = Math.min(demand, scale.sweetSpot * T.soldOutAt);
+        let rev = scale.revBase * city.w * (0.4 + paidDemand / 80) * (setlist.revMult || 1);
         if (soldOut) rev *= T.soldOutRevMult;
         if (soft) rev *= T.softRevMult;
         revenue += rev;
@@ -225,7 +230,10 @@
     const ratio = demand / scale.sweetSpot;
     const soldOut = ratio >= T.soldOutAt;
     const soft = ratio < T.softBelow;
-    let revenue = scale.revBase * (0.5 + demand / 80) * (setlist.revMult || 1);
+    // the room holds what the room holds (v0.10.22) — same capacity
+    // law as the home circuit
+    const paidDemand = Math.min(demand, scale.sweetSpot * T.soldOutAt);
+    let revenue = scale.revBase * (0.4 + paidDemand / 80) * (setlist.revMult || 1);
     if (soldOut) revenue *= T.soldOutRevMult;
     if (soft) revenue *= T.softRevMult;
     // the tongue (v0.9.29): a fluent member is the voice of the leg —
