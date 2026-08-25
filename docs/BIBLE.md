@@ -8687,3 +8687,31 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > widened with history (masterTurned .70→.75 — bot cashflow drift,
 > one org). Battery 93/93, soak 40 clean, longhaul 10x620, e2e 112,
 > lockstep 0.10.20. Rode to main.
+
+> **0.10.21 — the distribution gap.** Owner: "it still feels a little
+> easy to gain popularity and reputation, specifically for a solo
+> act… A small label with a single miss on their resume shouldn't
+> have someone constantly going viral because of a song presumably
+> nobody really heard." The balance probe reproduced it exactly: 30
+> seeds of that scenario put 19 solo debuts at #1 on the scene chart
+> with reception averaging 46 — the wall capped the SOUND but nothing
+> capped the TRAVEL, and the scene chart's decayed field sometimes
+> defended #1 with a 33. Two mechanisms shipped. (1) REACH
+> (KP.chartReach): under the wall, the chart score and the founded
+> fanbase convert through fame — floor .62, pierced by the same
+> valves as the wall (the worked campaign +.15 max, the defining clip
+> +.05); at the wall, full reach. (2) THE STANDING ROTATION: the top
+> four scene acts hold ambient, hash-jittered chart heat (popularity
+> ×.92) that refreshes instead of cooling — the establishment's
+> catalog never leaves the room, so a weak week never hands out a
+> free #1. Probe after: #1s 19/30 → 5/30 (all 53+ landings), avg
+> peak 1.7 → 4.0, founded popularity 52 → 43, virals 10 → 2, national
+> best 3 → 5. The counter-probes held: major-door comebacks went
+> 12/12 at #1 (untouched above the wall), and a fully worked unknown
+> era recovers reach .92 — the Rescene lottery lives, the free lunch
+> died. Longhaul's founder audit now walks out of a major house (its
+> subject was always the founded shape, not the climb — same
+> precedent as its trust grant). Battery 93/93 (suite_078 pins reach
+> + rotation), soak 40 clean, longhaul 10x620, e2e 112, lockstep
+> 0.10.21. Rode to main. The early game is now exactly as unfair as
+> ordered.

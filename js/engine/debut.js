@@ -843,11 +843,17 @@
       g.eraSpend = 0;
     }
 
+    // the distribution gap (v0.10.21): under the wall, the song only
+    // reaches as far as the label's name carries it — the fanbase it
+    // founds and the rank it opens at both convert through reach
+    const reach = KP.chartReach ? KP.chartReach(state, g, { spark: spark > 0 }) : 1;
     // popularity: the debut founds the fanbase (hype converts into it);
-    // comebacks compound or cool it
+    // comebacks compound or cool it. The reception term travels through
+    // reach — a good song nobody heard founds a small fandom; the hype
+    // term does not, because hype was real attention already paid.
     g.popularity = isDebut
-      ? KP.clamp(Math.round(15 + reception * 0.75 + hypeSum * KP.C.HYPE.cashPopFactor), 0, 100)
-      : KP.clamp(Math.round(g.popularity * 0.55 + reception * 0.55), 0, 100);
+      ? KP.clamp(Math.round(15 + reception * 0.75 * reach + hypeSum * KP.C.HYPE.cashPopFactor), 0, 100)
+      : KP.clamp(Math.round(g.popularity * 0.55 + reception * 0.55 * reach), 0, 100);
     // hype is spent — it became the act
     members.forEach(m => { m.hype = 0; });
 
@@ -855,7 +861,7 @@
     // opening rank here, then tracked live by chartStamp for as long as
     // the entry charts. The scene is the lane; the national board is the
     // whole industry, titans included, and it is harder by construction.
-    const score = reception + (g.popularity || 0) * 0.2;
+    const score = (reception + (g.popularity || 0) * 0.2) * reach;
     const peak = 1 + KP.chartPositions(state).filter(e => e.score > score).length;
     const natPeak = 1 + KP.nationalPositions(state).filter(e => e.score > score).length;
     const weeksOn = 1;

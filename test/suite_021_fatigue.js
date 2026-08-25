@@ -94,7 +94,12 @@ function planFor(state, g) {
       KP.advanceWeek(state);
       g.members.forEach(id => {
         const p = state.people[id];
-        if (p.flags.burnout > 0) incidents++;
+        // the claim is the SCHEDULE bench (the promo pulls her) — the
+        // practice-room medical path is a different door with its own
+        // suite; keep searching seeds until this one fires (v0.10.21
+        // stream shift found the other door first)
+        if (p.flags.burnout > 0 &&
+            p.history.some(h => /Pulled from the schedule/.test(h.text))) incidents++;
       });
     }
     if (incidents) {

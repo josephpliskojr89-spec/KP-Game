@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.20',
+    VERSION: '0.10.21',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -571,6 +571,10 @@
       dropBelow: 8,             // entries fall off below this score
       maxEntries: 24,
       showTop: 10,
+      // the standing rotation (v0.10.21): the establishment's catalog
+      // never leaves the room — the top scene acts hold ambient heat
+      rotationActs: 4,
+      rotationPop: 0.92,        // rotation score ≈ act popularity × this ± 10%
     },
 
     // ---- The living world (v0.4.0): rival acts, lifecycle, crowding -----
@@ -1980,6 +1984,14 @@
       showBar: 0.28,                // below this the music shows don't call back
       camCapLift: 10,               // a phone-shot gig clip lifts the era's ceiling
       sparkCapLift: 8,              // so does the defining stage clip
+      // the distribution gap (v0.10.21): the wall caps how good the
+      // song SOUNDS; reach caps how far it TRAVELS. Under the wall the
+      // chart score converts through fame — a capped song from a label
+      // nobody knows does not walk onto #1 of anything. The ground
+      // campaign pierces reach the same way it pierces the wall.
+      reachFloor: 0.62,          // an unknown label's song counts at 62%…
+      reachMomPer: 0.0015, reachMomCap: 0.15,  // …plus the ground game
+      reachSpark: 0.05,          // a defining clip carries the song farther
       breakBelow: 0.45, breakMin: 62, // unknown label + a landing this loud = breakthrough
       breakRep: 7, breakTrust: 3,   // the wall moves: rep jump, board notices
       MOM: {                        // §76 E — earned reach converts through WORK

@@ -196,6 +196,39 @@ function planFirst(s, promo) {
   }
 }
 
+// ---- the distribution gap (v0.10.21): the song only travels as far
+// as the name carries it — owner: "A small label with a single miss on
+// their resume shouldn't have someone constantly going viral because
+// of a song presumably nobody really heard"
+{
+  const s = world('grind-reach');
+  const F = KP.C.FAME;
+  t.ok(KP.fameRead(s) < F.wallBelow, 'fixture: an unknown label');
+  const r0 = KP.chartReach(s, {}, {});
+  t.ok(r0 >= F.reachFloor && r0 < 1, 'under the wall, reach is a real discount (' + r0.toFixed(2) + ')');
+  const worked = KP.chartReach(s, { prep: { campaign: { momentum: 110 } } }, { spark: true });
+  t.ok(worked > r0, 'the ground game and the defining clip carry the song farther');
+  // above the wall the discount vanishes — the majors are untouched
+  const s2 = KP.newGame('grind-reach2', null, { legacy: false, door: 'major' });
+  t.ok(KP.fameRead(s2) >= F.wallBelow && KP.chartReach(s2, {}, {}) === 1,
+    'a famous label’s song travels at full reach');
+}
+
+// ---- the standing rotation (v0.10.21): no free #1 in a weak week ----
+{
+  const s = world('grind-rotation');
+  for (let w = 0; w < 3; w++) KP.advanceWeek(s);
+  const rot = (s.chart.entries || []).filter(e => e.rotation);
+  t.ok(rot.length >= 1, 'the establishment’s catalog is in the room (' + rot.length + ' rotation rows)');
+  const score0 = rot[0].score;
+  KP.advanceWeek(s);
+  const again = s.chart.entries.find(e => e.rotation === rot[0].rotation);
+  t.ok(again && again.score >= KP.C.CHART.dropBelow, 'the rotation refreshes instead of cooling off');
+  // a capped, unreached score does not walk onto #1 past the incumbents
+  const champ = Math.max.apply(null, s.chart.entries.map(e => e.score));
+  t.ok(champ >= 30, 'the chart’s top is defended (' + Math.round(champ) + ')');
+}
+
 // ---- determinism through the whole grind ------------------------------
 {
   const s = world('grind-fork');

@@ -48,9 +48,37 @@
   };
   function chartTick(state) {
     const CH = KP.C.CHART;
-    if (!state.chart) { state.chart = { entries: [] }; return; }
-    state.chart.entries.forEach(e => { e.score *= CH.decay; e.weeksOn++; });
-    state.chart.entries = state.chart.entries.filter(e => e.score >= CH.dropBelow);
+    if (!state.chart) { state.chart = { entries: [] }; }
+    state.chart.entries.forEach(e => {
+      if (e.rotation) return;   // the rotation refreshes below — it never cools
+      e.score *= CH.decay; e.weeksOn++;
+    });
+    state.chart.entries = state.chart.entries.filter(e => e.rotation || e.score >= CH.dropBelow);
+    // the standing rotation (v0.10.21): the establishment's catalog is
+    // always in the room. The scene's biggest acts hold ambient chart
+    // heat between releases — a weak week never hands out a free #1,
+    // and an unknown label's capped song has incumbents to actually
+    // beat. Hash-jittered, refreshed weekly: a world fact, not a draw.
+    const pool = [];
+    (state.rivals || []).forEach(r => (r.acts || []).forEach(a => {
+      if (!a.disbanded && !a.retired) pool.push({ r, a });
+    }));
+    pool.sort((x, y) => (y.a.popularity || 0) - (x.a.popularity || 0));
+    const top = pool.slice(0, CH.rotationActs);
+    state.chart.entries = state.chart.entries.filter(e => !e.rotation ||
+      top.some(t => t.a.id === e.rotation));
+    top.forEach(({ r, a }) => {
+      const jitter = KP.hash01([state.seed, 'rotation', a.id, state.week].join('|'));
+      const score = Math.round((a.popularity || 40) * CH.rotationPop * (0.9 + jitter * 0.2));
+      let e = state.chart.entries.find(x => x.rotation === a.id);
+      if (!e) {
+        const lastRel = (a.releases || [])[Math.max(0, (a.releases || []).length - 1)];
+        e = { rotation: a.id, title: lastRel ? lastRel.title : 'the standing rotation',
+          act: a.name, company: r.short, isPlayer: false, score,
+          entered: state.week, weeksOn: 0, pos: null, lastPos: null, peakPos: null };
+        state.chart.entries.push(e);
+      } else e.score = score;
+    });
   }
   // Stamp positions after ALL of the week's releases (rival and player)
   // have entered — the movement arrows the Chart tab shows come from here.

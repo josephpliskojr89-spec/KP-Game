@@ -357,6 +357,11 @@ for (const sc of SCENARIOS) {
     sc.mode === 'blank' ? { door: 'blank', companyName: 'Audit Blank House' }
       : sc.mode === 'major' ? { door: 'major' }
       : sc.mode === 'fresh' ? { door: 'fresh' }
+      // the founder audit soaks the FOUNDED state shape, not the climb —
+      // v0.10.21's distribution gap made a current-door bot's trophy a
+      // coin flip on this horizon, so the walk-out starts where honors
+      // arrive on schedule: a major house (the same door, guaranteed open)
+      : sc.mode === 'founder' ? { door: 'major' }
       : sc.mode === 'home' ? { door: 'fresh', homeCity: 'busan' } : undefined);
   if (sc.mode === 'service') seedBoyGroup(state);
   let founded = false;

@@ -129,6 +129,25 @@
       fame, waste, momLift, cap, walled, under };
   };
 
+  // ---- the distribution gap (v0.10.21) ---------------------------------
+  // Owner: "A small label with a single miss on their resume shouldn't
+  // have someone constantly going viral because of a song presumably
+  // nobody really heard." The wall caps the SOUND; reach caps the
+  // TRAVEL. Under the wall the chart score converts through fame —
+  // pierced by the same valves as the wall: the worked campaign and
+  // the defining clip. Rng-free, one truth for both charts.
+  KP.chartReach = function (state, g, opts) {
+    const F = KP.C.FAME;
+    const fame = KP.fameRead(state);
+    if (fame >= F.wallBelow) return 1;
+    const camp = (g && g.prep && g.prep.campaign) || null;
+    const mom = (camp && camp.momentum) || 0;
+    return Math.min(1, F.reachFloor +
+      (1 - F.reachFloor) * (fame / F.wallBelow) +
+      Math.min(F.reachMomCap, mom * F.reachMomPer) +
+      ((opts && opts.spark) ? F.reachSpark : 0));
+  };
+
   // ---- the breakthrough ------------------------------------------------
   // A landing this loud from a label this unknown is the story that
   // moves the wall for good. Called with the FINAL reception (post-
