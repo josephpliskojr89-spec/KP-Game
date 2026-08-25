@@ -211,7 +211,7 @@
         KP.socialSpike(state, face, KP.C.SOCIAL.viralSpike * B.camSpikeMult, 'gigcam');
         face.hype = KP.clamp((face.hype || 0) + B.camHype, 0, 100);
         if (g.prep) {
-          g.prep.viralLift = (g.prep.viralLift || 0) + F.camCapLift;
+          g.prep.viralLift = Math.min(F.viralLiftCap, (g.prep.viralLift || 0) + F.camCapLift);   // clips stack only so far (v0.10.23)
           if (g.prep.campaign) addMomentum(state, g, 8);
         }
         const narNote = KP.recordViral(state, face,

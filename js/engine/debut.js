@@ -612,6 +612,25 @@
       groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
       popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod + hiaRead.mod + mvMod + anticipation + badBloodMod +
       (g.prep.returnRun ? KP.C.STAR.returnRunReception : 0)), 1, 100);
+    // the top is heavy (v0.10.23, the hostile audit: major autopilot
+    // landed 85% hits with zero effort): repeating the same concept
+    // wears the formula — the market has heard this song — and a
+    // giant fanbase raises the bar the public grades against.
+    {
+      const F2 = KP.C.FAME;
+      let sameRun = 0;
+      for (let i = (g.releases || []).length - 1; i >= 0; i--) {
+        if (g.releases[i].week > 0 && g.releases[i].conceptId === concept.id) sameRun++;
+        else break;
+      }
+      if (sameRun > 0) {
+        reception -= Math.min(F2.conceptFatigueCap, F2.conceptFatiguePer * sameRun);
+      }
+      if ((g.popularity || 0) > F2.expectationDragFrom) {
+        reception -= Math.round(((g.popularity || 0) - F2.expectationDragFrom) * F2.expectationDragPer);
+      }
+      reception = Math.max(1, reception);
+    }
     // the obscurity wall (v0.9.37, §76): paid reach converts through
     // fame, earned reach converts through work — and under the wall
     // the ceiling is real until a valve lifts it. Applied before the

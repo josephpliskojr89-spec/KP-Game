@@ -81,6 +81,12 @@
     const f = fin(state);
     const busy = KP.financingBusy(state);
     if (busy) return { ok: false, reason: busy };
+    if (f.coolUntil && state.week < f.coolUntil) {
+      return { ok: false, reason: 'The last covenant just resolved. Funds want to watch a full cycle before writing the next check — ' + (f.coolUntil - state.week) + ' week(s).' };
+    }
+    if (f.debt > 0) {
+      return { ok: false, reason: 'The clawback is still draining — ' + f.debt + ' owed. Nobody finances a label that owes the last fund money.' };
+    }
     if (state.week - (f.lastPitchWeek || -999) < F.pitchCooldown) {
       return { ok: false, reason: 'The funds remember last quarter’s deck. Give the story ' + (F.pitchCooldown - (state.week - f.lastPitchWeek)) + ' more week(s) to change.' };
     }
@@ -102,7 +108,7 @@
     const open = KP.fundWindowOpen(state);
     let base = (F.offerBase + read.score * F.offerScale) *
       (open ? 1 : F.closedMult) * (f.burned ? F.burnedMult : 1) *
-      (1 + F.repBonus * (f.reputation || 0)) * (0.85 + rng.next() * 0.3);
+      (1 + F.repBonus * Math.min(F.repBonusCap, f.reputation || 0)) * (0.85 + rng.next() * 0.3);
     base = Math.round(base);
     const fund = FUNDS[Math.floor(KP.hash01([state.seed, 'fund', state.week].join('|')) * FUNDS.length)];
     return { fund, open, read,
@@ -121,16 +127,25 @@
     if (kept) {
       state.trust = KP.clamp(state.trust + F.covenantKeptTrust, 0, 100);
       fin(state).reputation = (fin(state).reputation || 0) + 1;
+      fin(state).coolUntil = state.week + F.raiseGapWeeks;   // v0.10.23: a full cycle between rounds
+      // every won arrives with a hand attached (§85): a kept covenant
+      // converts to the fund's upside — a light share, one year
+      fin(state).revShare = { pct: F.covenantKeptSharePct,
+        until: state.week + F.covenantKeptShareWeeks, fund: c.fundName };
       ledger(state).covenantKept++;
       return { resolved: 'kept', notes: [{ kind: 'company', ind: 'covenantKept', priority: 'high',
-        text: c.fundName + ' read the number before you could send it. The covenant is KEPT — the milestone landed inside the window, the fund’s memo calls this label “executing,” and the next term sheet in this town gets written in a friendlier font.' }] };
+        text: c.fundName + ' read the number before you could send it. The covenant is KEPT — the milestone landed inside the window, the fund’s memo calls this label “executing,” and the conversion clause wakes up: ' + Math.round(F.covenantKeptSharePct * 100) + '% of gross for a year, the fund’s upside on the bet it made. The next term sheet in this town gets written in a friendlier font.' }] };
     }
     if (state.week > c.byWeek) {
       state.trust = KP.clamp(state.trust + F.covenantMissTrust, 0, 100);
       fin(state).burned = true;
+      // v0.10.23 (the hostile audit): the wire was never coming back on
+      // a miss — now it is an ADVANCE. The clawback drains quarterly.
+      fin(state).debt = (fin(state).debt || 0) + (c.amount || 0);
+      fin(state).coolUntil = state.week + F.raiseGapWeeks;
       ledger(state).covenantMissed++;
       return { resolved: 'missed', notes: [{ kind: 'company', ind: 'covenantMissed', priority: 'critical',
-        text: 'The covenant window closed with no milestone. ' + c.fundName + ' did not shout — funds never shout. They updated a spreadsheet, and every fund in this town can read it. Future money just got smaller and more expensive, and the executive knows exactly why.' }] };
+        text: 'The covenant window closed with no milestone. ' + c.fundName + ' did not shout — funds never shout. They invoked the clawback: the ' + (c.amount || 0) + ' comes back out of the quarters, the spreadsheet updated, and every fund in this town can read it. Future money just got smaller, more expensive, and owed first.' }] };
     }
     return null;
   });
@@ -187,7 +202,7 @@
       led.covenants++;
       const target = KP.groups(state).some(g => g.debuted) ? 'chart' : 'debut';
       KP.openClaim(state, { type: 'financeCovenant', subject: { kind: 'fund' },
-        fundName: o.fund, target,
+        fundName: o.fund, target, amount: o.covenant,
         label: target === 'chart'
           ? 'the covenant: a national top-' + F.covenantPeak + ' release, in writing'
           : 'the covenant: a debut on a real stage, in writing',
@@ -246,6 +261,22 @@
           expiresWeek: state.week + F.sheetFuseWeeks });
         inbox.push({ kind: 'company', ind: 'fundSheet', priority: 'critical',
           text: offers.fund + ' called back with a term sheet. Three structures, one fuse — ' + F.sheetFuseWeeks + ' weeks before the offer walks. The table is on the Desk, and the door is always one of the options.' });
+      }
+    }
+
+    // the clawback (v0.10.23): a missed covenant is a debt the quarters
+    // repay — clamped like every debit to what actually exists
+    if (f.debt > 0 && woy % KP.C.BOOKS.quarterWeeks === 0 && state.week > 4) {
+      const pay = Math.min(f.debt, Math.max(0, state.budget));
+      if (pay > 0) {
+        state.budget -= pay;
+        f.debt -= pay;
+        if (KP.ledgerFlow) KP.ledgerFlow(state, 'financing', -pay);
+        if (f.debt <= 0) {
+          delete f.debt;
+          inbox.push({ kind: 'company', ind: 'financeDone',
+            text: 'The clawback cleared its last quarter. The fund is whole, the label is lighter, and the lesson is itemized on the statement.' });
+        }
       }
     }
 

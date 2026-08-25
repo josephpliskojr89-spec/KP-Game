@@ -25,6 +25,10 @@
     g.merchPushes.push(state.week);
     return g.merchPushes.length;
   }
+  // the lightstick and friends count too (v0.10.23) — any verb that
+  // asks the fandom's wallet marks the season; the storm rolls at the
+  // NEXT push, same as club enrollment
+  KP.merchPushMark = function (state, g) { return merchPush(state, g); };
   function atmRisk(state, rng, inbox, g) {
     const M = KP.C.MERCH;
     if (merchPush(state, g) >= M.atmPushes && rng.chance(M.atmChance) &&

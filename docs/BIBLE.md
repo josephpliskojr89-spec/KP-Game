@@ -5800,6 +5800,27 @@ bug caught at the soak: the unclamped toll drove three orgs
 negative — the fund now takes what exists, not what the formula
 says.
 
+**As hardened (v0.10.23, the hostile audit).** The covenant
+carousel was the richest exploit on the table — keep a covenant,
+re-raise immediately, let reputation compound the offers without
+bound (the agent's long probe: 22 rounds kept back-to-back,
+~28–32k raised, offers escalating past 2,200). Four teeth now: the
+covenant bar tightened to national top-15 (was top-40 — a real
+milestone, not a Tuesday); reputation's re-pricing caps at +3
+stacks; every resolution — kept or missed — starts a 24-week
+cooling gap before the funds will read another deck ("funds want
+to watch a full cycle"); and the conversion clause — a KEPT
+covenant wakes a light revenue share (6% of gross, 52w) as the
+fund's upside, so even winning carries a hand on the label. The
+missed covenant grew real teeth the same sitting: the wire is
+retroactively an ADVANCE — the full amount books as debt and the
+clawback drains it quarterly (clamped, the 0.10.11 law) before
+the toll, and no fund finances a label that owes the last fund
+money. Post-fix, the agent's own probe: 6 rounds, ~2.2–4.1k
+total, offers capped ~770. What the audit confirmed already held:
+the pass bar, paid-promo pricing, brand-deal caps, the booking
+pile, chodong sublinearity.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -8741,3 +8762,32 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > exploit-hunting agent is sweeping the wider verb surface; its
 > findings land as follow-ups. Battery 93/93, soak 40 clean,
 > longhaul 10x620, e2e 112, lockstep 0.10.22. Rode to main.
+
+> **0.10.23 — the audit of money.** The hostile agent's remaining
+> convictions, fixed in one sitting. (1) THE COVENANT CAROUSEL
+> (worst): kept covenants compounding reputation let 22 back-to-back
+> rounds raise ~28–32k with offers past 2,200 — now covenantPeak
+> 40→15, reputation stacks cap at 3, every resolution starts a
+> 24-week cooling gap, a KEPT covenant converts to a 6%/52w revenue
+> share (the fund's upside — winning still costs a hand), and a
+> MISSED covenant books the whole wire as debt the quarters claw
+> back (clamped) with no new money while it drains. Agent's own
+> probe after: 6 rounds, ~2.2–4.1k, offers capped ~770. (2) THE AD
+> PERPETUITY: total-views tail made every old post an annuity and
+> the quarterly check climbed past 700 — the tail now reads a
+> DECAYING active pool (×.94/wk), and both the per-post bank and
+> the weekly add cap at 40k views; checks flatten ~56. (3) THE HIT
+> MACHINE: an established label comeback-spamming one concept hit
+> 85% — concept fatigue (−5/consecutive repeat, cap −12) and
+> expectation drag (−0.2 per popularity point over 70) price
+> repetition and altitude; autopilot after: 63.5% hit-rate, avgRec
+> 63 — varied campaigns still land. Also: reachFloor .50→.55,
+> viralLift stacks capped at 20, and the lightstick launch now
+> marks a merch push so the ATM story can actually fire (the agent
+> caught it never counting — atmStorm band ceiling ruled to 100%:
+> the commerce-maximal bot always earns the story; a paced calendar
+> escapes). Deliberately NOT invented: a fail state. The agent
+> found no insolvency, no game over — flagged to the owner as a
+> design ruling, not mine to make. suite_093 pins the conversion
+> clause and the clawback; battery 93/93, soak 40 clean, longhaul
+> 10x620, e2e 112, lockstep 0.10.23. Rode to main.

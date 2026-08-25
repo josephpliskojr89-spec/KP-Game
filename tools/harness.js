@@ -307,7 +307,12 @@ const BANDS = {
   greetingsOut:      { lo: 0.80, hi: 1.00, label: 'orgs that shipped a Season\'s Greetings' },
   fanconHeld:        { lo: 0.70, hi: 1.00, label: 'orgs that held a fancon between eras' },
   catalogPaying:     { lo: 0.90, hi: 1.00, label: 'orgs whose shelf pays the weekly annuity' },
-  atmStorm:          { lo: 0.15, hi: 0.95, label: 'orgs that squeezed into the ATM story' },
+  // atmStorm: hi 0.95 → 1.00 at v0.10.23 (the hostile audit) — the
+  // lightstick launch now marks a merch push, so the commerce-maximal
+  // bot ALWAYS earns the story inside 140 weeks (40/40). A player who
+  // paces the calendar still escapes; the bot never paces. lo guards
+  // the mechanism against going dead again.
+  atmStorm:          { lo: 0.15, hi: 1.00, label: 'orgs that squeezed into the ATM story' },
   // the making (v0.10.4): ruled first soak — 40/40, 28/40, 30/40,
   // 40/40, 11/40, 39/40, 10/40, 8/40. Stations and the line card ride
   // every prep (floors); slips/clips are calendar lotteries; the

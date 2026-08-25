@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.22',
+    VERSION: '0.10.23',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1524,7 +1524,11 @@
       tourMerchPerK: 4,           // the merch line at every tour start
       fanconCost: 10, fanconPerK: 7, fanconIntensity: 4,
       fanconCooldown: 36, fanconFatigue: 5, fanconMinIntensity: 30,
-      atmWindow: 24, atmPushes: 3, atmChance: 0.35,  // squeeze too hard, get the story
+      // v0.10.23 (the hostile audit): the window was arithmetically
+      // unreachable — fancon cooldown 36 + annual greetings could never
+      // stack 3 pushes in 24 weeks. The greediest legal calendar was
+      // storm-proof. Widened so a stacked season is actually a risk.
+      atmWindow: 40, atmPushes: 3, atmChance: 0.35,  // squeeze too hard, get the story
     },
     CATALOG_PAY: {
       perReception: 0.05,         // weekly, per release, x (reception-45)
@@ -1749,8 +1753,17 @@
       revSharePct: 0.12, revShareWeeks: 104,  // the settlement line, two years
       boardWeeks: 104,           // the seat, two years
       covenantWeeks: 44,         // the milestone clock
-      covenantPeak: 40,          // "a charting release" = national top 40
+      // v0.10.23 (the hostile audit): the covenant was an infinite
+      // printer — the milestone was unmissable, the wire never came
+      // back, and kept covenants compounded offers without bound
+      covenantPeak: 15,          // the milestone is a REAL landing now
       covenantKeptTrust: 2, covenantMissTrust: -3,
+      repBonusCap: 3,            // kept-covenant re-pricing stacks thrice, then stops
+      // even a KEPT covenant leaves a hand on the label (v0.10.23):
+      // the fund converts to a light revenue share — cheap capital for
+      // executors, never free capital
+      covenantKeptSharePct: 0.06, covenantKeptShareWeeks: 52,
+      raiseGapWeeks: 24,         // after a covenant resolves, funds want a full cycle
       windowShare: 0.55,         // years the mother-fund allocation is open
     },
     // the content desk (v0.10.18): the company account. Owner: "you
@@ -1770,7 +1783,10 @@
       // views feels easiest. your total views compound over time."
       adViewsPerWon: 10000,      // the platform's flat rate, quarterly
       adChannelShare: 0.04,      // weekly views a live channel pulls, per follower
-      adCatalogTail: 0.01,       // the archive keeps getting watched: 1%/wk of lifetime
+      adCatalogTail: 0.01,       // the ACTIVE archive keeps getting watched…
+      adTailDecay: 0.94,         // …but attention has a half-life (v0.10.23 —
+                                 // the lifetime tail compounded quadratically)
+      adWeeklyViewCap: 40000,    // the meter banks at most this much per week
     },
     CAST: {
       askChance: 0.05,           // weekly, when somebody eligible wants the mic
@@ -1989,13 +2005,19 @@
       paidFloor: 0.30, paidKnee: 0.55, // ad money converts through fame
       showBar: 0.28,                // below this the music shows don't call back
       camCapLift: 10,               // a phone-shot gig clip lifts the era's ceiling
+      viralLiftCap: 20,             // clips stack the ceiling only so far (v0.10.23)
+      // the top is heavy (v0.10.23, the hostile audit: major autopilot
+      // landed 85% hits with zero effort): repeating the same concept
+      // wears the formula, and a giant fanbase raises the bar
+      conceptFatiguePer: 5, conceptFatigueCap: 12,
+      expectationDragFrom: 70, expectationDragPer: 0.2,
       sparkCapLift: 8,              // so does the defining stage clip
       // the distribution gap (v0.10.21): the wall caps how good the
       // song SOUNDS; reach caps how far it TRAVELS. Under the wall the
       // chart score converts through fame — a capped song from a label
       // nobody knows does not walk onto #1 of anything. The ground
       // campaign pierces reach the same way it pierces the wall.
-      reachFloor: 0.62,          // an unknown label's song counts at 62%…
+      reachFloor: 0.55,          // an unknown label's song counts at 55%… (v0.10.23: was .62; the audit walked a top-10 debut through it)
       reachMomPer: 0.0015, reachMomCap: 0.15,  // …plus the ground game
       reachSpark: 0.05,          // a defining clip carries the song farther
       breakBelow: 0.45, breakMin: 62, // unknown label + a landing this loud = breakthrough

@@ -194,6 +194,7 @@
     state.budget += C.lightstickRevenue;
     g.lightstickWeek = state.week;
     KP.fandomGain(g, C.lightstickFandomGain);
+    if (KP.merchPushMark) KP.merchPushMark(state, g);   // the wallet noticed (v0.10.23)
     state.inbox.push({ kind: 'public', week: state.week, read: false, id: 'm' + (state.nextMsgId++),
       ind: 'lightstick', priority: 'high', groupId: g.id,
       text: 'The official ' + g.name + ' lightstick launched — and sold out, because that is what lightsticks do. The design survived the fandom’s 48-hour critique gauntlet with honors. Concert crowds will be a single organism now: one color, one name (' + (g.fandom.name) + '), several thousand batteries. Net +' + (C.lightstickRevenue - C.lightstickCost) + '.' });

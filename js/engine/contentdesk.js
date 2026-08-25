@@ -223,8 +223,15 @@
     }
     if (p) p.morale = KP.clamp(p.morale + C.featureMorale, 0, 100);
     // the ad settlement (v0.10.20): every view banks toward the
-    // quarterly check — "your total views compound over time" (owner)
-    state.adViews = (state.adViews || 0) + views;
+    // quarterly check — "your total views compound over time" (owner).
+    // v0.10.23: the post also feeds the ACTIVE archive pool the weekly
+    // tail reads — attention has a half-life now (the hostile audit
+    // caught the lifetime tail compounding quadratically).
+    // the meter banks capped attention, not raw scale (v0.10.23): a
+    // megastar's quarter-million-view upload is real, but ad money is
+    // lunch money at every size
+    state.adViews = (state.adViews || 0) + Math.min(views, C.adWeeklyViewCap);
+    state.adRecent = (state.adRecent || 0) + Math.min(views, C.adWeeklyViewCap);
     state.contentCatalog = state.contentCatalog || [];
     state.contentCatalog.push({ week: state.week, topic: t.id,
       line: p ? KP.fillPro(open.line, p) : open.line, views, hit: hit ? 1 : 0 });
@@ -250,16 +257,19 @@
   KP.registerWeekly('adRevenue', 756, function (state, rng, inbox) {
     const C = KP.C.CONTENT;
     const led = ledger(state);
-    // the archive keeps getting watched: the long tail compounds as
-    // the lifetime library grows
-    state.adViews = (state.adViews || 0) + Math.round((led.views || 0) * C.adCatalogTail);
+    // the ACTIVE archive keeps getting watched — and cools (v0.10.23):
+    // the tail reads a decaying pool, not lifetime views, and the whole
+    // week's banking is capped. The meter pays attention, not history.
+    state.adRecent = Math.round((state.adRecent || 0) * C.adTailDecay);
+    let weekAdd = Math.round((state.adRecent || 0) * C.adCatalogTail);
     // the member channels: her weekly upload pulls a slice of her
     // following — no rng, the audience is the audience
     (state.roster || []).map(id => state.people[id]).forEach(p => {
       if (!p || !p.broadcast) return;
       if (p.flags.personalHiatus || p.flags.military || KP.onBreak(p)) return;
-      state.adViews += Math.round(KP.socialOf(state, p) * C.adChannelShare);
+      weekAdd += Math.round(KP.socialOf(state, p) * C.adChannelShare);
     });
+    state.adViews = (state.adViews || 0) + Math.min(weekAdd, C.adWeeklyViewCap);
     // the quarterly conversion: flat rate, remainder carries
     const woy = ((state.week - 1) % KP.C.WEEKS_PER_YEAR) + 1;
     if (woy % KP.C.BOOKS.quarterWeeks === 0 && state.week > 4 && state.adViews >= C.adViewsPerWon) {

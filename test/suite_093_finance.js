@@ -105,21 +105,32 @@ function getSheet(state) {
     const trustA = a.trust;
     ga.releases.push({ week: a.week, songTitle: 'Proof', conceptId: 'bright',
       reception: 70, receptionBand: 'strong', chartPeak: 5, chartWeeks: 4,
-      nationalPeak: 20, nationalWeeks: 4, isDebut: false, format: 'single', tracks: 1, tracklist: [] });
+      nationalPeak: 8, nationalWeeks: 4, isDebut: false, format: 'single', tracks: 1, tracklist: [] });
     KP.advanceWeek(a);
     const ca = a.claims.find(x => x.type === 'financeCovenant');
     t.eq(ca.resolved, 'kept', 'the milestone landed — KEPT');
     t.ok(a.trust > trustA, 'kept covenants buy face');
     t.eq((a.financing || {}).reputation, 1, 'and re-price the next round');
+    // v0.10.23 (the hostile audit): a kept covenant is not free money —
+    // the conversion clause wakes a light share, and the funds want a
+    // full cycle before the next check
+    t.ok(a.financing.revShare && a.financing.revShare.pct === KP.C.FINANCE.covenantKeptSharePct,
+      'the conversion clause wakes: a kept won carries the fund’s upside');
+    t.ok(a.financing.coolUntil > a.week, 'and the next round waits a full cycle');
+    t.ok(!KP.pitchFinancing(a).ok, 'so the pitch is refused while the share runs');
     // fork B: miss it — the window closes
     const b = KP.deserialize(KP.serialize(state));
     const cb = b.claims.find(x => x.type === 'financeCovenant');
     cb.byWeek = b.week - 1;
     const trustB = b.trust;
+    b.budget = 0; // the clawback can only take what exists — pin the debt visible
     KP.advanceWeek(b);
     t.eq(b.claims.find(x => x.type === 'financeCovenant').resolved, 'missed', 'the clock ran out — MISSED');
     t.ok(b.trust < trustB, 'a miss costs face');
     t.ok(b.financing.burned, 'and follows you into every future round');
+    // v0.10.23: the wire was an advance — a miss books it as debt
+    t.eq(b.financing.debt, sc.offers.covenant, 'the clawback books the whole wire as owed');
+    t.ok(!KP.pitchFinancing(b).ok, 'and nobody finances a label that owes the last fund money');
     t.ok(b.inbox.some(n => n.ind === 'covenantMissed'), 'the fund updated the spreadsheet, audibly');
   }
 }
