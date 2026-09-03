@@ -6078,6 +6078,119 @@ harness scan — the banner now writes durable history and the
 census reads it (the 3/40 of earlier soaks was undercounting,
 not rarity).
 
+## §88 The person, all the way down (PLANNED — personality with power)
+
+Owner: "I still want to go even deeper with idol personalities and
+week to week choices. any ideas for a plan?"
+
+The audit of what exists: identity is RICH but mostly worn on the
+outside. Voices, moods, facts, ambitions, personas, scars — the
+game describes its people beautifully. But persona.js's own header
+confesses the ceiling: "effects stay tiny; this is presence, not
+power." Traits are set at generation and never move. The spotlight
+narrates; it rarely asks. The office door knocks maybe once an era.
+Most weeks the player's verbs are managerial (train, plan, book) —
+nobody hands them an interpersonal decision where knowing WHO
+someone is determines the right answer. That is the gap: the people
+are legible; they are not yet consequential.
+
+Five pieces, phased. The laws up front: same event + different
+person = different correct answer (the player must KNOW their
+people to answer well — this is the whole design); effects bounded
+and band-guarded (person-drama must never outweigh the company
+game); options[0] stays the bot-safe default; content-budget
+doctrine everywhere (one mechanism, template families keyed by
+voice/trait — the OPENERS pattern).
+
+**A. The friction stream (the week-to-week choice).** A new class
+of small condition-gated decisions born from REAL state, surfaced
+like scenes, where the trait writes both the situation and the
+stakes. Not a mailbox: at most one live at a time (the office-door
+pacing law), a real cooldown, most weeks quiet. The template
+families, each a reader of live numbers:
+- THE EXTRA HOUR: the workEthic-75 member wants the practice room
+  past the fatigue line. Allow = polish + overwork risk; refuse =
+  HER morale dips (the same refusal RELIEVES a low-workEthic
+  member — the inversion is the content).
+- THE CLIP CALL: the blunt/gremlin voice said something borderline
+  at the fan sign; the clip is circulating. Kill it (safe, fandom
+  reads muzzle) or let it ride (voice-true: charming from her,
+  scandal-seed from the wrong persona — professionalism decides).
+- THE SUBSTITUTION: someone running on fumes before a stage; the
+  confident one volunteers her lines. Accept = fatigue saved, line
+  balance shifts, the tired one's pride pays; decline = the risk
+  stands. Competitiveness on BOTH sides colors everything.
+- THE COMPARISON QUESTION: a variety show wants the funny one, and
+  only the funny one. Send her alone (her ambition fed, the room
+  notices) or push the pair (weaker booking, no split).
+- THE QUIET NO: the softspoken one turns down a schedule she has
+  never turned down before. Press (professionalism holds, cost
+  hidden) or ask why (a door scene opens — sometimes it is
+  nothing; sometimes it is the first line of an arc, §C).
+Wrong answers are not fail states — they are deposits: morale,
+directed acts, relationship deltas, occasionally a discourse. The
+right answer is always knowable from her file. That is the skill.
+
+**B. The trait check (personality with power).** One kernel helper
+— traitCheck(p, trait, bar) — and the systems that already exist
+start ROLLING against who she is, in small band-guarded ways:
+competitiveness moves head-to-head-week performance (she rises or
+presses); professionalism gates gaffe/scandal-adjacent rolls (it
+already partially does); warmth drives the veteran quietly
+steadying the youngest (a real, visible training assist);
+coachability already scales growth — say it out loud in the evals.
+The point is not new numbers; it is that the SAME situations
+resolve differently for different people, provably.
+
+**C. The arc (people change, slowly, on the record).** Traits
+drift only at anchored events, a point or three, always narrated:
+the rookie's confidence after the first win; warmth hardening
+into wariness after a storm or a Dispatch week; dominance rising
+through a long hold at rung 3; professionalism climbing with
+years served. One truth: every drift appends to p.arc
+({week, trait, delta, why}) and her file grows a "who she is
+becoming" line — the staff-read machinery (v0.9.3) already knows
+how to say such things in words. Never a random walk; drift
+WITHOUT an event is a bug. Bounded so a person stays recognizably
+herself: total drift per trait capped (±12ish, measure-first).
+
+**D. The pair (two-person content, playable).** The relationships
+exist; make them the subject of choices: the mentorship (assign
+the warm veteran to the struggling rookie — coachability transfer,
+both files updated), the writing pair (two creatives who share
+credits build a bond the credits machinery already displays), the
+seating chart (the feud that needs managing at every fan sign —
+sit-downs exist, this feeds them), the rivalry inside the group
+(sharpens both while morale holds, sours the room when it slips).
+Verbs land on the group page; consequences ride existing rails
+(relationships, badblood, credits, evals).
+
+**E. The manager's shadow (the mirror).** The directed-acts
+ledger, aggregated and said OUT LOUD: a roster-level read of you
+— "keeps promises; opens doors before the third ask; avoids the
+hard conversation" — computed from real entries, shown on the
+building/Desk. It gates, gently, which friction questions people
+bring you (the softspoken one only brings the QUIET NO to a boss
+who has answered doors before) and how early the knocks come.
+The player's style becomes a fact of the world, read the way the
+staff reads the idols.
+
+Phasing: v0.10.26 = A + B (the friction stream + trait checks —
+the week-to-week feel the owner asked for, playable immediately);
+v0.10.27 = C + D (the arc + the pair); E rides with either. All
+numbers measure-first; harness bands per template family (guard
+against dead streams AND floods — the atmStorm lesson).
+
+To rule before build: (1) cadence — one friction question every
+2-3 weeks feels alive; more is a mailbox; less is wallpaper. Where
+does the owner want the dial? (2) drift — does the owner WANT
+people to change, or is fixed identity part of this game's soul?
+§C ships only on a yes. (3) teeth — should a badly-read answer
+ever cost something HARD (a quit, a scandal), or always stay a
+deposit that compounds? Current lean: deposits that compound into
+the doors that already exist (renewals, walkouts, storms) — the
+game already knows how to make small things become big.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
