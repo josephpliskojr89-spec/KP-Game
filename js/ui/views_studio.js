@@ -281,6 +281,34 @@
         '</div><div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">' +
         UI.esc(fmt.label) + ': ' + fmt.tracks + ' tracks, needs ' + Math.max(KP.C.DEBUT.prepWeeksMin, fmt.minPrep) + ' weeks of runway, pays ×' + fmt.revenueMult + ' when it lands.</div></div>');
 
+      // the solo project (v0.10.24, §87 E): one mini through the group
+      // name, one solo single per member — the title pick is the call
+      {
+        const ST = KP.C.STAR;
+        const actives = g.members.map(id => state.people[id])
+          .filter(m => m && m.status === 'idol' && !m.flags.military && !KP.onBreak(m));
+        const projectOpen = g.debuted && g.type !== 'solo' && actives.length >= 3 &&
+          state.week - (g.lastSoloProjectWeek || -999) >= ST.projectCooldown;
+        if (projectOpen) {
+          if (draft.soloProject && !actives.some(m => m.id === draft.projectTitleId)) {
+            draft.projectTitleId = actives[0].id;
+          }
+          html.push('<div class="kicker">The solo project</div>');
+          html.push('<div class="card"><button class="btn small' + (draft.soloProject ? ' primary' : ' ghost') + '"' +
+            (draft.soloProject ? '' : ' style="border:1px solid var(--line)"') +
+            ' data-action="studio-project">' +
+            (draft.soloProject ? 'ON — one solo single for every member' : 'Make it the project — a single for every member') + '</button>' +
+            (draft.soloProject
+              ? '<div style="margin-top:10px;font-size:.72rem">Whose single leads it: <select data-action="studio-project-title">' +
+                actives.map(m => '<option value="' + m.id + '"' + (m.id === draft.projectTitleId ? ' selected' : '') + '>' +
+                  UI.esc(KP.displayName(m)) + '</option>').join('') +
+                '</select></div>' +
+                '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">A mini through ' + UI.esc(g.name) + '’s name — ' + actives.length + ' tracks, each one member’s own single. The title pick leads the era, and the fandom will compare every number. A generational event: long cooldown.</div>'
+              : '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">The aespa format: the group releases a mini that is nothing but member solos. Everyone gets a spotlight; the spotlights get compared.</div>') +
+            '</div>');
+        }
+      }
+
       // the MV (v0.9.17): the video is an object with a budget tier
       const MV = KP.C.MV;
       const statureMult0 = KP.statureCostMult(g);

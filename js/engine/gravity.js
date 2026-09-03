@@ -52,6 +52,8 @@
     let rung = 1;
     const credits = (KP.trackCreditsOf ? KP.trackCreditsOf(state, p.id) : []);
     if (credits.some(c => c.type === 'solo')) rung = 2;
+    // the solo era (v0.10.24): a standalone single answers the stage ask
+    if ((p.soloDisc || []).length) rung = 2;
     if ((p.soloAlbums || 0) >= 1) rung = 3;
     const others = g.members.filter(id => id !== p.id)
       .map(id => KP.socialOf(state, state.people[id])).sort((a, b) => a - b);
@@ -78,6 +80,7 @@
     if (g.members.length <= 2) return { ok: false, reason: 'Launching her would not leave a group behind. That is the disband conversation, not this one.' };
     if (KP.onBreak(p)) return { ok: false, reason: KP.fillPro('{She} is off the schedule. The launch waits for {her}.', p) };
     if (g.tour || g.prep) return { ok: false, reason: 'Mid-era is the wrong week for this press release. Let the calendar clear.' };
+    if (p.soloEra) return { ok: false, reason: 'Her in-group era is mid-flight. Land it, then talk careers.' };
     const r = KP.graduateToSolo(state, personId);
     if (!r.ok) return r;
     if (g.gravity && !g.gravity.settled) { g.gravity.settled = 'spinout'; g.gravity.settledWeek = state.week; }
@@ -409,7 +412,226 @@
     },
   });
 
+  // ---- the solo era (v0.10.24, §87): the in-group release as a ---------
+  // proactive company strategy. The label holds the cards; the smart
+  // label plays them before anyone has to ask. One shared resolution
+  // engine serves the planned era, the instant say-yes album, and the
+  // ladder's claims.
+  function resolveSoloRelease(state, rng, p, g, opts) {
+    const ST = KP.C.STAR;
+    const format = opts.format === 'mini' ? 'mini' : 'single';
+    const direction = opts.direction || 'company';
+    const d = KP.derived(p);
+    const read = KP.transcendRead ? KP.transcendRead(state, g, p) : 40;
+    const dirBonus = direction === 'hers' ? ST.directionHersBonus
+      : direction === 'cowrite' ? ST.directionCoBonus : 0;
+    const dirVar = direction === 'hers' ? ST.directionHersVar
+      : direction === 'cowrite' ? ST.directionCoVar : ST.directionCompanyVar;
+    const reception = Math.round(KP.clamp(
+      0.42 * d.stagePresence + 0.28 * Math.max(p.talents.vocals.cur, p.talents.dance.cur) +
+      0.30 * read + dirBonus + rng.normal(0, dirVar), 1, 100));
+    const title = KP.genSongTitle(rng, {});
+    const revPer = format === 'mini' ? ST.albumRevPerReception : ST.soloSingleRev;
+    const revenue = Math.round(reception * revPer);
+    state.budget += revenue;
+    if (KP.ledgerFlow) KP.ledgerFlow(state, 'albums', revenue);
+    p.soloDisc = p.soloDisc || [];
+    p.soloDisc.push({ week: state.week, title, format, reception, direction });
+    p.flags.soloShines = (p.flags.soloShines || 0) + 1;
+    if (format === 'mini') {
+      p.lastSoloAlbumWeek = state.week;
+      p.soloAlbums = (p.soloAlbums || 0) + 1;
+      p.morale = KP.clamp(p.morale + ST.albumMorale, 0, 100);
+      if (g.fandom) g.fandom.intensity = KP.clamp((g.fandom.intensity || 0) - ST.albumFandomSplit, 0, 100);
+    } else {
+      p.lastSoloCutWeek = state.week;
+      p.morale = KP.clamp(p.morale + ST.soloSingleMorale, 0, 100);
+      if (g.fandom) g.fandom.intensity = KP.clamp((g.fandom.intensity || 0) - ST.soloSingleFandomSplit, 0, 100);
+    }
+    KP.socialSpike(state, p, KP.C.SOCIAL.breakoutSpike * (format === 'mini' ? 2 : 1), 'soloAlbum');
+    // the wall stays honest (v0.10.21): her chart run converts through
+    // the GROUP's fame — the in-group solo rides the room it came from
+    const reach = KP.chartReach ? KP.chartReach(state, g, {}) : 1;
+    KP.chartEnter(state, { title, act: KP.displayName(p), company: state.company.short,
+      isPlayer: true, score: Math.round(reception * reach), entered: state.week });
+    (state.discourses || []).forEach(dc => {
+      if ((dc.kind === 'albumClamor' || dc.kind === 'soloClamor') &&
+          String(dc.subjectId) === String(p.id) && dc.status === 'live') {
+        dc.status = 'resolved'; dc.resolved = 'answered';
+      }
+    });
+    // a live clamor at the stage/album rung is answered by the era itself
+    if (g.gravity && !g.gravity.settled && g.gravity.personId === p.id &&
+        (g.gravity.rung || 1) <= 2) {
+      g.gravity.settled = 'solo';   // the rail's one vocabulary for an answered clamor
+      g.gravity.settledWeek = state.week;
+      const led0 = ledger(state);
+      led0.settled = (led0.settled || 0) + 1;
+    }
+    const led = ledger(state);
+    if (format === 'mini') led.albums = (led.albums || 0) + 1;
+    else led.singles = (led.singles || 0) + 1;
+    p.history.push({ week: state.week, text: format === 'mini'
+      ? 'Released the solo album — “' + title + '”. ' + g.name + ' in the liner notes, her name alone on the spine.'
+      : 'Released the solo single — “' + title + '”. Still in ' + g.name + ', and for three minutes, entirely herself.' });
+    if (direction === 'hers') {
+      p.history.push({ week: state.week, text: 'The record went out in HER direction — the company handed over the aux cord and kept its notes to itself.' });
+    }
+    const note = KP.note(state, { kind: 'public', ind: format === 'mini' ? 'soloAlbum' : 'soloCut',
+      priority: format === 'mini' ? 'critical' : 'high',
+      personId: p.id, groupId: g.id,
+      text: format === 'mini'
+        ? KP.fillPro(KP.displayName(p) + '’s solo album “' + title + '” is OUT — full record, {pos} name on the spine, ' + g.name + ' thanked in the first line of the credits. The campaign accounts that spent a year asking for this are somewhere between triumphant and unemployed. Reception ' + reception + ', fee +' + revenue + '.', p)
+        : KP.fillPro(KP.displayName(p) + '’s solo single “' + title + '” dropped — IN the group, {pos} own stage, ' + g.name + '’s lightsticks in the front row anyway. ' +
+          (direction === 'hers' ? 'The credits say the direction was {hers}, and the sound says so louder. ' : direction === 'cowrite' ? 'Co-written — {pos} pen, the house polish. ' : '') +
+          'Reception ' + reception + ', fee +' + revenue + '.', p) });
+    return { ok: true, reception, title, revenue, note: note.text };
+  }
+
+  // the gates, factored so the desk button can read them too
+  KP.soloEraCheck = function (state, personId, format) {
+    const ST = KP.C.STAR;
+    const p = state.people[personId];
+    if (!p || p.status !== 'idol') return { ok: false, reason: 'Solo eras are for active artists.' };
+    const g = KP.groupOf(state, p.id);
+    if (!g || g.type === 'solo' || g.members.length < 2) {
+      return { ok: false, reason: 'The in-group solo needs a group around it. A soloist just makes records.' };
+    }
+    if (!g.debuted) return { ok: false, reason: 'The group debuts first. Nobody solos out of a practice room.' };
+    if (KP.onBreak(p)) return { ok: false, reason: KP.fillPro('{She} is off the schedule. The record waits for {her}.', p) };
+    if (p.flags.military) return { ok: false, reason: 'The service has these weeks.' };
+    if (g.tour) return { ok: false, reason: 'Not from the road. The tour ends, then the studio opens.' };
+    if (g.jpAway) return { ok: false, reason: 'They are in Japan — the second calendar has these weeks.' };
+    if (g.prep) return { ok: false, reason: 'The group has a release locked. One record on the calendar at a time.' };
+    if (p.soloEra) return { ok: false, reason: 'Her era is already on the calendar.' };
+    const other = g.members.map(id => state.people[id]).find(m => m && m.soloEra);
+    if (other) return { ok: false, reason: KP.publicGiven(other) + '’s solo era has the studio. One member at a time.' };
+    if (format === 'mini' && state.week - (p.lastSoloAlbumWeek || -999) < ST.albumCooldown) {
+      return { ok: false, reason: 'One solo era at a time. The last one is still on the charts of somebody’s heart.' };
+    }
+    if (format !== 'mini' && state.week - (p.lastSoloCutWeek || -999) < ST.soloSingleCooldown) {
+      return { ok: false, reason: 'Her last single is still warm. The calendar wants a gap between her moments.' };
+    }
+    const cost = KP.soloEraCost(state, p, format);
+    if (state.budget < cost) return { ok: false, reason: 'Producing her ' + (format === 'mini' ? 'record' : 'single') + ' runs ' + cost + '. The budget says not yet.' };
+    return { ok: true, cost };
+  };
+  KP.soloEraCost = function (state, p, format) {
+    const ST = KP.C.STAR;
+    const g = KP.groupOf(state, p.id);
+    const base = format === 'mini' ? ST.albumCost : ST.soloSingleCost;
+    return Math.round(base * (g && KP.statureCostMult ? KP.statureCostMult(g) : 1));
+  };
+
+  // the studio verb: plan her era — the direction meeting follows
+  KP.planSoloEra = function (state, personId, opts) {
+    const ST = KP.C.STAR;
+    const format = (opts && opts.format) === 'mini' ? 'mini' : 'single';
+    const chk = KP.soloEraCheck(state, personId, format);
+    if (!chk.ok) return chk;
+    const p = state.people[personId];
+    const g = KP.groupOf(state, p.id);
+    state.budget -= chk.cost;
+    if (KP.ledgerFlow) KP.ledgerFlow(state, 'production', -chk.cost);
+    p.soloEra = { format, direction: 'company', since: state.week,
+      scheduledWeek: state.week + (format === 'mini' ? ST.soloMiniPrep : ST.soloSinglePrep) };
+    KP.openScene(state, { kind: 'soloDirection', personId: p.id, groupId: g.id,
+      expiresWeek: p.soloEra.scheduledWeek - 1 });
+    const led = ledger(state);
+    led.eras = (led.eras || 0) + 1;
+    p.history.push({ week: state.week, text: 'The company opened a solo era — ' +
+      (format === 'mini' ? 'a mini of her own' : 'a single of her own') + ', announced from inside the group. Nobody had to knock first.' });
+    KP.note(state, { kind: 'public', ind: 'soloEraSet', priority: 'high', personId: p.id, groupId: g.id,
+      text: KP.fillPro(state.company.short + ' announced a ' + (format === 'mini' ? 'solo mini' : 'solo single') + ' for ' + KP.displayName(p) + ' — still ' + g.name + ', {pos} own spotlight, ' + (p.soloEra.scheduledWeek - state.week) + ' weeks out. The fan cafés have already picked sides on the tracklist that does not exist yet.', p) });
+    return { ok: true, scheduledWeek: p.soloEra.scheduledWeek };
+  };
+
+  // the direction meeting (§87 B, the aespa clause): whose record is
+  // this? options[0] is the company's brief — the safe lane, the bot's
+  KP.registerScene('soloDirection', {
+    title: (state, sc) => {
+      const p = state.people[sc.personId];
+      return (p ? KP.displayName(p) : 'The member') + ' · the direction meeting';
+    },
+    body: (state, sc) => {
+      const p = state.people[sc.personId];
+      if (!p) return '';
+      return KP.fillPro('The producers spread the options across the table, and then ' + KP.displayName(p) + ' put a demo of {pos} own next to them, casually, the way people do things they have rehearsed. The room is waiting for the company to say whose record this is. The record will sound like the answer.', p);
+    },
+    options: (state, sc) => {
+      const p = state.people[sc.personId];
+      const CR = KP.C.CREDITS;
+      const canWrite = p && ((p.archetypes || []).includes('producerMinded') ||
+        p.personality.creativity >= CR.writeCreativityAt);
+      const out = [
+        { id: 'company', label: 'The house sound — the company’s brief' },
+        { id: 'hers', label: 'Her direction — hand over the aux cord' },
+      ];
+      if (canWrite) out.push({ id: 'cowrite', label: 'The co-write — her pen, the house polish' });
+      return out;
+    },
+    resolve: (state, sc, optionId) => {
+      const ST = KP.C.STAR;
+      const p = state.people[sc.personId];
+      if (!p || !p.soloEra) return {};
+      if (optionId === 'hers') {
+        p.soloEra.direction = 'hers';
+        p.morale = KP.clamp(p.morale + ST.directionHersMorale, 0, 100);
+        KP.recordDirected(state, p.id, 'heardHer', 2);
+        p.history.push({ week: state.week, text: 'The direction meeting ended with her demo on the board. She walked out holding the aux cord like a verdict.' });
+        return { toast: 'Her direction. Higher ceiling, wider swing — and she will never forget being asked.' };
+      }
+      if (optionId === 'cowrite') {
+        p.soloEra.direction = 'cowrite';
+        p.morale = KP.clamp(p.morale + ST.directionCoMorale, 0, 100);
+        KP.recordDirected(state, p.id, 'heardHer', 1);
+        return { toast: 'The co-write — her pen in the credits, the house holding the mix. The middle path, honestly walked.' };
+      }
+      return { toast: 'The company’s brief stands. Safe, professional, and she noticed exactly how the sentence was phrased.' };
+    },
+    expire: (state, sc) => {
+      const p = state.people[sc.personId];
+      if (!p) return null;
+      return { kind: 'development', personId: p.id,
+        text: KP.fillPro('The direction meeting never got an answer, so the company’s brief stood by default. ' + KP.displayName(p) + ' recorded it beautifully and filed the silence.', p) };
+    },
+  });
+
+  // the era's weeks: her double-booked calendar, then the drop.
+  // Order 605 — after releases (600), before practice (610): the week
+  // she lands, the gravity rail (640) reads a finished number.
+  KP.registerWeekly('soloEra', 605, function (state, rng, inbox, roster) {
+    roster.forEach(p => {
+      if (!p.soloEra) return;
+      const g = KP.groupOf(state, p.id);
+      // the era shelves if the world moved: she left, enlisted, broke
+      if (!g || g.type === 'solo' || p.status !== 'idol' || p.flags.military || KP.onBreak(p)) {
+        delete p.soloEra;
+        if (p.status === 'idol') {
+          p.morale = KP.clamp(p.morale - 4, 0, 100);
+          p.history.push({ week: state.week, text: 'The solo era was shelved — the calendar moved out from under it.' });
+        }
+        return;
+      }
+      if (state.week < p.soloEra.scheduledWeek) {
+        p.fatigue = KP.clamp(p.fatigue + KP.C.STAR.soloEraFatigue, 0, 100);
+        p.liveExp += 0.8;
+        p.mediaExp += 0.8;
+        return;
+      }
+      const era = p.soloEra;
+      delete p.soloEra;
+      // a lingering direction scene closes with the meeting's window
+      (state.scenes || []).forEach(sc => {
+        if (sc.kind === 'soloDirection' && sc.personId === p.id) sc.expiresWeek = state.week - 1;
+      });
+      resolveSoloRelease(state, rng, p, g, era);
+    });
+  });
+
   // ---- the solo album (v0.9.25): her name on a spine of its own -------
+  // The instant path: the say-yes button when the clamor is live, and
+  // the album-promise fast lane. Rides the same engine as the era.
   KP.releaseSoloAlbum = function (state, personId) {
     const ST = KP.C.STAR;
     const p = state.people[personId];
@@ -424,34 +646,9 @@
     if (state.budget < ST.albumCost) return { ok: false, reason: 'Producing her record runs ' + ST.albumCost + '. The budget says not yet.' };
     state.budget -= ST.albumCost;
     const rng = KP.rngFor(state);
-    const d = KP.derived(p);
-    const read = KP.transcendRead ? KP.transcendRead(state, g, p) : 40;
-    const reception = Math.round(KP.clamp(
-      0.42 * d.stagePresence + 0.28 * Math.max(p.talents.vocals.cur, p.talents.dance.cur) +
-      0.30 * read + rng.normal(0, 5), 1, 100));
+    const r = resolveSoloRelease(state, rng, p, g, { format: 'mini', direction: 'company' });
     state.rngState = rng.state();
-    const title = KP.genSongTitle(rng, {});
-    const revenue = Math.round(reception * ST.albumRevPerReception);
-    state.budget += revenue;
-    p.lastSoloAlbumWeek = state.week;
-    p.soloAlbums = (p.soloAlbums || 0) + 1;
-    p.morale = KP.clamp(p.morale + ST.albumMorale, 0, 100);
-    KP.socialSpike(state, p, KP.C.SOCIAL.breakoutSpike * 2, 'soloAlbum');
-    if (g.fandom) g.fandom.intensity = KP.clamp((g.fandom.intensity || 0) - ST.albumFandomSplit, 0, 100);
-    KP.chartEnter(state, { title, act: KP.displayName(p), company: state.company.short,
-      isPlayer: true, score: reception, entered: state.week });
-    (state.discourses || []).forEach(dc => {
-      if (dc.kind === 'albumClamor' && String(dc.subjectId) === String(p.id) && dc.status === 'live') {
-        dc.status = 'resolved'; dc.resolved = 'answered';
-      }
-    });
-    p.history.push({ week: state.week, text: 'Released the solo album — “' + title + '”. ' + g.name + ' in the liner notes, her name alone on the spine.' });
-    const led = ledger(state);
-    led.albums = (led.albums || 0) + 1;
-    const note = KP.note(state, { kind: 'public', ind: 'soloAlbum', priority: 'critical',
-      personId: p.id, groupId: g.id,
-      text: KP.fillPro(KP.displayName(p) + '’s solo album “' + title + '” is OUT — full record, {pos} name on the spine, ' + g.name + ' thanked in the first line of the credits. The campaign accounts that spent a year asking for this are somewhere between triumphant and unemployed. Reception ' + reception + ', fee +' + revenue + '.', p) });
-    return { ok: true, reception, title, note: note.text };
+    return r;
   };
 
   // the album promise: a full record by the deadline
@@ -521,6 +718,24 @@
       { persona: 'casual', text: 'a group idol dropping a genuinely good solo album while staying in the group is the industry actually working for once. more of this' },
     ]);
   });
+  KP.onFeedEvent('soloCut', (state, n, rng) => {
+    const p = n.personId ? state.people[n.personId] : null;
+    const name = p ? KP.publicGiven(p) : 'her';
+    return rng.pick([
+      { persona: 'fan', text: name + ' solo single OUT and the group tag is still in her bio. we get the song AND we keep the group. this is what winning looks like' },
+      { persona: 'stan', text: 'streaming the ' + name + ' solo on one screen and the group discography on the other. loyalty is a two-monitor setup' },
+      { persona: 'critic', text: 'the in-group solo single: three minutes of finding out who she is when the formation is not around her. this one answers clearly' },
+      { persona: 'casual', text: 'apparently ' + name + ' has a solo out? the algorithm played it twice. it stays' },
+    ]);
+  });
+  KP.onFeedEvent('soloEraSet', (state, n, rng) => {
+    const p = n.personId ? state.people[n.personId] : null;
+    const name = p ? KP.publicGiven(p) : 'her';
+    return rng.pick([
+      { persona: 'fan', text: name + ' SOLO ANNOUNCED. still in the group. i repeat: STILL IN THE GROUP. we are eating without having to grieve' },
+      { persona: 'stan', text: 'the company announcing the ' + name + ' solo themselves before anyone had to campaign for it. suspicious. unprecedented. thrilled' },
+    ]);
+  });
   KP.onFeedEvent('returnRunSet', (state, n, rng) => {
     const p = n.personId ? state.people[n.personId] : null;
     const name = p ? KP.publicGiven(p) : 'she';
@@ -535,7 +750,9 @@
     const p = state.people[c.personId];
     if (!p) return { resolved: 'missed', notes: [] };
     const kept = (KP.trackCreditsOf ? KP.trackCreditsOf(state, p.id) : [])
-      .some(cr => cr.type === 'solo' && cr.week >= c.week);
+      .some(cr => cr.type === 'solo' && cr.week >= c.week) ||
+      // the solo era (v0.10.24): a standalone release keeps the promise too
+      (p.soloDisc || []).some(dd => dd.week >= c.week);
     if (kept) {
       KP.recordDirected(state, p.id, 'promiseKept', 3);
       return { resolved: 'met',

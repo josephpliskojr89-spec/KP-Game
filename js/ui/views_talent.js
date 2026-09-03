@@ -387,10 +387,16 @@
             '<span class="n-who">— common knowledge backstage</span></div>');
         }
         const credits = KP.trackCreditsOf(state, p.id);
-        if (credits.length) {
+        if (credits.length || (p.soloDisc || []).length) {
           const first = credits.find(c => c.type === 'solo');
           const parts = [];
           if (first) parts.push('first solo on record: “' + UI.esc(first.trackTitle) + '” (' + UI.esc(KP.weekLabel(first.week).text) + ')');
+          // the solo era (v0.10.24): her standalone releases, in the margin
+          (p.soloDisc || []).forEach(dd => {
+            parts.push((dd.format === 'mini' ? 'solo mini' : 'solo single') + ' “' + UI.esc(dd.title) + '” (' +
+              UI.esc(KP.weekLabel(dd.week).text) + ', reception ' + dd.reception +
+              (dd.direction === 'hers' ? ', her direction' : dd.direction === 'cowrite' ? ', co-written' : '') + ')');
+          });
           const units = credits.filter(c => c.type === 'unit');
           if (units.length) {
             const u = units[units.length - 1];
@@ -534,8 +540,23 @@
           ' data-action="protect-life" data-id="' + p.id + '">' +
           (p.flags.protectedLife ? 'Protection on · ' + KP.C.SECRET.protectCost + '/wk' : 'Protect her privacy · ' + KP.C.SECRET.protectCost + '/wk') + '</button>');
       }
-      if (albumAsk && state.week - (p.lastSoloAlbumWeek || -999) >= KP.C.STAR.albumCooldown) {
-        row.push('<button class="btn primary small" data-action="solo-album" data-id="' + p.id + '">Produce the solo album · ' + KP.C.STAR.albumCost + '</button>');
+      // the solo studio (v0.10.24, §87): the in-group era is a company
+      // strategy — proactive, not just the answer to clamor
+      if (p.soloEra) {
+        row.push('<span class="chip" style="align-self:center">Solo ' + (p.soloEra.format === 'mini' ? 'mini' : 'single') +
+          ' in production — drops ' + UI.esc(KP.weekLabel(p.soloEra.scheduledWeek).text) + '</span>');
+      } else if (inRealGroup && g.debuted) {
+        const askHot = albumAsk ? ' primary' : '';
+        const cs = KP.soloEraCheck(state, p.id, 'single');
+        const cm = KP.soloEraCheck(state, p.id, 'mini');
+        if (cs.ok) {
+          row.push('<button class="btn small' + askHot + (askHot ? '' : ' ghost') + '"' + (askHot ? '' : ' style="border:1px solid var(--line)"') +
+            ' data-action="solo-era" data-format="single" data-id="' + p.id + '">Solo single · ' + cs.cost + '</button>');
+        }
+        if (cm.ok) {
+          row.push('<button class="btn small' + askHot + (askHot ? '' : ' ghost') + '"' + (askHot ? '' : ' style="border:1px solid var(--line)"') +
+            ' data-action="solo-era" data-format="mini" data-id="' + p.id + '">Solo mini · ' + cm.cost + '</button>');
+        }
       }
       if (p.flags.personalHiatus) {
         row.push('<button class="btn small" data-action="end-break" data-id="' + p.id + '">End the personal break · week ' + (state.week - p.flags.personalHiatus.since) + '</button>');

@@ -42,6 +42,11 @@
     if (g.prep) return { ok: false, reason: 'A release is already locked.' };
     if (g.jpAway) return { ok: false, reason: 'They are in Japan — the second calendar has these weeks.' };
     if (g.tour) return { ok: false, reason: 'They are on tour. The studio can wait for the road to end.' };
+    // the solo era (v0.10.24): one record on the calendar at a time
+    {
+      const era = g.members.map(id => state.people[id]).find(m => m && m.soloEra);
+      if (era) return { ok: false, reason: KP.publicGiven(era) + '’s solo era has the studio. The group record waits for her drop.' };
+    }
     if (state.week <= (g.tourRestUntil || 0)) {
       return { ok: false, reason: 'Post-tour rest is contractual. The calendar reopens ' + KP.weekLabel((g.tourRestUntil || 0) + 1).text + '.' };
     }
@@ -318,6 +323,9 @@
     if (g.prep) return { ok: false, reason: 'A release is already locked.' };
     if (g.jpAway) return { ok: false, reason: 'They are in Japan — the second calendar has these weeks.' };
     if (g.tour) return { ok: false, reason: 'They are on tour. The reissue can wait for the road.' };
+    if (g.members.some(id => (state.people[id] || {}).soloEra)) {
+      return { ok: false, reason: 'A solo era has the studio. The reissue waits for her drop.' };
+    }
     const last = (g.releases || [])[(g.releases || []).length - 1];
     if (!last) return { ok: false, reason: 'An era has to exist before it extends.' };
     if ((last.format || 'single') === 'single') {
@@ -366,6 +374,53 @@
     }
     return { ok: true, note: g.name + '’s era extends: “' + last.songTitle + '” repackages with “' +
       demo.title + '” as the new title track — the demo the meeting passed on, back from the table. The fandom knows exactly what a repackage means, and is already budgeting for the new photocards.' };
+  };
+
+  // ---- the solo project (v0.10.24, §87 E): the group-name mini, one ----
+  // single per member. It runs the ENTIRE release pipeline — pressing,
+  // rollout, chodong, jeongsan — because it IS a release; only the
+  // tracklist doctrine changes: every cut is one member's solo, and the
+  // title track belongs to a member the player chooses.
+  KP.planSoloProject = function (state, plan) {
+    const ST = KP.C.STAR;
+    const g = KP.groupById(state, plan.groupId);
+    if (!g) return { ok: false, reason: 'No such group.' };
+    if (g.type === 'solo' || g.members.length < 3) {
+      return { ok: false, reason: 'The every-member project needs a room of at least three.' };
+    }
+    if (!g.debuted) return { ok: false, reason: 'The project is a statement an established group makes. Debut first.' };
+    if (state.week - (g.lastSoloProjectWeek || -999) < ST.projectCooldown) {
+      return { ok: false, reason: 'The every-member project is a generational event, not a cadence. The last one still defines them.' };
+    }
+    const actives = g.members.map(id => state.people[id])
+      .filter(m => m && m.status === 'idol' && !m.flags.military && !KP.onBreak(m));
+    if (actives.length < 3) return { ok: false, reason: 'Too many members are off the schedule. Every single needs its singer.' };
+    const titleMember = actives.find(m => m.id === plan.titleMemberId);
+    if (!titleMember) return { ok: false, reason: 'Choose whose single leads the project — an active member. That choice IS the project.' };
+    const r = KP.planDebut(state, Object.assign({}, plan, { format: 'mini' }));
+    if (!r.ok) return r;
+    const demo = g.demos.find(s => s.id === plan.songId);
+    // one track per active member — the tracklist IS the lineup
+    {
+      const trng = KP.rngFor(state);
+      g.prep.tracks = KP.buildTracklist(state, trng, g, demo,
+        { id: 'mini', tracks: actives.length });
+      state.rngState = trng.state();
+    }
+    const ordered = actives.filter(m => m.id !== titleMember.id)
+      .sort((a, b) => (KP.transcendRead(state, g, b) - KP.transcendRead(state, g, a)) ||
+        (a.id < b.id ? -1 : 1));
+    g.prep.tracks.forEach(tr => {
+      if (tr.n === 1) tr.credit = { type: 'solo', memberId: titleMember.id };
+      else tr.credit = { type: 'solo', memberId: (ordered[tr.n - 2] || titleMember).id };
+      tr.slot = false;   // the doctrine leaves no open slots to reassign
+    });
+    g.prep.soloProject = { titleMemberId: titleMember.id };
+    KP.note(state, { kind: 'public', ind: 'soloProjectSet', priority: 'critical', groupId: g.id,
+      personId: titleMember.id,
+      text: g.name + ' announced THE PROJECT: one mini, one solo single for every member, ' +
+        KP.displayName(titleMember) + '’s cut leading it. The fan cafés understood the format in four seconds and have been fighting about the title pick ever since — which is, of course, the point.' });
+    return Object.assign({ project: true }, r);
   };
 
   // Weekly release-prep for one group: rehearsal replaces training.
@@ -1015,6 +1070,55 @@
         alum.history.push({ week: state.week, text: 'The return run with ' + g.name + ' — one era, the old spot, the loudest crowds of the year. Went home to the solo calendar with the group’s name written somewhere permanent.' });
         push({ kind: 'public', ind: 'returnRunSet', priority: 'critical', personId: alum.id, groupId: g.id,
           text: KP.fillPro('The return-run era LANDED — ' + KP.displayName(alum) + ' in {pos} old spot for every stage, the fancams shot from inside a sustained scream. One era only, which everyone knew, which is exactly why every ticket vanished. The door stays oiled, and both calendars go back to work richer.', alum) });
+      }
+    }
+    // the solo project lands (v0.10.24, §87 E): every member's single,
+    // every member's number — and the numbers are PUBLIC
+    if (g.prep.soloProject) {
+      const ST = KP.C.STAR;
+      const proj = g.prep.soloProject;
+      g.lastSoloProjectWeek = state.week;
+      const cuts = [];
+      (tl.tracks || []).forEach(tr => {
+        const mp = tr.credit && state.people[tr.credit.memberId];
+        if (!mp) return;
+        const md = KP.derived(mp);
+        const own = 0.6 * md.stagePresence + 0.4 * Math.max(mp.talents.vocals.cur, mp.talents.dance.cur);
+        const score = Math.round(KP.clamp(0.55 * own + 0.45 * reception + rng.normal(0, 6), 1, 100));
+        cuts.push({ memberId: mp.id, title: tr.title, score });
+        mp.flags.soloShines = (mp.flags.soloShines || 0) + 1;
+        mp.morale = KP.clamp(mp.morale +
+          (mp.id === proj.titleMemberId ? ST.projectMoraleTitle : ST.projectMorale), 0, 100);
+        mp.history.push({ week: state.week, text: '“' + tr.title + '” — the solo cut on ' + g.name + '’s every-member project. One single, all hers, the group name holding the frame.' });
+      });
+      const rel = g.releases[g.releases.length - 1];
+      rel.soloProject = { titleMemberId: proj.titleMemberId, cuts };
+      KP.fandomGain(g, ST.projectFandomGain);
+      // the era answers every live solo clamor in the room at once
+      if (g.gravity && !g.gravity.settled && (g.gravity.rung || 1) <= 2 &&
+          cuts.some(c => c.memberId === g.gravity.personId)) {
+        g.gravity.settled = 'solo';
+        g.gravity.settledWeek = state.week;
+      }
+      (state.discourses || []).forEach(dc => {
+        if (dc.kind === 'soloClamor' && dc.status === 'live' &&
+            cuts.some(c => String(c.memberId) === String(dc.subjectId))) {
+          dc.status = 'resolved'; dc.resolved = 'answered';
+        }
+      });
+      const top = cuts.slice().sort((a, b) => b.score - a.score)[0];
+      const low = cuts.slice().sort((a, b) => a.score - b.score)[0];
+      push({ kind: 'public', ind: 'soloProjectLanded', priority: 'critical', groupId: g.id,
+        text: g.name + '’s every-member project is OUT — ' + cuts.length + ' singles, ' + cuts.length + ' names, one spine. The fandom is running ' + cuts.length + ' simultaneous streaming campaigns and sleeping in shifts.' });
+      // the spread is a story with a name at the bottom (§77's teeth)
+      if (top && low && top.memberId !== low.memberId &&
+          top.score - low.score >= ST.projectSpreadGap) {
+        const pt = state.people[top.memberId], pl = state.people[low.memberId];
+        if (pt && pl) {
+          pl.morale = KP.clamp(pl.morale - 2, 0, 100);
+          push({ kind: 'public', priority: 'high', personId: pl.id, groupId: g.id,
+            text: 'The project’s cut numbers went public the way numbers do: ' + KP.publicGiven(pt) + '’s single is the runaway (' + top.score + '), and the columns sorting every member by first-day streams all end on ' + KP.publicGiven(pl) + '’s row (' + low.score + '). The format promised everyone a spotlight. It never promised the spotlights would match.' });
+        }
       }
     }
     // the era extends (v0.9.17): the repackage is its own story beat

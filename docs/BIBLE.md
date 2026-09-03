@@ -5926,6 +5926,128 @@ the ledger, not adjectives. Harness: red-week census band; longhaul
 gains a haul-insolvent scenario. Candidate slot: v0.11.0 — it is a
 chapter mechanic, not a patch.
 
+## §87 The solo era (PLANNED — in-group solo releases)
+
+Owner: "the company would also have every single incentive to keep
+them in the group. and the member would have essentially no leverage
+to leave without massive legal issues. right now, if I graduate the
+popular member to a solo career, I can't keep them in the group. I
+think we need to rework it so that individual group members can get
+a solo release while still in the group, rather than just a feature
+on an album.. kind of like how YG and BLACKPINK handled their
+members. or even the SM model with aespa where they get solo
+releases with increased input into the direction of the song, and
+they release a mini album through the group name that's just a
+single for every member."
+
+The audit of what exists: the solo credit on a group record (§the
+tracklist, v0.7.5) is the owner's "just a feature"; the in-group
+solo album (v0.9.25) EXISTS but is reactive-only — the button
+appears solely when clamor or a promise forces the company's hand,
+and it resolves as a one-shot transaction (pay, roll, chart, done).
+No proactive door, no direction, no era. The rework makes the
+in-group solo a first-class COMPANY strategy, which is the truth of
+the industry the owner named: the label holds the cards, and the
+smart label plays them before anyone has to ask.
+
+**A. The solo studio (proactive, always on the desk).** A new verb:
+plan a solo era for any active member of a debuted group — single
+(short runway, cheap) or mini (the full statement, the existing
+albumCost). Costs scale with the group's stature. One solo era per
+group at a time; the era is blocked by (and blocks) a locked group
+release and the road — but NOT by promotion/rest weeks: the solo
+drops in the group's quiet window, exactly where YG put them. The
+member carries the era's fatigue on top of her life — the solo is
+paid for in her hours.
+
+**B. The direction meeting (the aespa clause).** Planning opens a
+scene: whose record is this? The company's brief (options[0], the
+bot's lane — safe, narrow variance), HER direction (morale, a
+directed-act deposit, a higher ceiling and a wider swing — being
+heard is the point and the risk), or the co-write when she has the
+pen (creativity/producer-minded — the middle path, her name in the
+credits). The choice rides the reception formula. Expire = the
+company's brief stands, and she notices.
+
+**C. The resolution.** At the scheduled week the solo lands on the
+rails: reception from stage presence + best talent + the
+transcendence read + the direction; the chart entry runs through
+KP.chartReach on the GROUP's fame (the wall stays honest — a
+nobody's member does not teleport, the v0.10.21 law). Revenue,
+social spike, small fandom split (the room shares its attention),
+soloShines, a durable p.soloDisc entry. Singles stamp their own
+cooldown; minis keep stamping soloAlbums/lastSoloAlbumWeek so the
+star's-clock ladder and the album promise read unchanged.
+
+**D. The ladder rewired, not replaced.** A solo era counts: any
+soloDisc entry enters the clamor conversation at rung 2 (the stage
+ask is already answered), a mini still advances toward rung 3 —
+solo work GROWS the star, so the career conversation still arrives
+eventually; the rework gives the company years of good answers
+before that door, instead of one. The soloPromise claim accepts a
+standalone single. Graduation stays exactly where it was: the rung-3
+outcome and the player's deliberate choice — never again the only
+tool on the desk.
+
+**E. The solo project (the group-name mini, one single per
+member).** A mode of the studio planner on a full comeback slot:
+the era releases through the GROUP's name, tracklist rebuilt as one
+solo cut per active member, the title track belonging to a member
+the player CHOOSES (whose single leads the project is the decision
+— and the feed knows it). It runs the entire existing pipeline —
+pressing, chodong, rollout, jeongsan — because it IS a release.
+At landing: every member gets the credit, the shine, and the
+morale; the fandom's intensity RISES (this is fan service of the
+highest order); and the cut scores are PUBLIC — a wide spread
+between the loudest and quietest single is a story with a name at
+the bottom (§77's comparison teeth). Long cooldown: a generational
+event, not a cadence.
+
+Implementation notes: solo era state on the person (p.soloEra), a
+soloEra weekly rail at order 605; the project as a planDebut
+wrapper stamping prep.soloProject + re-crediting the tracklist
+(trackCreditsOf then sees every cut — rungs and promises resolve
+free); releaseSoloAlbum kept as the instant engine (suite_067's
+pins and the say-yes fast path both live). Bot: eras in the
+post-release rest window only (zero comeback-cadence drift); the
+project stays player-only, covered by battery. Numbers unruled —
+measure-first. Candidate slot: v0.10.24.
+
+**As built (v0.10.24).** Everything above shipped. The engine:
+one resolution core (resolveSoloRelease) serves the planned era,
+the instant say-yes album, and the claims — reception .42 stage
+presence + .28 best talent + .30 transcendence read + the
+direction (hers +6 at variance 9; co-write +4 at 6; company +0 at
+5), her chart entry converted through the GROUP's chartReach.
+Costs: single 35 × stature, mini rides albumCost 90; runways 4/6
+weeks; single cooldown 24, mini keeps albumCooldown 60. The
+direction meeting is scene soloDirection (options[0] = the
+company's brief, the bot's lane; co-write gated on the §80 pen
+threshold; expire = the brief stands "and she filed the silence").
+The era: p.soloEra, rail order 605, +5 fatigue/week double-booked,
+shelves cleanly if she breaks/enlists/leaves. The calendar law
+runs both ways: era blocks group prep/repackage/tour and vice
+versa — but NOT promo/rest weeks, so the solo drops in the quiet
+window, exactly where YG put them. The ladder: soloDisc entries
+enter clamor at rung 2, a mini still stamps soloAlbums →
+rung 3 (solo work GROWS the star — the career conversation still
+arrives, just after years of good answers); soloPromise accepts a
+standalone single; graduation untouched at rung 3. The project:
+planSoloProject wraps planDebut (mini through the group's name,
+full pipeline — pressing, rollout, chodong, jeongsan), tracklist
+rebuilt one solo cut per active member, the title pick mandatory
+and on the record; landing mints every member's credit + shine +
+morale (title +6, rest +3), fandom intensity +3, cuts archived
+with public scores, spread ≥25 names the bottom row out loud
+(§77), cooldown 96w. UI: talent-page studio buttons (always-on
+when eligible, primary-lit when clamor is live), the studio
+planner's project toggle + title-member select, soloDisc in the
+discography margin. Suite_094 (45 checks); soak bands soloEraRun/
+soloCutOut measured 40/40, floors .05; suite_067's one repaired
+expectation was mine, not its: the resolution now settles a live
+rung-≤2 clamor at the drop itself, in the rail's one vocabulary
+('solo').
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -8896,3 +9018,32 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > design ruling, not mine to make. suite_093 pins the conversion
 > clause and the clawback; battery 93/93, soak 40 clean, longhaul
 > 10x620, e2e 112, lockstep 0.10.23. Rode to main.
+
+> **0.10.24 — the solo era.** Owner: "individual group members can
+> get a solo release while still in the group, rather than just a
+> feature on an album.. kind of like how YG and BLACKPINK handled
+> their members. or even the SM model with aespa." §87 planned and
+> shipped in one sitting. The audit found v0.9.25's in-group album
+> already existed but was reactive-only (button gated behind clamor,
+> one-shot resolution); the rework makes it a proactive company
+> strategy. (1) THE STUDIO: plan a solo single (35×stature, 4wk) or
+> mini (90×stature, 6wk) for any member of a debuted group — always
+> on the desk, one member era per group, blocks and is blocked by
+> the group's prep/tour but NOT promo/rest (the solo drops in the
+> quiet window, the YG calendar). (2) THE DIRECTION MEETING: scene
+> on plan — company brief (safe), HER direction (+6, wider swing,
+> morale, a directed act), or the co-write (pen-gated middle path).
+> (3) THE LANDING: one resolution core; reception rides presence/
+> talent/transcendence/direction; chart entry converts through the
+> GROUP's reach (no wall teleport); singles stamp their own clock,
+> minis keep feeding soloAlbums so rung 3 still arrives — solo work
+> GROWS the star, the career conversation is delayed, not deleted.
+> (4) THE PROJECT: planSoloProject wraps the full pipeline — a mini
+> through the group's name, one solo cut per active member, the
+> title pick mandatory; landing mints everyone's credit/shine/
+> morale, fandom +3, public cut scores, spread ≥25 names the bottom
+> row (§77 teeth), cooldown 96w. Bot opens singles in the rest
+> window (comeback cadence unmoved: 6.3 rel/org); bands soloEraRun/
+> soloCutOut 40/40, floors .05. Suite_094 (45 checks) new; battery
+> 94/94, soak 40 clean, longhaul 10x620, e2e 112, lockstep 0.10.24.
+> Rode to main.

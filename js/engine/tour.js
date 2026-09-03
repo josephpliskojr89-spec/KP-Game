@@ -45,6 +45,10 @@
     if (g.retiredWeek || !g.members.length) return { ok: false, reason: 'That chapter is closed. The catalog tours on its own.' };
     if (g.prep) return { ok: false, reason: 'A release is in production. One calendar at a time.' };
     if (g.tour) return { ok: false, reason: 'They are already on the road.' };
+    {
+      const era = g.members.map(id => state.people[id]).find(m => m && m.soloEra);
+      if (era) return { ok: false, reason: KP.publicGiven(era) + '’s solo era has the calendar. The road waits for her drop.' };
+    }
     if (g.hiatus) return { ok: false, reason: 'They are officially gone. A hiatus with tour dates is called a tour.' };
     if (g.jpAway) return { ok: false, reason: 'They are in Japan. One country at a time.' };
     if (state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) {

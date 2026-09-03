@@ -746,6 +746,12 @@
         else UI.toast(r.reason, true);
         break;
       }
+      case 'solo-era': {
+        const r = KP.planSoloEra(s, t.dataset.id, { format: t.dataset.format });
+        if (r.ok) { UI.toast('The era is on the calendar — ' + KP.weekLabel(r.scheduledWeek).text + '. The direction meeting is on the Desk.'); App.save(); App.render(); }
+        else UI.toast(r.reason, true);
+        break;
+      }
       case 'sign-freeagent': {
         const r = KP.signFreeAgent(s, t.dataset.id);
         if (r.ok) { UI.toast(s.people[t.dataset.id].name.display + ' signs — a career walks in the door.'); App.save(); App.render(); }
@@ -1054,6 +1060,13 @@
       }
       case 'mash-a': App.studioDraft.mashA = App.studioDraft.mashA === t.dataset.genre ? null : t.dataset.genre; App.render(); break;
       case 'mash-b': App.studioDraft.mashB = App.studioDraft.mashB === t.dataset.genre ? null : t.dataset.genre; App.render(); break;
+      case 'studio-project': {
+        const d = App.studioDraft;
+        d.soloProject = !d.soloProject;
+        if (d.soloProject) d.format = 'mini';
+        App.render();
+        break;
+      }
       case 'studio-lock': {
         const d = App.studioDraft;
         const total = d.alloc.vocals + d.alloc.dance + d.alloc.rap + d.alloc.media;
@@ -1069,9 +1082,14 @@
         }
         // genre-bending (v0.9.6): both mash slots picked → the gamble rides
         const mash = (d.mashA && d.mashB && d.mashA !== d.mashB) ? [d.mashA, d.mashB] : null;
-        const r = KP.planDebut(s, { groupId: sg.id, songId: d.songId, conceptId: d.conceptId || sel.conceptId,
+        const plan = { groupId: sg.id, songId: d.songId, conceptId: d.conceptId || sel.conceptId,
           promo: d.promo, week: d.week, alloc: d.alloc, format: d.format, rollout: d.rollout, mash,
-          mv: d.mv || 'standard', pressing: d.pressing || null });
+          mv: d.mv || 'standard', pressing: d.pressing || null };
+        // the solo project (v0.10.24): the same lock, the project's doctrine
+        const r = d.soloProject
+          ? KP.planSoloProject(s, Object.assign({}, plan, { titleMemberId: d.projectTitleId }))
+          : KP.planDebut(s, plan);
+        if (r.ok) d.soloProject = false;
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
         if (r.warning) {
@@ -1094,6 +1112,9 @@
     const t = e.target;
     if (t.dataset && t.dataset.action === 'builder-role' && App.builderDraft) {
       App.builderDraft.roles[t.dataset.role] = t.value;
+    }
+    if (t.dataset && t.dataset.action === 'studio-project-title' && App.studioDraft) {
+      App.studioDraft.projectTitleId = t.value;
     }
   });
 

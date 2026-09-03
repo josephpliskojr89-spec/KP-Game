@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.23',
+    VERSION: '0.10.24',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -2118,6 +2118,30 @@
       dominanceAlbum: 2.0,       // her following vs the room's median: the
       dominanceCareer: 3.5,      // conversation enters where the numbers already are
       launchMorale: 8,           // the door opened before she had to push
+      // the solo era (v0.10.24, §87): in-group solo releases as a
+      // proactive company strategy — the label holds the cards
+      soloSingleCost: 35,        // her single, produced inside the group
+      soloSinglePrep: 4,         // teaser-to-stage runway for a single
+      soloMiniPrep: 6,           // the mini takes the studio longer
+      soloSingleCooldown: 24,    // one solo moment per stretch of calendar
+      soloSingleRev: 0.9,        // fee per reception point on a single
+      soloEraFatigue: 5,         // her weeks run double-booked
+      soloSingleMorale: 5,       // a stage of her own
+      soloSingleFandomSplit: 1,  // the room barely notices a single's split
+      directionHersBonus: 6,     // her direction, when it lands, lands hers
+      directionHersVar: 9,       // ...and swings wider than the company's 5
+      directionCompanyVar: 5,
+      directionHersMorale: 5,    // being heard is the whole point
+      directionCoBonus: 4,       // the co-write: her pen, the house polish
+      directionCoVar: 6,
+      directionCoMorale: 3,
+      // the solo project (§87 E): the group-name mini, one single
+      // per member — a generational event, not a cadence
+      projectCooldown: 96,       // roughly once per two years
+      projectMoraleTitle: 6,     // the title pick carries the project
+      projectMorale: 3,          // everyone's name on a spine, together
+      projectFandomGain: 3,      // fan service of the highest order
+      projectSpreadGap: 25,      // cut-score gap that makes the spread a story
     },
     RISEFALL: {
       rankWeek: 2,               // woy the trades publish the power ranking

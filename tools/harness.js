@@ -313,6 +313,12 @@ const BANDS = {
   // paces the calendar still escapes; the bot never paces. lo guards
   // the mechanism against going dead again.
   atmStorm:          { lo: 0.15, hi: 1.00, label: 'orgs that squeezed into the ATM story' },
+  // the solo era (v0.10.24, §87): first measure 40/40 both — the bot
+  // opens a single whenever a star is first-among-equals in the rest
+  // window, which is every org by week 140. Floors guard the mechanism
+  // against going dead, not against variance
+  soloEraRun:        { lo: 0.05, hi: 1.00, label: 'orgs that opened an in-group solo era' },
+  soloCutOut:        { lo: 0.05, hi: 1.00, label: 'orgs whose member dropped a standalone solo single' },
   // the making (v0.10.4): ruled first soak — 40/40, 28/40, 30/40,
   // 40/40, 11/40, 39/40, 10/40, 8/40. Stations and the line card ride
   // every prep (floors); slips/clips are calendar lotteries; the
@@ -626,6 +632,7 @@ const tally = {
   chodongMinted: 0, pressSoldOut: 0, pressWarehouse: 0,
   channelSeen: 0, gaffeLottery: 0, storySeen: 0, storyForced: 0,
   clubOpened: 0, greetingsOut: 0, fanconHeld: 0, catalogPaying: 0, atmStorm: 0,
+  soloEraRun: 0, soloCutOut: 0,
   stationRun: 0, slipDecided: 0, clipCaught: 0, lineCarded: 0, lineWarSeen: 0,
   medCase: 0, medChronic: 0, flareFelt: 0,
   demoLost: 0, campHeld: 0, bondWorking: 0,
@@ -815,6 +822,23 @@ for (let s = 0; s < SEEDS; s++) {
         .sort((a, b) => KP.derived(b).stagePresence - KP.derived(a).stagePresence)
         .slice(0, 2).map(m => m.id);
       if (picks.length === 2) KP.planUnitEra(state, g.id, picks, null);
+    });
+    // the solo era (v0.10.24, §87): when the group calendar is quiet and
+    // one member is clearly pulling away, the bot opens her single in
+    // the rest window — the era resolves before the calendar reopens,
+    // so comeback cadence is untouched
+    if (KP.planSoloEra) state.groups.forEach(g => {
+      if (!g.debuted || g.retiredWeek || g.type === 'solo' || g.members.length < 3) return;
+      if (g.prep || g.tour || g.hiatus || g.jpAway) return;
+      if (state.week > (g.promoUntil || 0) + 1) return;   // just-released window only
+      if (state.budget < 200) return;
+      const G2 = KP.C.GRAVITY;
+      const star = g.members.map(id => state.people[id]).filter(Boolean)
+        .filter(m => !KP.onBreak(m) && !m.soloEra && !m.flags.military)
+        .sort((a, b) => KP.transcendRead(state, g, b) - KP.transcendRead(state, g, a))[0];
+      if (!star) return;
+      if (KP.transcendRead(state, g, star) < G2.transcendAt * 0.6) return;   // 'first among equals'
+      KP.planSoloEra(state, star.id, { format: 'single' });
     });
     // the recurring money (v0.10.3): a fancon when the calendar is quiet,
     // the fandom is organized, and the room is rested — the between-eras
@@ -1649,6 +1673,9 @@ for (let s = 0; s < SEEDS; s++) {
   if ((gl.knocks || 0) >= 1) tally.soloKnocked++;
   if ((gl.slumps || 0) >= 1) tally.slumpSeen++;
   if ((gl.footings || 0) >= 1) tally.footingFound++;
+  // the solo era (v0.10.24, §87): the in-group solo as company strategy
+  if ((gl.eras || 0) >= 1) tally.soloEraRun++;
+  if ((gl.singles || 0) >= 1) tally.soloCutOut++;
   if ((state.memory || []).some(n => ['festivalIcons', 'varietyGroup', 'ostFactory'].includes(n.key))) tally.arcMinted++;
   // the mandate (v0.9.19): ledger, histories, and release stamps
   const ml = state.mandateLedger || {};
