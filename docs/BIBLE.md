@@ -6181,6 +6181,48 @@ v0.10.27 = C + D (the arc + the pair); E rides with either. All
 numbers measure-first; harness bands per template family (guard
 against dead streams AND floods — the atmStorm lesson).
 
+Owner ruled all three questions: cadence approved as proposed
+("I like that cadence"); drift YES ("I do think people should
+change, for sure"); teeth YES with a gradient ("every answer has
+a consequence but the worst have big consequences… more depth is
+better"). Plus a fourth ask: "a dedicated bio page for each idol
+that allows us to keep track of how they evolve. consolidates the
+idol card into meaningful tabs" — rides with §C in v0.10.27.
+
+**As built (v0.10.26 — A + B).** friction.js, the stream's rail at
+order 790 beside the other person-facing knocks. Five families
+shipped exactly as planned: THE EXTRA HOUR (grinder and drained
+variants — the inversion IS the content; allowing a worn grinder
+rolls a real 2am crash), THE CLIP CALL (kill = the muzzle
+deposit; ride = professionalism decides between a spike and a
+gaffe discourse + trust hit), THE SUBSTITUTION (pride reads the
+same gift twice — competitiveness ≥60 pays morale for being
+helped, below it gratitude), VARIETY ALONE (send/pair/decline,
+jealousy deposit on the competitive room-mate), THE QUIET NO
+(ask is the cheapest problem the company solves all quarter;
+pressing the wrong person in the wrong week can put her down
+mid-schedule). Teeth per the ruling: every branch deposits
+(directed acts, morale, fandom), the badly-read tails bite for
+real — burnout incidents, gaffe storms, trust — and every tail is
+knowable from her file first. Cadence: gap 1 week + 60% on
+candidate weeks ≈ one question per 2-3 weeks; one live at a time;
+expire costs (the door law — the quiet no left waiting is worse
+than either answer). Trait checks live: the NERVE (competitiveness
+≥65 members add +1 each, cap +3, to head-to-head battle reads —
+on the record when it decided the week) and the STEADYING (a
+warmth-68 veteran lifts the lowest room-mate +1/week, hash-gated
+notes). Three lessons paid for: (1) a weekly rail must not draw
+rng on empty weeks — candidates first, chance second, hash for
+flavor notes (suites 011/042/053/063 un-broke themselves the
+moment the footprint shrank); (2) the copycat reveal was
+TRIMMABLE — priority high now, the coffee-truck lesson applied to
+story beats; (3) theSlip's scene body threw on a vanished prep
+and took the whole Desk down with it — scene bodies are pure
+reads and must never throw. Bands: frictionFlows 40/40 (floor
+.30), frictionTeeth 0/40 by design (the bot answers options[0],
+the safe lane — the teeth exist for badly-read answers only,
+battery proves them). Suite_095, 31 checks.
+
 To rule before build: (1) cadence — one friction question every
 2-3 weeks feels alive; more is a mailbox; less is wallpaper. Where
 does the owner want the dial? (2) drift — does the owner WANT
@@ -9208,3 +9250,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > durable banner history it now writes; old 3/40 was undercount).
 > Battery 94/94, soak 40 clean, longhaul 10x620, e2e 112, lockstep
 > 0.10.25. Rode to main.
+
+> **0.10.26 — the friction stream.** §88 A+B shipped on the owner's
+> three rulings (cadence as proposed; drift yes, next release;
+> teeth with a gradient — "the worst have big consequences"). Five
+> person-questions where the trait writes the situation AND the
+> right answer: the extra hour (grinder/drained inversion), the
+> clip call, the substitution (pride reads the same gift twice),
+> variety alone, the quiet no. Every answer deposits; badly-read
+> tails genuinely bite (2am crashes, gaffe storms, mid-schedule
+> collapses) and every tail is knowable from her file first. Paced
+> like the office door: candidates-gated ~2-3 weeks, one live at a
+> time, silence has a price. Trait checks: the nerve (fighters +3
+> cap on battle reads, on the record when it flips a week) and the
+> steadying (the warm veteran lifts the lowest, weekly). Paid
+> lessons: rails must not draw rng on empty weeks (candidates
+> before chance, hash for flavor); the copycat reveal was trimmable
+> (priority high now); theSlip's body threw on a vanished prep and
+> took the Desk down (bodies are pure reads). suite_095 31 checks;
+> battery 95/95, soak 40 clean (frictionFlows 40/40, teeth 0/40 —
+> the bot plays safe by law), longhaul 10x620, e2e 111 (the 112th
+> was the stream-dependent holdout refusal, conditional by design),
+> lockstep 0.10.26. Rode to main.

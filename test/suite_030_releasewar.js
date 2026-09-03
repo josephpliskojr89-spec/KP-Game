@@ -202,13 +202,19 @@ function firstAct(state) { return state.rivals[0].acts[0]; }
     const { state, g, thief } = seen;
     t.eq(thief.philosophy, 'trendChaser', 'and only by the company that would');
     t.eq(thief.copyConcept.conceptId, g.results.conceptId, 'they took the exact concept');
-    // force their next debut and watch them wear it
+    // force their next debut and watch them wear it. Forcing means ALL
+    // the gates: a thief sitting at portfolio comfort re-pushes its
+    // debut forever (v0.9.26 comfort branch) — retire its shelf so the
+    // room genuinely wants the debut (exposed by the v0.10.26 stream)
     thief.nextDebutWeek = state.week + 1;
     thief.rosterCount = 6;
+    (thief.acts || []).forEach(a => { a.retired = true; });
     let guard = 0, reveal = null;
     // the rival's casting-to-debut runway varies with the stream — give
-    // the reveal the weeks it actually needs, not six of them
-    while (guard++ < 16 && !reveal) {
+    // the reveal the weeks it actually needs, not six of them (window
+    // widened 16→28 at v0.10.26: the friction rail's draws shifted the
+    // stream and this seed's runway ran longer)
+    while (guard++ < 28 && !reveal) {
       KP.advanceWeek(state);
       reveal = state.inbox.find(m => /The stylists know what they saw/.test(m.text));
     }

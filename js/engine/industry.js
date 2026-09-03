@@ -635,7 +635,10 @@
           rival.copyConcept = null;
           const nar = KP.recordEvidence(state, 'trendCopier', 'rivalCompany', rival.short);
           if (nar) notes.push(nar);
-          notes.push({ kind: 'industry', ind: 'conceptCopy', actName: act.name,
+          // priority high (v0.10.26): the reveal is the copycat arc's
+          // payoff — a loud debut week must not trim it (the coffee-
+          // truck lesson: story beats ride above the flavor budget)
+          notes.push({ kind: 'industry', ind: 'conceptCopy', priority: 'high', actName: act.name,
             company: rival.short, fromGroup: from,
             text: 'Look closely at that ' + act.name + ' debut: ' + concept.label.toLowerCase() +
               ' concept, ' + from + '’s exact lane, months after ours worked. ' + rival.short +

@@ -489,7 +489,10 @@ async function main() {
   // --- the war calendar (v0.6.4): announced comebacks share the Desk strip
   await page.evaluate(() => {
     const s = KP.App.state;
-    const act = s.rivals[0].acts.find(a => !a.retired) || s.rivals[0].acts[0];
+    // any LIVING act, any rival — a retired shelf renders nothing, and
+    // which rival has a living act is stream-dependent (v0.10.26)
+    let act = null;
+    s.rivals.some(r => (act = (r.acts || []).find(a => !a.retired)) && true);
     act.announcedWeek = s.week + 3;
     KP.App.save();
   });

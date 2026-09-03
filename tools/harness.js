@@ -319,6 +319,11 @@ const BANDS = {
   // against going dead, not against variance
   soloEraRun:        { lo: 0.05, hi: 1.00, label: 'orgs that opened an in-group solo era' },
   soloCutOut:        { lo: 0.05, hi: 1.00, label: 'orgs whose member dropped a standalone solo single' },
+  // the friction stream (v0.10.26, §88): floors guard a dead stream;
+  // teeth band stays wide — the bot answers safe, so its teeth are the
+  // rare tails only (measure-first)
+  frictionFlows:     { lo: 0.30, hi: 1.00, label: 'orgs where the person questions kept coming (3+)' },
+  frictionTeeth:     { lo: 0.00, hi: 0.80, label: 'orgs that got bitten by a badly-read answer' },
   // the making (v0.10.4): ruled first soak — 40/40, 28/40, 30/40,
   // 40/40, 11/40, 39/40, 10/40, 8/40. Stations and the line card ride
   // every prep (floors); slips/clips are calendar lotteries; the
@@ -632,7 +637,7 @@ const tally = {
   chodongMinted: 0, pressSoldOut: 0, pressWarehouse: 0,
   channelSeen: 0, gaffeLottery: 0, storySeen: 0, storyForced: 0,
   clubOpened: 0, greetingsOut: 0, fanconHeld: 0, catalogPaying: 0, atmStorm: 0,
-  soloEraRun: 0, soloCutOut: 0,
+  soloEraRun: 0, soloCutOut: 0, frictionFlows: 0, frictionTeeth: 0,
   stationRun: 0, slipDecided: 0, clipCaught: 0, lineCarded: 0, lineWarSeen: 0,
   medCase: 0, medChronic: 0, flareFelt: 0,
   demoLost: 0, campHeld: 0, bondWorking: 0,
@@ -1676,6 +1681,10 @@ for (let s = 0; s < SEEDS; s++) {
   // the solo era (v0.10.24, §87): the in-group solo as company strategy
   if ((gl.eras || 0) >= 1) tally.soloEraRun++;
   if ((gl.singles || 0) >= 1) tally.soloCutOut++;
+  // the friction stream (v0.10.26, §88): questions arrive; teeth exist
+  const frl = state.frictionLedger || {};
+  if ((frl.asked || 0) >= 3) tally.frictionFlows++;
+  if ((frl.hard || 0) >= 1) tally.frictionTeeth++;
   if ((state.memory || []).some(n => ['festivalIcons', 'varietyGroup', 'ostFactory'].includes(n.key))) tally.arcMinted++;
   // the mandate (v0.9.19): ledger, histories, and release stamps
   const ml = state.mandateLedger || {};

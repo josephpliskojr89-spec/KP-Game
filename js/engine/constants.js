@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.25',
+    VERSION: '0.10.26',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -662,6 +662,8 @@
       slipCost: 8,               // …rebook everything…
       slipMorale: 2,             // …and the members know what it looks like (cost)
       battleMinPop: 20,          // a same-week rival release this big is a BATTLE
+      // the nerve (v0.10.26, §88 B): the fighters rise in a head-to-head
+      nerveAt: 65, nervePer: 1, nerveCap: 3,
       winPop: 3, winMorale: 2,   // taking the week
       losePop: 2, loseMorale: 2, // losing it
       loseActPop: 3,             // what the rival act pays when we win
@@ -2145,6 +2147,39 @@
       projectMorale: 3,          // everyone's name on a spine, together
       projectFandomGain: 3,      // fan service of the highest order
       projectSpreadGap: 25,      // cut-score gap that makes the spread a story
+    },
+    // the friction stream (v0.10.26, §88 A) — the week-to-week choice.
+    // Cadence ruled by the owner: one question every 2-3 weeks feels
+    // alive; more is a mailbox. Teeth ruled too: every answer deposits,
+    // the badly-read ones can genuinely bite.
+    FRICTION: {
+      gapWeeks: 1,               // min quiet gap after a question
+      chance: 0.6,               // then this per week → ~2-3 week cadence
+      fuseWeeks: 2,              // the moment waits, briefly
+      // the extra hour
+      grinderEthic: 70, grinderFatigueLo: 50, grinderFatigueHi: 72,
+      drainedEthic: 40, drainedFatigue: 55,
+      extraHourPolish: 0.5, extraHourFatigue: 9, extraHourBurnChance: 0.45,
+      extraHourRefuseMorale: 4, lightenRest: 8, lightenMorale: 4,
+      lightenSpread: 2, holdMorale: 3,
+      // the clip call
+      clipMinSocial: 15, clipProAt: 55, clipLuckChance: 0.55,
+      clipKillFandom: 1, clipKillMorale: 3, clipRideFandom: 2,
+      clipRideMorale: 4, clipBurnMorale: 5, clipBurnTrust: 2,
+      // the substitution
+      subWornAt: 68, subConfidence: 62, subFreshBelow: 45,
+      subRelief: 10, subLoad: 6, subVolunteerReps: 2, subVolunteerMorale: 3,
+      subPrideAt: 60, subPrideMorale: 5, subGratefulMorale: 2,
+      // variety, alone
+      varietyPersonGap: 20, varietySendMorale: 5, varietyMediaExp: 3,
+      varietyEnvyAt: 65, varietyEnvyMorale: 3, varietyDeclineWanted: 5,
+      // the quiet no
+      quietDominance: 42, quietMorale: 45, quietFatigue: 55,
+      quietAskMorale: 4, quietRestAt: 65, quietRest: 8,
+      quietProAt: 60, quietPressFatigue: 5, quietBurnMorale: 8,
+      quietCrashBelow: 30, quietCrashChance: 0.5,
+      // the steadying (§88 B): the warm veteran holds the room up
+      steadyWarmth: 68, steadyBelow: 35, steadyLift: 1, steadyNoteChance: 0.08,
     },
     RISEFALL: {
       rankWeek: 2,               // woy the trades publish the power ranking

@@ -183,7 +183,11 @@
 
     let battle = null;
     if (foe) {
-      const won = score > foe.score;
+      // the nerve (v0.10.26, §88 B): a room full of fighters rises in a
+      // head-to-head — competitiveness reads on the battle, capped, and
+      // the edge goes on the record when it decided the week
+      const edge = KP.battleNerve ? KP.battleNerve(state, g) : 0;
+      const won = score + edge > foe.score;
       const hit = KP.rivalActById(state, foe.actId);
       const members = g.members.map(id => state.people[id]);
       g.feuds = g.feuds || {};
@@ -210,7 +214,12 @@
         keep(KP.recordEvidence(state, 'rivalry', 'rivalAct', foe.actId));
       }
       battle = { actId: foe.actId, actName: foe.actName, company: foe.company,
-        won, wins: feud.wins, losses: feud.losses };
+        won, wins: feud.wins, losses: feud.losses, nerve: edge };
+      // when the nerve decided the week, the record says so out loud
+      if (won && score <= foe.score && edge > 0) {
+        keep({ kind: 'development', priority: 'high', groupId: g.id,
+          text: 'The margin over ' + foe.actName + ' was thinner than the recaps admit — and it came from the room, not the record. The fighters in this lineup do not lose weeks they can see. The staff logged it as “intangibles,” then underlined it.' });
+      }
     }
 
     // the copycat: a hit this big gets its concept stolen by the trend

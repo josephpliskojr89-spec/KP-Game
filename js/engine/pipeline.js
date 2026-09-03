@@ -131,7 +131,10 @@
       return 'The production board for ' + (g ? g.name : 'the group') + ' has a red column: ' +
         (sc.station === 'recording' ? 'the recording session slipped — the booth needs a healthy lead vocal and did not get one.'
           : 'the ' + sc.station + ' station slipped.') +
-        ' The release date is ' + (g ? Math.max(0, g.prep.scheduledWeek - state.week) : '?') + ' week(s) out. ' +
+        // the prep can be gone by the time the desk reads this (the
+        // release landed under the scene) — a body is a pure read, it
+        // must never throw the whole desk down with it (v0.10.26)
+        ' The release date is ' + (g && g.prep ? Math.max(0, g.prep.scheduledWeek - state.week) : '?') + ' week(s) out. ' +
         'Two doors: crunch the remaining stations into the calendar that is left — the members pay in hours — ' +
         'or postpone, and write the notice every fandom reads as a confession.';
     },
