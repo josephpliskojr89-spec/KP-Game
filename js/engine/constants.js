@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.26',
+    VERSION: '0.10.27',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -2147,6 +2147,21 @@
       projectMorale: 3,          // everyone's name on a spine, together
       projectFandomGain: 3,      // fan service of the highest order
       projectSpreadGap: 25,      // cut-score gap that makes the spread a story
+    },
+    // the arc (v0.10.27, §88 C) — people change, slowly, on the record.
+    // Owner: "I do think people should change, for sure." Drift only at
+    // anchored events, always narrated, capped so she stays herself.
+    DRIFT: {
+      capPerTrait: 12,           // total movement a trait allows, ever
+      debutConfidence: 1,        // debut night changes the shoulders
+      firstWinConfidence: 2,     // the first trophy changes the eyes
+      stormWarmth: -2,           // a storm hardens the softness…
+      stormPro: 1,               // …and professionalizes the guard
+      heldDominance: 2,          // held at the career rung, she pushes back
+      openedConfidence: 1,       // the door opened before the third ask
+      renewalPro: 1,             // years served, signed again
+      dischargePro: 2,           // the service returns a steadier person
+      brokenWarmth: -1,          // every broken promise chips the warmth
     },
     // the friction stream (v0.10.26, §88 A) — the week-to-week choice.
     // Cadence ruled by the owner: one question every 2-3 weeks feels

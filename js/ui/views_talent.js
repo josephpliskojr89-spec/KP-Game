@@ -306,10 +306,118 @@
       html.push('<div class="pad" style="margin-top:10px"><div class="cond">' + UI.condChips(p) + '</div></div>');
     }
 
-    html.push('<div class="pad" style="margin-top:8px"><div class="seg">' +
-      [['profile', 'Profile'], ['notes', 'The file'], ['history', 'History']].map(tb =>
+    // the bio page (v0.10.27, §88): the file grows meaningful tabs —
+    // Career and The person join the card, "how they evolve" gets a home
+    html.push('<div class="pad" style="margin-top:8px"><div class="seg" style="flex-wrap:wrap">' +
+      [['profile', 'Profile'], ['notes', 'The file'], ['career', 'Career'], ['person', 'The person'], ['history', 'History']].map(tb =>
         '<button class="' + (tab === tb[0] ? 'on' : '') + '" data-action="dossier-tab" data-tab="' + tb[0] + '">' + tb[1] + '</button>').join('') +
       '</div></div>');
+
+    if (tab === 'career') {
+      // her working record: everything with her name on it
+      const credits = KP.trackCreditsOf(state, p.id);
+      const solos = p.soloDisc || [];
+      if (p.dualCareer) {
+        html.push('<div class="card"><b>The solo career — in-house</b> since ' +
+          UI.esc(KP.weekLabel(p.dualCareer.since).text) + '. Her own calendar runs beside the group’s; the cooldowns are hers.</div>');
+      }
+      if (solos.length) {
+        html.push('<div class="kicker">Solo discography</div>');
+        solos.slice().reverse().forEach(dd => {
+          html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(dd.week).text) + '</span><div>' +
+            (dd.format === 'mini' ? 'Solo mini' : 'Solo single') + ' — “' + UI.esc(dd.title) + '” · reception ' + dd.reception +
+            (dd.direction === 'hers' ? ' · her direction' : dd.direction === 'cowrite' ? ' · co-written' : '') + '</div></div>');
+        });
+      }
+      if (credits.length) {
+        html.push('<div class="kicker">On the records</div>');
+        credits.slice().reverse().slice(0, 12).forEach(c => {
+          html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(c.week).text) + '</span><div>' +
+            (c.type === 'solo' ? 'Solo cut' : 'Unit') + ' “' + UI.esc(c.trackTitle) + '” on ' + UI.esc(c.releaseTitle) + '</div></div>');
+        });
+      }
+      const gig = KP.gigOf ? KP.gigOf(state, p.id) : null;
+      if (gig) {
+        html.push('<div class="kicker">The second job</div>');
+        html.push('<div class="card">' + UI.esc(KP.gigLabel(gig)) + ' · ' + gig.weeksLeft + ' weeks left on the run.</div>');
+      }
+      if (p.broadcast) {
+        html.push('<div class="kicker">The channel</div>');
+        html.push('<div class="card">Broadcasting since ' + UI.esc(KP.weekLabel(p.broadcast.since).text) +
+          ' · ' + (p.broadcast.uploads || 0) + ' uploads. The archive is hers; the ad checks are the company’s (§85 would like a word).</div>');
+      }
+      if (!solos.length && !credits.length && !gig && !p.broadcast && !p.dualCareer) {
+        html.push('<div class="card" style="color:var(--ink-dim);font-style:italic">' +
+          KP.fillPro('The career page is blank so far — every name on it will be earned.', p) + '</div>');
+      }
+      return html.join('');
+    }
+
+    if (tab === 'person') {
+      // who she is — and who she is becoming (§88 C)
+      html.push('<div class="kicker">' + KP.fillPro('Who {she} is', p) + '</div>');
+      const AMBITION_WORDS = { solo: 'a stage with only her name on it', trophy: 'the trophy, held up, hers',
+        stage: 'the kind of stage people describe for years', variety: 'the seat where the funny one sits' };
+      html.push('<div class="card">' + KP.fillPro('{She} ' + KP.VOICES[KP.voiceOf(state, p)].label, p) +
+        '. This week: ' + UI.esc(KP.moodOf(p)) + '. ' +
+        KP.fillPro('What {she} wants, quietly: ', p) +
+        UI.esc(AMBITION_WORDS[KP.ambitionOf(state, p)] || 'to be seen') + '.</div>');
+      html.push('<div class="card">' + KP.factsOf(state, p).map(f => UI.esc(f)).join('<br>') + '</div>');
+      const arc = p.arc || [];
+      html.push('<div class="kicker">' + KP.fillPro('Who {she} is becoming', p) + '</div>');
+      if (arc.length) {
+        arc.slice().reverse().slice(0, 10).forEach(a => {
+          html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(a.week).text) + '</span><div>' +
+            UI.esc(a.trait) + ' ' + (a.delta > 0 ? 'rose' : 'dropped') + ' — ' + UI.esc(a.why) + '</div></div>');
+        });
+      } else {
+        html.push('<div class="card" style="color:var(--ink-dim);font-style:italic">' +
+          KP.fillPro('Exactly who {she} was when {she} signed — so far. The years will have opinions.', p) + '</div>');
+      }
+      if (p.debutSnap) {
+        const growth = KP.C.TALENTS
+          .map(dm => ({ dm, d: Math.round(p.talents[dm].cur) - p.debutSnap[dm] }))
+          .filter(x => x.d !== 0);
+        if (growth.length) {
+          html.push('<div class="kicker">Since debut</div>');
+          html.push('<div class="card">' + growth.map(x =>
+            UI.esc(KP.C.TALENT_LABELS[x.dm] || x.dm) + ' ' + (x.d > 0 ? '+' : '') + x.d).join(' · ') +
+            '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:6px">Measured against the night of the debut — the work, in numbers.</div></div>');
+        }
+      }
+      // the ledger between you, in words
+      const directed = (p.directed || []).slice(-6).reverse();
+      if (directed.length) {
+        const DIRECTED_WORDS = {
+          openedTheDoor: 'you opened a door before she had to push it',
+          heardHer: 'you asked, and listened',
+          trusted: 'you trusted her with the room',
+          promiseKept: 'a promise kept, on the record',
+          promiseBroken: 'a promise broken — she remembers the date',
+          heldBack: 'held back when she wanted forward',
+          heldToPaper: 'held to the contract at the career ask',
+          muzzled: 'her words were managed',
+          pressed: 'pressed through a no',
+          benchedPride: 'helped in a way that cost her pride',
+          seen: 'her offer was seen and taken',
+          leftWaiting: 'left waiting for an answer',
+          linesCut: 'watched her lines get cut',
+          standardTerms: 'given the standard paper, nothing more',
+        };
+        html.push('<div class="kicker">The ledger between you</div>');
+        html.push('<div class="card">' + directed.map(d =>
+          '<div style="margin:3px 0">' + UI.esc(KP.weekLabel(d.week).text) + ' — ' +
+          UI.esc(DIRECTED_WORDS[d.kind] || d.kind) + (d.w > 0 ? '' : '') + '</div>').join('') + '</div>');
+      }
+      const friends = (KP.friendsOf ? KP.friendsOf(state, p.id) : [])
+        .map(f => state.people[f.a === p.id ? f.b : f.a]).filter(Boolean);
+      if (friends.length) {
+        html.push('<div class="kicker">Across the industry</div>');
+        html.push('<div class="card">' + KP.fillPro('{Pos} people: ', p) +
+          friends.map(fr => UI.esc(KP.displayName(fr))).join(', ') + '.</div>');
+      }
+      return html.join('');
+    }
 
     if (tab === 'history') {
       if (p.history && p.history.length) {

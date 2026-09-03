@@ -74,6 +74,13 @@
     const d = KP.igniteDiscourse && KP.igniteDiscourse(state, rng, 'scandal', 'idol', p.id, g ? g.id : null);
     if (d) inbox.push(d);
     led.storms++;
+    // the arc (v0.10.27, §88 C): a storm hardens the softness and
+    // professionalizes the guard — she is never quite as open again
+    if (KP.driftTrait) {
+      KP.driftTrait(state, p, 'warmth', KP.C.DRIFT.stormWarmth, 'the storm');
+      KP.driftTrait(state, p, 'professionalism', KP.C.DRIFT.stormPro, 'the storm',
+        KP.fillPro('The week the story broke changed {her} in a way the fans will notice slowly: warmer on camera, more careful everywhere else.', p));
+    }
     p.morale = KP.clamp(p.morale - 4, 0, 100);
     if (sev >= 2) {
       led.sponsorHits++;

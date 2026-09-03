@@ -125,6 +125,10 @@
         if (first) {
           state.firstShowWinWeek = state.week;
           state.trust = KP.clamp(state.trust + W.firstWinTrust, 0, 100);
+          // the arc (v0.10.27, §88 C): the first trophy changes the eyes
+          if (KP.driftTrait) members.forEach(m => KP.driftTrait(state, m, 'confidence',
+            KP.C.DRIFT.firstWinConfidence, 'the first trophy',
+            KP.fillPro('Something in {her} settled the night of the first trophy — the stage stopped being a test.', m)));
           keep({ kind: 'debut', urgent: true, ind: 'showWin', groupId: g.id, showId,
             text: g.name + ' just won ' + label + '. The FIRST music-show win in company history — the members cried through the encore, the fans cried at home, and ' +
               state.executive.name + ' put the trophy photo where the board will see it. Some weeks this job pays in something other than money.' });

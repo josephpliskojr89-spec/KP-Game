@@ -6223,6 +6223,35 @@ reads and must never throw. Bands: frictionFlows 40/40 (floor
 the safe lane — the teeth exist for badly-read answers only,
 battery proves them). Suite_095, 31 checks.
 
+**As built (v0.10.27 — C + the bio page).** THE ARC: one drift
+door (KP.driftTrait) for every trait movement in the game — drift
+only at anchored events, every movement appended to p.arc with its
+why, per-trait total capped at ±12 so she stays recognizably
+herself. Eight anchors live: the debut (+1 confidence, and the
+file keeps p.debutSnap — the before picture), the breakout (its
+long-standing +8 confidence now rides the door, capped over a
+career), the first trophy (+2 confidence, roomwide), the storm
+(−2 warmth +1 professionalism — "warmer on camera, more careful
+everywhere else"), the held career (+2 dominance — she pushes
+back), the opened door (+1 confidence), the second contract
+(+1 professionalism), the service (the existing discharge bump
+routed through the door), and every broken promise (−1 warmth —
+the one directed act that changes who she IS, not just the
+ledger). Voice is derived from traits, so a hardened person can
+genuinely start talking differently — that is the feature. THE
+BIO PAGE: the dossier grows to five tabs — Profile / The file /
+Career (solo discography with directions, record credits, the
+second job, the channel, the in-house career banner) / The person
+(voice + mood + ambition in words, her two facts, WHO SHE IS
+BECOMING — the arc timeline, SINCE DEBUT — growth vs the debut
+snapshot, THE LEDGER BETWEEN YOU — the directed acts in plain
+words, and her people across the industry) / History. Suite_096
+(18 checks: the cap, the anchors, the fork); suite_021's benched
+pin re-scoped to schedule-path burnouts (the 0.10.17 rule,
+reapplied — burnout has more sources than the schedule now).
+Still open from the §88 plan: D (the pair) and E (the manager's
+shadow).
+
 To rule before build: (1) cadence — one friction question every
 2-3 weeks feels alive; more is a mailbox; less is wallpaper. Where
 does the owner want the dial? (2) drift — does the owner WANT
@@ -9272,3 +9301,22 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > the bot plays safe by law), longhaul 10x620, e2e 111 (the 112th
 > was the stream-dependent holdout refusal, conditional by design),
 > lockstep 0.10.26. Rode to main.
+
+> **0.10.27 — the arc + the file.** §88 C shipped on the owner's
+> ruling ("people should change, for sure") plus the asked-for bio
+> page. One drift door for every trait movement: anchored events
+> only, every move on p.arc with its why, per-trait cap ±12 — she
+> changes, and stays herself. Eight anchors: debut (+conf, and the
+> debutSnap before-picture), the breakout (its +8 now capped
+> through the door), first trophy, the storm (warmth hardens, guard
+> professionalizes), the held career (+dominance), the opened door,
+> the second contract, the service (routed), every broken promise
+> (−warmth — it changes who she IS). Voice derives from traits, so
+> hardening can change how she talks: feature. The dossier grows to
+> five tabs — Profile / The file / Career / The person / History —
+> with the arc timeline ("who she is becoming"), since-debut
+> growth, and the directed-acts ledger in plain words. suite_096
+> (18 checks); suite_021 benched pin re-scoped to schedule-path
+> burnouts. Battery 96/96, soak 40 clean, longhaul 10x620, e2e 111,
+> browser tab check clean, lockstep 0.10.27. Rode to main. §88 D
+> (the pair) and E (the manager's shadow) remain on the shelf.

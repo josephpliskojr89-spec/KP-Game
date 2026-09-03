@@ -9,6 +9,29 @@
   'use strict';
   const KP = root.KP = root.KP || {};
 
+  // ---- the arc (v0.10.27, §88 C): people change, slowly, on the record --
+  // One door for every trait movement in the game. Drift happens ONLY at
+  // anchored events (drift without an event is a bug), every movement
+  // appends to p.arc with its why, and the total per trait is capped so
+  // she stays recognizably herself. The file's "who she is becoming"
+  // line reads this list.
+  KP.driftTrait = function (state, p, trait, delta, why, line) {
+    const D = KP.C.DRIFT;
+    if (!p || !p.personality || p.personality[trait] == null || !delta) return null;
+    p.arc = p.arc || [];
+    const moved = p.arc.filter(a => a.trait === trait).reduce((s, a) => s + a.delta, 0);
+    // the cap: clamp this movement to the room the trait has left
+    const room = delta > 0 ? Math.max(0, D.capPerTrait - moved)
+      : Math.max(0, D.capPerTrait + moved);
+    const d = delta > 0 ? Math.min(delta, room) : Math.max(delta, -room);
+    if (!d) return null;
+    p.personality[trait] = KP.clamp(p.personality[trait] + d, 0, 100);
+    const entry = { week: state.week, trait, delta: d, why };
+    p.arc.push(entry);
+    if (line) p.history.push({ week: state.week, text: line });
+    return entry;
+  };
+
   // ---- the voice: how she talks, forever --------------------------------
   KP.VOICES = {
     blunt:      { label: 'says exactly what {she} thinks, at any volume' },

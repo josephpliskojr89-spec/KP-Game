@@ -738,8 +738,18 @@
       m.status = 'idol';
       m.liveExp += 10; m.mediaExp += 6;
       m.history.push({ week: state.week, text: (isDebut ? 'Debuted with ' : 'Comeback with ') + g.name + ' — “' + demo.title + '”.' });
+      // the arc (v0.10.27, §88 C): debut night changes the shoulders,
+      // and the file keeps the before picture — growth is measurable
+      if (isDebut && KP.driftTrait) KP.driftTrait(state, m, 'confidence', KP.C.DRIFT.debutConfidence, 'the debut');
+      if (isDebut && !m.debutSnap) {
+        m.debutSnap = { week: state.week };
+        KP.C.TALENTS.forEach(dm => { m.debutSnap[dm] = Math.round(m.talents[dm].cur); });
+      }
     });
-    breakout.personality.confidence = KP.clamp(breakout.personality.confidence + 8, 0, 100);
+    // the breakout's lift now rides the one drift door — same size,
+    // capped over a career so she stays recognizably herself
+    if (KP.driftTrait) KP.driftTrait(state, breakout, 'confidence', 8, 'the breakout');
+    else breakout.personality.confidence = KP.clamp(breakout.personality.confidence + 8, 0, 100);
     breakout.history.push({ week: state.week, text: 'Named the breakout of the ' + (isDebut ? 'debut' : 'comeback') + ' by nearly every recap.' });
 
     // memory takes notes (v0.6.0): breakouts and virals accumulate into

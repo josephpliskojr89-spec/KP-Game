@@ -245,6 +245,9 @@
         // reset clock is itself the gate: the next table is five years out
         p.contract.term = (p.contract.term || 1) + 1;
         p.history.push({ week: state.week, text: 'Re-signed with the company. Term ' + p.contract.term + '.' });
+        // the arc (v0.10.27, §88 C): the years served, signed again
+        if (KP.driftTrait) KP.driftTrait(state, p, 'professionalism', KP.C.DRIFT.renewalPro,
+          'the second contract', KP.fillPro('Term ' + p.contract.term + ' changed something small and permanent: {she} reads rooms like a colleague now, not a kid. The staff noticed before {she} did.', p));
       };
       if (optionId === 'sign' || (optionId === 'standard' && read.band === 'professional')) {
         renew();

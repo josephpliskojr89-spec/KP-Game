@@ -105,7 +105,10 @@ function planFor(state, g) {
     if (incidents) {
       t.ok(state.inbox.some(m => m.urgent && /pulled from/i.test(m.text)),
         'the incident lands urgent in the inbox');
-      const benched = g.members.map(id => state.people[id]).find(p => p.flags.burnout > 0);
+      // the schedule-path benched member specifically (the 0.10.17 rule,
+      // reapplied 0.10.27: burnout has more sources than the schedule now)
+      const benched = g.members.map(id => state.people[id]).find(p => p.flags.burnout > 0 &&
+        p.history.some(h => /Pulled from the schedule/.test(h.text)));
       const before = benched.talents.vocals.cur;
       const fatBefore = benched.fatigue;
       KP.advanceWeek(state);

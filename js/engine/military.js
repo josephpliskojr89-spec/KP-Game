@@ -70,7 +70,10 @@
     p.serviceDone = state.week;      // durable — the census and the wall both read it
     p.morale = KP.clamp(p.morale + M.dischargeMorale, 0, 100);
     p.fatigue = Math.min(p.fatigue, M.dischargeFatigueCap);
-    p.personality.professionalism = KP.clamp(p.personality.professionalism + M.professionalism, 0, 100);
+    // the arc (v0.10.27, §88 C): the same movement as always, now
+    // through the one drift door — capped and on the record
+    if (KP.driftTrait) KP.driftTrait(state, p, 'professionalism', M.professionalism, 'the service');
+    else p.personality.professionalism = KP.clamp(p.personality.professionalism + M.professionalism, 0, 100);
     ledger(state).discharged++;
     p.history.push({ week: state.week, text: 'Discharged after ' + weeks +
       ' weeks of service. Came back with a straighter spine, a phone full of two years of group chat, and the same job waiting — which is the whole point of the wait.' });
