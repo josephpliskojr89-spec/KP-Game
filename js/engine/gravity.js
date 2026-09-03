@@ -70,28 +70,36 @@
     return Math.min(ST.rungMax, rung);
   };
 
-  // the proactive launch (v0.9.27): the boss who opens the career door
-  // BEFORE she has to ask three times — remembered warmly, forever
+  // the proactive launch (v0.9.27; reworked v0.10.25, §87 F): the boss
+  // who opens the career door BEFORE she has to ask three times —
+  // remembered warmly, forever. The door opens IN-HOUSE: she keeps her
+  // seat in the lineup and gains a standing solo career beside it (the
+  // owner's ruling: "there is no incentive at all for the label to
+  // allow" the exit — so the exit is no longer the company's button;
+  // leaving happens through HER leverage, at renewals and walkouts).
   KP.launchSoloCareer = function (state, personId) {
     const p = state.people[personId];
     if (!p || p.status !== 'idol') return { ok: false, reason: 'Careers launch for active artists.' };
     const g = KP.groupOf(state, personId);
     if (!g || g.type === 'solo') return { ok: false, reason: 'A soloist already has the career.' };
-    if (g.members.length <= 2) return { ok: false, reason: 'Launching her would not leave a group behind. That is the disband conversation, not this one.' };
+    if (p.dualCareer) return { ok: false, reason: 'Her career is already open — same house, her own calendar.' };
     if (KP.onBreak(p)) return { ok: false, reason: KP.fillPro('{She} is off the schedule. The launch waits for {her}.', p) };
     if (g.tour || g.prep) return { ok: false, reason: 'Mid-era is the wrong week for this press release. Let the calendar clear.' };
-    if (p.soloEra) return { ok: false, reason: 'Her in-group era is mid-flight. Land it, then talk careers.' };
-    const r = KP.graduateToSolo(state, personId);
-    if (!r.ok) return r;
-    if (g.gravity && !g.gravity.settled) { g.gravity.settled = 'spinout'; g.gravity.settledWeek = state.week; }
-    g.newEra = { week: state.week, alum: p.id };
+    p.dualCareer = { since: state.week };
+    if (g.gravity && !g.gravity.settled) { g.gravity.settled = 'career'; g.gravity.settledWeek = state.week; }
     p.morale = KP.clamp(p.morale + KP.C.STAR.launchMorale, 0, 100);
     KP.recordDirected(state, p.id, 'openedTheDoor', 2);
-    p.history.push({ week: state.week, text: 'The company launched the solo career before the third conversation ever happened. Some doors get opened for you. She has never forgotten which kind of company does that.' });
+    p.history.push({ week: state.week, text: 'The company opened the solo career — in-house, her seat in ' + g.name + ' untouched, her own calendar beside it. Some doors get opened for you. She has never forgotten which kind of company does that.' });
+    (state.discourses || []).forEach(dc => {
+      if ((dc.kind === 'albumClamor' || dc.kind === 'soloClamor') &&
+          String(dc.subjectId) === String(p.id) && dc.status === 'live') {
+        dc.status = 'resolved'; dc.resolved = 'answered';
+      }
+    });
     const led = ledger(state);
     led.careers = (led.careers || 0) + 1;
     const note = KP.note(state, { kind: 'public', ind: 'gravitySettled', priority: 'critical', personId: p.id, groupId: g.id,
-      text: KP.fillPro(state.company.short + ' launched ' + KP.displayName(p) + '’s solo career — announced WITH the group, photographed as a family, framed as the plan all along. The industry note is unanimous: this is how it is done. ' + g.name + ' opens its next chapter; {she} opens {pos} own office door.', p) });
+      text: KP.fillPro(state.company.short + ' opened ' + KP.displayName(p) + '’s solo career — announced WITH the group, photographed as a family, and the line everyone repeated: “still ' + g.name + ', always ' + g.name + '.” Two calendars, one house, no goodbye. The industry note is unanimous: this is how it is done now.', p) });
     return { ok: true, note: note.text };
   };
 
@@ -120,6 +128,7 @@
           const star = state.people[g.gravity.personId];
           const rung = g.gravity.rung || 1;
           if (star && g.members.includes(star.id) && !KP.onBreak(star) &&
+              !star.dualCareer &&   // her conversation is ANSWERED (v0.10.25)
               rung < ST.rungMax &&
               KP.transcendRead(state, g, star) >= G.transcendAt) {
             g.gravity = { personId: star.id, since: state.week, stage: 0,
@@ -139,6 +148,7 @@
           // who, if anyone, is pulling away from the room
           const reads = g.members.map(id => state.people[id]).filter(Boolean)
             .filter(p => !(p.flags && p.flags.military))   // nobody clamors from a base (v0.9.23)
+            .filter(p => !p.dualCareer)   // an open career has no clamor left (v0.10.25)
             .map(p => ({ p, read: KP.transcendRead(state, g, p) }))
             .sort((a, b) => b.read - a.read);
           const top = reads[0];
@@ -342,14 +352,17 @@
       const rung = (g && g.gravity && g.gravity.rung) || 1;
       if (rung >= 3) {
         return [
-          { id: 'open', label: 'Launch the solo career — same house' },
+          { id: 'open', label: 'Open the career — in-house, same lineup' },
           { id: 'group', label: 'Hold her to the lineup' },
         ];
       }
+      // v0.10.25 (§87 F): the graduation option is gone from the desk —
+      // no label volunteers its star out of the group. Exits happen
+      // through HER leverage: renewals, walkouts, the events that earn
+      // them.
       return [
         { id: 'promise', label: rung === 2 ? 'The album. On the record.' : 'A solo. On the record.' },
         { id: 'group', label: 'The group comes first — for now' },
-        { id: 'open', label: 'Open the solo door — graduation' },
       ];
     },
     resolve: (state, sc, optionId) => {
@@ -385,22 +398,15 @@
           ? '{She} heard the no all the way through, thanked you for the years in a voice you did not recognize, and left. The clamor will not stop. The clock will not stop. And the meeting {she} calls next may have a lawyer’s font on it.'
           : '{She} nodded like a professional and left like a stranger. The clamor outside continues; the clock inside just started.', p) };
       }
-      // the spin-out, chosen: graduation with the door held open — at
-      // rung 3 it is the LAUNCH, the fork the whole clock pointed at
-      const r = KP.graduateToSolo ? KP.graduateToSolo(state, p.id) : { ok: false };
+      // the career, in-house (v0.10.25, §87 F): rung 3's yes keeps her —
+      // the dual career, not the exit. No label volunteers its star out
+      // of the lineup; she leaves through HER leverage, not this desk.
+      const r = KP.launchSoloCareer(state, p.id);
       if (!r.ok) {
-        return { toast: r.reason || 'The graduation path is not open this week.' };
+        return { toast: r.reason || 'The career path is not open this week.' };
       }
-      if (g && g.gravity) { g.gravity.settled = 'spinout'; g.gravity.settledWeek = state.week; }
-      if (g) g.newEra = { week: state.week, alum: p.id };   // chapter two opens (v0.9.25)
-      if (rung >= 3) {
-        const led2 = ledger(state);
-        led2.careers = (led2.careers || 0) + 1;
-      }
-      return { toast: KP.fillPro(rung >= 3
-        ? 'You said yes before the clock finished ticking. The launch, done right: same house, {pos} own calendar, a group that gets a new chapter instead of a wound — and a door that swings BOTH ways. Return runs have been arranged for less.'
-        : 'You opened the door before {she} had to push it. The spin-out, done warm: same company, {pos} own calendar, and a group that gets to say it blessed the flight.', p),
-        note: r.note ? { kind: 'public', priority: 'high', personId: p.id, text: r.note } : null };
+      return { toast: KP.fillPro('You said yes before the clock finished ticking, and the yes was the RIGHT shape: {pos} career, opened in-house — {pos} seat in ' + (g ? g.name : 'the group') + ' untouched, {pos} own calendar beside it. Two eras a year, one family photo. {She} shook your hand twice.', p),
+        note: null };
     },
     expire: (state, sc) => {
       const p = state.people[sc.personId];
@@ -506,10 +512,13 @@
     if (p.soloEra) return { ok: false, reason: 'Her era is already on the calendar.' };
     const other = g.members.map(id => state.people[id]).find(m => m && m.soloEra);
     if (other) return { ok: false, reason: KP.publicGiven(other) + '’s solo era has the studio. One member at a time.' };
-    if (format === 'mini' && state.week - (p.lastSoloAlbumWeek || -999) < ST.albumCooldown) {
+    // the career, in-house (v0.10.25, §87 F): a dual-career star runs
+    // her own calendar — the cooldowns halve, the cadence is hers
+    const cadence = p.dualCareer ? ST.dualCadenceMult : 1;
+    if (format === 'mini' && state.week - (p.lastSoloAlbumWeek || -999) < Math.round(ST.albumCooldown * cadence)) {
       return { ok: false, reason: 'One solo era at a time. The last one is still on the charts of somebody’s heart.' };
     }
-    if (format !== 'mini' && state.week - (p.lastSoloCutWeek || -999) < ST.soloSingleCooldown) {
+    if (format !== 'mini' && state.week - (p.lastSoloCutWeek || -999) < Math.round(ST.soloSingleCooldown * cadence)) {
       return { ok: false, reason: 'Her last single is still warm. The calendar wants a gap between her moments.' };
     }
     const cost = KP.soloEraCost(state, p, format);

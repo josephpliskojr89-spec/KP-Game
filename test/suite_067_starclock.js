@@ -98,10 +98,14 @@ function debuted(seed) {
   t.ok(!opts.some(o => o.id === 'promise'), 'no promises at the career rung');
   KP.resolveScene(state, fork.id, 'open');
   KP.transcendRead = realRead;
-  const solo = state.groups.find(s => s.type === 'solo' && s.members.includes(star.id));
-  t.ok(solo && solo.originGroupId === g.id, 'launched — same house, the door remembers home');
-  t.ok(!g.members.includes(star.id), 'the lineup is chapter two now');
-  t.ok(g.newEra, 'and the group knows it');
+  // the career, in-house (v0.10.25, §87 F — owner: "there is no
+  // incentive at all for the label to allow" the exit): the yes at
+  // rung 3 keeps her seat and opens her own calendar beside it
+  t.ok(g.members.includes(star.id), 'the yes KEEPS her — the lineup is untouched');
+  t.ok(star.dualCareer && star.dualCareer.since === state.week, 'the dual career is durable');
+  t.ok(!state.groups.some(s => s.type === 'solo' && s.members.includes(star.id)),
+    'no spin-out act was minted — one seat, two calendars');
+  t.eq(g.gravity.settled, 'career', 'the clamor settles for good');
   t.ok((state.gravityLedger || {}).careers >= 1, 'the career is ledgered');
 }
 
@@ -175,10 +179,14 @@ function debuted(seed) {
   while ((g.prep || state.week <= (g.promoUntil || 0)) && guard++ < 20) KP.advanceWeek(state);
   const r = KP.launchSoloCareer(state, star.id);
   t.ok(r.ok, 'the launch runs');
-  t.ok(!g.members.includes(star.id), 'she has her own calendar now');
-  t.ok(state.groups.some(s2 => s2.type === 'solo' && s2.originGroupId === g.id), 'next door, not gone');
-  t.ok(g.newEra, 'the group opens chapter two');
+  // v0.10.25 (§87 F): the proactive launch opens the career IN-HOUSE —
+  // she keeps her seat, gains her own calendar, and the group loses
+  // nothing. The exit is no longer the company's button.
+  t.ok(g.members.includes(star.id), 'she stays in the lineup');
+  t.ok(!!star.dualCareer, 'and has her own calendar now — in-house');
+  t.ok(!state.groups.some(s2 => s2.type === 'solo' && s2.originGroupId === g.id), 'no spin-out act minted');
   t.ok((star.directed || []).some(d => d.kind === 'openedTheDoor'), 'and she remembers WHO opened the door');
+  t.ok(!KP.launchSoloCareer(state, star.id).ok, 'the career opens once');
   t.ok((state.gravityLedger || {}).careers >= 1, 'ledgered');
 }
 

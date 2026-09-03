@@ -130,12 +130,17 @@ function elevate(state, g, p) {
   const b = KP.deserialize(KP.serialize(state));
   KP.resolveScene(b, b.scenes.find(x => x.kind === 'soloKnock').id, 'group');
   t.ok((b.people[p.id].directed || []).some(d => d.kind === 'heldBack'), 'the hold goes on the directed ledger');
-  // fork C: the spin-out — graduation with the door held open
+  // fork C (v0.10.25, §87 F — owner: "there is no incentive at all for
+  // the label to allow" the exit): graduation left the knock's menu,
+  // and the career door opens IN-HOUSE — she stays
   const c = KP.deserialize(KP.serialize(state));
-  KP.resolveScene(c, c.scenes.find(x => x.kind === 'soloKnock').id, 'open');
+  const kn = c.scenes.find(x => x.kind === 'soloKnock');
+  const opts = KP.sceneDef('soloKnock').options(c, kn);
+  t.ok(!opts.some(o => /graduation/.test(o.label)), 'no graduation option on this desk');
+  const rc = KP.launchSoloCareer(c, p.id);
   const cg = c.groups[0];
-  t.ok(!cg.members.includes(p.id), 'the spin-out: she flies');
-  t.eq(cg.gravity.settled, 'spinout', 'and the clamor closes with her');
+  t.ok(rc.ok && cg.members.includes(p.id), 'the proactive career keeps her seat');
+  t.ok(!!c.people[p.id].dualCareer, 'one seat, two calendars');
 }
 
 // ---- the slump: the nerve goes, the middle register, the stage exit ----

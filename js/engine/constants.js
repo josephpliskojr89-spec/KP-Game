@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.24',
+    VERSION: '0.10.25',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -2118,6 +2118,9 @@
       dominanceAlbum: 2.0,       // her following vs the room's median: the
       dominanceCareer: 3.5,      // conversation enters where the numbers already are
       launchMorale: 8,           // the door opened before she had to push
+      // the career, in-house (v0.10.25, §87 F): rung 3's answer keeps
+      // her in the lineup — the label never volunteers its star away
+      dualCadenceMult: 0.5,      // her own calendar: solo cooldowns halve
       // the solo era (v0.10.24, §87): in-group solo releases as a
       // proactive company strategy — the label holds the cards
       soloSingleCost: 35,        // her single, produced inside the group

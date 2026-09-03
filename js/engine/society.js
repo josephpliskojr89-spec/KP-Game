@@ -99,6 +99,11 @@
           const home = friend && actOfPerson(state, friend.id);
           if (friend) {
             ours.morale = KP.clamp(ours.morale + S.truckMorale, 0, 100);
+            // the banner is durable (v0.10.25): the note rides at flavor
+            // priority and the trim can eat it — the history cannot be
+            // eaten, so the census (and her file) read the truth
+            ours.history.push({ week: state.week, text: 'Kept the banner from the coffee truck ' +
+              KP.displayName(friend) + ' sent to the site. The industry’s friendliest espresso.' });
             inbox.push({ kind: 'public', ind: 'coffeeTruck', priority: 'flavor',
               personId: ours.id, friendId: friend.id,
               text: KP.fillPro('A coffee truck arrived at the site with ' + KP.publicGiven(ours) +

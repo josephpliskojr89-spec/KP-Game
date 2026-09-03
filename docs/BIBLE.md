@@ -6048,6 +6048,36 @@ expectation was mine, not its: the resolution now settles a live
 rung-≤2 clamor at the drop itself, in the rail's one vocabulary
 ('solo').
 
+**F. The career, in-house (RULED + SHIPPED v0.10.25).** Owner,
+after playing v0.10.24: "I just think the biggest issue is they
+leave the group at graduation and there is no incentive at all for
+the label to allow that. if she got to be such a big problem that
+they took her out of the group, she definitely wouldn't be getting
+a solo career." The ruling, mechanized: the company's career verbs
+no longer open the exit. KP.launchSoloCareer and the rung-3
+knock's yes now grant the DUAL CAREER — p.dualCareer, durable: she
+keeps her seat in the lineup and gains her own calendar beside it
+(solo-era cooldowns halve, dualCadenceMult .5), the clamor settles
+'career' for good (a dual-career star never re-enters the clamor
+cycle — the conversation is answered), morale + openedTheDoor as
+before. The graduation option is GONE from the rung-1/2 knock
+menu entirely — no label volunteers its star out of the group.
+graduateToSolo remains in the engine for the paths that were
+always hers, not yours: renewal-table departures, walkouts after
+the held rung-3 no, and events. The rung-3 HOLD keeps its lawyer
+teeth — refusing the in-house career is now the only way the desk
+itself loses her over this. Note the shape of the fork the ruling
+created: the yes costs you nothing but the fandom split of her
+eras; the no costs you the renewal. That is the industry the owner
+described — the label holds the cards until the contract table,
+where she holds them. suite_060/067 re-pinned to the ruling;
+suite_094 pins the halved cadence and the closed clamor. One
+census repair rode along: the coffee truck was firing all along
+(40/40!) but its flavor-priority note got trimmed before the
+harness scan — the banner now writes durable history and the
+census reads it (the 3/40 of earlier soaks was undercounting,
+not rarity).
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -9047,3 +9077,21 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > soloCutOut 40/40, floors .05. Suite_094 (45 checks) new; battery
 > 94/94, soak 40 clean, longhaul 10x620, e2e 112, lockstep 0.10.24.
 > Rode to main.
+
+> **0.10.25 — the career, in-house.** Owner: "they leave the group
+> at graduation and there is no incentive at all for the label to
+> allow that." §87 F ruled and shipped: launchSoloCareer and the
+> rung-3 knock now grant the dual career — she keeps her lineup
+> seat, gains her own calendar (solo cooldowns halve), the clamor
+> settles 'career' forever, and the graduation option leaves the
+> rung-1/2 knock menu entirely. The exit is no longer the company's
+> button: graduateToSolo survives only for HER leverage — renewal
+> departures, walkouts after a held rung-3 no, events. The fork the
+> ruling makes: the yes costs a fandom split; the no costs the
+> renewal table. suite_060/067 re-pinned to the ruling; suite_094
+> +7 checks (halved cadence, closed clamor, no spin-out minted).
+> Census repair: the coffee truck was never rare — its flavor note
+> was being trimmed before the scan (40/40 when read from the
+> durable banner history it now writes; old 3/40 was undercount).
+> Battery 94/94, soak 40 clean, longhaul 10x620, e2e 112, lockstep
+> 0.10.25. Rode to main.

@@ -163,6 +163,33 @@ function afterRest(state, g) {
   t.ok(!again.ok && /generational/.test(again.reason), 'the project does not become a cadence');
 }
 
+// ---- the career, in-house (v0.10.25, §87 F): the yes that keeps her ----
+{
+  const { state, g } = debuted('era-dual');
+  afterRest(state, g);
+  const star = state.people[g.members[0]];
+  const r = KP.launchSoloCareer(state, star.id);
+  t.ok(r.ok, 'the career opens');
+  t.ok(g.members.includes(star.id), 'without an exit — her seat is untouched');
+  t.ok(!!star.dualCareer, 'the dual career is durable on the person');
+  KP.planSoloEra(state, star.id, { format: 'single' });
+  let guard = 0;
+  while (star.soloEra && guard++ < 10) KP.advanceWeek(state);
+  t.eq((star.soloDisc || []).length, 1, 'her lane releases like any era');
+  const half = Math.round(KP.C.STAR.soloSingleCooldown * KP.C.STAR.dualCadenceMult);
+  state.budget = 2000;
+  star.lastSoloCutWeek = state.week - (half - 1);
+  t.ok(!KP.soloEraCheck(state, star.id, 'single').ok, 'inside the halved gap the calendar still refuses');
+  star.lastSoloCutWeek = state.week - half;
+  t.ok(KP.soloEraCheck(state, star.id, 'single').ok, 'her own cadence: the cooldown halves in-house');
+  // an answered career never re-enters the clamor cycle
+  g.gravity = { personId: star.id, settled: 'career',
+    settledWeek: state.week - KP.C.STAR.reclamorWeeks - 1, rung: 3 };
+  KP.advanceWeek(state);
+  t.ok(!g.gravity || g.gravity.settled || g.gravity.personId !== star.id,
+    'the trades never reopen an answered career');
+}
+
 // ---- determinism: the era forks clean ----
 {
   const { state, g } = debuted('era-fork');

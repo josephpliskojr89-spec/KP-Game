@@ -1949,7 +1949,11 @@ for (let s = 0; s < SEEDS; s++) {
   if (circuitSeen) tally.homeCircuit++;
   if (encoreSeen) tally.encoreEarned++;
   if ((state.industryFriends || []).length) tally.friendMade++;
-  if (truckSeen) tally.coffeeTruck++;
+  // coffeeTruck: the note rides flavor priority and the week's traffic
+  // can trim it before this scan (v0.10.24's era notes land in the same
+  // just-released weeks) — the durable banner in her history is the truth
+  if (truckSeen || Object.values(state.people).some(p2 =>
+    (p2.history || []).some(h => /coffee truck/.test(h.text)))) tally.coffeeTruck++;
   if (stanSeen) tally.seniorStan++;
   if (classSeen) tally.debutClass++;
   if (congratsSeen) tally.industryCongrats++;
