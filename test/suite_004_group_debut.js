@@ -113,4 +113,33 @@ function buildGroup(state) {
     'the consequence fires once, not weekly');
 }
 
+// ---- the big room (v0.10.28): nine is legal, ten is not ----
+// Owner: "If Twice can have 9, why can't I?" The cap moved 6→9; the
+// floor stays 4 (a duo's math is different, solos exempt).
+{
+  const state = KP.newGame('big-room', null, { legacy: false });
+  while (state.roster.length < 10) {
+    const rng = KP.rngFor(state);
+    const tr = KP.generatePerson(rng, { status: 'trainee', gender: 'f' });
+    state.rngState = rng.state();
+    tr.signedWeek = state.week;
+    state.people[tr.id] = tr; state.roster.push(tr.id);
+  }
+  const nine = state.roster.slice(0, 9);
+  const r9 = KP.proposeGroup(state, 'NINEROOM', nine, KP.roleHints(state, nine.map(i => state.people[i])));
+  t.ok(r9.ok, 'nine members is a legal lineup — TWICE math allowed');
+  t.eq(state.groups[state.groups.length - 1].members.length, 9, 'and all nine are in the room');
+  const fresh = KP.newGame('big-room-2', null, { legacy: false });
+  while (fresh.roster.length < 10) {
+    const rng = KP.rngFor(fresh);
+    const tr = KP.generatePerson(rng, { status: 'trainee', gender: 'f' });
+    fresh.rngState = rng.state();
+    tr.signedWeek = fresh.week;
+    fresh.people[tr.id] = tr; fresh.roster.push(tr.id);
+  }
+  const r10 = KP.proposeGroup(fresh, 'TENROOM', fresh.roster.slice(0, 10),
+    KP.roleHints(fresh, fresh.roster.slice(0, 10).map(i => fresh.people[i])));
+  t.ok(!r10.ok, 'ten is still a crowd — the cap holds at ' + KP.C.GROUP.maxMembers);
+}
+
 t.finish();

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.27',
+    VERSION: '0.10.28',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -346,7 +346,12 @@
 
     // ---- Groups ---------------------------------------------------------
     GROUP: {
-      minMembers: 4, maxMembers: 6,
+      // the big room (v0.10.28) — owner: "If Twice can have 9, why
+      // can't I?" The old cap of 6 was a tuning-era relic, not a law:
+      // every system iterates the lineup. Nine mouths is nine salaries,
+      // nine shares of the spotlight, and nine friction candidates —
+      // the size is legal; feeding it is the game.
+      minMembers: 4, maxMembers: 9,
       roles: ['leader', 'center', 'mainVocal', 'mainDancer', 'mainRapper'],
       chemistryPairWeight: 0.55,
       chemistryPersonalityWeight: 0.45,

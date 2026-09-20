@@ -9320,3 +9320,18 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > burnouts. Battery 96/96, soak 40 clean, longhaul 10x620, e2e 111,
 > browser tab check clean, lockstep 0.10.27. Rode to main. §88 D
 > (the pair) and E (the manager's shadow) remain on the shelf.
+
+> **0.10.28 — the big room.** Owner: "If Twice can have 9, why
+> can't I?" No reason at all, it turned out: GROUP.maxMembers was a
+> tuning-era 6, not an architecture — the audit found every system
+> iterates the lineup (roleHints picks bests regardless of size,
+> the tracklist doctrine scales, the UI reads the constants). Cap
+> raised 6→9; floor stays 4 (a duo's math is different, solos
+> exempt). A nine-member career smoke-tested end to end: propose,
+> debut, a full year of rails and scenes, the every-member project
+> (nine cuts when nine are active), serialize round-trip. The
+> balance is self-enforcing: nine salaries, nine shares of every
+> spotlight, nine friction candidates, and a solo project the size
+> of a full album — the size is legal; feeding it is the game.
+> suite_004 pins nine-legal/ten-refused. Battery 96/96, soak 40
+> clean, longhaul 10x620, e2e 111, lockstep 0.10.28. Rode to main.
