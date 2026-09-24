@@ -550,7 +550,6 @@ const BANDS = {
   coffeeTruck:       { lo: 0.02, hi: 1.00, label: 'orgs that got the coffee truck' },
   seniorStan:        { lo: 0.30, hi: 1.00, label: 'orgs whose rookie a senior publicly stanned' },
   debutClass:        { lo: 0.20, hi: 1.00, label: 'orgs whose debut class the fans lined up at award season' },
-  industryCongrats:  { lo: 0.02, hi: 1.00, label: 'orgs whose idol congratulated a friend in public' },
   // v0.9.5 — the year (floors provisional on first soak)
   festPlayed:        { lo: 0.50, hi: 1.00, label: 'orgs that played the university festival circuit' },
   gayoStaged:        { lo: 0.20, hi: 1.00, label: 'orgs that closed a year on the gayo stage' },
@@ -664,7 +663,7 @@ const tally = {
   boysSigned: 0, boyGroupFormed: 0, staffNamed: 0, boardFaced: 0, petAssigned: 0,
   contractStamped: 0,
   homeCircuit: 0, encoreEarned: 0, friendMade: 0, coffeeTruck: 0,
-  seniorStan: 0, debutClass: 0, industryCongrats: 0,
+  seniorStan: 0, debutClass: 0,
   festPlayed: 0, gayoStaged: 0, daesangWon: 0, daesangSnubbed: 0,
   fusionTried: 0, fusionShift: 0, fusionAcclaim: 0, fusionFlop: 0,
   truckParked: 0, fanMeetingHeld: 0, lightstickOut: 0,
@@ -1463,14 +1462,14 @@ for (let s = 0; s < SEEDS; s++) {
       if (n.ind === 'coffeeTruck') truckSeen = true;
       if (n.ind === 'seniorStan') stanSeen = true;
       if (n.ind === 'debutClass') classSeen = true;
-      if (n.ind === 'industryCongrats') congratsSeen = true;
     });
     // the people census (v0.7.4): the spotlight lands most weeks
-    if (notes.some(n => n.moment)) personMomentWeeks++;
+    if ((KP.spotlightThisWeek ? KP.spotlightThisWeek(state) : []).length) personMomentWeeks++;   // the spotlight surface (v0.10.29)
     if (notes.some(n => n.moment === 'quietWeek')) quietWeekSeen = true;
     // the door census (v0.8.2)
-    if (notes.some(n => /asked for a minute of your time/.test(n.text))) doorKnockSeen = true;
-    if (notes.some(n => n.choice)) momentChoiceWasSeen = true;
+    if ((state.convoLog || []).some(c => c.kind === 'idolAsk' || c.kind === 'idolDoor') ||
+        (state.scenes || []).some(sc => sc.kind === 'idolAsk' || sc.kind === 'idolDoor')) doorKnockSeen = true;
+    if ((state.spotlight || []).some(m => m.week === state.week && m.choice)) momentChoiceWasSeen = true;
     if (notes.some(n => /stopped waiting|stopped asking for that minute/.test(n.text))) doorWaitSeen = true;
     if (notes.some(n => n.ind === 'anniversary')) annivSeen = true;
     if (state.roster.some(id => (state.people[id].flags || {}).scar > 0)) scarSeen = true;
@@ -1965,7 +1964,6 @@ for (let s = 0; s < SEEDS; s++) {
     (p2.history || []).some(h => /coffee truck/.test(h.text)))) tally.coffeeTruck++;
   if (stanSeen) tally.seniorStan++;
   if (classSeen) tally.debutClass++;
-  if (congratsSeen) tally.industryCongrats++;
   // the tracklist census (v0.7.5)
   const allReleases = state.groups.flatMap(gg => gg.releases || []);
   const credits = allReleases.flatMap(r => (r.tracklist || []).filter(tk => tk.credit));

@@ -58,6 +58,13 @@
       case 'fanWar': return 'The fan war is ON: same release week, both fandoms mass-buying, chart-watching in fifteen-minute increments, and quote-posting each other\u2019s celebration posts with numbers attached. The rivalry coverage will call it healthy competition. Nobody in either trench calls it that.';
       case 'civilWar': return 'An in-house fan war, the saddest genre: two fandoms under ONE company letterhead fighting over promo slots, teaser budgets, and who the building loves more. Every receipt in the thread is a screenshot of the same company calendar. The company, notably, has said nothing.';
       case 'masterTurn': return 'A fansite closing notice with receipts is a genre of its own, and this one is dated, organized, and aimed at the COMPANY, not the artist. The fandom is split between grief and citation. The quote-posts are doing forensic accounting on the dates, and the dates hold up.';
+      // the six that fell to the default (§89 E)
+      case 'albumClamor': return KP.fillPro('The ' + who + ' ALBUM campaign is organized now — hashtags on a schedule, a tracklist somebody wrote for {her}, and a deadline the fandom set without consulting the company.', p);
+      case 'aceSnub': return who + ' was left off the year-end ballot the fandom expected, and the receipts thread is three hundred posts long. Snubs organize a fanbase faster than wins.';
+      case 'albumDump': return 'Photos of ' + who + ' albums in a dumpster — the fan-sign leftovers, unboxed and abandoned — are moving fast. The thread is aimed at the sign rounds, which is to say at the company.';
+      case 'atmStory': return 'The ' + who + ' fandom did the math out loud: membership, the drop, the fancon, the versions, one season. The thread is titled “we are not ATMs,” and it is aimed at the calendar.';
+      case 'lineShare': return 'The ' + who + ' line-distribution video is out, colour-coded to the second, and the quiet members’ bars are very short. The comment section has names and numbers.';
+      case 'scandal': return 'A story about ' + who + ' is moving — the outlets holding it are not asking for comment as a courtesy, and the quote-posts have started before the response desk opened.';
       default: return 'Something about ' + who + ' is trending.';
     }
   };
@@ -83,7 +90,7 @@
         .concat(dead.slice(-12));
     }
     return {
-      kind: spec.negative ? 'public' : 'public', urgent: spec.negative,
+      kind: 'public', urgent: spec.negative,
       ind: 'discourse', discourseId: d.id,
       text: 'PR flag — ' + spec.label + ' (' + KP.heatWord(d.heat) + '): ' +
         KP.discourseHeadline(state, d) + ' Response options are on the Feed desk. Ignoring it is also a strategy.',

@@ -66,7 +66,7 @@
       const lit = KP.mandateFitting && KP.mandateFitting(state, { kind: 'group', gender: null, memberIds: [] });
       if (!lit) {
         return '<div class="card" style="margin-top:14px">The trainee room still has people waiting for their shot — ' + free + ' without a lineup. But no greenlight covers a new act: debuts come down from upstairs.' +
-          '<div style="margin-top:12px"><button class="btn small" data-action="nav-desk">Pitch the board from the Desk</button></div></div>';
+          '<div style="margin-top:12px"><button class="btn small" data-nav="desk">Pitch the board from the Desk</button></div></div>';
       }
       return '<div class="card" style="margin-top:14px">The trainee room still has people waiting for their shot — ' + free + ' without a lineup. The greenlight is open.' +
         '<div style="margin-top:12px"><button class="btn primary" data-action="open-builder">Propose a new lineup</button></div></div>';
@@ -312,7 +312,7 @@
         '</div>');
     } else if (!g.debuted) {
       html.push('<div class="card">The lineup exists on paper. It becomes real in the Studio: pick the song, the concept, and the date.' +
-        '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Open the Studio</button></div></div>');
+        '<div style="margin-top:12px"><button class="btn primary" data-nav="studio">Open the Studio</button></div></div>');
     } else if (promoting) {
       // the rituals (v0.10.7): the one mobilization push a week
       const nudged = g.pointNudge && state.week - g.pointNudge.week <= 1;
@@ -342,7 +342,7 @@
         (hw <= H.graceWeeks
           ? 'The announcement is holding: the fans are patient, the members are sleeping, the second jobs have room.'
           : 'Past the grace window now — the rest is still working, and so is the forgetting. The return converts the wait into numbers; the wait converts the numbers into less.') +
-        '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Announce the return</button></div></div>');
+        '<div style="margin-top:12px"><button class="btn primary" data-nav="studio">Announce the return</button></div></div>');
     } else {
       const unitReady = g.type !== 'solo' && members.length >= 3 &&
         state.week - (g.lastUnitWeek || -999) >= KP.C.PORTFOLIO.UNIT.cooldown;
@@ -353,7 +353,7 @@
         state.week - (g.lastFanconWeek || -999) >= KP.C.MERCH.fanconCooldown;
       html.push('<div class="card">The room between releases is where momentum goes to die. The producers have fresh demos in the Studio' +
         (unitReady ? ' — and the between is what units are for.' : '.') +
-        '<div style="margin-top:12px"><button class="btn primary" data-action="nav-studio">Plan the comeback</button></div>' +
+        '<div style="margin-top:12px"><button class="btn primary" data-nav="studio">Plan the comeback</button></div>' +
         (unitReady ? '<div style="margin-top:8px"><button class="btn small" data-action="plan-unit" data-id="' + g.id + '">Plan a unit era · ' + KP.C.PORTFOLIO.UNIT.cost + '</button></div>' : '') +
         (fanconReady ? '<div style="margin-top:8px"><button class="btn small" data-action="hold-fancon" data-id="' + g.id + '">Hold a fancon · ' + KP.C.MERCH.fanconCost + '</button></div>' : '') +
         (state.jpPartner && (KP.regionsOf(g).jp || 0) >= KP.C.JAPAN.minWarmth &&

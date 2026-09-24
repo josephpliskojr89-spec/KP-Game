@@ -128,7 +128,7 @@ function release(state, g, format) {
   t.ok(writer.flags.writerCredits >= penned.filter(tk => tk.writtenBy === writer.id).length,
     'the pen count is on the file');
   t.ok(writer.history.some(h => /First songwriting credit/.test(h.text)), 'the first credit is history');
-  t.ok(state.inbox.some(n => n.ind === 'memberWrote'), 'and the booklet gets read out loud');
+  t.ok((KP.lastTickNotes || []).some(n => n.ind === 'memberWrote'), 'and the booklet gets read out loud (pre-trim: a release week is loud)');
   t.ok(KP.feedReactionFor('memberWrote') && KP.feedReactionFor('ghostDemo') && KP.feedReactionFor('graduation'),
     'every credits ind answers through the registry');
 }

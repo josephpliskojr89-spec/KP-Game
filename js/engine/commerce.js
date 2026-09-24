@@ -34,7 +34,7 @@
     if (merchPush(state, g) >= M.atmPushes && rng.chance(M.atmChance) &&
         !(state.discourses || []).some(d => d.kind === 'atmStory')) {
       ledger(state).atmStorms++;
-      const d = KP.igniteDiscourse && KP.igniteDiscourse(state, rng, 'atmStory', 'group', null, g.id);
+      const d = KP.igniteDiscourse && KP.igniteDiscourse(state, rng, 'atmStory', 'group', g.id, g.id);
       if (d) inbox.push(d);
       inbox.push({ kind: 'public', ind: 'atmStory', priority: 'high', groupId: g.id,
         text: 'The fandom did the math out loud: membership, the drop, the fancon, the versions — all inside one season. The thread is titled "we are not ATMs," it is extremely organized, and it is aimed at the COMPANY’s calendar, not the group. The calendar was, in fairness, aimed at wallets.' });
@@ -196,9 +196,7 @@
         state.budget += revenue;
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', revenue);
         if (KP.settleShare) KP.settleShare(state, g, revenue);
-        led.renewals++;
-        inbox.push({ kind: 'company', ind: 'clubRenewal', priority: 'flavor', groupId: g.id,
-          text: 'Fanclub renewal season for ' + g.name + ': ' + KP.fmtCount(members) + ' members re-upped — ' + revenue + ' in dues. The most boring line in the books, and the one the CFO loves most.' });
+        led.renewals++;   // a books line, not a letter (§89 C)
       }
       // Season's Greetings window, every Q4
       if (woy === M.greetingsWoy && (g.fandom.intensity || 0) >= 25 &&
@@ -216,9 +214,7 @@
         const revenue = Math.round((fanbase / 1000) * M.tourMerchPerK);
         state.budget += revenue;
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', revenue);
-        led.tourMerch++;
-        inbox.push({ kind: 'company', ind: 'tourMerch', priority: 'flavor', groupId: g.id,
-          text: 'The tour merch table opened with the tour: the slogan towels, the new lightstick strap, the city-name tees. ' + revenue + ' before the first encore. Venues sell tickets; tables print money.' });
+        led.tourMerch++;   // a books line, not a letter (§89 C)
         // the table is a push like any other — a tour landing on top of
         // the greetings and the fancon is exactly the stacked season the
         // ATM thread audits

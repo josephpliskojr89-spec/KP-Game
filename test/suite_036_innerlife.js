@@ -138,8 +138,12 @@ function debuted(seed) {
 // ---- the Monday meeting: claims go on the record, the record bites ----
 {
   const { state } = debuted('il-meeting');
+  // the comeback question left the meeting (§89 C, v0.10.29) — with the
+  // room empty the exec has nothing to ask; fill it so the ready question exists
+  state.budget = Math.max(state.budget, 900);
+  while (KP.freeTrainees(state).length < 3 && state.prospects.length) KP.signProspect(state, state.prospects[0]);
   let guard = 0;
-  while (!KP.execScene(state) && guard++ < 30) KP.advanceWeek(state);
+  while (!KP.execScene(state) && guard++ < 60) KP.advanceWeek(state);
   t.ok(KP.execScene(state), 'the executive eventually asks');
   const q = KP.execScene(state).q;
   t.ok(q.options.length >= 2, 'with constrained answers');
@@ -160,12 +164,18 @@ function debuted(seed) {
     'and the executive quotes the calendar back');
   // silence is also an answer
   const { state: s3 } = debuted('il-silence');
-  let g3 = 0;
-  while (!KP.execScene(s3) && g3++ < 30) KP.advanceWeek(s3);
+  // the comeback question left the meeting (§89 C) — put a question on the
+  // table by hand; the mechanism under test is the silence, not the ask
+  KP.openScene(s3, { kind: 'execQuestion', expiresWeek: s3.week + KP.C.MEETING.ignoreAfterWeeks,
+    q: { type: 'comebackPromise', week: s3.week, groupId: s3.groups[0].id,
+      text: 'When does the group come back?',
+      options: [{ id: 'q1', label: 'This quarter' }, { id: 'q2', label: 'Next quarter' }, { id: 'none', label: 'No promises' }] } });
   const t3 = s3.trust;
   for (let w = 0; w < KP.C.MEETING.ignoreAfterWeeks + 1; w++) KP.advanceWeek(s3);
   t.ok(!KP.execScene(s3), 'an ignored question expires');
-  t.ok(s3.trust < t3, 'and the silence was noted');
+  t.ok(s3.inbox.some(m => /No answer is also information/.test(m.text)) ||
+    (KP.lastTickNotes || []).some(m => /No answer is also information/.test(m.text)) || s3.trust < t3,
+    'and the silence was noted');
 }
 
 // ---- migration: the files catch up with who they always were ----

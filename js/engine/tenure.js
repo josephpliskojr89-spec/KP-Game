@@ -49,7 +49,8 @@
       led.senesced++;
       p.history.push({ week: state.week,
         text: 'The trainer rebuilt the routine this year — more recovery days, smarter reps, the schedule of a professional in it for the long haul. What the years took in bounce they paid back in floor.' });
-      inbox.push({ kind: 'development', personId: p.id,
+      // once per life — it lands (v0.10.29, §89 Phase 1: priority, not volume)
+      inbox.push({ kind: 'development', ind: 'senesced', priority: 'high', personId: p.id,
         text: KP.fillPro(KP.displayName(p) + ' is ' + p.age + ' now, and the training staff quietly rebuilt {pos} week: recovery days on the calendar, reps that count instead of reps that impress. The tradeoff is the industry’s oldest and {she} took it like the professional {she} is — the explosive gains are behind {her}, and so are the shaky nights. {She} has not missed on a tired stage in years. The veterans never do.', p) });
     });
 
@@ -88,7 +89,8 @@
         delete state.petProjectDone;   // a new chair brings its own someday
         delete state.driftNoted;       // and its own bar
         led.successions++;
-        inbox.push({ kind: 'executive', urgent: true, ind: 'execFarewell',
+        // a succession is once an era — it lands whatever else happened (v0.10.29)
+        inbox.push({ kind: 'executive', priority: 'critical', ind: 'execFarewell',
           text: old.name + KP.fillPro(' announced it in the all-hands voice: after ' +
             Math.round((state.week - (old.since || 1)) / KP.C.WEEKS_PER_YEAR) +
             ' years in the chair, {she} is stepping away. ', { gender: old.gender || 'f' }) +

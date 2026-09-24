@@ -116,7 +116,7 @@ function openCal(state, g) {
   while (!sc && guard++ < 15) { KP.advanceWeek(state); sc = (state.scenes || []).find(x => x.kind === 'fanTruck'); }
   KP.C.CONSTITUENCY.truckChance = oldTruck;
   t.ok(sc && sc.grievance === 'overwork', 'the truck parks over the benched member');
-  t.ok(state.inbox.some(n => n.ind === 'fanTruck' && /spreadsheet/.test(n.text)), 'and the fandom made a spreadsheet');
+  t.ok((KP.lastTickNotes || []).concat(state.inbox).some(n => n.ind === 'fanTruck' && /spreadsheet/.test(n.text)), 'and the fandom made a spreadsheet');
   const cash = state.budget;
   const r = KP.resolveScene(state, sc.id, 'concede');
   t.ok(r.ok && cash - state.budget === KP.C.CONSTITUENCY.concedeCost, 'conceding costs the fix');

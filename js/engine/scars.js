@@ -77,9 +77,7 @@
           sc.kind === 'idolAsk' || sc.kind === 'idolDoor' || sc.kind === 'scarRecovery');
         if (!doorBusy) {
           KP.openScene(state, { kind: 'scarRecovery', personId: p.id,
-            expiresWeek: state.week + 2 });
-          inbox.push({ kind: 'development', priority: 'high', personId: p.id,
-            text: KP.fillPro(KP.displayName(p) + ' laughed at practice today like nobody was filming — first time since the storm. How {pos} return gets played is on the Desk.', p) });
+            expiresWeek: state.week + 2 });   // the card is the news (§89 B)
         } else {
           p.morale = KP.clamp(p.morale + KP.C.SCAR.quietRecoveryMorale, 0, 100);
           inbox.push({ kind: 'development', priority: 'normal', personId: p.id,

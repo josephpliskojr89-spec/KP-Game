@@ -33,7 +33,7 @@ function debuted(seed) {
   // the cap: total movement per trait is bounded
   KP.driftTrait(state, p, 'confidence', 20, 'a bigger event');
   const total = p.arc.filter(a => a.trait === 'confidence').reduce((s, a) => s + a.delta, 0);
-  t.eq(total, KP.C.DRIFT.capPerTrait, 'the cap holds — she stays recognizably herself');
+  t.eq(total, KP.C.ARC.capPerTrait, 'the cap holds — she stays recognizably herself');
   t.ok(!KP.driftTrait(state, p, 'confidence', 5, 'yet another'), 'a full trait refuses more');
   const e2 = KP.driftTrait(state, p, 'confidence', -4, 'a hard year');
   t.ok(e2 && e2.delta === -4, 'but the road back down is open');
@@ -63,7 +63,7 @@ function debuted(seed) {
   // force a first win through the anchor's own effect: simulate by calling
   // the drift as the shows rail would, then verify idempotence of the cap
   const p = state.people[g.members[0]];
-  KP.driftTrait(state, p, 'confidence', KP.C.DRIFT.firstWinConfidence, 'the first trophy',
+  KP.driftTrait(state, p, 'confidence', KP.C.ARC.firstWinConfidence, 'the first trophy',
     'Something settled the night of the first trophy.');
   t.ok(p.arc.some(a => a.why === 'the first trophy'), 'the trophy is a recorded turn');
 }

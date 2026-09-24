@@ -368,10 +368,8 @@
         const tiers = HR.REP_TIERS;
         st.tier = tiers[Math.min(tiers.length - 1, tiers.indexOf(st.tier) + 1)];
         led.repRises++;
-        if (tiers.indexOf(st.tier) >= HR.poachTierMin) {
-          inbox.push({ kind: 'company', ind: 'staffRepRise', priority: 'flavor',
-            text: 'The trades’ credits column mentions ' + st.name + ' by name this cycle. Reputations are built out of results the industry can see — accurately or not — and phones start ringing either way.' });
-        }
+        // no note (§89 C): the tier shows on the building card; the poach
+        // call that follows is the event
       });
     });
     // the poach call

@@ -48,7 +48,7 @@ function rideToKnock(state, maxWeeks) {
   g.debutWeek = state.week - KP.C.DOOR.askAfterWeeks; // and it has been long enough
   const sc = rideToKnock(state, 30);
   t.ok(sc && sc.kind === 'idolAsk' && sc.personId === her.id, 'the one still waiting is the one who knocks');
-  t.ok(state.inbox.some(n => /asked for a minute of your time/.test(n.text)), 'the desk letter lands at high priority');
+  t.ok((state.scenes || []).filter(x => x.kind === 'idolAsk').length === 1, 'the door card on the Desk IS the letter (§89 B: no announcement note)');
   const def = KP.sceneDef('idolAsk');
   t.ok(/plan for her/.test(def.body(state, sc)), 'the body says the quiet part');
   // the promise mints a claim on HER ledger
@@ -211,7 +211,7 @@ function rideToKnock(state, maxWeeks) {
   for (let w = 0; w < 3 && !featured; w++) {
     target.fatigue = 80;
     KP.advanceWeek(state);
-    featured = state.inbox.find(n => n.week === state.week && n.moment && n.personId === target.id);
+    featured = (state.spotlight || []).find(m => m.week === state.week && m.personId === target.id);   // the spotlight surface (v0.10.29)
   }
   t.ok(featured, 'the person on fire is featured within weeks, not when the rota says so');
 }
@@ -233,7 +233,7 @@ function rideToKnock(state, maxWeeks) {
     sc = (state.scenes || []).find(x => x.kind === 'momentChoice' && x.momentKey === 'warmthGlue');
   }
   t.ok(sc, 'the food-run diplomacy becomes a call on YOUR desk');
-  t.ok(state.inbox.some(n => n.choice && /The call is on the Desk/.test(n.text)), 'the note says where the call lives');
+  t.ok((state.spotlight || []).some(m => m.choice && m.personId === sc.personId), 'the spotlight marks the call as on the Desk (§89 B: the card is the announcement)');
   state.relationships[key] = { score: -30, state: 'tense' };
   const scPerson = state.people[sc.personId];
   const r = KP.resolveScene(state, sc.id, 'quiet');
@@ -260,7 +260,8 @@ function rideToKnock(state, maxWeeks) {
   for (let w = 0; w < 3; w++) KP.advanceWeek(s2);
   t.ok(!(s2.scenes || []).some(x => x.kind === 'momentChoice'), 'the unanswered call expires');
   t.ok(s2.relationships[key2].score > -30, 'and the moment resolved itself the old way');
-  t.ok(s2.inbox.some(n => /the way these things do when the office stays quiet/.test(n.text)), 'with the office\'s silence on the record');
+  // the silence is on the conversation record, not a letter (v0.10.29, §89 C)
+  t.ok((s2.convoLog || []).some(c => c.kind === 'momentChoice' && c.answer === '(went unanswered)'), 'with the office\'s silence on the record');
 }
 
 // ---- migration: the door is announced ----

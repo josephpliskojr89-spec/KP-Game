@@ -1204,13 +1204,6 @@
           { persona: 'stan', text: n.actName + ' comeback announced. presave, hydrate, clear your schedule, warn your coworkers' },
           { persona: 'casual', text: n.actName + ' announcing a comeback date like a court summons. fine, I’ll be there' },
         ]));
-      } else if (n.ind === 'playerAnnounce') {
-        posts.push(n.actName
-          ? { persona: 'stan', text: 'they put the comeback on the SAME DAY as ' + n.actName + '?? ok. okay. so we’re doing this. everyone stretch' }
-          : rng.pick([
-            { persona: 'fan', text: 'DATE. ANNOUNCED. cancelling everything, the group comes first and my landlord can wait' },
-            { persona: 'casual', text: 'another comeback date on the calendar. the fourth quarter of this industry is a demolition derby' },
-          ]));
       } else if (n.ind === 'ambush') {
         posts.push(rng.pick([
           { persona: 'anti', text: n.company + ' moving ' + n.actName + ' onto someone else’s announced date. petty? deeply. am I seated? front row' },

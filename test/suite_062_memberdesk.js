@@ -121,7 +121,7 @@ function debuted(seed) {
   }
   W.chance = oldChance;
   t.ok(sc, 'the lawyer’s font reaches the desk');
-  t.ok(state.inbox.some(n => /wants out/i.test(n.text)), 'and everyone knows what it means');
+  t.ok(/released from|rehearsed/i.test(KP.sceneDef('walkOut').body(state, sc)), 'and everyone knows what it means (the card is the letter, §89 B)');
   // fork A: hear her out
   const a = KP.deserialize(KP.serialize(state));
   a.budget = 500;

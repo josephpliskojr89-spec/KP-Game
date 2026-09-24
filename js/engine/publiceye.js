@@ -127,9 +127,7 @@
       notes.push({ kind: 'public', ind: 'underDelivered', priority: 'high', groupId: g.id, level,
         text: 'The ' + g.name + ' debut everyone watched — landed short of the watching. The announcement promised ' + ex.word + '; the reception did not clear the bar the company itself raised. The write-ups are gentle and the quote-posts are not. Members read everything, whatever anyone tells them to do.' });
     } else if (level >= 1) {
-      led.met++;
-      notes.push({ kind: 'public', ind: 'expectMet', groupId: g.id, level,
-        text: g.name + ' debuted into ' + ex.word + ' and delivered on schedule — no miracle, no faceplant, a professional landing. The industry nods and moves on, which is the quiet success nobody writes songs about.' });
+      led.met++;   // "the industry nods and moves on" — so does the inbox (§89 C)
     }
   };
 
@@ -152,18 +150,9 @@
             : sib.name + '’s shadow is long this week — ' + g.name + '’s landing came in well under the house’s own bar, and the comparison threads write themselves. Sharing a letterhead means sharing a yardstick. Nobody signed up for that part.')
           : 'The in-house comparison ran on schedule: ' + g.name + ' vs ' + sib.name + ', same building, adjacent bar charts. ' + (gap >= 0 ? 'This week the younger line wins the thread.' : 'This week the elder holds the thread.') });
     }
-    // the industry's yardstick: the week's nearest rival landing
-    const peers = (state.weekReleases || []).filter(w => w.actId);
-    if (peers.length && rng.chance(PB.compareChance)) {
-      const peer = peers.slice().sort((a, b) =>
-        Math.abs((a.actPop || 0) - (g.popularity || 0)) - Math.abs((b.actPop || 0) - (g.popularity || 0)))[0];
-      const gap = reception - (peer.reception || 0);
-      led.sceneCompares++;
-      notes.push({ kind: 'public', ind: 'sceneCompare', priority: 'flavor',
-        groupId: g.id, peerName: peer.actName, peerCo: peer.company, gap,
-        text: 'Same week, same weight class: ' + g.name + ' and ' + peer.actName + ' (' + peer.company + ') landed side by side, and the industry did what it always does — put the numbers in one image and let the ratio speak. ' +
-          (gap > 6 ? 'This round is ours, visibly.' : gap < -6 ? 'This round is theirs, visibly.' : 'Too close to call, which is its own kind of coverage.') });
-    }
+    // the same-week rival is judged ONCE, by releaseWar (§89 C): the
+    // scene comparison judged it again on a different number and could
+    // contradict the battle result in the same inbox
   };
 
   // ---- the weekly: the ace watch (order 596) ----------------------------

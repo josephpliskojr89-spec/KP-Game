@@ -105,10 +105,7 @@
             KP.socialSpike(state, p, KP.C.SOCIAL.viralSpike * 0.3, 'writer');
             inbox.push({ kind: 'public', ind: 'memberWrote', priority: 'high', personId: p.id,
               text: KP.fillPro(KP.publicGiven(p) + ' has a SONGWRITING credit on the new record — “' + tk.title + ',” co-written, name in the booklet. The fandom is passing the liner notes around like evidence. Performer is a job; artist is a verdict, and it just shifted.', p) });
-          } else if (rng.chance(0.4)) {
-            inbox.push({ kind: 'public', ind: 'memberWrote', priority: 'flavor', personId: p.id,
-              text: KP.fillPro('Another pen credit for ' + KP.publicGiven(p) + ' — “' + tk.title + '.” That is ' + p.flags.writerCredits + ' now. Nobody calls it a surprise anymore, which is its own milestone.', p) });
-          }
+          }   // the repeat credit is a booklet line, not a letter (§89 C)
         });
       }
     });

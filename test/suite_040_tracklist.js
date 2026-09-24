@@ -135,7 +135,7 @@ function release(state, g) {
   const bsides = g.releases[0].tracklist.filter(x => x.kind === 'bside');
   t.eq(g.releases[0].sleeperTitle, bsides.slice().sort((x, y) => y.hook - x.hook)[0].title,
     'and it is the best song that was not the single — like life');
-  t.ok(state.inbox.some(n => n.ind === 'bsideSleeper'), 'the truthers reach the desk');
+  t.ok((KP.lastTickNotes || []).some(n => n.ind === 'bsideSleeper'), 'the truthers reach the desk (a release week emits ~30 notes; the inbox law keeps six — the event is read pre-trim)');
   t.ok(g.popularity > popBefore, 'the number moves a little');
 }
 

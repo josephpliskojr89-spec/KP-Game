@@ -73,7 +73,7 @@ function firstEra(s, pressing) {
   while (!(g.results && g.results.product) && guard++ < 15) KP.advanceWeek(s);
   t.ok(g.results.product.soldOut, 'a tiny pressing sells out');
   t.eq(g.results.product.chodong > 300, true, 'the late reorder catches part of the excess');
-  t.ok(s.inbox.some(n => n.ind === 'soldOutStory'), 'and the story prints');
+  t.ok((KP.lastTickNotes || []).some(n => n.ind === 'soldOutStory'), 'and the story prints (pre-trim: a release week is loud)');
 }
 {
   const s = world('pr-warehouse');
@@ -85,7 +85,7 @@ function firstEra(s, pressing) {
   let guard = 0;
   while (!(g.results && g.results.product) && guard++ < 15) KP.advanceWeek(s);
   t.ok(g.results.product.overpress, 'the delusion is a warehouse');
-  t.ok(s.inbox.some(n => n.ind === 'warehouseMemo'), 'and the memo nobody frames');
+  t.ok(!s.inbox.some(n => n.ind === 'warehouseMemo'), 'and the memo nobody framed is no longer sent (§89 C) — the profile carries the overpress');
 }
 
 // ---- the fan-sign inversion -------------------------------------------
@@ -105,7 +105,7 @@ function firstEra(s, pressing) {
   }
   KP.C.PRODUCT.dumpChance = DC;
   t.eq(g.results.product.signRounds, 3, 'the rounds ran');
-  t.ok(s.inbox.some(n => n.ind === 'cutLine'), 'the cut line is a public number');
+  t.ok(!s.inbox.some(n => n.ind === 'cutLine'), 'the cut line note went (§89 C) — the rounds are on the sheet');
   t.ok(s.inbox.some(n => n.ind === 'dumpStory'), 'heavy rounds draw the dumping story');
   t.ok((s.discourses || []).some(d => d.kind === 'albumDump'), 'and the storm ignites at the company');
 }

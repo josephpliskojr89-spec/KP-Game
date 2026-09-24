@@ -136,9 +136,7 @@
       const star = sorted[0];
       star.personality.confidence = KP.clamp(star.personality.confidence + 3, 0, 100);
       notes.push({ kind: 'showcase', text: 'Monthly showcase: staff notes are in. ' + KP.displayName(star) + ' drew the most attention on stage this time.' });
-    } else {
-      notes.push({ kind: 'showcase', text: 'Monthly showcase held. Evaluators updated their reads on the trainee pool.' });
-    }
+    }   // an uneventful showcase says nothing (§89 C)
     return notes;
   };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -77,8 +77,8 @@
     // the arc (v0.10.27, §88 C): a storm hardens the softness and
     // professionalizes the guard — she is never quite as open again
     if (KP.driftTrait) {
-      KP.driftTrait(state, p, 'warmth', KP.C.DRIFT.stormWarmth, 'the storm');
-      KP.driftTrait(state, p, 'professionalism', KP.C.DRIFT.stormPro, 'the storm',
+      KP.driftTrait(state, p, 'warmth', KP.C.ARC.stormWarmth, 'the storm');
+      KP.driftTrait(state, p, 'professionalism', KP.C.ARC.stormPro, 'the storm',
         KP.fillPro('The week the story broke changed {her} in a way the fans will notice slowly: warmer on camera, more careful everywhere else.', p));
     }
     p.morale = KP.clamp(p.morale - 4, 0, 100);
@@ -203,7 +203,7 @@
         'let the wound close over an empty chair. There is no third door. There never is.', p);
     },
     options: () => [
-      { id: 'protect', label: 'Protect her — whatever it costs' },
+      { id: 'protect', label: 'Protect her — ' + KP.C.SCANDAL.protectCost + ', whatever else it costs' },
       { id: 'release', label: 'Let her go' },
     ],
     resolve: (state, sc, optionId) => {
@@ -212,10 +212,15 @@
       const S = KP.C.SCANDAL;
       const led = ledger(state);
       const g = KP.groupOf(state, p.id);
-      if (optionId === 'protect' && state.budget >= S.protectCost) {
+      // §89 E: choosing to protect her with an empty account used to fall
+      // through to RELEASING her. Now the choice stands and the label
+      // finds the money the way labels do — it goes red, it does not
+      // go cold. The clamp law takes what exists; the rest is owed.
+      if (optionId === 'protect') {
         led.protectedCount++;
-        state.budget -= S.protectCost;
-        if (KP.ledgerFlow) KP.ledgerFlow(state, 'marketing', -S.protectCost);
+        const paid = Math.min(S.protectCost, Math.max(0, state.budget));
+        state.budget -= paid;
+        if (KP.ledgerFlow) KP.ledgerFlow(state, 'marketing', -paid);
         state.trust = KP.clamp(state.trust - S.protectTrust, 0, 100);
         if (g && g.fandom) g.fandom.intensity = KP.clamp(g.fandom.intensity - S.protectFandom, 0, 100);
         p.morale = KP.clamp(p.morale + 6, 0, 100);

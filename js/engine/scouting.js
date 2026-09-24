@@ -400,8 +400,11 @@
           const cur = rival.interest[target.id] || 0;
           if (cur < 3) {
             rival.interest[target.id] = cur + 1;
-            if (rival.interest[target.id] >= 2) {
-              notes.push({ kind: 'scouting', text: rival.short + ' scouts were seen at ' + KP.displayName(target) + '’s academy. Their interest looks ' + (rival.interest[target.id] === 3 ? 'serious' : 'real') + (hungry ? ' — and word is they are casting a new group' : '') + '.' });
+            // the quiet (v0.10.29, §89 Phase 1): the desk hears about a rival's
+            // scouts once, when their interest turns serious — the Industry page
+            // carries the running count; measured 34/org-year at 'real'
+            if (rival.interest[target.id] >= 3) {
+              notes.push({ kind: 'scouting', ind: 'rivalScouts', text: rival.short + ' scouts were seen at ' + KP.displayName(target) + '’s academy. Their interest looks ' + (rival.interest[target.id] === 3 ? 'serious' : 'real') + (hungry ? ' — and word is they are casting a new group' : '') + '.' });
             }
           }
         }

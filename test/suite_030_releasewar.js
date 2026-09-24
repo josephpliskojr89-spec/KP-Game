@@ -49,8 +49,7 @@ function firstAct(state) { return state.rivals[0].acts[0]; }
   const { state, g } = ready('war-leak');
   t.ok(lock(state, g, state.week + 6).ok, 'fixture: locked');
   KP.advanceWeek(state);
-  t.ok(g.prep.announced, 'the date is out');
-  t.ok(state.inbox.some(m => /trade calendars now list/.test(m.text)), 'and the desk knows it is out');
+  t.ok(g.prep.announced, 'the date is out — eraAnnounced told it at the lock; the calendar note went (§89 C)');
 }
 
 // ---- the ambush: a motivated rival parks a release on our date ----
@@ -118,6 +117,9 @@ function firstAct(state) { return state.rivals[0].acts[0]; }
   const act = firstAct(state);
   act.quality = 15; act.popularity = 30;             // big enough to count, weak enough to lose
   act.lastReleaseWeek = week - act.cycleWeeks;       // lands on our week
+  // the engine fights the BIGGEST same-week landing; make every other
+  // act weak too so "stronger" is a fact of the fixture, not the stream
+  state.rivals.forEach(r => (r.acts || []).forEach(a => { if (a !== act) { a.quality = Math.min(a.quality, 15); a.popularity = Math.min(a.popularity || 0, 30); } }));
   let guard = 0;
   while (!g.debuted && guard++ < 10) KP.advanceWeek(state);
   t.ok(g.results.battle, 'a same-week landing is a battle even without an ambush');
@@ -126,7 +128,9 @@ function firstAct(state) { return state.rivals[0].acts[0]; }
   // an organic comeback on our date too (v0.10.17 shift); read the feud
   // through the battle's own record
   t.eq((g.feuds[g.results.battle.actId] || {}).wins, 1, 'the feud ledger opens with the win');
-  t.ok(state.inbox.some(m => /the numbers are in/.test(m.text)), 'the week has a headline');
+  // the debut week is the loudest week there is — the headline is WRITTEN;
+  // whether it lands is the inbox law's call (§89 B, v0.10.29)
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(m => /the numbers are in/.test(m.text)), 'the week has a headline');
 
   const { state: s2, g: g2 } = ready('war-loss');
   const week2 = s2.week + 6;
@@ -138,7 +142,7 @@ function firstAct(state) { return state.rivals[0].acts[0]; }
   while (!g2.debuted && guard++ < 10) KP.advanceWeek(s2);
   t.ok(g2.results.battle && !g2.results.battle.won, 'and the weaker one loses it');
   t.eq(g2.feuds[act2.id].losses, 1, 'the loss is on the ledger too');
-  t.ok(s2.inbox.some(m => /took the week/.test(m.text)), 'their gloat makes the desk');
+  t.ok(s2.inbox.concat(KP.lastTickNotes || []).some(m => /took the week/.test(m.text)), 'their gloat makes the desk');
 }
 
 // ---- rivalry: two meetings and the internet declares it canon ----

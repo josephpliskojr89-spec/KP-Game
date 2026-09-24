@@ -169,8 +169,12 @@
       pressing,
     };
     if (showsSwapped) {
-      KP.fameLedger(state).everClosed = true;
-      KP.note(state, { kind: 'industry', ind: 'showsClosed', priority: 'high', groupId: g.id,
+      const fl = KP.fameLedger(state);
+      const firstTime = !fl.everClosed;
+      fl.everClosed = true;
+      // told once, out loud (§89 C): the same closed door every era is
+      // wallpaper — the rollout chips show radio instead of shows
+      if (firstTime) KP.note(state, { kind: 'industry', ind: 'showsClosed', priority: 'high', groupId: g.id,
         text: 'The Countdown, Prime Stage, Pop Wave: none returned the calls. No music-show ' +
           'stages this era — nobody books a label they have never heard of. The rollout runs ' +
           'radio instead, and the era will be won on the ground or not at all.' });
@@ -474,7 +478,9 @@
     // the internet notices a missing member (v0.6.2)
     if (rng.chance(KP.C.DISCOURSE.benchedChance)) {
       const mg = KP.groupOf(state, m.id);
-      KP.igniteDiscourse(state, rng, 'benched', 'idol', m.id, mg && mg.id);
+      // the PR-flag letter was being discarded (§89 E) — it rides along now
+      const d = KP.igniteDiscourse(state, rng, 'benched', 'idol', m.id, mg && mg.id);
+      if (d) KP.note(state, d);
     }
     return { kind: 'health', urgent: true,
       text: KP.displayName(m) + ' was pulled from ' + where + ' by medical staff this week. The official word is “scheduled rest.” The honest word is exhaustion, and everyone in the building knows whose calendar caused it.' };
@@ -740,7 +746,7 @@
       m.history.push({ week: state.week, text: (isDebut ? 'Debuted with ' : 'Comeback with ') + g.name + ' — “' + demo.title + '”.' });
       // the arc (v0.10.27, §88 C): debut night changes the shoulders,
       // and the file keeps the before picture — growth is measurable
-      if (isDebut && KP.driftTrait) KP.driftTrait(state, m, 'confidence', KP.C.DRIFT.debutConfidence, 'the debut');
+      if (isDebut && KP.driftTrait) KP.driftTrait(state, m, 'confidence', KP.C.ARC.debutConfidence, 'the debut');
       if (isDebut && !m.debutSnap) {
         m.debutSnap = { week: state.week };
         KP.C.TALENTS.forEach(dm => { m.debutSnap[dm] = Math.round(m.talents[dm].cur); });
@@ -791,7 +797,7 @@
       });
     }
     if (mvTier === 'plain' && rng.chance(MVC.plainSnarkChance)) {
-      push({ kind: 'public', ind: 'mvBudget', priority: 'flavor', groupId: g.id,
+      push({ kind: 'public', ind: 'mvBudget', priority: 'normal', groupId: g.id,   // the receipt for a cheap choice (§89: kept, made visible)
         text: 'The “' + demo.title + '” video is a performance cut — one room, four cameras, no plot. The comment sections have noticed, and the company is the one getting the receipts: “the song deserved a location” is trending politely. The accountants regret nothing.' });
     }
     // the one she wrote (v0.9.17): a member-written TITLE track landing
@@ -897,12 +903,7 @@
       revenue = digital + product.physRev;
       product.notes.forEach(push);
       push(KP.recordProfile(state, g, product.physRev, digital, product.chodong, reception));
-    } else {
-      const fandomMult = 1 + KP.fandomIntensity(g) * KP.C.FANDOM.revenueFactor;
-      revenue = Math.round((Math.max(0, reception - 30) * 1.6 + (isDebut ? 0 : (g.popularity || 0) * 0.4)) *
-        format.revenueMult * overseasMult * fandomMult *
-        (repack ? KP.C.REPACKAGE.revenueMult : 1));
-    }
+    }   // the pre-product revenue fallback was unreachable (§89 C)
     state.budget += revenue;
     // the settlement (v0.10.1): the streams hit the books, the group's
     // share moves against the ledger, the advance repays itself
@@ -1155,16 +1156,16 @@
         KP.fandomGain(g, FU.acclaimFandomGain);
         state.trust = KP.clamp(state.trust + FU.acclaimTrust, 0, 100);
         members.forEach(m => { m.morale = KP.clamp(m.morale + 2, 0, 100); });
-        push({ kind: 'public', priority: 'high', ind: 'fusionVerdict', outcome: 'acclaim', groupId: g.id, mashLabel: label,
+        push({ kind: 'public', priority: 'critical', ind: 'fusionVerdict', outcome: 'acclaim', groupId: g.id, mashLabel: label,
           text: '“' + demo.title + '” (' + label + ') is the best-reviewed record this company has ever put out and almost nobody bought it. The critics wrote paragraphs. The public wrote “interesting!” and streamed something else. The fandom has never been more devoted; the accountants have never been more confused. Both are correct.' });
       } else if (fusionOutcome === 'flop') {
         members.forEach(m => { m.morale = KP.clamp(m.morale - FU.flopMorale, 0, 100); });
-        push({ kind: 'public', priority: 'high', ind: 'fusionVerdict', outcome: 'flop', groupId: g.id, mashLabel: label,
+        push({ kind: 'public', priority: 'critical', ind: 'fusionVerdict', outcome: 'flop', groupId: g.id, mashLabel: label,
           text: 'The ' + label + ' experiment on “' + demo.title + '” ate itself. The two genres met, fought, and both lost; the comment sections are being creative about it. The members are taking it professionally, which is to say badly, quietly. The gamble was real — so was the floor.' });
       } else {
         // priority high (0.9.8.3): the verdict on a gamble the PLAYER
         // placed is never trimmable — a sensation week buried this one
-        push({ kind: 'public', ind: 'fusionVerdict', outcome: 'worked', priority: 'high', groupId: g.id, mashLabel: label,
+        push({ kind: 'public', ind: 'fusionVerdict', outcome: 'worked', priority: 'critical', groupId: g.id, mashLabel: label,
           text: '“' + demo.title + '” made ' + label + ' work — genuinely work. Not a revolution, not a casualty: a good record with a strange engine, and the public took the ride. The producers are already asking what to collide next.' });
       }
     }
@@ -1247,13 +1248,7 @@
         if (p) p.hype = Math.min(90, (p.hype || 0) + T.hypePerBeat);
       });
       g.prep.teaserBeat = { week: state.week, tMinus };
-      if (tMinus === 1) {
-        inbox.push({ kind: 'public', groupId: g.id,
-          text: (g.debuted
-            ? 'The “' + (g.name) + '” MV teaser dropped at midnight — nineteen seconds, one chorus fragment, and a frame the edits will not let die.'
-            : 'The final debut teaser is out: ' + g.name + ', one week. The last member film did what last member films do.') +
-            ' Seven days. The countdown accounts have switched to hours.' });
-      }
+      // the T-1 note went (§89 C): the teaser posts live on the timeline
     });
   });
 

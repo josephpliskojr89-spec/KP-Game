@@ -6262,7 +6262,7 @@ deposit that compounds? Current lean: deposits that compound into
 the doors that already exist (renewals, walkouts, storms) — the
 game already knows how to make small things become big.
 
-## §89 The pruning (AUDIT — what to quiet, delete, and merge)
+## §89 The pruning (PHASE 1 SHIPPED v0.10.29 — what to quiet, delete, and merge)
 
 Owner: "Let's start with pruning. A full audit of anything that is
 redundant or just not used much. And make notes of what could be
@@ -6501,6 +6501,93 @@ scenes/claims.
 - PHASE 5 — THE RELEASE READ (v0.11.x): the modifier registry + one
   expectation bar (D11), with a rebalance pass. Only after the line
   sheet is designed, since it will be the biggest new reader.
+
+**As built — Phase 1, v0.10.29 "the quiet".** Owner: "go ahead with
+phase 1." Shipped as one release: the inbox law (B), the delete list
+(C), the bug list (E), plus the priorities the law forced into the
+open.
+
+*The law (kernel.js trimWeekNotes, sim.js).* `maxInboxPerWeek` is 5
+and it is a ceiling now: only `critical` bypasses it; `high` competes
+with everything else by priority, then arrival; `spotlight:true` and
+`feedOnly:true` notes ride the tick for the feed pass and never land
+in the inbox. The pre-trim array of the last tick is kept on the
+engine as `KP.lastTickNotes` (not saved) so tests and tools can read
+what a week EMITTED — a loud week's letter is written whether or not
+it lands, and the suites that pinned "the note is in the inbox" on
+debut weeks now read the durable fact (g.results, history, convoLog,
+state.spotlight) or the pre-trim list. Priorities the law ruled:
+`critical` = a succession (execFarewell), the fusion verdict on a
+player-placed gamble (the 0.9.8.3 law, was `high`), and the contract
+criticals that already were; `high` = the once-per-life crossings
+(senesced, regionLoud) and story beats; `flavor` = rival
+comebackAnnounce (the calendar and KP.upcoming are the truth; the
+letter fills a quiet week); competes at normal = the festivalInvite
+and awardSeating echoes (the scene on the Desk IS the announcement).
+
+*Measured (tools/audit_wallpaper.js, same 43-org soak).* Baseline
+**759 emitted / 629 kept per org-year (12.1 a week)** → **598 / 309
+(5.9 a week)**; 208 inds fire (was 216). The target was ≤250. The
+remainder above five a week is the part the tick budget cannot
+touch: criticals, and `KP.note` player-action echoes that land
+immediately (fanMeeting 5.9, gigOffer 5.9, the Desk verbs) — Phase 3
+(D15, the Desk) is where those become toasts and cards. The biggest
+kept buckets now are events, not narration: ind-less scouting 21.5
+(rival signings, "off the board" — real losses), relationship
+crossings 17 (one a week, worst first, only tense/conflict/close/
+settled — 'warmed up' and 'remain professional' were wallpaper),
+narrative 16 (high story beats), comebackAnnounce 9 (flavor).
+
+*Deleted (C, done).* UI: meeting-answer, solo-album, nav-studio,
+nav-desk handlers; Industry "The wire"; the three running lists on
+Today. Engine: events.js prospectPressure + preDebutViral;
+sceneCompare; the house-vocal note; the choreographer `works` pool;
+the debut.js revenue fallback; the exec's comebackPromise question
+(claim handler kept for saves). Notes: staffRepRise, warehouseMemo,
+industryCongrats (+ its feed reaction), cutLine, the second
+memberWrote, expectMet, the T-1 teaser, playerAnnounce (eraAnnounced
+kept, once), gigBooked/campaignPush echoes, the station notes
+(stationChoreo only when PUNISHING), non-first rivalShowWin (evidence
+kept), per-category awardSnub → one note a night, tourMerch/
+clubRenewal, the "on the Desk" announcements (door, gravity,
+contracts, scars, persona), the momentChoice expiry echo (the silence
+is on convoLog), the showcase else-branch, the friction steadying
+note, birthday/liveClip (biasBreakup is feedOnly now), the pointNudge
+echo (the toast and the group-page chip are the echo), rival "scouts
+were seen" below serious interest (the Industry page carries the
+count). Person-moments left the inbox for the spotlight surface
+(`state.spotlight`, PERSONA.spotlightKeep 12; the Desk "Up close"
+card, the advance modal, the dossier's "Up close, lately"). mvBudget
+was kept at normal rather than deleted (it is the only line that says
+what the video cost). Constants: 23 dead keys + MONTHS_PER_YEAR/
+SCALE_MAX removed; COMEBACK.FOCUS kept (suite_014 pins it);
+ARCHETYPES/SOURCES kept — the audit was wrong there, person.js reads
+`C().ARCHETYPES`; `C.DRIFT` renamed `C.ARC` (TIME.DRIFT untouched).
+
+*Fixed (E, done).* scandal.js: "Protect her" debits what the budget
+can pay (clamped) and the label shows the cost; the `benched`
+discourse's letter is kept; atmStory/albumDump ignite with the group
+as subject and the six headline-less kinds have headlines; catalog
+windfalls, fan meetings and lightsticks post to the books; the three
+constituency hand-pushes go through KP.note; network arrivals carry
+inds; renewalRead no longer double-counts promiseKept (renew() drifts
++1 pro instead); the discourse dead ternary, circuit `bill + 0` and
+shows.js always-true are gone. Left for Phase 2: risefall.js still
+writes state.feed directly; the ~30 `if (KP.x)` existence guards
+were not swept (harmless).
+
+*The stream lesson, again.* The feed's rivalEventPosts draws rng per
+rival note, so every note deletion moved the world downstream — the
+v0.10.17/26 pattern, one layer deeper. Twenty-two suites were
+re-pinned to durable facts or KP.lastTickNotes; suite_030 weakens
+all rival acts, suite_036 fills the trainee room (with comebackPromise
+gone the exec has nothing to ask of an empty room), suite_046 refills
+demos and funds the budget. WATCH: move the feed reactions to hash01
+in Phase 2 so note volume stops moving the world.
+
+Battery 96/96, soak 40 clean, longhaul 10x620, e2e 111, lockstep
+0.10.29.
+
 
 ## §18 Watch items
 
@@ -9575,3 +9662,17 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > of a full album — the size is legal; feeding it is the game.
 > suite_004 pins nine-legal/ten-refused. Battery 96/96, soak 40
 > clean, longhaul 10x620, e2e 111, lockstep 0.10.28. Rode to main.
+
+> **0.10.29 — the quiet.** §89 Phase 1, owner: "go ahead with phase
+> 1." The inbox law: maxInboxPerWeek 5 is a ceiling only `critical`
+> bypasses; high competes; spotlight/feedOnly ride through to the feed
+> and never land; KP.lastTickNotes exposes the pre-trim week. The
+> delete list (C) and the bug list (E) shipped in full, less two
+> items noted in the as-built. Priorities ruled: succession and the
+> fusion verdict are critical; senesced/regionLoud are high;
+> comebackAnnounce is flavor; scene echoes compete. Measured with the
+> wallpaper tool: 759/629 emitted/kept per org-year → 598/309 (12.1 →
+> 5.9 a week); the rest above five is criticals + player-verb echoes
+> (Phase 3). 22 suites re-pinned to durable facts under the law.
+> Battery 96/96, soak 40 clean, longhaul 10x620, e2e 111, lockstep
+> 0.10.29. Rode to main.

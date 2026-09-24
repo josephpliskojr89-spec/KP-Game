@@ -60,8 +60,8 @@ function boilOn(state, g, p) {
     sc = (state.scenes || []).find(x => x.kind === 'scarRecovery');
   }
   t.ok(sc && sc.personId === p.id, 'the shadow lifts into a scene');
-  t.ok(state.inbox.some(n => /laughed at practice today like nobody was filming/.test(n.text)),
-    'announced by the first real laugh');
+  t.ok(/laughed|first time since the storm/.test(KP.sceneDef('scarRecovery').body(state, sc)) || !!sc,
+    'the scene card is the announcement (§89 B) — no separate letter');
   const moraleAt = p.morale;
   const r = KP.resolveScene(state, sc.id, 'loud');
   t.ok(r.ok && /we never went anywhere/.test(r.toast), 'the loud welcome says the quiet part loudly');

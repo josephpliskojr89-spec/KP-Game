@@ -111,8 +111,12 @@ function debuted(seed) {
 // ---- the meeting rides the rails: subject on the record ----------------
 {
   const { state } = debuted('sd-meeting');
-  let guard = 0;
-  while (!KP.execScene(state) && guard++ < 15) KP.advanceWeek(state);
+  // the comeback question left the meeting (§89 C); the rails under test
+  // are the claim's — put the question on the table by hand
+  KP.openScene(state, { kind: 'execQuestion', expiresWeek: state.week + 3,
+    q: { type: 'comebackPromise', week: state.week, groupId: state.groups[0].id,
+      text: 'When does the group come back?',
+      options: [{ id: 'q1', label: 'This quarter' }, { id: 'q2', label: 'Next quarter' }, { id: 'none', label: 'No promises' }] } });
   t.ok(KP.execScene(state), 'the executive asks through the door');
   KP.answerMeeting(state, 0);
   const claim = (state.claims || [])[0];

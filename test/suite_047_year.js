@@ -93,7 +93,7 @@ function rideToWoy(state, target) {
   rideToWoy(s4, KP.C.SEASON.gayoInviteWeek - 1);
   g4.popularity = 30;
   KP.advanceWeek(s4);
-  t.ok(s4.inbox.some(n => /quiet Decembers/.test(n.text)), 'the quiet December is on the record');
+  t.ok((KP.lastTickNotes || []).some(n => /quiet Decembers/.test(n.text)), 'the quiet December is on the record (read pre-trim: gayo week is loud)');
 }
 
 // ---- the daesang: brutal, and the first one is everything ----

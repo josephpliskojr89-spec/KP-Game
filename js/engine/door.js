@@ -82,8 +82,7 @@
     if (pick.kind === 'idolAsk') pick.p.flags.ambitionAsked = state.week;
     KP.openScene(state, { kind: pick.kind, personId: pick.p.id, topic: pick.topic,
       expiresWeek: state.week + D.expireWeeks });
-    inbox.push({ kind: 'development', priority: 'high', personId: pick.p.id,
-      text: KP.displayName(pick.p) + ' asked for a minute of your time this week. The door is on the Desk. In this building, a minute is never about a minute.' });
+    // no announcement note (§89 B): the door card on the Desk IS the knock
   });
 
   // ---- the ASK: the ambition meeting ------------------------------------

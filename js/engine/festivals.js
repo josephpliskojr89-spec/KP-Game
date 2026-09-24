@@ -62,7 +62,8 @@
         led.invites++;
         KP.openScene(state, { kind: 'festivalInvite', groupId: g.id,
           festivalId: f.id, headline: icon && f.tier >= 2, expiresWeek: state.week + 2 });
-        inbox.push({ kind: 'company', urgent: true, groupId: g.id,
+        // the scene on the Desk is the truth; this line competes (v0.10.29)
+        inbox.push({ kind: 'company', ind: 'festivalInvite', groupId: g.id,
           text: 'The ' + f.name + ' organizers reached out about ' + g.name +
             (icon && f.tier >= 2 ? ' — a HEADLINE slot, by name. The icons get the first call.' : ' — a confirmed slot on this year’s bill.') +
             ' The date is ' + KP.weekLabel(festWeek(state, f)).text + ', the answer is due in two weeks, and the invitation is on the Desk with the schedule laid beside it.' });

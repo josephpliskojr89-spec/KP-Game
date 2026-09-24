@@ -73,7 +73,7 @@
     // the arc (v0.10.27, §88 C): every broken promise chips the warmth —
     // the one directed act that changes who she IS, not just the ledger
     if (kind === 'promiseBroken' && KP.driftTrait) {
-      KP.driftTrait(state, p, 'warmth', KP.C.DRIFT.brokenWarmth, 'a broken promise');
+      KP.driftTrait(state, p, 'warmth', KP.C.ARC.brokenWarmth, 'a broken promise');
     }
     if (p.directed.length > S.directedCap) p.directed = p.directed.slice(-S.directedCap);
     return p.directed[p.directed.length - 1];

@@ -94,16 +94,9 @@
           { id: 'depends', label: 'When the room is ready' },
         ] };
     }
-    if (debutedGroups.length) {
-      const g = debutedGroups.sort((a, b) => (a.lastReleaseWeek || 0) - (b.lastReleaseWeek || 0))[0];
-      return { type: 'comebackPromise', week: state.week, groupId: g.id,
-        text: 'When does ' + g.name + ' come back?',
-        options: [
-          { id: 'q1', label: 'This quarter' },
-          { id: 'q2', label: 'Next quarter' },
-          { id: 'none', label: 'No promises' },
-        ] };
-    }
+    // the comeback question left the meeting (§89 C): career.js's
+    // objective already holds the same group to the same date. The
+    // claim handler stays for saves that still carry the promise.
     return null;
   }
 

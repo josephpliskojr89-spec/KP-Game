@@ -142,10 +142,7 @@
     }
     o.taken = g.id;
     if (o.fee < 0) state.budget += o.fee;   // the rental bills at signing
-    KP.note(state, { kind: 'debut', ind: 'gigBooked', priority: 'flavor', groupId: g.id,
-      text: g.name + ' is booked: ' + o.label + ', week ' + o.week + '.' +
-        (flyer ? ' The members are hand-distributing flyers between practice blocks. Every seat in that room will be earned twice.' : '') +
-        (o.fee < 0 ? ' The label pays for the room — the exposure IS the fee.' : ' Fee: ' + o.fee + '.') });
+    // no echo note (§89 B): the toast said it, the calendar strip shows it
     return { ok: true, offer: o };
   };
 
@@ -298,9 +295,7 @@
     if (P.fandom && g.fandom) KP.fandomGain(g, P.fandom);
     g.prep.buildup = (g.prep.buildup || 0) + 2;
     ledger(state).pushes++;
-    KP.note(state, { kind: 'debut', ind: 'campaignPush', priority: 'flavor', groupId: g.id,
-      text: P.label + ' for ' + g.name + ': the era’s word of mouth is now “' +
-        KP.momentumWord(c.momentum) + '.”' });
+    // no echo note (§89 B): the toast carries the momentum word
     state.rngState = rng.state();
     return { ok: true, momentum: c.momentum, gain };
   };

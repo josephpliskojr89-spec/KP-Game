@@ -336,6 +336,13 @@
             (c.type === 'solo' ? 'Solo cut' : 'Unit') + ' “' + UI.esc(c.trackTitle) + '” on ' + UI.esc(c.releaseTitle) + '</div></div>');
         });
       }
+      const deals = (KP.activeDeals ? KP.activeDeals(state) : []).filter(d => d.personId === p.id);
+      if (deals.length) {
+        html.push('<div class="kicker">Sponsorships</div>');
+        deals.forEach(d => html.push('<div class="card">' + UI.esc(d.brand) + ' · ' + d.weeksLeft + ' weeks left' +
+          ((d.missStreak || 0) > 0 ? ' · <span style="color:var(--magenta)">missed ×' + d.missStreak + '</span>' : '') +
+          (d.cooled ? ' · cooled' : '') + '</div>'));
+      }
       const gig = KP.gigOf ? KP.gigOf(state, p.id) : null;
       if (gig) {
         html.push('<div class="kicker">The second job</div>');
@@ -363,6 +370,11 @@
         KP.fillPro('What {she} wants, quietly: ', p) +
         UI.esc(AMBITION_WORDS[KP.ambitionOf(state, p)] || 'to be seen') + '.</div>');
       html.push('<div class="card">' + KP.factsOf(state, p).map(f => UI.esc(f)).join('<br>') + '</div>');
+      const lastMoment = KP.spotlightOf ? KP.spotlightOf(state, p.id) : null;
+      if (lastMoment) {
+        html.push('<div class="kicker">Up close, lately</div>');
+        html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(lastMoment.week).text) + '</span><div>' + UI.esc(lastMoment.text) + '</div></div>');
+      }
       const arc = p.arc || [];
       html.push('<div class="kicker">' + KP.fillPro('Who {she} is becoming', p) + '</div>');
       if (arc.length) {

@@ -124,10 +124,8 @@
               const friend = state.people[f.a === m.id ? f.b : f.a];
               if (!friend) continue;
               state.congratsQuietUntil = state.week + S.congratsQuietWeeks;
-              inbox.push({ kind: 'public', ind: 'industryCongrats', priority: 'flavor',
-                personId: m.id, friendId: friend.id,
-                text: KP.fillPro(KP.publicGiven(m) + ' publicly congratulated ' + KP.displayName(friend) +
-                  ' on the new release — a comment, one emoji, posted within the hour. Both fandoms declared a one-day armistice to screenshot it.', m) });
+              // the congrats note was 90% trimmed (§89 A); the friendship
+              // shows on her file — the emoji does not need a letter
               break outer;
             }
           }
@@ -194,12 +192,6 @@
     return rng.pick([
       { persona: 'fan', text: 'THE COFFEE TRUCK. THE BANNER. ' + (p ? KP.publicGiven(p).toUpperCase() : '') + ' HAS INDUSTRY FRIENDS AND PROOF. crying at a beverage vehicle again' },
       { persona: 'stan', text: 'coffee truck lore update: the banner pun was terrible, which by coffee truck law means the friendship is real' },
-    ]);
-  });
-  KP.onFeedEvent('industryCongrats', (state, n, rng) => {
-    return rng.pick([
-      { persona: 'fan', text: 'one congratulatory emoji between idols and both fan cafés are writing think pieces. as is right and proper' },
-      { persona: 'casual', text: 'idols congratulating each other across company lines is the closest thing this industry has to a handshake at the net. respect it' },
     ]);
   });
   KP.onFeedEvent('seniorStan', (state, n, rng) => {

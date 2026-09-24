@@ -340,17 +340,8 @@
         out.mod += M.pedigreeMiss;
         out.notes.push('The pedigree cut the other way: a ' + state.company.short + ' debut without a standout vocal reads as a broken promise, and the write-ups said so.');
       }
-      // the comparison the owner asked for: a new voice is measured
-      // against the house's established ones, by name
-      const prior = KP.groups(state).filter(x => x.debuted && x.id !== g.id && x.roles && x.roles.mainVocal)
-        .sort((a, b) => (b.debutWeek || 0) - (a.debutWeek || 0))[0];
-      if (prior && avgVocals >= 55) {
-        const priorVocal = state.people[prior.roles.mainVocal];
-        if (priorVocal) {
-          out.notes.push('Within the hour, the comparison threads were up: the new main vocal against ' +
-            KP.displayName(priorVocal) + '. That is not pressure — at this company, it is the job description.');
-        }
-      }
+      // the in-house comparison is houseCompare's (publiceye) — one voice
+      // for one comparison (§89 C)
     }
     return out;
   };

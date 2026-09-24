@@ -102,7 +102,8 @@
       regions[id] = KP.clamp(regions[id] +
         reception * R.exportBase * KP.affinity(conceptId, id) * reach * sat * cap, 0, 100);
       if (before < R.loudAt && regions[id] >= R.loudAt) {
-        notes.push({ kind: 'public', ind: 'regionLoud', groupId: g.id, region: id,
+        // a crossing happens once per region per group — it lands (v0.10.29)
+        notes.push({ kind: 'public', ind: 'regionLoud', priority: 'high', groupId: g.id, region: id,
           text: 'The overseas desk flags it: ' + g.name + ' is getting LOUD in ' + KP.regionLabel(id) +
             ' — fan-sub accounts, airport rumors, a fan café that runs in two languages. Nobody planned this market. It chose us.' });
       }

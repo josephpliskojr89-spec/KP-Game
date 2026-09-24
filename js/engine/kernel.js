@@ -29,8 +29,9 @@
 
   // ---- 1. the note bus --------------------------------------------------
   // priorities: 'critical' (never trimmed, always tops), 'high'
-  // (survives the weekly trim), 'normal' (trimmable), 'flavor' (first
-  // to go). Legacy urgent:true maps to 'high'.
+  // (first in line for the week's budget), 'normal' (trimmable),
+  // 'flavor' (first to go). Legacy urgent:true maps to 'high'. Since
+  // v0.10.29 only critical bypasses the budget (§89 B).
   const PRIORITY = { critical: 3, high: 2, normal: 1, flavor: 0 };
   KP.noteCheck = function (n, where) {
     if (!n || typeof n.text !== 'string' || !n.text.length) {
@@ -51,15 +52,20 @@
     state.inbox.unshift(n);
     return n;
   };
-  // the weekly trim, priority-aware: criticals and highs always kept,
-  // the rest fill the budget in arrival order
+  // the weekly trim — THE INBOX LAW (v0.10.29, §89 B). The old contract
+  // let every 'high' bypass the budget, and the audit measured the
+  // result: ~630 kept notes per org-year, thirteen a week, the cap
+  // capping nothing. Now: criticals always; everything else competes
+  // for the week's budget by priority, then arrival. A note that
+  // wants to survive a loud week must be critical — and a week with
+  // more than a handful of criticals is a design bug, not a busy week.
+  // Spotlight and feed-only notes ride through for the feed pass and
+  // never land — the timeline reacts, the inbox does not.
   KP.trimWeekNotes = function (notes, budget) {
     notes.forEach(n => { KP.noteCheck(n, 'tick'); });
-    // the budget applies to trimmables only — the old contract was
-    // maxInboxPerWeek + count(urgent); this is the same shape with
-    // real names and 'flavor' going first when the week is loud
-    const must = notes.filter(n => KP.notePriority(n) >= PRIORITY.high);
-    const rest = notes.filter(n => KP.notePriority(n) < PRIORITY.high)
+    const live = notes.filter(n => !n.spotlight && !n.feedOnly);
+    const must = live.filter(n => KP.notePriority(n) >= PRIORITY.critical);
+    const rest = live.filter(n => KP.notePriority(n) < PRIORITY.critical)
       .sort((a, b) => KP.notePriority(b) - KP.notePriority(a));
     return must.concat(rest.slice(0, budget));
   };

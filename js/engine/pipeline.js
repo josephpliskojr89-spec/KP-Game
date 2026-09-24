@@ -43,7 +43,7 @@
         }
         taken.add(name);
         const style = CH_STYLES[Math.floor(h(state, i + 's') * CH_STYLES.length)];
-        state.choreoPool.push({ id: 'ch' + i, name, style: style.id, works: [] });
+        state.choreoPool.push({ id: 'ch' + i, name, style: style.id });
       }
     }
     return state.choreoPool;
@@ -205,16 +205,10 @@
               led.slipScenes++;
               KP.openScene(state, { kind: 'theSlip', groupId: g.id, station: 'recording',
                 expiresWeek: state.week + 2 });
-            } else if (!stretch) {
-              inbox.push({ kind: 'company', ind: 'stationSlip', priority: 'flavor', groupId: g.id,
-                text: 'Recording for ' + g.name + ' pushed a week — ' + KP.displayName(lead) +
-                  '’s voice needs the days more than the booth does. The board absorbs it. For now.' });
             }
-            return;
+            return;   // the board on the group page shows the slip (§89 C)
           }
           st.done = 1; led.stationsRun++;
-          inbox.push({ kind: 'company', ind: 'stationRecorded', priority: 'flavor', groupId: g.id,
-            text: 'Recording week for ' + g.name + ': the booth ran late, the guide vocal died a hundred deaths, and the title track exists now in a way it did not on Monday.' });
           if (!(state.scenes || []).some(sc => sc.kind === 'lineCard')) {
             KP.openScene(state, { kind: 'lineCard', groupId: g.id, expiresWeek: state.week + 2 });
           }
@@ -230,12 +224,13 @@
           const difficulty = KP.clamp(Math.round(
             (demo.choreoPotential || 50) * 0.5 + style.base * 0.5 + rng.int(-6, 6)), 30, 92);
           g.prep.choreo = { id: pick.id, name: pick.name, style: pick.style, difficulty };
-          if (difficulty >= P.diffHard) led.hardEras++;
-          inbox.push({ kind: 'company', ind: 'stationChoreo', priority: 'flavor', groupId: g.id,
-            text: pick.name + ' delivered the ' + g.name + ' choreography — ' + style.word +
-              (difficulty >= P.diffHard
-                ? ', and it is PUNISHING. The practice-room mirror fogged by noon. If the room can land it, the stage will talk about it; if it can’t, the stage will also talk about it.'
-                : '. Teachable, filmable, safe on a tired week — the kind of eight-count a long promo run forgives.') });
+          if (difficulty >= P.diffHard) {
+            led.hardEras++;
+            // only a PUNISHING bill is news; the rest is the board (§89 C)
+            inbox.push({ kind: 'company', ind: 'stationChoreo', groupId: g.id,
+              text: pick.name + ' delivered the ' + g.name + ' choreography — ' + style.word +
+                ', and it is PUNISHING. The practice-room mirror fogged by noon. If the room can land it, the stage will talk about it; if it can’t, the stage will also talk about it.' });
+          }
           return;
         }
         // -- the MV shoot: the spike and the lottery --------------------
@@ -248,9 +243,6 @@
             if (g.prep.campaign) g.prep.campaign.momentum = (g.prep.campaign.momentum || 0) + P.mvClipBuildup;
             inbox.push({ kind: 'public', ind: 'onSetClip', priority: 'high', groupId: g.id,
               text: 'A behind-the-scenes clip from the ' + g.name + ' MV set got out — twenty seconds of set-piece and one unguarded laugh — and it is doing real numbers. The era just got a trailer nobody paid for.' });
-          } else {
-            inbox.push({ kind: 'company', ind: 'stationMv', priority: 'flavor', groupId: g.id,
-              text: 'MV shoot week for ' + g.name + ': an 19-hour day, three set changes, and a director who says "one more" the way other people say hello. The footage is worth it. The vans were silent on the way home.' });
           }
           return;
         }
@@ -258,8 +250,6 @@
         if (st.id === 'jacket') {
           st.done = 1; led.stationsRun++;
           if (g.prep.campaign) g.prep.campaign.momentum = (g.prep.campaign.momentum || 0) + P.jacketBuildup;
-          inbox.push({ kind: 'company', ind: 'stationJacket', priority: 'flavor', groupId: g.id,
-            text: 'Jacket shoot for ' + g.name + ' — the concept photos that will be the era’s face on every shelf and grid. The stylists won three arguments and lost one, which everyone agrees was the correct outcome.' });
         }
       });
     });
@@ -274,7 +264,8 @@
       // the choreographer's track record rides the record
       if (rel.choreo) {
         const ch = KP.choreographerById(state, rel.choreo.id);
-        if (ch) { ch.works.push({ title: rel.songTitle, reception: rel.reception }); if (ch.works.length > 12) ch.works.shift(); }
+        // ch.works was written and never read (§89 C) — the pool keeps
+        // its names for the day it becomes a cast member
       }
       if (rel.lineCard === 'center' && KP.igniteDiscourse && rng.chance(KP.C.PIPE.lineWarChance)) {
         led.lineWars++;

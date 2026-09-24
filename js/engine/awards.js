@@ -193,7 +193,7 @@
       if (g && g.members.length) {
         KP.openScene(state, { kind: 'awardNight', groupId: g.id,
           year: state.awardSeason.year, expiresWeek: state.week + 1 });
-        notes.push({ kind: 'company', urgent: true, groupId: g.id,
+        notes.push({ kind: 'company', ind: 'awardSeating', groupId: g.id,
           text: 'The year-end ceremony seating chart arrived — ' + g.name + ' at a floor table, cameras on a rail behind them, and the acceptance-speech question suddenly not hypothetical: if the night goes our way, WHO takes the microphone? The stage manager needs a name. It is on the Desk.' });
       }
     }
@@ -201,6 +201,7 @@
     if (woy === A.ceremonyWeek && state.awardSeason && state.awardSeason.year === yearOf(state)) {
       const results = [];
       let bonsangTonight = 0;   // the ladder: bonsangs first, then the one that matters
+      const snubs = [];
       A.categories.forEach(cat => {
         const noms = state.awardSeason.noms[cat] || [];
         if (!noms.length) return;
@@ -230,12 +231,20 @@
           if (snubbed) {
             const g = KP.groupById(state, snubbed.groupId);
             if (g) KP.fandomGain(g, KP.C.FANDOM.snubGain);
-            notes.push({ kind: 'public', ind: 'awardSnub', groupId: snubbed.groupId, category: cat,
-              text: A.LABELS[cat] + ' went to ' + winner.name + ' (' + winner.company + ') — over ' +
-                snubbed.name + '. The fandom has declared the ceremony rigged and tripled its streaming schedule out of spite. Nothing organizes a fanbase like an injustice.' });
+            snubs.push({ cat, winner, snubbed });
           }
         }
       });
+      // one night, one snub note (§89 C) — per category was four letters
+      if (snubs.length) {
+        const first = snubs[0];
+        notes.push({ kind: 'public', ind: 'awardSnub', groupId: first.snubbed.groupId, category: first.cat,
+          text: (snubs.length === 1
+            ? A.LABELS[first.cat] + ' went to ' + first.winner.name + ' (' + first.winner.company + ') — over ' + first.snubbed.name + '.'
+            : snubs.length + ' shortlists, ' + snubs.length + ' other names read out: ' +
+              snubs.map(x => A.LABELS[x.cat] + ' to ' + x.winner.name).join(', ') + ' — over ' + first.snubbed.name + '.') +
+            ' The fandom has declared the ceremony rigged and tripled its streaming schedule out of spite. Nothing organizes a fanbase like an injustice.' });
+      }
       // ---- the daesang: one grand prize, and the room holds its breath --
       const dNoms = state.awardSeason.noms.daesang || [];
       if (dNoms.length) {

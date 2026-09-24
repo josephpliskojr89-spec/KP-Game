@@ -144,19 +144,12 @@
           ' record was gone inside the week — demand ran to ' + KP.fmtCount(demand) +
           '. The reorder ships late and catches only the diehards; the rest is the ' +
           'sweetest lost money in the business. Press braver next time. Or exactly this brave, forever, for the headlines.' });
-    } else if (overpress) {
-      notes.push({ kind: 'company', ind: 'warehouseMemo', priority: 'flavor', groupId: g.id,
-        text: 'The warehouse memo nobody frames: ' + KP.fmtCount(sheet.run - demand) +
-          ' unsold copies of the ' + g.name + ' record are now a storage line item. The pressing was a bet on a fandom this size — the fandom disagreed.' });
     }
+    // the warehouse memo and the cut line were 100% / 87% trimmed (§89 A):
+    // the overpress shows on the product profile, the rounds on the sheet
     if (sheet.signRounds > 0) {
-      const seats = sheet.signRounds * P.cutSeatsPerRound;
-      const cut = Math.max(1, Math.round(units * 0.3 / (seats * 8)));
-      notes.push({ kind: 'public', ind: 'cutLine', priority: 'flavor', groupId: g.id,
-        text: 'Fan-sign cut line for the ' + g.name + ' rounds: ' + cut + ' album' +
-          (cut === 1 ? '' : 's') + ' for the last winning seat. The fandom posts it with pride and horror in the same thread. Both are advertising.' });
       if (sheet.signRounds >= P.dumpRiskAt && rng.chance(P.dumpChance)) {
-        const d = KP.igniteDiscourse && KP.igniteDiscourse(state, rng, 'albumDump', 'group', null, g.id);
+        const d = KP.igniteDiscourse && KP.igniteDiscourse(state, rng, 'albumDump', 'group', g.id, g.id);
         if (d) notes.push(d);
         notes.push({ kind: 'public', ind: 'dumpStory', priority: 'high', groupId: g.id,
           text: 'A photo of two hundred unwrapped ' + g.name + ' albums stacked by a donation bin is doing angry numbers. The company scheduled ' + sheet.signRounds +

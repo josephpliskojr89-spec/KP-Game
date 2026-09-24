@@ -61,7 +61,9 @@
       if (a.announcedWeek === due) return;
       a.announcedWeek = due;
       if ((a.popularity || 0) >= W.announceNoteMinPop) {
-        notes.push({ kind: 'industry', ind: 'comebackAnnounce', actName: a.name,
+        // the calendar (and KP.upcoming) is the truth; the letter fills a
+        // quiet week (v0.10.29, §89 Phase 1 — measured 17 kept/org-year at normal)
+        notes.push({ kind: 'industry', ind: 'comebackAnnounce', priority: 'flavor', actName: a.name,
           company: r.short, releaseWeek: due,
           text: r.short + ' announced ' + a.name + '’s comeback for ' + KP.weekLabel(due).text +
             '. The date is public, which means the date is a statement. Plan around it — or through it.' });
@@ -72,14 +74,7 @@
     //    teasers exist, the industry reads them
     KP.groups(state).forEach(g => {
       if (!g.prep || g.prep.announced) return;
-      g.prep.announced = true;
-      const foes = KP.announcedAt(state, g.prep.scheduledWeek)
-        .filter(x => (x.act.popularity || 0) >= W.battleMinPop);
-      notes.push({ kind: 'public', ind: 'playerAnnounce', groupId: g.id,
-        actName: foes.length ? foes[0].act.name : null,
-        text: 'The date is out: trade calendars now list ' + g.name + '’s ' +
-          (g.debuted ? 'comeback' : 'debut') + ' for ' + KP.weekLabel(g.prep.scheduledWeek).text + '.' +
-          (foes.length ? ' The same week as ' + foes[0].act.name + '. Everyone has noticed. Nobody thinks it is an accident.' : '') });
+      g.prep.announced = true;   // eraAnnounced already told it at the lock (§89 C)
     });
 
     // 3. the ambush: a rival with an act in shifting distance parks it on

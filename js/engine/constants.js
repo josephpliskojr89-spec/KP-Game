@@ -6,17 +6,15 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.28',
+    VERSION: '0.10.29',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
-    MONTHS_PER_YEAR: 12,
     WEEKS_PER_YEAR: 48,
     MONTH_NAMES: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 
     // ---- Internal talent scale (never shown to the player) --------------
-    SCALE_MAX: 100,
     TALENTS: ['vocals', 'rap', 'dance', 'visuals', 'charisma'],
     TALENT_LABELS: {
       vocals: 'Vocals', rap: 'Rap', dance: 'Dance',
@@ -102,7 +100,6 @@
       rivalSignHotChance: 0.25,   // ...when interest is hot
       rivalHungerMult: 1.7,       // ...and hungrier still with a debut to cast
       rivalHungerWindow: 16,      // weeks before a planned debut that hunger starts
-      newProspectChance: 0.3,     // weekly chance a fresh lead appears
       prospectAgeOut: 24,         // unsigned past this, the market moves on (0.9.13)
     },
 
@@ -135,7 +132,6 @@
       transcendAt: 24,           // the read that starts the conversation
       holdWeeksToClamor: 4,      // it has to be a pattern, not a spike
       minMembers: 3,             // a duo's math is different; solos exempt
-      tradesStage: 0,            // clamor stage offsets, in weeks
       splitStage: 3,             // the fandom divides into camps
       execStage: 6,              // the Monday meeting asks
       knockStage: 10,            // she rehearsed this ask
@@ -166,11 +162,9 @@
       festivalIconsAt: 6,        // festivals played (3→6 in v0.9.22: the
                                  // named circuit offers up to three a year
                                  // — the identity should take seasons)
-      festivalIconBoost: 1.6,    // ...and the organizers call icons first
       varietyGroupAt: 3,         // gig runs wrapped across the lineup
       varietyOfferBoost: 1.6,
       ostFactoryAt: 2,           // OSTs dropped across the lineup
-      ostOfferBoost: 1.8,
     },
 
     // ---- The MV (v0.9.17): the video is an object with a budget --------
@@ -333,7 +327,6 @@
         { min: -34, key: 'tense', label: 'Tense' },
         { min: -101, key: 'conflict', label: 'Open conflict' },
       ],
-      mentorAgeGap: 3,
       observationChance: 0.5,     // chance a state change surfaces as a note
       reversion: 0.038,           // negative pairs drift back toward professional
       coolOff: 0.7,               // extra weekly healing when a feuding pair is kept apart
@@ -527,7 +520,6 @@
     COMEBACK: {
       objectiveWeeks: 28,          // runway the executive grants per comeback
       promoWeeks: 4,               // promotion period after a release
-      promoFatigue: 7,             // weekly fatigue during promotion
       idolRecovery: 8,             // weekly fatigue recovery when idle
       // v0.4.2 — the schedule breathes (owner: idols were perpetually on
       // fumes; "I like both" — contractual rest AND exhaustion with teeth)
@@ -569,7 +561,6 @@
       },
     },
     CHART: {
-      noiseSd: 6,
       // the weekly scene chart (v0.4.0): every release — yours and the
       // rivals' — enters with a heat score and cools until it drops off
       decay: 0.88,              // last week's heat, kept per week
@@ -657,7 +648,7 @@
     // "Novaline, you absolute motherfuckers."
     WAR: {
       announceLead: 4,           // weeks ahead a rival comeback goes public
-      announceNoteMinPop: 28,    // smaller acts announce quietly (calendar only)
+      announceNoteMinPop: 42,    // smaller acts announce quietly (calendar only) — 28→42 v0.10.29 (measured 15.7 kept/org-year)
       ambushChance: 0.12,        // weekly, while a worthwhile target is locked
       ambushWindow: 3,           // an act due within ± this of your date can move
       ambushMinTarget: 22,       // popularity/hype a release needs to be worth sniping
@@ -994,7 +985,6 @@
       maxPosts: 80,
       weeklyMax: 8,              // a timeline you check every week (v0.7.3)
       weeklyMin: 5,              // v0.6.3 floor, raised with the v0.7.3 volume
-      ambientChance: 0.55,       // chance of ambient fan chatter in a quiet week
       hypePostMin: 35,           // trainee hype level the feed starts noticing
       viralChance: 0.08,         // a post occasionally escapes containment
       quoteChance: 0.3,          // the timeline talks to itself (v0.9.7)
@@ -1332,7 +1322,6 @@
       koConversational: 60,      // the interview stops needing subtitles
       interpreterFee: 6,         // per overseas tour leg with no fluent voice
       voiceRevenueMult: 1.18,    // the fluent leg sells like a homecoming
-      homeRegionBoost: 14,       // her corner of the map, from day one
       airportMorale: 8,          // the hometown airport, full
       AUDITION: {
         // §82 B: 60 buys a LIST now — owner: "I should get a decent
@@ -1697,12 +1686,10 @@
     PIPE: {
       place: { recording: 0.30, choreo: 0.50, mv: 0.72, jacket: 0.86 },
       recSickFatigue: 74,         // a lead vocalist above this pushes recording
-      slipTrigger: 1,             // any slip inside the final stretch opens the scene
       finalStretch: 3,            // weeks-out where a slip threatens the date
       postponeWeeks: 2,           // the notice nobody wants to write
       postponeBuildup: 8,         // expectation cools with the date
       crunchFatigue: 9,           // per member, the week the crunch eats
-      crunchRiskWeeks: 3,         // the medical desk watches the crunch
       mvFatigue: 7, mvClipChance: 0.07, mvClipBuildup: 6,
       jacketBuildup: 3,
       choreoCount: 8,             // the named pool, like the writers' room
@@ -1969,8 +1956,6 @@
         // a premium
         majorPrestige: 55, majorPremium: 1.4, majorHype: [8, 18],
       },
-      schoolChance: 0.08,      // the school pipeline keeps walking in,
-      schoolPerNetwork: 0.12,  // wider for the connected house
     },
     // the public eye (v0.9.36, §77) — "just how public the whole
     // industry is." The sim knew; now the public SAYS it: known
@@ -2123,7 +2108,6 @@
       returnRunReception: 4,     // and lands louder
       returnRunMorale: 6,
       dominanceAlbum: 2.0,       // her following vs the room's median: the
-      dominanceCareer: 3.5,      // conversation enters where the numbers already are
       launchMorale: 8,           // the door opened before she had to push
       // the career, in-house (v0.10.25, §87 F): rung 3's answer keeps
       // her in the lineup — the label never volunteers its star away
@@ -2153,10 +2137,15 @@
       projectFandomGain: 3,      // fan service of the highest order
       projectSpreadGap: 25,      // cut-score gap that makes the spread a story
     },
+    // the spotlight surface (v0.10.29, §89 B): the week's person-moments
+    // live on a card, not in the inbox
+    PERSONA: {
+      spotlightKeep: 12,         // the ring the Desk and the files read
+    },
     // the arc (v0.10.27, §88 C) — people change, slowly, on the record.
     // Owner: "I do think people should change, for sure." Drift only at
     // anchored events, always narrated, capped so she stays herself.
-    DRIFT: {
+    ARC: {
       capPerTrait: 12,           // total movement a trait allows, ever
       debutConfidence: 1,        // debut night changes the shoulders
       firstWinConfidence: 2,     // the first trophy changes the eyes
@@ -2165,7 +2154,6 @@
       heldDominance: 2,          // held at the career rung, she pushes back
       openedConfidence: 1,       // the door opened before the third ask
       renewalPro: 1,             // years served, signed again
-      dischargePro: 2,           // the service returns a steadier person
       brokenWarmth: -1,          // every broken promise chips the warmth
     },
     // the friction stream (v0.10.26, §88 A) — the week-to-week choice.
@@ -2265,9 +2253,6 @@
     SEASON: {
       deadZoneWeeks: [1, 4],     // January: the industry sleeps
       deadZoneMod: -3,
-      festWeeks: [16, 20],       // spring university festival circuit
-      festPopRange: [25, 62],    // mid-tier acts get the calls
-      festPayBase: 10, festPayPerPop: 0.2,
       festLiveExp: 2, festFatigue: 3,
       summerWeeks: [24, 33],     // song-of-the-summer season
       summerBrightLift: 4,       // bright concepts, in season
@@ -2441,14 +2426,12 @@
       birthdayMorale: 2,
       birthdayAdIntensity: 50,   // a devoted fandom funds the subway ad
       liveClipChance: 0.35,      // a livestream week leaves a clip behind
-      biasBreakupWeeks: 8,       // a heartbroken regular stays unbiased a while
     },
     // ---- The tracklist (v0.7.5) — the record is more than its title ----
     TRACKS: {
       openSlots: { single: 0, mini: 1, full: 2 },   // credit slots the player assigns
       minMembersForUnits: 3,     // a duo's "unit" is just the group
       unitSize: [2, 3],          // members per unit track
-      maxCreditsPerMember: 1,    // one special credit per record — spread the light
       soloSocialSpike: 2600,     // her name on her own track travels
       soloHype: 6,
       soloMorale: 5,
@@ -2530,7 +2513,6 @@
       quarterWeeks: 12,          // "this quarter" means this quarter
       payoffTrust: 2, missTrust: -2, silenceTrust: -1,
       ignoreAfterWeeks: 4,       // an unanswered question is an answer
-      maxNotes: 6,
     },
 
     // ---- Executives & trust ---------------------------------------------
@@ -2539,7 +2521,6 @@
       trustFloor: 0, trustCap: 100,
       debutTrustDelta: { sensation: 22, strong: 14, solid: 6, quiet: -8, miss: -18 },
       missedDeadlinePenalty: -30,
-      ignoredDirectivepenalty: -6,
       personalities: ['visionary', 'patient', 'trendChaser', 'profitHunter', 'traditionalist', 'micromanager'],
     },
 
@@ -2556,7 +2537,6 @@
       // monthly cost, not a rounding error the stipend swallows —
       // owner: "I'm not seeing any debit from accounts as I advance"
       weeklyTrainingCostPerTrainee: 0.75,
-      productionCost: 30,
       monthlyStipend: 12,
       // the retainer (0.9.13, simplified v0.9.14): a flat per-idol monthly
       // cost — fame-scaling moved to the PRODUCTION bill (statureCostPer),
@@ -2574,7 +2554,7 @@
 
     // ---- Inbox / events -------------------------------------------------
     EVENTS: {
-      maxInboxPerWeek: 5,
+      maxInboxPerWeek: 5,        // the inbox law (v0.10.29): five a week, all events — only critical bypasses
       viralChance: 0.02,          // ultra-rare pre-debut viral moment
     },
 

@@ -34,7 +34,6 @@
     (p.directed || []).forEach(a => {
       if (a.kind === 'promiseBroken') s -= 3;
       if (a.kind === 'leftWaiting') s -= 1;
-      if (a.kind === 'promiseKept') s += 2;
       if (a.kind === 'heldBack') s -= 2;   // the solo stage you said no to (v0.9.14)
     });
     const g = KP.groupOf(state, p.id);
@@ -246,7 +245,7 @@
         p.contract.term = (p.contract.term || 1) + 1;
         p.history.push({ week: state.week, text: 'Re-signed with the company. Term ' + p.contract.term + '.' });
         // the arc (v0.10.27, §88 C): the years served, signed again
-        if (KP.driftTrait) KP.driftTrait(state, p, 'professionalism', KP.C.DRIFT.renewalPro,
+        if (KP.driftTrait) KP.driftTrait(state, p, 'professionalism', KP.C.ARC.renewalPro,
           'the second contract', KP.fillPro('Term ' + p.contract.term + ' changed something small and permanent: {she} reads rooms like a colleague now, not a kid. The staff noticed before {she} did.', p));
       };
       if (optionId === 'sign' || (optionId === 'standard' && read.band === 'professional')) {
@@ -671,9 +670,7 @@
     if (candidate && rng.chance(W.chance)) {
       candidate.flags.walkoutAsked = state.week;
       KP.openScene(state, { kind: 'walkOut', personId: candidate.id,
-        expiresWeek: state.week + 3 });
-      inbox.push({ kind: 'development', urgent: true, personId: candidate.id,
-        text: KP.fillPro(KP.displayName(candidate) + ' requested a meeting through {pos} manager — formally, in writing, with a lawyer’s font. Everyone in the building knows what a meeting requested like THAT is about. {She} wants out.', candidate) });
+        expiresWeek: state.week + 3 });   // the card is the letter (§89 B)
     }
   });
 

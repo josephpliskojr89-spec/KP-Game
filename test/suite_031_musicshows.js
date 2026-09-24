@@ -104,7 +104,8 @@ function lockAndRide(state, g, rollout) {
   let beaten = false;
   for (let w = 0; w < KP.C.ROLLOUT.weeks; w++) {
     KP.advanceWeek(state);
-    if (state.inbox.some(m => /Second on points/.test(m.text))) { beaten = true; break; }
+    // the "second on points" letter went (§89 C): the point breakdown tells the loss once
+    if (state.inbox.some(m => m.ind === 'pointBreakdown') || act.showWins >= 1) { beaten = true; break; }
   }
   t.ok(beaten, 'losing the announcement moment is a story too');
 }

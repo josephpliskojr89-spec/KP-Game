@@ -9,6 +9,22 @@
   'use strict';
   const KP = root.KP = root.KP || {};
 
+  // ---- the spotlight surface (v0.10.29, §89 B) ---------------------------
+  // The week's person-moments, newest first, a short ring. The Desk
+  // shows this week's; her file shows her latest. One truth: the rail
+  // writes here, the inbox only carries the feed echo.
+  KP.spotlightRecord = function (state, p, key, text, choice) {
+    state.spotlight = state.spotlight || [];
+    state.spotlight.unshift({ week: state.week, personId: p.id, key, text, choice: !!choice });
+    if (state.spotlight.length > KP.C.PERSONA.spotlightKeep) state.spotlight.length = KP.C.PERSONA.spotlightKeep;
+  };
+  KP.spotlightThisWeek = function (state) {
+    return (state.spotlight || []).filter(m => m.week === state.week);
+  };
+  KP.spotlightOf = function (state, personId) {
+    return (state.spotlight || []).find(m => m.personId === personId) || null;
+  };
+
   // ---- the arc (v0.10.27, §88 C): people change, slowly, on the record --
   // One door for every trait movement in the game. Drift happens ONLY at
   // anchored events (drift without an event is a bug), every movement
@@ -16,7 +32,7 @@
   // she stays recognizably herself. The file's "who she is becoming"
   // line reads this list.
   KP.driftTrait = function (state, p, trait, delta, why, line) {
-    const D = KP.C.DRIFT;
+    const D = KP.C.ARC;
     if (!p || !p.personality || p.personality[trait] == null || !delta) return null;
     p.arc = p.arc || [];
     const moved = p.arc.filter(a => a.trait === trait).reduce((s, a) => s + a.delta, 0);
@@ -266,8 +282,9 @@
       const p = state.people[sc.personId];
       if (!p) return null;
       CHOICES[sc.momentKey].expire(state, p);
-      return { kind: 'development', moment: sc.momentKey, priority: 'normal', personId: p.id,
-        text: 'The week moved on before you weighed in — ' + KP.displayName(p) + '’s moment resolved itself the way these things do when the office stays quiet.' };
+      // the silence is on the conversation record (scenes.js keeps it);
+      // no letter about a letter (v0.10.29, §89 C)
+      return null;
     },
   });
 
@@ -321,21 +338,22 @@
             !(state.scenes || []).some(sc => sc.kind === 'momentChoice')) {
           KP.openScene(state, { kind: 'momentChoice', momentKey: pick.key,
             personId: p.id, expiresWeek: state.week + 2 });
-          inbox.push({ kind: 'development', moment: pick.key, choice: true,
-            priority: 'high', personId: p.id,
-            text: pick.text(state, p) + ' The call is on the Desk.' });
+          // the scene card IS the announcement (§89 B) — the moment
+          // itself still lands on the spotlight surface
+          KP.spotlightRecord(state, p, pick.key, pick.text(state, p), true);
           break;
         }
         if (pick.effect) pick.effect(state, p);
-        // only debuted idols echo on the public timeline — a trainee's
-        // week stays a desk note. Priority 'high': the spotlight IS the
-        // mandate — at any lower priority a loud comeback week trims
-        // the person right back out of the game. Capped at 1–2 weekly
-        // by construction, so it cannot flood.
-        inbox.push({ kind: 'development', moment: pick.key,
+        // the spotlight (v0.10.29, §89 B): the moment leaves the inbox
+        // for its own surface — the Desk's "up close" card and her file.
+        // It was 70 high-priority notes a year that nothing could trim;
+        // now it is one card that is always there. The note still rides
+        // through the week for the feed pass (spotlight: true drops it
+        // at the trim), so the timeline keeps reacting to her week.
+        KP.spotlightRecord(state, p, pick.key, pick.text(state, p), false);
+        inbox.push({ kind: 'development', moment: pick.key, spotlight: true,
           ind: (pick.public && p.status === 'idol') ? 'personMoment' : undefined,
-          priority: pick.priority || 'high', personId: p.id,
-          text: pick.text(state, p) });
+          priority: 'flavor', personId: p.id, text: pick.text(state, p) });
         break;
       }
     });

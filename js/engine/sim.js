@@ -331,7 +331,10 @@
 
     KP.weeklyPipeline(CORE_PHASES).forEach(p => p.fn(state, rng, inbox, roster, groups));
 
-    // trim + stamp through the kernel: priorities, one lifecycle
+    // trim + stamp through the kernel: priorities, one lifecycle. The
+    // pre-trim array is kept on the engine (not the save) so tests and
+    // tools can see what the week EMITTED under the inbox law (§89 B)
+    KP.lastTickNotes = inbox;
     const kept = KP.trimWeekNotes(inbox, KP.C.EVENTS.maxInboxPerWeek);
     kept.forEach(n => { n.week = state.week; n.read = false; n.id = 'm' + (state.nextMsgId++); });
     state.inbox = kept.concat(state.inbox).slice(0, 60);
@@ -584,6 +587,11 @@
     });
     KP.releaseCalendar(state).forEach(e => {
       if (!e.isPlayer) items.push({ week: e.week, label: e.label + ' — ' + e.company });
+    });
+    // booked stages (v0.10.29, §89 C): the strip is the one calendar
+    (KP.takenBookings ? KP.takenBookings(state) : []).forEach(o => {
+      const g = KP.groups(state).find(x => x.id === o.taken);
+      if (g) items.push({ week: o.week, label: g.name + ' — ' + o.label + (o.flyered ? ' (flyered)' : ''), hot: true });
     });
     if (state.objective.status === 'open') {
       items.push({ week: state.objective.deadlineWeek, label: 'Executive deadline', hot: true });

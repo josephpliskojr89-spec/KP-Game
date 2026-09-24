@@ -146,7 +146,7 @@ const N = () => KP.C.NETWORK;
   s.week = pc.castoffUntil + 1;
   KP.advanceWeek(s);
   t.ok(!s.people[pc.id], 'past the window, the market or the quiet took them');
-  t.ok((s.inbox || []).some(n => /came off the open board/.test(n.text || '')), 'and the desk hears it');
+  t.ok((KP.lastTickNotes || []).some(n => /came off the open board/.test(n.text || '')), 'and the desk hears it (pre-trim)');
   // the organic stream: a long ride sees rival culls put faces on the board
   const s2 = KP.newGame('nw-cast2', null, { door: 'current' });
   s2.budget = 2000;

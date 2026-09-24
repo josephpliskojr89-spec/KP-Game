@@ -90,7 +90,7 @@
     p.morale = KP.clamp(p.morale + KP.C.STAR.launchMorale, 0, 100);
     KP.recordDirected(state, p.id, 'openedTheDoor', 2);
     // the arc (v0.10.27, §88 C): the door opened before the third ask
-    if (KP.driftTrait) KP.driftTrait(state, p, 'confidence', KP.C.DRIFT.openedConfidence, 'the opened door');
+    if (KP.driftTrait) KP.driftTrait(state, p, 'confidence', KP.C.ARC.openedConfidence, 'the opened door');
     p.history.push({ week: state.week, text: 'The company opened the solo career — in-house, her seat in ' + g.name + ' untouched, her own calendar beside it. Some doors get opened for you. She has never forgotten which kind of company does that.' });
     (state.discourses || []).forEach(dc => {
       if ((dc.kind === 'albumClamor' || dc.kind === 'soloClamor') &&
@@ -195,9 +195,7 @@
             gv.stage = 3;
             led.knocks++;
             KP.openScene(state, { kind: 'soloKnock', personId: cur.id, groupId: g.id,
-              expiresWeek: state.week + 3 });
-            inbox.push({ kind: 'development', urgent: true, personId: cur.id,
-              text: KP.fillPro(KP.displayName(cur) + ' asked for the meeting {she} has clearly rehearsed: the solo conversation, out loud, at last. Everyone in the building knew this knock was coming. The answer is on the Desk — and {she} has read the same trades everyone else has.', cur) });
+              expiresWeek: state.week + 3 });   // the card is the knock (§89 B)
           }
           // the resentment clock: held past the exec stage, it ticks —
           // unless a promise with a date is on the record. A promise is
@@ -397,7 +395,7 @@
           ? 'Asked for the career and was held to the lineup. Said nothing. Started keeping the kind of counsel lawyers eventually hear.'
           : 'Asked the solo question. The answer was the group, for now. Wrote the date of the meeting somewhere private.' });
         // the arc (v0.10.27, §88 C): held at the career rung, she pushes back
-        if (rung >= 3 && KP.driftTrait) KP.driftTrait(state, p, 'dominance', KP.C.DRIFT.heldDominance, 'the held career');
+        if (rung >= 3 && KP.driftTrait) KP.driftTrait(state, p, 'dominance', KP.C.ARC.heldDominance, 'the held career');
         return { toast: KP.fillPro(rung >= 3
           ? '{She} heard the no all the way through, thanked you for the years in a voice you did not recognize, and left. The clamor will not stop. The clock will not stop. And the meeting {she} calls next may have a lawyer’s font on it.'
           : '{She} nodded like a professional and left like a stranger. The clamor outside continues; the clock inside just started.', p) };

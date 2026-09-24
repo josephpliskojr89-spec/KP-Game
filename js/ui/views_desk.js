@@ -103,22 +103,7 @@
       });
     }
 
-    // the invoice (v0.9.14): active sponsorships and their next dates
-    const activeDeals = KP.activeDeals(state);
-    if (activeDeals.length) {
-      html.push('<div class="kicker">Sponsorships running</div>');
-      activeDeals.forEach(d => {
-        const p = state.people[d.personId];
-        const nextIn = Math.max(0, (d.nextObligationWeek || d.signedWeek + KP.C.DEALS.obligationEveryWeeks) - state.week);
-        html.push('<div class="card" style="display:flex;gap:10px;align-items:center">' +
-          '<div style="flex:1;min-width:0"><b>' + (p ? UI.esc(KP.displayName(p)) : '?') + '</b> — ' +
-          UI.esc(d.brand) + ' · ' + d.weeksLeft + 'w left · next appearance ' +
-          (nextIn === 0 ? 'this week' : 'in ' + nextIn + 'w') +
-          ((d.missStreak || 0) > 0 ? ' · <span style="color:var(--magenta)">missed ×' + d.missStreak + '</span>' : '') +
-          (d.cooled ? ' · <span style="color:var(--ink-dim)">cooled</span>' : '') +
-          '</div></div>');
-      });
-    }
+    // sponsorships running → her file's Career tab (§89 C)
 
     // the building (v0.10.6; directory tab v0.10.15): Today keeps the
     // at-a-glance line — the cards and the verbs live on the tab
@@ -208,16 +193,7 @@
           '</div></div>');
       });
     }
-    const takenGigs = KP.takenBookings ? KP.takenBookings(state) : [];
-    if (takenGigs.length) {
-      html.push('<div class="kicker">Booked stages</div>');
-      takenGigs.forEach(o => {
-        const g = KP.groups(state).find(x => x.id === o.taken);
-        html.push('<div class="card" style="display:flex;gap:10px;align-items:center">' +
-          '<div style="flex:1;min-width:0"><b>' + (g ? UI.esc(g.name) : '?') + '</b> — ' +
-          UI.esc(o.label) + ' · ' + UI.esc(KP.weekLabel(o.week).text) + (o.flyered ? ' · flyered' : '') + '</div></div>');
-      });
-    }
+    // booked stages → the calendar strip (§89 C)
 
     // the second job (v0.9.11): productions call, the desk answers
     const gigOffers = KP.openGigOffers(state);
@@ -240,20 +216,7 @@
           '</div></div>');
       });
     }
-    const activeGigs = KP.activeGigs(state);
-    if (activeGigs.length) {
-      html.push('<div class="kicker">Second jobs running</div>');
-      activeGigs.forEach(gig => {
-        const p = state.people[gig.personId];
-        html.push('<div class="card" style="display:flex;gap:10px;align-items:center">' +
-          '<div style="flex:1;min-width:0"><b>' + (p ? UI.esc(KP.displayName(p)) : '?') + '</b> — ' +
-          UI.esc(KP.gigLabel(gig)) + ' · ' + gig.weeksLeft + 'w left' +
-          (gig.strain ? ' · <span style="color:var(--magenta)">stretched ×' + gig.strain + '</span>' : '') +
-          '</div>' +
-          '<button class="btn small" data-action="gig-quit" data-id="' + gig.id + '">Pull out</button>' +
-          '</div>');
-      });
-    }
+    // second jobs running → her file's Career tab (§89 C)
 
     // calendar strip
     const up = KP.upcoming(state);
@@ -312,6 +275,21 @@
     }
 
     // inbox
+    // the spotlight (v0.10.29, §89 B): this week's person-moments, up
+    // close — the card that replaced 70 untrimmable notes a year
+    const spot = KP.spotlightThisWeek ? KP.spotlightThisWeek(state) : [];
+    if (spot.length) {
+      html.push('<div class="kicker">Up close</div>');
+      spot.forEach(m => {
+        const p = state.people[m.personId];
+        if (!p) return;
+        html.push('<div class="card" data-action="open-dossier" data-id="' + p.id + '" style="display:flex;gap:12px;align-items:flex-start">' +
+          UI.portrait(p, 'sm') +
+          '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:.9rem">' + UI.esc(KP.displayName(p)) +
+          (m.choice ? ' <span class="chip">the call is on the Desk</span>' : '') + '</div>' +
+          '<div style="font-size:.82rem;line-height:1.45;margin-top:4px">' + UI.esc(m.text) + '</div></div></div>');
+      });
+    }
     html.push('<div class="kicker">Inbox</div>');
     if (!state.inbox.length) {
       html.push('<div class="card" style="color:var(--ink-dim);font-style:italic">A quiet week. They exist, occasionally.</div>');

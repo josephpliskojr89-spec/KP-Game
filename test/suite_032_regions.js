@@ -116,7 +116,7 @@ function debuted(seed, conceptId) {
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
   let guard = 0;
   while (g.prep && guard++ < 10) KP.advanceWeek(state);
-  t.ok(state.inbox.some(m => /getting LOUD in/.test(m.text)), 'the crossing is a letter');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(m => /getting LOUD in/.test(m.text)), 'the crossing is a letter');
   // a market one hit short of "second home" — the next export makes it a story
   g.regions.jp = KP.C.REGIONAL.strongholdNarrativeAt - 3;
   KP.regionsOnRelease(state, g, 70, 'bright');

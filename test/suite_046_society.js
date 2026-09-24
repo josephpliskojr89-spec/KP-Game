@@ -56,7 +56,7 @@ function openCalendar(state, g) {
   let weeks = 0;
   while (g.tour && weeks++ < 12) KP.advanceWeek(state);
   t.eq(weeks, weeksExpected, 'two cities a week — the circuit takes ' + weeksExpected + ' weeks, not two');
-  const circuit = state.inbox.find(n => n.ind === 'tourCircuit');
+  const circuit = state.inbox.concat(KP.lastTickNotes || []).find(n => n.ind === 'tourCircuit');
   t.ok(circuit, 'the circuit wrap letter lands');
   t.ok(circuit.encores >= 1, 'a fanbase this hot earns second nights (' + circuit.encores + ')');
   t.ok(/second night/.test(circuit.text), 'and the letter says so');
@@ -78,7 +78,7 @@ function openCalendar(state, g) {
   t.ok(r.ok, 'right-sized rooms still book');
   let weeks = 0;
   while (g.tour && weeks++ < 12) KP.advanceWeek(state);
-  const circuit = state.inbox.find(n => n.ind === 'tourCircuit');
+  const circuit = state.inbox.concat(KP.lastTickNotes || []).find(n => n.ind === 'tourCircuit');
   t.ok(circuit && circuit.encores === 0, 'nobody asks a lukewarm room for a second night');
 }
 
@@ -92,9 +92,15 @@ function openCalendar(state, g) {
   S.friendChance = 1;
   let guard = 0;
   while (!(state.industryFriends || []).length && guard++ < 60) {
+    // the drawer can be empty after an era (stream-dependent) — refill it,
+    // the mechanism under test is the waiting room, not the pitch meeting
+    if (!g.prep && !(g.demos || []).length) {
+      const rng = KP.rngFor(state); g.demos = KP.generateDemos(state, rng, g); state.rngState = rng.state();
+    }
     if (!g.prep && state.week > (g.promoUntil || 0) &&
         state.week > (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks && g.demos && g.demos.length &&
         state.week > (g.tourRestUntil || 0)) {
+      state.budget = Math.max(state.budget, 600);   // the fixture buys promo weeks, not a budget test
       KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
         week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
     }
@@ -108,11 +114,11 @@ function openCalendar(state, g) {
   t.ok(theirs && theirs.status === 'rival', 'theirs is theirs');
   t.eq(ours.gender, theirs.gender, 'same halls, same waiting rooms');
   t.ok(ours.history.some(h => /waiting room/.test(h.text)), 'the friendship goes in the file');
-  t.ok(state.inbox.some(n => n.ind === 'industryFriend'), 'and the note lands');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => n.ind === 'industryFriend'), 'and the note lands');
   t.ok(KP.friendsOf(state, f.a).length === 1, 'friendsOf reads it back');
   t.ok(KP.feedReactionFor('industryFriend') && KP.feedReactionFor('coffeeTruck') &&
-    KP.feedReactionFor('seniorStan') && KP.feedReactionFor('debutClass') &&
-    KP.feedReactionFor('industryCongrats'), 'every society ind answers through the registry');
+    KP.feedReactionFor('seniorStan') && KP.feedReactionFor('debutClass'), 'every society ind answers through the registry');
+  t.ok(!KP.feedReactionFor('industryCongrats'), 'the congrats note and its reaction went together (§89 C)');
 }
 
 // ---- the senior stan: once, early, remembered ----

@@ -119,7 +119,7 @@
           KP.socialSpike(state, m, W.winFollowers, 'showwin-' + showId);
           keep(KP.ambitionTouch(state, m, 'trophy'));   // somebody's dream (v0.7.1)
         });
-        KP.fandomGain(g, KP.C.SHOWWIN.winMorale ? KP.C.FANDOM.gainShowWin : 0);   // shared trophies bind (v0.7.0)
+        KP.fandomGain(g, KP.C.FANDOM.gainShowWin);   // shared trophies bind (v0.7.0)
         const runnerUp = field[1];
         const first = !state.firstShowWinWeek;
         if (first) {
@@ -127,7 +127,7 @@
           state.trust = KP.clamp(state.trust + W.firstWinTrust, 0, 100);
           // the arc (v0.10.27, §88 C): the first trophy changes the eyes
           if (KP.driftTrait) members.forEach(m => KP.driftTrait(state, m, 'confidence',
-            KP.C.DRIFT.firstWinConfidence, 'the first trophy',
+            KP.C.ARC.firstWinConfidence, 'the first trophy',
             KP.fillPro('Something in {her} settled the night of the first trophy — the stage stopped being a test.', m)));
           keep({ kind: 'debut', urgent: true, ind: 'showWin', groupId: g.id, showId,
             text: g.name + ' just won ' + label + '. The FIRST music-show win in company history — the members cried through the encore, the fans cried at home, and ' +
@@ -164,10 +164,8 @@
         // did they take it off OUR stage?
         const beaten = field.find(c => c.type === 'player');
         if (beaten) {
-          keep({ kind: 'industry', ind: 'rivalShowWin', actName: act.name,
-            company: winner.rival.short, showId, beatGroupId: beaten.g.id,
-            text: act.name + ' took ' + label + ' — with ' + beaten.g.name +
-              ' standing on the same stage for the announcement. Second on points. The cameras found our members’ faces immediately, because of course they did.' });
+          // the loss is told once, by the point breakdown (§89 C); the
+          // rivalry evidence still lands
           // losing a stage to a declared rival feeds the story
           if (KP.getNarrative(state, 'rivalry', 'rivalAct', act.id)) {
             KP.recordEvidence(state, 'rivalry', 'rivalAct', act.id);

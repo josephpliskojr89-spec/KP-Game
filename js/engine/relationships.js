@@ -59,13 +59,24 @@
         }
 
         const st = KP.relState(rel.score);
-        if (rel.state && st.key !== rel.state && rng.chance(R.observationChance)) {
-          notes.push({ kind: 'relationship', text: relObservation(a, b, st, rel.state) });
+        // (v0.10.29) only the crossings that change what the office should do
+        // are letters: a feud opening or closing, a friendship the staff can
+        // use. 'warmed up' and 'remain professional' were wallpaper. The
+        // chance is drawn either way — the stream does not move.
+        const worth = st.key === 'tense' || st.key === 'conflict' || st.key === 'close' ||
+          (st.key === 'neutral' && rel.state === 'tense');
+        if (rel.state && st.key !== rel.state && rng.chance(R.observationChance) && worth) {
+          notes.push({ kind: 'relationship', relKey: st.key, text: relObservation(a, b, st, rel.state) });
         }
         rel.state = st.key;
       }
     }
-    return notes;
+    // the quiet (v0.10.29, §89 Phase 1): the house notices ONE pair a week,
+    // the worst first — the rest is on the group page (frictionPairs).
+    // Measured 34 kept/org-year across n² pairs before the throttle.
+    const rank = { conflict: 0, tense: 1, close: 2, friendly: 3, neutral: 4 };
+    notes.sort((x, y) => (rank[x.relKey] || 0) - (rank[y.relKey] || 0));
+    return notes.slice(0, 1);
   };
 
   function relObservation(a, b, st, prev) {

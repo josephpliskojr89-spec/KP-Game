@@ -151,9 +151,13 @@
       push('results', resolved.id);
       return;
     }
-    if (notes.length) {
+    const spot = (KP.spotlightThisWeek ? KP.spotlightThisWeek(s) : []).map(m => {
+      const p = s.people[m.personId];
+      return p ? { kind: 'development', personId: p.id, text: m.text, read: true, week: s.week } : null;
+    }).filter(Boolean);
+    if (notes.length || spot.length) {
       UI.modal(KP.weekLabel(s.week).text,
-        '<div class="report-list">' + notes.map(n => UI.mailRow(s, Object.assign({}, n, { read: true }))).join('') + '</div>',
+        '<div class="report-list">' + spot.concat(notes).map(n => UI.mailRow(s, Object.assign({}, n, { read: true }))).join('') + '</div>',
         '<button class="btn primary" data-action="close-modal" style="flex:1">Noted</button>');
     } else {
       UI.toast('A quiet week.');
@@ -251,8 +255,6 @@
         App.render();
         break;
       }
-      case 'nav-studio': go('studio'); break;
-      case 'nav-desk': go('desk'); break;
       case 'open-system': systemSheet(); break;
       case 'talent-sub': App.talentSub = t.dataset.sub; App.render(); break;
       case 'desk-sub': App.deskSub = t.dataset.sub; App.render(); break;
@@ -276,14 +278,6 @@
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
         if (r.toast) UI.toast(r.toast);
-        App.render();
-        break;
-      }
-      case 'meeting-answer': {
-        const r = KP.answerMeeting(s, parseInt(t.dataset.opt, 10));
-        if (!r.ok) { UI.toast(r.reason, true); break; }
-        App.save();
-        UI.toast(r.note.slice(0, 120));
         App.render();
         break;
       }
@@ -737,12 +731,6 @@
         const r = KP.planUnitEra(s, t.dataset.id, picks, null);
         UI.closeModal();
         if (r.ok) { UI.toast(r.unitName + ' — “' + r.title + '” is out. Reception ' + r.reception + '.'); App.save(); App.render(); }
-        else UI.toast(r.reason, true);
-        break;
-      }
-      case 'solo-album': {
-        const r = KP.releaseSoloAlbum(s, t.dataset.id);
-        if (r.ok) { UI.toast('“' + r.title + '” is out — reception ' + r.reception + '.'); App.save(); App.render(); }
         else UI.toast(r.reason, true);
         break;
       }

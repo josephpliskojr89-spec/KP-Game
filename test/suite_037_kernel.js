@@ -46,18 +46,23 @@ function formed(seed) {
   let threw = false;
   try { KP.note(state, { kind: 'company' }); } catch (e) { threw = true; }
   t.ok(threw, 'a textless note throws instead of crashing the feed later');
-  // trim: highs always survive, flavor goes first
+  // the inbox law (v0.10.29, §89 B): only critical bypasses the budget;
+  // everything else competes by priority, then arrival
   const notes = [
     { kind: 'a', text: '1', priority: 'flavor' },
     { kind: 'b', text: '2' },
     { kind: 'c', text: '3', priority: 'high' },
     { kind: 'd', text: '4' },
     { kind: 'e', text: '5', urgent: true },
+    { kind: 'f', text: '6', priority: 'critical' },
+    { kind: 'g', text: '7', priority: 'high', spotlight: true },
   ];
   const kept = KP.trimWeekNotes(notes, 2);
-  t.ok(kept.some(x => x.text === '3') && kept.some(x => x.text === '5'), 'high and urgent always survive');
-  t.ok(kept.filter(x => !['3', '5'].includes(x.text)).length === 2, 'the budget covers the trimmables');
-  t.ok(!kept.some(x => x.text === '1'), 'flavor goes first when the week is loud');
+  t.ok(kept.some(x => x.text === '6'), 'critical always survives, outside the budget');
+  t.ok(kept.some(x => x.text === '3') && kept.some(x => x.text === '5'), 'the highs take the budget first');
+  t.eq(kept.length, 3, 'the budget is a real ceiling — a high does not bypass it');
+  t.ok(!kept.some(x => x.text === '1') && !kept.some(x => x.text === '2'), 'normal and flavor lose a loud week');
+  t.ok(!kept.some(x => x.text === '7'), 'a spotlight note rides for the feed and never lands');
 }
 
 // ---- the feed-reaction registry: extension without editing the chain ----

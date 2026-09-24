@@ -112,10 +112,7 @@
         low.morale = KP.clamp(low.morale + FR.steadyLift, 0, 100);
         // hash-gated, not rng: the note is flavor and must not shift
         // the week's stream for everyone else (the v0.10.17 lesson)
-        if (KP.hash01([state.seed, state.week, low.id, 'steady'].join('|')) < FR.steadyNoteChance) {
-          inbox.push({ kind: 'development', priority: 'flavor', personId: low.id,
-            text: KP.fillPro(KP.publicGiven(warm) + ' has been the last one out of ' + KP.publicGiven(low) + '’s corner all week — snacks appearing, seats saved, one joke timed exactly right. Nobody assigned this. {She} noticed anyway.', warm) });
-        }
+        // no note (§89 C): the lift is the point, the file shows the warmth
       }
     });
 

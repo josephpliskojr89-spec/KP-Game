@@ -203,10 +203,7 @@
     Object.values(state.people).forEach(p => {
       if (birthWeekOf(state, p) !== woy) return;
       p.age += 1;
-      if (p.status === 'trainee' && state.roster.includes(p.id)) {
-        inbox.push({ kind: 'company', priority: 'flavor', personId: p.id,
-          text: KP.fillPro(KP.displayName(p) + ' turned ' + p.age + ' this week. The practice room produced a cake with suspicious speed, the vocal coach allowed exactly one hour of nobody working, and the trainees sang the birthday song in full harmony because they physically cannot not.', p) });
-      }
+      // the trainee birthday cake was 75% trimmed (§89 A): the age is on her file
     });
 
     groups.forEach(g => {
@@ -247,12 +244,8 @@
       const promoting = !g.prep && state.week <= (g.promoUntil || 0) && state.week > (g.lastReleaseWeek || 0);
       if (promoting && g.rollout) {
         const idx = KP.clamp(state.week - (g.lastReleaseWeek || 0) - 1, 0, KP.C.ROLLOUT.weeks - 1);
-        if ((g.rollout[idx] || []).includes('livestream') && rng.chance(L.liveClipChance)) {
-          const m = state.people[g.members[Math.floor(KP.hash01([state.seed, g.id, state.week, 'clip'].join('|')) * g.members.length)]];
-          if (m) inbox.push({ kind: 'public', ind: 'liveClip', priority: 'flavor', personId: m.id,
-            text: 'Clip from last night’s live: ' + KP.publicGiven(m) + ' — who ' + KP.factsOf(state, m)[0] +
-              ' — spent six unbroken minutes on the subject. The fandom has already made it a lore page.' });
-        }
+        // the live clip note was 76% trimmed (§89 A) — the live itself is
+        // the event, and liveHappened already tells it
       }
     });
 
@@ -264,9 +257,10 @@
         d.subjectType === 'idol' && String(d.subjectId) === String(c.biasId) && d.week >= c.since);
       if (boiled) {
         const p = state.people[c.biasId];
-        inbox.push({ kind: 'public', ind: 'biasBreakup', priority: 'flavor', personId: c.biasId,
-          text: KP.fillPro('The account everyone knows — ' + handle + ' — posted a quiet “taking a step back from ' +
-            (p ? KP.displayName(p) : '{her}') + ' content for a while.” No drama, no thread. Somehow worse than a thread.', p) });
+        // feed-only (§89 C): the quiet post is the fan's, so it lives on
+        // the timeline — the inbox never needed the letter
+        inbox.push({ kind: 'public', ind: 'biasBreakup', feedOnly: true, priority: 'flavor', personId: c.biasId,
+          text: (p ? KP.displayName(p) : 'her') + ' — ' + handle + ' stepped back.' });
         delete cast(state)[handle];
       }
     });

@@ -53,7 +53,7 @@
       }
       const bill = C.travelBase + (C.travelFar[sc.regionId] || 5);
       if (state.budget < bill) { led.declined++; return { toast: 'The flights alone outran the account.' }; }
-      state.budget -= bill + 0;
+      state.budget -= bill;
       state.budget += C.fee;
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'appearances', C.fee - bill);
       led.played++;

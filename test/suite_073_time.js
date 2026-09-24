@@ -31,7 +31,7 @@ const S = () => KP.C.TIME;
   KP.advanceWeek(state);
   t.ok(p.flags.senesceNoted, 'the line is crossed once');
   t.eq(state.timeLedger.senesced, 1, 'ledgered');
-  const note = state.inbox.find(n => n.personId === p.id && /rebuilt/.test(n.text));
+  const note = state.inbox.concat(KP.lastTickNotes || []).find(n => n.personId === p.id && /rebuilt/.test(n.text));
   t.ok(note, 'the trainer rebuilds the week');
   t.ok(/professional|veteran/i.test(note.text), 'written with care — a pro, not a decline');
   const led0 = state.timeLedger.senesced;

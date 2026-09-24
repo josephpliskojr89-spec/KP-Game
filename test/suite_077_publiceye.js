@@ -84,7 +84,9 @@ function planFirst(s, memberIds, week) {
   while (!g.debuted && guard++ < 12) KP.advanceWeek(s);
   if (g.results.reception >= KP.C.PUBLIC.EXPECT.bar[0] + KP.C.PUBLIC.EXPECT.exceedMargin) {
     t.eq(s.publicEyeLedger.overDelivered, 1, 'nobody was watching; everybody is now');
-    t.ok(s.inbox.some(n => n.ind === 'overDelivered' && /ambush/.test(n.text)),
+    // the debut week is the loudest week there is — the story is WRITTEN;
+    // whether it lands is the inbox law's call (§89 B, v0.10.29)
+    t.ok(s.inbox.concat(KP.lastTickNotes || []).some(n => n.ind === 'overDelivered' && /ambush/.test(n.text)),
       'the underdog story reads like one');
   } else {
     t.ok(true, '(the landing stayed modest this stream — the settle logic is held above)');

@@ -82,6 +82,7 @@
       const windfall = Math.round((C.revivalWindfallBase +
         Math.max(0, r.reception - 30) * C.revivalWindfallPerReception) * fandomMult);
       state.budget += windfall;
+      if (KP.ledgerFlow) KP.ledgerFlow(state, 'catalog', windfall);   // §89 E: royalties are a books line
       KP.chartEnter(state, {
         title: title, act: g.name, company: state.company.short,
         isPlayer: true, groupId: g.id, catalog: true,

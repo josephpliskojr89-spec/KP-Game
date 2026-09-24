@@ -128,8 +128,8 @@ function debuted(seed) {
   t.ok(KP.getNarrative(state, 'vocalHouse', 'company', 'player'), 'fixture: the pedigree narrative lives');
   const res = KP.resolveDebut(state, KP.rngFor(state), g2);
   t.ok(res.publicNotes.some(n => /who’s the vocalist/.test(n)), 'the pedigree question is asked and answered');
-  t.ok(res.publicNotes.some(n => n.includes(KP.displayName(priorVocal))),
-    'the new voice is measured against ' + KP.displayName(priorVocal) + ' BY NAME');
+  t.ok(!res.publicNotes.some(n => n.includes(KP.displayName(priorVocal))),
+    'the by-name comparison left the memory read (§89 C) — houseCompare owns the in-house yardstick');
 }
 
 // ---- underperformance becomes a story ----

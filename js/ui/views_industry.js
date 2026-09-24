@@ -184,12 +184,7 @@
         '</div></div>');
     });
 
-    const news = state.inbox.filter(m => ['industry', 'scouting', 'public'].includes(m.kind)).slice(0, 8);
-    if (news.length) {
-      html.push('<div class="kicker">The wire</div>');
-      news.forEach(m => html.push(UI.mailRow(state, m)));
-    }
-    return html.join('');
+    return html.join('');   // "The wire" went (§89 C): the inbox is the inbox
   }
 
   // ---- Chart -----------------------------------------------------------

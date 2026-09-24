@@ -155,7 +155,7 @@
     // a notice cools the freshest grievance — named, it loses its heat
     const fresh = (state.grievances || []).find(gr => gr.groupId === g.id && !gr.trucked);
     if (fresh) fresh.trucked = true;
-    state.inbox.push({ kind: 'public', week: state.week, read: false, id: 'm' + (state.nextMsgId++),
+    KP.note(state, { kind: 'public',
       ind: 'cafeNotice', groupId: g.id,
       text: 'An official notice went up on ' + g.name + '’s fan café — plain language, actual information, posted before the rumor cycle instead of after. The fandom’s translation accounts had it in nine languages within the hour. Talking first is a strategy; it even works.' });
     return { ok: true };
@@ -169,6 +169,7 @@
     if (state.week < (g.fanMeetingQuiet || 0)) return { ok: false, reason: 'The last fan meeting is still being posted about. Let it breathe.' };
     if (g.tour || g.prep) return { ok: false, reason: 'The calendar is full. A fan meeting deserves a clear week.' };
     state.budget -= C.fanMeetingCost;
+    if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', -C.fanMeetingCost);   // §89 E
     g.fanMeetingQuiet = state.week + 16;
     KP.fandomGain(g, C.fanMeetingFandomGain);
     g.fandomGrudge = Math.max(0, (g.fandomGrudge || 0) - 0.5);
@@ -176,7 +177,7 @@
       const p = state.people[id];
       if (p) p.morale = KP.clamp(p.morale + C.fanMeetingMorale, 0, 100);
     });
-    state.inbox.push({ kind: 'public', week: state.week, read: false, id: 'm' + (state.nextMsgId++),
+    KP.note(state, { kind: 'public',
       ind: 'fanMeeting', priority: 'high', groupId: g.id,
       text: g.name + ' held a fan meeting — games, letters, one member crying at a fan’s handmade gift, security gently confiscating a cake shaped like the road manager. Three hours where the parasocial contract was just social. The fandom will run on this for months.' });
     return { ok: true, cost: C.fanMeetingCost };
@@ -192,10 +193,11 @@
     if (state.budget < C.lightstickCost) return { ok: false, reason: 'Design, molds, LEDs, an app pairing nobody asked for — ' + C.lightstickCost + '.' };
     state.budget -= C.lightstickCost;
     state.budget += C.lightstickRevenue;
+    if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', C.lightstickRevenue - C.lightstickCost);   // §89 E
     g.lightstickWeek = state.week;
     KP.fandomGain(g, C.lightstickFandomGain);
     if (KP.merchPushMark) KP.merchPushMark(state, g);   // the wallet noticed (v0.10.23)
-    state.inbox.push({ kind: 'public', week: state.week, read: false, id: 'm' + (state.nextMsgId++),
+    KP.note(state, { kind: 'public',
       ind: 'lightstick', priority: 'high', groupId: g.id,
       text: 'The official ' + g.name + ' lightstick launched — and sold out, because that is what lightsticks do. The design survived the fandom’s 48-hour critique gauntlet with honors. Concert crowds will be a single organism now: one color, one name (' + (g.fandom.name) + '), several thousand batteries. Net +' + (C.lightstickRevenue - C.lightstickCost) + '.' });
     return { ok: true };

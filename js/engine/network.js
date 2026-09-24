@@ -110,7 +110,7 @@
         led.apps++;
         const believer = (state.founded || state.door === 'fresh') && rng.chance(N.APP.believerChance);
         if (believer) led.believers++;
-        inbox.push({ kind: 'scouting', priority: 'flavor', personId: p.id,
+        inbox.push({ kind: 'scouting', ind: 'application', priority: 'flavor', personId: p.id,
           text: believer
             ? KP.fillPro('An application with a handwritten cover page: ' + KP.displayName(p) + ', ' + p.age + ', who wrote three paragraphs about THIS company — the story, the group, the reason {she} did not send this envelope to the big three first. Believers audition differently. The file is on the board, and nobody else has seen it.', p)
             : 'An application landed on the desk: ' + KP.displayName(p) + ', ' + p.age + ', tape and photos enclosed. The pile is where careers start when nobody is looking. The file is on the board — yours alone, until a signature makes it news.' });
@@ -127,7 +127,7 @@
         const coach = (KP.staffOf(state).coach || {}).name || 'the vocal coach';
         const idols = state.roster.map(id => state.people[id]).filter(x => x && x.status === 'idol');
         const voucher = idols.length && rng.chance(0.5) ? KP.displayName(rng.pick(idols)) : coach;
-        inbox.push({ kind: 'scouting', priority: 'flavor', personId: p.id,
+        inbox.push({ kind: 'scouting', ind: 'referral', priority: 'flavor', personId: p.id,
           text: KP.fillPro(voucher + ' brought a name to the desk: ' + KP.displayName(p) + ', ' + p.age + ' — “watched {her} for a year, you should see this.” A referral arrives half-read: somebody you trust already did the first look. The file is on the board, and it is not on anyone else’s.', p) });
       }
     }
@@ -142,7 +142,7 @@
       });
       led.washouts++;
       p.history.push({ week: state.week, text: 'Cut from a major program after years of training. The polish is real. So is the file that says somebody else passed first.' });
-      inbox.push({ kind: 'scouting', priority: 'flavor', personId: p.id,
+      inbox.push({ kind: 'scouting', ind: 'washout', priority: 'flavor', personId: p.id,
         text: KP.fillPro(KP.displayName(p) + ', ' + p.age + ', is on the open board — a washout from one of the big programs. Years of training, real polish, and a file every desk in the city can read: somebody passed on {her} once. The overlooked are how small companies get made.', p) });
     }
 
@@ -153,7 +153,7 @@
       led.viral++;
       const r0 = state.rivals[Math.floor(KP.hash01([state.seed, p.id, 'sniff'].join('|')) * state.rivals.length)];
       if (r0) r0.interest[p.id] = 1;
-      inbox.push({ kind: 'scouting', priority: 'flavor', personId: p.id,
+      inbox.push({ kind: 'scouting', ind: 'viralProspect', priority: 'flavor', personId: p.id,
         text: KP.fillPro('A clip went around last night: ' + KP.displayName(p) + ', ' + p.age + ', dancing in a practice-room mirror somewhere, and the internet did what it does. Every scout in the city has the same tab open this morning. Public means CONTESTED — the file is on the board, and the clock started before you saw it.', p) });
     }
 

@@ -42,10 +42,8 @@
     if (KP.ledgerFlow) KP.ledgerFlow(state, 'marketing', -P.nudgeCost);
     g.pointNudge = { week: state.week, kind };
     pointLedger(state).nudges++;
-    KP.note(state, { kind: 'company', ind: 'pointNudge', priority: 'flavor', groupId: g.id,
-      text: kind === 'votes'
-        ? 'The word goes out through the fan cafés: pre-voting opens tonight, ID verification guide attached, the spreadsheet is already color-coded. The fandom mobilizes the way only organized love can.'
-        : 'The streaming party is ON — playlists distributed, the "no muting, no skipping" rules reposted, somebody made a counter website overnight. This week’s digital line just got a floor under it.' });
+    // the quiet (v0.10.29, §89 Phase 1): the toast and the group-page chip
+    // are the echo — no inbox line for a button the player just pressed
     return { ok: true };
   };
 

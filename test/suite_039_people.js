@@ -74,7 +74,10 @@ function runSpotlight(state) {
   const seen = new Set();
   for (let w = 0; w < state.roster.length; w++) {
     KP.advanceWeek(state);
-    const notes = state.inbox.filter(n => n.week === state.week && n.moment);
+    // the spotlight surface (v0.10.29, §89 B): the week's moments live on
+    // state.spotlight; the staff's quietWeek flag still lands in the inbox
+    const notes = (state.spotlight || []).filter(m => m.week === state.week)
+      .concat(state.inbox.filter(n => n.week === state.week && n.moment));
     t.ok(notes.length >= 1, 'week ' + state.week + ' has a person in it');
     notes.forEach(n => seen.add(n.personId));
   }
@@ -203,7 +206,9 @@ function freshSpots(state) {
   let pub = null;
   for (let w = 0; w < 30 && !pub; w++) {
     KP.advanceWeek(state);
-    pub = state.inbox.find(n => n.week === state.week && n.ind === 'personMoment');
+    // the spotlight surface (v0.10.29): the moment lives on state.spotlight, not the inbox
+    const m = (state.spotlight || []).find(x => x.week === state.week && state.people[x.personId] && state.people[x.personId].status === 'idol');
+    pub = m ? { personId: m.personId, ind: 'personMoment', text: m.text } : null;
   }
   t.ok(pub, 'a debuted idol has public moments');
   const out = KP.feedReactionFor('personMoment')(state, pub, KP.rngFor(state));

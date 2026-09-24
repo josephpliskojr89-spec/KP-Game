@@ -70,7 +70,7 @@ function pinnedAskWeek(s) {
   KP.advanceWeek(s);
   KP.C.CAST.gaffeBase = GB;
   t.ok(s.castLedger.gaffes >= 2, 'both mics slipped (' + s.castLedger.gaffes + ')');
-  const notes = s.inbox.filter(n => n.ind === 'castGaffe');
+  const notes = (KP.lastTickNotes || []).filter(n => n.ind === 'castGaffe');   // both slips, pre-trim
   const hot = notes.find(n => n.personId === known.id);
   const cool = notes.find(n => n.personId === unknown.id);
   t.ok(hot && /sponsors/.test(hot.text), 'the known face pays in sponsors and reach');
