@@ -6262,6 +6262,246 @@ deposit that compounds? Current lean: deposits that compound into
 the doors that already exist (renewals, walkouts, storms) — the
 game already knows how to make small things become big.
 
+## §89 The pruning (AUDIT — what to quiet, delete, and merge)
+
+Owner: "Let's start with pruning. A full audit of anything that is
+redundant or just not used much. And make notes of what could be
+consolidated." Context: "the game is wide as hell now… the important
+part is making the world feel alive."
+
+Method: (1) MEASUREMENT — tools/audit_wallpaper.js wraps the engine's
+note, scene, discourse, claim and feed doors and runs the 40-seed soak
+underneath, so every emitter has an emitted/kept/trimmed count and an
+org-coverage number; (2) a static scan of constants, scene kinds,
+discourse kinds, feed reactions, claims and UI actions against their
+references; (3) four read-only sweeps of the codebase by cluster
+(people, pipeline, money/world, UI). Findings below carry file:line
+where it matters. Nothing was changed by the audit.
+
+**A. The measurement.** 43 orgs, 125 org-years. The engine emits
+**~760 notes per org per year and ~630 survive the trim** — thirteen
+a week. There are 330 distinct note inds; 216 fired in the soak. The
+trim budget (maxInboxPerWeek 5) applies only to normal/flavor notes;
+high, urgent, and every KP.note (player-action echo) bypass it — so
+the "cap" caps almost nothing. The biggest volumes: personMoment
+70/yr at HIGH (the spotlight, 1.5 a week, never trimmed); kind-less
+scouting 60/yr (applications 4.6, "X scouts were seen at" ~8 named
+variants); kind-less relationship 55/yr ("There is friction between…"
+across n² pairs); kind-less development 50/yr at HIGH (the
+person-moment lines); rival comebackAnnounce 32/yr; narrative 21/yr
+HIGH; campaignPush 16/yr and pointNudge 15/yr (echoes of the
+player's own clicks); staffNote 12.5/yr (68% trimmed); the two eval
+notes 10.6/yr EACH (evalDay + evalSheet: the same monthly event told
+twice); idolBirthday 10.4/yr (75% trimmed). **The invisible list** —
+emitted, then trimmed almost always, so no player has seen them:
+warehouseMemo 100%, coffeeTruck 99% (already patched to durable
+history), sceneCompare 96%, staffRepRise 89%, industryCongrats 90%,
+mvBudget 90%, cutLine 87%, tourMerch 85%, liveClip 76%, the four
+station notes 60–78%, natMilestone 60%, clubRenewal 69%. **Scenes:**
+51 registered; the top five per org-year are festivalInvite 6.9,
+momentChoice 6.1, lineCard 5.5, execQuestion 5.2, idolDoor 4.2;
+eleven fire under 0.15/yr (rightly rare sagas — and a few that are
+just dead weight). **Discourses:** 19 kinds; lineShare 0.02,
+didntStand 0.02, encore 0.06 per org-year are effectively dead.
+
+**B. The inbox law is broken, and that is most of "wide".** The
+problem is not that systems exist; it is that every system narrates
+itself at HIGH so nothing can be trimmed, and the player's own clicks
+echo back as notes. The fix is one law: a real weekly ceiling that
+priority cannot bypass (criticals excepted), player-action echoes
+become toasts only (they already are — the note is a duplicate),
+"X is on the Desk" announcements are deleted (the Desk card IS the
+announcement), personMoment leaves the inbox for its own surface
+(the spotlight card), and socialMilestone is urgent only from 1M.
+Target: ≤ ~250 kept notes per org-year (about five a week), all of
+them events.
+
+**C. The delete list (dead, invisible, or duplicate).**
+- UI: `meeting-answer` and `solo-album` handlers (no emitter);
+  nav-studio/nav-desk (data-nav does it); Industry "The wire" (the
+  inbox shown a third time); the three passive "running" lists on
+  Today (deals/bookings/gigs — the dossier Career tab has them).
+- Engine: legacy events.js `prospectPressure` and `preDebutViral`
+  (both duplicated by scouting.js:404 / sim.js:379); `sceneCompare`
+  (publiceye.js:156 — judges the same rival week releaseWar already
+  judged, on a DIFFERENT number, and contradicts it); memory.js's
+  "new main vocal vs [sibling]" note (houseCompare says it);
+  the choreographer name pool (`ch.works` written, never read);
+  the debut.js:900 revenue fallback and ~30 `if (KP.x)` existence
+  guards for modules always loaded; the exec's `comebackPromise`
+  question (career.js's objective targets the same group).
+- Notes: staffRepRise, warehouseMemo, industryCongrats, mvBudget,
+  cutLine, the second memberWrote, expectMet ("the industry nods and
+  moves on" — it should), the T-1 teaser note, playerAnnounce (keep
+  eraAnnounced, once), gigBooked/campaignPush echoes, the four
+  station notes (the group page shows the board), non-first
+  rivalShowWin (pointBreakdown says it), per-category awardSnub
+  (one night, one note), tourMerch/clubRenewal notes (books lines),
+  the scene "on the Desk" announcements (door.js:85, gravity.js:199,
+  contracts.js:673, scars.js:79, persona.js:324), the momentChoice
+  expiry text, the "showcase held, reads updated" else-branch, the
+  friction steadying note, trainee birthday/liveClip/biasBreakup
+  flavor; showsClosed throttled to once per fame state.
+- Constants: blocks MONTHS_PER_YEAR, SCALE_MAX, ARCHETYPES, SOURCES
+  (unreferenced); keys SCOUT.newProspectChance, GRAVITY.tradesStage,
+  ARCS.festivalIconBoost/ostOfferBoost, REL.mentorAgeGap,
+  COMEBACK.promoFatigue + COMEBACK.FOCUS, CHART.noiseSd,
+  FEED.ambientChance, TONGUE.homeRegionBoost, PIPE.slipTrigger/
+  crunchRiskWeeks, NETWORK.schoolChance/schoolPerNetwork,
+  STAR.dominanceCareer, DRIFT.dischargePro, SEASON.fest* (five,
+  the retired auto-play), LIFE.biasBreakupWeeks,
+  TRACKS.maxCreditsPerMember (rule hardcoded at tracks.js:85),
+  MEETING.maxNotes, EXEC.ignoredDirectivepenalty, ECON.productionCost.
+- Ledgers saved with every game but read only by tools/tests:
+  friction, gravity, mandate, secret, scandal, time, service —
+  keep (they are the harness's eyes) but they are not player-facing.
+
+**D. The merge list (redundant mechanisms).** Ranked by felt value.
+1. THE PERSON-SCENE QUEUE. Eight sources open "she comes to you"
+   scenes — idolAsk/idolDoor (door.js:36), momentChoice
+   (persona.js:320), five friction kinds, walkOut (contracts.js:655),
+   soloKnock/quietEra (gravity.js), scarRecovery (scars.js:70) —
+   each gating only on its OWN kinds; door.js's "one open idol scene
+   at a time" law is enforced by nobody across sources, so one week
+   can stack five. Three of them ask the same question: "lighten my
+   load" (door breather / frictionExtraHour-drained / frictionQuietNo),
+   "I'm not okay" (door confession / quietWeek / quietNo), "the warm
+   veteran helps" (warmthGlue / the steadying). Merge: one queue,
+   one weekly pick, one cooldown, per-person busy check; door,
+   friction, persona, scars add CANDIDATES; walkOut and soloKnock
+   are priority entries. Fold breather→extraHour, confession→quietNo
+   (resilience decides note vs knock), drop warmthGlue.
+2. THE SOLO ASK. It exists four ways (idolAsk-solo, soloKnock rung 1,
+   the exec's soloQuestion, the ambitionGlimpse moment) backed by
+   three claims (ambitionPromise, soloPromise, soloAlbumPromise). One
+   solo track pays out on all of them: up to +11 standing and 4–5
+   notes, and renewalRead then counts promiseKept AGAIN (contracts.js:
+   37 — contradicting scenes.js's "never double-counted"). Merge:
+   ambition 'solo' hands off to the gravity ladder; one promise claim
+   with a deliverable predicate (credit | disc | album).
+3. ONE LEDGER READ. standingScore (decayed), renewalRead (undecayed
+   extras), grudgeScore (8 undecayed kinds), badblood turnTriggers —
+   four readers of p.directed with four weight tables; ~45 kinds
+   recorded, 14 have words (the rest render as camelCase). Merge:
+   KP.ledgerRead(p) → {standing, grudge, kept, broken} from ONE
+   kind→weight table; cut kinds to ~12, all with words.
+4. ONE EVAL. practice.js evalDay ranks on TRUE stats; rituals.js
+   evalSheet ranks on PERCEIVED stats; both fire monthly (1328 each
+   in the soak), both move morale, and the UI shows both ranks —
+   which can disagree. Keep rituals (perceived is the design law);
+   move the ace streak and project hopefuls onto evalHistory.
+5. THE BURNOUT DOUBLE. A benched member starts a `benched` discourse
+   AND files an `overwork` grievance → truck, two statement decisions
+   for one incident; choosing REST in the diagnosis scene sets
+   burnout and so files the grievance — the rewarded choice gets a
+   protest truck. Merge: the truck is the high-intensity stage of the
+   discourse; grievances only from overworkIncident.
+6. OUTSIDE BOOKINGS. deals.js and gigs.js are the same machine twice
+   (offers, actives, weeksLeft, lump + weekly, expiry, calendar
+   fatigue), two Desk panels, two books lines, ~30 urgent offer
+   letters per game. Merge into one module with kind brand|panel|
+   mc|ost, one panel, one phase.
+7. ONE MARKET LANE. Castoffs (network.js:357), free agents
+   (risefall.js:72, its own Industry surface), washouts (network.js:
+   136) — three near-copies of "rival-trained person for sale". Mint
+   all as castoffs with a source tag; delete the freeAgents list.
+8. ONE STAFF. staffRoster (road managers + legacy coach) + staffPoach
+   vs seats + seatPoach; referrals still credit staffOf().coach after
+   the vocal seat changes (network.js:127), street stories hard-code
+   "Scout Im". Merge: road managers as a seat type, one poach scene.
+9. STAGE SURFACES. Seven: the booking pile, rollout shows, festivals,
+   gayo, the overseas circuit, tours, second jobs. "Festival" lives
+   in three modules, "radio" in three constants, "fan sign" in FOUR;
+   circuitInvite and festivalInvite are the same scene shape. Merge:
+   overseas cons as region-keyed FESTS rows (tongue applied on
+   resolve), pile's festival/radio/fan-sign kinds into campaign
+   pushes, pile inds renamed bookingPlayed/bookingViral ("gig" means
+   two things today).
+10. ONE MONEY LINE for passive income (catalog annuity + ad revenue
+    + tour merch → "catalog & archive" and "tours"); fan meeting
+    folded into fancon as a free/at-cost option (constituency.js:163
+    vs commerce.js:45 — same verb, one earns).
+11. THE RELEASE READ. resolveDebut stacks ~20 reception modifiers;
+    "expectation" exists three ways (popularity drag, publiceye bar
+    debut-only, memory pedigree) and anticipation counts twice
+    (reception bonus + raises the bar). Merge: a release-read registry
+    (each module registers {src, mod, note}) and one expectation bar
+    for debut AND comeback. Highest long-term value, highest risk —
+    every balance suite pins the math.
+12. BOARDS + TONGUE. chartEnter/nationalEnter fed identically, peaks
+    computed twice, catalog revivals enter one board, Nichion built
+    ad hoc; three different "voice abroad" constants (tour 1.18 /
+    circuit .5 / japan .82). Merge: KP.boardEnter, KP.tongueFactor.
+13. THE LINE CARD. A Desk scene every era (5.5/yr) that only moves
+    morale/hype and rolls a 30% lineShare. Reception never reads it.
+    Fold into the tracklist panel — or let it become the line sheet
+    the owner sketched (§87-adjacent), where it would finally matter.
+14. THE DOSSIER. The new Person tab (v0.10.27) owns identity + the
+    ledger; The file still renders voice/facts/ambition/friends/the
+    discography margin — every fact twice. Person keeps them; The
+    file keeps public stories, home regions, evaluations. Two ambition
+    wording sets (AMBITION_WORDS inline vs C.LIFE.AMBITIONS) → one.
+    Training controls → the Training sub-tab (the e2e taps them in
+    the dossier today; move the walkthrough).
+15. THE DESK. Today renders eight blocks before any decision (sub-tabs,
+    objective, pitch button, building summary, books, calendar,
+    radar, inbox) and can add three offer rails + three running
+    lists. Strip Today to DECISIONS + inbox: books → Record; building
+    summary → one line only when a chair is open; pitch button →
+    Groups; running lists → dossier; deals/gigs/bookings through the
+    scene rail; Industry Fandom tab → a Feed filter; Content shows
+    open topics + a locked count.
+
+**E. Bugs the audit found (fix regardless of pruning).**
+- scandal.js:215 — "Protect her" without budget falls through to
+  RELEASING her; the label shows no cost.
+- debut.js:477 — the `benched` discourse's return is discarded: the
+  storm starts with no PR-flag letter.
+- atmStory / albumDump ignite with subjectId null → headline falls
+  to "Something about the group is trending"; six discourse kinds
+  have no headline case (albumClamor, aceSnub, albumDump, atmStory,
+  lineShare, scandal).
+- catalog.js:84 changes budget with no ledgerFlow — royalties skip
+  the books; fan meeting and lightstick likewise (filed under
+  "Operations & payroll").
+- constituency.js:159/180/199 push to state.inbox by hand (bypass
+  KP.note); risefall.js writes state.feed directly (bypasses the
+  registry); network arrivals send notes with no ind (uncountable).
+- contracts.js:37 renewalRead double-counts promiseKept.
+- discourse.js:86 dead ternary; circuit.js:56 `bill + 0`;
+  shows.js:122 always-true conditional.
+- C.DRIFT (personality) vs C.TIME.DRIFT (exec trust) share a name;
+  friction.js vs KP.frictionPairs unrelated.
+
+**F. Tuning questions surfaced (not pruning).** In 140 weeks the
+soak never reaches the distributor upgrade (8000 chodong) and
+firstSettlement opened once — jeongsan mostly appears as the
+`neverPaid` reminder; showsClosed repeats at HIGH every era under
+the wall; lineShare/didntStand/encore discourses are near-dead
+(lineShare is RESERVED for the line sheet).
+
+**G. The plan, phased.** Each phase is a release with the full
+ritual; every phase shifts the rng stream (suite repairs expected —
+the v0.10.17/26 pattern) and phases 2+ need save migrations for open
+scenes/claims.
+- PHASE 1 — THE QUIET (v0.10.29): the inbox law (B), the delete list
+  (C), the bug list (E). Low risk, immediate felt gain: the inbox
+  drops from ~13 notes a week to ~5 and every one of them is an
+  event. Measured target ≤250 kept/org-year via the wallpaper tool.
+- PHASE 2 — THE ONE DOOR (v0.10.30): the person-scene queue, the solo
+  ask, the ledger read, one eval, the burnout double (D1–D5). This is
+  where "wide" becomes "deep" for the people — the same faces, one
+  door, no double payouts.
+- PHASE 3 — THE ONE DESK (v0.10.31): the UI consolidation (D14–D15) —
+  Today strips to decisions, the dossier de-duplicates, Industry and
+  Content shrink. The e2e walkthrough moves with it.
+- PHASE 4 — THE ONE MARKET (v0.11.x): outside bookings, the market
+  lane, staff seats, stage surfaces, money lines, boards + tongue
+  (D6–D10, D12). Save-shape changes; medium risk each.
+- PHASE 5 — THE RELEASE READ (v0.11.x): the modifier registry + one
+  expectation bar (D11), with a rebalance pass. Only after the line
+  sheet is designed, since it will be the biggest new reader.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
