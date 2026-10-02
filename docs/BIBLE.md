@@ -6679,6 +6679,205 @@ Battery 97/97, soak 40 clean, longhaul 10x620, e2e 111, lockstep
 0.10.30.
 
 
+## §90 The trainee ecosystem (PLANNED — one world of people)
+
+Owner: "I want the actual trainee ecosystem to make sense and be
+connected. Survival shows actually draw from the active trainee pool.
+Trainees exist and remember. Released trainees move throughout the
+system. No just random generations popping that say they're a washout
+or something. Every trainee exists within the world and comes from
+somewhere."
+
+**The law.** Every person who matters is ONE person, born once at a
+door of the world, from somewhere, carried by one file for life.
+Nothing stands in for a person: no counters where people should be,
+no mint-from-nothing to play a part a real person could play. A
+trainee who leaves a company does not leave the world; she leaves
+the company. The world forgets a person only when she leaves it for
+good (aged out, gone home) — and never one who has a chapter with
+the player.
+
+**A. What the audit found (read-only, 300-week census, idle house).**
+227 people in the save: 140 'rival', 50 'student', 27 'prospect', 6
+'released', 4 'departed'. The disconnections, in order of how badly
+they break the owner's law:
+1. RIVAL FLOORS ARE A NUMBER. `rival.rosterCount` is an integer
+   (intake +1 at scoutIntake, −cut at evaluations, −size at debuts)
+   while named 'rival' people exist beside it — Tidewater at
+   "9 trainees" with 67 named people; Monarch "10" with 1. The two
+   truths never meet: a seasonal cut subtracts from the counter and
+   then MINTS castoffs from nothing (`KP.mintCastoff` → a new person
+   with a fabricated "cut at Aurum" line) while the named floor is
+   cut by a separate rule (`namedCuts`, real people → the board).
+   Debut casting takes real signees first, then fills the lineup with
+   freshly minted "In-house trainee" people who did not exist the
+   week before.
+2. THE SEASON IS INVENTED. The annual competition show (network.js
+   SHOW) mints 2–3 finalists from nothing on a fixed week, gives them
+   followers and a history line, and parks them on the board. No
+   contestants, no eliminations, no companies sending anyone, no
+   project group, no way for YOUR trainee to be on it.
+3. WASHOUTS ARE INVENTED. `NETWORK.WASH.mintChance` mints a "Program
+   washout" from nothing with a polish bump and a line about years of
+   training nobody simulated.
+4. RELEASED TRAINEES VANISH. `releaseTrainee`/`quitNow`/the trainee
+   table's farewell and the scandal release all set status 'released'
+   and leave the person in `state.people` — where nothing ever reads
+   her again except the departed-writer royalty letter. She never
+   reappears on the board, never signs elsewhere, never debuts for
+   a rival, never comes back at 22 with a chapter.
+5. THE WORLD FORGETS TOO EASILY. Students who age out of a class,
+   prospects past prospectAgeOut, castoffs past their window are
+   `delete`d from `state.people` — including people the player met,
+   visited, read, or was outbid for.
+6. ORIGINS ARE THIN. A person carries `source` (a label) and
+   `channel` (how she reached YOUR desk) and, for school kids,
+   `schoolId`; home regions are a hash (`strongholdsOf`), not a
+   birthplace; the "In-house trainee" and saga trainees come from
+   nowhere.
+7. THREE MARKETS FOR ONE THING (§89 D7). Castoffs, free agents (a
+   collapse's signing class — real people, correctly), and washouts
+   are three lanes of "rival-trained person available," two of them
+   minted.
+What is already right and should be kept: schools hold persistent
+classes of real students (§84 A); rival signings off the board turn
+a prospect into a real 'rival' person with a company; the fog poach
+signs a real student; a collapse mints free agents from the real
+floor; departed idols persist and can return (returnRun); cross-
+company friendships (society.js) and the directed ledger (§89 D3)
+already give a person memory across contexts.
+
+**B. The design.**
+
+*B1. Rival floors are people.* `rival.rosterCount` becomes a READ:
+the count of 'rival' people with `company === rival.short` not in an
+act. Intake is a door, not an increment: a rival's weekly intake
+signs from the world first — the open board (its interest ladder,
+as now), a school class (the fog poach, as now), a castoff or a
+released trainee on the market, a finalist — and only when the world
+has nobody does the rival's OWN door open: an application to THEM,
+born with an origin (city, a school if from one, enteredWeek) and
+`company` stamped. The seasonal evaluation cuts REAL people: the
+floor sorted by peak talent after tenure, the lowest N cut — and
+the castoff on the board IS the person cut, file intact (what she
+trained, how long, who signed her, whether she was once on your
+board). Debut casting fills the lineup from the real floor only; a
+floor too thin to field a debut waits (the comfort rule already
+exists) — the rival's intake rate is tuned so floors stay fieldable
+(measured, not assumed). The retired act's members stay people
+(they already do). Save migration: an existing counter materializes
+into named trainees at load, each born with an origin and a signed
+week back-dated by tenure, so no save loses a debut.
+
+*B2. The season draws from the pool.* The competition show becomes
+a SEASON (≈12 weeks, one a year, the finale week as now): a casting
+call goes out in the world — companies submit trainees from their
+real floors (rivals pick their 1–2 most promising non-act trainees
+by a hash of readiness and hype), schools submit a known student or
+two, the open board's unsigned prospects enter on their own — and
+the player gets ONE scene: the producers' invitation to send up to
+two trainees. The decision is real: exposure (hype, followers, a
+public that learns her name — the §77 public eye reads it), a
+polish bump from televised training, a national-TV elimination that
+costs morale and marks the file, and the project-group risk — a
+finalist who makes the lineup debuts in the season's PROJECT GROUP
+(a rival-style act with a fixed term, say 60 weeks, run by the
+broadcaster) and is unavailable to your lineup until the term ends,
+then returns famous (the §87 solo-era machinery already knows how to
+hold a seat; the dual-career flag is the model). Eliminations run
+weekly in the feed (the regulars have opinions); unsigned
+eliminated contestants land on the board with heat and a history
+line that is TRUE; signed ones return to their floors with hype.
+Owner-facing names stay invented (content law). The season replaces
+NETWORK.SHOW's mint entirely.
+
+*B3. Released trainees move through the system.* A person with
+status 'released' (your release, her quit, the farewell, the scandal
+release) enters a RE-ENTRY clock: after a cooldown (8–16 weeks,
+hashed) she resurfaces as a public prospect on the open board with
+her file — "Released from HCG, week N" — unless she is past the age
+wall, in which case she goes home (and the world forgets her only if
+she has no chapter with you). On the board she is contested like
+any public file: a rival with interest signs her (and she may debut
+against you — "a face we lost" already exists for signees and now
+covers releases), or the player re-signs her at a price the LEDGER
+sets (`KP.ledgerRead`: a grudge over the walkout line means she will
+not take the meeting; a warm standing means a discount and a line in
+the file). A trainee who quit over a broken promise carries the
+grudge into the next company's floor and remembers it at every
+renewal. The three exits that today say "she packed" become three
+chapters that continue.
+
+*B4. No mint-from-nothing.* The world's doors, and the only places
+`generatePerson` may be called after new-game: academy enrollment
+(a student, with city and school), an application (to the player or
+to a rival — with city), a street cast / open call (with district),
+a viral kid (born on social media, with city), and the saga doors
+(JV classes — born abroad, with country). Every door stamps
+`origin: { city, schoolId?, channel, enteredWeek, firstCompany? }`.
+Deleted outright: the WASH stream (a washout is a real cut now), the
+SHOW mint (B2), the "In-house trainee" fill (B1), `mintCastoff`
+(the castoff is the cut). The §89 D7 merge rides along: one market
+— the open board — with `source` tags; `state.freeAgents` folds into
+it (a collapse's class lands on the board with a premium and a
+window, as castoffs do today).
+
+*B5. Memory.* One file for life: history, the directed ledger, eval
+history, friendships, hype and followers, the public eye's
+expectations, the renewal reads — all survive a change of company
+because the person object survives it. The Person tab gets a
+"Chapters" strip (where she has been: the academy, the companies,
+the show, the releases) read from history stamps, not a new store.
+The world forgets at exits only: `KP.forget(state, p)` deletes a
+person when she leaves the world (aged out, gone home) AND has no
+chapter with the player (never on the roster, never visited, never
+read, never a rival act member the player faced). Everyone else is
+kept — and the save budget is measured (people are already the
+biggest save component at ~480 KB of ~700 KB at week 620; B1 adds
+~50 named floor trainees; B5's keep-rule must be checked against
+the 5 MB quota by the longhaul at 620 weeks).
+
+*B6. The headcount economy is measured.* A new tool,
+`tools/audit_people.js`, runs the 40-seed soak and prints, per
+org-year: births by door, exits by reason, people by status, floor
+sizes per rival, board size, the mint-from-nothing count (must be
+ZERO outside the doors), ghost events (a cut or a cast with no
+person — must be zero), and re-entries (released → board → signed).
+The harness gets bands: rival floors fieldable (every rival that
+schedules a debut can cast it from its floor ≥ 90%), season ran
+with ≥ 8 contestants from ≥ 3 sources, player trainee invited to the
+season (≥ 40% of orgs with a roster), released trainee resurfaced
+(≥ 50% of orgs that released anyone), a face we lost debuted
+against us (≥ 10%).
+
+**C. Phases.** Each is a full-ritual release; each shifts the stream.
+- PHASE A — THE FLOOR (v0.10.31): B1 + B4's deletions of WASH,
+  mintCastoff and the in-house fill + B3's re-entry clock + B6's
+  tool and bands + the floor migration. The biggest felt change:
+  the rival you watch has NAMED trainees you can read on the
+  Industry page, the castoff on your board is somebody you may have
+  lost to them, and the kid you released last year is on the open
+  board again. Medium risk (industry.js casting and culling are
+  load-bearing for every rival-side suite).
+- PHASE B — THE SEASON (v0.10.32): B2 in full — the casting call,
+  the player's invitation scene, weekly eliminations in the feed,
+  the project group with a fixed term and the seat held, the
+  returns. Highest felt value; needs §87's held-seat machinery and
+  one new scene family. Medium risk.
+- PHASE C — THE FILE (v0.10.33): B5's chapters strip, `origin` on
+  every door, the forget-rule, the §89 D7 market merge, and the
+  Industry page's named floors. Low risk, mostly surface.
+
+**D. Open rulings for the owner.** (1) Should rivals be able to
+re-sign a trainee THEY cut (the world says sometimes; the design
+says no for a year)? (2) The season's project group: broadcaster-
+run for a fixed term (the Produce model) or a permanent act at the
+company that "won" the finale? The plan assumes the fixed term. (3)
+A released trainee's grudge line: below what ledger read does she
+refuse your meeting outright — the walkout's grudgeAt 5, or softer?
+(4) How many trainees may the player send to a season — one, or up
+to two? The plan assumes two.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
