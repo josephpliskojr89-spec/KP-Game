@@ -539,6 +539,7 @@
     }
     state.roster = state.roster.filter(id => id !== personId);
     p.status = 'released';
+    KP.leftUs(state, p);   // she leaves the company, not the world (v0.10.31, §90 B3)
     p.training.focus = [];
     p.history.push({ week: state.week, text: 'Released from ' + state.company.short + '.' });
     // the same sweep a departure gets (0.9.13 audit M3): open scenes

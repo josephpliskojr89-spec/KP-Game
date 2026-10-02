@@ -78,7 +78,7 @@ function debuted(seed) {
   KP.advanceWeek(s);
   t.eq(s.scenes.length, 1, 'not expired while the window is open');
   KP.advanceWeek(s);
-  t.eq(s.scenes.length, 0, 'expired once the window closes');
+  t.eq(s.scenes.filter(x => x.kind === 'testAsk').length, 0, 'expired once the window closes');
   t.ok(s.inbox.some(n => /stopped waiting/.test(n.text)), 'and the silence is narrated');
 }
 

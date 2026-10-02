@@ -80,11 +80,13 @@ function debuted(seed) {
   // (a show win the same week once masked it — trust moves for many reasons)
   const b = KP.deserialize(KP.serialize(state));
   b.mandates = [];
-  KP.advanceWeek(state); KP.advanceWeek(b);
+  KP.advanceWeek(state);
+  const tickNotes = (KP.lastTickNotes || []).slice();   // state's own week, before the fork ticks
+  KP.advanceWeek(b);
   t.eq(m.status, 'lapsed', 'the window closed unused');
   t.eq(state.trust, b.trust + KP.C.MANDATE.lapseTrust,
     'greenlights are trust, and trust is a consumable (exactly ' + KP.C.MANDATE.lapseTrust + ')');
-  t.ok(state.inbox.some(n => /floor stayed dark/.test(n.text)), 'the exec says so out loud');
+  t.ok(state.inbox.concat(tickNotes).some(n => /floor stayed dark/.test(n.text)), 'the exec says so out loud');
 }
 
 // the board reads the room without being asked

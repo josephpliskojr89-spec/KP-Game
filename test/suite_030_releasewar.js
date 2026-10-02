@@ -211,7 +211,7 @@ function firstAct(state) { return state.rivals[0].acts[0]; }
     // debut forever (v0.9.26 comfort branch) — retire its shelf so the
     // room genuinely wants the debut (exposed by the v0.10.26 stream)
     thief.nextDebutWeek = state.week + 1;
-    thief.rosterCount = 6;
+    { const rng0 = KP.rngFor(state); while (KP.rivalFloor(state, thief).filter(p => p.age >= 16).length < 6) KP.mintRivalTrainee(state, rng0, thief, { signedWeek: state.week - 60, gender: 'f', age: 18 }); state.rngState = rng0.state(); }   // the floor is people (v0.10.31)
     (thief.acts || []).forEach(a => { a.retired = true; });
     let guard = 0, reveal = null;
     // the rival's casting-to-debut runway varies with the stream — give

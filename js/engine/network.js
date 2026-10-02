@@ -14,7 +14,7 @@
 
   function ledger(state) {
     state.networkLedger = state.networkLedger ||
-      { apps: 0, believers: 0, refs: 0, washouts: 0, viral: 0, seasons: 0,
+      { apps: 0, believers: 0, refs: 0, viral: 0, seasons: 0,
         finalists: 0, streets: 0, gems: 0, calls: 0, callMinted: 0 };
     return state.networkLedger;
   }
@@ -64,6 +64,7 @@
     state.prospects.push(p.id);
     KP.socialOf(state, p);
     state.nextPersonId = KP.peekNextId();
+    KP.stampBorn(state, p, opts.channel);   // every door says where she came from (v0.10.31)
     return p;
   }
   function full(state) {
@@ -132,19 +133,8 @@
       }
     }
 
-    // washouts: the big programs cut people every season — the public sees
-    if (!full(state) && rng.chance(N.WASH.mintChance)) {
-      const p = mint(state, rng, { channel: 'washout', source: 'Program washout',
-        age: rng.int(N.WASH.ageMin, N.WASH.ageMax), observations: 2 });
-      ['vocals', 'dance'].forEach(d => {
-        p.talents[d].cur = Math.min(p.talents[d].ceilLo - 1,
-          p.talents[d].cur + N.WASH.polishBump);
-      });
-      led.washouts++;
-      p.history.push({ week: state.week, text: 'Cut from a major program after years of training. The polish is real. So is the file that says somebody else passed first.' });
-      inbox.push({ kind: 'scouting', ind: 'washout', priority: 'flavor', personId: p.id,
-        text: KP.fillPro(KP.displayName(p) + ', ' + p.age + ', is on the open board — a washout from one of the big programs. Years of training, real polish, and a file every desk in the city can read: somebody passed on {her} once. The overlooked are how small companies get made.', p) });
-    }
+    // the washout stream left (v0.10.31, §90 B4): a washout is a real cut
+    // from a real floor now — see industry.js's evaluation and floor.js
 
     // social media: the viral kid every desk sees the same morning
     if (!full(state) && rng.chance(N.SOCIAL.chance)) {
@@ -354,29 +344,8 @@
   // industry.js calls this when a rival's cull or debut sheds real
   // people — the file carries the company's name, the polish is real,
   // and the window is short: the market moves fast on known quantities
-  KP.mintCastoff = function (state, rng, opts) {
-    if (full(state)) return null;
-    const CF = KP.C.NETWORK.CASTOFF;
-    const p = mint(state, rng, { channel: 'castoff', source: opts.source,
-      age: rng.int(CF.ageMin, CF.ageMax) });
-    ['vocals', 'dance'].forEach(d => {
-      p.talents[d].cur = Math.min(p.talents[d].ceilLo - 1,
-        p.talents[d].cur + CF.polishBump);
-    });
-    p.observations = CF.obs;   // somebody trained them; the file is real
-    KP.takeReads(state, p);
-    p.castoffUntil = state.week + CF.window;
-    if (opts.hype) p.hype = opts.hype;
-    // the majors' castoffs (v0.10.13): trained at a big agency, known
-    // to the public — the file says so, the price and the demand follow
-    if (opts.major) {
-      p.castoffMajor = 1;
-      if (!p.hype) p.hype = rng.int(CF.majorHype[0], CF.majorHype[1]);
-    }
-    if (opts.from) p.castoffFrom = opts.from;
-    p.history.push({ week: state.week, text: opts.historyText });
-    return p;
-  };
+  // mintCastoff left (v0.10.31, §90 B4): the castoff on the board IS the
+  // person who was cut — KP.cutFromFloor / KP.boardCastoff in floor.js
 
   // ---- the timeline reacts ---------------------------------------------
   KP.onFeedEvent('seasonFinale', (state, n, rng) => rng.pick([

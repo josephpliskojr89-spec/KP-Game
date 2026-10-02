@@ -147,7 +147,7 @@ function rideToWoy(state, target) {
   const gain0 = g.fandom.intensity;
   rideToWoy(state, KP.C.AWARDS.ceremonyWeek - 1);
   KP.advanceWeek(state);
-  const snub = state.inbox.find(n => n.ind === 'daesangSnub');
+  const snub = state.inbox.concat(KP.lastTickNotes || []).find(n => n.ind === 'daesangSnub');
   t.ok(snub, 'the near-miss is narrated');
   if (snub && snub.bonsangTonight) {
     t.ok(/a bonsang. Again/.test(snub.text), 'a bonsang, again — the exact words');

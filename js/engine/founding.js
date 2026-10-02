@@ -68,8 +68,6 @@
       philosophy: 'patient',
       blurb: 'The house the architect built — before the architect walked out the front door.',
       prestige: KP.clamp(45 + h.daesangs * 10 + h.bonsangs * 3, 45, 90),
-      rosterCount: state.roster.filter(id =>
-        (state.people[id] || {}).status === 'trainee').length,
       nextDebutWeek: state.week + 40,
       interest: {}, recentMoves: [], founderGrudge: true,
       acts: [],
@@ -111,6 +109,7 @@
         : 'The A&R architect left ' + oldCo.short + ' to found ' + name + '. The building carried on. Buildings do.' });
       p.status = 'rival';
       p.company = legacy.short;   // the legacy house can cast them later (audit A3)
+      if (p.signedWeek == null) p.signedWeek = state.week;
       delete p.contract;
     });
     state.roster = [];
@@ -214,6 +213,7 @@
         state.people[p.id] = p;
         state.prospects.push(p.id);
         KP.socialOf(state, p);   // minted at the door, not on first look (audit H2)
+        KP.stampBorn(state, p, 'founding');   // the scene knows your name (v0.10.31)
       }
       state.nextPersonId = KP.peekNextId();
       state.rngState = rng.state();

@@ -178,7 +178,13 @@
         (actLines ? '<div class="rv-acts">' + actLines + '</div>'
           : '<div class="rv-acts"><div class="rv-act"><span class="rv-act-note">No active act — the trainee floor is all they have.</span></div></div>') +
         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">' +
-        '<span class="chip">~' + (r.rosterCount || 0) + ' trainees</span>' +
+        (function () {   // the floor (v0.10.31, §90 A): the trainee room is PEOPLE
+          const floor = KP.rivalFloor(state, r).sort((a, b) => KP.peakOf(b) - KP.peakOf(a));
+          const top = floor.slice(0, 3).map(p => UI.esc(KP.displayName(p)) +
+            (p.flags.lostToRival ? '<span class="rv-act-note"> (once on our board)</span>' : '') +
+            (p.releasedFrom === state.company.short ? '<span class="rv-act-note"> (left this building)</span>' : ''));
+          return '<span class="chip">' + floor.length + ' trainees' + (top.length ? ' · ' + top.join(', ') + (floor.length > 3 ? ', …' : '') : '') + '</span>';
+        })() +
         (interested ? '<span class="chip hot">tracking ' + interested + ' of your leads</span>' : '') +
         moves +
         '</div></div>');

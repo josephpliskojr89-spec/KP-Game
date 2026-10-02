@@ -30,6 +30,7 @@
   function quitNow(state, p, how) {
     state.roster = state.roster.filter(id => id !== p.id);
     p.status = 'released';
+    KP.leftUs(state, p);   // she leaves the company, not the world (v0.10.31, §90 B3)
     p.training.focus = [];
     p.history.push({ week: state.week, text:
       how === 'grace' ? 'Chose to leave ' + state.company.short + '. On ' + (p.gender === 'm' ? 'his' : 'her') + ' own terms, with the room’s respect.'

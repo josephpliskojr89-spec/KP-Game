@@ -128,7 +128,7 @@ function fire(state, kind, nameIdx) {
   KP.advanceWeek(state);
   // the clamp lands the week the tap closes — a signing a week LATER is
   // the scene absorbing the class, not a burst leak (v0.10.17 shift)
-  const roomAfterBurst = rival.rosterCount;
+  const roomAfterBurst = KP.rivalFloor(state, rival).length;   // the floor is people (v0.10.31)
   KP.advanceWeek(state);
   t.ok(!rival.bankroll, 'the runway ends');
   t.eq(state.sagaLedger.heirBurst, 1, 'the tap closes on a miss');

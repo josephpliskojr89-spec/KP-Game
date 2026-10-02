@@ -116,6 +116,7 @@
     p.channel = 'school';
     applySchoolPolish(p, school);
     state.people[p.id] = p;
+    KP.stampBorn(state, p, 'academy', { city: school.cityId, schoolId: school.id });
     schoolLedgerOf(state).enrolled = (schoolLedgerOf(state).enrolled || 0) + 1;
     // the powers' head start: the obviously-talented are ALREADY known —
     // hash, not rng: whether the industry saw her was never your draw
@@ -310,6 +311,7 @@
     state.people[p.id] = p;
     state.prospects.push(p.id);
     KP.socialOf(state, p);   // minted at the door, like every arrival
+    KP.stampBorn(state, p, 'academy', { city: school.cityId, schoolId: school.id });
     // a trip or a partnership IS a real look (0.9.17.1): those files
     // arrive with a DATED read — that is exactly what the money bought
     if ((p.observations || 0) > 0) KP.takeReads(state, p);
@@ -430,7 +432,7 @@
         // graduation: at the leaving age, the ones we never met walk out
         // of the game — the fog does not owe you a forwarding address
         if (p.age >= CL.leaveAge) {
-          delete state.people[p.id];
+          KP.goHome(state, p, 'Graduated out of ' + s.name + ' with no letterhead. The city kept her.');   // forgets only the never-met (v0.10.31)
           schoolLedgerOf(state).graduated = (schoolLedgerOf(state).graduated || 0) + 1;
           if (s.visitedWeek) {
             inbox.push({ kind: 'scouting', priority: 'flavor',
@@ -455,8 +457,8 @@
           if (top) {
             p.status = 'rival';
             p.company = top.short;
+            p.signedWeek = state.week;
             KP.schoolRecordAlum(state, p, top.short);
-            top.rosterCount = (top.rosterCount || 0) + 1;
             (state.rivals || []).forEach(r => { if (r.interest) delete r.interest[p.id]; });
             schoolLedgerOf(state).fogPoached = (schoolLedgerOf(state).fogPoached || 0) + 1;
             if (s.visitedWeek) {

@@ -6679,7 +6679,7 @@ Battery 97/97, soak 40 clean, longhaul 10x620, e2e 111, lockstep
 0.10.30.
 
 
-## §90 The trainee ecosystem (PLANNED — one world of people)
+## §90 The trainee ecosystem (PHASE A SHIPPED v0.10.31 — one world of people)
 
 Owner: "I want the actual trainee ecosystem to make sense and be
 connected. Survival shows actually draw from the active trainee pool.
@@ -6868,15 +6868,109 @@ against us (≥ 10%).
   every door, the forget-rule, the §89 D7 market merge, and the
   Industry page's named floors. Low risk, mostly surface.
 
-**D. Open rulings for the owner.** (1) Should rivals be able to
-re-sign a trainee THEY cut (the world says sometimes; the design
-says no for a year)? (2) The season's project group: broadcaster-
-run for a fixed term (the Produce model) or a permanent act at the
-company that "won" the finale? The plan assumes the fixed term. (3)
-A released trainee's grudge line: below what ledger read does she
-refuse your meeting outright — the walkout's grudgeAt 5, or softer?
-(4) How many trainees may the player send to a season — one, or up
-to two? The plan assumes two.
+**D. Rulings (owner).** (1) Rivals CAN re-sign a trainee they cut
+— "Yes." (2) The season's project group is fixed-term OR permanent,
+decided by a random roll per season — "Fixed-term it permanent.
+Random roll." (3) "Released trainees hold grudges based on
+personality": the refusal line is hers, not a constant — warmth and
+professionalism forgive, dominance and competitiveness do not; the
+ledger's grudge is read against HER bar. (4) "Yes, you can send
+trainees to a season" — up to two.
+
+**As built — Phase A, v0.10.31 "the floor".** Owner: the four
+rulings above, then build. floor.js is the module; industry.js,
+scouting.js, network.js, schools.js, sagas.js, tongue.js, founding.js,
+newgame.js, sim.js, practice.js, scandal.js and save.js changed around
+it. Suite_098_floor (80 checks) and tools/audit_people.js are the
+eyes.
+
+*B1 — rival floors are people.* `rival.rosterCount` is gone;
+`KP.rivalFloor(state, rival)` is the read (status 'rival', the
+company, not in an act). Intake is a door: a rival's weekly intake
+takes a MARKET file off the open board (a castoff or a released
+trainee, `FLOOR.intakeFromBoardChance` .5, hash-gated) or opens its
+own door — `KP.mintRivalTrainee`: an applicant to THEM, signed at
+15–18, born with a hometown (`p.born = { door, city, week }`,
+`KP.stampBorn`), stamped `signedWeek`. The seasonal evaluation cuts
+PEOPLE: the room graded lowest peak first, signees exempt until
+ROOM.namedTenure unless the room must shrink anyway; a trainee past
+FLOOR.floorAgeOut (25) leaves at the evaluation regardless. Every
+cut goes through `KP.cutFromFloor`: the castoff on the open board IS
+the person who was cut (file, hometown, history: "Cut at Aurum's
+seasonal evaluation"); when the board is full she waits on the
+market as 'released'. Lineups are cast from the floor only —
+debut-aged, FLOOR.castTenureWeeks (8) on the floor — and a room that
+cannot field a gender waits (ROOM.comfortRecheck) instead of minting
+one. The debut-day "missed the lineup by a hair" castoff is the real
+next name on the floor. A collapse releases the whole room (the
+signing class stays free agents); a split walks six real trainees
+out with the defectors; a company born in the world seeds its room
+at its door. The opening scene and old-save backfill are doors too
+(`ensureCastable`): a room that already runs an act gets the people
+it must have had, back-dated. The old-save migration materializes a
+counter into named trainees (deterministic rng per company).
+
+*B3 — released trainees move through the system.* `KP.leftUs` at
+every player exit (release, quit, the farewell, the scandal release)
+stamps `wasOurs`, `releasedFrom`, `releasedWeek`. The re-entry rail
+(order 619): after FLOOR.reentryMin–Max (8–16, hashed) weeks she is a
+public prospect again (`channel: 'released'`, "Back on the open
+board after N weeks"), with a desk note when she was ours; past the
+market's age she goes home; with no seat on the board she waits
+FLOOR.marketWaitWeeks (10) then signs elsewhere (a REAL signing —
+`KP.rivalSignFromBoard`) or goes home. Rivals court her like any
+public file (and can re-sign the one they cut — ruling 1). Re-signing
+her is read against HER bar (ruling 3): `KP.grudgeBar(p)` = 2 +
+(warmth+professionalism)/50 − (dominance+competitiveness)/60, floored
+at 1; a ledger grudge at or over it is a no (the meeting happens, no
+money moves, she stays on the board); under it the price remembers —
+×0.8 on a warm standing, ×1.25 with a grudge. The directed ledger,
+history and reads survive every exit because the person does.
+
+*B4 — no mint-from-nothing.* Deleted: the WASH stream, `mintCastoff`,
+the "In-house trainee" lineup fill. Every remaining birth goes
+through a door and stamps `born`: academy (city, school),
+application, referral, street, audition (open call), social,
+showKid (the season — Phase B replaces its mint), rivalDoor,
+auditionAbroad (the tongue's tours), abroad (the sagas' arrivals),
+founding. The audit counts births by door and asserts two zeros.
+
+*B5 — memory, and the forget rule.* `KP.hasChapter(state, p)`: on
+the roster or in a lineup, ever ours, read by this desk
+(`flags.readByUs`, stamped by the targeted look), lost to a rival
+from our mail or a file we read, or any directed act. `KP.goHome`
+is the one exit: a person with a chapter becomes 'gone' and stays;
+one without is forgotten. Every deletion in the engine now goes
+through it (castoff windows, aged-off leads, graduations, the
+castoff who is done, the market's clock). The first chapter rule
+kept 145 'gone' files per 620-week save for a chapter that was never
+ours (a public lead a rival signed); tightened to our mail / our
+reads.
+
+*B6 — measured (tools/audit_people.js, 43 orgs, 116 org-years).*
+Births per org-year: academy 43.8, rivalDoor 38.1, application 5.5,
+auditionAbroad 3.1, showKid 3.1, referral 2.0, social 0.6, abroad
+0.4. Births with no door: 0. Lineups cast with someone minted that
+week: 0 (three "signed Monday, debuted Friday" cases before the
+tenure floor). Floor ledger per org-year: cut 31.9, boarded 7.7,
+marketed 24.3, signed off the board 31.9, re-entries 3.1, elsewhere
+11.3, forgotten 12.7. People at career end per org: rival 110,
+student 52, prospect 31, released 17, idol 13, trainee 4. Rival
+floors at 140 weeks: median 10 (min 5, max 27). Save size: soak orgs
+482–537 KB at 140 weeks (cap raised 480→600, the floor is ~55 real
+people per org); longhaul 590–908 KB at 620 weeks (people 448–631
+KB), down from 1.0–1.15 MB before the market clock and the chapter
+rule. Harness bands: washoutReturned now reads a real cut (.50),
+reentrySeen (.30), rivalDoorBorn (.90).
+
+*Left for Phase B/C.* The season still mints finalists at its door
+(B2 replaces it); `state.freeAgents` still its own lane (C merges
+it); the Person tab's chapters strip; retired rival acts' members
+stay 'rival' forever (82 per 620-week save — a C question).
+
+Battery 98/98, soak 40 clean, longhaul 10x620, e2e 111, lockstep
+0.10.31.
+
 
 ## §18 Watch items
 
@@ -9984,3 +10078,20 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 2.6 weeks. Migration 0.10.30. 18 suites re-pinned; suite_097
 > (131). Battery 97/97, soak 40 clean, longhaul 10x620, e2e 111,
 > lockstep 0.10.30. Rode to main.
+
+> **0.10.31 — the floor.** §90 Phase A, owner's four rulings. Rival
+> trainee floors are PEOPLE (floor.js): the counter is a read, intake
+> is a door (the market's castoffs and released files first, then an
+> applicant to THEM, born with a hometown), the seasonal cut is a
+> person and the castoff on the board is her, lineups are cast from
+> the floor only (debut-aged, eight weeks' tenure) or wait, collapses
+> and splits move real people. Released trainees re-enter the open
+> board after 8–16 weeks with their file and ledger, rivals court
+> them, and re-signing is read against HER personality bar. Deleted:
+> the washout stream, mintCastoff, the in-house lineup fill. Every
+> birth stamps a door; the world forgets only at exits and never a
+> file with a chapter. Measured by tools/audit_people.js: zero
+> doorless births, zero ghost casts; floors median 10. Migration
+> 0.10.31 materializes old counters. Suite_098 (80). Battery 98/98,
+> soak 40 clean (save cap 480→600, measured), longhaul 10x620, e2e
+> 111, lockstep 0.10.31. Rode to main.

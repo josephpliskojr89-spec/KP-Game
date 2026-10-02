@@ -133,7 +133,7 @@ function debuted(seed) {
   KP.advanceWeek(state);
   t.ok(p.socialMilestones.includes(100000), 'the 100k milestone is recorded');
   const herLetter = m => m.text.includes(KP.displayName(p)) && /crossed 100k/.test(m.text);
-  t.ok(state.inbox.some(herLetter), 'and celebrated');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(herLetter), 'and celebrated');
   const before = state.inbox.filter(herLetter).length;
   KP.advanceWeek(state);
   t.eq(state.inbox.filter(herLetter).length, before, 'once means once — for HER (others may cross too)');

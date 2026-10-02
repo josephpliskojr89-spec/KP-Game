@@ -178,7 +178,7 @@ function withWriter(seed) {
   t.eq(last.repackageOf, g.releases[0].songTitle, 'the reissue names its era');
   t.eq((last.tracklist || []).length, KP.C.REPACKAGE.tracks, 'a reissue is a short record');
   t.eq(g.promoUntil - g.lastReleaseWeek, KP.C.REPACKAGE.promoWeeks, 'on a short cycle');
-  t.ok(state.inbox.some(n => n.ind === 'eraExtended'), 'and the world calls it what it is');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => n.ind === 'eraExtended'), 'and the world calls it what it is');
   t.ok(!KP.planRepackage(state, { groupId: g.id, songId: 'x' }).ok, 'one repackage per era');
   t.ok(KP.feedReactionFor('eraExtended') && KP.feedReactionFor('memberTitle') && KP.feedReactionFor('mvBudget'),
     'the timeline answers all three new inds');

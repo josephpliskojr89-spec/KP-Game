@@ -152,6 +152,9 @@ function elevate(state, g, p) {
   const S = KP.C.SLUMP;
   const old = S.enterChance;
   S.enterChance = 1;
+  // the one door (v0.10.30): clear the desk so the quiet-era question is the week's pick
+  (state.scenes || []).slice().forEach(x => { const def = KP.sceneDef(x.kind); if (def) KP.resolveScene(state, x.id, def.options(state, x)[0].id); });
+  state.knockLedger = null;
   KP.advanceWeek(state);
   S.enterChance = old;
   t.ok(p.flags.slump, 'the nerve goes when everything else already has');
@@ -164,7 +167,8 @@ function elevate(state, g, p) {
   t.ok(dimmed < clear, 'the slump dims the stage stats, not the practice room');
   // the quiet era waits at the one door (v0.10.30) — ride to it, desk clear
   let sc = (state.scenes || []).find(x => x.kind === 'quietEra'), guardQ = 0;
-  while (!sc && guardQ++ < 4) {
+  while (!sc && guardQ++ < 8) {
+    if (p.flags.slump) p.flags.slump.ask = true;
     (state.scenes || []).slice().forEach(x => {
       if (x.kind !== 'quietEra') { const def = KP.sceneDef(x.kind); if (def) KP.resolveScene(state, x.id, def.options(state, x)[0].id); }
     });

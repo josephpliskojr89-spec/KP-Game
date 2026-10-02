@@ -67,6 +67,8 @@
       // and your circuit's tape is YOUR tape (channel privacy, v0.9.35)
       p.channel = 'audition';
       p.origin = regionId;
+      state.people[p.id] = p;
+      KP.stampBorn(state, p, 'auditionAbroad', { city: regionId });
       p.nativeLang = KP.marketLang(regionId);
       p.ko = rng.int(T.koStart[0], T.koStart[1]);
       const given = rng.pick(pool.given);

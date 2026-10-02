@@ -54,7 +54,7 @@ function famous(state, p) {
   t.ok(hers, 'for the funny one, by name');
   t.eq(hers.kind, 'panel', 'and it is a panel seat — the market read the derived stat');
   t.ok(G.SHOWS.includes(hers.show), 'the show has a name');
-  t.ok(state.inbox.some(n => n.ind === 'gigOffer'), 'the offer reaches the desk');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => n.ind === 'gigOffer'), 'the offer reaches the desk');
   // decline: the desk clears, nothing sticks to her file
   offers.forEach(o => t.ok(KP.respondGig(state, o.id, false).ok, 'declined: ' + o.kind));
   t.ok(KP.openGigOffers(state).length === 0, 'declining clears the desk');

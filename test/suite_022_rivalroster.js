@@ -8,6 +8,16 @@ const { loadEngine, makeT } = require('./load_engine');
 const KP = loadEngine();
 const t = makeT('suite_022_rivalroster');
 
+// the floor (v0.10.31): a rival's room is PEOPLE — fixtures fill it at the door
+function fillFloor(state, rival, n, opts) {
+  const rng = KP.rngFor(state);
+  while (KP.rivalFloor(state, rival).length < n) {
+    KP.mintRivalTrainee(state, rng, rival, Object.assign({ signedWeek: state.week - 60 }, opts || {}));
+  }
+  state.rngState = rng.state();
+}
+
+
 // ---- the scene opens with faces ----
 {
   const state = KP.newGame('rr-seed', null, { legacy: false });
@@ -39,17 +49,17 @@ const t = makeT('suite_022_rivalroster');
     p.gender = 'f';   // one group, one gender (v0.8.4): the fixture steals from one hall
     p.talents.vocals.cur = 90;
     state.prospects = state.prospects.filter(id => id !== p.id);
-    rival.rosterCount = (rival.rosterCount || 0) + 1;
+    p.signedWeek = state.week - 10; p.age = Math.max(p.age, 18);
   });
   rival.nextDebutWeek = state.week + 1;
-  rival.rosterCount = Math.max(rival.rosterCount, 10);
+  fillFloor(state, rival, 10, { gender: 'f', age: 18 });
   const actsBefore = rival.acts.length;
   KP.advanceWeek(state);
   t.eq(rival.acts.length, actsBefore + 1, 'the debut happened');
   const act = rival.acts[rival.acts.length - 1];
   stolen.forEach(p => t.ok(act.members.includes(p.id),
     KP.displayName(p) + ' is actually in the lineup'));
-  t.ok(act.members.length >= KP.C.INDUSTRY.actSize[0], 'the lineup was topped up with in-house trainees');
+  t.ok(act.members.length >= KP.C.INDUSTRY.actSize[0], 'the lineup was filled from the floor — real people (v0.10.31)');
   act.members.forEach(id => t.ok(state.people[id], 'every member exists'));
   t.ok(state.inbox.some(m => m.ind === 'rivalDebut' && /once on our board/.test(m.text)),
     'the wire names the one we lost');
@@ -66,10 +76,11 @@ const t = makeT('suite_022_rivalroster');
       p.status = 'rival'; p.company = rival.short; p.gender = 'f';
       KP.C.TALENTS.forEach(d => { p.talents[d].cur = talent; });
       state.prospects = state.prospects.filter(id => id !== p.id);
-      rival.rosterCount = (rival.rosterCount || 0) + 1;
+      p.signedWeek = state.week - 10; p.age = Math.max(p.age, 18);
     });
     rival.nextDebutWeek = state.week + 1;
-    rival.rosterCount = Math.max(rival.rosterCount, 10);
+    // the floor is people (v0.10.31): the room holds exactly these six and nobody else castable
+    KP.rivalFloor(state, rival).forEach(p => { if (p.talents.vocals.cur !== talent) p.age = 14; });
     KP.advanceWeek(state);
     return rival.acts[rival.acts.length - 1];
   };
@@ -99,7 +110,7 @@ const t = makeT('suite_022_rivalroster');
   weakA.prestige = 12; weakB.prestige = 14;
   state.rivals[2].prestige = 80;
   state.rivals.push({ name: 'Filler Entertainment', short: 'Filler', philosophy: 'patient',
-    blurb: 'test', prestige: 70, rosterCount: 8, nextDebutWeek: 9999, interest: {}, acts: [], recentMoves: [] });
+    blurb: 'test', prestige: 70, nextDebutWeek: 9999, interest: {}, acts: [], recentMoves: [] });
   const memberIds = [weakA, weakB].flatMap(r => (r.acts || []).flatMap(a => a.members || []));
   let merged = null;
   for (let i = 0; i < 400 && !merged; i++) {
@@ -148,12 +159,14 @@ const t = makeT('suite_022_rivalroster');
   const target = I.debutTraineeCost + R.bench + Math.floor((rival.prestige || 40) / R.benchPerPrestige);
   // a saturated room (the year-8 save the owner reported); no debut in
   // the window, or the casting call saves the floor kid from the axe
-  rival.rosterCount = 30;
+  fillFloor(state, rival, 30);
   rival.nextDebutWeek = state.week + 500;
   // a named signee who never made a lineup, below the bar, long-tenured
   const floorKid = Object.values(state.people).find(p => p.status === 'prospect');
   floorKid.status = 'rival';
   floorKid.company = rival.short;
+  floorKid.flags.lostToRival = 1;
+  floorKid.signedWeek = Math.max(1, state.week - R.namedTenure - 4);   // the cull reads the signing week (v0.10.31)
   state.prospects = state.prospects.filter(id => id !== floorKid.id);
   ['vocals', 'dance', 'rap', 'charisma'].forEach(d => { floorKid.talents[d].cur = 30; });
   floorKid.history.push({ week: Math.max(1, state.week - R.namedTenure - 4),
@@ -166,10 +179,11 @@ const t = makeT('suite_022_rivalroster');
   const liveTarget = () => I.debutTraineeCost + R.bench +
     Math.floor((rival.prestige || 40) / R.benchPerPrestige);
   let guard = 0;
-  while (rival.rosterCount > liveTarget() && guard++ < R.cullEvery * 6 + 4) KP.advanceWeek(state);
-  t.ok(rival.rosterCount <= liveTarget() + R.cullMax,
+  const floorN = () => KP.rivalFloor(state, rival).length;
+  while (floorN() > liveTarget() && guard++ < R.cullEvery * 6 + 4) KP.advanceWeek(state);
+  t.ok(floorN() <= liveTarget() + R.cullMax,
     'the evaluations cut a saturated room back to the plan’s neighborhood (' +
-    rival.rosterCount + ' vs plan ' + liveTarget() + ')');
+    floorN() + ' vs plan ' + liveTarget() + ')');
   t.ok((state.rivalLedger || {}).culls >= 1, 'the cuts are ledgered');
   t.ok((rival.recentMoves || []).some(m => /^Cut \d+ trainee/.test(m)),
     'and worn on the company card');
@@ -177,10 +191,10 @@ const t = makeT('suite_022_rivalroster');
   // to the open board as a washout, file and history intact
   // the open board is OPEN — a returned washout can be signed by a
   // faster rival on any stream; either way she was cut and came back
-  t.ok(floorKid.status === 'prospect' || floorKid.status === 'rival',
+  t.ok(floorKid.status !== 'rival' || floorKid.company !== rival.short,
     'the named signee below the bar was not exempt (' + floorKid.status + ')');
   if (floorKid.status === 'prospect') {
-    t.eq(floorKid.channel, 'washout', 'and her file is back on the open board');
+    t.eq(floorKid.channel, 'castoff', 'and her file is back on the open board — she IS the castoff (v0.10.31)');
   } else {
     t.ok(true, '(a rival took her off the open board — the market working)');
   }
@@ -196,11 +210,11 @@ const t = makeT('suite_022_rivalroster');
   const R = I.ROOM;
   const rival = state.rivals[0];
   const target = I.debutTraineeCost + R.bench + Math.floor((rival.prestige || 40) / R.benchPerPrestige);
-  rival.rosterCount = target;
+  fillFloor(state, rival, target);
   rival.nextDebutWeek = state.week + 500;   // no debut consumption in the window
   for (let w = 0; w < 26; w++) KP.advanceWeek(state);
-  t.ok(rival.rosterCount <= target + 3,
-    'a sated room trickles instead of hoarding (' + rival.rosterCount + ')');
+  t.ok(KP.rivalFloor(state, rival).length <= target + 3,
+    'a sated room trickles instead of hoarding (' + KP.rivalFloor(state, rival).length + ')');
 }
 
 // the portfolio paces the pipeline: more active acts, later next debut
@@ -208,7 +222,7 @@ const t = makeT('suite_022_rivalroster');
   const a = KP.newGame('rr-pace', null, { legacy: false });
   const I = KP.C.INDUSTRY;
   const rival = a.rivals[0];
-  rival.rosterCount = 30;
+  fillFloor(a, rival, 30, { age: 18 });
   rival.nextDebutWeek = a.week;   // debut now
   const before = (rival.acts || []).filter(x => !x.retired).length;
   const b = KP.deserialize(KP.serialize(a));
@@ -233,7 +247,7 @@ const t = makeT('suite_022_rivalroster');
       concept: 'bright', quality: 60, members: [], popularity: 50,
       debutWeek: state.week, lastReleaseWeek: state.week, cycleWeeks: 20, releases: [], retired: false });
   }
-  rival.rosterCount = 20;
+  fillFloor(state, rival, 20);
   rival.nextDebutWeek = state.week;
   const acts0 = rival.acts.length;
   KP.advanceWeek(state);

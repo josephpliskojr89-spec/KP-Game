@@ -226,7 +226,7 @@ function makeStrained(state, p) {
   // same week's release results, so the durable record is the assertion
   t.ok((friend.directed || []).some(d => d.kind === 'friendDeparted'), 'her closest friend carries it on the ledger');
   t.ok(state.inbox.some(n => n.ind === 'contractEnd' && /handwriting/.test(n.text)), 'the goodbye letter is everything the fandom needed');
-  t.ok(state.inbox.some(n => /continues as 4/.test(n.text)), 'and the continuing is narrated');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => /continues as 4/.test(n.text)), 'and the continuing is narrated');
   t.eq(KP.validateState(state).length, 0, 'the validator signs off on the whole thing');
 
   // the group RELEASES as four — the career continues

@@ -8,6 +8,16 @@ const { loadEngine, makeT } = require('./load_engine');
 const KP = loadEngine();
 const t = makeT('suite_019_industry');
 
+// the floor (v0.10.31): a rival's room is PEOPLE — fixtures fill it at the door
+function fillFloor(state, rival, n, opts) {
+  const rng = KP.rngFor(state);
+  while (KP.rivalFloor(state, rival).length < n) {
+    KP.mintRivalTrainee(state, rng, rival, Object.assign({ signedWeek: state.week - 60 }, opts || {}));
+  }
+  state.rngState = rng.state();
+}
+
+
 function debuted(seed) {
   const state = KP.newGame(seed, null, { legacy: false });
   const ids = state.roster.slice(0, 5);
@@ -40,13 +50,13 @@ function debuted(seed) {
   const rival = state.rivals[0];
   const actsBefore = rival.acts.length;
   const rosterBefore = 10;
-  rival.rosterCount = rosterBefore;
+  fillFloor(state, rival, rosterBefore, { gender: 'f' });
   rival.nextDebutWeek = state.week + 1;
   KP.advanceWeek(state);
   t.eq(rival.acts.length, actsBefore + 1, 'the scheduled debut happened');
   const act = rival.acts[rival.acts.length - 1];
   t.ok(act.debutWeek === state.week && act.releases.length === 1, 'the new act debuted this week with a lead single');
-  t.ok(rival.rosterCount < rosterBefore, 'the debut consumed trainees');
+  t.ok(KP.rivalFloor(state, rival).length < rosterBefore, 'the debut consumed trainees — real ones');
   t.ok(rival.nextDebutWeek > state.week + KP.C.INDUSTRY.debutInterval[0] - 1, 'the next debut is rescheduled out');
   t.ok(state.chart.entries.some(e => e.act === act.name), 'the debut single entered the scene chart');
   t.ok(state.inbox.some(m => m.ind === 'rivalDebut' && m.actName === act.name), 'the debut made the wire');
@@ -121,13 +131,14 @@ function debuted(seed) {
   // stage the scene: a starved third company, a weak fourth, and a giant
   const mkRival = (short, prestige, roster, acts) => ({
     name: short + ' Entertainment', short, philosophy: 'patient', blurb: 'test',
-    prestige, rosterCount: roster, nextDebutWeek: 9999, interest: {}, acts, recentMoves: [],
+    prestige, floorSeed: roster, nextDebutWeek: 9999, interest: {}, acts, recentMoves: [],
   });
   const liveAct = () => ({ name: 'ACT' + Math.floor(rng.next() * 1e6), concept: 'bright', quality: 50,
     popularity: 40, debutWeek: 1, lastReleaseWeek: 1, cycleWeeks: 9999, releases: [], retired: false });
   state.rivals.push(mkRival('Starved', 10, 3, []));
   state.rivals.push(mkRival('Weakling', 20, 5, [liveAct()]));
   state.rivals.push(mkRival('Gigantic', 85, 22, [liveAct()]));
+  state.rivals.slice(-3).forEach(r => { const n = r.floorSeed; delete r.floorSeed; fillFloor(state, r, n); });
   let collapsed = false, merged = false, split = false, emerged = false;
   const baseShorts = new Set(state.rivals.map(r => r.short));
   for (let i = 0; i < 600; i++) {

@@ -161,7 +161,15 @@ function rideToKnock(state, maxWeeks) {
   calm(state);
   const her = state.people[g.members[0]];
   let sc = null, guardS = 0;
-  while (!sc && guardS++ < 20) { her.fatigue = 92; KP.advanceWeek(state); sc = doorScene(state); }
+  state.knockLedger = null; delete her.flags.knockWeek;
+  g.roles = g.roles || {}; g.roles.leader = her.id;   // her own fatigue must not hand the leader a carry call that outranks her ask
+  while (!sc && guardS++ < 40) {
+    her.fatigue = 92;
+    // her own other knocks (a clip call, say) get answered too — the fixture is about THIS ask
+    (state.scenes || []).slice().forEach(x => { if (x.kind !== 'frictionExtraHour') { const def = KP.sceneDef(x.kind); if (def) KP.resolveScene(state, x.id, def.options(state, x)[0].id); } });
+    KP.advanceWeek(state);
+    sc = (state.scenes || []).find(x => x.kind === 'frictionExtraHour' && x.personId === her.id) || null;
+  }
   t.ok(sc && sc.kind === 'frictionExtraHour' && sc.personId === her.id, 'fixture: a knock (the folded ask)');
   for (let w = 0; w < KP.C.DOOR.expireWeeks + 1; w++) KP.advanceWeek(state);
   t.ok(!doorScene(state), 'the unanswered scene expires');

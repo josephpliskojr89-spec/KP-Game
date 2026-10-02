@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.30',
+    VERSION: '0.10.31',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1909,7 +1909,6 @@
         base: 0.04, perRoster: 0.008,
         observations: 2,       // a referral arrives half-read
       },
-      WASH: { mintChance: 0.04, ageMin: 17, ageMax: 21, polishBump: 5 },
       SHOW: {                  // the season: an annual competition show
         finaleWoy: 34, minted: [2, 3], hype: [25, 45],
         followers: [60000, 180000],
@@ -2552,6 +2551,24 @@
       petChance: 0.06,           // weekly, once eligible — once per career
     },
     // ---- The office door (v0.8.2) — idols initiate ----------------------
+    // ---- the floor (v0.10.31, §90 Phase A) ---------------------------------
+    // One world of people: rival trainee floors are people, a cut is a
+    // person, a released trainee re-enters the world, and the world
+    // forgets only at its exits — never a person with a chapter.
+    FLOOR: {
+      reentryMin: 8, reentryMax: 16,   // weeks a released trainee is away before the open board sees her
+      marketWaitWeeks: 10,             // then, with no seat on the board: another pen, or home — the market does not hold files forever
+      floorAgeOut: 25,                 // a trainee this old leaves a rival floor at the next evaluation (the industry's clock)
+      castTenureWeeks: 8,              // nobody debuts the week she signs — a lineup is cast from people with time on the floor
+      intakeFromBoardChance: 0.5,      // a rival's intake signs off the public board when a file is there
+      castoffSignsElsewhere: 0.55,     // past the window: another company's pen (else home)
+      staleSignsElsewhere: 0.4,        // aged off the board: signed elsewhere (else back to school)
+      migrateTenure: [4, 160],         // back-dated signing weeks when a counter becomes people
+      signAge: [15, 18],               // the age a trainee signs at a rival's door
+      resignDiscount: 0.8,             // she wanted to come back (warm standing)
+      resignPremium: 1.25,             // she came back on her terms (a grudge, under her bar)
+      grudgeBarBase: 2,                // her bar: base + warmth/pro forgiveness − dominance/competitiveness
+    },
     // ---- the one door (v0.10.30, §89 D1) ----------------------------------
     // Every "she comes to you" scene — the ask, the challenge, the five
     // frictions, the moment call, the walkout, the solo knock, the quiet

@@ -33,7 +33,7 @@ function seedSecret(state, p) {
   KP.advanceWeek(state);
   t.ok(p.flags.secret.briefed, 'the manager closes the door');
   t.ok(state.secretLedger.briefs >= 1, 'ledgered');
-  const brief = state.inbox.find(n => /manager closed your door/.test(n.text));
+  const brief = state.inbox.concat(KP.lastTickNotes || []).find(n => /manager closed your door/.test(n.text));
   t.ok(brief, 'and says it in one sentence');
   t.ok(!/name|met|dating since/.test(brief.text.toLowerCase().replace('normal life', '')),
     'no partner identity — the rest is HERS');

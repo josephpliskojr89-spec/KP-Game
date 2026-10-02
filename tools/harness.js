@@ -261,7 +261,9 @@ const BANDS = {
   // the network (v0.9.35): first soak — provisional, measure then rule
   networkApps:       { lo: 0.00, hi: 1.00, label: 'orgs whose application pile produced a file' },
   networkRefs:       { lo: 0.00, hi: 1.00, label: 'orgs the building referred somebody to' },
-  washoutReturned:   { lo: 0.00, hi: 1.00, label: 'worlds where a program washout hit the open board' },
+  washoutReturned:   { lo: 0.50, hi: 1.00, label: 'worlds where a rival cut a REAL trainee (the floor is people, v0.10.31)' },
+  reentrySeen:       { lo: 0.30, hi: 1.00, label: 'orgs where a released trainee resurfaced on the open board (v0.10.31)' },
+  rivalDoorBorn:     { lo: 0.90, hi: 1.00, label: 'worlds where a rival signed somebody at its own door, with a hometown' },
   // measured 37/40 at v0.10.12 intro — culls fire on every rival's clock;
   // the misses are boards that stayed full when the dice came up
   castoffSeen:       { lo: 0.70, hi: 1.00, label: 'worlds where a rival cut put a face on the board' },
@@ -629,7 +631,7 @@ const tally = {
   senesceSeen: 0, trustDrifted: 0, successionSeen: 0,
   holdoutMet: 0, holdoutWon: 0, holdoutLost: 0,
   networkApps: 0, networkRefs: 0, washoutReturned: 0, seasonAired: 0, callHeld: 0,
-  castoffSeen: 0,
+  castoffSeen: 0, reentrySeen: 0, rivalDoorBorn: 0,
   expectSet: 0, snubSeen: 0, verdictSeen: 0, compared: 0,
   gigPlayed: 0, campaignRun: 0, gigViralSeen: 0, wallTouched: 0, breakSeen: 0,
   counterMet: 0, clauseLive: 0,
@@ -1626,7 +1628,9 @@ for (let s = 0; s < SEEDS; s++) {
   // bounded by classTarget × school cap) — measured 402–441 across 40
   // orgs at intro. Cap 480 holds the same headroom over the new floor.
   const sizeKB = KP.saveSizeKB(state);
-  guard(sizeKB <= 480, seed + ' save size runaway: ' + sizeKB + ' KB after 140 weeks');
+  // the floor (v0.10.31): rival trainee rooms are ~55 real people per org now
+  // (measured 482–537 on the widest orgs); cap 600 keeps the same headroom
+  guard(sizeKB <= 600, seed + ' save size runaway: ' + sizeKB + ' KB after 140 weeks');
   totalSaveKB += sizeKB;
 
   // discourse census + guards (v0.6.2)
@@ -1752,7 +1756,10 @@ for (let s = 0; s < SEEDS; s++) {
   const nl = state.networkLedger || {};
   if ((nl.apps || 0) >= 1) tally.networkApps++;
   if ((nl.refs || 0) >= 1) tally.networkRefs++;
-  if ((nl.washouts || 0) + ((state.rivalLedger || {}).namedCuts || 0) >= 1) tally.washoutReturned++;
+  const flr = state.floorLedger || {};
+  if ((flr.cut || 0) >= 1) tally.washoutReturned++;
+  if ((flr.reentries || 0) >= 1) tally.reentrySeen++;
+  if (Object.values(state.people).some(p => p.born && p.born.door === 'rivalDoor' && p.born.city)) tally.rivalDoorBorn++;
   if ((nl.seasons || 0) >= 1) tally.seasonAired++;
   if ((nl.calls || 0) + (nl.streets || 0) >= 1) tally.callHeld++;
   // the product (v0.10.0): the releases archive their own numbers

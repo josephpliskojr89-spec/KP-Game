@@ -248,6 +248,7 @@
         if (KP.lineupPointerSweep) KP.lineupPointerSweep(state, g, p.id);
       }
       p.status = 'released';
+      KP.leftUs(state, p);   // (v0.10.31) she leaves the company, not the world
       state.roster = state.roster.filter(id => id !== p.id);
       delete p.flags.personalHiatus;
       // the departure sweep (latent v0.10.2 bug): her deals wind down
@@ -282,6 +283,7 @@
         if (KP.lineupPointerSweep) KP.lineupPointerSweep(state, g, p.id);
       }
       p.status = 'released';
+      KP.leftUs(state, p);   // (v0.10.31) she leaves the company, not the world
       state.roster = state.roster.filter(id => id !== p.id);
       delete p.flags.personalHiatus;
       delete p.scandal;

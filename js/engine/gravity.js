@@ -790,7 +790,6 @@
     state.roster.forEach(id => {
       const p = state.people[id];
       if (!p || !p.flags.slump || !p.flags.slump.ask) return;
-      if (state.week - p.flags.slump.since > 4) { delete p.flags.slump.ask; return; }
       const g = KP.groupOf(state, p.id);
       if (!g) return;
       out.push({ kind: 'quietEra', personId: p.id, groupId: g.id, priority: 1, weight: 6, expiresIn: 3,

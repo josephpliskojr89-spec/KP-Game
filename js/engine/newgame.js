@@ -51,7 +51,7 @@
       prospects: [],
       rivals: KP.DATA.rivalCompanies.slice(0, KP.C.RIVALS.count).map(r => ({
         name: r.name, short: r.short, philosophy: r.philosophy, blurb: r.blurb,
-        interest: {}, rosterCount: rng.int(8, 16), recentMoves: [],
+        interest: {}, floorSeed: rng.int(14, 22), recentMoves: [],   // the floor is people (v0.10.31): room for the opening acts AND a bench
       })),
       relationships: {},
       groups: [],
@@ -65,6 +65,7 @@
     const usedNames = new Set();
     for (let i = 0; i < KP.C.GEN.inheritedCount; i++) {
       const p = KP.generatePerson(rng, { status: 'trainee', inherited: true, source: 'Inherited trainee', usedNames });
+      p.flags.wasOurs = 1;
       // inherited kids carry inherited paper (v0.9.19): a year already
       // served on the standard three-year term
       p.traineeContract = { start: 1 - KP.C.WEEKS_PER_YEAR, years: KP.C.TRAINEE_CONTRACT.years, term: 1 };
@@ -320,6 +321,16 @@
     // nextPersonId while enrolling students, so every later minter's
     // resetIds() would rewind over this board — keep the stamp current
     state.nextPersonId = KP.peekNextId();
+    // the floor (v0.10.31, §90 A): every rival's trainee room is PEOPLE
+    // from week one — signed on back-dated weeks, born at their door
+    state.rivals.forEach(r => {
+      const n = r.floorSeed || 0;
+      delete r.floorSeed;
+      for (let i = 0; i < n; i++) {
+        const tenure = KP.C.FLOOR.migrateTenure[0] + Math.floor(rng.next() * (KP.C.FLOOR.migrateTenure[1] - KP.C.FLOOR.migrateTenure[0]));
+        KP.mintRivalTrainee(state, rng, r, { signedWeek: state.week - tenure });
+      }
+    });
     // scenario beat: two rivals already circle the most charismatic
     // prospect (skipped naturally when a door opens with no board)
     if (mostCharismatic) {

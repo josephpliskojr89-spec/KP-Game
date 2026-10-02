@@ -868,6 +868,30 @@
     });
   } });
 
+  // the floor (v0.10.31, §90 Phase A): a rival's trainee counter becomes
+  // PEOPLE — the room an old save carried as a number materializes as
+  // named trainees, born at the company's door with back-dated signings
+  MIGRATIONS.push({ v: '0.10.31', fn: function (state) {
+    (state.rivals || []).forEach(r => {
+      const want = r.rosterCount != null ? r.rosterCount : (r.floorSeed || 0);
+      delete r.rosterCount; delete r.floorSeed;
+      const have = KP.rivalFloor(state, r).length;
+      const rng = new KP.Rng([state.seed, 'floor-mig', r.short].join('|'));
+      for (let i = have; i < want; i++) {
+        const t = KP.C.FLOOR.migrateTenure;
+        KP.mintRivalTrainee(state, rng, r, { signedWeek: state.week - rng.int(t[0], t[1]) });
+      }
+    });
+    Object.values(state.people || {}).forEach(p => {
+      if (p.status === 'released' && !p.releasedWeek) {
+        const h = (p.history || []).slice().reverse().find(x => /Released from|Chose to leave|packed|never materialized/.test(x.text));
+        p.releasedWeek = h ? h.week : state.week;
+        p.flags.wasOurs = 1;
+        p.releasedFrom = state.company.short;
+      }
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

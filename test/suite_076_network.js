@@ -71,11 +71,13 @@ const N = () => KP.C.NETWORK;
   // force a named cut: a rival signee below the bar, past tenure
   const r = s.rivals[0];
   const pc = Object.values(s.people).find(p => p.status === 'prospect');
-  pc.status = 'rival'; pc.company = r.short;
+  pc.status = 'rival'; pc.company = r.short; pc.flags.lostToRival = 1;
+  pc.signedWeek = -50;   // the cull reads the signing week (v0.10.31)
   s.prospects = s.prospects.filter(id => id !== pc.id);
   KP.C.TALENTS.forEach(d => { pc.talents[d].cur = Math.min(pc.talents[d].cur, 40); });
   pc.history.push({ week: -50, text: 'Signed to ' + r.short + ' — off our board.' });
-  r.rosterCount = 40;   // force the purge path at the next evaluation
+  // the floor is people (v0.10.31): a saturated room, to force the purge path
+  { const rng0 = KP.rngFor(s); while (KP.rivalFloor(s, r).length < 30) KP.mintRivalTrainee(s, rng0, r, { signedWeek: s.week - 60 }); s.rngState = rng0.state(); }
   // v0.10.14 stream shift: a rival DEBUT can cast the fixture signee
   // into a lineup, where the cull cannot touch her — the claim is about
   // the evaluation, so hold the debut calendar off
@@ -83,7 +85,7 @@ const N = () => KP.C.NETWORK;
   let guard = 0;
   while (pc.status === 'rival' && guard++ < 60) { r.nextDebutWeek = 9999; KP.advanceWeek(s); }
   t.eq(pc.status, 'prospect', 'the named cut stops vanishing');
-  t.eq(pc.channel, 'washout', 'and lands on the open board as a washout');
+  t.eq(pc.channel, 'castoff', 'and lands on the open board as the castoff she is (v0.10.31)');
   t.ok(s.prospects.includes(pc.id), 'file and history intact');
 }
 
@@ -135,17 +137,25 @@ const N = () => KP.C.NETWORK;
   const s = KP.newGame('nw-cast', null, { door: 'current' });
   s.budget = 900;
   const rng = KP.rngFor(s);
-  const pc = KP.mintCastoff(s, rng, { source: 'Aozora Records castoff',
-    historyText: 'Cut at the seasonal evaluation.' });
+  // the floor (v0.10.31): the castoff IS the person who was cut
+  const r0 = s.rivals[0];
+  const pc = KP.mintRivalTrainee(s, rng, r0, { signedWeek: s.week - 80 });
+  const peopleBefore = Object.keys(s.people).length;
+  const where = KP.cutFromFloor(s, rng, r0, pc, { historyText: 'Cut at the seasonal evaluation.' });
   s.rngState = rng.state();
-  t.ok(pc && s.prospects.includes(pc.id), 'the castoff lands on the open board');
+  t.eq(where, 'board', 'the castoff lands on the open board');
+  t.eq(Object.keys(s.people).length, peopleBefore, 'and nobody new was minted to play her');
+  t.ok(s.prospects.includes(pc.id) && pc.status === 'prospect', 'she is the file on the board');
   t.eq(pc.castoffUntil, s.week + KP.C.NETWORK.CASTOFF.window, 'with a short window stamped');
-  t.eq(pc.observations, KP.C.NETWORK.CASTOFF.obs, 'and a real file — somebody trained them');
-  t.ok(/Aozora/.test(pc.source), 'the company’s name travels with the file');
+  t.ok(pc.observations >= KP.C.NETWORK.CASTOFF.obs, 'and a real file — somebody trained them');
+  t.ok(pc.source.indexOf(r0.short) === 0 && pc.castoffFrom === r0.short, 'the company’s name travels with the file');
   t.ok((pc.history || []).some(h => /seasonal evaluation/.test(h.text)), 'the history says what happened');
+  t.ok(pc.born && pc.born.door === 'rivalDoor' && pc.born.city, 'and she came from somewhere');
   s.week = pc.castoffUntil + 1;
   KP.advanceWeek(s);
-  t.ok(!s.people[pc.id], 'past the window, the market or the quiet took them');
+  t.ok(!s.prospects.includes(pc.id), 'past the window, the market or the quiet took them');
+  t.ok(!s.people[pc.id] || s.people[pc.id].status === 'rival' || s.people[pc.id].status === 'gone',
+    'another company’s pen, or home — never a deletion of someone known');
   t.ok((KP.lastTickNotes || []).some(n => /came off the open board/.test(n.text || '')), 'and the desk hears it (pre-trim)');
   // the organic stream: a long ride sees rival culls put faces on the board
   const s2 = KP.newGame('nw-cast2', null, { door: 'current' });
@@ -164,11 +174,15 @@ const N = () => KP.C.NETWORK;
   const s = KP.newGame('nw-rel', null, { door: 'current' });
   s.budget = 900;
   const rng = KP.rngFor(s);
+  // the floor (v0.10.31): the cut is a person; a major's prestige makes the castoff a major's
+  const majorCo = s.rivals[0]; majorCo.prestige = CF.majorPrestige + 10;
+  const smallCo = s.rivals[1]; smallCo.prestige = 30;
   const mintUntil = (major, wantDone) => {
     for (let i = 0; i < 40; i++) {
-      const c = KP.mintCastoff(s, rng, { source: 'Aurum castoff', major, from: 'Aurum',
-        historyText: 'Cut at Aurum’s seasonal evaluation.' });
-      if (c && (KP.hash01([s.seed, c.id, 'castoffDone'].join('|')) < CF.doneChance) === wantDone) return c;
+      const co = major ? majorCo : smallCo;
+      const c = KP.mintRivalTrainee(s, rng, co, { signedWeek: s.week - 80 });
+      if (KP.cutFromFloor(s, rng, co, c, { historyText: 'Cut at ' + co.short + '’s seasonal evaluation.' }) !== 'board') continue;
+      if ((KP.hash01([s.seed, c.id, 'castoffDone'].join('|')) < CF.doneChance) === wantDone) return c;
     }
     return null;
   };
@@ -181,7 +195,7 @@ const N = () => KP.C.NETWORK;
   t.eq(KP.signCost(s, pc), Math.round(KP.signCost(s, plain) * CF.majorPremium),
     'the price reflects who paid for the coaching');
   const r1 = KP.signProspect(s, pc.id);
-  t.ok(!r1.ok && r1.counter && r1.counter.kind === 'debutBy' && /Aurum/.test(r1.counter.text),
+  t.ok(!r1.ok && r1.counter && r1.counter.kind === 'debutBy' && r1.counter.text.indexOf(majorCo.short) >= 0,
     'the demand is unconditional: the debut, in writing, from the company that cut her');
   t.ok(KP.signProspect(s, pc.id, { answer: 'accept' }).ok &&
     s.people[pc.id].clause && s.people[pc.id].clause.kind === 'debutBy',
@@ -190,8 +204,9 @@ const N = () => KP.C.NETWORK;
   const rng2 = KP.rngFor(s);
   const done = (() => {
     for (let i = 0; i < 40; i++) {
-      const c = KP.mintCastoff(s, rng2, { source: 'Nabi Ent. castoff', from: 'Nabi Ent.', historyText: 'Cut.' });
-      if (c && KP.hash01([s.seed, c.id, 'castoffDone'].join('|')) < CF.doneChance) return c;
+      const c = KP.mintRivalTrainee(s, rng2, smallCo, { signedWeek: s.week - 80 });
+      if (KP.cutFromFloor(s, rng2, smallCo, c, { historyText: 'Cut.' }) !== 'board') continue;
+      if (KP.hash01([s.seed, c.id, 'castoffDone'].join('|')) < CF.doneChance) return c;
     }
     return null;
   })();

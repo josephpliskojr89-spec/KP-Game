@@ -166,7 +166,7 @@ function debuted(seed) {
   t.ok(KP.conceptById(taste), 'the exec has a favorite sound (' + taste + ')');
   g.results = { week: state.week + 1, reception: 70, conceptId: taste };
   KP.advanceWeek(state);
-  t.ok(state.inbox.some(n => /does not hide the smile/.test(n.text)), 'her kind of record earns the smile');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => /does not hide the smile/.test(n.text)), 'her kind of record earns the smile');
 }
 
 // ---- board season: the year answers, growth promises bite ----

@@ -130,8 +130,8 @@ function openCalendar(state, g) {
   KP.advanceWeek(state);
   S.seniorStanChance = old;
   t.ok(g.seniorStanWeek, 'a senior noticed the rookie');
-  const note = state.inbox.find(n => n.ind === 'seniorStan');
-  t.ok(note && note.priority === 'high', 'a senior speaking is news, never trimmed');
+  const note = state.inbox.concat(KP.lastTickNotes || []).find(n => n.ind === 'seniorStan');
+  t.ok(note && note.priority === 'high', 'a senior speaking is news — written high (the inbox law decides the landing, §89 B)');
   const rookie = state.people[note.personId];
   t.ok(rookie.history.some(h => /favorite rookie/.test(h.text)), 'the file remembers being chosen');
   // never twice

@@ -304,42 +304,54 @@
   function peakTalent(p) {
     return Math.max(p.talents.vocals.cur, p.talents.dance.cur, p.talents.rap.cur, p.talents.charisma.cur);
   }
+  // the floor (v0.10.31, §90 A): a lineup is cast from the people on the
+  // floor — best first; they were signed to be used. Nobody is minted
+  // at a debut: a room too thin to field one waits (the gate below).
   function castMembers(state, rival, rng, ageRange, gender) {
     const I = KP.C.INDUSTRY;
     gender = gender || 'f';
     const size = rng.int(I.actSize[0], I.actSize[1]);
-    const inActs = new Set();
-    (state.rivals || []).forEach(r => (r.acts || []).forEach(a =>
-      (a.members || []).forEach(id => inActs.add(id))));
-    // the people they signed — best first; they were signed to be used.
-    // One group, one gender applies to everyone's market (v0.8.4)
-    const signees = Object.values(state.people)
-      .filter(p => p.status === 'rival' && p.company === rival.short && !inActs.has(p.id) &&
-        (p.gender || 'f') === gender)
+    const floor = KP.rivalFloor(state, rival)
+      .filter(p => (p.gender || 'f') === gender && p.age >= (ageRange ? ageRange[0] : I.memberDebutAge[0]) &&
+        state.week - (p.signedWeek != null ? p.signedWeek : -999) >= KP.C.FLOOR.castTenureWeeks)
       .sort((a, b) => peakTalent(b) - peakTalent(a));
-    const members = signees.slice(0, size).map(p => p.id);
-    // fill the lineup from the in-house trainee floor
-    const usedNames = new Set(Object.values(state.people).map(x => x.name.given.toLowerCase()));
-    KP.resetIds(state.nextPersonId || KP.peekNextId());
-    while (members.length < size) {
-      const p = KP.generatePerson(rng, { status: 'rival', source: 'In-house trainee',
-        usedNames, gender, age: rng.int(ageRange[0], ageRange[1]) });
-      p.company = rival.short;
-      p.flags.rivalNative = true;
-      state.people[p.id] = p;
-      KP.socialOf(state, p);   // minted at the door, not on first look
+    const cast = floor.slice(0, Math.max(I.actSize[0], Math.min(size, floor.length)));
+    cast.forEach(p => {
       // other companies give stage names too (v0.7.0) — about half the
       // lineup debuts under one, picked deterministically
-      if (KP.hash01([state.seed, p.id, 'rivalstage'].join('|')) < 0.5) {
+      if (!p.name.stage && KP.hash01([state.seed, p.id, 'rivalstage'].join('|')) < 0.5) {
         const sugg = KP.suggestStageNames(state, p);
         if (sugg.length) p.name.stage = sugg[Math.floor(
           KP.hash01([state.seed, p.id, 'stagepick'].join('|')) * sugg.length)];
       }
-      members.push(p.id);
+    });
+    return cast.map(p => p.id);
+  }
+  // the opening scene and old saves are DOORS (v0.10.31): the world was
+  // mid-conversation when you arrived, so a room that cannot field the
+  // act it already runs gets the people it must have had — born at the
+  // company's door, signed years ago, debut-aged
+  function ensureCastable(state, rng, rival, gender, n) {
+    const I = KP.C.INDUSTRY;
+    const ok = () => KP.rivalFloor(state, rival).filter(p => (p.gender || 'f') === gender && p.age >= 17 &&
+      state.week - (p.signedWeek != null ? p.signedWeek : -999) >= KP.C.FLOOR.castTenureWeeks).length;
+    let guard = 12;
+    while (ok() < n && guard-- > 0) {
+      KP.mintRivalTrainee(state, rng, rival, { gender, age: rng.int(17, 23),
+        signedWeek: state.week - rng.int(40, 160) });
     }
-    state.nextPersonId = KP.peekNextId();
-    rival.rosterCount = Math.max(0, (rival.rosterCount || 0) - size);
-    return members;
+  }
+  // can the room field a debut, and in which gender? (null = wait)
+  function castableGender(state, rival, preferred, minAge) {
+    const floor = KP.rivalFloor(state, rival).filter(p => p.age >= (minAge != null ? minAge : KP.C.INDUSTRY.memberDebutAge[0]) &&
+      state.week - (p.signedWeek != null ? p.signedWeek : -999) >= KP.C.FLOOR.castTenureWeeks);
+    const n = g => floor.filter(p => (p.gender || 'f') === g).length;
+    const min = KP.C.INDUSTRY.actSize[0];
+    if (preferred && n(preferred) >= min) return preferred;
+    if (n('f') >= min && n('f') >= n('m')) return 'f';
+    if (n('m') >= min) return 'm';
+    if (n('f') >= min) return 'f';
+    return null;
   }
   function actQualityFromMembers(state, memberIds, prestige, rng) {
     const I = KP.C.INDUSTRY;
@@ -475,43 +487,87 @@
       // the heir's money (v0.9.31): a bankroll that ignores prestige
       // signs at a pace prestige never could — while the tap is open
       const bankrolled = rival.bankroll && state.week <= rival.bankroll.until;
-      const appetite = ((rival.rosterCount || 0) < roomTarget ? 1 : R.satedIntake) *
+      const floorNow = KP.rivalFloor(state, rival);
+      const appetite = (floorNow.length < roomTarget ? 1 : R.satedIntake) *
         (bankrolled ? KP.C.SAGA.HEIR.intakeMult : 1);
-      if (rng.chance(I.scoutIntake * appetite)) rival.rosterCount = Math.min(30, (rival.rosterCount || 0) + 1);
+      if (floorNow.length < 30 && rng.chance(I.scoutIntake * appetite)) {
+        // the floor (v0.10.31, §90 A): intake is a door, not a number.
+        // The world first — a public file on the open board (a castoff,
+        // a released trainee, a school lead nobody locked) — then the
+        // rival's own door: an applicant to THEM, born with a hometown
+        const openFiles = (state.prospects || []).map(id => state.people[id]).filter(p => p &&
+          (p.channel === 'castoff' || p.channel === 'released') &&   // the market lane; the ladder courts the rest
+          (p.flags.firstLookUntil || 0) <= state.week &&
+          !(KP.holdoutOf && KP.holdoutOf(state, p)));
+        const pick = openFiles.length &&
+          KP.hash01([state.seed, rival.short, state.week, 'intake'].join('|')) < KP.C.FLOOR.intakeFromBoardChance
+          ? openFiles[Math.floor(KP.hash01([state.seed, rival.short, state.week, 'intakePick'].join('|')) * openFiles.length)]
+          : null;
+        if (pick) {
+          const wasCastoff = pick.channel === 'castoff' || pick.channel === 'released';
+          KP.rivalSignFromBoard(state, rival, pick, wasCastoff ? 'off the open board, file and all' : 'off the open board');
+          if (wasCastoff || pick.flags.readByUs) {
+            notes.push({ kind: 'scouting', ind: 'rivalSigned', priority: 'normal', personId: pick.id,
+              text: KP.fillPro(rival.short + ' signed ' + KP.displayName(pick) + ' off the open board' +
+                (pick.castoffFrom && pick.castoffFrom !== rival.short ? ' — the ' + pick.castoffFrom + ' castoff' : '') +
+                (pick.releasedFrom === state.company.short ? ' — the one who left this building' : '') +
+                '. {Pos} file travels with {her}; so does what it says.', pick) });
+          }
+        } else {
+          KP.mintRivalTrainee(state, rng, rival);
+        }
+      }
 
       // the evaluation (0.9.18.1): twice a year the floor is graded and
       // the room is cut back to the plan — deeper when the room has
       // bloated badly. The named signee who never made a lineup is not
       // exempt; nobody in this industry is.
       if ((state.week + (KP.hashStr(rival.short) % R.cullEvery)) % R.cullEvery === 0) {
-        const overage = (rival.rosterCount || 0) - roomTarget;
+        // the industry's clock (v0.10.31): a trainee past the floor's age
+        // wall leaves at the evaluation whatever the room's size — home,
+        // with her years on the file; the board would only age her out
+        KP.rivalFloor(state, rival).filter(p0 => p0.age >= KP.C.FLOOR.floorAgeOut).forEach(p0 => {
+          (state.rivals || []).forEach(r0 => { if (r0.interest) delete r0.interest[p0.id]; });
+          p0.company = null;
+          KP.goHome(state, p0, 'Aged out of ' + rival.short + '’s trainee floor at ' + p0.age + '. Years of practice rooms; no stage. The city kept ' + (p0.gender === 'm' ? 'him' : 'her') + '.');
+        });
+        const floorAll = KP.rivalFloor(state, rival);
+        const overage = floorAll.length - roomTarget;
         if (overage > 0) {
           const cut = overage >= R.purgeAt
             ? Math.ceil(overage * R.purgeFactor)
             : Math.min(R.cullMax, overage);
-          rival.rosterCount = Math.max(0, (rival.rosterCount || 0) - cut);
           state.rivalLedger = state.rivalLedger || { culls: 0, namedCuts: 0 };
           state.rivalLedger.culls++;
           pushMove(rival, 'Cut ' + cut + ' trainee' + (cut === 1 ? '' : 's'));
-          // the castoff market (v0.10.12, §82 C; reworked v0.10.13) —
-          // owner: "if it's public knowledge that Aurum released 3
-          // trainees, it's public knowledge that they're at least
-          // theoretically available." EVERY announced cut becomes a
-          // file. Whether they'll actually sign, you learn at the
-          // offer — some are done with the industry.
+          // the floor (v0.10.31, §90 A): the cut is a PERSON. The room is
+          // graded — lowest peak first, the newest signees exempt until
+          // their tenure runs (namedTenure) unless the room must shrink
+          // anyway — and every one cut lands on the open board as the
+          // castoff she is: file, history, hometown and all. Owner:
+          // "if it's public knowledge that Aurum released 3 trainees,
+          // it's public knowledge that they're at least theoretically
+          // available."
           const CF = KP.C.NETWORK.CASTOFF;
           const major = (rival.prestige || 40) >= CF.majorPrestige;
-          let boarded = [];
-          if (KP.mintCastoff) {
-            for (let ci = 0; ci < cut; ci++) {
-              const pc = KP.mintCastoff(state, rng, {
-                source: rival.short + ' castoff', major, from: rival.short,
-                historyText: 'Cut at ' + rival.short + '’s seasonal evaluation. Years of practice rooms, one meeting.',
-              });
-              if (pc) boarded.push(pc);
+          const byPeak = floorAll.slice().sort((a0, b0) => peakTalent(a0) - peakTalent(b0));
+          const tenured = byPeak.filter(p0 => state.week - (p0.signedWeek != null ? p0.signedWeek : -999) >= R.namedTenure);
+          const victims = tenured.slice(0, cut);
+          byPeak.forEach(p0 => { if (victims.length < cut && !victims.includes(p0)) victims.push(p0); });
+          const boarded = [];
+          victims.forEach(pc => {
+            const wasOurs = !pc.flags.rivalNative;
+            const where = KP.cutFromFloor(state, rng, rival, pc);
+            if (where === 'board') boarded.push(pc);
+            if (wasOurs) {
+              state.rivalLedger.namedCuts++;
+              if (pc.flags.lostToRival) {
+                notes.push({ kind: 'scouting', personId: pc.id,
+                  text: KP.fillPro(rival.short + ' cut ' + KP.displayName(pc) + ' at their seasonal evaluation — the same trainee their scouts took off our board. {Pos} file is on the open board again, polish and history intact.', pc) });
+              }
             }
-            state.rivalLedger.castoffs = (state.rivalLedger.castoffs || 0) + boarded.length;
-          }
+          });
+          state.rivalLedger.castoffs = (state.rivalLedger.castoffs || 0) + boarded.length;
           if (boarded.length) {
             notes.push({ kind: 'scouting', ind: 'castoffs', priority: 'high',
               text: rival.short + '’s seasonal evaluation cut ' + cut + ' from the trainee floor' +
@@ -524,35 +580,6 @@
             notes.push({ kind: 'industry', text: rival.short + '’s seasonal evaluation cut ' +
               cut + ' from the trainee floor. The company calls it aligning the room with the roadmap. The room calls it Tuesday.' });
           }
-          // a named signee below the bar goes with the counters — the
-          // people we lost to their scouts are not safe on their floor
-          const inActs = new Set();
-          (state.rivals || []).forEach(r0 => (r0.acts || []).forEach(a0 =>
-            (a0.members || []).forEach(id0 => inActs.add(id0))));
-          const floor = Object.values(state.people)
-            .filter(p0 => p0.status === 'rival' && p0.company === rival.short && !inActs.has(p0.id))
-            .filter(p0 => {
-              const signed = (p0.history || []).find(h => /Signed to /.test(h.text));
-              const peak = Math.max(p0.talents.vocals.cur, p0.talents.dance.cur,
-                p0.talents.rap.cur, p0.talents.charisma.cur);
-              return signed && state.week - signed.week >= R.namedTenure && peak < R.namedBar;
-            })
-            .sort((a0, b0) => peakTalent(a0) - peakTalent(b0));
-          floor.slice(0, R.namedMax).forEach(pc => {
-            // the washout returns (v0.9.35, §75): a named cut stops
-            // vanishing — the file lands on the open board, polish and
-            // history intact, for whoever values the overlooked
-            pc.status = 'prospect';
-            pc.company = null;
-            pc.channel = 'washout';
-            pc.observations = Math.max(pc.observations || 0, 2);
-            state.prospects.push(pc.id);
-            pc.history.push({ week: state.week,
-              text: 'Cut at ' + rival.short + '’s seasonal evaluation. Years of practice rooms, one meeting.' });
-            state.rivalLedger.namedCuts++;
-            notes.push({ kind: 'scouting', personId: pc.id,
-              text: KP.fillPro(rival.short + ' cut ' + KP.displayName(pc) + ' at their seasonal evaluation — the same trainee their scouts took off our board. {Pos} file is back on the open board, trained and overlooked, and {she} deserved a company with a plan for {her}.', pc) });
-          });
         }
       }
 
@@ -563,22 +590,21 @@
           rival.acts.filter(a => !a.retired).length >= comfort) {
         rival.nextDebutWeek = state.week + R.comfortRecheck;
       }
-      // a scheduled debut, if the trainee room can field one
-      if (state.week >= (rival.nextDebutWeek || Infinity) && (rival.rosterCount || 0) >= I.debutTraineeCost) {
+      // a scheduled debut, if the trainee room can field one — the floor
+      // (v0.10.31, §90 A): the room is PEOPLE; a room too thin in either
+      // gender waits for its intake instead of minting a lineup
+      let castGender = null;
+      if (state.week >= (rival.nextDebutWeek || Infinity)) {
+        const best = KP.rivalFloor(state, rival).sort((a0, b0) => peakTalent(b0) - peakTalent(a0))[0];
+        castGender = castableGender(state, rival, best ? (best.gender || 'f') : null);
+        if (!castGender) rival.nextDebutWeek = state.week + R.comfortRecheck;
+      }
+      if (castGender) {
         // the copycat reveal (v0.6.4): a trend chaser that clocked one of
         // our hits debuts its next group wearing OUR concept
         const stolen = rival.copyConcept ? KP.conceptById(rival.copyConcept.conceptId) : null;
         const concept = stolen || rng.pick(KP.C.CONCEPTS);
-        // the act forms around the people they signed to use (v0.4.3):
-        // gender follows the best available signee; a clean floor rolls
-        const inActs0 = new Set();
-        (state.rivals || []).forEach(r0 => (r0.acts || []).forEach(a0 =>
-          (a0.members || []).forEach(id0 => inActs0.add(id0))));
-        const bestSignee = Object.values(state.people)
-          .filter(p0 => p0.status === 'rival' && p0.company === rival.short && !inActs0.has(p0.id))
-          .sort((a0, b0) => peakTalent(b0) - peakTalent(a0))[0];
-        const actGender = bestSignee ? (bestSignee.gender || 'f')
-          : (rng.chance(I.boyActShare) ? 'm' : 'f');
+        const actGender = castGender;
         const members = castMembers(state, rival, rng, I.memberDebutAge, actGender);
         const act = {
           id: newActId(state), gender: actGender,
@@ -606,15 +632,17 @@
         // the castoff market (v0.10.12, §82 C): a debut day has a losing
         // room too — the one who missed the final lineup by a hair walks
         // out polished, known, and briefly on the open board
-        if (KP.mintCastoff && rng.chance(KP.C.NETWORK.CASTOFF.debutChance)) {
-          const pc = KP.mintCastoff(state, rng, {
-            source: rival.short + ' — final lineup cut',
+        // (v0.10.31) she is the real next name on the floor — the one the
+        // lineup did not have room for
+        const nextBest = KP.rivalFloor(state, rival).filter(p0 => (p0.gender || 'f') === actGender)
+          .sort((a0, b0) => peakTalent(b0) - peakTalent(a0))[0];
+        if (nextBest && rng.chance(KP.C.NETWORK.CASTOFF.debutChance)) {
+          const where = KP.cutFromFloor(state, rng, rival, nextBest, {
             hype: rng.int(6, 14),
-            major: (rival.prestige || 40) >= KP.C.NETWORK.CASTOFF.majorPrestige,
-            from: rival.short,
             historyText: 'Trained for ' + rival.short + '’s ' + act.name + ' debut and missed the final lineup in the last round. Watched the showcase from the practice room.',
           });
-          if (pc) {
+          const pc = nextBest;
+          if (where === 'board') {
             state.rivalLedger = state.rivalLedger || { culls: 0, namedCuts: 0 };
             state.rivalLedger.castoffs = (state.rivalLedger.castoffs || 0) + 1;
             notes.push({ kind: 'scouting', ind: 'castoffs', priority: 'high', personId: pc.id,
@@ -735,10 +763,17 @@
         'Small roster, big claims. The first debut will tell us everything.',
       ]),
       prestige: (opts && opts.prestige != null) ? opts.prestige : rng.int(22, 40),
-      rosterCount: (opts && opts.rosterCount != null) ? opts.rosterCount : rng.int(4, 8),
+      floorSeed: (opts && opts.floorSeed != null) ? opts.floorSeed : rng.int(4, 8),
       nextDebutWeek: state.week + rng.int(16, 34),
       interest: {}, acts: [], recentMoves: [],
     };
+  }
+  // the floor (v0.10.31): a company born in the world gets a trainee room
+  // of real people the week it opens its door
+  function seedFloor(state, rng, rival) {
+    const n = rival.floorSeed || 0;
+    delete rival.floorSeed;
+    for (let i = 0; i < n; i++) KP.mintRivalTrainee(state, rng, rival);
   }
 
   KP.industryLifecycle = function (state, rng) {
@@ -760,6 +795,10 @@
           text: starved.name + ' has ceased operations. Overnight, their trainees are free agents and their office lease is a cautionary tale. This industry does not do gentle exits.' });
         // the fallout (v0.9.24): the roster is a signing class, not a footnote
         if (KP.mintFreeAgents) KP.mintFreeAgents(state, starved, notes);
+        // the floor (v0.10.31): "overnight, their trainees are free agents" is
+        // TRUE now — the rest of the room lands on the open market, file intact
+        KP.rivalFloor(state, starved).filter(p => !p.flags.freeAgent).forEach(p =>
+          KP.cutFromFloor(state, rng, starved, p, { historyText: starved.short + ' folded under ' + (p.gender === 'm' ? 'him' : 'her') + '. The practice room was a lease; the file is still a file.' }));
       }
     }
 
@@ -774,7 +813,6 @@
         name: named.name, short: named.short, philosophy: a.philosophy,
         blurb: 'Born from the merger of ' + a.short + ' and ' + b.short + '. Two half-rosters, one payroll, everything to prove.',
         prestige: KP.clamp(Math.max(a.prestige, b.prestige) + 4, 5, 95),
-        rosterCount: (a.rosterCount || 0) + (b.rosterCount || 0),
         nextDebutWeek: Math.min(a.nextDebutWeek || Infinity, b.nextDebutWeek || Infinity),
         interest: Object.assign({}, b.interest, a.interest),
         acts: (a.acts || []).concat(b.acts || []),
@@ -795,16 +833,22 @@
 
     // split: a giant sheds a faction that becomes a new competitor
     if ((state.rivals || []).length < I.maxRivals && rng.chance(I.splitChance)) {
-      const giant = state.rivals.find(r => r.prestige >= I.splitPrestige && (r.rosterCount || 0) >= I.splitRoster);
+      const giant = state.rivals.find(r => r.prestige >= I.splitPrestige && KP.rivalFloor(state, r).length >= I.splitRoster);
       if (giant) {
-        giant.rosterCount -= 6;
         giant.prestige = KP.clamp(giant.prestige - 6, 5, 95);
         const spawn = makeCompany(state, rng, {
-          prestige: KP.clamp(giant.prestige - 14, 20, 60), rosterCount: 6,
+          prestige: KP.clamp(giant.prestige - 14, 20, 60), floorSeed: 0,
           philosophy: giant.philosophy,
           blurb: 'Founded by defectors from ' + giant.short + '. They know exactly where the bodies are buried, because they trained half of them.',
         });
         state.rivals.push(spawn);
+        seedFloor(state, rng, spawn);
+        // the floor (v0.10.31): six REAL trainees walk out with the defectors
+        KP.rivalFloor(state, giant).sort((a, b) => KP.hash01([state.seed, a.id, 'split'].join('|')) - KP.hash01([state.seed, b.id, 'split'].join('|')))
+          .slice(0, 6).forEach(p => {
+            p.company = spawn.short;
+            p.history.push({ week: state.week, text: 'Walked out of ' + giant.short + ' with the defectors who founded ' + spawn.short + '.' });
+          });
         pushMove(giant, 'Lost a faction to ' + spawn.short);
         bump();
         notes.push({ kind: 'industry', ind: 'split', company: spawn.short,
@@ -832,6 +876,7 @@
     if ((state.rivals || []).length < I.maxRivals && rng.chance(I.emergeChance)) {
       const fresh = makeCompany(state, rng);
       state.rivals.push(fresh);
+      seedFloor(state, rng, fresh);   // the floor (v0.10.31): born with a room of real people
       bump();
       notes.push({ kind: 'industry', ind: 'emerge', company: fresh.short,
         text: 'New label on the wire: ' + fresh.name + ' announced itself today with an office photo and a promise to “redefine the idol model.” Every label says that. Occasionally one means it.' });
@@ -858,6 +903,7 @@
           const concept = rng.pick(KP.C.CONCEPTS);
           const lastRel = state.week - rng.int(2, 12);
           const actGender2 = rng.chance(I.boyActShare) ? 'm' : 'f';
+          ensureCastable(state, rng, r, actGender2, I.actSize[1]);
           const members = castMembers(state, r, rng, [17, 24], actGender2);
           const act = {
             id: newActId(state), gender: actGender2,
@@ -898,7 +944,8 @@
     (state.rivals || []).forEach(r => (r.acts || []).forEach(a => {
       if (!a.id) a.id = newActId(state);
       if (!a.retired && (!a.members || !a.members.length)) {
-        a.members = castMembers(state, r, rng, [17, 24]);
+        ensureCastable(state, rng, r, a.gender || 'f', KP.C.INDUSTRY.actSize[1]);
+        a.members = castMembers(state, r, rng, [17, 24], a.gender || 'f');
       }
     }));
     // the wider world exists whether or not anyone local looks up (v0.5.0)

@@ -120,7 +120,12 @@ function world(seed) {
   const p = makeHoldout(state);
   KP.signProspect(state, p.id);   // the visit she will remember
   state.company.reputation.performance = H().laneRep + 10;
+  // the week the bar falls she is anyone's to sign — pin the rival's roll
+  // off so the claim is HER call, not the ladder's coin (v0.10.31 stream)
+  const S0 = KP.C.SCOUT; const oldBase = S0.rivalSignBaseChance, oldHot = S0.rivalSignHotChance;
+  S0.rivalSignBaseChance = 0; S0.rivalSignHotChance = 0;
   KP.advanceWeek(state);
+  S0.rivalSignBaseChance = oldBase; S0.rivalSignHotChance = oldHot;
   t.ok(p.holdout.callback, 'she watches the rankings like everyone else');
   t.ok(state.inbox.some(n => /called the office/.test(n.text)), 'and SHE calls, once');
   t.eq(state.holdoutLedger.callbacks, 1, 'ledgered');

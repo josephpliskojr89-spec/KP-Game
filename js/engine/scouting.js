@@ -93,6 +93,7 @@
     if (state.budget < cost) return { ok: false, reason: 'No budget for another look.' };
     state.budget -= cost;
     p.observations = (p.observations || 0) + 1;
+    p.flags.readByUs = 1;   // a chapter with this desk — the world will not forget her (v0.10.31)
     KP.takeReads(state, p);
     // the academy's game (v0.10.17, §84 C): a targeted look at a school
     // kid is interest SHOWN — the director watched you watch her, and a
@@ -179,13 +180,25 @@
       const reason = KP.fillPro(name + ' took the meeting to say thank you. ' +
         '{She} listened to the whole offer, folded the printout in half, and said {she} promised {herself} that the last evaluation was the last one — {she} is going home. ' +
         'The file comes off the board. Some availability was always only theoretical.', p);
-      (state.rivals || []).forEach(r => { if (r.interest) delete r.interest[p.id]; });
-      state.prospects = state.prospects.filter(id => id !== p.id);
-      delete state.people[p.id];
+      KP.goHome(state, p, 'Took one last meeting to say thank you, then left the industry.');
       KP.note(state, { kind: 'scouting', priority: 'normal', text: reason });
       return { ok: false, gone: true, reason };
     }
+    // the floor (v0.10.31, §90 D ruling 3): the one who left this building
+    // reads the file between you against HER bar — a grudge over it is a
+    // no; under it, the price remembers which way the door swung
+    const refusal = KP.resignRefusal(state, p);
+    if (refusal) {
+      KP.floorLedger(state).refused++;
+      KP.note(state, { kind: 'scouting', priority: 'normal', personId: p.id, text: refusal });
+      return { ok: false, refused: true, reason: refusal };
+    }
     let cost = KP.signCost(state, p);
+    if (p.releasedFrom === state.company.short) {
+      const read = KP.ledgerRead(state, p);
+      cost = Math.round(cost * (read.standing >= 3 ? KP.C.FLOOR.resignDiscount
+        : read.grudge > 0 ? KP.C.FLOOR.resignPremium : 1));
+    }
     if (state.budget < cost) return { ok: false, reason: 'The budget cannot cover this signing.' };
     if (KP.signingsCapped(state) && state.signingsUsed >= state.signingsAllowed) {
       return { ok: false, reason: 'The executive approved ' + state.signingsAllowed + ' external signings until the debut. That allowance is spent.' };
@@ -241,6 +254,12 @@
     if (state.fiscal) state.fiscal.monthSignings = (state.fiscal.monthSignings || 0) + 1;
     p.status = 'trainee';
     p.signedWeek = state.week;
+    p.flags.wasOurs = 1;
+    if (p.releasedFrom === state.company.short) {
+      KP.floorLedger(state).resigned++;
+      p.history.push({ week: state.week, text: 'Came back to ' + state.company.short + '. The second signature is the one that means something.' });
+    }
+    delete p.castoffUntil; delete p.reentryAt; delete p.releasedFrom; delete p.releasedBy;
     state.lastSigningWeek = state.week;   // the content desk films first days (v0.10.18)
     if (p.origin && state.tongueLedger) state.tongueLedger.intlSigned++;   // v0.9.29
     // the paper clock (v0.9.19): three years, the industry standard
@@ -430,13 +449,7 @@
             return;
           }
           if (wasHoldout) holdLedger(state).lostToPowers++;
-          p.status = 'rival';
-          p.company = rival.short;
-          KP.schoolRecordAlum(state, p, rival.short);
-          p.history.push({ week: state.week, text: 'Signed to ' + rival.short + ' — off our board.' });
-          state.prospects = state.prospects.filter(id => id !== pid);
-          state.rivals.forEach(r => { delete r.interest[pid]; });
-          rival.rosterCount = (rival.rosterCount || 0) + 1;
+          KP.rivalSignFromBoard(state, rival, p);   // the floor (v0.10.31): a real seat on a real floor
           notes.push({ kind: 'scouting', urgent: true, text: KP.fillPro(rival.short + ' signed ' + KP.displayName(p) + '. {She} is off the board' + (hungry ? ' — and probably in their debut lineup' : '') +
             (wasHoldout ? '. The power {she} was holding out for came knocking — it just was not us. {She} was never going to wait forever' : '') + '.', p) });
           // the scouts keep score (v0.6.1): enough poaches become a name
@@ -495,11 +508,23 @@
     });
     if (goneCastoffs.length) {
       const names = goneCastoffs.map(id => KP.displayName(state.people[id]));
+      // the floor (v0.10.31, §90 A): the window closes the way they always
+      // do — another company's pen (a REAL signing; rivals may re-sign the
+      // one they cut, owner's ruling) or a bus ticket home (and the world
+      // forgets her only if nobody here ever knew her)
       goneCastoffs.forEach(id => {
-        (state.rivals || []).forEach(r => { if (r.interest) delete r.interest[id]; });
-        delete state.people[id];
+        const pc = state.people[id];
+        const roll = KP.hash01([state.seed, id, 'castoffExit'].join('|'));
+        const rivals = (state.rivals || []);
+        if (rivals.length && roll < KP.C.FLOOR.castoffSignsElsewhere) {
+          const r = rivals[Math.floor(KP.hash01([state.seed, id, 'castoffWhere'].join('|')) * rivals.length)];
+          KP.rivalSignFromBoard(state, r, pc, 'after the open window closed');
+          KP.floorLedger(state).elsewhere++;
+        } else {
+          KP.goHome(state, pc, 'The window closed with no pen. Went home.');
+        }
       });
-      state.prospects = state.prospects.filter(id => state.people[id]);
+      state.prospects = state.prospects.filter(id => state.people[id] && state.people[id].status === 'prospect');
       notes.push({ kind: 'scouting', priority: 'normal', text: names.join(' and ') +
         ' came off the open board — a castoff’s window is short, and it closed the way they always do: another company’s pen, or a bus ticket home. The board only ever showed the ones still deciding.' });
     }
@@ -518,10 +543,19 @@
           KP.displayName(burned[0]) + ' aged off the board this week — the one who held out for a power. The power never called; neither, in the end, did anyone else. {She} waited for a letterhead that never wrote. The board is honest about what waiting costs.', burned[0]) });
       }
       stale.forEach(id => {
-        (state.rivals || []).forEach(r => { if (r.interest) delete r.interest[id]; });
-        delete state.people[id];
+        const pc = state.people[id];
+        const rivals = (state.rivals || []);
+        // the floor (v0.10.31): "signed elsewhere, or went back to school" is
+        // a real signing or a real exit now — never a deletion of someone known
+        if (rivals.length && KP.hash01([state.seed, id, 'staleExit'].join('|')) < KP.C.FLOOR.staleSignsElsewhere) {
+          const r = rivals[Math.floor(KP.hash01([state.seed, id, 'staleWhere'].join('|')) * rivals.length)];
+          KP.rivalSignFromBoard(state, r, pc, 'late — the market had moved on, but one desk had not');
+          KP.floorLedger(state).elsewhere++;
+        } else {
+          KP.goHome(state, pc, 'Aged past the market unsigned. Went back to school.');
+        }
       });
-      state.prospects = state.prospects.filter(id => state.people[id]);
+      state.prospects = state.prospects.filter(id => state.people[id] && state.people[id].status === 'prospect');
       notes.push({ kind: 'scouting', text: 'Scout Im thinned the board: ' + stale.length +
         ' long-listed lead' + (stale.length === 1 ? '' : 's') + ' aged past the market and signed elsewhere, or went back to school, or both. The board is for the ones still reachable.' });
     }

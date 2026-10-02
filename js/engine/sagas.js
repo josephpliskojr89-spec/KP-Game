@@ -60,16 +60,18 @@
     }
     return pool[idx % pool.length];
   }
-  function inject(state, id, base, extra) {
+  function inject(state, id, base, rng, extra) {
     // world events do not wait for a seat: the maxRivals cap governs
     // organic emergence, not invasions
     const rival = Object.assign({
       name: id.co, short: id.short, philosophy: 'hungry', blurb: '',
-      prestige: base.prestige, rosterCount: base.roster,
+      prestige: base.prestige,
       nextDebutWeek: state.week + 40,
       interest: {}, acts: [], recentMoves: ['Arrived'],
     }, extra || {});
     state.rivals = state.rivals || [];
+    // the floor (v0.10.31): the arrival brings a real trainee room
+    if (rng) for (let i = 0; i < (base.roster || 0); i++) KP.mintRivalTrainee(state, rng, rival);
     state.rivals.push(rival);
     return rival;
   }
@@ -91,6 +93,9 @@
       p.flags.rivalNative = true;
       const region = opts.region || KP.C.REGIONS[Math.floor(rng.next() * KP.C.REGIONS.length)].id;
       p.origin = region;
+      p.signedWeek = state.week;
+      state.people[p.id] = p;
+      KP.stampBorn(state, p, 'abroad', { city: region, firstCompany: opts.short });
       p.nativeLang = KP.marketLang(region);
       p.ko = rng.int(opts.ko[0], opts.ko[1]);
       if (!opts.keepNames) {
@@ -154,6 +159,8 @@
       const p = KP.generatePerson(rng, { status: 'prospect', usedNames, source: sourceLabel });
       p.channel = 'audition';   // the pact's sweep is your tape (v0.9.35)
       p.origin = region;
+      state.people[p.id] = p;
+      KP.stampBorn(state, p, 'abroad', { city: region });
       p.nativeLang = KP.marketLang(region);
       p.ko = rng.int(T.koStart[0], T.koStart[1]);
       const pool = T.NAMES[region];
@@ -186,7 +193,7 @@
 
     if (entry.kind === 'superGroup') {
       const id = pickIdentity(state, S.SUPER.NAMES, entry.nameIdx);
-      const rival = inject(state, id, S.SUPER, { philosophy: 'performance',
+      const rival = inject(state, id, S.SUPER, rng, { philosophy: 'performance',
         blurb: 'Arrived fully formed: an international lineup, a global marketing plan, and a budget that has never once heard the word no.' });
       const gender = rng.chance(S.SUPER.maleShare) ? 'm' : 'f';
       const members = mintIntlMembers(state, rng, { size: S.SUPER.size, gender,
@@ -220,7 +227,7 @@
 
     if (entry.kind === 'reverseInvasion') {
       const id = pickIdentity(state, S.INVASION.NAMES, entry.nameIdx);
-      const rival = inject(state, id, S.INVASION, {
+      const rival = inject(state, id, S.INVASION, rng, {
         blurb: 'An overseas major with a Seoul office and a thesis: the next wave can start from the other side of the ocean.' });
       const gender = rng.chance(0.5) ? 'm' : 'f';
       // diaspora talent: Korean names kept, home regions and first
@@ -238,7 +245,7 @@
 
     if (entry.kind === 'heirMoney') {
       const id = pickIdentity(state, S.HEIR.NAMES, entry.nameIdx);
-      inject(state, id, S.HEIR, {
+      inject(state, id, S.HEIR, rng, {
         nextDebutWeek: state.week + 20,
         bankroll: { since: state.week, until: state.week + S.HEIR.runwayWeeks },
         blurb: 'A fortune decided it wanted a label. The budget does not read the power ranking, because the budget has never had to read anything.' });
@@ -321,7 +328,10 @@
       } else {
         led.heirBurst++;
         r.prestige = KP.clamp((r.prestige || 0) - S.HEIR.burstPrestige, 5, 95);
-        r.rosterCount = Math.min(r.rosterCount || 0, S.HEIR.burstRoster);
+        // the floor (v0.10.31): the burst cuts REAL people down to the size the money can carry
+        KP.rivalFloor(state, r).sort((a, b) => KP.peakOf(a) - KP.peakOf(b))
+          .slice(0, Math.max(0, KP.rivalFloor(state, r).length - S.HEIR.burstRoster))
+          .forEach(p => KP.cutFromFloor(state, rng, r, p, { historyText: 'Released when ' + r.short + '’s money ran out. The practice room went dark on a Tuesday.' }));
         inbox.push({ kind: 'industry', ind: 'sagaHeirEnd', priority: 'high',
           text: 'The tap closed at ' + r.short + '. The fortune behind the label read the receipts, and the receipts read like receipts. Half the floor was released in a week, the stupid offers stopped mid-sentence, and every price they distorted is drifting back to market. The scene absorbs the signing class. It always does.' });
       }
