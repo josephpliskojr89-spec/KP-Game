@@ -154,7 +154,7 @@ function forceConflict(state, a, b) {
   t.ok(g.prep && g.prep.masterFunded, 'the master funds the era');
   t.ok(state.inbox.some(n => /subway station/.test(n.text)), 'faster than the marketing budget');
   // the turn: a betrayal trigger flips the account
-  KP.recordDirected(state, p.id, 'heldToPaper', -2);
+  KP.recordDirected(state, p.id, 'heldToPaper');
   const F = KP.C.FANSITE;
   const oldTurn = F.turnChance;
   F.turnChance = 1;

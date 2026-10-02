@@ -6262,7 +6262,7 @@ deposit that compounds? Current lean: deposits that compound into
 the doors that already exist (renewals, walkouts, storms) — the
 game already knows how to make small things become big.
 
-## §89 The pruning (PHASE 1 SHIPPED v0.10.29 — what to quiet, delete, and merge)
+## §89 The pruning (PHASES 1–2 SHIPPED v0.10.29–30 — what to quiet, delete, and merge)
 
 Owner: "Let's start with pruning. A full audit of anything that is
 redundant or just not used much. And make notes of what could be
@@ -6583,10 +6583,100 @@ re-pinned to durable facts or KP.lastTickNotes; suite_030 weakens
 all rival acts, suite_036 fills the trainee room (with comebackPromise
 gone the exec has nothing to ask of an empty room), suite_046 refills
 demos and funds the budget. WATCH: move the feed reactions to hash01
-in Phase 2 so note volume stops moving the world.
+in Phase 2 so note volume stops moving the world. (Closed in 0.10.30:
+the whole feed pass draws a hash-seeded stream of its own.)
 
 Battery 96/96, soak 40 clean, longhaul 10x620, e2e 111, lockstep
 0.10.29.
+
+
+**As built — Phase 2, v0.10.30 "the one door".** Owner: "Go ahead
+with phase 2." D1–D5 plus the Phase 1 watch item, one release.
+
+*D1 — the one door (knock.js, kernel.registerKnock).* Eight sources
+used to open "she comes to you" scenes with eight private gates. Now
+a system REGISTERS a provider that returns candidates — `{ kind,
+personId, weight, priority?, expiresIn?, onPick? }` — and one weekly
+rail (`theDoor`, order 857, after the spotlight and the shadow) makes
+ONE pick a week: priority first (a walkout, the rehearsed solo ask, a
+slump, a recovery — events, which skip the roll), then weight, then
+a per-week hash. One person scene open at a time across every
+source; one scene per person; questions respect a per-person gap
+(KNOCK.personGapWeeks 6); the cadence is KNOCK.gapWeeks 1 +
+chance 0.6 (owner: one question every 2–3 weeks). The rng is drawn
+only when a candidate exists. Providers: door (the ask, the
+challenge), friction (five kinds), persona (the pending moment
+call), scars (the return, held up to 4 weeks then quiet), walkOut,
+gravity (soloKnock, quietEra via `slump.ask`). Folds: the door's
+"a real week" request → the extra hour's drained variant (any week
+at FRICTION.breatherAt 75; 68 made it half of all questions), and
+its silence law rides along (leftWaiting, the high note); the
+confession → the quiet no (FRICTION.confessResilience 60: the tough
+one brings it herself); warmthGlue left (the steadying does its
+work). `state.knockLedger` {asked, byKind, lastWeek} is the
+harness's eye. Measured: 19.9 person scenes per org-year — one every
+2.6 weeks — extraHour 8.7, idolAsk 3.1, variety 2.7, moment 1.9,
+clip 1.8, soloKnock 1.3.
+
+*D2 — the solo ask.* ONE claim, `soloPromise`, minted by the door
+(a 'solo' ambition at the ask), the knock, and the Monday meeting;
+the knock's rung rides on the claim (`c.rung`), and the predicate
+asks for the album when the rung does — `soloAlbumPromise` is gone
+(migrated to rung 2). The settlement no longer records a second
+promiseKept; one solo credit pays once. ambitionPromise remains for
+trophy/stage/variety.
+
+*D3 — one ledger.* `C.LEDGER.KINDS` is the single table: 55 kinds,
+each with a standing weight `w`, an optional `grudge`, and `words`
+for her file. `recordDirected(state, id, kind)` takes the weight
+from the table and THROWS on an unknown kind (one truth per number;
+`brokenPromise` was a duplicate of promiseBroken). `KP.ledgerRead
+(state, p)` → {standing (decayed, halfLife 48), grudge (undecayed),
+kept, broken}; standingScore, renewalRead (−grudge ×
+renewalGrudgeMult 1.5, replacing three ad-hoc ifs), the walkout gate
+and the dossier's words all read it. BADBLOOD.turnTriggers stays a
+kind list (a predicate, not a weight table).
+
+*D4 — one eval.* practice.js's evaluation day (true stats, position
+morale, its own note) left; rituals.js's monthly sheet (perceived
+reads, trajectory morale) is the board. The ace streak and
+`state.lastEvalTopId` moved onto the sheet (EVAL.aceStreakAt);
+`KP.evalRankOf(p)` reads evalHistory; the Training tab's board reads
+it. PRACTICE.evalEveryWeeks/evalMoraleTop/Bottom/evalClimb removed;
+practiceLedger.evals gone. evalDay no longer fires (wallpaper: 0).
+
+*D5 — the burnout double.* One incident, one story: overworkIncident
+lights the benched discourse (benchedChance) OR files the overwork
+grievance itself — never both; a benched story at DISCOURSE.truckAt
+55 hands the fandom its receipts (files the grievance once). The
+constituency's burnout-flag scan is gone, so a rest the desk CHOSE
+in the diagnosis scene no longer buys a protest truck.
+
+*The feed on its own stream.* `KP.feedWeek` draws `new KP.Rng([seed,
+'feed', week])` and never touches the engine rng — note volume no
+longer moves the world (suite_097 pins rng.count unchanged across a
+loud week). risefall's gen-vs-gen chatter and publiceye's ace watch
+went through the registry as feed-only notes (genTalk, aceWatch) —
+the last two direct feed writers.
+
+*Migration 0.10.30.* Open idolDoor breather → frictionExtraHour
+drained; confession → frictionQuietNo; momentChoice warmthGlue
+dropped; soloAlbumPromise → soloPromise rung 2; doorQuietUntil,
+evalRank/evalWeek, constBenchNoted swept. founding.js resets
+knockLedger instead of the old door clock.
+
+*Measured.* Wallpaper unchanged in volume (593 emitted / 308 kept
+per org-year, 5.9 a week — the evalDay/evalSheet double and the
+scene echoes were already quiet); the gain is in shape: no stacked
+knocks, no double payouts, one board. Suites re-pinned (18): 033, 039,
+041, 042 (rewritten around the folds and the leader's carry), 043,
+044, 045 (the strained fixture: a wait is a wound now), 048, 051,
+055, 058, 060, 062, 063, 067, 080, 081, 096; suite_097_onedoor (131
+checks) pins the queue, the one claim, the table, the eval, the
+burnout paths, the feed stream, the migration and the fork.
+
+Battery 97/97, soak 40 clean, longhaul 10x620, e2e 111, lockstep
+0.10.30.
 
 
 ## §18 Watch items
@@ -9676,3 +9766,22 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > (Phase 3). 22 suites re-pinned to durable facts under the law.
 > Battery 96/96, soak 40 clean, longhaul 10x620, e2e 111, lockstep
 > 0.10.29. Rode to main.
+
+> **0.10.30 — the one door.** §89 Phase 2, owner: "Go ahead with
+> phase 2." D1: every person scene through one queue (knock.js +
+> kernel.registerKnock) — one pick a week, priority events first,
+> one open at a time across every source, one per person, the
+> door's request and confession folded into the frictions, warmthGlue
+> gone. D2: one soloPromise claim (rung on the claim; the album
+> claim migrated), one payout. D3: C.LEDGER.KINDS — one table of 55
+> kinds with weights, grudges and words; KP.ledgerRead feeds standing,
+> renewal, the walkout and the file; unknown kinds throw. D4: the
+> practice board left; the monthly sheet carries the ace and the
+> room's number one. D5: one incident, one story — the truck is the
+> benched story's hot stage or the fandom's own filing; the chosen
+> rest buys no truck. The feed draws its own hash stream (the Phase 1
+> watch item, closed); the last two direct feed writers went through
+> the registry. Measured: 19.9 person scenes per org-year, one every
+> 2.6 weeks. Migration 0.10.30. 18 suites re-pinned; suite_097
+> (131). Battery 97/97, soak 40 clean, longhaul 10x620, e2e 111,
+> lockstep 0.10.30. Rode to main.

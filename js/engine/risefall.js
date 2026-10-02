@@ -303,15 +303,9 @@
     }
     // ambient gen-vs-gen chatter (the discourse the spec ordered)
     if (gen.n > RF.GEN.start && rng.chance(RF.GEN.talkChance)) {
-      const older = gen.n - 1;
-      state.feed = state.feed || [];
-      state.feed.unshift({ week: state.week, handle: KP.genFanHandle(rng, new Set()),
-        persona: rng.chance(0.5) ? 'stan' : 'casual',
-        text: rng.pick([
-          'the gen-' + older + ' sound is back on my playlists and I am not sorry. some eras just knew what a CHORUS was',
-          'gen-' + gen.n + ' rookies have better training and worse b-sides than gen-' + older + ' and I will be taking no questions',
-          'unpopular opinion: every generation says the next one is over-produced and every generation is a little bit right',
-        ]) });
+      // through the registry, feed-only (v0.10.30, §89 E) — the post is
+      // built by the feed pass on its own stream
+      inbox.push({ kind: 'public', feedOnly: true, ind: 'genTalk', gen: gen.n, text: 'gen-vs-gen chatter' });
     }
 
     // ---- the rival service: their boys carry the window too -----------
@@ -426,4 +420,12 @@
     { persona: 'fan', text: (n.actName || 'they') + ' ARE BACK. gate photos. coffee truck. the countdown account posted “0 DAYS” and logged off forever like a legend' },
     { persona: 'stan', text: 'the ' + (n.company || 'label') + ' boys are home and their first comeback is about to eat. returns always eat. this is a warning to every chart' },
   ]));
+  KP.onFeedEvent('genTalk', (state, n, rng) => {
+    const older = n.gen - 1;
+    return { persona: rng.chance(0.5) ? 'stan' : 'casual', text: rng.pick([
+      'the gen-' + older + ' sound is back on my playlists and I am not sorry. some eras just knew what a CHORUS was',
+      'gen-' + n.gen + ' rookies have better training and worse b-sides than gen-' + older + ' and I will be taking no questions',
+      'unpopular opinion: every generation says the next one is over-produced and every generation is a little bit right',
+    ]) };
+  });
 })(typeof window !== 'undefined' ? window : globalThis);

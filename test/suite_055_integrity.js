@@ -95,7 +95,7 @@ function debuted(seed, n) {
   const state = KP.newGame('aud-m3', null, { legacy: false });
   const pid = state.roster[0];
   // an open scene, a project lock, and the internet's directive — all hers
-  KP.openScene(state, { kind: 'idolDoor', personId: pid, doorKind: 'confession',
+  KP.openScene(state, { kind: 'idolDoor', personId: pid, topic: 'challenge',
     expiresWeek: state.week + 4 });
   state.project = { locked: [pid, state.roster[1]], seeking: [] };
   state.hypeDirective = { status: 'open', personId: pid, deadlineWeek: state.week + 10 };

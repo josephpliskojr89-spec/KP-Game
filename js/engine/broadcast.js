@@ -103,7 +103,7 @@
       if (optionId === 'decline') {
         ledger(state).declined++;
         p.morale = KP.clamp(p.morale - C.declineMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'keptOffline', -1);
+        KP.recordDirected(state, p.id, 'keptOffline');
         return { toast: KP.fillPro('{She} nodded and closed the laptop slowly, which is a whole sentence.', p) };
       }
       if (optionId === 'train') {
@@ -119,7 +119,7 @@
     },
     expire: (state, sc) => {
       const p = state.people[sc.personId];
-      if (p) { p.morale = KP.clamp(p.morale - 2, 0, 100); KP.recordDirected(state, p.id, 'keptOffline', -1); }
+      if (p) { p.morale = KP.clamp(p.morale - 2, 0, 100); KP.recordDirected(state, p.id, 'keptOffline'); }
       return null;
     },
   });
@@ -144,7 +144,7 @@
       if (optionId === 'decline') {
         ledger(state).declined++;
         p.morale = KP.clamp(p.morale - C.declineMorale - 1, 0, 100);
-        KP.recordDirected(state, p.id, 'keptOffline', -1);
+        KP.recordDirected(state, p.id, 'keptOffline');
         return { toast: KP.fillPro('“The company posts for you.” {She} heard every word under that sentence. The deck went back in the bag.', p) };
       }
       if (optionId === 'train') {
@@ -164,7 +164,7 @@
     },
     expire: (state, sc) => {
       const p = state.people[sc.personId];
-      if (p) { p.morale = KP.clamp(p.morale - 2, 0, 100); KP.recordDirected(state, p.id, 'keptOffline', -1); }
+      if (p) { p.morale = KP.clamp(p.morale - 2, 0, 100); KP.recordDirected(state, p.id, 'keptOffline'); }
       return null;
     },
   });
@@ -188,7 +188,7 @@
       const C = KP.C.CAST;
       if (optionId === 'reprimand') {
         p.morale = KP.clamp(p.morale - 5, 0, 100);
-        KP.recordDirected(state, p.id, 'reprimanded', -1);
+        KP.recordDirected(state, p.id, 'reprimanded');
         p.flags.castChilled = state.week + 48;
         return { toast: 'On the record, in writing. The lives stop. Some other things quietly stop too.' };
       }

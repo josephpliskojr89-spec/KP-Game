@@ -12,7 +12,7 @@
 
   function ledger(state) {
     return state.practiceLedger = state.practiceLedger ||
-      { evals: 0, quitsAsked: 0, gone: 0, agingFaced: 0, lastChance: 0, speculations: 0 };
+      { quitsAsked: 0, gone: 0, agingFaced: 0, lastChance: 0, speculations: 0 };
   }
   function freeTraineesOf(state) {
     return state.roster.map(id => state.people[id])
@@ -72,48 +72,8 @@
     const led = ledger(state);
     const trainees = freeTraineesOf(state);
 
-    // ---- 1. evaluation day: the board goes up --------------------------
-    if (trainees.length >= 2 && ((state.week - 1) % P.evalEveryWeeks) === 0) {
-      const scored = trainees.map(p => {
-        const t = p.talents;
-        const score = (t.vocals.cur + t.dance.cur + t.rap.cur) / 3 +
-          t.charisma.cur * 0.35 + Math.min(40, p.liveExp) * 0.2 +
-          (rng.next() - 0.5) * 8;   // evaluation days have moods too
-        return { p, score };
-      }).sort((a, b) => b.score - a.score);
-      const prev = {};
-      trainees.forEach(p => { prev[p.id] = p.evalRank || null; });
-      scored.forEach((x, i) => { x.p.evalRank = i + 1; x.p.evalWeek = state.week; });
-      led.evals++;
-      const top = scored[0].p;
-      top.morale = KP.clamp(top.morale + P.evalMoraleTop, 0, 100);
-      if (trainees.length >= 3) {
-        const last = scored[scored.length - 1].p;
-        last.morale = KP.clamp(last.morale + P.evalMoraleBottom, 0, 100);
-      }
-      // the biggest climber feels the arrow
-      let climber = null, climb = 0;
-      scored.forEach(x => {
-        const was = prev[x.p.id];
-        if (was && was - x.p.evalRank > climb) { climb = was - x.p.evalRank; climber = x.p; }
-      });
-      if (climber) climber.morale = KP.clamp(climber.morale + P.evalClimb, 0, 100);
-      // the ace: three straight months at #1 and the room has a name for her
-      if (state.lastEvalTopId === top.id) {
-        top.flags.evalStreak = (top.flags.evalStreak || 0) + 1;
-        if (top.flags.evalStreak === P.aceStreakAt) {
-          top.history.push({ week: state.week, text: 'Held the top of the evaluation board three months running. The vocal coaches started saying “the ace” and meaning it.' });
-        }
-      } else {
-        top.flags.evalStreak = 1;
-      }
-      state.lastEvalTopId = top.id;
-      const names = scored.slice(0, 3).map((x, i) => (i + 1) + '. ' + KP.displayName(x.p));
-      inbox.push({ kind: 'development', ind: 'evalDay', priority: 'flavor',
-        text: 'Evaluation day. The board went up at six and the hallway went quiet: ' + names.join('  ') +
-          (trainees.length >= 3 ? '. ' + KP.publicGiven(scored[scored.length - 1].p) + ' read the bottom line once and went back into the practice room without changing shoes.' : '.') +
-          (climber && climb >= 2 ? ' Biggest arrow: ' + KP.publicGiven(climber) + ', up ' + climb + '.' : '') });
-    }
+    // the evaluation board left (v0.10.30, §89 D4): rituals.js's monthly
+    // sheet — ranked on what the coaches can SEE — is the one eval
 
     // ---- 2. the speculation: a project opens and the room KNOWS --------
     if (state.project && !state.project.speculated && state.week > state.project.openedWeek) {
@@ -124,7 +84,8 @@
       trainees.forEach(p => {
         if (locked.includes(p.id)) return;
         const slots = locked.length + ((state.project.seeking || []).length || 2);
-        if (p.evalRank && p.evalRank <= Math.max(3, slots)) {
+        const rank = KP.evalRankOf(p);
+        if (rank && rank <= Math.max(3, slots)) {
           p.flags.projectHopeful = true;
           p.morale = KP.clamp(p.morale + 2, 0, 100);
           hopefuls.push(KP.publicGiven(p));
@@ -187,7 +148,8 @@
         (tenure > P.quitTenureWeeks || p.flags.resigned);
       if (!discouraged) return;
       let chance = P.quitBaseChance;
-      if (p.evalRank && p.evalRank === freeTraineesOf(state).length) chance *= 1.5;
+      const er = p.evalHistory && p.evalHistory[p.evalHistory.length - 1];
+      if (er && er.rank === er.of) chance *= 1.5;
       if (p.flags.agingOut) chance *= 1.5;
       if (p.flags.resigned) chance *= 2;
       if (!rng.chance(chance)) return;
@@ -282,7 +244,7 @@
       if (optionId === 'honest') {
         p.morale = KP.clamp(p.morale - 8, 0, 100);
         p.flags.resigned = true;
-        KP.recordDirected(state, p.id, 'toldStraight', 1);
+        KP.recordDirected(state, p.id, 'toldStraight');
         p.history.push({ week: state.week, text: 'Asked the question and got the truth: no guarantees. Kept training anyway. For now.' });
         return { toast: KP.fillPro('{She} thanked you for not decorating it. Then {she} went back to the practice room, because the alternative was going home.', p) };
       }
@@ -298,7 +260,7 @@
       if (!p) return null;
       p.morale = KP.clamp(p.morale - 6, 0, 100);
       p.flags.resigned = true;
-      KP.recordDirected(state, p.id, 'leftWaiting', -2);
+      KP.recordDirected(state, p.id, 'leftWaiting');
       return { kind: 'development', priority: 'high', personId: p.id,
         text: KP.fillPro(KP.displayName(p) + ' asked the only question that matters and got a week of scheduling noise instead of an answer. {She} stopped asking. The staff say {she} still trains hardest in the building, which is somehow worse.', p) };
     },
@@ -309,7 +271,7 @@
     const p = state.people[c.personId];
     if (!p) return { resolved: 'missed', notes: [] };
     if (p.status === 'idol') {
-      KP.recordDirected(state, p.id, 'promiseKept', 3);
+      KP.recordDirected(state, p.id, 'promiseKept');
       return { resolved: 'met',
         notes: [{ kind: 'development', priority: 'high', personId: p.id,
           text: KP.fillPro(KP.displayName(p) + ', backstage after the debut stage, found you in the hallway: “You said the next one. It was the next one.” The resignation letter, it turns out, got burned in a dorm-kitchen pan, ceremonially, at 2am.', p) }] };

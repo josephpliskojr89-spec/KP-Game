@@ -247,15 +247,12 @@ function debuted(seed) {
 // ---- evaluation day: the board goes up and the room reads it ----
 {
   const state = KP.newGame('pr-eval', null, { legacy: false });
+  // one eval (v0.10.30, §89 D4): the monthly sheet (rituals.js) is the board
   let guard = 0;
-  while (((state.week - 1) % KP.C.PRACTICE.evalEveryWeeks) !== 0 || (state.practiceLedger || {}).evals === undefined) {
-    KP.advanceWeek(state);
-    if (guard++ > 8) break;
-  }
-  while ((state.practiceLedger || { evals: 0 }).evals < 1 && guard++ < 8) KP.advanceWeek(state);
-  t.ok(state.practiceLedger.evals >= 1, 'the board went up');
+  while ((state.evalLedger || { sheets: 0 }).sheets < 1 && guard++ < 10) KP.advanceWeek(state);
+  t.ok(state.evalLedger.sheets >= 1, 'the board went up');
   const trainees = state.roster.map(id => state.people[id]).filter(p => p.status === 'trainee');
-  const ranks = trainees.map(p => p.evalRank).filter(Boolean).sort((a, b) => a - b);
+  const ranks = trainees.map(p => KP.evalRankOf(p)).filter(Boolean).sort((a, b) => a - b);
   t.eq(ranks.length, trainees.length, 'every trainee has a line on the board');
   t.eq(ranks[0], 1, 'somebody is first');
   t.ok(state.lastEvalTopId, 'and the room knows who');
@@ -278,7 +275,7 @@ function debuted(seed) {
   const state = KP.newGame('pr-ace', null, { legacy: false });
   const ace = state.people[state.roster[5]];
   state.lastEvalTopId = ace.id;
-  ace.evalRank = 1;
+  ace.evalHistory = [{ week: state.week, rank: 1, of: 6 }];
   const morale0 = ace.morale;
   const ids = state.roster.slice(0, 5);
   KP.proposeGroup(state, 'LIST', ids, KP.roleHints(state, ids.map(i => state.people[i])));

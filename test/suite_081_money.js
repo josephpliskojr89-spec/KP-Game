@@ -45,7 +45,7 @@ function era(s, g, debtAfterLock) {
   era(s, g, 3);   // fixture: one good era from zero
   const sc = (s.scenes || []).find(x => x.kind === 'firstSettlement');
   t.ok(sc, 'the ledger crossed zero and the meeting is on the desk');
-  t.ok(s.inbox.some(n => n.ind === 'settlementDue'), 'announced like the milestone it is');
+  t.ok(s.inbox.concat(KP.lastTickNotes || []).some(n => n.ind === 'settlementDue'), 'announced like the milestone it is');
   const b0 = s.budget;
   KP.resolveScene(s, sc.id, 'fair');
   t.ok(g.recoup.settledWeek != null, 'settled');

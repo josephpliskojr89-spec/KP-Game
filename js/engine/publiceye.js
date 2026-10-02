@@ -82,7 +82,7 @@
       const again = p.flags.snubCount >= 2;
       led.snubs++;
       p.morale = KP.clamp(p.morale - PB.snubMorale, 0, 100);
-      KP.recordDirected(state, p.id, 'passedOver', PB.snubDirected);
+      KP.recordDirected(state, p.id, 'passedOver');
       p.history.push({ week: state.week,
         text: again
           ? 'Passed over for a second lineup while the public watched. She read the announcement like everyone else — online, at midnight. The company keeps deciding; the internet keeps counting.'
@@ -165,17 +165,20 @@
     if (watched.length && rng.chance(PB.aceWatchChance)) {
       const p = watched[Math.floor(rng.next() * watched.length)];
       led.aceWatch++;
-      state.feed = state.feed || [];
-      state.feed.unshift({ week: state.week, handle: KP.genFanHandle(rng, new Set()),
-        persona: rng.chance(0.5) ? 'fan' : 'casual',
-        text: rng.pick([
-          'weekly check-in: still no lineup news for ' + KP.publicGiven(p) + '. the clips are RIGHT THERE. the company is sitting on a debut and calling it development',
-          KP.publicGiven(p) + ' has been "a trainee to watch" for so long the watch has a fandom. put her in a group before we age out of stanning',
-          'the ' + state.company.short + ' trainee everyone knows is still not debuting and I think about this more than my own career',
-          'petition status for ' + KP.publicGiven(p) + ' debut news: growing. patience status: not',
-          KP.publicGiven(p) + ' practice clip anniversary today. one year. ONE YEAR of "soon." define soon, ' + state.company.short,
-        ]) });
+      // through the registry, feed-only (v0.10.30, §89 E)
+      inbox.push({ kind: 'public', feedOnly: true, ind: 'aceWatch', personId: p.id, text: 'the ace watch' });
     }
+  });
+  KP.onFeedEvent('aceWatch', (state, n, rng) => {
+    const p = state.people[n.personId];
+    if (!p) return null;
+    return { persona: rng.chance(0.5) ? 'fan' : 'casual', text: rng.pick([
+      'weekly check-in: still no lineup news for ' + KP.publicGiven(p) + '. the clips are RIGHT THERE. the company is sitting on a debut and calling it development',
+      KP.publicGiven(p) + ' has been "a trainee to watch" for so long the watch has a fandom. put her in a group before we age out of stanning',
+      'the ' + state.company.short + ' trainee everyone knows is still not debuting and I think about this more than my own career',
+      'petition status for ' + KP.publicGiven(p) + ' debut news: growing. patience status: not',
+      KP.publicGiven(p) + ' practice clip anniversary today. one year. ONE YEAR of "soon." define soon, ' + state.company.short,
+    ]) };
   });
 
   // ---- the timeline reacts ---------------------------------------------

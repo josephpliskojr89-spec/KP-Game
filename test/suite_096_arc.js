@@ -92,7 +92,7 @@ function debuted(seed) {
   const { state, g } = debuted('arc-broken');
   const p = state.people[g.members[0]];
   const w0 = p.personality.warmth;
-  KP.recordDirected(state, p.id, 'promiseBroken', -4);
+  KP.recordDirected(state, p.id, 'promiseBroken');
   t.ok(p.personality.warmth < w0, 'a broken promise changes who she IS, not just the ledger');
   t.ok(p.arc.some(a => a.why === 'a broken promise'), 'and the arc says so');
 }

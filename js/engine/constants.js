@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.29',
+    VERSION: '0.10.30',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -277,11 +277,6 @@
     // feel; debut-team speculation once a project opens; the trainee who
     // quits on you; and the aging-out clock with all three endings.
     PRACTICE: {
-      evalEveryWeeks: 4,
-      evalMoraleTop: 3,          // being #1 on the board is fuel
-      evalMoraleBottom: -3,      // being last is a long walk to the dorm
-      evalClimb: 2,              // the biggest climber feels the arrow
-      aceStreakAt: 3,            // three straight #1s and the room has a name for her
       quitBaseChance: 0.012,     // weekly, for the discouraged long-timer
       quitMoraleBelow: 38,
       quitTenureWeeks: 60,       // quitting is earned — nobody quits month two
@@ -900,7 +895,8 @@
       encoreChance: 0.5,        // at release, performance < 45
       stylingChance: 0.35,      // at release, reception < 50
       fancamChance: 0.5,        // at spark/viral
-      benchedChance: 0.6,       // at an overwork incident
+      benchedChance: 0.6,       // at an overwork incident — else the fandom files the grievance itself
+      truckAt: 55,              // a benched story this hot hands the fandom its receipts (v0.10.30)
       datingChance: 0.006,      // weekly, per idol with 50k+ followers
       datingMinSocial: 50000,
       gaffeChance: 0.004,       // weekly, per idol with a real following…
@@ -1232,7 +1228,6 @@
       WALKOUT: {
         grudgeAt: 5,           // stacked directed grievances before she calls it
         moraleBelow: 35,       // and the tank has to be empty
-        chance: 0.10,          // weekly, once both are true
         cooldownWeeks: 52,     // one such meeting a year, at most
         negotiateBase: 60,     // hearing her out costs real money…
         negotiatePerFame: 30,  // …scaled to what walking would cost you
@@ -1615,6 +1610,7 @@
     // formula, and the near-miss is injustice fuel the intensity eats.
     EVAL: {
       every: 4,               // the monthly showcase, hash-phased
+      aceStreakAt: 3,         // three straight #1s and the room has a name for her (from PRACTICE, v0.10.30)
       minTrainees: 3,
       swingCap: 3,            // morale by trajectory, capped
       bottomTalkAfter: 2,     // consecutive bottom-third rankings
@@ -1965,7 +1961,6 @@
       knownSocial: 60000,      // …or a following that big
       aceWatchChance: 0.05,    // weekly ambient "where is she" while known+unassigned
       snubMorale: 6,           // watching the lineup announced without you
-      snubDirected: -1,        // the ledger the walkout math reads
       EXPECT: {
         watchingAt: 12, loudAt: 24, arenaAt: 40,   // expectation points → level
         WORDS: ['quiet curiosity', 'the industry is watching',
@@ -2161,9 +2156,9 @@
     // alive; more is a mailbox. Teeth ruled too: every answer deposits,
     // the badly-read ones can genuinely bite.
     FRICTION: {
-      gapWeeks: 1,               // min quiet gap after a question
-      chance: 0.6,               // then this per week → ~2-3 week cadence
       fuseWeeks: 2,              // the moment waits, briefly
+      breatherAt: 75,            // the door's "a real week" ask, folded in (v0.10.30; 68 made it half of all questions)
+      confessResilience: 60,     // the tough one brings the quiet no herself (v0.10.30)
       // the extra hour
       grinderEthic: 70, grinderFatigueLo: 50, grinderFatigueHi: 72,
       drainedEthic: 40, drainedFatigue: 55,
@@ -2444,8 +2439,76 @@
     // ---- The stage door (v0.8.0) — scenes, claims, directed acts --------
     SCENES: {
       maxResolvedClaims: 10,     // settled promises kept for the record
-      directedCap: 40,           // per-person ledger of what YOU did
-      directedHalfLifeWeeks: 48, // kindnesses fade, wounds heal — slowly
+    },
+    // ---- the ledger between you (v0.10.30, §89 D3) -----------------------
+    // ONE table for what the player did to a person: the standing
+    // weight (decayed, the warmth), the grudge weight (undecayed, the
+    // wound), and the words her file uses. Four readers used to carry
+    // four tables; standingScore, renewalRead, the walkout and the
+    // fansite turn now read KP.ledgerRead. Unknown kinds throw.
+    LEDGER: {
+      cap: 40,                   // per-person ledger of what YOU did
+      halfLifeWeeks: 48,         // kindnesses fade, wounds heal — slowly
+      renewalGrudgeMult: 1.5,    // the renewal table weighs the wounds
+      KINDS: {
+        // kept word: promises
+        promiseKept:      { w: 3,  words: 'a promise kept, on the record' },
+        promiseBroken:    { w: -4, grudge: 2, words: 'a promise broken — she remembers the date' },
+        ambitionPromised: { w: 2,  words: 'promised the thing she wanted, with a date' },
+        honestAnswer:     { w: 1,  words: 'given the honest answer, and no promise' },
+        deflected:        { w: -2, grudge: 1, words: 'told "we’ll see" about the thing she wanted' },
+        // being heard
+        heardHer:         { w: 2,  words: 'you asked, and listened' },
+        heardOut:         { w: 2,  words: 'heard out, the whole list' },
+        listened:         { w: 2,  words: 'told you she was struggling; the load got lighter' },
+        breatherGranted:  { w: 2,  words: 'asked for a real week off, and got it' },
+        breatherDeclined: { w: -1, grudge: 1, words: 'asked for a week off; told "after the next stage"' },
+        mediated:         { w: 2,  words: 'a sit-down the company arranged' },
+        trusted:          { w: 2,  words: 'you trusted her with the room' },
+        seen:             { w: 1,  words: 'her offer was seen and taken' },
+        openedTheDoor:    { w: 2,  words: 'you opened a door before she had to push it' },
+        toldStraight:     { w: 1,  words: 'told straight, no spin' },
+        protected:        { w: 2,  words: 'the company blinked first — shielded' },
+        protectedHealth:  { w: 1,  words: 'her health put before the schedule' },
+        stoodByHer:       { w: 2,  words: 'the company stood by her in public' },
+        welcomedBack:     { w: 2,  words: 'welcomed back after the hardest stretch' },
+        wonBack:          { w: 3,  words: 'won back at the table' },
+        endingHonored:    { w: 2,  words: 'the ending she asked for, honored' },
+        gaveTheSpeech:    { w: 2,  words: 'the speech was hers to give' },
+        stingCoached:     { w: 1,  words: 'the coach sent over when a loss sat badly' },
+        stingRespected:   { w: 1,  words: 'let a loss fuel her, on purpose' },
+        carrySeen:        { w: 2,  words: 'carried the group; it went in her file' },
+        glueSeen:         { w: 1,  words: 'the one holding the room together — and you said so' },
+        unitCredit:       { w: 1,  words: 'a unit credit, hers' },
+        soloCredit:       { w: 3,  words: 'the solo credit, on a record' },
+        realTerms:        { w: 2,  words: 'offered real terms at renewal' },
+        sweetened:        { w: 2,  words: 'the renewal sweetened before she asked' },
+        standardTerms:    { w: -1, words: 'given the standard paper, nothing more' },
+        leanSettlement:   { w: -1, grudge: 1, words: 'a lean settlement, hers to notice' },
+        neverPaid:        { w: -1, grudge: 1, words: 'a settlement that never came' },
+        // being held, pressed, managed
+        heldBack:         { w: -2, grudge: 1, words: 'held back when she wanted forward' },
+        heldLine:         { w: -1, words: 'the company held the line over her ask' },
+        overruled:        { w: -1, words: 'challenged the direction; overruled' },
+        heldToPaper:      { w: -3, grudge: 2, words: 'held to the contract at the career ask' },
+        pressed:          { w: -2, grudge: 1, words: 'pressed through a no' },
+        pushedThrough:    { w: -2, grudge: 1, words: 'told the comeback needed her, when she said she was not okay' },
+        muzzled:          { w: -1, words: 'her words were managed' },
+        reprimanded:      { w: -1, words: 'reprimanded, on the record' },
+        keptOffline:      { w: -1, words: 'kept off the screen' },
+        madeHerHide:      { w: -2, grudge: 2, words: 'made to deny who she is' },
+        benchedPride:     { w: -2, grudge: 1, words: 'helped in a way that cost her pride' },
+        linesCut:         { w: -1, words: 'watched her lines get cut' },
+        songPassed:       { w: -1, words: 'her song passed over' },
+        passedOver:       { w: -2, grudge: 1, words: 'first on the board, not on the list' },
+        cutFromLineup:    { w: -3, grudge: 2, words: 'cut from the lineup' },
+        disbandedUs:      { w: -2, grudge: 2, words: 'the group disbanded under her' },
+        watchedTermination: { w: -2, grudge: 1, words: 'watched a member get terminated' },
+        friendDeparted:   { w: -1, words: 'her friend left the company' },
+        friendReleased:   { w: -3, grudge: 1, words: 'her friend was released' },
+        leftWaiting:      { w: -2, grudge: 1, words: 'left waiting for an answer' },
+        tableLeftWaiting: { w: -3, grudge: 1, words: 'the renewal folder left unopened' },
+      },
     },
     // ---- Standing & scars (v0.8.3) --------------------------------------
     SCAR: {
@@ -2489,11 +2552,21 @@
       petChance: 0.06,           // weekly, once eligible — once per career
     },
     // ---- The office door (v0.8.2) — idols initiate ----------------------
+    // ---- the one door (v0.10.30, §89 D1) ----------------------------------
+    // Every "she comes to you" scene — the ask, the challenge, the five
+    // frictions, the moment call, the walkout, the solo knock, the quiet
+    // era, the recovery — is a CANDIDATE on one queue. One weekly pick,
+    // one cadence, one open at a time. Owner: one question every 2–3
+    // weeks. Priority candidates (walkout, knock, slump, recovery) skip
+    // the roll; the rest compete by weight, then a per-week hash.
+    KNOCK: {
+      gapWeeks: 1,               // min quiet gap after a question
+      chance: 0.6,               // then this per week → ~2-3 week cadence
+      personGapWeeks: 6,         // she does not knock twice a month
+      expireWeeks: 2,            // the default fuse
+    },
     DOOR: {
-      globalCooldownWeeks: 5,    // at most one knock every ~5 weeks — memorable, not inbox
-      personCooldownWeeks: 16,   // she does not knock twice a season
       expireWeeks: 3,            // how long she waits for an answer
-      knockChance: 0.55,         // weekly, when someone is eligible and the door is quiet
       askAfterWeeks: 30,         // ambition unmet this long past debut → she asks
       askPromiseWeeks: 48,       // "within the year" — the claim window
       promiseMorale: 6,          // a plan means everything

@@ -48,6 +48,11 @@
   };
 
   // ---- the monthly eval --------------------------------------------------
+  // the one eval (v0.10.30, §89 D4): her latest rank on the sheet
+  KP.evalRankOf = function (p) {
+    const e = p && p.evalHistory && p.evalHistory[p.evalHistory.length - 1];
+    return e ? e.rank : null;
+  };
   KP.registerWeekly('evals', 612, function (state, rng, inbox, roster) {
     const E = KP.C.EVAL;
     const phase = Math.floor(KP.hash01([state.seed, 'evalphase'].join('|')) * E.every);
@@ -66,6 +71,8 @@
     led.sheets++;
     const of = ranked.length;
     let climber = null, climberDelta = 0;
+    // the room knows who is first (group.js's passed-over ace reads this)
+    state.lastEvalTopId = ranked[0].p.id;
     ranked.forEach((row, i) => {
       const p = row.p;
       const rank = i + 1;
@@ -73,6 +80,16 @@
       const prev = p.evalHistory.length ? p.evalHistory[p.evalHistory.length - 1] : null;
       p.evalHistory.push({ week: state.week, rank, of });
       if (p.evalHistory.length > E.historyCap) p.evalHistory.shift();
+      // the ace (from practice.js, v0.10.30 §89 D4): three straight months
+      // at the top of the sheet and the room has a name for her
+      if (rank === 1) {
+        p.flags.evalStreak = (prev && prev.rank === 1 ? (p.flags.evalStreak || 0) : 0) + 1;
+        if (p.flags.evalStreak === E.aceStreakAt) {
+          p.history.push({ week: state.week, text: 'Held the top of the evaluation sheet three months running. The vocal coaches started saying “the ace” and meaning it.' });
+        }
+      } else {
+        p.flags.evalStreak = 0;
+      }
       // morale rides trajectory, not position
       if (prev) {
         const delta = KP.clamp(prev.rank - rank, -E.swingCap, E.swingCap);

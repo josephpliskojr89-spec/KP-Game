@@ -567,7 +567,7 @@
       if (rel && rel.state === 'close') {
         other.morale = KP.clamp(other.morale - 8, 0, 100);
         // you released her closest friend — she remembers that it was you
-        KP.recordDirected(state, other.id, 'friendReleased', -3);
+        KP.recordDirected(state, other.id, 'friendReleased');
         shaken.push(KP.publicGiven(other));
       }
     });

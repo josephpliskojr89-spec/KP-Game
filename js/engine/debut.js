@@ -201,7 +201,7 @@
           const w = state.people[d.writtenBy];
           if (w) {
             w.morale = KP.clamp(w.morale + P.passMorale, 0, 100);
-            KP.recordDirected(state, w.id, 'songPassed', -1);
+            KP.recordDirected(state, w.id, 'songPassed');
             w.history.push({ week: state.week, text: 'Pitched “' + d.title + '” at the meeting. The company went with the professionals’. ' + (w.gender === 'm' ? 'He' : 'She') + ' filed the demo, not the feeling.' });
           }
         }
@@ -475,12 +475,19 @@
     m.flags.burnout = rng.int(OW.weeksMin, OW.weeksMax);
     m.morale = KP.clamp(m.morale - OW.moraleHit, 0, 100);
     m.history.push({ week: state.week, text: 'Pulled from the schedule by medical staff — exhaustion.' });
-    // the internet notices a missing member (v0.6.2)
+    // one incident, one story (v0.10.30, §89 D5): either the internet
+    // notices — a benched discourse, whose hot stage hands the fandom
+    // its receipts (the truck) — or the fandom organizes on its own.
+    // Never both for the same bench.
+    const mg = KP.groupOf(state, m.id);
+    let lit = null;
     if (rng.chance(KP.C.DISCOURSE.benchedChance)) {
-      const mg = KP.groupOf(state, m.id);
-      // the PR-flag letter was being discarded (§89 E) — it rides along now
-      const d = KP.igniteDiscourse(state, rng, 'benched', 'idol', m.id, mg && mg.id);
-      if (d) KP.note(state, d);
+      lit = KP.igniteDiscourse(state, rng, 'benched', 'idol', m.id, mg && mg.id);
+      if (lit) KP.note(state, lit);
+    }
+    if (!lit && mg) {
+      state.grievances = state.grievances || [];
+      state.grievances.push({ week: state.week, kind: 'overwork', groupId: mg.id, personId: m.id });
     }
     return { kind: 'health', urgent: true,
       text: KP.displayName(m) + ' was pulled from ' + where + ' by medical staff this week. The official word is “scheduled rest.” The honest word is exhaustion, and everyone in the building knows whose calendar caused it.' };

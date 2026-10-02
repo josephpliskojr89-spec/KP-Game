@@ -844,6 +844,30 @@
     });
   } });
 
+  // the one door (v0.10.30, §89 Phase 2): open scenes and claims that
+  // changed shape — the door's folded topics, the warmth-glue call, the
+  // album claim, the practice board — move to their new homes
+  MIGRATIONS.push({ v: '0.10.30', fn: function (state) {
+    (state.scenes || []).forEach(sc => {
+      if (sc.kind === 'idolDoor' && sc.topic === 'breather') {
+        const g = KP.groupOf(state, sc.personId);
+        sc.kind = 'frictionExtraHour'; sc.variant = 'drained'; sc.groupId = g ? g.id : null; delete sc.topic;
+      } else if (sc.kind === 'idolDoor' && sc.topic === 'confession') {
+        const g = KP.groupOf(state, sc.personId);
+        sc.kind = 'frictionQuietNo'; sc.groupId = g ? g.id : null; delete sc.topic;
+      }
+    });
+    if (state.scenes) state.scenes = state.scenes.filter(sc => !(sc.kind === 'momentChoice' && sc.momentKey === 'warmthGlue'));
+    (state.claims || []).forEach(c => {
+      if (c.type === 'soloAlbumPromise') { c.type = 'soloPromise'; c.rung = 2; }
+    });
+    delete state.doorQuietUntil;
+    Object.values(state.people || {}).forEach(p => {
+      delete p.evalRank; delete p.evalWeek;
+      if (p.flags) delete p.flags.constBenchNoted;
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

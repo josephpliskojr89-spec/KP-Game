@@ -74,7 +74,7 @@ function debuted(seed) {
   t.ok(knock, 'she knocks again — with a tracklist this time');
   t.ok(/tracklist/.test(KP.sceneDef('soloKnock').body(state, knock)), 'the body knows the rung');
   KP.resolveScene(state, knock.id, 'promise');
-  t.ok((state.claims || []).some(c => !c.resolved && c.type === 'soloAlbumPromise' && c.personId === star.id),
+  t.ok((state.claims || []).some(c => !c.resolved && c.type === 'soloPromise' && (c.rung || 1) >= 2 && c.personId === star.id),
     'the album is on the record');
   // keep the promise: produce the record
   state.budget = 600;
@@ -84,7 +84,7 @@ function debuted(seed) {
   t.ok((state.gravityLedger || {}).albums >= 1, 'ledgered');
   KP.advanceWeek(state);
   t.ok(g.gravity.settled === 'solo', 'the album settles rung 2');
-  t.ok(!(state.claims || []).some(c => !c.resolved && c.type === 'soloAlbumPromise'),
+  t.ok(!(state.claims || []).some(c => !c.resolved && c.type === 'soloPromise' && (c.rung || 1) >= 2),
     'and the promise resolves kept');
   // rung 3: the career fork — no promise on the menu
   g.gravity.settledWeek = state.week - ST.reclamorWeeks - 1;

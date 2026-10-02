@@ -41,17 +41,18 @@
 
       // THE EXTRA HOUR — the grinder wants the room past the line; the
       // drained one wants a lighter week. Same door, opposite people.
-      if (g.prep) {
-        actives.forEach(m => {
-          if (busyPerson(state, m.id)) return;
-          if (m.personality.workEthic >= FR.grinderEthic &&
-              m.fatigue >= FR.grinderFatigueLo && m.fatigue <= FR.grinderFatigueHi) {
-            out.push({ kind: 'frictionExtraHour', personId: m.id, groupId: g.id, variant: 'grinder' });
-          } else if (m.personality.workEthic <= FR.drainedEthic && m.fatigue >= FR.drainedFatigue) {
-            out.push({ kind: 'frictionExtraHour', personId: m.id, groupId: g.id, variant: 'drained' });
-          }
-        });
-      }
+      // The office door's "a real week" request folded in here
+      // (v0.10.30): running on fumes is the drained ask, any week.
+      actives.forEach(m => {
+        if (busyPerson(state, m.id)) return;
+        if (g.prep && m.personality.workEthic >= FR.grinderEthic &&
+            m.fatigue >= FR.grinderFatigueLo && m.fatigue <= FR.grinderFatigueHi) {
+          out.push({ kind: 'frictionExtraHour', personId: m.id, groupId: g.id, variant: 'grinder' });
+        } else if ((g.prep && m.personality.workEthic <= FR.drainedEthic && m.fatigue >= FR.drainedFatigue) ||
+                   m.fatigue >= FR.breatherAt) {
+          out.push({ kind: 'frictionExtraHour', personId: m.id, groupId: g.id, variant: 'drained' });
+        }
+      });
 
       // THE CLIP CALL — mid-promotion, the mouthy voice said something
       // borderline at the fan sign; the clip is circulating. Once per era.
@@ -82,11 +83,16 @@
       }
 
       // THE QUIET NO — the softspoken one declines a schedule she has
-      // never declined before, in a week that needs her
-      if (g.prep || state.week <= (g.promoUntil || 0)) {
+      // never declined before. The office door's confession folded in
+      // here (v0.10.30): the tough one, struggling quietly, brings it
+      // herself — resilience decides whether the staff scan catches her
+      // (the quietWeek flag) or she knocks.
+      {
         const quiet = actives.find(m => !busyPerson(state, m.id) &&
-          (KP.voiceOf(state, m) === 'softspoken' || m.personality.dominance < FR.quietDominance) &&
-          m.morale < FR.quietMorale && m.fatigue >= FR.quietFatigue);
+          m.morale < FR.quietMorale &&
+          (m.fatigue >= FR.quietFatigue || m.personality.resilience >= FR.confessResilience) &&
+          (KP.voiceOf(state, m) === 'softspoken' || m.personality.dominance < FR.quietDominance ||
+           m.personality.resilience >= FR.confessResilience));
         if (quiet) out.push({ kind: 'frictionQuietNo', personId: quiet.id, groupId: g.id });
       }
     });
@@ -98,7 +104,6 @@
   // memberDesk 788, hiatus 789), after the week's real numbers moved.
   KP.registerWeekly('friction', 790, function (state, rng, inbox) {
     const FR = KP.C.FRICTION;
-    const led = ledger(state);
 
     // the steadying (§88 B): the warm veteran quietly holds up whoever
     // is lowest — a real, visible assist, every week, no decision needed
@@ -116,27 +121,28 @@
       }
     });
 
-    // the question: one at a time, most weeks quiet. The rng is only
-    // touched when a real candidate exists — a rail that draws on
-    // empty weeks shifts every stream in the save (the v0.10.17 law)
-    if ((state.scenes || []).some(sc => /^friction/.test(sc.kind))) return;
-    if (state.week - led.lastWeek < FR.gapWeeks) return;
-    const cands = candidates(state);
-    if (!cands.length) return;
-    if (!rng.chance(FR.chance)) return;
-    const pick = cands[rng.int(0, cands.length - 1)];
-    led.lastWeek = state.week;
-    led.asked++;
-    led.byKind[pick.kind] = (led.byKind[pick.kind] || 0) + 1;
-    if (pick.kind === 'frictionVarietyAlone') {
-      const p = state.people[pick.personId];
-      if (p) p.varietyAskWeek = state.week;
-    }
-    if (pick.kind === 'frictionClipCall') {
-      const g = KP.groupById(state, pick.groupId);
-      if (g) g.clipCallEra = g.promoUntil || 0;
-    }
-    KP.openScene(state, Object.assign({ expiresWeek: state.week + FR.fuseWeeks }, pick));
+  });
+
+  // the questions go to the one door (v0.10.30, §89 D1): the rail above
+  // keeps the steadying; the candidates compete with every other knock
+  KP.registerKnock('friction', ['frictionExtraHour', 'frictionClipCall', 'frictionSubstitution',
+    'frictionVarietyAlone', 'frictionQuietNo'], function (state) {
+    const FR = KP.C.FRICTION;
+    return candidates(state).map(c => Object.assign(c, { weight: 2, expiresIn: FR.fuseWeeks,
+      onPick: (st, pick) => {
+        const led = ledger(st);
+        led.lastWeek = st.week;
+        led.asked++;
+        led.byKind[pick.kind] = (led.byKind[pick.kind] || 0) + 1;
+        if (pick.kind === 'frictionVarietyAlone') {
+          const p = st.people[pick.personId];
+          if (p) p.varietyAskWeek = st.week;
+        }
+        if (pick.kind === 'frictionClipCall') {
+          const g = KP.groupById(st, pick.groupId);
+          if (g) g.clipCallEra = g.promoUntil || 0;
+        }
+      } }));
   });
 
   // ---- THE EXTRA HOUR ---------------------------------------------------
@@ -171,7 +177,7 @@
             t.cur = Math.min(ceil, t.cur + FR.extraHourPolish);
           });
           p.fatigue = KP.clamp(p.fatigue + FR.extraHourFatigue, 0, 100);
-          KP.recordDirected(state, p.id, 'trusted', 1);
+          KP.recordDirected(state, p.id, 'trusted');
           // the teeth: leaving the lights on for someone already worn
           // is how the medical desk gets involved
           if (p.fatigue >= KP.C.COMEBACK.OVERWORK.threshold &&
@@ -183,14 +189,14 @@
           return { toast: KP.fillPro('You left the lights on. The polish will show on stage; the hours will show on the chart. {She} nodded once, which from {her} is a hug.', p) };
         }
         p.morale = KP.clamp(p.morale - FR.extraHourRefuseMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'heldBack', -1);
+        KP.recordDirected(state, p.id, 'heldBack');
         return { toast: KP.fillPro('You sent {her} home. {She} went — and every step said {she} was counting the hours {she} is not getting. Rested, and quietly furious about it.', p) };
       }
       // the drained variant
       if (optionId === 'lighten') {
         p.fatigue = KP.clamp(p.fatigue - FR.lightenRest, 0, 100);
         p.morale = KP.clamp(p.morale + FR.lightenMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'heardHer', 1);
+        KP.recordDirected(state, p.id, 'heardHer');
         if (g) activeMembers(state, g).forEach(m => {
           if (m.id !== p.id) m.fatigue = KP.clamp(m.fatigue + FR.lightenSpread, 0, 100);
         });
@@ -202,6 +208,15 @@
     expire: (state, sc) => {
       const p = state.people[sc.personId];
       if (!p) return null;
+      if (sc.variant === 'drained') {
+        // the office door's silence law rides with the folded ask
+        // (v0.10.30): she asked for a week and heard nothing — that is
+        // on the ledger as YOURS, the wound the rest week cannot heal
+        p.morale = KP.clamp(p.morale + KP.C.DOOR.expireMorale, 0, 100);
+        KP.recordDirected(state, p.id, 'leftWaiting');
+        return { kind: 'development', priority: 'high', personId: p.id,
+          text: KP.fillPro(KP.displayName(p) + ' waited for that minute all week, then stopped waiting. {She} is fine. That word is doing a lot of work and everyone in the building knows it.', p) };
+      }
       return { kind: 'development', personId: p.id,
         text: KP.fillPro('The practice-room question answered itself when nobody answered it: the schedule stood, ' + KP.displayName(p) + ' read the silence, and the trainer logged the week as “unremarkable,” which it was not.', p) };
     },
@@ -231,7 +246,7 @@
       if (optionId === 'kill') {
         if (g) KP.fandomGain(g, -FR.clipKillFandom);
         p.morale = KP.clamp(p.morale - FR.clipKillMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'muzzled', -1);
+        KP.recordDirected(state, p.id, 'muzzled');
         return { toast: KP.fillPro('The clip vanished. The fandom noticed the vanishing more than the clip; {she} noticed most of all. Clean, quiet, and filed — by everyone.', p) };
       }
       // the ride: her file tells you whether she can carry it
@@ -239,7 +254,7 @@
         KP.socialSpike(state, p, KP.C.SOCIAL.breakoutSpike, 'clipRide');
         if (g) KP.fandomGain(g, FR.clipRideFandom);
         p.morale = KP.clamp(p.morale + FR.clipRideMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'trusted', 2);
+        KP.recordDirected(state, p.id, 'trusted');
         return { toast: KP.fillPro('It rode. By evening the clip is a meme in the good direction, three fan accounts changed their headers, and {she} texted the manager one emoji. Letting {her} be {herself} was the whole strategy.', p) };
       }
       // the teeth: the wrong mouth, the wrong week
@@ -288,19 +303,19 @@
         v.fatigue = KP.clamp(v.fatigue + FR.subLoad, 0, 100);
         v.liveExp += FR.subVolunteerReps;
         v.morale = KP.clamp(v.morale + FR.subVolunteerMorale, 0, 100);
-        KP.recordDirected(state, v.id, 'seen', 1);
+        KP.recordDirected(state, v.id, 'seen');
         // the inversion IS the content: pride reads the same gift twice
         if (worn.personality.competitiveness >= FR.subPrideAt) {
           teeth(state, 'substitution');
           worn.morale = KP.clamp(worn.morale - FR.subPrideMorale, 0, 100);
-          KP.recordDirected(state, worn.id, 'benchedPride', -2);
+          KP.recordDirected(state, worn.id, 'benchedPride');
           worn.history.push({ week: state.week, text: 'Watched her parts get redistributed “for her own good.” Thanked everyone involved. Memorized the date.' });
           return { toast: KP.fillPro('The load shifted. ' + KP.publicGiven(worn) + ' thanked ' + KP.publicGiven(v) + ' in front of the room, beautifully, and has not unclenched {pos} jaw since. You saved {pos} body and taxed something {she} values more.', worn) };
         }
         worn.morale = KP.clamp(worn.morale + FR.subGratefulMorale, 0, 100);
         return { toast: KP.fillPro('The load shifted, and ' + KP.publicGiven(worn) + ' let it — gratefully, openly. The room got lighter by exactly one act of grace. Not every gift is a knife.', worn) };
       }
-      KP.recordDirected(state, v.id, 'heldBack', -1);
+      KP.recordDirected(state, v.id, 'heldBack');
       return { toast: KP.fillPro('The parts stand as rehearsed. ' + KP.publicGiven(v) + ' nodded and dropped it; the risk stays where it was — on ' + KP.publicGiven(worn) + '’s legs, in the last week, where risks live.', v) };
     },
     expire: () => null,
@@ -333,7 +348,7 @@
         p.morale = KP.clamp(p.morale + FR.varietySendMorale, 0, 100);
         p.mediaExp += FR.varietyMediaExp;
         KP.socialSpike(state, p, KP.C.SOCIAL.breakoutSpike, 'varietyAlone');
-        KP.recordDirected(state, p.id, 'openedTheDoor', 1);
+        KP.recordDirected(state, p.id, 'openedTheDoor');
         const envious = g && activeMembers(state, g).find(m => m.id !== p.id &&
           m.personality.competitiveness >= FR.varietyEnvyAt && (m.social || 0) < (p.social || 0));
         if (envious) {
@@ -349,7 +364,7 @@
       }
       const wanted = KP.ambitionOf(state, p) === 'variety';
       p.morale = KP.clamp(p.morale - (wanted ? FR.varietyDeclineWanted : 2), 0, 100);
-      if (wanted) KP.recordDirected(state, p.id, 'heldBack', -1);
+      if (wanted) KP.recordDirected(state, p.id, 'heldBack');
       return { toast: KP.fillPro('You passed. The production booked someone else’s funny one within the hour' + (wanted ? ', and {she} watched that episode alone, taking notes on a show {she} should have been on.' : '.'), p) };
     },
     expire: (state, sc) => {
@@ -381,7 +396,7 @@
       ledger(state).answered++;
       if (optionId === 'ask') {
         p.morale = KP.clamp(p.morale + FR.quietAskMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'heardHer', 2);
+        KP.recordDirected(state, p.id, 'heardHer');
         if (p.fatigue >= FR.quietRestAt) {
           p.fatigue = KP.clamp(p.fatigue - FR.quietRest, 0, 100);
           return { toast: KP.fillPro('You asked. It took {her} four minutes to say what one day off would fix, and one day off fixed it. The manager notes, drily, that this is the cheapest problem the company solved all quarter.', p) };
@@ -391,14 +406,14 @@
       // the press: her file says whether she can carry being unheard
       if (p.personality.professionalism >= FR.quietProAt) {
         p.fatigue = KP.clamp(p.fatigue + FR.quietPressFatigue, 0, 100);
-        KP.recordDirected(state, p.id, 'pressed', -2);
+        KP.recordDirected(state, p.id, 'pressed');
         return { toast: KP.fillPro('{She} went. {She} was flawless. Nobody watching would know anything happened — which is exactly the skill {she} used, and exactly the withdrawal it came from. The account this draws on does not send statements.', p) };
       }
       // the teeth: pressing the wrong person in the wrong week
       teeth(state, 'quietNo');
       p.morale = KP.clamp(p.morale - FR.quietBurnMorale, 0, 100);
       p.fatigue = KP.clamp(p.fatigue + FR.quietPressFatigue, 0, 100);
-      KP.recordDirected(state, p.id, 'pressed', -3);
+      KP.recordDirected(state, p.id, 'pressed');
       if (p.morale < FR.quietCrashBelow && rng.chance(FR.quietCrashChance)) {
         const n = KP.overworkIncident(state, p, 'promotion', rng);
         return { toast: KP.fillPro('{She} went because you said go. Three days later the medical staff sent {her} home mid-schedule, and everyone in the room remembered the quiet no at the same time. Including you.', p), note: n };
@@ -409,7 +424,7 @@
       const p = state.people[sc.personId];
       if (!p) return null;
       p.morale = KP.clamp(p.morale - 4, 0, 100);
-      KP.recordDirected(state, p.id, 'leftWaiting', -1);
+      KP.recordDirected(state, p.id, 'leftWaiting');
       return { kind: 'development', priority: 'high', personId: p.id,
         text: KP.fillPro('The quiet no sat on the desk until it answered itself: ' + KP.displayName(p) + ' worked the schedule, unasked and unanswered. The precedent {she} risked setting was “asking works.” The one that got set instead was worse.', p) };
     },

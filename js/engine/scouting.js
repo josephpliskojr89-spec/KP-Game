@@ -294,7 +294,7 @@
     p.history.push({ week: state.week, text: cold
       ? 'The debut-by date passed and the company never even called a meeting. Invoked the clause and walked, free and right.'
       : 'The clause did what clauses are for: the debut never came, and the paper opened the door. Walked free.' });
-    KP.recordDirected(state, p.id, 'brokenPromise', -2);
+    KP.recordDirected(state, p.id, 'promiseBroken');
     delete p.clause;
     KP.releaseTrainee(state, p.id);
     return { kind: 'talent', ind: 'clauseWalk', priority: 'high', personId: p.id,
@@ -351,7 +351,7 @@
         p.clause.extended = true;
         p.clause.byWeek = state.week + T.extendWeeks;
         p.morale = KP.clamp(p.morale - T.pleadMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'heldToPaper', -1);
+        KP.recordDirected(state, p.id, 'heldToPaper');
         p.history.push({ week: state.week, text: KP.fillPro('Asked to wait past {pos} own clause. {She} said yes with a face that was writing the new deadline down. Six months. Not seven.', p) });
         return { toast: 'She agreed — once. Week ' + p.clause.byWeek + ' is not a soft date anymore. It is the last one.' };
       }

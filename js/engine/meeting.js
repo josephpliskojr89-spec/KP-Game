@@ -155,7 +155,7 @@
         }
         if (p) {
           p.morale = KP.clamp(p.morale - 3, 0, 100);
-          KP.recordDirected(state, p.id, 'heldBack', -1);
+          KP.recordDirected(state, p.id, 'heldBack');
           return { toast: KP.fillPro('“The group comes first.” The executive nodded and moved the agenda along. Somewhere in the building, {she} heard the meeting summary before it was typed.', p) };
         }
         return {};

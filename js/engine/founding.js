@@ -189,7 +189,7 @@
     state.staffRoster = null;
     state.managerGen = (state.managerGen || 0) + 1;
     state.nextMeetingWeek = state.week + 8;
-    state.doorQuietUntil = 0;
+    delete state.knockLedger;   // the one door opens fresh for the new house (v0.10.30)
     state.renewalQuietUntil = 0;
     state.truckQuietUntil = 0;
     delete state.petProjectDone;

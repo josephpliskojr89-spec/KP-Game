@@ -322,7 +322,7 @@
           if (results.some(r => r.isPlayer)) {
             const AN = KP.C.AWARD_NIGHT;
             sp.morale = KP.clamp(sp.morale + AN.speakerMorale, 0, 100);
-            KP.recordDirected(state, sp.id, 'gaveTheSpeech', 2);
+            KP.recordDirected(state, sp.id, 'gaveTheSpeech');
             sp.history.push({ week: state.week, text: 'Gave the acceptance speech on year-end television. Practiced it once in the van and then said something better.' });
           } else {
             // the folded speech is a durable memory too (v0.9.35): the

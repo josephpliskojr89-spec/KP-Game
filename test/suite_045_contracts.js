@@ -20,7 +20,7 @@ function debuted(seed, n) {
   let guard = 0;
   while (!g.debuted && guard++ < 10) KP.advanceWeek(state);
   state.nextMeetingWeek = 900;
-  state.doorQuietUntil = 900;
+  state.knockLedger = { asked: 0, byKind: {}, lastWeek: 900 };   // the one door stays shut (v0.10.30)
   (state.scenes || []).length = 0;
   return { state, g };
 }
@@ -54,7 +54,9 @@ function makeNeglected(state, p) {
 function makeStrained(state, p) {
   delete p.flags.ambitionMet;
   p.morale = 45;
-  p.directed = [{ week: state.week, kind: 'leftWaiting', w: -1 }];
+  // the one ledger read (v0.10.30): a wait is a wound now (-2, grudge 1) and
+  // reads 'gone' alone; the standard paper (-1, no grudge) is the strained read
+  p.directed = [{ week: state.week, kind: 'standardTerms', w: KP.C.LEDGER.KINDS.standardTerms.w }];
 }
 
 // ---- the clock: stamped at debut, readable in years ----

@@ -199,20 +199,20 @@
     html.push('<div class="pad" style="margin:10px 0 2px;font-size:.74rem;color:var(--ink-dim)">' +
       'Two focus areas max per trainee. Heavy weeks add up — so does rest.</div>');
     // the evaluation board (v0.9.16): the ranking everyone reads monthly
-    const ranked = trainees.filter(p => p.evalRank).sort((a, b) => a.evalRank - b.evalRank);
+    // the one eval (v0.10.30, §89 D4): the sheet the coaches rank on what they SEE
+    const ranked = trainees.filter(p => KP.evalRankOf(p)).sort((a, b) => KP.evalRankOf(a) - KP.evalRankOf(b));
     if (ranked.length >= 2) {
-      const P = KP.C.PRACTICE;
-      const evalWeek = ranked[0].evalWeek || state.week;
-      const next = evalWeek + P.evalEveryWeeks;
+      const evalWeek = ranked[0].evalHistory[ranked[0].evalHistory.length - 1].week;
+      const next = evalWeek + KP.C.EVAL.every;
       html.push('<div class="card" style="padding:12px">' +
         '<div style="font-weight:800">The evaluation board</div>' +
         '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:2px">Posted ' + UI.esc(KP.weekLabel(evalWeek).text) +
         ' · next board ' + UI.esc(KP.weekLabel(next).text) + '. The trainees read it before you do.</div>' +
         '<div style="margin-top:8px">' +
         ranked.map(p => '<div style="display:flex;gap:8px;align-items:baseline;padding:2px 0">' +
-          '<span style="font-weight:800;width:1.4em">' + p.evalRank + '</span>' +
+          '<span style="font-weight:800;width:1.4em">' + KP.evalRankOf(p) + '</span>' +
           '<span data-action="open-dossier" data-id="' + p.id + '">' + UI.esc(KP.displayName(p)) + '</span>' +
-          ((p.flags.evalStreak || 0) >= KP.C.PRACTICE.aceStreakAt ? '<span class="chip gold">the ace</span>' : '') +
+          ((p.flags.evalStreak || 0) >= KP.C.EVAL.aceStreakAt ? '<span class="chip gold">the ace</span>' : '') +
           (p.flags.agingOut ? '<span class="chip">the clock</span>' : '') +
           '</div>').join('') +
         '</div></div>');
@@ -400,26 +400,11 @@
       // the ledger between you, in words
       const directed = (p.directed || []).slice(-6).reverse();
       if (directed.length) {
-        const DIRECTED_WORDS = {
-          openedTheDoor: 'you opened a door before she had to push it',
-          heardHer: 'you asked, and listened',
-          trusted: 'you trusted her with the room',
-          promiseKept: 'a promise kept, on the record',
-          promiseBroken: 'a promise broken — she remembers the date',
-          heldBack: 'held back when she wanted forward',
-          heldToPaper: 'held to the contract at the career ask',
-          muzzled: 'her words were managed',
-          pressed: 'pressed through a no',
-          benchedPride: 'helped in a way that cost her pride',
-          seen: 'her offer was seen and taken',
-          leftWaiting: 'left waiting for an answer',
-          linesCut: 'watched her lines get cut',
-          standardTerms: 'given the standard paper, nothing more',
-        };
+        // the words come from the one ledger table (v0.10.30, §89 D3)
         html.push('<div class="kicker">The ledger between you</div>');
         html.push('<div class="card">' + directed.map(d =>
           '<div style="margin:3px 0">' + UI.esc(KP.weekLabel(d.week).text) + ' — ' +
-          UI.esc(DIRECTED_WORDS[d.kind] || d.kind) + (d.w > 0 ? '' : '') + '</div>').join('') + '</div>');
+          UI.esc(KP.ledgerWord(d.kind)) + '</div>').join('') + '</div>');
       }
       const friends = (KP.friendsOf ? KP.friendsOf(state, p.id) : [])
         .map(f => state.people[f.a === p.id ? f.b : f.a]).filter(Boolean);
@@ -650,7 +635,7 @@
       // the star's clock (v0.9.25): when the album conversation is live,
       // the desk can simply SAY YES
       const albumAsk = inRealGroup && (
-        (state.claims || []).some(c => !c.resolved && c.type === 'soloAlbumPromise' && c.personId === p.id) ||
+        (state.claims || []).some(c => !c.resolved && c.type === 'soloPromise' && (c.rung || 1) >= 2 && c.personId === p.id) ||
         (KP.liveDiscourses(state) || []).some(d => d.kind === 'albumClamor' && String(d.subjectId) === String(p.id)) ||
         (g.gravity && !g.gravity.settled && g.gravity.personId === p.id && (g.gravity.rung || 1) === 2));
       // the secret (v0.9.30): once the brief lands, the desk can pay for quiet

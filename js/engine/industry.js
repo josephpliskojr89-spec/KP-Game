@@ -1410,8 +1410,13 @@
   // The weekly feed pass. weekNotes = the notes advanceWeek generated this
   // week (the feed reacts to what actually got reported). Posts are stored
   // once and never re-rolled — Law 2 applies to the feed too.
-  KP.feedWeek = function (state, rng, weekNotes) {
+  KP.feedWeek = function (state, _rng, weekNotes) {
     const F = KP.C.FEED;
+    // the feed is cosmetic and its post count rides the week's note
+    // count — so it draws a stream of its OWN, hash-seeded per week
+    // (v0.10.30). Deleting or adding a note no longer moves the world
+    // downstream (the v0.10.17/26/29 lesson, closed).
+    const rng = new KP.Rng([state.seed, 'feed', state.week].join('|'));
     state.feed = state.feed || [];
     const candidates = [];
 

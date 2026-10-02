@@ -153,8 +153,8 @@
       a.morale = KP.clamp(a.morale + 2, 0, 100);
       b.morale = KP.clamp(b.morale + 2, 0, 100);
       // the office made room for them (v0.8.0) — they both remember
-      KP.recordDirected(state, a.id, 'mediated', 2);
-      KP.recordDirected(state, b.id, 'mediated', 2);
+      KP.recordDirected(state, a.id, 'mediated');
+      KP.recordDirected(state, b.id, 'mediated');
       outcome = 'cleared';
       text = rng.pick([
         A + ' and ' + B + ' talked for two hours. Nobody cried, one of them laughed, and the room feels lighter already.',

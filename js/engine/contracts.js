@@ -31,11 +31,8 @@
   KP.renewalRead = function (state, p) {
     let s = KP.standingScore(state, p) * 1.5;
     if (p.flags.ambitionMet) s += 3; else s -= 2;
-    (p.directed || []).forEach(a => {
-      if (a.kind === 'promiseBroken') s -= 3;
-      if (a.kind === 'leftWaiting') s -= 1;
-      if (a.kind === 'heldBack') s -= 2;   // the solo stage you said no to (v0.9.14)
-    });
+    // the wounds, undecayed, from the one ledger read (v0.10.30, §89 D3)
+    s -= KP.ledgerRead(state, p).grudge * KP.C.LEDGER.renewalGrudgeMult;
     const g = KP.groupOf(state, p.id);
     if (g && (g.popularity || 0) >= 55) s += 2;   // a warm room is worth staying in
     if (p.morale >= 60) s += 1;
@@ -250,7 +247,7 @@
       };
       if (optionId === 'sign' || (optionId === 'standard' && read.band === 'professional')) {
         renew();
-        if (optionId === 'standard') KP.recordDirected(state, p.id, 'standardTerms', -1);
+        if (optionId === 'standard') KP.recordDirected(state, p.id, 'standardTerms');
         return { toast: optionId === 'sign'
           ? KP.fillPro('{She} signed like it was the easiest decision of the month, because for {her} it was. Seven more years. The staff group chat is all exclamation marks.', p)
           : KP.fillPro('{She} took the standard paper after a silence exactly one page long. Signed, professional, filed — and {pos} representation filed the silence too.', p),
@@ -260,7 +257,7 @@
       if (optionId === 'sweeten') {
         state.budget -= C.sweetenCost;
         renew();
-        KP.recordDirected(state, p.id, 'sweetened', 2);
+        KP.recordDirected(state, p.id, 'sweetened');
         p.morale = KP.clamp(p.morale + 4, 0, 100);
         return { toast: KP.fillPro('{She} was signing anyway — the sweetener was for the YEARS, and {she} understood that instantly. The look across the table was worth more than the line item.', p),
           note: { kind: 'public', ind: 'renewed', priority: 'high', personId: p.id,
@@ -270,7 +267,7 @@
         const cost = C.termsCostBase + read.fame * C.termsCostPerFame;
         state.budget -= cost;
         renew();
-        KP.recordDirected(state, p.id, 'realTerms', 2);
+        KP.recordDirected(state, p.id, 'realTerms');
         p.morale = KP.clamp(p.morale + 3, 0, 100);
         return { toast: KP.fillPro('The terms met {pos} leverage where it actually lives. {She} read the final page twice, signed once, and shook your hand like a colleague — which, the contract now admits, {she} is.', p),
           note: { kind: 'public', ind: 'renewed', priority: 'high', personId: p.id,
@@ -280,18 +277,18 @@
         if (rng.chance(C.holdLeaveChance)) {
           p.contract.leaving = true;
           p.contract.leaveMode = 'cold';
-          KP.recordDirected(state, p.id, 'heldLine', -2);
+          KP.recordDirected(state, p.id, 'heldLine');
           return { toast: KP.fillPro('You held the line. {She} nodded, closed the folder, and said {she} would honor the current term — which was {pos} way of answering the question you did not ask. The seventh year has a date on it now.', p) };
         }
         renew();
-        KP.recordDirected(state, p.id, 'heldLine', -1);
+        KP.recordDirected(state, p.id, 'heldLine');
         return { toast: KP.fillPro('You held the line, and after two long weeks {she} signed the standard paper anyway. Staying is not the same as staying happily — the ledger keeps both.', p) };
       }
       if (optionId === 'plead') {
         const bonus = KP.standingScore(state, p) >= 3 ? 0.15 : 0;
         if (rng.chance(C.changeMindChance + bonus)) {
           renew();
-          KP.recordDirected(state, p.id, 'wonBack', 3);
+          KP.recordDirected(state, p.id, 'wonBack');
           p.morale = KP.clamp(p.morale + 5, 0, 100);
           return { toast: KP.fillPro('You did not argue with {pos} arithmetic — you changed it: the plan {she} stopped believing in, on paper, with dates. {She} looked at it for a long time. Then {she} signed. Nobody in the building will ever know how close this was.', p),
             note: { kind: 'public', ind: 'renewed', priority: 'high', personId: p.id,
@@ -304,7 +301,7 @@
       if (optionId === 'farewell') {
         p.contract.leaving = true;
         p.contract.leaveMode = 'warm';
-        KP.recordDirected(state, p.id, 'endingHonored', 2);
+        KP.recordDirected(state, p.id, 'endingHonored');
         return { toast: KP.fillPro('You wrote the ending right: the seventh year becomes a farewell lap — {pos} stages, {pos} goodbyes, on {pos} terms. {She} cried exactly once, thanked you twice, and started planning what to wear for the last encore.', p),
           note: { kind: 'company', priority: 'high', personId: p.id,
             text: KP.fillPro('The building knows now: ' + KP.displayName(p) + '’s seventh year will be {pos} last. The fandom will find out when it is time. Until then, every stage {she} takes is quietly a farewell stage — the staff have started filming everything.', p) } };
@@ -314,7 +311,7 @@
     expire: (state, sc) => {
       const p = state.people[sc.personId];
       if (!p) return null;
-      KP.recordDirected(state, p.id, 'tableLeftWaiting', -3);
+      KP.recordDirected(state, p.id, 'tableLeftWaiting');
       return { kind: 'company', priority: 'high', personId: p.id,
         text: KP.fillPro('The renewal folder sat unopened until legal quietly took it back downstairs. ' + KP.displayName(p) + ' noticed — people always notice the folder. The table will have a colder temperature when it comes back.', p) };
     },
@@ -419,7 +416,7 @@
         const rel = (state.relationships || {})[KP.pairKey(p, m)];
         if (rel && rel.state === 'close') {
           m.morale = KP.clamp(m.morale - C.friendGrief, 0, 100);
-          KP.recordDirected(state, m.id, 'friendDeparted', warm ? -1 : -2);
+          KP.recordDirected(state, m.id, 'friendDeparted');
         }
       });
       if (!g.members.length) {
@@ -568,7 +565,7 @@
     if (g.members.length <= 2) return { ok: false, reason: 'Removing ' + KP.publicGiven(p) + ' would not leave a group. That is a different conversation — the disband, or the solo.' };
     KP.lineupSurgery(state, g, p, false, n => KP.note(state, n));
     p.morale = KP.clamp(p.morale - MD.removeMorale, 0, 100);
-    KP.recordDirected(state, p.id, 'cutFromLineup', -3);
+    KP.recordDirected(state, p.id, 'cutFromLineup');
     p.history.push({ week: state.week, text: 'Removed from ' + g.name + ' by company decision — contract retained. The statement said “new individual activities.” The practice room said other things.' });
     g.members.map(id => state.people[id]).filter(Boolean).forEach(m => {
       m.morale = KP.clamp(m.morale - MD.removeMateMorale, 0, 100);
@@ -601,7 +598,7 @@
     KP.departIdol(state, personId, 'cold', null);
     mates.map(id => state.people[id]).filter(Boolean).forEach(m => {
       m.morale = KP.clamp(m.morale - T.mateMorale, 0, 100);
-      KP.recordDirected(state, m.id, 'watchedTermination', -2);
+      KP.recordDirected(state, m.id, 'watchedTermination');
     });
     const note = KP.note(state, { kind: 'public', ind: 'terminated', priority: 'critical', personId: p.id,
       text: KP.fillPro(state.company.short + ' terminated ' + KP.displayName(p) + '’s exclusive contract — a buyout, effective immediately, ' + cost + ' on the books. The statement is legally immaculate, which the internet correctly reads as its own kind of statement.', p) });
@@ -637,22 +634,7 @@
   };
 
   // 4. the meeting she calls — the grudge ledger and an empty tank agree
-  function grudgeScore(p) {
-    let s = 0;
-    (p.directed || []).forEach(a => {
-      if (a.kind === 'promiseBroken') s += 2;
-      if (a.kind === 'disbandedUs') s += 2;
-      if (a.kind === 'cutFromLineup') s += 2;
-      if (a.kind === 'heldBack') s += 1;
-      if (a.kind === 'leftWaiting') s += 1;
-      if (a.kind === 'watchedTermination') s += 1;
-      if (a.kind === 'heldToPaper') s += 2;
-      if (a.kind === 'madeHerHide') s += 2;   // the denial she carries (v0.9.30)
-    });
-    return s;
-  }
   KP.registerWeekly('memberDesk', 788, function (state, rng, inbox, roster) {
-    const W = KP.C.MEMBER_DESK.WALKOUT;
     // personal breaks rest for real (the medical bench's gentler cousin)
     roster.forEach(p => {
       if (!p.flags.personalHiatus) return;
@@ -660,18 +642,23 @@
       p.fatigue = KP.clamp(p.fatigue - MD.breakRecovery, 0, 100);
       p.morale = KP.clamp(p.morale + MD.breakMorale, 0, 100);
     });
-    // the walkout: at most one such meeting on the desk at a time
-    if ((state.scenes || []).some(sc => sc.kind === 'walkOut')) return;
-    const candidate = roster.find(p =>
-      p.status === 'idol' && !KP.onBreak(p) &&
-      p.morale < W.moraleBelow && grudgeScore(p) >= W.grudgeAt &&
-      state.week - (p.flags.walkoutAsked || -999) >= W.cooldownWeeks &&
-      !(state.scenes || []).some(sc => sc.personId === p.id));
-    if (candidate && rng.chance(W.chance)) {
-      candidate.flags.walkoutAsked = state.week;
-      KP.openScene(state, { kind: 'walkOut', personId: candidate.id,
-        expiresWeek: state.week + 3 });   // the card is the letter (§89 B)
-    }
+  });
+  // the walkout waits at the one door (v0.10.30, §89 D1) — a priority
+  // candidate: an event, not a question. The grudge is the one ledger
+  // read's undecayed wound tally (§89 D3).
+  KP.registerKnock('walkOut', ['walkOut'], function (state) {
+    const W = KP.C.MEMBER_DESK.WALKOUT;
+    const out = [];
+    state.roster.forEach(id => {
+      const p = state.people[id];
+      if (!p || p.status !== 'idol' || KP.onBreak(p)) return;
+      if (p.morale >= W.moraleBelow) return;
+      if (state.week - (p.flags.walkoutAsked || -999) < W.cooldownWeeks) return;
+      if (KP.ledgerRead(state, p).grudge < W.grudgeAt) return;
+      out.push({ kind: 'walkOut', personId: p.id, priority: 2, weight: 9, expiresIn: 3,
+        onPick: (st) => { st.people[p.id].flags.walkoutAsked = st.week; } });
+    });
+    return out;
   });
 
   KP.registerScene('walkOut', {
@@ -703,7 +690,7 @@
         if (state.budget < cost) return { ok: false, toast: 'Fixing it costs ' + cost + '. The budget says hold or fold.' };
         state.budget -= cost;
         p.morale = KP.clamp(p.morale + W.negotiateMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'heardOut', 2);
+        KP.recordDirected(state, p.id, 'heardOut');
         p.flags.walkoutSettled = state.week;
         p.history.push({ week: state.week, text: 'Asked to leave; stayed. The company heard the whole list and changed what it could. Neither side pretended it fixed everything. Both sides showed up Monday.' });
         return { toast: KP.fillPro('{She} read the revised terms twice, and the second time {pos} shoulders came down an inch. “Okay,” {she} said. Not happy — heard. There is a difference, and it cost exactly ' + cost + '.', p) };
@@ -711,7 +698,7 @@
       if (optionId === 'hold') {
         p.morale = KP.clamp(p.morale + W.holdMorale, 0, 100);
         p.personality.confidence = KP.clamp((p.personality.confidence || 50) - 4, 0, 100);
-        KP.recordDirected(state, p.id, 'heldToPaper', -2);
+        KP.recordDirected(state, p.id, 'heldToPaper');
         p.history.push({ week: state.week, text: 'Asked to leave. The company pointed at the contract. The contract won. Something else lost.' });
         return { toast: KP.fillPro('You slid the contract across the table, and {she} looked at it the way people look at weather. “Understood,” {she} said, and went back to work. The renewal table will remember this meeting better than either of you.', p) };
       }
@@ -725,7 +712,7 @@
       const p = state.people[sc.personId];
       if (!p) return null;
       p.morale = KP.clamp(p.morale + W.expireMorale, 0, 100);
-      KP.recordDirected(state, p.id, 'leftWaiting', -2);
+      KP.recordDirected(state, p.id, 'leftWaiting');
       return { kind: 'development', urgent: true, personId: p.id,
         text: KP.fillPro('The meeting ' + KP.displayName(p) + ' requested never got scheduled. {She} noticed. The lawyer’s font will be back, and next time it will not be addressed to you first.', p) };
     },

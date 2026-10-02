@@ -106,7 +106,7 @@ function firstEra(s, pressing) {
   KP.C.PRODUCT.dumpChance = DC;
   t.eq(g.results.product.signRounds, 3, 'the rounds ran');
   t.ok(!s.inbox.some(n => n.ind === 'cutLine'), 'the cut line note went (§89 C) — the rounds are on the sheet');
-  t.ok(s.inbox.some(n => n.ind === 'dumpStory'), 'heavy rounds draw the dumping story');
+  t.ok(s.inbox.concat(KP.lastTickNotes || []).some(n => n.ind === 'dumpStory'), 'heavy rounds draw the dumping story');
   t.ok((s.discourses || []).some(d => d.kind === 'albumDump'), 'and the storm ignites at the company');
 }
 {

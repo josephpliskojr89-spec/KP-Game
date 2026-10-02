@@ -52,15 +52,9 @@
           state.grievances.push({ week: state.week, kind: 'creditsMissing', groupId: g.id });
         }
       }
-      // 3) somebody worked onto the medical bench
-      g.members.forEach(id => {
-        const p = state.people[id];
-        if (p && p.flags.burnout > 0 && !p.flags.constBenchNoted) {
-          p.flags.constBenchNoted = 1;
-          state.grievances.push({ week: state.week, kind: 'overwork', groupId: g.id, personId: p.id });
-        }
-        if (p && !p.flags.burnout) delete p.flags.constBenchNoted;
-      });
+      // 3) the medical bench files its own grievance now (v0.10.30, §89
+      //    D5): the overwork incident, or the benched story's hot stage —
+      //    a rest the desk CHOSE no longer buys a protest truck
 
       // the truck: organized enough, aggrieved enough, and the spacing
       // respected — outrage has logistics

@@ -127,20 +127,31 @@ function debuted(seed) {
 {
   const { state, g } = debuted('sd-directed');
   const p = state.people[g.members[0]];
-  KP.recordDirected(state, p.id, 'testKindness', 3);
+  // one table (v0.10.30, §89 D3): the kind names the weight; a kind the
+  // table does not know is a bug and throws
+  KP.recordDirected(state, p.id, 'promiseKept');   // w 3
   t.eq(p.directed.length, 1, 'the act is on her ledger');
+  t.eq(p.directed[0].w, KP.C.LEDGER.KINDS.promiseKept.w, 'the weight comes from the table');
   t.ok(KP.standingScore(state, p) > 2.9, 'fresh acts count in full');
   t.eq(KP.standingOf(state, p), 'she trusts the office', 'and standing speaks in words');
+  let threw = false;
+  try { KP.recordDirected(state, p.id, 'testKindness'); } catch (e) { threw = true; }
+  t.ok(threw, 'an unknown kind throws — one truth per number');
   // decay: kindnesses fade
-  p.directed[0].week = state.week - KP.C.SCENES.directedHalfLifeWeeks;
+  p.directed[0].week = state.week - KP.C.LEDGER.halfLifeWeeks;
   t.ok(Math.abs(KP.standingScore(state, p) - 1.5) < 0.01, 'a year-old act counts half');
   // the cap
-  for (let i = 0; i < KP.C.SCENES.directedCap + 10; i++) KP.recordDirected(state, p.id, 'noise', 0);
-  t.eq(p.directed.length, KP.C.SCENES.directedCap, 'the ledger is bounded');
-  // wounds
+  for (let i = 0; i < KP.C.LEDGER.cap + 10; i++) KP.recordDirected(state, p.id, 'standardTerms');
+  t.eq(p.directed.length, KP.C.LEDGER.cap, 'the ledger is bounded');
+  // wounds — and the one read's grudge tally
   const q = state.people[g.members[1]];
-  KP.recordDirected(state, q.id, 'testWound', -9);
+  KP.recordDirected(state, q.id, 'heldToPaper'); KP.recordDirected(state, q.id, 'promiseBroken');
+  KP.recordDirected(state, q.id, 'cutFromLineup');
   t.eq(KP.standingOf(state, q), 'counting the days', 'deep wounds read as what they are');
+  const read = KP.ledgerRead(state, q);
+  t.eq(read.grudge, 6, 'the grudge tally is undecayed and from the same table');
+  t.eq(read.broken, 1, 'and the promise count rides along');
+  t.ok(/held to the contract/.test(KP.ledgerWord('heldToPaper')), 'every kind has words');
 }
 
 // ---- the writers: real systems feed the ledger -------------------------

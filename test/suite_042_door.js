@@ -31,7 +31,8 @@ function calm(state) {
   });
 }
 function doorScene(state) {
-  return (state.scenes || []).find(sc => sc.kind === 'idolAsk' || sc.kind === 'idolDoor') || null;
+  // the one door (v0.10.30): any person scene the queue opened
+  return (state.scenes || []).find(sc => KP.isKnockKind(sc.kind)) || null;
 }
 function rideToKnock(state, maxWeeks) {
   let guard = 0;
@@ -54,14 +55,17 @@ function rideToKnock(state, maxWeeks) {
   // the promise mints a claim on HER ledger
   const r = KP.resolveScene(state, sc.id, 'promise');
   t.ok(r.ok && /HER calendar/.test(r.toast), 'the promise is made to her face');
-  const claim = (state.claims || []).find(c => c.type === 'ambitionPromise');
+  // the solo ask is ONE claim (v0.10.30, §89 D2): a 'solo' ambition mints
+  // the gravity ladder's soloPromise; every other ambition keeps its own
+  const solo = KP.ambitionOf(state, her) === 'solo';
+  const claim = (state.claims || []).find(c => c.type === (solo ? 'soloPromise' : 'ambitionPromise'));
   t.ok(claim && claim.subject.kind === 'idol' && claim.subject.id === her.id, 'and the receipt is hers');
   t.ok((her.directed || []).some(d => d.kind === 'ambitionPromised' && d.w > 0), 'she remembers being promised');
   // kept: the ambition lands inside the window
-  her.flags.ambitionMet = state.week;
+  if (solo) her.soloDisc = [{ week: state.week + 1, title: 'x' }]; else her.flags.ambitionMet = state.week;
   KP.advanceWeek(state);
   t.eq(claim.resolved, 'met', 'delivering resolves the promise');
-  t.ok(state.inbox.some(n => /Thank you for meaning it/.test(n.text)), 'and she says so, in the doorway');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => /Thank you for meaning it|It is on the record/.test(n.text)), 'and she says so, in the doorway');
   t.ok((her.directed || []).some(d => d.kind === 'promiseKept'), 'kept promises go on the ledger');
 }
 
@@ -75,12 +79,12 @@ function rideToKnock(state, maxWeeks) {
   const sc = rideToKnock(state, 30);
   t.ok(sc && sc.personId === her.id, 'fixture: she asks');
   KP.resolveScene(state, sc.id, 'promise');
-  const claim = (state.claims || []).find(c => c.type === 'ambitionPromise');
+  const claim = (state.claims || []).find(c => c.type === 'ambitionPromise' || c.type === 'soloPromise');
   claim.byWeek = state.week;                          // the year is up
   const moraleBefore = her.morale;
   KP.advanceWeek(state);
   t.eq(claim.resolved, 'missed', 'the window closes');
-  t.ok(state.inbox.some(n => /It has been a year since/.test(n.text)), 'she quotes the date back');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => /It has been a year since|came and went without a solo/.test(n.text)), 'she quotes the date back');
   t.ok(her.morale < moraleBefore, 'and it costs her (' + (moraleBefore - her.morale) + ')');
   t.ok((her.directed || []).some(d => d.kind === 'promiseBroken' && d.w < 0), 'broken promises scar the ledger');
 }
@@ -106,13 +110,15 @@ function rideToKnock(state, maxWeeks) {
   calm(state);
   const her = state.people[g.members[0]];
   her.fatigue = 75;
-  const sc = rideToKnock(state, 20);
-  t.ok(sc && sc.kind === 'idolDoor' && sc.topic === 'breather', 'the tired one asks for a real week');
+  // folded into the extra hour's drained ask (v0.10.30, §89 D1)
+  let sc = null, guardB = 0;
+  while (!sc && guardB++ < 20) { her.fatigue = 75; KP.advanceWeek(state); sc = doorScene(state); }
+  t.ok(sc && sc.kind === 'frictionExtraHour' && sc.variant === 'drained' && sc.personId === her.id, 'the tired one asks for the lighter week');
   const fatigueAt = her.fatigue;
-  const r = KP.resolveScene(state, sc.id, 'grant');
-  t.ok(r.ok && /slept fourteen hours/.test(r.toast), 'granting it reads like relief');
+  const r = KP.resolveScene(state, sc.id, 'lighten');
+  t.ok(r.ok && /lighter week/.test(r.toast), 'granting it reads like relief');
   t.ok(her.fatigue < fatigueAt, 'and IS relief (' + fatigueAt + '→' + her.fatigue + ')');
-  t.ok((her.directed || []).some(d => d.kind === 'breatherGranted'), 'granted rest is remembered');
+  t.ok((her.directed || []).some(d => d.kind === 'heardHer'), 'granted rest is remembered');
 }
 
 // ---- the confession: the resilient one, struggling quietly ----
@@ -121,11 +127,13 @@ function rideToKnock(state, maxWeeks) {
   calm(state);
   const her = state.people[g.members[1]];
   her.morale = 30; her.personality.resilience = 75;   // too tough for the staff scan, tough enough to knock
-  const sc = rideToKnock(state, 20);
-  t.ok(sc && sc.topic === 'confession', 'the tough one brings it to you herself');
-  const r = KP.resolveScene(state, sc.id, 'lighten');
-  t.ok(r.ok && /quiet help/.test(r.toast), 'quiet help is the answer she needed');
-  t.ok((her.directed || []).some(d => d.kind === 'listened'), 'being heard goes on the ledger');
+  // folded into the quiet no (v0.10.30, §89 D1): resilience brings her to the door
+  let sc = null, guardC = 0;
+  while (!sc && guardC++ < 20) { her.morale = 30; KP.advanceWeek(state); sc = doorScene(state); }
+  t.ok(sc && sc.kind === 'frictionQuietNo' && sc.personId === her.id, 'the tough one brings it to you herself');
+  const r = KP.resolveScene(state, sc.id, 'ask');
+  t.ok(r.ok && /You asked/.test(r.toast), 'asking is the answer she needed');
+  t.ok((her.directed || []).some(d => d.kind === 'heardHer'), 'being heard goes on the ledger');
 }
 
 // ---- the challenge: she is not wrong, which is the inconvenient part ----
@@ -152,12 +160,12 @@ function rideToKnock(state, maxWeeks) {
   const { state, g } = debuted('door-silence');
   calm(state);
   const her = state.people[g.members[0]];
-  her.fatigue = 75;
-  const sc = rideToKnock(state, 20);
-  t.ok(sc, 'fixture: a knock');
+  let sc = null, guardS = 0;
+  while (!sc && guardS++ < 20) { her.fatigue = 92; KP.advanceWeek(state); sc = doorScene(state); }
+  t.ok(sc && sc.kind === 'frictionExtraHour' && sc.personId === her.id, 'fixture: a knock (the folded ask)');
   for (let w = 0; w < KP.C.DOOR.expireWeeks + 1; w++) KP.advanceWeek(state);
   t.ok(!doorScene(state), 'the unanswered scene expires');
-  t.ok(state.inbox.some(n => /stopped waiting|That word is doing a lot of work/.test(n.text)), 'and the silence is narrated');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => /stopped waiting|That word is doing a lot of work/.test(n.text)), 'and the silence is narrated');
   t.ok((her.directed || []).some(d => d.kind === 'leftWaiting' && d.w < 0),
     'waiting for nothing goes on the ledger as YOURS — the wound the rest week cannot heal');
 }
@@ -172,16 +180,16 @@ function rideToKnock(state, maxWeeks) {
   let sc = null, guardK = 0;
   while (!sc && guardK++ < 40) { her.fatigue = 90; KP.advanceWeek(state); sc = doorScene(state); }
   t.ok(sc && sc.personId === her.id, 'fixture: she knocked');
-  KP.resolveScene(state, sc.id, 'decline');
+  KP.resolveScene(state, sc.id, KP.sceneDef(sc.kind).options(state, sc)[0].id);
   her.fatigue = 90;                                    // still exhausted
   let second = null;
-  for (let w = 0; w < KP.C.DOOR.personCooldownWeeks - 4 && !second; w++) {
+  for (let w = 0; w < KP.C.KNOCK.personGapWeeks - 2 && !second; w++) {
     her.fatigue = 90;
     KP.advanceWeek(state);
     second = doorScene(state);
     if (second && second.personId !== her.id) { KP.resolveScene(state, second.id, KP.sceneDef(second.kind).options(state, second)[0].id); second = null; }
   }
-  t.ok(!second, 'she does not knock twice a season — the cooldown holds');
+  t.ok(!second, 'she does not knock twice a month — the per-person gap holds');
 }
 
 // ---- voices: the door opens seven different ways ----
@@ -203,7 +211,7 @@ function rideToKnock(state, maxWeeks) {
 {
   const { state } = debuted('door-pressure');
   calm(state);
-  state.doorQuietUntil = 900;                          // isolate the spotlight
+  state.knockLedger = { asked: 0, byKind: {}, lastWeek: 900 };   // isolate the spotlight (the one door stays shut)
   const target = state.people[state.roster[3]];
   target.fatigue = 80; target.morale = 60; target.personality.workEthic = 75;
   target.flags.spotWeek = -99;
@@ -217,49 +225,41 @@ function rideToKnock(state, maxWeeks) {
 }
 
 // ---- momentChoice: the call lands on the desk, or resolves without you --
-{
-  const { state, g } = debuted('door-choice');
+// (v0.10.30: warmthGlue left — the steadying does its work; the leader's
+// carry is the moment that puts the call on the desk here)
+function carryFixture(seed) {
+  const { state, g } = debuted(seed);
   calm(state);
-  state.doorQuietUntil = 900;
-  const warm = state.people[g.members[0]];
-  warm.personality.warmth = 80; warm.flags.spotWeek = -99;
-  const a = state.people[g.members[1]], b = state.people[g.members[2]];
-  const key = KP.pairKey(a, b);
+  const leader = state.people[g.members[0]];
+  g.roles = g.roles || {}; g.roles.leader = leader.id;
+  leader.personality.leadership = 80; leader.flags.spotWeek = -99;
+  const tired = state.people[g.members[1]];
   let sc = null;
-  for (let w = 0; w < 12 && !sc; w++) {
-    state.relationships[key] = { score: -30, state: 'tense' };
-    warm.morale = 60; warm.fatigue = 20;
+  for (let w = 0; w < 60 && !sc; w++) {
+    tired.fatigue = 92; leader.morale = 60; leader.fatigue = 20; leader.flags.spotWeek = -99;   // the week's recovery must leave her over 70 at the spotlight
+    // keep the desk clear of other knocks so the call is the pick
+    (state.scenes || []).slice().forEach(x => {
+      if (x.kind !== 'momentChoice') { const def = KP.sceneDef(x.kind); if (def) KP.resolveScene(state, x.id, def.options(state, x)[0].id); }
+    });
     KP.advanceWeek(state);
-    sc = (state.scenes || []).find(x => x.kind === 'momentChoice' && x.momentKey === 'warmthGlue');
+    sc = (state.scenes || []).find(x => x.kind === 'momentChoice' && x.momentKey === 'leaderCarry');
   }
-  t.ok(sc, 'the food-run diplomacy becomes a call on YOUR desk');
-  t.ok((state.spotlight || []).some(m => m.choice && m.personId === sc.personId), 'the spotlight marks the call as on the Desk (§89 B: the card is the announcement)');
-  state.relationships[key] = { score: -30, state: 'tense' };
-  const scPerson = state.people[sc.personId];
-  const r = KP.resolveScene(state, sc.id, 'quiet');
-  t.ok(r.ok && /holding that room together/.test(r.toast), 'letting her work is a real answer');
-  t.eq(state.relationships[key].score, -28, 'and her diplomacy still lands (+2)');
-  t.ok((scPerson.directed || []).some(d => d.kind === 'glueSeen'), 'you SAW her — the ledger says so');
+  return { state, g, leader, sc };
+}
+{
+  const { state, leader, sc } = carryFixture('door-choice');
+  t.ok(sc, 'the leader’s carry becomes a call on YOUR desk — through the one door');
+  t.ok((state.spotlight || []).some(m => m.choice && m.personId === leader.id), 'the spotlight marks the call as on the Desk (§89 B: the card is the announcement)');
+  t.ok((state.knockLedger || {}).byKind.momentChoice >= 1, 'the queue ledgered the pick');
+  const r = KP.resolveScene(state, sc.id, 'file');
+  t.ok(r.ok && /in writing/.test(r.toast), 'putting it in her file is a real answer');
+  t.ok((leader.directed || []).some(d => d.kind === 'carrySeen'), 'you SAW her — the ledger says so');
 
-  // the expiry fallback: unanswered, the week resolves the old way
-  const { state: s2, g: g2 } = debuted('door-choice-exp');
-  calm(s2);
-  s2.doorQuietUntil = 900;
-  const warm2 = s2.people[g2.members[0]];
-  warm2.personality.warmth = 80; warm2.flags.spotWeek = -99;
-  const key2 = KP.pairKey(s2.people[g2.members[1]], s2.people[g2.members[2]]);
-  let sc2 = null;
-  for (let w = 0; w < 12 && !sc2; w++) {
-    s2.relationships[key2] = { score: -30, state: 'tense' };
-    warm2.morale = 60; warm2.fatigue = 20;
-    KP.advanceWeek(s2);
-    sc2 = (s2.scenes || []).find(x => x.kind === 'momentChoice');
-  }
+  // the expiry fallback: unanswered, the week moves on
+  const { state: s2, sc: sc2 } = carryFixture('door-choice-exp');
   t.ok(sc2, 'fixture: a second call');
-  s2.relationships[key2] = { score: -30, state: 'tense' };
   for (let w = 0; w < 3; w++) KP.advanceWeek(s2);
   t.ok(!(s2.scenes || []).some(x => x.kind === 'momentChoice'), 'the unanswered call expires');
-  t.ok(s2.relationships[key2].score > -30, 'and the moment resolved itself the old way');
   // the silence is on the conversation record, not a letter (v0.10.29, §89 C)
   t.ok((s2.convoLog || []).some(c => c.kind === 'momentChoice' && c.answer === '(went unanswered)'), 'with the office\'s silence on the record');
 }

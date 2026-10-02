@@ -32,57 +32,32 @@
     return base;
   }
 
-  // ---- the weekly knock (order 787: after stageDoor, before meeting) ----
-  KP.registerWeekly('officeDoor', 787, function (state, rng, inbox, roster, groups) {
+  // ---- the knock: candidates for the one door (v0.10.30, §89 D1) --------
+  // The ASK (the ambition meeting she rehearsed) and the CHALLENGE (she
+  // disagrees with the direction and says so). The request and the
+  // confession folded into the frictions — the extra hour's drained
+  // variant and the quiet no — where the same question already lived.
+  KP.registerKnock('door', ['idolAsk', 'idolDoor'], function (state) {
     const D = KP.C.DOOR;
-    // one open idol scene at a time; the door stays memorable
-    const open = (state.scenes || []).some(sc =>
-      sc.kind === 'idolAsk' || sc.kind === 'idolDoor' || sc.kind === 'momentChoice');
-    if (open) return;
-    if (state.week < (state.doorQuietUntil || 0)) return;
-    if (!rng.chance(D.knockChance)) return;
-
-    const eligible = [];
-    roster.forEach(p => {
-      // only current trainees and idols knock (0.9.13 audit M1: the
-      // week-start roster snapshot can still hold a same-week departure)
-      if (p.status !== 'trainee' && p.status !== 'idol') return;
-      if (state.week - (p.flags.doorWeek || -999) < D.personCooldownWeeks) return;
+    const out = [];
+    state.roster.forEach(id => {
+      const p = state.people[id];
+      if (!p || (p.status !== 'trainee' && p.status !== 'idol')) return;
       const g = KP.groupOf(state, p.id);
-      // the ASK: the ambition meeting — the one she has rehearsed
       if (p.status === 'idol' && g && g.debuted && !p.flags.ambitionMet &&
-          !p.flags.ambitionAsked &&
-          state.week - g.debutWeek >= D.askAfterWeeks) {
-        eligible.push({ p, kind: 'idolAsk', weight: 4 });
+          !p.flags.ambitionAsked && state.week - g.debutWeek >= D.askAfterWeeks) {
+        out.push({ kind: 'idolAsk', personId: p.id, weight: 4, expiresIn: D.expireWeeks,
+          onPick: (st) => { st.people[p.id].flags.ambitionAsked = st.week; } });
         return;
       }
-      // the CONFESSION: the resilient one struggling quietly — the
-      // staff scan catches low-resilience girls; the tough ones knock
-      if (p.morale < 40 && p.personality.resilience >= 60) {
-        eligible.push({ p, kind: 'idolDoor', topic: 'confession', weight: 3 });
-        return;
-      }
-      // the CHALLENGE: she disagrees with the direction, and says so
       if (g && g.concept && p.personality.confidence >= 62 &&
+          state.week - (p.flags.challengeWeek || -999) >= 40 &&
           KP.conceptFit(p, KP.conceptById(g.concept)) < 42) {
-        eligible.push({ p, kind: 'idolDoor', topic: 'challenge', weight: 2 });
-        return;
-      }
-      // the REQUEST: running on fumes and asking for the schedule
-      if (p.fatigue >= 68 && p.status === 'idol') {
-        eligible.push({ p, kind: 'idolDoor', topic: 'breather', weight: 1 });
+        out.push({ kind: 'idolDoor', topic: 'challenge', personId: p.id, weight: 2, expiresIn: D.expireWeeks,
+          onPick: (st) => { st.people[p.id].flags.challengeWeek = st.week; } });
       }
     });
-    if (!eligible.length) return;
-    eligible.sort((a, b) => b.weight - a.weight ||
-      KP.hash01([state.seed, a.p.id, 'door'].join('|')) - KP.hash01([state.seed, b.p.id, 'door'].join('|')));
-    const pick = eligible[0];
-    pick.p.flags.doorWeek = state.week;
-    state.doorQuietUntil = state.week + KP.C.DOOR.globalCooldownWeeks;
-    if (pick.kind === 'idolAsk') pick.p.flags.ambitionAsked = state.week;
-    KP.openScene(state, { kind: pick.kind, personId: pick.p.id, topic: pick.topic,
-      expiresWeek: state.week + D.expireWeeks });
-    // no announcement note (§89 B): the door card on the Desk IS the knock
+    return out;
   });
 
   // ---- the ASK: the ambition meeting ------------------------------------
@@ -111,19 +86,30 @@
       const label = KP.C.LIFE.AMBITIONS[amb].label;
       if (optionId === 'promise') {
         p.morale = KP.clamp(p.morale + D.promiseMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'ambitionPromised', 2);
-        KP.openClaim(state, { type: 'ambitionPromise', subject: { kind: 'idol', id: p.id },
-          personId: p.id, ambition: amb, byWeek: state.week + D.askPromiseWeeks });
+        KP.recordDirected(state, p.id, 'ambitionPromised');
+        // the solo ask is ONE promise (v0.10.30, §89 D2): the door, the
+        // knock and the Monday meeting all mint the same claim, and one
+        // solo credit pays it out once
+        if (amb === 'solo') {
+          const already = (state.claims || []).some(c => !c.resolved &&
+            c.type === 'soloPromise' && c.personId === p.id);
+          if (!already) KP.openClaim(state, { type: 'soloPromise', subject: { kind: 'idol', id: p.id },
+            personId: p.id, byWeek: state.week + D.askPromiseWeeks,
+            label: 'A solo for ' + KP.displayName(p) + ' — promised at the door' });
+        } else {
+          KP.openClaim(state, { type: 'ambitionPromise', subject: { kind: 'idol', id: p.id },
+            personId: p.id, ambition: amb, byWeek: state.week + D.askPromiseWeeks });
+        }
         p.history.push({ week: state.week, text: KP.fillPro('The company promised {her} ' + label + ' within the year. {She} wrote the date down.', p) });
         return { toast: KP.fillPro('{She} nodded once, said thank you twice, and left before you could see {pos} face. The date is on ' + KP.pro(p).pos.toUpperCase() + ' calendar now — and {she} keeps {hers}.', p) };
       }
       if (optionId === 'honest') {
-        KP.recordDirected(state, p.id, 'honestAnswer', 1);
+        KP.recordDirected(state, p.id, 'honestAnswer');
         p.history.push({ week: state.week, text: 'Asked about ' + label + '; got the honest answer: the group first, for now.' });
         return { toast: KP.fillPro('{She} took the honesty like a professional, which {she} is. On the way out {she} said "okay" in the tone of someone filing it, not dropping it.', p) };
       }
       p.morale = KP.clamp(p.morale + KP.C.DOOR.deflectMorale, 0, 100);
-      KP.recordDirected(state, p.id, 'deflected', -2);
+      KP.recordDirected(state, p.id, 'deflected');
       p.history.push({ week: state.week, text: 'Asked about ' + label + '; got "we’ll see."' });
       return { toast: KP.fillPro('“We’ll see.” {She} smiled the smile they teach for music-show losses and closed your door very, very gently.', p) };
     },
@@ -131,7 +117,7 @@
       const p = state.people[sc.personId];
       if (!p) return null;
       p.morale = KP.clamp(p.morale + KP.C.DOOR.expireMorale, 0, 100);
-      KP.recordDirected(state, p.id, 'leftWaiting', -2);
+      KP.recordDirected(state, p.id, 'leftWaiting');
       return { kind: 'development', priority: 'high', personId: p.id,
         text: KP.fillPro(KP.displayName(p) + ' stopped asking for that minute. {She} rehearsed the question for weeks. {She} will not rehearse it again soon.', p) };
     },
@@ -142,14 +128,14 @@
     const p = state.people[c.personId];
     if (!p) return { resolved: 'missed', notes: [] };
     if (p.flags.ambitionMet) {
-      KP.recordDirected(state, p.id, 'promiseKept', 3);
+      KP.recordDirected(state, p.id, 'promiseKept');
       return { resolved: 'met',
         notes: [{ kind: 'development', priority: 'high', personId: p.id,
           text: KP.fillPro(KP.displayName(p) + ', in the doorway, not coming in: “You said within the year.” A beat. “Thank you for meaning it.” The staff report {she} kept the sticky note with the date on it.', p) }] };
     }
     if (state.week > c.byWeek) {
       p.morale = KP.clamp(p.morale - 6, 0, 100);
-      KP.recordDirected(state, p.id, 'promiseBroken', -4);
+      KP.recordDirected(state, p.id, 'promiseBroken');
       return { resolved: 'missed',
         notes: [{ kind: 'development', priority: 'high', personId: p.id,
           text: KP.fillPro(KP.displayName(p) + ' asked for one minute, and used it for one sentence: “It has been a year since ' +
@@ -159,57 +145,8 @@
   });
 
   // ---- the DOOR: request / confession / challenge -----------------------
+  // the request and the confession folded into the frictions (v0.10.30)
   const TOPICS = {
-    breather: {
-      body: (state, p) => KP.fillPro(opener(state, p) + ' {She} is careful about it, but the ask is plain: the schedule is eating {her}, and {she} needs a real week — not a rest chip on a planner, a week.', p),
-      options: [
-        { id: 'grant', label: 'Clear {pos} week' },
-        { id: 'decline', label: 'After the next stage' },
-      ],
-      resolve: (state, p, optionId) => {
-        const D = KP.C.DOOR;
-        if (optionId === 'grant') {
-          if (state.budget >= D.breatherCost) state.budget -= D.breatherCost;
-          p.fatigue = KP.clamp(p.fatigue + D.breatherFatigue, 0, 100);
-          p.morale = KP.clamp(p.morale + 3, 0, 100);
-          KP.recordDirected(state, p.id, 'breatherGranted', 2);
-          p.history.push({ week: state.week, text: 'Asked for a real week off. Got it.' });
-          return { toast: KP.fillPro('The schedule got rebuilt around {her}, which cost money and three phone calls. {She} slept fourteen hours the first day. The van is quieter without {her} and everyone hates it.', p) };
-        }
-        p.morale = KP.clamp(p.morale - 2, 0, 100);
-        KP.recordDirected(state, p.id, 'breatherDeclined', -1);
-        p.history.push({ week: state.week, text: 'Asked for a week off. Told: after the next stage.' });
-        return { toast: KP.fillPro('“After the next stage.” {She} said {she} understood. Understanding and agreeing are different words, and {she} chose {hers} carefully.', p) };
-      },
-    },
-    confession: {
-      body: (state, p) => KP.fillPro(opener(state, p) + ' Then it comes out, level and rehearsed: {she} is not okay. Not dramatically. Just — not. {She} wanted you to hear it from {her} before you read it in a number.', p),
-      options: [
-        { id: 'lighten', label: 'Lighten {pos} load quietly' },
-        { id: 'coach', label: 'Set up a talk with the vocal coach' },
-        { id: 'push', label: 'The comeback needs {her}' },
-      ],
-      resolve: (state, p, optionId) => {
-        const D = KP.C.DOOR;
-        if (optionId === 'lighten') {
-          p.fatigue = KP.clamp(p.fatigue - 8, 0, 100);
-          p.morale = KP.clamp(p.morale + 4, 0, 100);
-          KP.recordDirected(state, p.id, 'listened', 2);
-          p.history.push({ week: state.week, text: KP.fillPro('Told the company {she} was struggling. The load got lighter, quietly, no announcement.', p) });
-          return { toast: KP.fillPro('Nothing was announced. {Pos} schedule just got — kinder. {She} noticed by Wednesday. The thing about quiet help is that the person you help always knows exactly what it was.', p) };
-        }
-        if (optionId === 'coach') {
-          p.morale = KP.clamp(p.morale + D.coachTalkMorale, 0, 100);
-          KP.recordDirected(state, p.id, 'listened', 1);
-          p.history.push({ week: state.week, text: KP.fillPro('Told the company {she} was struggling. Got a long talk with the coach who has seen everything.', p) });
-          return { toast: KP.fillPro('The vocal coach took {her} for kalguksu and told {her} about three famous careers that nearly ended at nineteen. {She} came back with red eyes and better posture.', p) };
-        }
-        p.morale = KP.clamp(p.morale + D.pushThroughMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'pushedThrough', -2);
-        p.history.push({ week: state.week, text: KP.fillPro('Told the company {she} was struggling. Was told the comeback needs {her}.', p) });
-        return { toast: KP.fillPro('“The comeback needs you.” {She} nodded, because it is true, and left, because there was nothing else to say. Some true things cost more than false ones.', p) };
-      },
-    },
     challenge: {
       body: (state, p) => {
         const g = KP.groupOf(state, p.id);
@@ -226,12 +163,12 @@
         if (optionId === 'retool') {
           if (g && !g.prep) g.demos = null;   // the next pitch meeting starts over, with her notes in the room
           p.morale = KP.clamp(p.morale + 4, 0, 100);
-          KP.recordDirected(state, p.id, 'heardOut', 2);
+          KP.recordDirected(state, p.id, 'heardOut');
           p.history.push({ week: state.week, text: KP.fillPro('Challenged the creative direction to the CEO’s face. The producers got {pos} notes.', p) });
           return { toast: KP.fillPro('The producers got a page of {pos} notes with the next brief. Two of them are annoyed. The good one is intrigued. The next pitch meeting will be better for it.', p) };
         }
         p.morale = KP.clamp(p.morale - 2, 0, 100);
-        KP.recordDirected(state, p.id, 'overruled', -1);
+        KP.recordDirected(state, p.id, 'overruled');
         p.history.push({ week: state.week, text: 'Challenged the creative direction. The company held the line.' });
         return { toast: KP.fillPro('You held the line — identity is a long game and the lane is working. {She} accepted it like a pro. {She} will also, quietly, keep the notes.', p) };
       },
@@ -245,21 +182,21 @@
     },
     body: (state, sc) => {
       const p = state.people[sc.personId];
-      return p ? TOPICS[sc.topic].body(state, p) : '';
+      return p ? (TOPICS[sc.topic] || TOPICS.challenge).body(state, p) : '';
     },
     options: (state, sc) => {
       const p = state.people[sc.personId] || null;
-      return TOPICS[sc.topic].options.map(o => ({ id: o.id, label: KP.fillPro(o.label, p) }));
+      return (TOPICS[sc.topic] || TOPICS.challenge).options.map(o => ({ id: o.id, label: KP.fillPro(o.label, p) }));
     },
     resolve: (state, sc, optionId) => {
       const p = state.people[sc.personId];
-      return p ? TOPICS[sc.topic].resolve(state, p, optionId) : {};
+      return p ? (TOPICS[sc.topic] || TOPICS.challenge).resolve(state, p, optionId) : {};
     },
     expire: (state, sc) => {
       const p = state.people[sc.personId];
       if (!p) return null;
       p.morale = KP.clamp(p.morale + KP.C.DOOR.expireMorale, 0, 100);
-      KP.recordDirected(state, p.id, 'leftWaiting', -2);
+      KP.recordDirected(state, p.id, 'leftWaiting');
       return { kind: 'development', priority: 'high', personId: p.id,
         text: KP.fillPro(KP.displayName(p) + ' waited for that minute all week, then stopped waiting. {She} is fine. That word is doing a lot of work and everyone in the building knows it.', p) };
     },

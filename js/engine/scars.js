@@ -34,14 +34,14 @@
       if (!p) return {};
       if (optionId === 'loud') {
         p.morale = KP.clamp(p.morale + S.recoveryMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'welcomedBack', 2);
+        KP.recordDirected(state, p.id, 'welcomedBack');
         p.history.push({ week: state.week, text: KP.fillPro('Came back from the hardest stretch to a company that made sure everyone saw {her}.', p) });
         return { toast: KP.fillPro('The next content schedule is suddenly full of {her} — center of the selca, first out of the van, {pos} verse in the fancam edit. The message, to {her} and to everyone watching, is unambiguous: we never went anywhere.', p),
           note: { kind: 'public', ind: 'scarBack', priority: 'normal', personId: p.id,
             text: KP.fillPro(KP.displayName(p) + ' is BACK back — the company put {her} front and center this week and the fandom noticed the noticing.', p) } };
       }
       p.morale = KP.clamp(p.morale + S.quietRecoveryMorale, 0, 100);
-      KP.recordDirected(state, p.id, 'welcomedBack', 1);
+      KP.recordDirected(state, p.id, 'welcomedBack');
       p.history.push({ week: state.week, text: KP.fillPro('Came back from the hardest stretch quietly, the way {she} asked.', p) });
       return { toast: KP.fillPro('No announcement, no push. {She} just started being {herself} again on schedule, and the people who watched closely — the ones who matter to {her} — saw it happen at {pos} own pace.', p) };
     },
@@ -66,24 +66,31 @@
     ]);
   });
 
-  // ---- the weekly shadow (order 858: after the spotlight reads moods) ---
-  KP.registerWeekly('scars', 858, function (state, rng, inbox, roster, groups) {
+  // ---- the weekly shadow (order 855: before the one door's pick) ------
+  KP.registerWeekly('scars', 855, function (state, rng, inbox, roster, groups) {
     roster.forEach(p => {
-      if (!(p.flags.scar > 0)) return;
-      p.flags.scar--;
-      if (p.flags.scar === 0) {
-        // the shadow lifts — the return is a scene if the desk is clear
-        const doorBusy = (state.scenes || []).some(sc =>
-          sc.kind === 'idolAsk' || sc.kind === 'idolDoor' || sc.kind === 'scarRecovery');
-        if (!doorBusy) {
-          KP.openScene(state, { kind: 'scarRecovery', personId: p.id,
-            expiresWeek: state.week + 2 });   // the card is the news (§89 B)
-        } else {
-          p.morale = KP.clamp(p.morale + KP.C.SCAR.quietRecoveryMorale, 0, 100);
-          inbox.push({ kind: 'development', priority: 'normal', personId: p.id,
-            text: KP.fillPro(KP.displayName(p) + ' is coming back to {herself} — quieter than before, steadier than expected. Time did most of it. It usually does.', p) });
-        }
+      if (p.flags.scar > 0) {
+        p.flags.scar--;
+        // the shadow lifts — the return waits at the one door (v0.10.30)
+        if (p.flags.scar === 0) p.flags.scarReturn = state.week;
+      }
+      // unpicked for a month: time does what time does
+      if (p.flags.scarReturn != null && state.week - p.flags.scarReturn > 4) {
+        delete p.flags.scarReturn;
+        p.morale = KP.clamp(p.morale + KP.C.SCAR.quietRecoveryMorale, 0, 100);
+        inbox.push({ kind: 'development', priority: 'normal', personId: p.id,
+          text: KP.fillPro(KP.displayName(p) + ' is coming back to {herself} — quieter than before, steadier than expected. Time did most of it. It usually does.', p) });
       }
     });
+  });
+  KP.registerKnock('scars', ['scarRecovery'], function (state) {
+    const out = [];
+    state.roster.forEach(id => {
+      const p = state.people[id];
+      if (!p || p.flags.scarReturn == null) return;
+      out.push({ kind: 'scarRecovery', personId: p.id, priority: 1, weight: 5, expiresIn: 2,
+        onPick: (st) => { delete st.people[p.id].flags.scarReturn; } });
+    });
+    return out;
   });
 })(typeof window !== 'undefined' ? window : globalThis);

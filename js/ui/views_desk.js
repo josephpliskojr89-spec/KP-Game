@@ -487,8 +487,7 @@
         return UI.esc(p ? KP.fillPro(raw, p) : raw.replace('{pos} ', ''));
       }
       if (c.label) return UI.esc(c.label);   // gravity-era claims carry prose
-      const WORDS = { soloPromise: 'the promised solo, on a record',
-        soloAlbumPromise: 'the promised solo album — her name on the spine',
+      const WORDS = { soloPromise: (c.rung || 1) >= 2 ? 'the promised solo album — her name on the spine' : 'the promised solo, on a record',
         growthPromise: 'the growth the board was promised' };
       return WORDS[c.type] || c.type;
     };

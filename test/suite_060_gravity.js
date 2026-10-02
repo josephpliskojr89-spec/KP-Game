@@ -160,10 +160,17 @@ function elevate(state, g, p) {
   const dimmed = KP.derived(p).liveReliability;
   delete p.flags.slump;
   const clear = KP.derived(p).liveReliability;
-  p.flags.slump = { since: state.week, kind: 'nerve' };
+  p.flags.slump = { since: state.week, kind: 'nerve', ask: true };   // the one door's ask rides on the slump (v0.10.30)
   t.ok(dimmed < clear, 'the slump dims the stage stats, not the practice room');
-  // the quiet era scene arrived — shield her
-  const sc = (state.scenes || []).find(x => x.kind === 'quietEra');
+  // the quiet era waits at the one door (v0.10.30) — ride to it, desk clear
+  let sc = (state.scenes || []).find(x => x.kind === 'quietEra'), guardQ = 0;
+  while (!sc && guardQ++ < 4) {
+    (state.scenes || []).slice().forEach(x => {
+      if (x.kind !== 'quietEra') { const def = KP.sceneDef(x.kind); if (def) KP.resolveScene(state, x.id, def.options(state, x)[0].id); }
+    });
+    KP.advanceWeek(state);
+    sc = (state.scenes || []).find(x => x.kind === 'quietEra');
+  }
   t.ok(sc, 'the quiet-era decision reaches the desk');
   KP.resolveScene(state, sc.id, 'shield');
   t.ok(g.slumpShield && g.slumpShield.personId === p.id, 'the company blinks first — shielded');

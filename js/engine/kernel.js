@@ -115,6 +115,24 @@
     sceneDefs[kind] = def;
   };
   KP.sceneDef = function (kind) { return sceneDefs[kind] || null; };
+
+  // ---- 4b. the knock registry (v0.10.30, §89 D1) -------------------------
+  // "She comes to you" scenes do not open themselves. A system
+  // registers a PROVIDER that returns candidates — { kind, personId,
+  // weight, priority?, expiresIn?, onPick?, ...sceneFields } — and
+  // knock.js's weekly rail makes ONE pick a week across every source.
+  // A scene kind registered here is a person scene: one open at a time.
+  const knockProviders = [];
+  const knockKinds = new Set();
+  KP.registerKnock = function (name, kinds, fn) {
+    if (!name || !Array.isArray(kinds) || typeof fn !== 'function') {
+      throw new Error('kernel: registerKnock(name, [kinds], fn)');
+    }
+    kinds.forEach(k => knockKinds.add(k));
+    knockProviders.push({ name, fn });
+  };
+  KP.knockProviders = function () { return knockProviders.slice(); };
+  KP.isKnockKind = function (kind) { return knockKinds.has(kind); };
   KP.sceneKinds = function () { return Object.keys(sceneDefs); };
   KP.openScene = function (state, sc) {
     if (!sc || !sceneDefs[sc.kind]) {

@@ -167,7 +167,7 @@
     const ace = state.lastEvalTopId && state.people[state.lastEvalTopId];
     if (ace && ace.status === 'trainee' && !memberIds.includes(ace.id) && !KP.groupOf(state, ace.id)) {
       ace.morale = KP.clamp(ace.morale - 6, 0, 100);
-      KP.recordDirected(state, ace.id, 'passedOver', -2);
+      KP.recordDirected(state, ace.id, 'passedOver');
       ace.history.push({ week: state.week, text: 'Ranked first on the evaluation board when the ' + name + ' lineup was posted — without ' + (ace.gender === 'm' ? 'his' : 'her') + ' name on it. Nobody in the practice room said anything, which said everything.' });
     }
     return { ok: true, group, review: KP.execReviewLineup(state, members, roles) };
@@ -320,7 +320,7 @@
     members.forEach(p => {
       if (debuted) {
         p.morale = KP.clamp(p.morale - D.morale, 0, 100);
-        KP.recordDirected(state, p.id, 'disbandedUs', -2);
+        KP.recordDirected(state, p.id, 'disbandedUs');
         p.history.push({ week: state.week, text: g.name + ' concluded team activities. The statement thanked the fans for every era. The group chat renamed itself and kept going.' });
       } else {
         p.morale = KP.clamp(p.morale - D.traineeMorale, 0, 100);

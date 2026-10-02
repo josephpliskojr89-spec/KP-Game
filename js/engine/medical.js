@@ -75,7 +75,7 @@
       } else if (optionId === 'push') {
         led.pushed++;
         p.morale = KP.clamp(p.morale - 2, 0, 100);
-        KP.recordDirected(state, p.id, 'pushedThrough', -1);
+        KP.recordDirected(state, p.id, 'pushedThrough');
         p.flags.injuryWatch = state.week + M.pushWatchWeeks;
         p.medPushes = (p.medPushes || 0) + 1;
         p.history.push({ week: state.week, text: 'The report said rest. The schedule said no. ' + (p.gender === 'm' ? 'He' : 'She') + ' taped ' + sc.site + ' and worked the week — and filed which one the company sided with.' });
@@ -94,7 +94,7 @@
         led.rested++;
         p.flags.burnout = rng.int(M.restMin, M.restMax);
         p.morale = KP.clamp(p.morale + 2, 0, 100);
-        KP.recordDirected(state, p.id, 'protectedHealth', 1);
+        KP.recordDirected(state, p.id, 'protectedHealth');
         p.history.push({ week: state.week, text: 'Pulled from the schedule for ' + sc.site + ' — a real rest with a real end date, and a company that chose the body over the calendar. Noted.' });
         KP.note(state, { kind: 'public', ind: 'medicalRest', priority: 'high', personId: p.id,
           text: KP.fillPro(KP.displayName(p) + ' steps back on medical guidance — ' + sc.site + ', weeks not days, seat kept. The fandom’s reply is the industry’s one unanimous sentence: health first, we will be here.', p) });

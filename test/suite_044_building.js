@@ -17,7 +17,7 @@ function debuted(seed) {
   let guard = 0;
   while (!g.debuted && guard++ < 10) KP.advanceWeek(state);
   state.nextMeetingWeek = 900;
-  state.doorQuietUntil = 900;
+  state.knockLedger = { asked: 0, byKind: {}, lastWeek: 900 };   // the one door stays shut (v0.10.30)
   (state.scenes || []).length = 0;
   return { state, g };
 }
@@ -114,7 +114,7 @@ function debuted(seed) {
   const { state, g } = debuted('bldg-staff');
   const m = KP.managerOf(state, g);
   t.ok(m && m.name && m.since >= g.debutWeek, 'the road manager takes over after the debut');
-  t.ok(state.inbox.some(n => /road manager/.test(n.text)), 'and the desk introduces them');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => /road manager/.test(n.text)), 'and the desk introduces them');
   const coach = KP.staffOf(state).coach;
   t.ok(coach && coach.name, 'the head vocal coach has always had a name (' + coach.name + ')');
 }

@@ -19,7 +19,6 @@ function debuted(seed) {
   let guard = 0;
   while (!g.debuted && guard++ < 10) KP.advanceWeek(state);
   state.nextMeetingWeek = 900;
-  state.doorQuietUntil = 900;
   (state.scenes || []).length = 0;
   return { state, g };
 }

@@ -64,27 +64,45 @@
   // the substrate under "she'd run through a wall for you". Weights
   // are small integers; the ledger is bounded; standing is derived
   // with a half-life so old kindnesses fade and old wounds heal.
-  KP.recordDirected = function (state, personId, kind, weight) {
+  // the weight comes from ONE table (v0.10.30, §89 D3) — a call site
+  // names the kind and nothing else; an unknown kind is a bug and throws
+  KP.recordDirected = function (state, personId, kind) {
     const p = state.people[personId];
     if (!p) return null;
-    const S = KP.C.SCENES;
+    const L = KP.C.LEDGER;
+    const spec = L.KINDS[kind];
+    if (!spec) throw new Error('ledger: unknown directed kind "' + kind + '"');
     p.directed = p.directed || [];
-    p.directed.push({ week: state.week, kind, w: weight });
+    p.directed.push({ week: state.week, kind, w: spec.w });
     // the arc (v0.10.27, §88 C): every broken promise chips the warmth —
     // the one directed act that changes who she IS, not just the ledger
     if (kind === 'promiseBroken' && KP.driftTrait) {
       KP.driftTrait(state, p, 'warmth', KP.C.ARC.brokenWarmth, 'a broken promise');
     }
-    if (p.directed.length > S.directedCap) p.directed = p.directed.slice(-S.directedCap);
+    if (p.directed.length > L.cap) p.directed = p.directed.slice(-L.cap);
     return p.directed[p.directed.length - 1];
   };
 
-  KP.standingScore = function (state, p) {
-    const S = KP.C.SCENES;
-    return (p.directed || []).reduce((sum, a) => {
+  // ONE read of the ledger: standing (decayed — kindnesses fade, wounds
+  // heal), grudge (undecayed — the wounds she carries to the table),
+  // and the promise tally. Every reader goes through here.
+  KP.ledgerRead = function (state, p) {
+    const L = KP.C.LEDGER;
+    const out = { standing: 0, grudge: 0, kept: 0, broken: 0 };
+    (p.directed || []).forEach(a => {
+      const spec = L.KINDS[a.kind] || { w: a.w || 0 };
       const age = Math.max(0, state.week - a.week);
-      return sum + a.w * Math.pow(0.5, age / S.directedHalfLifeWeeks);
-    }, 0);
+      out.standing += spec.w * Math.pow(0.5, age / L.halfLifeWeeks);
+      out.grudge += spec.grudge || 0;
+      if (a.kind === 'promiseKept') out.kept++;
+      if (a.kind === 'promiseBroken') out.broken++;
+    });
+    return out;
+  };
+  KP.standingScore = function (state, p) { return KP.ledgerRead(state, p).standing; };
+  KP.ledgerWord = function (kind) {
+    const spec = KP.C.LEDGER.KINDS[kind];
+    return spec ? spec.words : kind;
   };
 
   // words, never a meter (house style) — how they carry the company

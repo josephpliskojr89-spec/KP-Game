@@ -99,13 +99,11 @@ function debuted(seed) {
 {
   const { state, g } = debuted('mdk-walkout');
   const p = state.people[g.members[0]];
-  KP.recordDirected(state, p.id, 'promiseBroken', -4);
-  KP.recordDirected(state, p.id, 'promiseBroken', -4);
-  KP.recordDirected(state, p.id, 'heldBack', -2);
+  KP.recordDirected(state, p.id, 'promiseBroken');
+  KP.recordDirected(state, p.id, 'promiseBroken');
+  KP.recordDirected(state, p.id, 'heldBack');
   p.morale = 28;
-  const W = KP.C.MEMBER_DESK.WALKOUT;
-  const oldChance = W.chance;
-  W.chance = 1;
+  // the walkout is a priority candidate on the one door (v0.10.30) — no roll
   let sc = null, guard = 0;
   while (!sc && guard++ < 8) {
     // keep her desk clear so the walkout can land
@@ -119,7 +117,6 @@ function debuted(seed) {
     KP.advanceWeek(state);
     sc = (state.scenes || []).find(x => x.kind === 'walkOut');
   }
-  W.chance = oldChance;
   t.ok(sc, 'the lawyer’s font reaches the desk');
   t.ok(/released from|rehearsed/i.test(KP.sceneDef('walkOut').body(state, sc)), 'and everyone knows what it means (the card is the letter, §89 B)');
   // fork A: hear her out

@@ -198,7 +198,7 @@
       if (d) d.cooled = true;
       if (p) {
         p.morale = KP.clamp(p.morale - 3, 0, 100);
-        KP.recordDirected(state, p.id, 'heldBack', -2);
+        KP.recordDirected(state, p.id, 'heldBack');
         p.history.push({ week: state.week, text: KP.fillPro('The company declined ' + sc.brand + '’s solo-stage request on {pos} behalf. Nobody asked {her}.', p) });
       }
       return { toast: KP.fillPro('Declined. ' + sc.brand + '’s enthusiasm drops a measurable degree — and ' +

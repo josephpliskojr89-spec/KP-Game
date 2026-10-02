@@ -148,6 +148,12 @@
         d.heat += -D.weeklyDecay + rng.int(0, 6);
       }
       d.heat = KP.clamp(d.heat, 0, 100);
+      // the truck is the hot stage of the benched story (v0.10.30, §89 D5)
+      if (d.kind === 'benched' && !d.trucked && d.heat >= D.truckAt && d.groupId) {
+        d.trucked = true;
+        state.grievances = state.grievances || [];
+        state.grievances.push({ week: state.week, kind: 'overwork', groupId: d.groupId, personId: d.subjectId });
+      }
       if (d.heat < D.fadeBelow) {
         d.status = 'faded';
         return;

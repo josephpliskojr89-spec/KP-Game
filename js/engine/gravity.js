@@ -88,7 +88,7 @@
     p.dualCareer = { since: state.week };
     if (g.gravity && !g.gravity.settled) { g.gravity.settled = 'career'; g.gravity.settledWeek = state.week; }
     p.morale = KP.clamp(p.morale + KP.C.STAR.launchMorale, 0, 100);
-    KP.recordDirected(state, p.id, 'openedTheDoor', 2);
+    KP.recordDirected(state, p.id, 'openedTheDoor');
     // the arc (v0.10.27, §88 C): the door opened before the third ask
     if (KP.driftTrait) KP.driftTrait(state, p, 'confidence', KP.C.ARC.openedConfidence, 'the opened door');
     p.history.push({ week: state.week, text: 'The company opened the solo career — in-house, her seat in ' + g.name + ' untouched, her own calendar beside it. Some doors get opened for you. She has never forgotten which kind of company does that.' });
@@ -189,14 +189,8 @@
             gv.stage = 2;
             state.gravityExecAsk = { groupId: g.id, personId: cur.id };
           }
-          // stage 5: she knocks — the ask she rehearsed
-          if (gv.stage < 3 && weeks >= G.knockStage &&
-              !(state.scenes || []).some(sc => sc.personId === cur.id)) {
-            gv.stage = 3;
-            led.knocks++;
-            KP.openScene(state, { kind: 'soloKnock', personId: cur.id, groupId: g.id,
-              expiresWeek: state.week + 3 });   // the card is the knock (§89 B)
-          }
+          // stage 5: she knocks — the ask she rehearsed. The knock waits
+          // at the one door (v0.10.30, §89 D1): see the provider below
           // the resentment clock: held past the exec stage, it ticks —
           // unless a promise with a date is on the record. A promise is
           // an answer, not a hold; breaking it already costs more.
@@ -207,7 +201,7 @@
             gv.heldTicks = (gv.heldTicks || 0) + 1;
             if (gv.heldTicks === 1) led.held++;
             cur.morale = KP.clamp(cur.morale + G.resentMorale, 0, 100);
-            KP.recordDirected(state, cur.id, 'heldBack', -1);
+            KP.recordDirected(state, cur.id, 'heldBack');
             if (gv.heldTicks === 2) {
               inbox.push({ kind: 'development', priority: 'high', personId: cur.id,
                 text: KP.fillPro('The staff notice ' + KP.displayName(cur) + ' checking the door of every meeting {she} is in. The solo conversation everyone is having AROUND {her} has not been had WITH {her}. That arithmetic is being done nightly, in a dorm room, with the lights off.', cur) });
@@ -225,7 +219,8 @@
             led.settled++;
             cur.morale = KP.clamp(cur.morale + G.settleMorale, 0, 100);
             if (g.fandom) KP.fandomGain(g, G.settleFandom);
-            KP.recordDirected(state, cur.id, 'promiseKept', 2);
+            // the promise pays ONCE, through the claim (v0.10.30, §89 D2) —
+            // the settlement is the room exhaling, not a second receipt
             const wasAlbum = (gv.rung || 1) === 2;
             cur.history.push({ week: state.week, text: wasAlbum
               ? 'The solo album — her name on a spine, the group name in the liner notes. The answer to the second wave of clamor, and a bigger one than the first.'
@@ -290,10 +285,7 @@
           p.flags.slump = { since: state.week, kind: 'nerve' };
           ledger(state).slumps++;
           p.history.push({ week: state.week, text: 'The nerve went somewhere. Hitting the notes in the practice room, missing something on the stage — and knowing everyone can tell.' });
-          if (!(state.scenes || []).some(sc => sc.personId === p.id)) {
-            KP.openScene(state, { kind: 'quietEra', personId: p.id, groupId: g.id,
-              expiresWeek: state.week + 3 });
-          }
+          p.flags.slump.ask = true;   // the quiet-era question waits at the one door (v0.10.30)
           inbox.push({ kind: 'development', urgent: true, personId: p.id,
             text: KP.fillPro('The vocal coach closed the door to say it: ' + KP.displayName(p) +
               ' has lost the nerve — not the voice, the NERVE. Clean in rehearsal, braced on stage, and {she} knows everyone can tell, which is the engine of the whole thing. What the company does next is on the Desk.', p) });
@@ -373,11 +365,12 @@
       const rung = (g && g.gravity && g.gravity.rung) || 1;
       if (optionId === 'promise') {
         p.morale = KP.clamp(p.morale + 6, 0, 100);
-        const type = rung === 2 ? 'soloAlbumPromise' : 'soloPromise';
+        // ONE claim type (v0.10.30, §89 D2): the rung rides on the claim
+        // and the predicate asks for the album when the rung does
         const already = (state.claims || []).some(c => !c.resolved &&
-          c.type === type && c.personId === p.id);
-        if (!already) KP.openClaim(state, { type, subject: { kind: 'idol', id: p.id },
-          personId: p.id,
+          c.type === 'soloPromise' && c.personId === p.id);
+        if (!already) KP.openClaim(state, { type: 'soloPromise', subject: { kind: 'idol', id: p.id },
+          personId: p.id, rung,
           byWeek: state.week + (rung === 2 ? KP.C.STAR.albumPromiseWeeks : G.soloPromiseWeeks),
           label: rung === 2 ? 'A solo ALBUM for ' + KP.displayName(p) + ' — her name on the spine'
             : 'A solo credit for ' + KP.displayName(p) + ', on a record' });
@@ -390,7 +383,7 @@
       if (optionId === 'group') {
         // holding at the career rung is a different weight class of no
         p.morale = KP.clamp(p.morale - (rung >= 3 ? KP.C.STAR.rung3Morale : 5), 0, 100);
-        KP.recordDirected(state, p.id, rung >= 3 ? 'heldToPaper' : 'heldBack', rung >= 3 ? -3 : -2);
+        KP.recordDirected(state, p.id, rung >= 3 ? 'heldToPaper' : 'heldBack');
         p.history.push({ week: state.week, text: rung >= 3
           ? 'Asked for the career and was held to the lineup. Said nothing. Started keeping the kind of counsel lawyers eventually hear.'
           : 'Asked the solo question. The answer was the group, for now. Wrote the date of the meeting somewhere private.' });
@@ -414,7 +407,7 @@
       const p = state.people[sc.personId];
       if (!p) return null;
       p.morale = KP.clamp(p.morale - 6, 0, 100);
-      KP.recordDirected(state, p.id, 'leftWaiting', -2);
+      KP.recordDirected(state, p.id, 'leftWaiting');
       return { kind: 'development', priority: 'high', personId: p.id,
         text: KP.fillPro(KP.displayName(p) + ' asked the rehearsed question and got a week of silence for it. {She} will not ask again. The trades will — they always do — and next time {she} may answer them instead of you.', p) };
     },
@@ -588,14 +581,14 @@
       if (optionId === 'hers') {
         p.soloEra.direction = 'hers';
         p.morale = KP.clamp(p.morale + ST.directionHersMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'heardHer', 2);
+        KP.recordDirected(state, p.id, 'heardHer');
         p.history.push({ week: state.week, text: 'The direction meeting ended with her demo on the board. She walked out holding the aux cord like a verdict.' });
         return { toast: 'Her direction. Higher ceiling, wider swing — and she will never forget being asked.' };
       }
       if (optionId === 'cowrite') {
         p.soloEra.direction = 'cowrite';
         p.morale = KP.clamp(p.morale + ST.directionCoMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'heardHer', 1);
+        KP.recordDirected(state, p.id, 'heardHer');
         return { toast: 'The co-write — her pen in the credits, the house holding the mix. The middle path, honestly walked.' };
       }
       return { toast: 'The company’s brief stands. Safe, professional, and she noticed exactly how the sentence was phrased.' };
@@ -661,26 +654,6 @@
     state.rngState = rng.state();
     return r;
   };
-
-  // the album promise: a full record by the deadline
-  KP.registerClaim('soloAlbumPromise', (state, c) => {
-    const p = state.people[c.personId];
-    if (!p) return { resolved: 'missed', notes: [] };
-    if ((p.lastSoloAlbumWeek || 0) >= c.week) {
-      KP.recordDirected(state, p.id, 'promiseKept', 3);
-      return { resolved: 'met',
-        notes: [{ kind: 'development', priority: 'high', personId: p.id,
-          text: KP.fillPro('The promised album exists. ' + KP.displayName(p) + ' signed a copy for the front desk — “to the company that said yes.” The campaign accounts have already moved on to demanding a repackage, because fandoms are perpetual-motion machines.', p) }] };
-    }
-    if (state.week > c.byWeek) {
-      p.morale = KP.clamp(p.morale - 8, 0, 100);
-      KP.recordDirected(state, p.id, 'promiseBroken', -4);
-      return { resolved: 'missed',
-        notes: [{ kind: 'development', priority: 'high', personId: p.id,
-          text: KP.fillPro('The album date passed with no album. ' + KP.displayName(p) + ' took the handwritten tracklist back off your desk without a word, which said the whole thing. The next conversation will not be about records.', p) }] };
-    }
-    return null;
-  });
 
   // ---- the return run (v0.9.25): the door swings both ways ------------
   KP.registerScene('returnRun', {
@@ -757,27 +730,73 @@
   });
 
   // the promise with a date: a solo credit, on a record, by the deadline
+  // ONE solo promise (v0.10.30, §89 D2): the door, the knock and the
+  // Monday meeting mint this claim; the deliverable is a credit, a
+  // standalone single, or — when the rung asks for it — the album
   KP.registerClaim('soloPromise', (state, c) => {
     const p = state.people[c.personId];
     if (!p) return { resolved: 'missed', notes: [] };
-    const kept = (KP.trackCreditsOf ? KP.trackCreditsOf(state, p.id) : [])
-      .some(cr => cr.type === 'solo' && cr.week >= c.week) ||
+    const album = (p.lastSoloAlbumWeek || 0) >= c.week;
+    const kept = (c.rung || 1) >= 2 ? album : (album ||
+      (KP.trackCreditsOf ? KP.trackCreditsOf(state, p.id) : [])
+        .some(cr => cr.type === 'solo' && cr.week >= c.week) ||
       // the solo era (v0.10.24): a standalone release keeps the promise too
-      (p.soloDisc || []).some(dd => dd.week >= c.week);
+      (p.soloDisc || []).some(dd => dd.week >= c.week));
+    if (kept && (c.rung || 1) >= 2) {
+      KP.recordDirected(state, p.id, 'promiseKept');
+      return { resolved: 'met',
+        notes: [{ kind: 'development', priority: 'high', personId: p.id,
+          text: KP.fillPro('The promised album exists. ' + KP.displayName(p) + ' signed a copy for the front desk — “to the company that said yes.”', p) }] };
+    }
+    if (!kept && (c.rung || 1) >= 2 && state.week > c.byWeek) {
+      p.morale = KP.clamp(p.morale - 8, 0, 100);
+      KP.recordDirected(state, p.id, 'promiseBroken');
+      return { resolved: 'missed',
+        notes: [{ kind: 'development', priority: 'high', personId: p.id,
+          text: KP.fillPro('The album date passed with no album. ' + KP.displayName(p) + ' took the handwritten tracklist back off your desk without a word, which said the whole thing.', p) }] };
+    }
     if (kept) {
-      KP.recordDirected(state, p.id, 'promiseKept', 3);
+      KP.recordDirected(state, p.id, 'promiseKept');
       return { resolved: 'met',
         notes: [{ kind: 'development', priority: 'high', personId: p.id,
           text: KP.fillPro(KP.displayName(p) + ' played the promised solo. Afterwards, backstage: “You said on the record. It is on the record.” {She} finally threw the trades clipping away — it had done its job.', p) }] };
     }
     if (state.week > c.byWeek) {
       p.morale = KP.clamp(p.morale - 8, 0, 100);
-      KP.recordDirected(state, p.id, 'promiseBroken', -4);
+      KP.recordDirected(state, p.id, 'promiseBroken');
       return { resolved: 'missed',
         notes: [{ kind: 'development', priority: 'high', personId: p.id,
           text: KP.fillPro('The solo date came and went without a solo. ' + KP.displayName(p) + ' did not bring it up, which was worse than bringing it up. The renewal table will remember what {she} is too professional to say.', p) }] };
     }
     return null;
+  });
+
+  // ---- the one door (v0.10.30, §89 D1): the knock and the quiet era wait --
+  KP.registerKnock('gravity', ['soloKnock', 'quietEra'], function (state) {
+    const G = KP.C.GRAVITY;
+    const out = [];
+    KP.groups(state).forEach(g => {
+      const gv = g.gravity;
+      if (!gv || gv.settled || gv.stage >= 3 || state.week - gv.since < G.knockStage) return;
+      const cur = state.people[gv.personId];
+      if (!cur || !g.members.includes(cur.id)) return;
+      out.push({ kind: 'soloKnock', personId: cur.id, groupId: g.id, priority: 2, weight: 8, expiresIn: 3,
+        onPick: (st) => {
+          const g2 = KP.groupById(st, g.id);
+          if (g2 && g2.gravity) g2.gravity.stage = 3;
+          ledger(st).knocks++;
+        } });
+    });
+    state.roster.forEach(id => {
+      const p = state.people[id];
+      if (!p || !p.flags.slump || !p.flags.slump.ask) return;
+      if (state.week - p.flags.slump.since > 4) { delete p.flags.slump.ask; return; }
+      const g = KP.groupOf(state, p.id);
+      if (!g) return;
+      out.push({ kind: 'quietEra', personId: p.id, groupId: g.id, priority: 1, weight: 6, expiresIn: 3,
+        onPick: (st) => { const q = st.people[p.id]; if (q && q.flags.slump) delete q.flags.slump.ask; } });
+    });
+    return out;
   });
 
   // ---- the quiet era: what the company does about a slump ---------------
@@ -807,7 +826,7 @@
       if (!p || !p.flags.slump) return { toast: 'The moment resolved itself.' };
       if (optionId === 'shield') {
         if (g) g.slumpShield = { personId: p.id, until: state.week + S.shieldWeeks };
-        KP.recordDirected(state, p.id, 'protected', 2);
+        KP.recordDirected(state, p.id, 'protected');
         p.history.push({ week: state.week, text: 'The company built a quiet era around the bad stretch — fewer cameras, no questions. Protected, and {she} knew it.'.replace('{she}', p.gender === 'm' ? 'he' : 'she') });
         return { toast: KP.fillPro('The schedule around {her} goes soft for two months. The fans will notice {she} is resting. That is the point — let them see the company blink first.', p) };
       }

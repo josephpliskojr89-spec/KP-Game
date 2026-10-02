@@ -896,7 +896,7 @@ for (let s = 0; s < SEEDS; s++) {
     // the album promise gets kept (v0.9.25): produce her record when
     // the claim is open and the till can carry it
     (state.claims || []).forEach(c => {
-      if (c.resolved || c.type !== 'soloAlbumPromise') return;
+      if (c.resolved || c.type !== 'soloPromise' || (c.rung || 1) < 2) return;
       if (state.budget > KP.C.STAR.albumCost + 120) KP.releaseSoloAlbum(state, c.personId);
     });
     // the open market (v0.9.24): a flush boss buys a career when one
@@ -1467,8 +1467,8 @@ for (let s = 0; s < SEEDS; s++) {
     if ((KP.spotlightThisWeek ? KP.spotlightThisWeek(state) : []).length) personMomentWeeks++;   // the spotlight surface (v0.10.29)
     if (notes.some(n => n.moment === 'quietWeek')) quietWeekSeen = true;
     // the door census (v0.8.2)
-    if ((state.convoLog || []).some(c => c.kind === 'idolAsk' || c.kind === 'idolDoor') ||
-        (state.scenes || []).some(sc => sc.kind === 'idolAsk' || sc.kind === 'idolDoor')) doorKnockSeen = true;
+    // the one door (v0.10.30): any person scene the queue opened counts
+    if ((state.knockLedger || {}).asked >= 1) doorKnockSeen = true;
     if ((state.spotlight || []).some(m => m.week === state.week && m.choice)) momentChoiceWasSeen = true;
     if (notes.some(n => /stopped waiting|stopped asking for that minute/.test(n.text))) doorWaitSeen = true;
     if (notes.some(n => n.ind === 'anniversary')) annivSeen = true;
@@ -1889,7 +1889,7 @@ for (let s = 0; s < SEEDS; s++) {
   if ((fnl.taken || 0) >= 1) tally.fundFinanced++;
   if ((fnl.passes || 0) >= 1) tally.fundPassed++;
   const pl = state.practiceLedger || {};
-  if ((pl.evals || 0) >= 1) tally.evalHeld++;
+  if (((state.evalLedger || {}).sheets || 0) >= 1) tally.evalHeld++;   // the one eval (v0.10.30)
   if ((pl.speculations || 0) >= 1) tally.projectTalkSeen++;
   if ((pl.quitsAsked || 0) >= 1) tally.traineeQuitAsked++;
   if ((pl.gone || 0) >= 1) tally.traineeGone++;

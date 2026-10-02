@@ -110,7 +110,7 @@ function release(state, g, conceptId) {
     conceptId: 'bright', week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
   let pGuard = 0;
   while (g.prep && pGuard++ < 10) KP.advanceWeek(state);
-  t.ok(state.inbox.some(m => /changed lanes|pivot LANDED/.test(m.text)), 'the pivot is news');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(m => /changed lanes|pivot LANDED/.test(m.text)), 'the pivot is news');
   // leave the calendar legal for any block that follows
   while (state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) KP.advanceWeek(state);
   t.ok(nar.strength < strengthBefore, 'and it cuts the old story down (' +

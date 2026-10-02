@@ -100,21 +100,6 @@
       effect: (s, p) => { p.morale = KP.clamp(p.morale - 1, 0, 100); },
       text: (s, p) => { const g = KP.groupOf(s, p.id);
         return KP.fillPro(KP.displayName(p) + ' has rewatched the ' + (g.results.battle.actName) + ' stages from the shared week three times, taking notes nobody asked {her} to take. Losing sits badly with {her}. That is not entirely a flaw.', p); } },
-    { key: 'warmthGlue', when: (s, p) => {
-        if (p.personality.warmth < 68) return false;
-        const g = KP.groupOf(s, p.id);
-        if (!g) return false;
-        return KP.frictionPairs(s, g.members).some(f => f.state === 'tense' || f.state === 'conflict');
-      },
-      effect: (s, p) => {
-        const g = KP.groupOf(s, p.id);
-        const pair = KP.frictionPairs(s, g.members).find(f => f.state === 'tense' || f.state === 'conflict');
-        if (pair) {
-          const rel = (s.relationships || {})[KP.pairKey(pair.a, pair.b)];
-          if (rel) rel.score = KP.clamp(rel.score + 2, -100, 100);
-        }
-      },
-      text: (s, p) => KP.displayName(p) + ' noticed the cold air in the dorm before anyone said anything, and quietly engineered a late-night food run with exactly the right two people in the back seat. Nothing was discussed. Something was fixed anyway, a little.' },
     { key: 'leaderCarry', when: (s, p) => {
         const g = KP.groupOf(s, p.id);
         return g && g.roles && g.roles.leader === p.id && p.personality.leadership >= 60 &&
@@ -199,48 +184,14 @@
         if (optionId === 'coach') {
           if (state.budget >= D.coachOverCost) state.budget -= D.coachOverCost;
           p.morale = KP.clamp(p.morale + D.coachOverMorale, 0, 100);
-          KP.recordDirected(state, p.id, 'stingCoached', 1);
+          KP.recordDirected(state, p.id, 'stingCoached');
           return { toast: 'The vocal coach "happened to be passing" the practice room at 11pm. They broke the rival stage down bar by bar until it stopped being a wound and became homework.' };
         }
         p.morale = KP.clamp(p.morale - 1, 0, 100);
-        KP.recordDirected(state, p.id, 'stingRespected', 1);
+        KP.recordDirected(state, p.id, 'stingRespected');
         return { toast: KP.fillPro('You let {her} burn on it. Some engines run on exactly this fuel, and {she} is one of them — the notes {she} is taking nobody asked for are getting sharper.', p) };
       },
       expire: (state, p) => { p.morale = KP.clamp(p.morale - 1, 0, 100); },
-    },
-    warmthGlue: {
-      options: [{ id: 'quiet', label: 'Let {her} handle it {pos} way' }, { id: 'shuffle', label: 'Make it official — reshuffle the rooms' }],
-      resolve: (state, p, optionId) => {
-        const g = KP.groupOf(state, p.id);
-        const applyGlue = () => {
-          if (!g) return;
-          const pair = KP.frictionPairs(state, g.members).find(f => f.state === 'tense' || f.state === 'conflict');
-          if (pair) {
-            const rel = (state.relationships || {})[KP.pairKey(pair.a, pair.b)];
-            if (rel) rel.score = KP.clamp(rel.score + 2, -100, 100);
-          }
-        };
-        if (optionId === 'shuffle' && g) {
-          const r = KP.shuffleRooms(state, g.id);
-          if (!r.ok) { applyGlue(); KP.recordDirected(state, p.id, 'glueSeen', 1);
-            return { toast: KP.fillPro(r.reason + ' {Pos} food-run diplomacy carries the week instead — and you saw it.', p) }; }
-          applyGlue();
-          KP.recordDirected(state, p.id, 'glueSeen', 1);
-          return { toast: KP.fillPro('The room chart changed the same week {she} was quietly fixing things by hand. Between {pos} food runs and your furniture, the cold air is losing.', p) };
-        }
-        applyGlue();
-        KP.recordDirected(state, p.id, 'glueSeen', 1);
-        return { toast: KP.fillPro('You let {her} work. The staff know exactly who is holding that room together, and now the file says you know too.', p) };
-      },
-      expire: (state, p) => {
-        const g = KP.groupOf(state, p.id);
-        if (!g) return;
-        const pair = KP.frictionPairs(state, g.members).find(f => f.state === 'tense' || f.state === 'conflict');
-        if (pair) {
-          const rel = (state.relationships || {})[KP.pairKey(pair.a, pair.b)];
-          if (rel) rel.score = KP.clamp(rel.score + 2, -100, 100);
-        }
-      },
     },
     leaderCarry: {
       options: [{ id: 'restday', label: 'Give the leader a rest day too' }, { id: 'file', label: 'Put it in {pos} file' }],
@@ -249,16 +200,24 @@
         if (optionId === 'restday') {
           if (state.budget >= D.restDayCost) state.budget -= D.restDayCost;
           p.fatigue = KP.clamp(p.fatigue + D.restDayFatigue, 0, 100);
-          KP.recordDirected(state, p.id, 'carrySeen', 2);
+          KP.recordDirected(state, p.id, 'carrySeen');
           return { toast: KP.fillPro('Somebody rearranged the van seating so ' + KP.pro(p).she.toUpperCase() + ' gets the window this time. {She} pretended not to notice who ordered it. {She} noticed.', p) };
         }
-        KP.recordDirected(state, p.id, 'carrySeen', 1);
+        KP.recordDirected(state, p.id, 'carrySeen');
         p.history.push({ week: state.week, text: 'Carried the group through a tired week. The company put it on the record.' });
         return { toast: KP.fillPro('It went in {pos} file, in writing, where renewal negotiations live. Invisible work stops being invisible the day someone writes it down.', p) };
       },
       expire: () => {},
     },
   };
+
+  // the pending call is a candidate on the one door (v0.10.30)
+  KP.registerKnock('persona', ['momentChoice'], function (state) {
+    const pm = state.pendingMoment;
+    if (!pm || state.week - pm.week > 2 || !CHOICES[pm.momentKey]) { state.pendingMoment = null; return []; }
+    return [{ kind: 'momentChoice', momentKey: pm.momentKey, personId: pm.personId, weight: 3, expiresIn: 2,
+      onPick: (st) => { st.pendingMoment = null; } }];
+  });
 
   KP.registerScene('momentChoice', {
     title: (state, sc) => {
@@ -272,16 +231,18 @@
     },
     options: (state, sc) => {
       const p = state.people[sc.personId] || null;
-      return CHOICES[sc.momentKey].options.map(o => ({ id: o.id, label: KP.fillPro(o.label, p) }));
+      const ch = CHOICES[sc.momentKey];
+      return ch ? ch.options.map(o => ({ id: o.id, label: KP.fillPro(o.label, p) })) : [{ id: 'ok', label: 'Noted' }];
     },
     resolve: (state, sc, optionId) => {
       const p = state.people[sc.personId];
-      return p ? CHOICES[sc.momentKey].resolve(state, p, optionId) : {};
+      const ch = CHOICES[sc.momentKey];
+      return p && ch ? ch.resolve(state, p, optionId) : {};
     },
     expire: (state, sc) => {
       const p = state.people[sc.personId];
       if (!p) return null;
-      CHOICES[sc.momentKey].expire(state, p);
+      if (CHOICES[sc.momentKey]) CHOICES[sc.momentKey].expire(state, p);
       // the silence is on the conversation record (scenes.js keeps it);
       // no letter about a letter (v0.10.29, §89 C)
       return null;
@@ -302,8 +263,6 @@
         state.week - (g.lastReleaseWeek || 0) <= 4) s += 2;
     if (p.status === 'idol' && !p.flags.ambitionMet && g && g.debuted &&
         state.week - g.debutWeek >= 40) s += 1;
-    if (g && p.personality.warmth >= 68 &&
-        KP.frictionPairs(state, g.members).some(f => f.state === 'tense' || f.state === 'conflict')) s += 2;
     return s;
   }
 
@@ -332,14 +291,11 @@
       for (let i = 0; i < ROT.length; i++) {
         const pick = ROT[(offset + i) % ROT.length];
         if (!pick.when(state, p)) continue;
-        // a moment with a CHOICE goes to the desk as a held scene — one
-        // at a time, so the desk never becomes a form to clear
-        if (CHOICES[pick.key] &&
-            !(state.scenes || []).some(sc => sc.kind === 'momentChoice')) {
-          KP.openScene(state, { kind: 'momentChoice', momentKey: pick.key,
-            personId: p.id, expiresWeek: state.week + 2 });
-          // the scene card IS the announcement (§89 B) — the moment
-          // itself still lands on the spotlight surface
+        // a moment with a CHOICE is a candidate for the one door
+        // (v0.10.30, §89 D1): it waits in the pending slot for the
+        // queue's pick; the moment itself lands on the spotlight now
+        if (CHOICES[pick.key] && !state.pendingMoment) {
+          state.pendingMoment = { personId: p.id, momentKey: pick.key, week: state.week };
           KP.spotlightRecord(state, p, pick.key, pick.text(state, p), true);
           break;
         }

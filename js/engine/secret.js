@@ -114,7 +114,7 @@
         led.confirms++;
         hit(S.confirmFandom, S.confirmRecovery);
         p.morale = KP.clamp(p.morale + S.confirmMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'stoodByHer', 2);
+        KP.recordDirected(state, p.id, 'stoodByHer');
         p.history.push({ week: state.week, text: 'The company confirmed it warmly and asked for privacy — the statement she got to read before it went out. She kept a printed copy. Some employers say the true thing.' });
         return { toast: KP.fillPro('Confirmed, warmly, with the privacy ask — and {she} read it before the world did. The room will take it hard and heal honest. {She} will remember this exact sentence for the rest of {pos} career.', p) };
       }
@@ -129,7 +129,7 @@
         sec.denied = true;
         hit(S.denyFandom, 0.2);
         p.morale = KP.clamp(p.morale + S.denyMorale, 0, 100);
-        KP.recordDirected(state, p.id, 'madeHerHide', -2);
+        KP.recordDirected(state, p.id, 'madeHerHide');
         p.history.push({ week: state.week, text: 'The company denied it. She read the statement twice, said “understood,” and hung up. What it cost her is not on any ledger the office keeps.' });
         return { toast: KP.fillPro('Denied. The cycle dies by Thursday — cheapest answer on the board. {She} said “understood” in the flattest voice {pos} manager has ever heard, and the cameras, who know what they photographed, are patient.', p) };
       }

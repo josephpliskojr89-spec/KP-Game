@@ -105,7 +105,7 @@
         const thin = members.filter(m => m.id !== (ace && ace.id))
           .sort((a, b) => a.talents.vocals.cur - b.talents.vocals.cur)[0];
         if (thin && thin.personality.professionalism < 45) {
-          KP.recordDirected(state, thin.id, 'linesCut', -1);
+          KP.recordDirected(state, thin.id, 'linesCut');
           thin.history.push({ week: state.week, text: 'Saw the line distribution sheet. Counted ' +
             'the seconds. Said nothing in the room, which is not the same as saying nothing.' });
         }

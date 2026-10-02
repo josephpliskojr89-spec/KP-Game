@@ -53,7 +53,8 @@ function maturedCareer(seed) {
   const oldPop = Math.round(g.popularity);
   const memberIds = g.members.slice();
   const keeper = state.people[memberIds[0]];
-  KP.recordDirected(state, keeper.id, 'promiseKept', 5);   // she trusted you
+  KP.recordDirected(state, keeper.id, 'promiseKept');   // she trusted you
+  KP.recordDirected(state, keeper.id, 'trusted');       // (the one table weighs a kept promise 3; the warm read is >= 3)
   t.ok(!KP.foundLabel(state, 'L').ok, 'a one-letter label is not a name');
   t.ok(!KP.foundLabel(state, oldShort).ok, 'the old name is on the old building');
   const r = KP.foundLabel(state, 'HOMEWARD');

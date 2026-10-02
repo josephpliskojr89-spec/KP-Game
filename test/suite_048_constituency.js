@@ -108,6 +108,8 @@ function openCal(state, g) {
   organize(g);
   const p = state.people[g.members[0]];
   p.flags.burnout = 3;   // worked onto the medical bench
+  // the incident files the grievance (v0.10.30, §89 D5) — not the flag scan
+  state.grievances = [{ week: state.week, kind: 'overwork', groupId: g.id, personId: p.id }];
   // pin the coin: the mechanism is the truck, not the odds (the bench
   // clears in 3 weeks, so an unpinned coin can simply miss the window)
   const oldTruck = KP.C.CONSTITUENCY.truckChance;
@@ -126,6 +128,7 @@ function openCal(state, g) {
   const { state, g } = debuted('ct-hold2');
   organize(g);
   state.people[g.members[0]].flags.burnout = 3;
+  state.grievances = [{ week: state.week, kind: 'overwork', groupId: g.id, personId: g.members[0] }];
   const oldTruck2 = KP.C.CONSTITUENCY.truckChance;
   KP.C.CONSTITUENCY.truckChance = 1;   // pinned — mechanism, not odds
   let sc = null, guard = 0;

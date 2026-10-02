@@ -100,7 +100,7 @@
       }
       members.forEach(m => {
         m.morale = KP.clamp(m.morale + S.leanMorale, 0, 100);
-        KP.recordDirected(state, m.id, 'leanSettlement', -1);
+        KP.recordDirected(state, m.id, 'leanSettlement');
         m.history.push({ week: state.week, text: 'First settlement — to the letter of the contract, not a won past it. Paid, noted, remembered.' });
       });
       return { toast: 'Paid to the letter. Legal is satisfied. The room said thank you in the tone of people updating a spreadsheet about you.' };
@@ -111,7 +111,7 @@
       g.recoup.settledWeek = state.week;
       g.recoup.debt = 0;
       (g.members || []).map(id => state.people[id]).filter(Boolean).forEach(m => {
-        KP.recordDirected(state, m.id, 'leanSettlement', -1);
+        KP.recordDirected(state, m.id, 'leanSettlement');
         m.history.push({ week: state.week, text: 'The ledger crossed zero and the company never even held the meeting. The deposits started arriving with no note attached. Read into that exactly what everyone did.' });
       });
       return { kind: 'company', ind: 'settlementQuiet', priority: 'high', groupId: g.id,
@@ -217,7 +217,7 @@
       const age = state.week - (g.debutWeek || g.formedWeek);
       if (age >= S.grindAt && (age - S.grindAt) % S.grindEvery === 0) {
         (g.members || []).map(id => state.people[id]).filter(Boolean).forEach(m => {
-          KP.recordDirected(state, m.id, 'neverPaid', -1);
+          KP.recordDirected(state, m.id, 'neverPaid');
         });
         inbox.push({ kind: 'company', ind: 'neverPaid', priority: 'high', groupId: g.id,
           text: 'Another year, and ' + g.name + ' has still never been settled — the eras keep ' +
