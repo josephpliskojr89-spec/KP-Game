@@ -17,7 +17,9 @@ const BANDS = {
   sensation:         { lo: 0.02, hi: 0.30, label: 'sensation debuts' },
   strongPlus:        { lo: 0.15, hi: 0.75, label: 'strong-or-better debuts' },
   missOrQuiet:       { lo: 0.05, hi: 0.55, label: 'quiet/miss debuts' },
-  nonCenterBreakout: { lo: 0.10, hi: 0.65, label: 'public picked a non-center breakout' },
+  // the season (v0.10.32): an ex-contestant debuts with a public already
+  // there and the breakout is hers, center or not — measured 28/40; hi .65→.80
+  nonCenterBreakout: { lo: 0.10, hi: 0.80, label: 'public picked a non-center breakout' },
   rivalSteals:       { lo: 0.30, hi: 1.00, label: 'rivals signed >=1 prospect' },
   burnouts:          { lo: 0.00, hi: 0.45, label: 'orgs with a burnout incident' },
   instinctSigning:   { lo: 0.00, hi: 1.00, label: 'scout instinct notes seen' },
@@ -268,6 +270,11 @@ const BANDS = {
   // the misses are boards that stayed full when the dice came up
   castoffSeen:       { lo: 0.70, hi: 1.00, label: 'worlds where a rival cut put a face on the board' },
   seasonAired:       { lo: 0.50, hi: 1.00, label: 'worlds whose annual season finale aired (calendar law)' },
+  seasonCastWorld:   { lo: 0.50, hi: 1.00, label: 'worlds whose season drew 8+ contestants from 3+ sources (cast from the world, v0.10.32)' },
+  seasonInvited:     { lo: 0.30, hi: 1.00, label: 'orgs the season producers invited (a free trainee of the season’s gender)' },
+  seasonSent:        { lo: 0.10, hi: 1.00, label: 'orgs that sent somebody to a season' },
+  seasonOursLineup:  { lo: 0.00, hi: 0.60, label: 'orgs whose trainee made a finale lineup (held, or kept)' },
+  seasonPermanent:   { lo: 0.02, hi: 0.90, label: 'worlds where a season’s roll came up permanent' },
   callHeld:          { lo: 0.00, hi: 1.00, label: 'orgs that held an open call or walked the districts' },
   // the public eye (v0.9.36): every announcement mints an expectation
   // and every debut settles against it, so these are FLOORS — if they
@@ -631,6 +638,7 @@ const tally = {
   senesceSeen: 0, trustDrifted: 0, successionSeen: 0,
   holdoutMet: 0, holdoutWon: 0, holdoutLost: 0,
   networkApps: 0, networkRefs: 0, washoutReturned: 0, seasonAired: 0, callHeld: 0,
+  seasonCastWorld: 0, seasonInvited: 0, seasonSent: 0, seasonOursLineup: 0, seasonPermanent: 0,
   castoffSeen: 0, reentrySeen: 0, rivalDoorBorn: 0,
   expectSet: 0, snubSeen: 0, verdictSeen: 0, compared: 0,
   gigPlayed: 0, campaignRun: 0, gigViralSeen: 0, wallTouched: 0, breakSeen: 0,
@@ -1142,6 +1150,14 @@ for (let s = 0; s < SEEDS; s++) {
         KP.resolveScene(state, sc.id, p && p.fatigue > 50 ? 'shield' : 'push');
         return;
       }
+      if (sc.kind === 'seasonInvite') {
+        // the season (v0.10.32): a house with a bench sends two; a thin room one
+        const opts = KP.sceneDef('seasonInvite').options(state, sc);
+        const free = KP.seasonEligible(state).length;
+        const pick = free >= 3 && opts.some(o => o.id === 'two') ? 'two' : free >= 2 && opts.some(o => o.id === 'one') ? 'one' : 'none';
+        KP.resolveScene(state, sc.id, pick);
+        return;
+      }
       if (sc.kind === 'festivalInvite') {
         // take the stage unless the room is running on fumes
         const g2 = KP.groupById(state, sc.groupId);
@@ -1512,8 +1528,9 @@ for (let s = 0; s < SEEDS; s++) {
     const I = KP.C.INDUSTRY;
     // the sagas (v0.9.31) inject rivals PAST the organic cap by design —
     // invasions do not wait for a seat; at most two sagas fire per world
-    guard(state.rivals.length >= I.minRivals && state.rivals.length <= I.maxRivals + 2,
-      seed + ' rival count out of bounds: ' + state.rivals.length);
+    const sceneRivals = state.rivals.filter(r => !r.projectHouse).length;   // the broadcaster's house is not a seat (v0.10.32)
+    guard(sceneRivals >= I.minRivals && sceneRivals <= I.maxRivals + 2,
+      seed + ' rival count out of bounds: ' + sceneRivals);
     guard(state.feed.length <= KP.C.FEED.maxPosts, seed + ' feed blew its cap: ' + state.feed.length);
     state.feed.forEach(p => guard(!!(p.handle && p.text), seed + ' malformed feed post'));
     state.chart.entries.forEach(e => {
@@ -1536,7 +1553,9 @@ for (let s = 0; s < SEEDS; s++) {
         // a late rival nationally while trailing it on the scene. Small
         // inversions are physics (first seen 3-vs-4 when rival cycles
         // sped up); a WILD inversion is still a peak-stamping bug.
-        guard(r.nationalPeak >= r.chartPeak - 5,
+        // the season (v0.10.32): a project act debuts five half-famous names
+        // onto the SCENE chart — measured 3-vs-12 once in 40; tolerance 5→10
+        guard(r.nationalPeak >= r.chartPeak - 10,
           seed + ' national peak wildly better than scene peak — peak stamping desync (' +
           r.nationalPeak + ' vs ' + r.chartPeak + ')');
       }
@@ -1547,8 +1566,9 @@ for (let s = 0; s < SEEDS; s++) {
       if (a.retired) return;
       guard((a.members || []).length >= KP.C.INDUSTRY.actSize[0],
         seed + ' rival act ' + a.name + ' has no real lineup');
-      (a.members || []).forEach(id => guard(state.people[id] && state.people[id].status === 'rival',
-        seed + ' rival act member ' + id + ' missing or mis-statused'));
+      (a.members || []).forEach(id => guard(state.people[id] && (state.people[id].status === 'rival' ||
+        (state.people[id].status === 'trainee' && state.people[id].flags.onProject)),   // the season's held seat (v0.10.32)
+        seed + ' rival act member ' + id + ' missing or mis-statused (' + (state.people[id] ? state.people[id].status + ' co=' + state.people[id].company + ' ' + JSON.stringify(state.people[id].flags.onProject || null) + ' hist=' + JSON.stringify((state.people[id].history || []).slice(-3).map(h => h.text.slice(0, 50))) : 'missing') + ')'));
     }));
     if (state.chart.entries.some(e => e.isPlayer && e.pos != null && e.pos <= 3)) playerTop3 = true;
 
@@ -1760,7 +1780,13 @@ for (let s = 0; s < SEEDS; s++) {
   if ((flr.cut || 0) >= 1) tally.washoutReturned++;
   if ((flr.reentries || 0) >= 1) tally.reentrySeen++;
   if (Object.values(state.people).some(p => p.born && p.born.door === 'rivalDoor' && p.born.city)) tally.rivalDoorBorn++;
-  if ((nl.seasons || 0) >= 1) tally.seasonAired++;
+  const sel = state.seasonLedger || {};
+  if ((sel.aired || 0) >= 1) tally.seasonAired++;
+  if ((sel.castMax || 0) >= 8 && (sel.castSourcesMax || 0) >= 3) tally.seasonCastWorld++;
+  if ((sel.invited || 0) >= 1) tally.seasonInvited++;
+  if ((sel.sent || 0) >= 1) tally.seasonSent++;
+  if ((sel.oursLineup || 0) >= 1) tally.seasonOursLineup++;
+  if ((sel.permanent || 0) >= 1) tally.seasonPermanent++;
   if ((nl.calls || 0) + (nl.streets || 0) >= 1) tally.callHeld++;
   // the product (v0.10.0): the releases archive their own numbers
   {

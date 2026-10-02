@@ -143,6 +143,7 @@
       if (KP.groupOf(state, p.id)) return;
       if (state.project && (state.project.locked || []).includes(p.id)) return;
       if ((state.scenes || []).some(sc => sc.personId === p.id)) return;
+      if (KP.onBreak(p)) return;   // away — on television, on a project run, on the bench (v0.10.32)
       if ((p.flags.pleadQuietUntil || 0) > state.week) return;
       const tenure = tenureOf(state, p);
       const discouraged = p.morale < P.quitMoraleBelow &&
@@ -282,6 +283,10 @@
     // her breaks the promise on the spot, not at the deadline
     const passedBy = KP.groups(state).some(g =>
       (g.debutWeek || 0) > c.week && g.debutWeek <= state.week && !g.members.includes(p.id));
+    if ((state.week > c.byWeek || passedBy) && KP.onBreak(p)) {
+      c.byWeek = state.week + 1;   // she is away (v0.10.32): the letter waits for her to be back in the room
+      return null;
+    }
     if (state.week > c.byWeek || passedBy) {
       quitNow(state, p, 'promiseExpired');
       // the room watched the promise break — that lands on everyone

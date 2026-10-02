@@ -111,6 +111,13 @@
       p.company = legacy.short;   // the legacy house can cast them later (audit A3)
       if (p.signedWeek == null) p.signedWeek = state.week;
       delete p.contract;
+      // the season (v0.10.32): a project-group member stays with the show
+      // for the run, and the legacy house gets her back after it
+      if (p.flags.onProject) {
+        p.company = p.flags.onProject.house;
+        p.flags.seasonHome = { company: legacy.short };
+        delete p.flags.onProject;
+      }
     });
     state.roster = [];
     state.groups = [];

@@ -105,6 +105,26 @@
       html.push('<div class="card">' + rows + '</div>');
     }
 
+    // the season (v0.10.32, §90 B): the show the whole world sent people to
+    if (state.season && (state.season.status !== 'done' || state.week - state.season.finaleWeek <= 4)) {
+      const s = state.season;
+      const alive = s.contestants.filter(c => !c.eliminatedWeek && state.people[c.personId]);
+      const bySrc = {};
+      alive.forEach(c => { bySrc[c.source] = (bySrc[c.source] || 0) + 1; });
+      const ours = s.contestants.filter(c => c.source === 'player').map(c => {
+        const p = state.people[c.personId];
+        return p ? UI.esc(KP.displayName(p)) + (c.eliminatedWeek ? (c.rank && c.rank <= KP.C.COMPETITION.lineupSize ? ' — the lineup' : ' — out week ' + (c.eliminatedWeek - s.startWeek)) : ' — still in') : '';
+      }).filter(Boolean);
+      html.push('<div class="kicker">The season</div>');
+      html.push('<div class="card"><b>' + UI.esc(s.show) + '</b> · ' + (s.gender === 'm' ? 'boys’' : 'girls’') + ' season · ' +
+        (s.status === 'casting' ? 'casting' : s.status === 'airing' ? 'week ' + (state.week - s.startWeek) + ' of ' + (s.finaleWeek - s.startWeek) : 'the finale aired' + (s.permanent != null ? ' — ' + (s.permanent ? 'a PERMANENT lineup' : 'a ' + KP.C.COMPETITION.termWeeks + '-week project run') : '')) +
+        '<div style="font-size:.75rem;color:var(--ink-dim);margin-top:4px">' +
+        (s.status === 'done' ? s.contestants.filter(c => c.rank && c.rank <= KP.C.COMPETITION.lineupSize).map(c => state.people[c.personId] ? UI.esc(KP.displayName(state.people[c.personId])) : '').filter(Boolean).join(', ')
+          : alive.length + ' still in — ' + Object.entries(bySrc).map(([k, v]) => ({ rival: 'company trainees', school: 'academy students', board: 'unsigned', player: 'ours' }[k] + ' ' + v)).join(' · ')) +
+        (ours.length ? '<div style="margin-top:4px;color:var(--gold)">' + ours.join(' · ') + '</div>' : '') +
+        '</div></div>');
+    }
+
     // the open market (v0.9.24): careers, priced and waiting
     if (state.freeAgents && state.freeAgents.length) {
       html.push('<div class="kicker">The open market</div>');

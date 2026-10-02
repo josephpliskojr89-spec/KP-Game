@@ -151,6 +151,18 @@
     p.releasedFrom = state.company.short;
     p.releasedWeek = state.week;
     delete p.reentryAt;
+    // the season (v0.10.32): leaving this building mid-term hands the
+    // project house her contract — the seat was held for her here, and
+    // the act she is in does not stop for your paperwork
+    if (p.flags.onProject) {
+      const house = p.flags.onProject.house;
+      delete p.flags.onProject;
+      p.status = 'rival';
+      p.company = house;
+      p.signedWeek = state.week;
+      p.flags.seasonHome = { company: null, keptFrom: state.company.short };
+      p.history.push({ week: state.week, text: 'Left ' + state.company.short + ' mid-run; the project house picked up the contract without missing a stage.' });
+    }
   };
 
   // ---- memory: a chapter with the player is never forgotten -------------

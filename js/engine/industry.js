@@ -312,7 +312,7 @@
     gender = gender || 'f';
     const size = rng.int(I.actSize[0], I.actSize[1]);
     const floor = KP.rivalFloor(state, rival)
-      .filter(p => (p.gender || 'f') === gender && p.age >= (ageRange ? ageRange[0] : I.memberDebutAge[0]) &&
+      .filter(p => (p.gender || 'f') === gender && p.age >= (ageRange ? ageRange[0] : I.memberDebutAge[0]) && !p.flags.onSeason &&
         state.week - (p.signedWeek != null ? p.signedWeek : -999) >= KP.C.FLOOR.castTenureWeeks)
       .sort((a, b) => peakTalent(b) - peakTalent(a));
     const cast = floor.slice(0, Math.max(I.actSize[0], Math.min(size, floor.length)));
@@ -343,7 +343,7 @@
   }
   // can the room field a debut, and in which gender? (null = wait)
   function castableGender(state, rival, preferred, minAge) {
-    const floor = KP.rivalFloor(state, rival).filter(p => p.age >= (minAge != null ? minAge : KP.C.INDUSTRY.memberDebutAge[0]) &&
+    const floor = KP.rivalFloor(state, rival).filter(p => p.age >= (minAge != null ? minAge : KP.C.INDUSTRY.memberDebutAge[0]) && !p.flags.onSeason &&
       state.week - (p.signedWeek != null ? p.signedWeek : -999) >= KP.C.FLOOR.castTenureWeeks);
     const n = g => floor.filter(p => (p.gender || 'f') === g).length;
     const min = KP.C.INDUSTRY.actSize[0];
@@ -363,6 +363,29 @@
       I.memberQualityWeight * avg + I.prestigeQualityWeight * prestige + 14 +
       rng.normal(0, I.actQualityNoise * 0.7), 20, 92));
   }
+  // an act from named people (v0.10.32): the season's finale lineup
+  // becomes a real act with a real debut single, like any rival's
+  KP.makeRivalAct = function (state, rng, rival, opts) {
+    const I = KP.C.INDUSTRY;
+    const members = (opts.members || []).filter(id => state.people[id]);
+    if (!members.length) return null;
+    rival.acts = rival.acts || [];
+    const concept = opts.concept ? KP.conceptById(opts.concept) : rng.pick(KP.C.CONCEPTS);
+    const act = {
+      id: newActId(state), gender: opts.gender || 'f',
+      gen: (state.gen && state.gen.n) || KP.C.RISEFALL.GEN.start,
+      name: opts.name || KP.genGroupName(rng, usedActNames(state)), concept: concept.id,
+      quality: actQualityFromMembers(state, members, rival.prestige, rng),
+      members, popularity: opts.popularity || 0,
+      debutWeek: state.week, lastReleaseWeek: state.week,
+      cycleWeeks: rng.int(I.cycleWeeks[0], I.cycleWeeks[1]),
+      releases: [], retired: false,
+    };
+    rival.acts.push(act);
+    const rel = rivalRelease(state, rival, act, rng, true);
+    pushMove(rival, 'Debuted ' + act.name);
+    return { act, rel };
+  };
   KP.rivalActById = function (state, id) {
     for (const r of (state.rivals || [])) {
       for (const a of (r.acts || [])) if (a.id === id) return { act: a, rival: r };
@@ -478,6 +501,9 @@
 
     (state.rivals || []).forEach(rival => {
       rival.acts = rival.acts || [];
+      // the broadcaster's house (v0.10.32): no floor, no scouts, no
+      // debuts of its own — its acts release and age like anyone's
+      if (!rival.projectHouse) {
       // the room is sized to a plan (0.9.18.1): the next debut's cost
       // plus a bench the company's ambition can carry. Below the plan
       // they scout at full appetite; a full room only signs the
@@ -550,7 +576,7 @@
           // available."
           const CF = KP.C.NETWORK.CASTOFF;
           const major = (rival.prestige || 40) >= CF.majorPrestige;
-          const byPeak = floorAll.slice().sort((a0, b0) => peakTalent(a0) - peakTalent(b0));
+          const byPeak = floorAll.filter(p0 => !p0.flags.onSeason).sort((a0, b0) => peakTalent(a0) - peakTalent(b0));   // nobody is cut while on television
           const tenured = byPeak.filter(p0 => state.week - (p0.signedWeek != null ? p0.signedWeek : -999) >= R.namedTenure);
           const victims = tenured.slice(0, cut);
           byPeak.forEach(p0 => { if (victims.length < cut && !victims.includes(p0)) victims.push(p0); });
@@ -674,6 +700,7 @@
         }
         return;
       }
+      }   // !projectHouse
 
       // comeback cycles and aging for existing acts
       rival.acts.forEach(act => {
@@ -783,9 +810,9 @@
     const bump = () => { state.lifecycleEvents = (state.lifecycleEvents || 0) + 1; };
 
     // fall: a starved company folds (never below the floor — the scene survives)
-    if (rivals.length > I.minRivals && rng.chance(I.collapseChance)) {
+    if (rivals.filter(r => !r.projectHouse).length > I.minRivals && rng.chance(I.collapseChance)) {   // the house is not a seat (v0.10.32)
       // the founder's old house never quietly exits the story (v0.9.9)
-      const starved = rivals.find(r => !r.founderGrudge &&
+      const starved = rivals.find(r => !r.founderGrudge && !r.projectHouse &&
         r.prestige < I.collapsePrestige && !(r.acts || []).some(a => !a.retired));
       if (starved) {
         (starved.acts || []).forEach(a => { a.retired = true; });
@@ -804,8 +831,8 @@
 
     // merge: two struggling companies pool what is left
     if ((state.rivals || []).length >= 4 && rng.chance(I.mergeChance) &&
-        state.rivals.filter(r => !r.founderGrudge).length >= 2) {
-      const sorted = state.rivals.slice().filter(r => !r.founderGrudge)
+        state.rivals.filter(r => !r.founderGrudge && !r.projectHouse).length >= 2) {
+      const sorted = state.rivals.slice().filter(r => !r.founderGrudge && !r.projectHouse)
         .sort((a, b) => a.prestige - b.prestige);
       const b = sorted[0], a = sorted[1];
       const named = KP.genCompanyName(rng, usedCompanyShorts(state));
@@ -832,8 +859,9 @@
     }
 
     // split: a giant sheds a faction that becomes a new competitor
-    if ((state.rivals || []).length < I.maxRivals && rng.chance(I.splitChance)) {
-      const giant = state.rivals.find(r => r.prestige >= I.splitPrestige && KP.rivalFloor(state, r).length >= I.splitRoster);
+    const sceneCount = (state.rivals || []).filter(r => !r.projectHouse).length;   // the broadcaster's house is not a seat (v0.10.32)
+    if (sceneCount < I.maxRivals && rng.chance(I.splitChance)) {
+      const giant = state.rivals.find(r => !r.projectHouse && r.prestige >= I.splitPrestige && KP.rivalFloor(state, r).length >= I.splitRoster);
       if (giant) {
         giant.prestige = KP.clamp(giant.prestige - 6, 5, 95);
         const spawn = makeCompany(state, rng, {
@@ -873,7 +901,7 @@
     }
 
     // emerge: fresh money enters the scene
-    if ((state.rivals || []).length < I.maxRivals && rng.chance(I.emergeChance)) {
+    if ((state.rivals || []).filter(r => !r.projectHouse).length < I.maxRivals && rng.chance(I.emergeChance)) {
       const fresh = makeCompany(state, rng);
       state.rivals.push(fresh);
       seedFloor(state, rng, fresh);   // the floor (v0.10.31): born with a room of real people

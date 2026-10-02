@@ -93,6 +93,12 @@
     }
     const members = memberIds.map(id => state.people[id]);
     if (members.some(m => !m || m.status !== 'trainee')) return { ok: false, reason: 'Every member must be a signed trainee.' };
+    const away = members.find(m => m.flags.onSeason || m.flags.onProject);
+    if (away) {
+      return { ok: false, reason: away.flags.onProject
+        ? KP.displayName(away) + ' is under the project group’s contract until ' + KP.weekLabel(away.flags.onProject.until).text + '. The seat is held; the lineup waits.'
+        : KP.displayName(away) + ' is on television until the finale. The cameras have her first.' };
+    }
     if (memberIds.some(id => KP.groupOf(state, id))) return { ok: false, reason: 'Someone in this lineup already belongs to a group.' };
     // one group, one gender (v0.8.4) — the market the company sells into
     // does not sign mixed idol groups, and neither does the exec

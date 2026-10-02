@@ -6679,7 +6679,7 @@ Battery 97/97, soak 40 clean, longhaul 10x620, e2e 111, lockstep
 0.10.30.
 
 
-## §90 The trainee ecosystem (PHASE A SHIPPED v0.10.31 — one world of people)
+## §90 The trainee ecosystem (PHASES A–B SHIPPED v0.10.31–32 — one world of people)
 
 Owner: "I want the actual trainee ecosystem to make sense and be
 connected. Survival shows actually draw from the active trainee pool.
@@ -6970,6 +6970,82 @@ stay 'rival' forever (82 per 620-week save — a C question).
 
 Battery 98/98, soak 40 clean, longhaul 10x620, e2e 111, lockstep
 0.10.31.
+
+
+**As built — Phase B, v0.10.32 "the season".** Owner: "Phase B
+approved." season.js is the module; network.js lost its finale mint
+(NETWORK.SHOW → COMPETITION — the name SEASON was the year's);
+industry.js grew `KP.makeRivalAct` and the broadcaster-house guards;
+person.js's onBreak and group.js's lineup verb learned the away
+flags. Suite_099_season (78 checks).
+
+*The casting call* (COMPETITION.castWoy 22, one a year, one gender
+per season — boyShowShare .35 by hash): each rival floor sends its
+two most camera-ready (`KP.seasonReadiness`: peak × .6, charisma,
+visuals, live, hype), the academies send four known students, four
+unsigned names walk in off the open board, and — if this building
+has a free trainee of the season's gender — the producers invite
+YOU: one Desk scene, `seasonInvite`, send two, one, or none (the
+coaches' eval order picks who). The body says what the owner ruled:
+"Some seasons that run is a year; some seasons it is forever. Nobody
+knows which until the finale." Casting closes in two weeks; the
+show airs without you if you do not answer. Measured: 40/40 worlds
+cast 8+ contestants from 3+ sources; 38/40 orgs invited; 23/40 sent.
+
+*The air* (weeks 23–33): the field is cut weekly to the finale's
+size (lineupSize 5 + runnersUp 3) on hash-judged scores (readiness
+± COMPETITION.noise 14 — television, not the stream, so the season
+never shifts a save). The eliminated go home the same week with a
+record, hype and a public: rival kids to their floors (never cut
+while filming; never cast into a debut mid-season), students onto
+the open board as `channel: 'season'` (public, contested), yours to
+the practice room with a high note and a morale dent. The timeline
+watches every week (`seasonWeek`, feed-only, the regulars have
+opinions). A contestant is `onSeason`: away for training, evals,
+frictions, lineups ("on television until the finale").
+
+*The finale* (woy 34): the top five form a real act via
+`KP.makeRivalAct` — a debut single on the chart — under the
+broadcaster's house (`projectHouse: true`, one per show title; no
+floor, no scouts, no debuts of its own; not a seat in the scene's
+count, never merged, split or collapsed; folds its tent when its
+last act retires). The roll (permanentChance .4, hashed per season):
+FIXED-TERM — `act.projectTerm.until` = finale + termWeeks (60);
+rival members move to the house for the run and go home after
+(`flags.seasonHome`); your finalist stays yours on paper
+(`flags.onProject`, status 'trainee', on the roster, held out of
+lineups — "the seat is held; the lineup waits") and comes back with
+the public she earned, a polish bump, and a critical note. PERMANENT
+— the house keeps the lineup: rival floors lose five trainees for
+good, and YOUR finalist leaves the roster (status 'rival', the
+house's contract, `wasOurs` on the file) with a critical note: "you
+held the tape." Measured: 24/40 worlds saw a permanent roll; 23/40
+orgs had a trainee make a lineup (held or kept).
+
+*The edges.* Leaving this building mid-term (a release, a quit, the
+founding) hands the house her contract for the run — the seat was
+held for her. Nobody resigns from a television studio: the trainee
+quit rail skips the away, and the debut-promise claim waits for her
+to be back in the room. A contestant whose company folded mid-season
+returns to the open market after the run. "Ours" at the finale means
+still ours that night.
+
+*Measured (tools/audit_people.js, 40 orgs).* Births per org-year:
+academy 46.2, rivalDoor 39.1, application 5.9, auditionAbroad 3.1,
+referral 2.1, social 0.5, abroad 0.4 — showKid is GONE (zero minted
+finalists). Zero doorless births, zero ghost casts. Rival floors at
+140 weeks: median 8 (the season takes two per floor a year and a
+permanent lineup keeps them). Save sizes: longhaul 620 weeks up to
+1.06–1.08 MB on the widest orgs (people 785–790 KB) — the project
+acts add five 'rival' people a year who stay; the retired-act sink
+is Phase C's question. Harness bands: seasonAired, seasonCastWorld,
+seasonInvited (.30), seasonSent (.10), seasonOursLineup (0–.60),
+seasonPermanent (.02–.90); the scene-vs-national peak tolerance
+widened 5→10 (a project act debuts five half-famous names onto the
+scene chart).
+
+Battery 99/99, soak 40 clean, longhaul 10x620, e2e 111, lockstep
+0.10.32.
 
 
 ## §18 Watch items
@@ -10095,3 +10171,17 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 0.10.31 materializes old counters. Suite_098 (80). Battery 98/98,
 > soak 40 clean (save cap 480→600, measured), longhaul 10x620, e2e
 > 111, lockstep 0.10.31. Rode to main.
+
+> **0.10.32 — the season.** §90 Phase B, owner: "Phase B approved."
+> The annual competition show is cast from the world (season.js):
+> rival floors send two each, academies four, the open board four,
+> and the producers invite YOU — one Desk scene, up to two trainees,
+> the roll unknown. Weekly hash-judged eliminations the timeline
+> watches; the eliminated go home famous. The finale forms a real act
+> under the broadcaster's house — fixed-term (60 weeks, everyone
+> home after, your finalist held out of lineups and back with a
+> public) or permanent (the house keeps the lineup, including yours)
+> by a per-season roll. NETWORK.SHOW's minted finalists are gone.
+> Measured: 40/40 cast from 3+ sources, 38/40 invited, 23/40 sent,
+> 24/40 permanent rolls. Suite_099 (78). Battery 99/99, soak 40
+> clean, longhaul 10x620, e2e 111, lockstep 0.10.32. Rode to main.

@@ -14,8 +14,7 @@
 
   function ledger(state) {
     state.networkLedger = state.networkLedger ||
-      { apps: 0, believers: 0, refs: 0, viral: 0, seasons: 0,
-        finalists: 0, streets: 0, gems: 0, calls: 0, callMinted: 0 };
+      { apps: 0, believers: 0, refs: 0, viral: 0, streets: 0, gems: 0, calls: 0, callMinted: 0 };
     return state.networkLedger;
   }
   // channels rival scouts cannot see — your mail is your mail
@@ -147,30 +146,9 @@
         text: KP.fillPro('A clip went around last night: ' + KP.displayName(p) + ', ' + p.age + ', dancing in a practice-room mirror somewhere, and the internet did what it does. Every scout in the city has the same tab open this morning. Public means CONTESTED — the file is on the board, and the clock started before you saw it.', p) });
     }
 
-    // the season: an annual competition show airs, and the ones who
-    // did not make the final lineup land on the public board LOUD
-    const woy = ((state.week - 1) % KP.C.WEEKS_PER_YEAR) + 1;
-    const yr = Math.ceil(state.week / KP.C.WEEKS_PER_YEAR);
-    if (woy === N.SHOW.finaleWoy && (state.seasonYear || 0) < yr) {
-      state.seasonYear = yr;
-      led.seasons++;
-      const show = N.SHOW.NAMES[Math.floor(KP.hash01([state.seed, 'season', yr].join('|')) * N.SHOW.NAMES.length)];
-      const n = rng.int(N.SHOW.minted[0], N.SHOW.minted[1]);
-      const names = [];
-      for (let i = 0; i < n; i++) {   // the finale airs whether your board has room or not
-        const p = mint(state, rng, { channel: 'showKid', source: show + ' finalist' });
-        p.hype = rng.int(N.SHOW.hype[0], N.SHOW.hype[1]);
-        KP.socialSpike(state, p, rng.int(N.SHOW.followers[0], N.SHOW.followers[1]), 'season');
-        (state.rivals || []).slice(0, 2).forEach(r => { r.interest[p.id] = 2; });
-        p.history.push({ week: state.week, text: 'Made the ' + show + ' finale and missed the debut lineup by one televised vote. The fandom that voted has not logged off.' });
-        led.finalists++;
-        names.push(KP.displayName(p));
-      }
-      if (names.length) {
-        inbox.push({ kind: 'scouting', ind: 'seasonFinale', priority: 'high',
-          text: 'The ' + show + ' finale aired last night, and this morning the industry’s favorite market opened: the finalists who did NOT make the lineup. ' + names.join(', ') + ' — televised training, fandoms with receipts, and every company in the scene running the same math. Public, contested, and worth it.' });
-      }
-    }
+    // the season left this module (v0.10.32, §90 Phase B): season.js casts
+    // the show from the world — rival floors, academy classes, the open
+    // board, and your room through one invitation
   });
 
   // ---- street casting: shoe leather, not reputation ---------------------
@@ -348,10 +326,6 @@
   // person who was cut — KP.cutFromFloor / KP.boardCastoff in floor.js
 
   // ---- the timeline reacts ---------------------------------------------
-  KP.onFeedEvent('seasonFinale', (state, n, rng) => rng.pick([
-    { persona: 'fan', text: 'the finale robbed my kid AGAIN. she trained on national television for four months and missed the lineup by ONE vote. some company better sign her by friday or the internet riots' },
-    { persona: 'casual', text: 'survival show finales are just a draft combine with crying. the ones who don’t make it are all signed within a month anyway. the show is the audition' },
-  ]));
   KP.onFeedEvent('openCall', (state, n, rng) => rng.pick([
     { persona: 'casual', text: 'open call day: the line outside had umbrellas, thermoses, and three parents doing vocal warmups on their kids. futures form in lines like that' },
     { persona: 'fan', text: 'somebody in that open call line today is going to be somebody’s bias in three years. that is just statistics. good luck everyone' },

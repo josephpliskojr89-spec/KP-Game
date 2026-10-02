@@ -115,13 +115,16 @@ function debuted(seed) {
   const { state, g } = debuted('fe-deals');
   const face = state.people[g.members[0]];
   face.talents.visuals.cur = 85; face.social = 80000;
-  // force an offer through the weekly pass across seeds
+  // force an offer through the weekly pass across seeds — the claim is
+  // the CASTING, not the 4% weekly coin (v0.10.32 stream: pinned)
+  const D0 = KP.C.DEALS; const oldOffer = D0.offerBaseChance; D0.offerBaseChance = 1;
   let offer = null, guard = 0;
   while (!offer && guard++ < 120) {
     KP.advanceWeek(state);
     offer = KP.openDealOffers(state)[0] || null;
     face.social = 80000;   // keep her wanted
   }
+  D0.offerBaseChance = oldOffer;
   t.ok(offer, 'the market calls eventually');
   if (offer) {
     const cash = state.budget;

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.31',
+    VERSION: '0.10.32',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1909,12 +1909,6 @@
         base: 0.04, perRoster: 0.008,
         observations: 2,       // a referral arrives half-read
       },
-      SHOW: {                  // the season: an annual competition show
-        finaleWoy: 34, minted: [2, 3], hype: [25, 45],
-        followers: [60000, 180000],
-        NAMES: ['STARFORGE', 'THE FINAL LINEUP', 'DEBUT OR NOTHING',
-          'CLASS OF NEXT YEAR', 'ELEVEN LIGHTS'],
-      },
       SOCIAL: { chance: 0.03, hype: [20, 35] },
       // §84 D (v0.10.17): the private channels, imperfectly — sometimes
       // the girl you found has been seen before, and the file says so
@@ -2551,6 +2545,38 @@
       petChance: 0.06,           // weekly, once eligible — once per career
     },
     // ---- The office door (v0.8.2) — idols initiate ----------------------
+    // ---- the season (v0.10.32, §90 Phase B) --------------------------------
+    // One competition show a year, CAST FROM THE WORLD: rival floors send
+    // their most promising, academies send a known student or two, the
+    // open board's unsigned enter on their own, and the player gets one
+    // invitation (up to two trainees — owner's ruling). Weekly
+    // eliminations on hash (the show is television, not the stream);
+    // the finale forms a project group under the broadcaster's house —
+    // fixed-term or permanent by a roll (owner: "Random roll").
+    COMPETITION: {
+      castWoy: 22,              // the casting call goes out
+      finaleWoy: 34,            // the finale airs (the old calendar law)
+      lineupSize: 5,            // the finale lineup
+      runnersUp: 3,             // the field at the finale beyond the lineup
+      rivalSlots: 2,            // trainees a rival floor sends
+      schoolSlots: 4,           // academy students across the map
+      boardSlots: 4,            // unsigned files off the open board
+      playerSlots: 2,           // owner: "Yes, you can send trainees to a season"
+      minAge: 15, maxAge: 23,
+      boyShowShare: 0.35,       // seasons are one gender; most are girl-group seasons
+      noise: 14,                // televised judging swings this much per week
+      weeklyFatigue: 3, weeklyLive: 1, weeklyMedia: 1,
+      weeklyFollowers: [4000, 12000],
+      elimHype: [8, 20], finalistHype: [20, 35], lineupHype: [30, 50],
+      elimFollowers: [20000, 60000], finalistFollowers: [60000, 140000], lineupFollowers: [120000, 260000],
+      elimMorale: -4, lineupMorale: 8,
+      termWeeks: 60,            // a fixed-term project group's run
+      permanentChance: 0.4,     // …or the broadcaster's label keeps the lineup, forever
+      housePrestige: 55,
+      returnPolish: 3,          // what a year on real stages taught her
+      NAMES: ['STARFORGE', 'THE FINAL LINEUP', 'DEBUT OR NOTHING',
+        'CLASS OF NEXT YEAR', 'ELEVEN LIGHTS'],
+    },
     // ---- the floor (v0.10.31, §90 Phase A) ---------------------------------
     // One world of people: rival trainee floors are people, a cut is a
     // person, a released trainee re-enters the world, and the world

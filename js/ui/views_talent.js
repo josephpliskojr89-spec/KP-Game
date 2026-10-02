@@ -140,6 +140,10 @@
         ? '<span class="chip hot">' + UI.esc(p.medical.chronic.map(c => c.site).join(' · ')) + '</span>' : '') +
       (p.flags && p.flags.seatedUntil && state.week < p.flags.seatedUntil
         ? '<span class="chip">seated</span>' : '') +
+      (p.flags && p.flags.onSeason ? '<span class="chip hot">on ' + UI.esc(p.flags.onSeason.show) + '</span>' : '') +
+      (p.flags && p.flags.onProject ? '<span class="chip gold">project group · back ' + UI.esc(KP.weekLabel(p.flags.onProject.until).text) + '</span>' : '') +
+      (p.seasonRecord && !(p.flags && (p.flags.onSeason || p.flags.onProject))
+        ? '<span class="chip">' + UI.esc(p.seasonRecord.show) + ' ' + ({ eliminated: 'contestant', finalist: 'finalist', lineup: 'lineup' }[p.seasonRecord.result] || '') + '</span>' : '') +
       (p.status === 'trainee' && p.evalHistory && p.evalHistory.length
         ? '<span class="chip">eval ' + p.evalHistory[p.evalHistory.length - 1].rank + '/' + p.evalHistory[p.evalHistory.length - 1].of + '</span>' : '') +
       '</div></div>' +
@@ -171,10 +175,10 @@
       '<div class="t-read">“' + UI.esc(best.line) + '”</div>' +
       '<div class="t-chips">' + UI.heatChips(state, p.id) +
       (p.channel && { application: 'applicant', referral: 'referred', street: 'street cast',
-        washout: 'washout', social: 'went viral', showKid: 'season finalist' }[p.channel]
+        washout: 'washout', social: 'went viral', showKid: 'season finalist', season: 'seen on the season', released: 'released, came back around', castoff: 'a castoff' }[p.channel]
         ? '<span class="chip' + (KP.CHANNEL_PRIVATE[p.channel] ? ' cool' : '') + '">' +
           { application: 'applicant', referral: 'referred', street: 'street cast',
-            washout: 'washout', social: 'went viral', showKid: 'season finalist' }[p.channel] + '</span>'
+            washout: 'washout', social: 'went viral', showKid: 'season finalist', season: 'seen on the season', released: 'released, came back around', castoff: 'a castoff' }[p.channel] + '</span>'
         : '') +
       (KP.holdoutOf(state, p)
         ? '<span class="chip hot">' + ((p.holdout || {}).callback ? (p.gender === 'm' ? 'he called back' : 'she called back')

@@ -191,7 +191,9 @@ function fillFloor(state, rival, n, opts) {
   // to the open board as a washout, file and history intact
   // the open board is OPEN — a returned washout can be signed by a
   // faster rival on any stream; either way she was cut and came back
-  t.ok(floorKid.status !== 'rival' || floorKid.company !== rival.short,
+  // she was cut — and may since have been re-signed, even by the same
+  // house (§90 D ruling 1): the file says what happened either way
+  t.ok(floorKid.history.some(h => /Cut at .* seasonal evaluation/.test(h.text)),
     'the named signee below the bar was not exempt (' + floorKid.status + ')');
   if (floorKid.status === 'prospect') {
     t.eq(floorKid.channel, 'castoff', 'and her file is back on the open board — she IS the castoff (v0.10.31)');

@@ -294,7 +294,7 @@
                 text: 'DAESANG. ' + g.name + '. The grand prize, the real one, the one the whole ladder exists for. ' + speakerLine(state, g, fandomName) +
                   ' The members cried in a line. The building will never fully recover, and should not.' + tableLine(state, g) });
             } else {
-              notes.push({ kind: 'public', urgent: true, ind: 'daesang', groupId: g.id,
+              notes.push({ kind: 'public', urgent: true, priority: 'critical', ind: 'daesang', groupId: g.id,
                 text: 'DAESANG, again: ' + g.name + '. The second one lands differently — less lightning, more law. The speech was calmer. ' + fandomName + ' was still named first, because some orders are permanent.' });
             }
           }

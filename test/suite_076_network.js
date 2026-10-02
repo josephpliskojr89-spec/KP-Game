@@ -35,14 +35,11 @@ const N = () => KP.C.NETWORK;
   t.ok(led.refs >= 1, 'the building refers people');
   const chans = new Set(s.prospects.map(id => s.people[id].channel).filter(Boolean));
   t.ok(chans.size >= 2, 'the board carries provenance (' + [...chans].join(', ') + ')');
-  t.ok(led.seasons >= 1, 'the season aired');
-  const finalist = Object.values(s.people).find(p => p.channel === 'showKid');
-  t.ok(finalist, 'and its finalists hit the public board');
+  // the season (v0.10.32): cast from the world, not minted — suite_099 owns it
+  t.ok((s.seasonLedger || {}).aired >= 1, 'the season aired');
+  const finalist = Object.values(s.people).find(p => p.seasonRecord && p.seasonRecord.result !== 'eliminated');
+  t.ok(finalist, 'and its finalists are real people from the world');
   t.ok(KP.socialOf(s, finalist) > 30000, 'with a following attached');
-  // public means contested: heat on arrival — or already gone to a rival
-  // desk that read the same broadcast (heat clears when a signature lands)
-  t.ok(KP.rivalHeat(s, finalist.id).max >= 2 || finalist.status === 'rival',
-    'and contested from the first morning (' + finalist.status + ')');
 }
 
 // ---- channel privacy: your mail is your mail --------------------------
