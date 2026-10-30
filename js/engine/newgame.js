@@ -96,6 +96,7 @@
       }
       state.people[p.id] = p;
       state.roster.push(p.id);
+      KP.stampBorn(state, p, 'inherited', { week: p.signedWeek != null ? p.signedWeek : 0 });
       p.history.push({ week: 0, text: 'Already in the building when you took the job.' });
     }
 
@@ -164,6 +165,7 @@
           p.history.push({ week: debutWeek, text: 'Debuted under the big letterhead. The building already knew how to make this go right.' });
           state.people[p.id] = p;
           state.roster.push(p.id);
+          KP.stampBorn(state, p, 'inherited', { week: debutWeek });
           memberIds.push(p.id);
         }
         const members = memberIds.map(id => state.people[id]);
@@ -211,6 +213,7 @@
         p.signedWeek = 1 - Math.floor(KP.C.WEEKS_PER_YEAR / 2);
         state.people[p.id] = p;
         state.roster.push(p.id);
+        KP.stampBorn(state, p, 'inherited', { week: p.signedWeek != null ? p.signedWeek : 0 });
       }
       state.firstShowWinWeek = -120;
     }
@@ -244,6 +247,7 @@
         p.history.push({ week: 0, text: 'Year six of the contract when the new A&R manager arrived. Watched the introductions from the good chair in the practice room.' });
         state.people[p.id] = p;
         state.roster.push(p.id);
+        KP.stampBorn(state, p, 'inherited', { week: p.signedWeek != null ? p.signedWeek : 0 });
         memberIds.push(p.id);
       }
       const members = memberIds.map(id => state.people[id]);
@@ -315,6 +319,7 @@
       }
       state.people[p.id] = p;
       state.prospects.push(p.id);
+      KP.stampBorn(state, p, 'opening', { week: 1 });
       if (!mostCharismatic || p.talents.charisma.cur > mostCharismatic.talents.charisma.cur) mostCharismatic = p;
     }
     // the persistent class (v0.10.17): generateSchools stamps

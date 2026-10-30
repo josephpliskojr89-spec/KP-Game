@@ -469,6 +469,7 @@
     p.status = 'departed';
     p.flags.departedWeek = state.week;
     p.flags.departMode = mode;
+    KP.chapter(state, p, 'departed', { co: state.company.short, group: g ? g.name : null, mode: warm ? 'warm' : 'cold' });   // the file (v0.10.33)
     p.history.push({ week: state.week, text: warm
       ? 'Contract completed. Left ' + state.company.short + ' after ' + (p.contract ? p.contract.term : 1) + ' term' + ((p.contract && p.contract.term > 1) ? 's' : '') + ', on good terms, with the send-off ' + (p.gender === 'm' ? 'he' : 'she') + ' earned.'
       : 'Contract expired. Left ' + state.company.short + '. The last year was quiet in the wrong way.' });
@@ -521,6 +522,7 @@
     });
     KP.lineupPointerSweep(state, g, p.id);   // the clean exits (v0.10.16)
     p.history.push({ week: state.week, text: 'Graduated from ' + g.name + ' into solo management. Same building, new door on it.' });
+    KP.chapter(state, p, 'graduated', { group: g.name });
     return { ok: true, note: KP.fillPro(KP.displayName(p) + ' graduates from ' + g.name + ' into solo management — same company, {pos} own calendar now. The fandom grieves the lineup for a week and then starts the solo-debut countdown clock.', p) };
   };
 

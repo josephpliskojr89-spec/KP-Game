@@ -80,13 +80,23 @@
                       (peak(a) + KP.socialOf(state, a) / 20000))
       .slice(0, RF.freeAgentMax);
     if (!named.length) return;
-    state.freeAgents = state.freeAgents || [];
+    // the one market (v0.10.33, §89 D7): the class lands on the open board
+    // through the same door as every castoff — a channel, a window, a
+    // price the career sets. No second list, no second verb.
     named.forEach(p => {
-      p.flags.freeAgent = folded.short;
-      state.freeAgents.push({ personId: p.id, until: state.week + RF.freeAgentWindow,
-        from: folded.short });
+      p.castoffFrom = folded.short;
+      p.releasedBy = folded.short;
+      p.releasedWeek = state.week;
       p.history.push({ week: state.week, text: folded.short + ' folded under ' +
         (p.gender === 'm' ? 'him' : 'her') + '. Free agent, with a career in a bag and a fandom holding its breath.' });
+      KP.chapter(state, p, 'market', { co: folded.short });
+      if ((state.prospects || []).length >= KP.C.NETWORK.boardCap) {
+        p.status = 'released'; p.company = null;   // the market's clock brings her when a seat opens
+        if (KP.floorLedger) KP.floorLedger(state).marketed++;
+      } else {
+        KP.boardMarketFile(state, p, { channel: 'freeAgent', source: folded.short + ' — a career, off the market',
+          window: RF.freeAgentWindow, obs: 3 });
+      }
     });
     ledger(state).classes++;
     notes.push({ kind: 'industry', ind: 'signingClass', priority: 'high',
@@ -96,46 +106,9 @@
   };
 
   // ---- the player verb: sign a name with a career ---------------------
-  KP.freeAgentCost = function (state, p) {
-    const RF = KP.C.RISEFALL;
-    const fame = Math.min(4, Math.floor(KP.socialOf(state, p) / 150000));
-    let cost = RF.faCostBase + fame * RF.faCostPerFame;
-    // the heir's money (v0.9.31): a bankrolled bidder in the room
-    // reprices every career on the market — signing against a fortune
-    if ((state.rivals || []).some(r => r.bankroll && state.week <= r.bankroll.until)) {
-      cost *= KP.C.SAGA.HEIR.faInflate;
-    }
-    return Math.round(cost);
-  };
-  KP.signFreeAgent = function (state, personId) {
-    const entry = (state.freeAgents || []).find(f => f.personId === personId &&
-      state.week <= f.until);
-    const p = state.people[personId];
-    if (!entry || !p) return { ok: false, reason: 'That window has closed. The market moves fast when careers are on it.' };
-    const cost = KP.freeAgentCost(state, p);
-    if (state.budget < cost) return { ok: false, reason: 'Signing ' + KP.displayName(p) + ' runs ' + cost + ' — a career has a price. The budget says no.' };
-    state.budget -= cost;
-    state.freeAgents = state.freeAgents.filter(f => f !== entry);
-    delete p.flags.freeAgent;
-    p.flags.veteran = entry.from;   // the file never forgets the first house
-    p.status = 'trainee';           // re-training into OUR machine, briefly
-    p.company = state.company.short;
-    p.signedWeek = state.week;
-    p.traineeContract = { start: state.week, years: KP.C.TRAINEE_CONTRACT.years, term: 1 };
-    state.roster.push(p.id);
-    ledger(state).faSigned++;
-    const warm = (state.trust || 0) >= 55;
-    p.history.push({ week: state.week, text: 'Signed with ' + state.company.short +
-      ' off the open market — a second house, eyes open. ' +
-      (warm ? 'The industry says this one keeps its promises. Time to find out.'
-            : 'The industry says things about this company. Time to find out which are true.') });
-    const note = KP.note(state, { kind: 'public', ind: 'faSigned', priority: 'high', personId: p.id,
-      text: KP.fillPro(state.company.short + ' signed ' + KP.displayName(p) + ' off the ' + entry.from +
-        ' collapse — a veteran with ' + KP.fmtCount(KP.socialOf(state, p)) + ' followers and opinions {she} has earned. The fandom {she} brought is already inspecting the building. ' +
-        (warm ? 'Verdict so far: acceptable. Watched, but acceptable.'
-              : 'Verdict so far: reserved. The receipts will decide.'), p) });
-    return { ok: true, cost, note: note.text };
-  };
+  // the lane's price IS the board's price (v0.10.33): kept as a read for
+  // the tools and the heir saga's pricing claim
+  KP.freeAgentCost = function (state, p) { return KP.signCost(state, p); };
 
   // ---- the weekly: trails, ranking, offer, generations, the service ----
   KP.registerWeekly('riseFall', 562, function (state, rng, inbox, roster, groups) {
@@ -151,24 +124,8 @@
       }
     });
 
-    // ---- the free-agent market: windows close on their own ------------
-    if (state.freeAgents && state.freeAgents.length) {
-      state.freeAgents.slice().forEach(f => {
-        if (state.week <= f.until) return;
-        const p = state.people[f.personId];
-        state.freeAgents = state.freeAgents.filter(x => x !== f);
-        if (!p) return;
-        delete p.flags.freeAgent;
-        const buyers = (state.rivals || []);
-        if (buyers.length) {
-          const buyer = buyers[Math.floor(KP.hash01([state.seed, 'fa', f.personId].join('|')) * buyers.length)];
-          p.company = buyer.short;
-          p.history.push({ week: state.week, text: 'Signed with ' + buyer.short + ' while other desks deliberated. Careers do not wait politely.' });
-          inbox.push({ kind: 'industry', personId: p.id,
-            text: KP.fillPro(buyer.short + ' signed ' + KP.displayName(p) + ' off the open market while the rest of the scene ran valuations. The window was real, and now it is shut.', p) });
-        }
-      });
-    }
+    // the free-agent window closes on the board's clock now (v0.10.33):
+    // scouting.js's castoff window — another pen, or home
 
     // ---- the annual power ranking (the trades' January issue) ---------
     if (woy(state) === RF.rankWeek && state.week > 4) {

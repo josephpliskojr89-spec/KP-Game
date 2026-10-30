@@ -363,6 +363,21 @@
       I.memberQualityWeight * avg + I.prestigeQualityWeight * prestige + 14 +
       rng.normal(0, I.actQualityNoise * 0.7), 20, 92));
   }
+  // the retired-act sink (v0.10.33, §90 B5): an act that concludes lets
+  // its people go on — the world's exit for the ones with no chapter
+  // here (forgotten), 'gone' for the ones with one. Members already
+  // re-homed (the season's returns) or boarded (the collapse's signing
+  // class) are not the act's to release. The ids stay on the act's
+  // record; every reader of a retired act filters for living people.
+  KP.retireAct = function (state, rival, act, why) {
+    if (!act.retired) { act.retired = true; act.retiredWeek = state.week; }
+    (act.members || []).forEach(id => {
+      const p = state.people[id];
+      if (!p || p.status !== 'rival' || p.company !== rival.short) return;
+      if ((state.roster || []).includes(p.id)) return;
+      KP.goHome(state, p, (why || act.name + '’s run ended at ' + rival.short) + '. The stage years are the chapter.');
+    });
+  };
   // an act from named people (v0.10.32): the season's finale lineup
   // becomes a real act with a real debut single, like any rival's
   KP.makeRivalAct = function (state, rng, rival, opts) {
@@ -531,7 +546,7 @@
           : null;
         if (pick) {
           const wasCastoff = pick.channel === 'castoff' || pick.channel === 'released';
-          KP.rivalSignFromBoard(state, rival, pick, wasCastoff ? 'off the open board, file and all' : 'off the open board');
+          KP.rivalSignFromBoard(state, rival, pick, 'board');
           if (wasCastoff || pick.flags.readByUs) {
             notes.push({ kind: 'scouting', ind: 'rivalSigned', priority: 'normal', personId: pick.id,
               text: KP.fillPro(rival.short + ' signed ' + KP.displayName(pick) + ' off the open board' +
@@ -729,7 +744,7 @@
             act === activeNow.reduce((m, a) => a.popularity < m.popularity ? a : m);
           if (act.popularity < I.disbandFloorPop * (crowded ? 1.6 : 1) &&
               age > I.disbandMinAgeWeeks && rng.chance(I.disbandChance * (crowded ? 2 : 1))) {
-            act.retired = true;
+            KP.retireAct(state, rival, act, act.name + ' disbanded');
             rival.prestige = KP.clamp(rival.prestige - 4, 5, 95);
             if (rival.prestige < KP.C.MEMORY.fadingBelow) {
               const nar = KP.recordEvidence(state, 'fadingHouse', 'rivalCompany', rival.short);
@@ -742,7 +757,7 @@
           } else if (age > I.ROOM.sevenYearWeeks && rng.chance(I.ROOM.wallChance)) {
             // the seven-year wall (0.9.18.1): rival contracts expire on
             // the same clock the player's do. A finished run, not a fall.
-            act.retired = true;
+            KP.retireAct(state, rival, act, act.name + '’s seven-year run ended');
             rival.prestige = KP.clamp(rival.prestige - 2, 5, 95);
             pushMove(rival, act.name + ' concluded (7 years)');
             notes.push({ kind: 'industry', ind: 'disband', actName: act.name, company: rival.short,
@@ -815,22 +830,28 @@
       const starved = rivals.find(r => !r.founderGrudge && !r.projectHouse &&
         r.prestige < I.collapsePrestige && !(r.acts || []).some(a => !a.retired));
       if (starved) {
-        (starved.acts || []).forEach(a => { a.retired = true; });
         state.rivals = rivals.filter(r => r !== starved);
         bump();
         notes.push({ kind: 'industry', urgent: false, ind: 'collapse', company: starved.short,
           text: starved.name + ' has ceased operations. Overnight, their trainees are free agents and their office lease is a cautionary tale. This industry does not do gentle exits.' });
         // the fallout (v0.9.24): the roster is a signing class, not a footnote
+        // — boarded FIRST (v0.10.33), then the acts conclude and the rest
+        // of the room goes to the market
         if (KP.mintFreeAgents) KP.mintFreeAgents(state, starved, notes);
+        // every act, the long-retired ones too: an old save's ghosts leave with the letterhead
+        (starved.acts || []).forEach(a => KP.retireAct(state, starved, a, a.name + ' ended when ' + starved.short + ' folded'));
         // the floor (v0.10.31): "overnight, their trainees are free agents" is
         // TRUE now — the rest of the room lands on the open market, file intact
-        KP.rivalFloor(state, starved).filter(p => !p.flags.freeAgent).forEach(p =>
+        KP.rivalFloor(state, starved).forEach(p =>
           KP.cutFromFloor(state, rng, starved, p, { historyText: starved.short + ' folded under ' + (p.gender === 'm' ? 'him' : 'her') + '. The practice room was a lease; the file is still a file.' }));
       }
     }
 
     // merge: two struggling companies pool what is left
-    if ((state.rivals || []).length >= 4 && rng.chance(I.mergeChance) &&
+    // the merge counts seats, never the broadcaster's houses (v0.10.33: two
+    // permanent project labels once made three scene rivals look like five
+    // and a merge took the scene down to one)
+    if ((state.rivals || []).filter(r => !r.projectHouse).length >= 4 && rng.chance(I.mergeChance) &&
         state.rivals.filter(r => !r.founderGrudge && !r.projectHouse).length >= 2) {
       const sorted = state.rivals.slice().filter(r => !r.founderGrudge && !r.projectHouse)
         .sort((a, b) => a.prestige - b.prestige);

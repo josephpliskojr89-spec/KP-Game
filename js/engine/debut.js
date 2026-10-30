@@ -750,7 +750,8 @@
     members.forEach(m => {
       m.status = 'idol';
       m.liveExp += 10; m.mediaExp += 6;
-      m.history.push({ week: state.week, text: (isDebut ? 'Debuted with ' : 'Comeback with ') + g.name + ' — “' + demo.title + '”.' });
+      m.history.push({ week: state.week, text: (isDebut ? 'Debuted with ' : 'Comeback with ') + g.name + ' — “' + demo.title + '”.' })
+      if (isDebut) KP.chapter(state, m, 'debut', { group: g.name });   // the file (v0.10.33);
       // the arc (v0.10.27, §88 C): debut night changes the shoulders,
       // and the file keeps the before picture — growth is measurable
       if (isDebut && KP.driftTrait) KP.driftTrait(state, m, 'confidence', KP.C.ARC.debutConfidence, 'the debut');

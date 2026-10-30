@@ -117,6 +117,7 @@ function fire(state, kind, nameIdx) {
   const state = world('sg-heir');
   // a free agent to price, before and during
   const fa = state.prospects.map(id => state.people[id])[0];
+  fa.channel = 'castoff';   // the one market (v0.10.33): the heir reprices the market lane
   const cost0 = KP.freeAgentCost(state, fa);
   fire(state, 'heirMoney');
   const rival = state.rivals[state.rivals.length - 1];

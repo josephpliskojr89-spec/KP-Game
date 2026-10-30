@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.32',
+    VERSION: '0.10.33',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -2586,6 +2586,8 @@
       marketWaitWeeks: 10,             // then, with no seat on the board: another pen, or home — the market does not hold files forever
       floorAgeOut: 25,                 // a trainee this old leaves a rival floor at the next evaluation (the industry's clock)
       castTenureWeeks: 8,              // nobody debuts the week she signs — a lineup is cast from people with time on the floor
+      chapterCap: 40,                  // the file's chapters strip (v0.10.33) — where she has been, bounded
+      marketChannels: ['castoff', 'released', 'freeAgent'],   // the one market's lanes on the open board (§89 D7)
       intakeFromBoardChance: 0.5,      // a rival's intake signs off the public board when a file is there
       castoffSignsElsewhere: 0.55,     // past the window: another company's pen (else home)
       staleSignsElsewhere: 0.4,        // aged off the board: signed elsewhere (else back to school)

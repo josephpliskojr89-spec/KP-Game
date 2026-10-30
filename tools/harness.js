@@ -275,6 +275,10 @@ const BANDS = {
   seasonSent:        { lo: 0.10, hi: 1.00, label: 'orgs that sent somebody to a season' },
   seasonOursLineup:  { lo: 0.00, hi: 0.60, label: 'orgs whose trainee made a finale lineup (held, or kept)' },
   seasonPermanent:   { lo: 0.02, hi: 0.90, label: 'worlds where a season’s roll came up permanent' },
+  // v0.10.33 — the one market: a collapse's signing class is on the open
+  // board and the bot buys a career when flush. Measure-first: collapses
+  // are rare inside 140 weeks, so the floor is 0 until a census says more.
+  careerSigned:      { lo: 0.00, hi: 1.00, label: 'orgs that signed a career off the open market (a collapse’s class)' },
   callHeld:          { lo: 0.00, hi: 1.00, label: 'orgs that held an open call or walked the districts' },
   // the public eye (v0.9.36): every announcement mints an expectation
   // and every debut settles against it, so these are FLOORS — if they
@@ -639,6 +643,7 @@ const tally = {
   holdoutMet: 0, holdoutWon: 0, holdoutLost: 0,
   networkApps: 0, networkRefs: 0, washoutReturned: 0, seasonAired: 0, callHeld: 0,
   seasonCastWorld: 0, seasonInvited: 0, seasonSent: 0, seasonOursLineup: 0, seasonPermanent: 0,
+  careerSigned: 0,
   castoffSeen: 0, reentrySeen: 0, rivalDoorBorn: 0,
   expectSet: 0, snubSeen: 0, verdictSeen: 0, compared: 0,
   gigPlayed: 0, campaignRun: 0, gigViralSeen: 0, wallTouched: 0, breakSeen: 0,
@@ -911,10 +916,8 @@ for (let s = 0; s < SEEDS; s++) {
     });
     // the open market (v0.9.24): a flush boss buys a career when one
     // is on it — the signing-class verb gets exercised
-    (state.freeAgents || []).slice(0, 1).forEach(f => {
-      const p = state.people[f.personId];
-      if (!p || state.week > f.until) return;
-      if (state.budget > KP.freeAgentCost(state, p) + 150) KP.signFreeAgent(state, p.id);
+    (state.prospects || []).map(id => state.people[id]).filter(p => p && p.channel === 'freeAgent').slice(0, 1).forEach(p => {
+      if (state.budget > KP.signCost(state, p) + 150) KP.signProspect(state, p.id, { answer: 'accept' });   // the one market (v0.10.33)
     });
     // weekly training: two best perceived domains, rest when tired
     state.roster.forEach(id => {
@@ -1787,6 +1790,7 @@ for (let s = 0; s < SEEDS; s++) {
   if ((sel.sent || 0) >= 1) tally.seasonSent++;
   if ((sel.oursLineup || 0) >= 1) tally.seasonOursLineup++;
   if ((sel.permanent || 0) >= 1) tally.seasonPermanent++;
+  if (((state.riseFallLedger || {}).faSigned || 0) >= 1) tally.careerSigned++;   // the one market (v0.10.33)
   if ((nl.calls || 0) + (nl.streets || 0) >= 1) tally.callHeld++;
   // the product (v0.10.0): the releases archive their own numbers
   {

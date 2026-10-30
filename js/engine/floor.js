@@ -42,6 +42,82 @@
     return p.born;
   };
 
+  // ---- the chapters (v0.10.33, §90 B5): where she has been, structured --
+  // One compact store per person — a kind and a reference, never prose;
+  // the words come from KP.chapterLine at render. Stamped at every door
+  // and transition; bounded by FLOOR.chapterCap.
+  KP.chapter = function (state, p, kind, extra) {
+    if (!p) return null;
+    p.chapters = p.chapters || [];
+    const ch = Object.assign({ week: state.week, kind }, extra || {});
+    p.chapters.push(ch);
+    const cap = KP.C.FLOOR.chapterCap || 40;
+    if (p.chapters.length > cap) p.chapters = p.chapters.slice(-cap);
+    return ch;
+  };
+  function cityLabel(id) {
+    const row = ((KP.C.TOUR && KP.C.TOUR.KR_CITIES) || []).find(c => c.id === id);
+    if (row) return row.label;
+    if (KP.C.REGIONS && KP.C.REGIONS.some(r => r.id === id) && KP.regionLabel) return KP.regionLabel(id);
+    return id ? String(id) : '';
+  }
+  // when: the week's label, or 'before you' for a stamp older than the job
+  KP.chapterWhen = function (week) {
+    return (week == null || week < 1) ? 'before you' : KP.weekLabel(week).text;
+  };
+  KP.chapterLine = function (state, ch) {
+    const co = ch.co || ch.firstCompany || '';
+    switch (ch.kind) {
+      case 'born': {
+        const city = cityLabel(ch.city);
+        const school = ch.schoolId && KP.schoolById ? KP.schoolById(state, ch.schoolId) : null;
+        const door = { rivalDoor: co ? 'walked into ' + co + '’s door' : 'walked into a company door',
+          academy: school ? school.name : 'an academy', application: 'an applicant', referral: 'a referral',
+          street: 'found on the street', audition: 'the open call', social: 'a clip that went around',
+          auditionAbroad: 'the audition tour', abroad: 'arrived from abroad', founding: 'the founding board',
+          inherited: 'inherited with the building', opening: 'on the board from day one', legacy: '' }[ch.door] || '';
+        return 'From ' + (city || 'somewhere') + (door ? ' — ' + door : '');
+      }
+      case 'enrolled': return 'Enrolled at ' + (ch.school || 'an academy');
+      case 'signed': return 'Signed to ' + co + ({ board: ' off the open board', window: ' after the window closed', late: ', late',
+        market: ' off the open market', back: ' — came back', season: ' off the season', inherited: ' (inherited)', opening: '' }[ch.how] || '');
+      case 'cut': return 'Cut at ' + co + '’s evaluation';
+      case 'released': return { quit: 'Left ' + co, farewell: 'Term ran out at ' + co, scandal: 'Released from ' + co + ' after the story',
+        promise: 'Left ' + co + ' over a broken promise', silence: 'Left ' + co + ' unanswered' }[ch.how] || 'Released from ' + co;
+      case 'reentry': return 'Back on the open board';
+      case 'debut': return 'Debuted with ' + (ch.group || 'the group');
+      case 'seasonSent': return 'Sent to ' + ch.show;
+      case 'seasonOut': return 'Out of ' + ch.show + (ch.weekNo ? ', week ' + ch.weekNo : '');
+      case 'seasonFinalist': return ch.show + ' finalist';
+      case 'seasonLineup': return 'Won the ' + ch.show + ' lineup' + (ch.act ? ' — ' + ch.act : '') + (ch.permanent ? ' (permanent)' : '');
+      case 'projectEnd': return (ch.act || 'The project') + '’s run ended' + (co ? ' — back to ' + co : '');
+      case 'kept': return 'Kept by ' + (ch.show || 'the show') + '’s label';
+      case 'departed': return (ch.mode === 'cold' ? 'Contract expired at ' : 'Contract completed at ') + co + (ch.group ? ' (' + ch.group + ')' : '');
+      case 'graduated': return 'Graduated from ' + (ch.group || 'the group') + ' to solo';
+      case 'enlisted': return 'Enlisted';
+      case 'discharged': return 'Discharged';
+      case 'home': return ch.why || 'Went home';
+      case 'stayed': return 'Stayed at ' + co + ' when the architect left';
+      case 'market': return 'On the open market after ' + co + ' folded';
+      default: return ch.kind;
+    }
+  };
+  // the strip: born first (from the stamp), then the chapters
+  KP.chaptersOf = function (state, p) {
+    const out = [];
+    if (p.born) out.push(Object.assign({ kind: 'born', week: p.born.week }, p.born));
+    (p.chapters || []).forEach(ch => out.push(ch));
+    return out;
+  };
+  // one line for a card: where she is from, and the last thing that happened to her
+  KP.fromLine = function (state, p) {
+    const chs = KP.chaptersOf(state, p);
+    if (!chs.length) return p.source || '';
+    const born = chs[0].kind === 'born' ? KP.chapterLine(state, chs[0]) : null;
+    const last = chs.length > 1 ? chs[chs.length - 1] : null;
+    return [born, last ? KP.chapterLine(state, last) : null].filter(Boolean).join(' · ');
+  };
+
   // ---- the floor read: rosterCount is a count of people ------------------
   function inActs(state) {
     const set = new Set();
@@ -83,7 +159,14 @@
   };
 
   // ---- a rival signs off the public board (the world before the door) ----
+  // `how` is a key: board | window | late | market (the words follow)
+  const SIGN_WORDS = { board: 'off our board', window: 'after the open window closed', late: 'late — the market had moved on, but one desk had not',
+    market: 'from the open market, no board needed' };
+  // the houses that take people off the market: the broadcaster's project
+  // label is not one — it casts from a season and nothing else (v0.10.33)
+  KP.signingHouses = function (state) { return (state.rivals || []).filter(r => !r.projectHouse); };
   KP.rivalSignFromBoard = function (state, rival, p, how) {
+    how = how && SIGN_WORDS[how] ? how : 'board';
     p.status = 'rival';
     p.company = rival.short;
     p.signedWeek = state.week;
@@ -96,7 +179,8 @@
     if (KP.schoolRecordAlum) KP.schoolRecordAlum(state, p, rival.short);
     state.prospects = (state.prospects || []).filter(id => id !== p.id);
     (state.rivals || []).forEach(r => { if (r.interest) delete r.interest[p.id]; });
-    p.history.push({ week: state.week, text: 'Signed to ' + rival.short + (how ? ' — ' + how : ' — off our board') + '.' });
+    p.history.push({ week: state.week, text: 'Signed to ' + rival.short + ' — ' + SIGN_WORDS[how] + '.' });
+    KP.chapter(state, p, 'signed', { co: rival.short, how });
     ledger(state).signedFromBoard++;
     return p;
   };
@@ -118,6 +202,7 @@
     if ((rival.prestige || 40) >= CF.majorPrestige) p.castoffMajor = 1; else delete p.castoffMajor;
     p.history.push({ week: state.week, text: opts.historyText ||
       ('Cut at ' + rival.short + '’s seasonal evaluation. Years of practice rooms, one meeting.') });
+    KP.chapter(state, p, 'cut', { co: rival.short });
     if (opts.hype) p.hype = Math.max(p.hype || 0, opts.hype);
     const full = (state.prospects || []).length >= KP.C.NETWORK.boardCap;
     if (full) {
@@ -128,29 +213,41 @@
     KP.boardCastoff(state, rng, p);
     return 'board';
   };
-  // the castoff on the board IS the person who was cut
-  KP.boardCastoff = function (state, rng, p) {
-    const CF = KP.C.NETWORK.CASTOFF;
+  // the one market (v0.10.33, §89 D7): castoffs and the collapse's
+  // signing class land on the SAME open board, through one door, with a
+  // channel tag, a window and a price the lane sets
+  KP.boardMarketFile = function (state, p, opts) {
+    opts = opts || {};
     p.status = 'prospect';
-    p.channel = 'castoff';
-    p.source = (p.castoffFrom || 'a rival') + ' castoff';
-    p.castoffUntil = state.week + CF.window;
+    p.channel = opts.channel || 'castoff';
+    p.source = opts.source || ((p.castoffFrom || 'a rival') + ' castoff');
+    p.castoffUntil = state.week + (opts.window || KP.C.NETWORK.CASTOFF.window);
+    p.company = null;
     delete p.reentryAt;
-    p.observations = Math.max(p.observations || 0, CF.obs);   // somebody trained them; the file is real
+    p.observations = Math.max(p.observations || 0, opts.obs || KP.C.NETWORK.CASTOFF.obs);   // somebody trained them; the file is real
     KP.takeReads(state, p);
-    if (p.castoffMajor && !p.hype) p.hype = rng ? rng.int(CF.majorHype[0], CF.majorHype[1])
-      : CF.majorHype[0] + Math.floor(KP.hash01([state.seed, p.id, 'chype'].join('|')) * (CF.majorHype[1] - CF.majorHype[0]));
-    state.prospects.push(p.id);
+    (state.rivals || []).forEach(r => { if (r.interest) delete r.interest[p.id]; });
+    if (!(state.prospects || []).includes(p.id)) state.prospects.push(p.id);
     ledger(state).boarded++;
     return p;
   };
+  // the castoff on the board IS the person who was cut
+  KP.boardCastoff = function (state, rng, p) {
+    const CF = KP.C.NETWORK.CASTOFF;
+    KP.boardMarketFile(state, p, { channel: 'castoff' });
+    if (p.castoffMajor && !p.hype) p.hype = rng ? rng.int(CF.majorHype[0], CF.majorHype[1])
+      : CF.majorHype[0] + Math.floor(KP.hash01([state.seed, p.id, 'chype'].join('|')) * (CF.majorHype[1] - CF.majorHype[0]));
+    return p;
+  };
+  KP.isMarketFile = function (p) { return !!p && (KP.C.FLOOR.marketChannels || []).includes(p.channel); };
 
   // ---- the player's exits: she leaves the company, not the world ---------
-  KP.leftUs = function (state, p) {
+  KP.leftUs = function (state, p, how) {
     p.flags.wasOurs = 1;
     p.releasedFrom = state.company.short;
     p.releasedWeek = state.week;
     delete p.reentryAt;
+    KP.chapter(state, p, 'released', { co: state.company.short, how: how || 'released' });
     // the season (v0.10.32): leaving this building mid-term hands the
     // project house her contract — the seat was held for her here, and
     // the act she is in does not stop for your paperwork
@@ -185,6 +282,7 @@
     p.status = 'gone';
     p.company = null;
     p.history.push({ week: state.week, text: text || 'Went home. The industry was a chapter, not the book.' });
+    KP.chapter(state, p, 'home', { why: (text || 'Went home').split('.')[0].slice(0, 60) });
     led.home++;
     return true;
   };
@@ -233,10 +331,10 @@
         // The save does not hold a waiting room forever (measured: 43
         // released files per org at 140 weeks before this clock)
         if (state.week - p.reentryAt < F.marketWaitWeeks) return;
-        const rivals = (state.rivals || []);
+        const rivals = KP.signingHouses(state);
         if (rivals.length && KP.hash01([state.seed, p.id, 'marketExit'].join('|')) < F.castoffSignsElsewhere) {
           const r = rivals[Math.floor(KP.hash01([state.seed, p.id, 'marketWhere'].join('|')) * rivals.length)];
-          KP.rivalSignFromBoard(state, r, p, 'from the open market, no board needed');
+          KP.rivalSignFromBoard(state, r, p, 'market');
           led.elsewhere++;
         } else {
           KP.goHome(state, p, 'Waited on the market for a seat that never opened. Went home.');
@@ -252,6 +350,7 @@
       state.prospects.push(p.id);
       led.reentries++;
       p.history.push({ week: state.week, text: 'Back on the open board after ' + away + ' weeks away.' });
+      KP.chapter(state, p, 'reentry', {});
       if (ours) {
         inbox.push({ kind: 'scouting', ind: 'reentry', priority: 'normal', personId: p.id,
           text: KP.fillPro(KP.displayName(p) + ', who left this building ' + away + ' weeks ago, is on the open board again. ' +

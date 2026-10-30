@@ -892,6 +892,67 @@
     });
   } });
 
+  // the file (v0.10.33, §90 Phase C): every person gets chapters — derived
+  // once from the history she already carries — and a door stamp if the
+  // save predates them; the free-agent lane's list lands on the board
+  MIGRATIONS.push({ v: '0.10.33', fn: function (state) {
+    const RX = [
+      [/^Signed to (\S+) — off our board/, (m) => ({ kind: 'signed', co: m[1], how: 'board' })],
+      [/^Signed to (\S+) — after the open window/, (m) => ({ kind: 'signed', co: m[1], how: 'window' })],
+      [/^Signed to (\S+) — late/, (m) => ({ kind: 'signed', co: m[1], how: 'late' })],
+      [/^Signed to (\S+) — from the open market/, (m) => ({ kind: 'signed', co: m[1], how: 'market' })],
+      [/^Signed to (\S+)/, (m) => ({ kind: 'signed', co: m[1].replace(/[.,;:]$/, '') })],
+      [/^Signed with (\S+) off the open market/, (m) => ({ kind: 'signed', co: m[1], how: 'market' })],
+      [/^Cut at (.+?)’s seasonal evaluation/, (m) => ({ kind: 'cut', co: m[1] })],
+      [/^Released from (\S+)/, (m) => ({ kind: 'released', co: m[1].replace(/[.,;:]$/, ''), how: 'released' })],
+      [/^Chose to leave (\S+)/, (m) => ({ kind: 'released', co: m[1].replace(/[.,;:]$/, ''), how: 'quit' })],
+      [/^Waited a week for an answer that never came/, () => ({ kind: 'released', co: state.company.short, how: 'silence' })],
+      [/^Left when the promised lineup never materialized/, () => ({ kind: 'released', co: state.company.short, how: 'promise' })],
+      [/^Back on the open board/, () => ({ kind: 'reentry' })],
+      [/^Debuted with (.+?) —/, (m) => ({ kind: 'debut', group: m[1] })],
+      [/^Sent to the (.+?) season/, (m) => ({ kind: 'seasonSent', show: m[1] })],
+      [/^Eliminated from (.+?) in week (\d+)/, (m) => ({ kind: 'seasonOut', show: m[1], weekNo: parseInt(m[2], 10) })],
+      [/^Made the (.+?) finale/, (m) => ({ kind: 'seasonFinalist', show: m[1] })],
+      [/^Won the (.+?) lineup/, (m) => ({ kind: 'seasonLineup', show: m[1] })],
+      [/^The (.+?) run ended/, (m) => ({ kind: 'projectEnd', act: m[1] })],
+      [/^Enlisted for mandatory service/, () => ({ kind: 'enlisted' })],
+      [/^Discharged after/, () => ({ kind: 'discharged' })],
+      [/^Graduated from (.+?) into solo/, (m) => ({ kind: 'graduated', group: m[1] })],
+      [/^Contract (?:completed|expired)\. Left (\S+)/, (m) => ({ kind: 'departed', co: m[1].replace(/[.,;:]$/, '') })],
+      [/^Went home|^Aged out|^Aged past|^Graduated out of|^Past the market|^Waited on the market|^The window closed with no pen|^Took one last meeting/, (m) => ({ kind: 'home', why: m[0] })],
+      [/walked out to start|architect left/, () => ({ kind: 'stayed', co: (state.rivals || []).filter(r => r.founderGrudge).map(r => r.short)[0] || 'the old house' })],
+      [/^(\S+) folded under/, (m) => ({ kind: 'market', co: m[1] })],
+    ];
+    Object.values(state.people || {}).forEach(p => {
+      if (!p.chapters) {
+        const found = [];
+        (p.history || []).forEach(h => {
+          if (!h || typeof h.text !== 'string') return;
+          for (const [rx, mk] of RX) {
+            const m = h.text.match(rx);
+            if (!m) continue;
+            const ch = mk(m);
+            if (ch) found.push(Object.assign({ week: h.week || 1 }, ch));
+            break;
+          }
+        });
+        if (found.length) p.chapters = found;
+      }
+      if (!p.born) KP.stampBorn(state, p, 'legacy', { week: p.signedWeek != null ? p.signedWeek : 1 });
+    });
+    (state.freeAgents || []).forEach(f => {
+      const p = state.people[f.personId];
+      if (!p || p.status !== 'rival') return;
+      p.castoffFrom = f.from; p.releasedBy = f.from; p.releasedWeek = state.week;
+      delete p.flags.freeAgent;
+      if ((state.prospects || []).length < KP.C.NETWORK.boardCap) {
+        KP.boardMarketFile(state, p, { channel: 'freeAgent', source: f.from + ' — a career, off the market',
+          window: Math.max(1, (f.until || state.week) - state.week), obs: 3 });
+      } else { p.status = 'released'; p.company = null; }
+    });
+    delete state.freeAgents;
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

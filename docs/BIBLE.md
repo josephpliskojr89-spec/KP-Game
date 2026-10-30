@@ -6679,7 +6679,7 @@ Battery 97/97, soak 40 clean, longhaul 10x620, e2e 111, lockstep
 0.10.30.
 
 
-## §90 The trainee ecosystem (PHASES A–B SHIPPED v0.10.31–32 — one world of people)
+## §90 The trainee ecosystem (PHASES A–C SHIPPED v0.10.31–33 — one world of people)
 
 Owner: "I want the actual trainee ecosystem to make sense and be
 connected. Survival shows actually draw from the active trainee pool.
@@ -7046,6 +7046,97 @@ scene chart).
 
 Battery 99/99, soak 40 clean, longhaul 10x620, e2e 111, lockstep
 0.10.32.
+
+**As built — Phase C, v0.10.33 "the file".** Owner: "Go ahead with
+Phase C." floor.js grew the chapters; industry.js the retired-act
+exit; risefall.js lost its second market; scouting.js prices the
+lane; save.js derives the file once for old saves. Suite_100_file
+(311 checks).
+
+*The chapters* (B5, built as a store after all — a structured one).
+`p.chapters` is a list of `{week, kind, …refs}` — a kind and a
+reference, never prose — stamped by `KP.chapter(state, p, kind,
+extra)` at every door and transition and read by ONE renderer,
+`KP.chapterLine`, at render. Kinds: born (from `p.born`: the door,
+the city, the school, the first house), enrolled, signed {co, how:
+board | window | late | market | back}, cut {co}, released {co, how:
+released | quit | silence | promise | scandal}, reentry, debut
+{group}, seasonSent / seasonOut {weekNo} / seasonFinalist /
+seasonLineup {act, permanent}, projectEnd {act, co}, kept, departed
+{co, group, mode}, graduated, enlisted, discharged, home {why},
+stayed {co}, market {co}. Capped at FLOOR.chapterCap 40. The rival
+signing's `how` is a KEY now (the prose follows it inside
+`rivalSignFromBoard`; an unknown key reads as 'board'), `leftUs`
+takes the manner, and the opening roster and board came through
+doors too ('inherited', 'opening' — 3.7 and 1.9 births per org-year
+the audit never counted before). `KP.chaptersOf` returns born first;
+`KP.chapterWhen` says 'before you' for a stamp older than the job.
+The Person tab opens a "Where she has been" strip (the last twelve,
+week-tagged); the board card's second line is `KP.fromLine`: where
+she is from, and the last thing that happened to her ("From Busan —
+walked into Novaline's door · Cut at Novaline's evaluation"). Idle
+census at 620 weeks: 2.4–3.1 chapters per person, the longest file
+21.
+
+*The one market* (§89 D7). The collapse's signing class lands on
+the open board through the castoff's door — `KP.boardMarketFile(
+state, p, {channel, source, window, obs})` is the door, `boardCastoff`
+a caller of it — as `channel: 'freeAgent'` with RISEFALL.
+freeAgentWindow (16) on the castoff clock, three observations, and
+the first house on `castoffFrom`; a full board sends her to the
+market's own clock ('released'). The price is the board's price:
+`KP.signCost` lifts a career to faCostBase + fame × faCostPerFame
+and the heir's money (SAGA.HEIR.faInflate) reprices every MARKET
+file (FLOOR.marketChannels: castoff, released, freeAgent) while the
+tap is open — never the ordinary board. The verb is the board's
+verb: `signProspect` on a career stamps `flags.veteran`, counts
+faSigned, posts the public's verdict. Deleted: `state.freeAgents`,
+`KP.signFreeAgent`, the weekly window sweep, the Industry page's
+"open market" card, the app's `sign-freeagent` action.
+`KP.freeAgentCost` survives as an alias of signCost. The bot buys a
+career when flush. Measured (soak, 40 orgs): 1/40 orgs bought a career inside 140 weeks — collapses are rare that early, so the band's floor is 0 until a longer census says more.
+
+*The retired-act sink.* `KP.retireAct(state, rival, act, why)` is
+the only way an act concludes (prune, the seven-year wall, the
+collapse — every act of the folded house, the long-retired ones too
+— and the project term's end): it keeps the first retirement date
+and sends every member still on the dead letterhead through
+`KP.goHome` — forgotten if nobody here ever knew her, 'gone' with a
+`home` chapter if somebody did; the ids stay on the act's record and
+every reader of an act already filters for living people. The
+collapse boards its class FIRST, then concludes the acts, then sweeps
+the floor. Measured: ZERO rivals sitting in a retired act with the
+old letterhead after 620 idle weeks (was ~82); people per save
+260–295 (idle) and 481–634 KB of a 657–917 KB longhaul save (was
+785–790 KB of 1.06–1.08 MB on the widest orgs).
+
+*Two Phase B gaps the sink audit found.* (1) The broadcaster's house
+was signing people off the market — the re-entry clock, the castoff
+window and the stale exit picked from ALL rivals, and its scouts ran
+the interest ladder — and whoever it signed sat on a floor that
+never culls or debuts: a second sink. `KP.signingHouses(state)`
+(rivals minus project houses) is now the only pool those exits draw
+from, and the house has no scouts. (2) The merge gate counted project
+houses as seats: two permanent project labels made three scene
+rivals look like five, a merge fired, and the scene fell to ONE
+(harness invariant, soak-6). The gate counts scene rivals only.
+
+*The migration* (0.10.33) derives chapters once from the history a
+person already carries (twenty-odd regexes over the stamps every
+version wrote: Signed to / Cut at / Released from / Chose to leave /
+Debuted with / Sent to the … season / Eliminated from … in week N /
+Made the … finale / Won the … lineup / Enlisted / Discharged /
+Graduated from … into solo / Contract completed|expired / Back on
+the open board / Went home … / folded under), stamps `born` (door
+'legacy') on a file without one, boards the old free-agent list
+with the window it had left, and leaves a current save byte-for-byte
+alone (no empty arrays). Harness: `careerSigned` band (measure-first,
+0–100%). Suites 066/072/098/099 re-pinned to the one market and to
+a home floor that may fold during a project term.
+
+Battery 100/100, soak 40 clean, longhaul 10x620, e2e 113 (two new
+checks: the strip is on the person tab and opens with where she is
+from), lockstep 0.10.33.
 
 
 ## §18 Watch items
@@ -10185,3 +10276,20 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Measured: 40/40 cast from 3+ sources, 38/40 invited, 23/40 sent,
 > 24/40 permanent rolls. Suite_099 (78). Battery 99/99, soak 40
 > clean, longhaul 10x620, e2e 111, lockstep 0.10.32. Rode to main.
+
+> **0.10.33 — the file.** §90 Phase C, owner: "Go ahead with Phase
+> C." Every person carries structured chapters (`p.chapters`, kinds
+> and references, one renderer) stamped at every door and transition
+> — the Person tab's "Where she has been" strip, the board card's
+> from-line; the opening roster and board came through doors too.
+> The collapse's signing class lands on the one open board through
+> the castoff's door (channel 'freeAgent', priced by the career, the
+> heir's money repricing the market lane); `state.freeAgents` and
+> `signFreeAgent` are gone (§89 D7). `KP.retireAct` closes the
+> retired-act sink: a concluded act lets its people go on (forgotten
+> or 'gone' with a chapter) — zero ghosts at 620 weeks, longhaul
+> saves 657–917 KB (was up to 1.08 MB). Two Phase B gaps fixed: the
+> broadcaster's house no longer signs off the market or scouts; the
+> merge gate counts scene rivals only. Migration 0.10.33 derives the
+> file from old history. Suite_100 (311). Battery 100/100, soak 40
+> clean, longhaul 10x620, e2e 113, lockstep 0.10.33. Rode to main.

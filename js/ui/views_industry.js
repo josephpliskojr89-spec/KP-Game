@@ -125,20 +125,8 @@
         '</div></div>');
     }
 
-    // the open market (v0.9.24): careers, priced and waiting
-    if (state.freeAgents && state.freeAgents.length) {
-      html.push('<div class="kicker">The open market</div>');
-      state.freeAgents.forEach(f => {
-        const p = state.people[f.personId];
-        if (!p || state.week > f.until) return;
-        html.push('<div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:10px">' +
-          '<div><b>' + UI.esc(KP.displayName(p)) + '</b> · ' + p.age + ' · ex-' + UI.esc(f.from) +
-          '<div style="font-size:.7rem;color:var(--ink-dim)">' + KP.fmtCount(KP.socialOf(state, p)) +
-          ' followers · window closes ' + UI.esc(KP.weekLabel(f.until).text) + '</div></div>' +
-          '<button class="btn small" data-action="sign-freeagent" data-id="' + p.id + '">Sign · ' +
-          KP.freeAgentCost(state, p) + '</button></div>');
-      });
-    }
+    // the open market lane folded into the scouting board (v0.10.33, §89 D7):
+    // a collapse's careers are files on the board like every castoff
 
     // the sagas' standing arrangements (v0.9.31): the pact and the fund
     if (state.jv && state.week <= state.jv.until) {

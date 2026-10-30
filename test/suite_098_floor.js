@@ -209,7 +209,8 @@ function debuted(seed) {
   state.rngState = rng.state();
   t.ok(!state.rivals.includes(starved), 'the starved house folded');
   t.ok(ids.every(id => state.people[id]), 'its people are still people');
-  t.ok(ids.every(id => state.people[id].company !== 'Starved' || state.people[id].flags.freeAgent), 'none still carry the dead letterhead except the signing class');
+  t.ok(ids.every(id => state.people[id].company !== 'Starved'), 'none still carry the dead letterhead');
+  t.ok(ids.some(id => state.people[id].channel === 'freeAgent' && state.people[id].status === 'prospect'), 'the signing class is on the open board (v0.10.33)');
   t.ok(ids.some(id => state.people[id].status === 'prospect' || state.people[id].status === 'released'), 'the rest of the room is on the market, file intact');
 }
 

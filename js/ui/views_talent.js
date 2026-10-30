@@ -171,14 +171,14 @@
       '<div class="t-body" data-action="open-dossier" data-id="' + p.id + '">' +
       '<div class="t-name">' + UI.esc(p.name.display) +
       (p.gender === 'm' ? ' <span class="chip" style="font-size:.6rem;vertical-align:middle">boy</span>' : '') + '</div>' +
-      '<div class="t-sub">' + p.age + ' · ' + UI.esc(sourceLabel(state, p)) + ' · ' + looksWord(state, p) + '</div>' +
+      '<div class="t-sub">' + p.age + ' · ' + UI.esc(p.born && KP.fromLine ? KP.fromLine(state, p) : sourceLabel(state, p)) + ' · ' + looksWord(state, p) + '</div>' +
       '<div class="t-read">“' + UI.esc(best.line) + '”</div>' +
       '<div class="t-chips">' + UI.heatChips(state, p.id) +
       (p.channel && { application: 'applicant', referral: 'referred', street: 'street cast',
-        washout: 'washout', social: 'went viral', showKid: 'season finalist', season: 'seen on the season', released: 'released, came back around', castoff: 'a castoff' }[p.channel]
+        washout: 'washout', social: 'went viral', showKid: 'season finalist', season: 'seen on the season', released: 'released, came back around', castoff: 'a castoff', freeAgent: 'a career, off the market' }[p.channel]
         ? '<span class="chip' + (KP.CHANNEL_PRIVATE[p.channel] ? ' cool' : '') + '">' +
           { application: 'applicant', referral: 'referred', street: 'street cast',
-            washout: 'washout', social: 'went viral', showKid: 'season finalist', season: 'seen on the season', released: 'released, came back around', castoff: 'a castoff' }[p.channel] + '</span>'
+            washout: 'washout', social: 'went viral', showKid: 'season finalist', season: 'seen on the season', released: 'released, came back around', castoff: 'a castoff', freeAgent: 'a career, off the market' }[p.channel] + '</span>'
         : '') +
       (KP.holdoutOf(state, p)
         ? '<span class="chip hot">' + ((p.holdout || {}).callback ? (p.gender === 'm' ? 'he called back' : 'she called back')
@@ -374,6 +374,14 @@
         KP.fillPro('What {she} wants, quietly: ', p) +
         UI.esc(AMBITION_WORDS[KP.ambitionOf(state, p)] || 'to be seen') + '.</div>');
       html.push('<div class="card">' + KP.factsOf(state, p).map(f => UI.esc(f)).join('<br>') + '</div>');
+      // the chapters (v0.10.33, §90 B5): where she has been — one file for life
+      const chapters = KP.chaptersOf ? KP.chaptersOf(state, p) : [];
+      if (chapters.length) {
+        html.push('<div class="kicker">' + KP.fillPro('Where {she} has been', p) + '</div>');
+        html.push('<div class="card">' + chapters.slice(-12).map(ch =>
+          '<div style="display:flex;gap:8px;align-items:baseline;padding:2px 0"><span class="m-tag">' + UI.esc(KP.chapterWhen(ch.week)) + '</span>' +
+          '<span>' + UI.esc(KP.chapterLine(state, ch)) + '</span></div>').join('') + '</div>');
+      }
       const lastMoment = KP.spotlightOf ? KP.spotlightOf(state, p.id) : null;
       if (lastMoment) {
         html.push('<div class="kicker">Up close, lately</div>');

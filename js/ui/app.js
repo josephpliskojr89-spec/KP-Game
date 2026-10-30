@@ -740,12 +740,6 @@
         else UI.toast(r.reason, true);
         break;
       }
-      case 'sign-freeagent': {
-        const r = KP.signFreeAgent(s, t.dataset.id);
-        if (r.ok) { UI.toast(s.people[t.dataset.id].name.display + ' signs — a career walks in the door.'); App.save(); App.render(); }
-        else UI.toast(r.reason, true);
-        break;
-      }
       case 'sign-confirm': {
         const r = KP.signProspect(s, t.dataset.id);
         UI.closeModal();

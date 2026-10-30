@@ -45,8 +45,11 @@ function ride(state, weeks) { for (let w = 0; w < weeks; w++) KP.advanceWeek(sta
 }
 
 // ---- the collapse mints a signing class, and the verb works -----------
+// the one market (v0.10.33): the class lands on the open board through
+// the castoff's door, and the verb is the board's verb
 {
   const state = fresh('rf-class');
+  state.budget = 2000; state.signingsAllowed = 9;
   const doomed = state.rivals[0];
   // give the doomed house named people worth signing
   const rng = KP.rngFor(state);
@@ -60,32 +63,39 @@ function ride(state, weeks) { for (let w = 0; w < weeks; w++) KP.advanceWeek(sta
   state.nextPersonId = KP.peekNextId();
   const notes = [];
   KP.mintFreeAgents(state, doomed, notes);
-  t.ok(state.freeAgents.length >= 3, 'the class is on the market');
+  const cls = Object.values(state.people).filter(p => p.channel === 'freeAgent' && p.castoffFrom === doomed.short);
+  t.ok(cls.length >= 3, 'the class is on the market — the open board (' + cls.length + ')');
+  t.ok(cls.every(p => p.status === 'prospect' && state.prospects.includes(p.id)), 'as prospects, like every castoff');
+  t.eq(state.freeAgents, undefined, 'no second list');
   t.ok(notes.some(n => n.ind === 'signingClass'), 'and the wire says so by name');
   t.eq(state.riseFallLedger.classes, 1, 'ledgered');
   // the player verb: a career walks in the door — the class is drawn
   // from the WHOLE folded house (its act members outrank the fixtures,
   // which is the point), so sign whoever actually made the market
-  const her = state.people[state.freeAgents[0].personId];
-  const cost = KP.freeAgentCost(state, her);
   const budget0 = state.budget;
-  const r = KP.signFreeAgent(state, her.id);
-  t.ok(r.ok, 'signed');
-  t.eq(state.budget, budget0 - cost, 'a career has a price');
+  let her = null, cost = 0;
+  for (const p of cls) {
+    const c = KP.signCost(state, p);
+    const r = KP.signProspect(state, p.id, { answer: 'accept' });
+    if (r.ok) { her = p; cost = c; break; }
+  }
+  t.ok(her, 'signed');
+  t.ok(cost >= KP.C.RISEFALL.faCostBase, 'a career is priced like one (' + cost + ')');
+  t.ok(budget0 - state.budget >= cost, 'a career has a price');
   t.eq(her.status, 'trainee', 'in OUR building now');
   t.ok(state.roster.includes(her.id), 'on the roster');
   t.ok(her.flags.veteran === doomed.short, 'the file remembers the first house');
   t.ok(her.traineeContract, 'papered on arrival');
-  t.ok(!state.freeAgents.some(f => f.personId === her.id), 'off the market');
+  t.ok(!state.prospects.includes(her.id), 'off the market');
   // an unsigned name's window closes on its own — and in reality the
   // folded house is GONE from the scene by then (the fixture minted the
   // class directly, so retire the letterhead the way a collapse would)
   state.rivals = state.rivals.filter(r => r !== doomed);
-  const other = state.people[state.freeAgents[0].personId];
-  state.freeAgents.forEach(f => { f.until = state.week - 1; });
+  const rest = cls.filter(p => p !== her && p.status === 'prospect');
+  rest.forEach(p => { p.castoffUntil = state.week; });
   KP.advanceWeek(state);
-  t.ok(!state.freeAgents.length, 'windows close');
-  t.ok(other.company && other.company !== doomed.short, 'careers do not wait politely');
+  t.ok(rest.every(p => !state.prospects.includes(p.id)), 'windows close');
+  t.ok(rest.every(p => !state.people[p.id] || (state.people[p.id].company !== doomed.short && state.people[p.id].status !== 'prospect')), 'careers do not wait politely');
 }
 
 // ---- the offer: the founding's mirror ---------------------------------

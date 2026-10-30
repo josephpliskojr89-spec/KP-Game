@@ -29,6 +29,18 @@
     // the majors' castoffs (v0.10.13): trained at a bigger agency, and
     // the price knows it — the years of coaching are on the invoice
     if (person.castoffMajor) cost = Math.round(cost * KP.C.NETWORK.CASTOFF.majorPremium);
+    // the one market (v0.10.33, §89 D7): a career off a collapse is priced
+    // by the career (the old free-agent price), and the heir's money
+    // reprices every market file while the tap is open
+    if (person.channel === 'freeAgent') {
+      const RF = KP.C.RISEFALL;
+      const fame = Math.min(4, Math.floor(KP.socialOf(state, person) / 150000));
+      cost = Math.max(cost, RF.faCostBase + fame * RF.faCostPerFame);
+    }
+    if (KP.isMarketFile && KP.isMarketFile(person) &&
+        (state.rivals || []).some(r => r.bankroll && state.week <= r.bankroll.until)) {
+      cost = Math.round(cost * KP.C.SAGA.HEIR.faInflate);
+    }
     // the regional founding (v0.10.10): everything is cheaper away
     // from Seoul, signing bonuses included
     if (KP.homeCostMult) cost = Math.round(cost * KP.homeCostMult(state));
@@ -259,7 +271,19 @@
       KP.floorLedger(state).resigned++;
       p.history.push({ week: state.week, text: 'Came back to ' + state.company.short + '. The second signature is the one that means something.' });
     }
+    const manner = p.releasedFrom === state.company.short ? 'back' : (p.channel === 'freeAgent' ? 'market' : null);
+    KP.chapter(state, p, 'signed', manner ? { co: state.company.short, how: manner } : { co: state.company.short });
     delete p.castoffUntil; delete p.reentryAt; delete p.releasedFrom; delete p.releasedBy;
+    // a career off the market (v0.10.33): the file never forgets the first house
+    if (p.channel === 'freeAgent') {
+      p.flags.veteran = p.castoffFrom || p.flags.veteran || 'another house';
+      if (state.riseFallLedger) state.riseFallLedger.faSigned = (state.riseFallLedger.faSigned || 0) + 1;
+      const warm = (state.trust || 0) >= 55;
+      KP.note(state, { kind: 'public', ind: 'faSigned', priority: 'high', personId: p.id,
+        text: KP.fillPro(state.company.short + ' signed ' + KP.displayName(p) + ' off the ' + p.flags.veteran +
+          ' collapse — a veteran with ' + KP.fmtCount(KP.socialOf(state, p)) + ' followers and opinions {she} has earned. ' +
+          (warm ? 'Verdict so far: acceptable. Watched, but acceptable.' : 'Verdict so far: reserved. The receipts will decide.'), p) });
+    }
     state.lastSigningWeek = state.week;   // the content desk films first days (v0.10.18)
     if (p.origin && state.tongueLedger) state.tongueLedger.intlSigned++;   // v0.9.29
     // the paper clock (v0.9.19): three years, the industry standard
@@ -404,6 +428,7 @@
     const S = KP.C.SCOUT;
     const notes = [];
     state.rivals.forEach(rival => {
+      if (rival.projectHouse) return;   // the broadcaster's label has no scouts (v0.10.33)
       // a rival with a debut to cast scouts like it (v0.4.3)
       const hungry = rival.nextDebutWeek != null &&
         state.week >= rival.nextDebutWeek - S.rivalHungerWindow;
@@ -515,10 +540,10 @@
       goneCastoffs.forEach(id => {
         const pc = state.people[id];
         const roll = KP.hash01([state.seed, id, 'castoffExit'].join('|'));
-        const rivals = (state.rivals || []);
+        const rivals = KP.signingHouses(state);
         if (rivals.length && roll < KP.C.FLOOR.castoffSignsElsewhere) {
           const r = rivals[Math.floor(KP.hash01([state.seed, id, 'castoffWhere'].join('|')) * rivals.length)];
-          KP.rivalSignFromBoard(state, r, pc, 'after the open window closed');
+          KP.rivalSignFromBoard(state, r, pc, 'window');
           KP.floorLedger(state).elsewhere++;
         } else {
           KP.goHome(state, pc, 'The window closed with no pen. Went home.');
@@ -544,12 +569,12 @@
       }
       stale.forEach(id => {
         const pc = state.people[id];
-        const rivals = (state.rivals || []);
+        const rivals = KP.signingHouses(state);
         // the floor (v0.10.31): "signed elsewhere, or went back to school" is
         // a real signing or a real exit now — never a deletion of someone known
         if (rivals.length && KP.hash01([state.seed, id, 'staleExit'].join('|')) < KP.C.FLOOR.staleSignsElsewhere) {
           const r = rivals[Math.floor(KP.hash01([state.seed, id, 'staleWhere'].join('|')) * rivals.length)];
-          KP.rivalSignFromBoard(state, r, pc, 'late — the market had moved on, but one desk had not');
+          KP.rivalSignFromBoard(state, r, pc, 'late');
           KP.floorLedger(state).elsewhere++;
         } else {
           KP.goHome(state, pc, 'Aged past the market unsigned. Went back to school.');

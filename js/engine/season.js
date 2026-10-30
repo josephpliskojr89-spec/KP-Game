@@ -140,6 +140,7 @@
         s.ours.push(p.id);
         p.flags.onSeason = { year: s.year, show: s.show, since: state.week };
         p.history.push({ week: state.week, text: 'Sent to the ' + s.show + ' season by ' + state.company.short + '. The cameras start Monday.' });
+        KP.chapter(state, p, 'seasonSent', { show: s.show });
       });
       ledger(state).sent += sent.length;
       return { toast: sent.map(p => KP.displayName(p)).join(' and ') + (sent.length > 1 ? ' pack' : ' packs') +
@@ -188,13 +189,12 @@
       if (!r.projectHouse) return;
       (r.acts || []).forEach(act => {
         if (act.retired || !act.projectTerm || state.week < act.projectTerm.until) return;
-        act.retired = true;
-        act.retiredWeek = state.week;
         (act.members || []).forEach(id => {
           const p = state.people[id];
           if (!p) return;
           const home = p.flags.seasonHome || {};
           delete p.flags.seasonHome;
+          KP.chapter(state, p, 'projectEnd', { act: act.name, co: p.flags.onProject ? state.company.short : (home.company || null) });
           ['vocals', 'dance'].forEach(d => { const t = p.talents[d]; t.cur = Math.min(t.ceilLo - 1, t.cur + S.returnPolish); });
           if (p.flags.onProject) {
             // ours: she comes back with a public
@@ -218,6 +218,7 @@
             p.history.push({ week: state.week, text: 'The ' + act.name + ' run ended with no home label waiting. On the open market with a public already there.' });
           }
         });
+        KP.retireAct(state, r, act, act.name + '’s project run ended');   // whoever was not re-homed goes on (v0.10.33)
         inbox.push({ kind: 'industry', ind: 'projectEnd', priority: 'high', actName: act.name,
           text: act.name + '’s run is over — the project contract ran out this week, as it was always going to. The members go back where they came from, which is the sentence every fandom dreads and every company counts on.' });
       });
@@ -258,6 +259,7 @@
         touch(state, x.p, 'eliminated');
         x.p.morale = KP.clamp(x.p.morale + S.elimMorale, 0, 100);
         x.p.history.push({ week: state.week, text: 'Eliminated from ' + s.show + ' in week ' + (state.week - s.startWeek) + ', on national television. The public learned the name on the way out.' });
+        KP.chapter(state, x.p, 'seasonOut', { show: s.show, weekNo: state.week - s.startWeek });
         if (x.c.source === 'player' && x.p.status === 'trainee' && (state.roster || []).includes(x.p.id)) {
           led.oursEliminated++;
           inbox.push({ kind: 'company', ind: 'seasonElim', priority: 'high', personId: x.p.id,
@@ -293,6 +295,7 @@
         x.c.eliminatedWeek = state.week; x.c.rank = S.lineupSize + i + 1;
         touch(state, x.p, 'finalist');
         x.p.history.push({ week: state.week, text: 'Made the ' + s.show + ' finale and missed the lineup. The fandom that voted has not logged off.' });
+        KP.chapter(state, x.p, 'seasonFinalist', { show: s.show });
         if (x.c.source === 'school') KP.seasonRevealStudent(state, x.p);
         if (x.c.source === 'player' && x.p.status === 'trainee' && (state.roster || []).includes(x.p.id)) inbox.push({ kind: 'company', ind: 'seasonFinalist', priority: 'high', personId: x.p.id,
           text: KP.fillPro(KP.displayName(x.p) + ' made the ' + s.show + ' finale and missed the lineup by a televised vote. {She} is yours again Monday — with a fandom that already has a name for itself.', x.p) });
@@ -348,6 +351,12 @@
       const made = KP.makeRivalAct(state, rng, house, { members: memberIds, gender: s.gender });
       if (made && !permanent) made.act.projectTerm = { until: state.week + S.termWeeks, show: s.show };
       if (made) made.act.season = s.year;
+      memberIds.forEach(id => {
+        const p = state.people[id];
+        if (!p) return;
+        KP.chapter(state, p, 'seasonLineup', { show: s.show, act: made ? made.act.name : null, permanent });
+        if (permanent && p.flags.seasonHome && p.flags.seasonHome.keptFrom) KP.chapter(state, p, 'kept', { show: s.show, co: house.short });
+      });
       s.actId = made ? made.act.id : null;
       s.houseShort = house.short;
       const names = lineup.map(({ x }) => KP.displayName(x.p));

@@ -86,6 +86,12 @@ async function main() {
   ok(notesText.includes('recommendation'), 'overall recommendation note present on the file tab');
   await tap('[data-action=dossier-tab][data-tab=history]');
   await page.waitForTimeout(80);
+  // the file (v0.10.33, §90 C): the person tab opens with where she has been
+  await tap('[data-action=dossier-tab][data-tab=person]');
+  await page.waitForTimeout(80);
+  const personText = await page.textContent('#screen');
+  ok(/Where (she|he) has been/.test(personText), 'the chapters strip is on the person tab (v0.10.33)');
+  ok(/From [A-Z][a-z]+/.test(personText), 'and it opens with where she is from');
   await tap('[data-action=dossier-tab][data-tab=profile]');
   await page.waitForTimeout(80);
   const dossierText = await page.textContent('#screen');

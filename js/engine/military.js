@@ -37,6 +37,7 @@
     const led = ledger(state);
     led.enlisted++;
     if (forced) led.walls++;
+    KP.chapter(state, p, 'enlisted', {});
     p.history.push({ week: state.week, text: 'Enlisted for mandatory service' +
       (forced ? ' — the postponements ran out on schedule, the way postponements do' : '') +
       '. Discharge expected ' + KP.weekLabel(p.flags.military.until).text + '.' });
@@ -75,6 +76,7 @@
     if (KP.driftTrait) KP.driftTrait(state, p, 'professionalism', M.professionalism, 'the service');
     else p.personality.professionalism = KP.clamp(p.personality.professionalism + M.professionalism, 0, 100);
     ledger(state).discharged++;
+    KP.chapter(state, p, 'discharged', {});
     p.history.push({ week: state.week, text: 'Discharged after ' + weeks +
       ' weeks of service. Came back with a straighter spine, a phone full of two years of group chat, and the same job waiting — which is the whole point of the wait.' });
     const g = KP.groupOf(state, p.id);
