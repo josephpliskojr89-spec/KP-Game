@@ -8630,7 +8630,7 @@ would be wages). One fixture repair (057, the old nod). Suite_111
 (62). Battery 111/111, soak 40 clean, longhaul 11x620, e2e 134,
 lockstep 0.11.1.
 
-## §93 The flavor expansion (PLANNED — v0.11.2)
+## §93 The flavor expansion (SHIPPED v0.11.2)
 
 Owner: "we need to big flavor text addition so we don't see so many
 repeats."
@@ -8669,6 +8669,68 @@ line; (7) the timeline's top ten weekly fillers. The census prints
 a REPEAT INDEX (the top template's count per org-year on each
 surface); the Bible records it at every release from here, and the
 number only goes down. Candidate slot: v0.11.2.
+
+**As built (v0.11.2).** The families landed as planned, and the census
+says what they did. `KP.lineFor(state, salt, lines, last)` picks a
+sentence by a hash of the seed, the salt and the week — never the rng,
+so a family of ten and a family of one leave the simulation identical.
+Measured: the 12-seed soak with every family in place matched the
+v0.11.1 soak case for case (diagnoses, chairs, pushes, chronic files,
+flares), and the 40-seed bands are v0.11.1's to the org. Where the rng
+was already drawn (`rng.pick` arrays) the arrays widened and the draw
+count held.
+
+The spotlight: every moment carries `lines` (quietWeek 3, afterHours
+3, competitiveSting 2, leaderCarry 2, ambitionGlimpse 5 per ambition,
+friendScene 6, voiceMoment 5 per voice for trainees and 5 for idols —
+71 templates became 205). The pick remembers how each KEY last read
+for her (`p.flags.spotMem`, one slot per key, written after the read
+so both reads of the week agree) and skips it, however many other
+moments came between. A draft rule that preferred a moment she was
+not last seen in was withdrawn: it changed which effects and doors
+fired and moved the worlds (the chronic-file band 14→5/40, flares
+10→0). A flavor release must not move the simulation; the rota stays
+as it was and the memory alone carries the variety.
+
+The inbox families: the relationship notes (friction, settled, the
+pair that works) keyed by the pair's traits — both competitive,
+bossy, warm, quiet — 4 templates became 21; the rival signing keyed
+by philosophy and our relation to the lead (a file we read, a lead we
+never opened) and the rival scouts, 5 and 4 lines; the countdown 5,
+the landed line 3, the benching 4, the pressure letters 3 with their
+load-bearing phrases kept; rivalHit 5, the eval cut 3, showcase 5 by
+the star's voice, breakthrough 4, plateau 3, masterMinted 3,
+application 4, gayoInvite 3, neverPaid 3, evalTalk 3, evalSheet 3,
+chodong 3, soldOutStory 3, promoOffer 3 + 3, debutClass 3,
+anniversary 3 (the café banner still changes at midnight),
+idolBirthday 3, diagnosisIn 3, castViral 4, gravityTrades 3,
+flagshipHunt 3, rivalShowWin 4, comebackAnnounce 5. The timeline: the
+two always-on pools 3→10 each, the tour posts 1→4 and 1→3, selca day
+5 (every line opens with SELCA DAY), the bubble 1→3 per mood (every
+line keeps the word), the pre-debut public pool 3→6, the personMoment
+reactions 2→8. Every phrase the suites and the harness read survived
+in every variant (flagged the quarterly books, board sees these
+numbers, announced … comeback for, won … — their first, broke
+containment, birthday week, debut class, after-eval talk).
+
+The census, before → after (40 orgs × 140 weeks, the same worlds):
+inbox notes 2,935 → 3,273 templates, the top template 10.7 → 2.3 per
+org-year, templates seen at least yearly 31 → 19; timeline posts 514
+→ 552, the top filler 2.1 → 0.5, none at yearly; spotlight lines 71
+→ 205, the top line 18.1 → 3.8. The relationship friction note was
+the loudest sentence in the game; now nothing on any surface reaches
+a player four times a year. The REPEAT INDEX line and its ceilings
+(notes 4 / 30, feed 1 / 6, spotlight 6) guard the number from here:
+`REPEATS HOT` fails the census. Suite_112 (38): the picker, the
+per-key memory, the rota, the bubble family's word, the phrase laws,
+the families in play over 130 weeks, the fork.
+
+What is left for later: the narrative, executive and company
+families are already wide (76, 61 and 223 templates) and sit at
+1.5–1.8 per org-year because the EVENTS recur, not the sentences —
+the trades' "three hits in a row", the renewal folder. If the owner
+still sees repeats after this, the next pass should look at event
+cadence, not add sentences.
 
 ## §18 Watch items
 
@@ -12030,6 +12092,22 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 111/111, soak 40 clean, longhaul 11x620, e2e 134, lockstep 0.11.1.
 > Rode to main. §93 (the flavor expansion) planned from the repeat
 > census: tools/audit_repeats.js.
+
+> **0.11.2 — the flavor expansion.** Owner: "a big flavor text
+> addition so we don't see so many repeats." §93 shipped whole:
+> `KP.lineFor` (hash-picked, never the rng), the spotlight's per-key
+> memory and 71→205 templates, every heavy ind carrying a family of
+> three to ten, the relationship, rival-signing, countdown, benching
+> and pressure families, the timeline's pools, selca and bubble
+> families, the personMoment reactions 2→8; the repeat census grew a
+> REPEAT INDEX with measure-first ceilings. Measured on the same
+> worlds: inbox top template 10.7→2.3 per org-year (31→19 at yearly),
+> timeline 2.1→0.5, spotlight 18.1→3.8. A draft rota preference was
+> withdrawn because it moved the worlds (chronic files 14→5/40); the
+> shipped families leave the simulation bit-identical to v0.11.1
+> (12-seed A/B, case for case). The soak prints the flare chain's
+> throughput. Suite_112 (38). Battery 112/112, soak 40 clean, longhaul
+> 11x620, e2e 134, lockstep 0.11.2. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

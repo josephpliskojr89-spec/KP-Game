@@ -17,8 +17,13 @@ const realLoad = loader.loadEngine;
 const TOP = parseInt(process.argv[3] || '40', 10);
 
 const T = { notes: {}, feed: {}, spot: {}, orgs: new Set(), noteTotal: 0, feedTotal: 0, spotTotal: 0 };
-// the ceilings (measure-first, §93): null = unmeasured, no guard
-const CEILING = { notes: { top: null, yearly: null }, feed: { top: null, yearly: null }, spot: { top: null, yearly: null } };
+// the ceilings (measure-first, §93). History: v0.11.1 text measured notes
+// 10.7 / 31, feed 2.1 / 4, spotlight 18.1 / 24; v0.11.2 (the families)
+// measured notes 2.3 / 19, feed 0.5 / 0, spotlight 3.8 / 35 on the same
+// worlds. The spotlight's yearly count is not a repeat measure (113 lines
+// a year spread over more templates reach yearly more often), so only
+// its top line is guarded. null = no guard.
+const CEILING = { notes: { top: 4, yearly: 30 }, feed: { top: 1, yearly: 6 }, spot: { top: 6, yearly: null } };
 
 function normalizer(KP, state) {
   // every name the world can speak, longest first so compounds go whole
@@ -123,6 +128,11 @@ process.on('exit', () => {
   console.log('\nREPEAT INDEX — notes: top template ' + ix.notes.top.toFixed(1) + '/org-year, ' + ix.notes.yearly + ' templates at ≥1/org-year' +
     ' · feed: top ' + ix.feed.top.toFixed(1) + ', ' + ix.feed.yearly + ' at ≥1' +
     ' · spotlight: top ' + ix.spot.top.toFixed(1) + ', ' + ix.spot.yearly + ' at ≥1');
+  // the ceilings are calibrated at the soak's size: a smaller run inflates
+  // the per-org-year numbers (two orgs, two years — a template seen five
+  // times already counts as yearly), so below 40 orgs the index is
+  // printed and not judged
+  if (N < 40) { console.log('REPEAT INDEX unguarded (' + N + ' orgs; the ceilings apply at 40)'); return; }
   const hot = [];
   Object.keys(CEILING).forEach(k => {
     const c = CEILING[k];
