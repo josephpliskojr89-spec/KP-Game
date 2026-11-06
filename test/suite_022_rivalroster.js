@@ -166,9 +166,9 @@ function fillFloor(state, rival, n, opts) {
   floorKid.status = 'rival';
   floorKid.company = rival.short;
   floorKid.flags.lostToRival = 1;
-  floorKid.signedWeek = Math.max(1, state.week - R.namedTenure - 4);   // the cull reads the signing week (v0.10.31)
+  floorKid.signedWeek = state.week - R.namedTenure - 4;   // the cull reads the signing week (v0.10.31) — a negative week is real tenure, the clamp made her a recent signee the cull exempted until the floor folded (v0.10.43 stream)
   state.prospects = state.prospects.filter(id => id !== floorKid.id);
-  ['vocals', 'dance', 'rap', 'charisma'].forEach(d => { floorKid.talents[d].cur = 30; });
+  KP.C.TALENTS.forEach(d => { floorKid.talents[d].cur = 30; });   // every lane, visuals too: the cull grades by PEAK, and she must be the floor's floor
   floorKid.history.push({ week: Math.max(1, state.week - R.namedTenure - 4),
     text: 'Signed to ' + rival.short + ' — off our board.' });
   // the plan MOVES with prestige (era physics move receptions, v0.9.24)

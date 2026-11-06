@@ -109,7 +109,7 @@ function forceConflict(state, a, b) {
   const riv = KP.sceneRivalries(state, g.id)[0];
   t.ok(riv, 'the coverage found its angle');
   t.eq(riv.source, 'class', 'the debut class is the road in — not the calendar');
-  t.ok(state.inbox.some(n => n.ind === 'rivalryNamed'), 'the wire names it');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => n.ind === 'rivalryNamed'), 'the wire names it (read pre-trim: the week can be loud)');
   t.ok(KP.feedReactionFor('rivalryNamed'), 'the timeline has a franchise');
   t.ok(KP.sceneRivalries(state, g.id).length <= KP.C.BADBLOOD.maxSceneRivalries,
     'rivalries stay countable');

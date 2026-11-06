@@ -150,16 +150,25 @@ function worthy(s, id, channel) {
     p.age = 16;   // equal age — ageGrowthMult would confound the clause edge
   });
   a.flags.trainClause = 1;
-  // pinned weeks: fatigue and FOCUS re-pinned each tick — the plateau/
-  // redirect machinery rewrites focus over long horizons, and the x1.12
-  // guarantee is only visible while both rooms train the same lane
+  // the guarantee is measured against HER twin without it: the same world,
+  // the same draws (the multiplier never touches the rng) — two different
+  // people have two different drives, and the stream decides who is
+  // luckier (v0.10.43 shift exposed the loose read). Fatigue and FOCUS
+  // re-pinned each tick — the plateau/redirect machinery rewrites focus
+  // over long horizons; the lumps (a breakthrough, a plateau) pinned off
+  const twin = KP.deserialize(KP.serialize(s));
+  delete twin.people[a.id].flags.trainClause;
+  const T = KP.C.TRAIN, bc = T.breakthroughChance, pc = T.plateauChance;
+  T.breakthroughChance = 0; T.plateauChance = 0;
   for (let i = 0; i < 20; i++) {
-    [a, b].forEach(p => { p.fatigue = 10; p.training = { focus: ['vocals'], intensity: 'standard' }; });
-    KP.advanceWeek(s);
+    [s, twin].forEach(w => [a.id, b.id].forEach(id => { const p = w.people[id]; p.fatigue = 10; p.training = { focus: ['vocals'], intensity: 'standard' }; }));
+    KP.advanceWeek(s); KP.advanceWeek(twin);
   }
-  t.ok(a.talents.vocals.cur > b.talents.vocals.cur,
-    'the bought room shows in the growth (' + a.talents.vocals.cur.toFixed(1) +
-    ' vs ' + b.talents.vocals.cur.toFixed(1) + ')');
+  T.breakthroughChance = bc; T.plateauChance = pc;
+  const grewWith = a.talents.vocals.cur - 40, grewWithout = twin.people[a.id].talents.vocals.cur - 40;
+  t.ok(grewWith > grewWithout * 1.08,
+    'the bought room shows in the growth (+' + grewWith.toFixed(1) + ' with the guarantee vs +' + grewWithout.toFixed(1) + ' for her twin without it)');
+  t.ok(Math.abs(b.talents.vocals.cur - twin.people[b.id].talents.vocals.cur) < 0.01, 'and the room next door trained exactly the same in both worlds');
 }
 
 // ---- determinism through the table ------------------------------------

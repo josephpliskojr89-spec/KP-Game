@@ -187,11 +187,12 @@ const offerOf = (s, g) => (s.scenes || []).find(sc => sc.kind === 'promoOffer' &
   }
   const r1 = KP.extensionRead(s, g);
   t.ok(r1.ok && r1.weeks === 2 && r1.why, 'the sleeper opens the door (' + r1.why + ')');
+  ids.forEach(id => { s.people[id].fatigue = Math.min(s.people[id].fatigue, 80); });   // under the cap: the claim is the bill, not the ceiling (v0.10.43 stream)
   const fat0 = ids.map(id => s.people[id].fatigue);
   const until = g.promoUntil, len = g.rollout.length, budget0 = s.budget;
   const r = KP.extendEra(s, g.id);
   t.ok(r.ok && g.promoUntil === until + 2 && g.rollout.length === len + 2 && g.eraExtendedWeek === s.week, 'two more weeks, with their own light plan');
-  t.ok(ids.every((id, i) => s.people[id].fatigue > fat0[i]), 'the members pay in hours');
+  t.ok(ids.every((id, i) => KP.onBreak(s.people[id]) || s.people[id].fatigue > fat0[i]), 'the members pay in hours (a member on a break is not on the schedule)');
   t.ok(s.budget < budget0, 'and the bookings bill');
   t.ok(s.inbox.some(n => n.ind === 'eraExtended' && n.extension), 'the era EXTENDS, in the letter');
   t.ok(!KP.extendEra(s, g.id).ok, 'once an era');

@@ -148,7 +148,8 @@ function ready(seed, gender) {
   t.ok(KP.socialOf(state, star) >= C().lineupFollowers[0], 'with a public (' + KP.fmtCount(KP.socialOf(state, star)) + ')');
   t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => n.ind === 'seasonReturn'), 'the desk hears the return');
   // her floor — or, if that house folded during the term, the open market (v0.10.33: the world moved while she was away)
-  if (rivalIn) t.ok(rivalIn.company === home || (!state.rivals.some(r => r.short === home) && rivalIn.status === 'released' && rivalIn.company == null),
+  // — or her own floor cut her at an evaluation since (castoffFrom says so; the stream decides)
+  if (rivalIn) t.ok(rivalIn.company === home || (rivalIn.company == null && (rivalIn.castoffFrom === home || !state.rivals.some(r => r.short === home))),
     'the rival’s trainee went home to her floor — or to the market, the floor having folded (' + rivalIn.status + '@' + rivalIn.company + ')');
   t.eq((state.seasonLedger || {}).returned, oursIn.length, 'ledgered');
   const pr2 = KP.proposeGroup(state, 'BACK', [star.id].concat(KP.freeTrainees(state).filter(id => id !== star.id).slice(0, 3)), KP.roleHints(state, [star]));

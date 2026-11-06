@@ -115,6 +115,11 @@ function lockAndRide(state, g, rollout) {
   const { state, g } = ready('ms-darling');
   boost(state, g, 85);
   clearStages(state);
+  // the fame wall swaps a fresh label's show bookings to radio on some
+  // streams (v0.10.43 shift) — the stages must be OPEN for the threshold
+  // mechanism to be what is under test
+  const SB = KP.C.FAME.showBar; KP.C.FAME.showBar = 0;
+  state.budget = 900;
   lockAndRide(state, g, [['countdown'], ['countdown'], ['countdown'], ['countdown']]);
   clearStages(state);
   g.trophies = { countdown: KP.C.SHOWWIN.darlingAt - 1 };   // one short of dynasty
@@ -130,10 +135,12 @@ function lockAndRide(state, g, rollout) {
       if (nar) break;
     }
     if (!nar && !g.prep && state.week > (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) {
+      state.budget = 900;   // the relock must not fail on the account
       lockAndRide(state, g, [['countdown'], ['countdown'], ['countdown'], ['countdown']]);
       clearStages(state);
     }
   }
+  KP.C.FAME.showBar = SB;
   t.ok(nar, 'the dynasty trophy from one stage makes it a story');
   t.ok(nar && KP.narrativeText(state, nar).includes('The Countdown'), 'and the story names the stage');
 }

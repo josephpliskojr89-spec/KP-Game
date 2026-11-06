@@ -94,6 +94,7 @@ function debuted(seed, conceptId) {
   [warm, cold].forEach(s => {
     s.budget = 600;   // the practice-room invoice (v0.10.11) drains the idle years
     const sg = s.groups[0];
+    KP.recordEvidence(s, 'festivalIcons', 'group', sg.id);   // the far-market rows (v0.10.43) roll an invite only where the map is warm — icons skip the roll in BOTH forks
     sg.demos = KP.generateDemos(s, KP.rngFor(s));
     KP.planDebut(s, { groupId: sg.id, songId: sg.demos[0].id, promo: 'modest',
       week: s.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
