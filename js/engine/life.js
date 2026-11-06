@@ -281,10 +281,10 @@
             'It is ' + g.name + '’s ' + years + '-year anniversary week. The café banner changed at midnight, the members did the anniversary live in the practice room where it started' +
               (story ? ', and the timeline is retelling the whole story — ' + retold : '') +
               '. Somewhere in the building, someone who was in that first meeting got quietly emotional about a spreadsheet.',
-            g.name + '’s ' + years + '-year anniversary week: the banner at the café changed at midnight, the members streamed from the first practice room' +
+            g.name + '’s ' + years + '-year anniversary week: the café banner changed at midnight, the members streamed from the first practice room' +
               (story ? ', and the timeline retold the whole story — ' + retold : '') +
               '. The building let itself feel it for exactly one afternoon.',
-            'Anniversary week — ' + years + ' year' + (years === 1 ? '' : 's') + ' of ' + g.name + '. The fandom posted the debut stage frame by frame; the members posted the group photo from before the group had a name' +
+            'Anniversary week — ' + years + ' year' + (years === 1 ? '' : 's') + ' of ' + g.name + '. The café banner changed at midnight; the fandom posted the debut stage frame by frame; the members posted the group photo from before the group had a name' +
               (story ? '; the timeline retold the story — ' + retold : '') +
               '. Someone in accounting ran the numbers out of habit and then did not share them.',
           ]) });

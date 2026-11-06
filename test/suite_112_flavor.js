@@ -71,22 +71,17 @@ const distinct = (norm, texts) => new Set(texts.map(norm)).size;
   delete p.flags.spotMem;
 }
 
-// ---- the pick prefers a moment she was not last seen in ---------------------------
+// ---- the rota reads several keys for her over the weeks -----------------------------
 {
   const state = KP.newGame('flavor-pick', null, { legacy: true });
   const p = Object.values(state.people).find(x => x.status === 'idol' && !x.flags.ambitionMet);
   t.ok(p, 'an idol with an ambition still open');
   p.fatigue = 70; p.personality.workEthic = 80;   // afterHours is true; so are the ambition and the voice
-  delete p.flags.spotLast;
-  const first = KP.spotPick(state, p);
-  t.ok(!!first, 'a moment is true for her (' + first + ')');
-  p.flags.spotLast = first + ':0';
-  const second = KP.spotPick(state, p);
-  t.ok(!!second && second !== first, 'the next turn prefers a moment she was not last seen in (' + first + ' → ' + second + ')');
-  p.flags.spotLast = second + ':0';
-  const third = KP.spotPick(state, p);
-  t.ok(!!third && third !== second, 'and the turn after that (' + second + ' → ' + third + ')');
-  delete p.flags.spotLast;
+  const keys = new Set();
+  const base = state.week;
+  for (let w = 0; w < 40; w++) { state.week = base + w; keys.add(KP.spotPick(state, p)); }
+  state.week = base;
+  t.ok(!keys.has(null) && keys.size >= 2, 'the weekly hash walks the true moments (' + Array.from(keys).join(', ') + ')');
 }
 
 // ---- the bubble family keeps its word -----------------------------------------------
@@ -168,19 +163,9 @@ const distinct = (norm, texts) => new Set(texts.map(norm)).size;
   });
   t.eq(repeats, 0, 'the same key never reads the same way twice running for her (' + spot.length + ' lines)');
   t.ok(distinct(norm, spot.map(m => m.text)) >= 25, 'the spotlight speaks in many templates (' + distinct(norm, spot.map(m => m.text)) + ')');
-  // a different key is preferred: for the idols (who have several true
-  // moments) back-to-back turns on one key are the minority; trainees
-  // mostly have only their voice, and the family's memory carries them
-  const sameKey = (() => {
-    const last = {}; let same = 0, turns = 0;
-    spot.slice().sort((a, b) => a.week - b.week).forEach(m => {
-      if (m.status !== 'idol') return;
-      if (last[m.personId] != null) { turns++; if (last[m.personId] === m.key) same++; }
-      last[m.personId] = m.key;
-    });
-    return { same, turns };
-  })();
-  t.ok(sameKey.turns >= 20 && sameKey.same <= sameKey.turns * 0.5, 'an idol’s back-to-back turns on one key are the minority (' + sameKey.same + '/' + sameKey.turns + ')');
+  // the idols (who have several true moments) are read in more than one key
+  const idolKeys = new Set(spot.filter(m => m.status === 'idol').map(m => m.key));
+  t.ok(idolKeys.size >= 2, 'the idols are read in more than one key (' + Array.from(idolKeys).join(', ') + ')');
 }
 
 // ---- determinism ---------------------------------------------------------------

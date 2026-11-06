@@ -189,7 +189,7 @@ function freshSpots(state) {
   }
   t.ok(pub, 'a debuted idol has public moments');
   const out = KP.feedReactionFor('personMoment')(state, pub, KP.rngFor(state));
-  t.ok(out && out.persona && /she is exactly who|quality of life/.test(out.text),
+  t.ok(out && out.persona && /exactly who|quality of life|anecdote|story|crumb|exactly like this/.test(out.text),   // the family (v0.11.2, §93)
     'and the fans answer in their own register');
 }
 

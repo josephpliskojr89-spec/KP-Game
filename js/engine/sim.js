@@ -455,8 +455,8 @@
     }
     return KP.lineFor(state, 'pressure1', [
       who + '’s office flagged the quarterly books: spend ran ' + red + ' over income' + (spree ? ', much of it on new signings' : '') + '. Nothing said yet — but it was noticed.',
-      'The quarterly books went upstairs with a sticky note: ' + red + ' over income' + (spree ? ', the signings circled' : '') + '. ' + who + ' said nothing. The note said enough.',
-      who + ' initialed the quarterly books and underlined one line — ' + red + ' over income' + (spree ? ', mostly signings' : '') + '. No meeting. An underline is a meeting.',
+      who + '’s office flagged the quarterly books with a sticky note: ' + red + ' over income' + (spree ? ', the signings circled' : '') + '. ' + who + ' said nothing. The note said enough.',
+      who + ' flagged the quarterly books in person — initialed, one line underlined: ' + red + ' over income' + (spree ? ', mostly signings' : '') + '. No meeting. An underline is a meeting.',
     ]);
   }
 

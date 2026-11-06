@@ -89,8 +89,9 @@
   // reaches the desk.
   // the family (v0.11.2, §93): one mechanism, several sentences. Every
   // moment carries LINES; the pick is a hash of the seed, the person and
-  // the week that skips what she was last seen doing (p.flags.spotLast),
-  // so the same key never reads the same way twice in a row for her.
+  // the week that skips how that key last read for her (p.flags.spotMem,
+  // one slot per key), so the same key never reads the same way twice
+  // running — however many other moments came between.
   function spotIdx(state, p, key, n) {
     if (n <= 1) return 0;
     const h = Math.floor(KP.hash01([state.seed, p.id, state.week, key, 'variant'].join('|')) * n);
@@ -102,15 +103,16 @@
   // read her moment and remember it: the memory is one slot per KEY
   // (p.flags.spotMem), written after the read so both reads this week
   // agree, and kept across other keys so a moment she was last seen in
-  // three turns ago still does not read the same way; p.flags.spotLast
-  // keeps the last key for the rota's preference
+  // three turns ago still does not read the same way. Reading never
+  // draws the rng: the families leave the simulation bit-identical
+  // (measured v0.11.2 — the 12-seed soak with and without them matched
+  // case for case).
   function spotRead(state, p, m) {
     const ls = m.lines ? m.lines(state, p) : null;
     const idx = ls ? spotIdx(state, p, m.key, ls.length) : 0;
     const text = ls ? ls[idx] : m.text(state, p);
     p.flags.spotMem = p.flags.spotMem || {};
     p.flags.spotMem[m.key] = idx;
-    p.flags.spotLast = m.key + ':' + idx;
     return text;
   }
   const MOMENTS = [
@@ -329,23 +331,19 @@
       } },
   ];
   // the one accessor: a moment's text is its family's pick for her this week
-  // the pick (v0.11.2, §93): the rota starts at a weekly hash and takes the
-  // first moment that is true for her — preferring one she was not last
-  // seen in when another is true, so the same key does not read two turns
-  // running; the family's memory (spotIdx) handles the case where only one
-  // moment is true
+  // the pick: the rota starts at a weekly hash and takes the first moment
+  // that is true for her. (A v0.11.2 draft preferred a moment she was not
+  // last seen in; it changed which effects and doors fired and moved the
+  // worlds — the soak's chronic-file chain went 14→5/40 — so the rota
+  // stays as it was and the family's memory alone carries the variety.)
   function spotPick(state, p) {
     const ROT = MOMENTS.slice(1);   // quietWeek belongs to the staff scan
     const offset = Math.floor(KP.hash01([state.seed, p.id, state.week, 'moment'].join('|')) * ROT.length);
-    const lastKey = String((p.flags && p.flags.spotLast) || '').split(':')[0];
-    let held = null;
     for (let i = 0; i < ROT.length; i++) {
       const m = ROT[(offset + i) % ROT.length];
-      if (!m.when(state, p)) continue;
-      if (m.key === lastKey) { if (!held) held = m; continue; }
-      return m;
+      if (m.when(state, p)) return m;
     }
-    return held;
+    return null;
   }
   KP.spotPick = function (state, p) { const m = spotPick(state, p); return m ? m.key : null; };
   MOMENTS.forEach(m => {

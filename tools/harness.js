@@ -763,6 +763,8 @@ let totalSaveKB = 0, maxSaveKB = 0, maxSaveSeed = '', maxPeople = 0;
 let mediationsRun = 0;
 let totalReleases = 0;
 let totalRevivals = 0;
+// the flare chain's throughput (v0.11.2): cases → seated/pushed/rested → chronics → flares
+const medSum = { cases: 0, seated: 0, pushed: 0, rested: 0, chronics: 0, flares: 0 };
 const receptions = [];
 const growths = [];
 const allAges = [];
@@ -2041,6 +2043,7 @@ for (let s = 0; s < SEEDS; s++) {
   if ((mdl.cases || 0) >= 1) tally.medCase++;
   if ((mdl.chronics || 0) >= 1) tally.medChronic++;
   if ((mdl.flares || 0) >= 1) tally.flareFelt++;
+  Object.keys(medSum).forEach(k => { medSum[k] += mdl[k] || 0; });
   // the world circuit (v0.10.9): the ledger is durable
   const cir = state.circuitLedger || {};
   const flA = state.festivalLedger || {};   // the far markets live on the festival ledger (v0.10.43)
@@ -2302,6 +2305,7 @@ const med = receptions[Math.floor(receptions.length / 2)] || 0;
 console.log('debut reception: median ' + med +
   ', min ' + (receptions[0] || 0) + ', max ' + (receptions[receptions.length - 1] || 0));
 console.log('releases per org: ' + (totalReleases / SEEDS).toFixed(1) + ' average; groups per org: ' + (totalGroups / SEEDS).toFixed(1));
+console.log('medical throughput: ' + Object.keys(medSum).map(k => k + ' ' + medSum[k]).join(', ') + ' across ' + SEEDS + ' orgs (the flare chain; v0.11.2)');
 console.log('reverse runs per org-year: ' + (totalRevivals / (SEEDS * 140 / 52)).toFixed(2) + ' (the lottery ticket stays a ticket under ~1; v0.11.1)');
 console.log('date ambushes per career: ' + (totalAmbushes / SEEDS).toFixed(1) + ' average (pettiness stays memorable, not constant)');
 console.log('best overseas region at career end: ' + bestRegions.map(v => Math.round(v)).sort((a, b) => a - b).join(','));
