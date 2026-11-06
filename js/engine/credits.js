@@ -125,8 +125,20 @@
             if (w.works.length > C.worksCap) w.works.shift();
           }
         }
-        // the booklet: members who wrote get their names read out loud
+        // the booklet: members who wrote get their names read out loud —
+        // and the writing pair (v0.10.40): a co-written track lands on both
         (rel.tracklist || []).forEach(tk => {
+          if (tk.writtenBy && tk.coWriter && state.people[tk.coWriter] && KP.pairLedger) {
+            const a = state.people[tk.writtenBy], b = state.people[tk.coWriter];
+            const relAB = (state.relationships || {})[KP.pairKey(a, b)];
+            if (relAB) relAB.score = KP.clamp(relAB.score + KP.C.PAIR.writeBond, -100, 100);
+            b.flags.writerCredits = (b.flags.writerCredits || 0) + 1;
+            b.history.push({ week: state.week, text: 'Co-wrote “' + tk.title + '” with ' + KP.publicGiven(a) + '. Two names in the booklet, one song.' });
+            KP.recordDirected(state, b.id, 'seen');
+            KP.pairLedger(state).coWritten++;
+            inbox.push({ kind: 'public', ind: 'coWritten', priority: 'high', personId: b.id, groupId: g.id,
+              text: KP.publicGiven(a) + ' and ' + KP.publicGiven(b) + ' co-wrote “' + tk.title + '” — two names on one line of the booklet, and the fandom has already decided which one is the melody and which one is the words. Both of them are wrong, and both of them are thrilled.' });
+          }
           if (!tk.writtenBy) return;
           const p = state.people[tk.writtenBy];
           if (!p) return;

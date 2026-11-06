@@ -879,6 +879,20 @@
         break;
       }
 
+      // the pair (v0.10.40, §88 D): the mentorship, the writing room, the seating chart, the rivalry framed
+      case 'pair-mentor': case 'pair-writers': case 'pair-seat': case 'pair-rival': case 'pair-unpair': {
+        const act = t.dataset.action;
+        const r = act === 'pair-mentor' ? KP.assignMentor(s, t.dataset.id, t.dataset.a, t.dataset.b)
+          : act === 'pair-writers' ? KP.pairWriters(s, t.dataset.id, t.dataset.a, t.dataset.b)
+          : act === 'pair-seat' ? KP.seatApart(s, t.dataset.id, t.dataset.a, t.dataset.b)
+          : act === 'pair-rival' ? KP.rivalryStance(s, t.dataset.id, t.dataset.a, t.dataset.b, t.dataset.stance)
+          : KP.unpairWriters(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        if (r.note) UI.toast(r.note.slice(0, 160));
+        App.render();
+        break;
+      }
       case 'mediate': {
         const r = KP.mediatePair(s, t.dataset.a, t.dataset.b);
         if (!r.ok) { UI.toast(r.reason, true); break; }

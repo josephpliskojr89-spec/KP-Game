@@ -36,8 +36,10 @@
         if (!p || p.status === 'released' || p.status === 'departed') return;
         // one scene per person at a time, across every source
         if ((state.scenes || []).some(sc => sc.personId === c.personId)) return;
-        // questions respect the per-person gap; events do not
-        if (!c.priority && state.week - (p.flags.knockWeek || -999) < K.personGapWeeks) return;
+        // questions respect the per-person gap; events do not — and the
+        // gap reads the mirror (v0.10.40): a boss who listens is knocked
+        // on sooner, one who schedules through it later
+        if (!c.priority && state.week - (p.flags.knockWeek || -999) < (KP.knockGap ? KP.knockGap(state) : K.personGapWeeks)) return;
         out.push(Object.assign({ source: pr.name }, c));
       });
     });

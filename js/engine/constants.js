@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.39',
+    VERSION: '0.10.40',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1807,6 +1807,58 @@
       lineWarChance: 0.20,        // per fault on the sheet (a quiet voice, one voice carrying
                                   // the record), the stopwatch thread organizes at release
     },
+    // the pair (v0.10.40, §88 D) — two-person content, playable: the
+    // mentorship, the writing pair, the seating chart, the in-group
+    // rivalry framed. Verbs on the group page; consequences ride the
+    // rails that exist (relationships, badblood, credits, development).
+    PAIR: {
+      cost: 3,                    // staff time: a pairing, a seating chart
+      mentorWeeks: 10,            // a mentorship runs this long
+      mentorWarmth: 55,           // the veteran has to be warm
+      mentorLead: 12,             // and ahead of the rookie (live reps, or age ×6)
+      menteeMorale: 55,           // a rookie struggling: morale under this, or sliding on the sheet
+      mentorGrowth: 1.15,         // the rookie trains faster while mentored
+      mentorDrift: 1.2,           // the pair warms, weekly
+      mentorCooldown: 16,         // per rookie, between mentorships
+      writeDrift: 1.5,            // the writing pair bonds while a record is in production
+      writeBond: 8,               // and a co-written track lands on the pair for real
+      seatWeeks: 8,               // the seating chart runs this long
+      seatCoolMult: 2.0,          // kept apart, a feud cools at twice the pace
+      seatDistanceMult: 0.5,      // and the distance watch sees half as much
+      seatMediationAfter: 4, seatMediationBonus: 0.1,   // weeks apart make the sit-down likelier
+      rivalryMoraleHold: 55,      // framed as competition: both above → the edge; either under → the room sours
+      rivalryGrowth: 1.1,         // the edge: both train harder
+      rivalryLiveExp: 0.5,        // and rehearse like it is a final
+      rivalrySourDrag: 2.0,       // sour: the rivalry's drag on the room doubles
+    },
+    // the mirror (v0.10.40, §88 E) — the manager's shadow: the directed
+    // ledger aggregated across the roster and said out loud, in words.
+    // It gates, gently, which questions people bring and how early.
+    MIRROR: {
+      minEntries: 3,              // under this the building has no read of you
+      lead: 2,                    // a trait reads one way when its side leads by this (and has two)
+      knockEarly: 1,              // a boss who listens: the per-person knock gap shrinks
+      knockLate: 2,               // a boss who schedules through it: it grows
+      CATEGORIES: {
+        promises:   { for: ['promiseKept'], against: ['promiseBroken'],
+          yes: 'keeps promises', no: 'has broken promises people remember' },
+        doors:      { for: ['openedTheDoor', 'ambitionPromised', 'honestAnswer', 'realTerms', 'sweetened', 'wonBack'],
+          against: ['deflected', 'leftWaiting', 'tableLeftWaiting', 'heldBack', 'heldToPaper', 'standardTerms'],
+          yes: 'opens doors before the third ask', no: 'makes people push for what they want' },
+        hearing:    { for: ['heardHer', 'heardOut', 'listened', 'breatherGranted', 'mediated', 'mentored'],
+          against: ['breatherDeclined', 'pressed', 'pushedThrough', 'muzzled'],
+          yes: 'listens when they say they are struggling', no: 'schedules through what people say' },
+        protection: { for: ['protected', 'protectedHealth', 'stoodByHer', 'welcomedBack', 'endingHonored'],
+          against: ['madeHerHide', 'benchedPride', 'keptOffline', 'reprimanded'],
+          yes: 'puts the person before the schedule when it costs', no: 'puts the schedule first' },
+        credit:     { for: ['seen', 'carrySeen', 'glueSeen', 'unitCredit', 'soloCredit', 'gaveTheSpeech', 'trusted'],
+          against: ['linesCut', 'songPassed', 'passedOver', 'cutFromLineup'],
+          yes: 'spreads the light', no: 'sends the credit where the numbers are' },
+        hard:       { for: ['toldStraight', 'honestAnswer', 'stingRespected'],
+          against: ['deflected', 'leftWaiting'],
+          yes: 'has the hard conversation', no: 'avoids the hard conversation' },
+      },
+    },
     // the promotion (v0.10.38, §91 Phase 5) — the plan stays the plan
     // (two slots a week, four weeks, billed at lock — the owner's law)
     // and gains four doors: the OFFERS (a show invites the risers and
@@ -2702,6 +2754,10 @@
         breatherGranted:  { w: 2,  words: 'asked for a real week off, and got it' },
         breatherDeclined: { w: -1, grudge: 1, words: 'asked for a week off; told "after the next stage"' },
         mediated:         { w: 2,  words: 'a sit-down the company arranged' },
+        mentored:         { w: 2,  words: 'given a mentor when she was struggling' },        // the pair (v0.10.40)
+        trustedToMentor:  { w: 2,  words: 'trusted to bring the rookie along' },
+        keptApart:        { w: -1, words: 'seated apart from the one she cannot stand' },
+        framedRival:      { w: 1,  words: 'the rivalry framed as competition, out loud' },
         trusted:          { w: 2,  words: 'you trusted her with the room' },
         seen:             { w: 1,  words: 'her offer was seen and taken' },
         openedTheDoor:    { w: 2,  words: 'you opened a door before she had to push it' },

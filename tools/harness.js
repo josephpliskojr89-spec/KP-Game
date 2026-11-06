@@ -379,6 +379,12 @@ const BANDS = {
   comebackStaged:    { lo: 0.90, hi: 1.00, label: 'orgs whose era opened on a named comeback stage' },
   // the second chair (v0.10.39) — measure-first: the first chair must prove out first
   secondChair:       { lo: 0.00, hi: 1.00, label: 'orgs that seated a second studio chair' },
+  // the pair and the mirror (v0.10.40, §88 D+E) — measure-first
+  mentorPaired:      { lo: 0.10, hi: 1.00, label: 'orgs that paired a mentor with a struggling rookie' },
+  writingPaired:     { lo: 0.00, hi: 1.00, label: 'orgs that paired two pens (and a co-written track landed)' },
+  keptApart:         { lo: 0.00, hi: 1.00, label: 'orgs that seated a feud apart' },
+  rivalryFramed:     { lo: 0.00, hi: 1.00, label: 'orgs that framed an in-group rivalry as competition' },
+  mirrorSpoken:      { lo: 0.80, hi: 1.00, label: 'orgs whose building formed a read of the boss' },
   // the song market (v0.10.5): ruled first soak — 40/40, 39/40, 39/40.
   // Hot hooks sit past windows constantly over long orgs (the bot
   // deliberates like everyone else); camps fire whenever a cold sheet
@@ -690,6 +696,7 @@ const tally = {
   stationRun: 0, slipDecided: 0, clipCaught: 0, sheetSet: 0, lineWarSeen: 0,
   stageCarried: 0, stageFumbled: 0, chemistryStaged: 0,
   offerTaken: 0, eraExtended: 0, comebackStaged: 0, secondChair: 0,
+  mentorPaired: 0, writingPaired: 0, keptApart: 0, rivalryFramed: 0, mirrorSpoken: 0,
   medCase: 0, medChronic: 0, flareFelt: 0,
   demoLost: 0, campHeld: 0, bondWorking: 0,
   interviewHeld: 0, seatHired: 0, seatCalled: 0, staffVoice: 0, meshFelt: 0,
@@ -725,7 +732,7 @@ let totalGroups = 0;
 let totalAmbushes = 0;
 const bestRegions = [];
 const endBudgets = [];
-let totalSaveKB = 0;
+let totalSaveKB = 0, maxSaveKB = 0, maxSaveSeed = '', maxPeople = 0;
 let mediationsRun = 0;
 let totalReleases = 0;
 const receptions = [];
@@ -1010,6 +1017,25 @@ for (let s = 0; s < SEEDS; s++) {
     if (worst && state.budget > 60 && KP.mediationCooldown(state, worst.a.id, worst.b.id) === 0) {
       const m = KP.mediatePair(state, worst.a.id, worst.b.id);
       if (m.ok) mediationsRun++;
+    }
+    // the pair (v0.10.40, §88 D): a boss who reads the room pairs a mentor
+    // when a rookie struggles, seats a feud apart when the sit-down is
+    // cooling, pairs two pens, and frames a rivalry while morale holds
+    if (KP.mentorshipRead && state.budget > 60) {
+      state.groups.forEach(g => {
+        if (g.retiredWeek) return;
+        const mr = KP.mentorshipRead(state, g.id);
+        if (mr.ok) KP.assignMentor(state, g.id, mr.mentor.id, mr.mentee.id);
+        const wr = KP.writingPairRead(state, g.id);
+        if (wr.ok) KP.pairWriters(state, g.id, wr.a.id, wr.b.id);
+        const feud = KP.frictionPairs(state, g.members).find(f => f.state === 'conflict' && KP.mediationCooldown(state, f.a.id, f.b.id) > 0);
+        if (feud && !(g.seating && KP.seatingLeft(state, g) > 0)) KP.seatApart(state, g.id, feud.a.id, feud.b.id);
+        KP.rivalryPairs(state, g).forEach(({ a, b, rel }) => {
+          const hold = a.morale >= 65 && b.morale >= 65;
+          if (hold && !rel.rivalry.sharpened) KP.rivalryStance(state, g.id, a.id, b.id, 'sharpen');
+          else if (!hold && rel.rivalry.sharpened) KP.rivalryStance(state, g.id, a.id, b.id, 'defuse');
+        });
+      });
     }
     // the hard directive: if the CEO demands a hyped trainee debut and no
     // lineup is coming, solo her (v0.2.6)
@@ -1748,9 +1774,16 @@ for (let s = 0; s < SEEDS; s++) {
   // orgs at intro. Cap 480 holds the same headroom over the new floor.
   const sizeKB = KP.saveSizeKB(state);
   // the floor (v0.10.31): rival trainee rooms are ~55 real people per org now
-  // (measured 482–537 on the widest orgs); cap 600 keeps the same headroom
-  guard(sizeKB <= 600, seed + ' save size runaway: ' + sizeKB + ' KB after 140 weeks');
+  // (measured 482–537 on the widest orgs); cap 600 keeps the same headroom.
+  // v0.10.40: the save is ~1.4 KB per real person over a ~210 KB base; the
+  // widest org ran 280 real people (schools + rival rooms, bounded by their
+  // caps) = 611 KB with the pair content itself ~6 KB of it (averages 529).
+  // Cap 700 keeps the headroom; the widest org prints below so growth shows.
+  guard(sizeKB <= 700, seed + ' save size runaway: ' + sizeKB + ' KB after 140 weeks');
   totalSaveKB += sizeKB;
+  const nPeople = Object.keys(state.people || {}).length;
+  if (sizeKB > maxSaveKB) { maxSaveKB = sizeKB; maxSaveSeed = seed; }
+  if (nPeople > maxPeople) maxPeople = nPeople;
 
   // discourse census + guards (v0.6.2)
   guard(KP.liveDiscourses(state).length <= KP.C.DISCOURSE.maxLive, seed + ' too many live storms');
@@ -1939,6 +1972,12 @@ for (let s = 0; s < SEEDS; s++) {
   if ((prl.extended || 0) >= 1) tally.eraExtended++;
   if ((prl.comebackStages || 0) >= 1) tally.comebackStaged++;
   if ((state.seats || {}).producer2 || (state.seats || {}).writer2) tally.secondChair++;   // the second chair (v0.10.39)
+  const pairL = state.pairLedger || {};                // the pair and the mirror (v0.10.40)
+  if ((pairL.mentorships || 0) >= 1) tally.mentorPaired++;
+  if ((pairL.coWritten || 0) >= 1) tally.writingPaired++;
+  if ((pairL.seatings || 0) >= 1) tally.keptApart++;
+  if ((pairL.framed || 0) >= 1) tally.rivalryFramed++;
+  if (KP.mirrorRead && KP.mirrorRead(state).spoken) tally.mirrorSpoken++;
   if ((ppl.lineWars || 0) >= 1) tally.lineWarSeen++;
   const mdl = state.medLedger || {};
   if ((mdl.cases || 0) >= 1) tally.medCase++;
@@ -2196,7 +2235,7 @@ console.log('debut reception: median ' + med +
 console.log('releases per org: ' + (totalReleases / SEEDS).toFixed(1) + ' average; groups per org: ' + (totalGroups / SEEDS).toFixed(1));
 console.log('date ambushes per career: ' + (totalAmbushes / SEEDS).toFixed(1) + ' average (pettiness stays memorable, not constant)');
 console.log('best overseas region at career end: ' + bestRegions.map(v => Math.round(v)).sort((a, b) => a - b).join(','));
-console.log('save size after 140 weeks: ' + Math.round(totalSaveKB / SEEDS) + ' KB average (quota ~5 MB)');
+console.log('save size after 140 weeks: ' + Math.round(totalSaveKB / SEEDS) + ' KB average, widest ' + maxSaveKB + ' KB (' + maxSaveSeed + '); most real people in one world ' + maxPeople + ' (quota ~5 MB)');
 console.log('avg roster talent growth over the run: ' +
   (growths.reduce((a, b) => a + b, 0) / Math.max(1, growths.length)).toFixed(1) + ' pts');
 

@@ -42,7 +42,8 @@
         // (v0.9.17) — the booklet machinery reads writtenBy at release
         tracks.push({ n: 1, title: demo.title, kind: 'title',
           producer: demo.producer, producerId: demo.producerId || null,
-          hook: demo.hook, slot: false, credit: null, writtenBy: demo.writtenBy || null });
+          hook: demo.hook, slot: false, credit: null, writtenBy: demo.writtenBy || null,
+          coWriter: demo.coWriter || null });   // the writing pair (v0.10.40)
         continue;
       }
       const title = KP.genSongTitle(rng, used);

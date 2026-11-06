@@ -6080,7 +6080,7 @@ harness scan — the banner now writes durable history and the
 census reads it (the 3/40 of earlier soaks was undercounting,
 not rarity).
 
-## §88 The person, all the way down (PLANNED — personality with power)
+## §88 The person, all the way down (ALL SHIPPED v0.10.26–27, 40 — personality with power)
 
 Owner: "I still want to go even deeper with idol personalities and
 week to week choices. any ideas for a plan?"
@@ -6252,7 +6252,86 @@ words, and her people across the industry) / History. Suite_096
 pin re-scoped to schedule-path burnouts (the 0.10.17 rule,
 reapplied — burnout has more sources than the schedule now).
 Still open from the §88 plan: D (the pair) and E (the manager's
-shadow).
+shadow) — shipped v0.10.40, as built below.
+
+**As built (v0.10.40 — D + E, "the pair and the mirror").** Owner:
+"Start tackling the queue." pair.js and mirror.js are the modules
+(loaded after promo.js); development, relationships, badblood,
+songs, tracks, credits, friction and knock learned them; verbs land
+on the group page, the mirror on the building. Suite_107 (48
+checks). No migration — pairs and the mirror mint lazily.
+
+*THE PAIR (D).* Four verbs, each a desk proposal the engine makes
+and a button that spends staff time (PAIR.cost 3), consequences on
+the rails that exist:
+- THE MENTORSHIP (`KP.mentorshipRead` / `assignMentor`): the rookie
+  is struggling (morale under 55, or sliding on the eval sheet; a
+  16-week cooldown per rookie), the veteran is warm (warmth ≥ 55)
+  and ahead (live reps, or years ×6, by 12). For ten weeks the
+  rookie trains faster (development ×1.15 via `flags.mentoredBy`),
+  the pair warms (+1.2 a week on the relationship), both ledgers
+  remember (`mentored` +2 on her, `trustedToMentor` +2 on the
+  veteran — the mirror's hearing and credit read them), both files
+  carry the lines; at the end a rookie whose morale rose takes +1
+  confidence through the arc's door, and the letter says whether
+  the turn came. One mentorship a room.
+- THE WRITING PAIR (`writingPairRead` / `pairWriters` /
+  `unpairWriters`): two members who write (`canWrite`), the pair
+  that already gets along best; while a record is in production the
+  pair bonds (+1.5 a week); the next member-written demo either of
+  them pens carries `coWriter` (songs.js asks `KP.coWriterFor`),
+  the title track carries it to the booklet, and at release the
+  credits weekly lands it on BOTH — the second name's credit and
+  history, `seen` on her ledger, +8 on the pair, one letter.
+- THE SEATING CHART (`seatApart`): a feuding pair (score under −14)
+  gets a body between them for eight weeks — the feud cools at
+  twice the pace (relationships.js's coolOff ×2 while kept apart),
+  the distance watch sees half as much (badblood's didntStand ×.5),
+  and after four weeks apart the sit-down is likelier (+.10 on the
+  mediation chance); `keptApart` on both ledgers (−1: she noticed).
+  One chart a room; the friction card carries the button and the
+  "kept apart · Nw" chip.
+- THE RIVALRY FRAMED (`rivalryPairs` / `rivalryStance`): a NAMED
+  in-group rivalry (badblood's `rel.rivalry`) can be framed as
+  competition out loud (`framedRival` +1 on both): while both hold
+  morale ≥ 55 they have the edge (development ×1.1, live reps +.5 a
+  week); the week either slips the framing sours — the rivalry's
+  chemistry drag doubles on the room, one letter — and recovers
+  when morale does; the framing can be taken down. The sit-down
+  stays the other door.
+
+*THE MIRROR (E).* `KP.mirrorRead(state)`: the directed ledgers of
+everyone in the building, added up across six categories of what
+you did — promises (kept / broken), doors (opened before the third
+ask / made people push), hearing (listened / scheduled through it),
+protection (the person before the schedule / the schedule first),
+credit (spread the light / sent where the numbers are), the hard
+conversation (had it / avoided it) — each category's kinds listed
+in MIRROR.CATEGORIES; a trait reads one way when its side has two
+and leads by two. `KP.mirrorLine`: "The building reads you: keeps
+promises; listens when they say they are struggling; avoids the
+hard conversation." — words, never a count; under three entries
+"The building has no read of you yet. It is keeping notes." On
+Today's building card and the Building tab. It gates, gently: the
+softspoken one brings the QUIET NO only to a boss who has answered
+a door before (`KP.mirrorDoorsAnswered` ≥ 1 — the tough one brings
+it regardless), and the knock's per-person gap reads the hearing
+trait (`KP.knockGap`: 6 weeks, 5 for a boss who listens, 8 for one
+who schedules through it).
+
+*The bot and the bands.* The bot pairs a mentor whenever the desk
+proposes one, pairs two pens, seats a conflict apart while its
+sit-down cools, frames a rivalry when both hold 65 morale and takes
+it down when they do not. Bands (measure-first): mentorPaired
+[.10–1], writingPaired [0–1] (a co-written track landed), keptApart
+[0–1], rivalryFramed [0–1], mirrorSpoken [.80–1]. Measured, 40
+orgs: a mentor paired 29, a co-written track landed 3 (the title
+track is rarely the member-written demo), a feud seated apart 13, a
+rivalry framed 9, the building's read spoken 40. The save-size guard
+moved 600→700 KB with its history: the widest org ran 280 real
+people (611 KB, the pair content ~6 KB of it; average 529), and the
+harness now prints the widest org and the most people so growth
+shows.
 
 To rule before build: (1) cadence — one friction question every
 2-3 weeks feels alive; more is a mailbox; less is wallpaper. Where
@@ -11316,6 +11395,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > second chair seated 6/40 once the bot used its house chair (0/40
 > before); house records 28 of 251 commissions. Suite_106 (25). Battery 106/106, soak 40 clean,
 > longhaul 10x620, e2e 114, lockstep 0.10.39. Rode to main.
+
+> **0.10.40 — the pair and the mirror.** §88 D + E, owner: "Start
+> tackling the queue." Four two-person verbs on the group page — the
+> mentorship (the warm veteran brings the struggling rookie along:
+> faster growth, a warming pair, both files), the writing pair (two
+> pens; the next song either writes carries both names and lands the
+> bond), the seating chart (a feud kept apart cools twice as fast,
+> draws the distance watch half as much, makes the sit-down
+> likelier), the rivalry framed (the edge while morale holds, the
+> room sours when it slips). The mirror: the directed ledgers added
+> up and said out loud on the building — keeps promises, opens
+> doors, listens, protects, spreads the light, has the hard
+> conversation — gating the quiet no and the knock's timing.
+> Measured, 40 orgs: a mentor paired 29, a co-written track 3, a
+> feud seated apart 13, a rivalry framed 9, the building's read
+> spoken 40; the save-size guard 600→700 KB (widest org 611 KB at
+> 280 real people, measured; the harness prints both now). Suite_107
+> (48). Battery 107/107, soak
+> 40 clean, longhaul 10x620, e2e 114, lockstep 0.10.40. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

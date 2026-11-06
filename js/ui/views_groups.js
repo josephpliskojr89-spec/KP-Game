@@ -290,7 +290,39 @@
     // the stage, judged (v0.10.37): the act's rolling stage craft, in words
     const stageLine = KP.stageCraftLine ? KP.stageCraftLine(state, g) : null;
     if (stageLine) html.push('<div class="note">' + UI.esc(stageLine) + '</div>');
-    KP.frictionPairs(state, g.members).forEach(f => html.push(UI.frictionCard(state, f)));
+    KP.frictionPairs(state, g.members).forEach(f => html.push(UI.frictionCard(state, f, g)));
+    // the rivalry inside the group, framed (v0.10.40, §88 D)
+    if (KP.rivalryPairs) {
+      KP.rivalryPairs(state, g).forEach(({ a, b, rel }) => {
+        const framed = !!rel.rivalry.sharpened, soured = !!rel.rivalry.soured;
+        html.push('<div class="note ' + (soured ? 'urgent' : '') + '">' + UI.esc(KP.publicGiven(a) + ' and ' + KP.publicGiven(b) + ' are rivals inside the lineup' +
+          (framed ? (soured ? ' — framed as competition, and it has gone sour: the scoreboard reads as a verdict now.' : ' — framed as competition, and holding: both train like it is a final.')
+            : '. Framed as competition it sharpens both while morale holds; left alone it is the sit-down’s problem.')) +
+          '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">' +
+          (framed
+            ? '<button class="btn small" data-action="pair-rival" data-id="' + g.id + '" data-a="' + a.id + '" data-b="' + b.id + '" data-stance="defuse">Take the framing down</button>'
+            : '<button class="btn small" data-action="pair-rival" data-id="' + g.id + '" data-a="' + a.id + '" data-b="' + b.id + '" data-stance="sharpen">Frame it as competition</button>') +
+          '</div><span class="n-who">— the pair desk</span></div>');
+      });
+    }
+    // the pairs (v0.10.40, §88 D): the mentorship and the writing pair
+    if (KP.mentorshipRead) {
+      const mr = KP.mentorshipRead(state, g.id);
+      const wr = KP.writingPairRead(state, g.id);
+      html.push('<div class="kicker">The pairs</div>');
+      html.push('<div class="card">' +
+        '<div style="font-weight:800;font-size:.84rem">The mentorship</div>' +
+        '<div style="font-size:.76rem;color:var(--ink-dim);margin-top:4px;line-height:1.5">' + UI.esc(mr.reason) + '</div>' +
+        (mr.ok ? '<div style="margin-top:8px"><button class="btn small primary" data-action="pair-mentor" data-id="' + g.id + '" data-a="' + mr.mentor.id + '" data-b="' + mr.mentee.id + '">Pair ' +
+          UI.esc(KP.displayName(mr.mentor)) + ' with ' + UI.esc(KP.publicGiven(mr.mentee)) + ' · ' + mr.cost + '</button></div>' : '') +
+        '<div style="font-weight:800;font-size:.84rem;margin-top:12px">The writing room</div>' +
+        '<div style="font-size:.76rem;color:var(--ink-dim);margin-top:4px;line-height:1.5">' + UI.esc(wr.reason) + '</div>' +
+        (wr.ok ? '<div style="margin-top:8px"><button class="btn small primary" data-action="pair-writers" data-id="' + g.id + '" data-a="' + wr.a.id + '" data-b="' + wr.b.id + '">Pair ' +
+          UI.esc(KP.publicGiven(wr.a)) + ' and ' + UI.esc(KP.publicGiven(wr.b)) + ' · ' + wr.cost + '</button></div>'
+          : wr.active ? '<div style="margin-top:8px"><button class="btn small" data-action="pair-unpair" data-id="' + g.id + '">Dissolve the pair</button></div>' : '') +
+        '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:10px">A mentorship runs ' + KP.C.PAIR.mentorWeeks + ' weeks: the rookie trains faster, the pair warms, both files remember. A writing pair bonds while a record is in production, and the next song either pens carries both names.</div>' +
+        '</div>');
+    }
 
     // status / next step
     html.push('<div class="kicker">Next step</div>');

@@ -77,7 +77,8 @@
                 text: KP.publicGiven(a) + ' and ' + KP.publicGiven(b) + ' were seen running lines together, voluntarily, twice. The staff are calling the rivalry buried — carefully, quietly, the way you talk about weather that might come back.' });
             }
             // the distance the cameras notice
-            if (g.debuted && state.week <= (g.promoUntil || 0) && rng.chance(B.didntStandChance)) {
+            if (g.debuted && state.week <= (g.promoUntil || 0) &&
+                rng.chance(B.didntStandChance * (KP.keptApart && KP.keptApart(g, a.id, b.id) ? KP.C.PAIR.seatDistanceMult : 1))) {   // the seating chart (v0.10.40)
               const dn = KP.igniteDiscourse(state, rng, 'didntStand', 'idol', a.id, g.id);
               if (dn) inbox.push(dn);
             }

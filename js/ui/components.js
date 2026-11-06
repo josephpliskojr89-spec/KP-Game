@@ -92,8 +92,16 @@
 
   // Friction card: the problem and its handle, together. Used by dossier,
   // group page and builder — anywhere a tense pair surfaces.
-  UI.frictionCard = function (state, f) {
+  UI.frictionCard = function (state, f, g) {
     const cd = KP.mediationCooldown(state, f.a.id, f.b.id);
+    // the seating chart (v0.10.40, §88 D): a body between them, for a while
+    const grp = g || KP.groupOf(state, f.a.id);
+    const apartLeft = grp && KP.seatingLeft ? KP.seatingLeft(state, grp) : 0;
+    const apart = grp && KP.keptApart && KP.keptApart(grp, f.a.id, f.b.id) && apartLeft > 0;
+    const seatBtn = !grp || !KP.seatApart ? ''
+      : apart ? '<span class="chip">kept apart · ' + apartLeft + 'w</span>'
+      : (grp.seating && apartLeft > 0) ? ''
+      : '<button class="btn small" data-action="pair-seat" data-id="' + grp.id + '" data-a="' + f.a.id + '" data-b="' + f.b.id + '">Keep them apart · ' + KP.C.PAIR.cost + '</button>';
     const label = f.state === 'conflict'
       ? KP.publicGiven(f.a) + ' and ' + KP.publicGiven(f.b) + ' are in open conflict. This needs handling before it needs explaining.'
       : 'There is friction between ' + KP.publicGiven(f.a) + ' and ' + KP.publicGiven(f.b) + '. Professional in public, cold everywhere else.';
@@ -104,6 +112,7 @@
       (cd > 0
         ? '<span class="chip">sat down recently · ' + cd + 'w</span>'
         : '<button class="btn small" data-action="mediate" data-a="' + f.a.id + '" data-b="' + f.b.id + '">Arrange a sit-down · ' + KP.C.REL.MED.cost + '</button>') +
+      seatBtn +
       '</div><span class="n-who">— staff observation</span></div>';
   };
 

@@ -87,9 +87,14 @@
       // here (v0.10.30): the tough one, struggling quietly, brings it
       // herself — resilience decides whether the staff scan catches her
       // (the quietWeek flag) or she knocks.
+      // the mirror (v0.10.40, §88 E): the softspoken one only brings the
+      // quiet no to a boss who has answered a door before — the tough
+      // one (resilience) brings it regardless
       {
+        const doorsAnswered = !KP.mirrorDoorsAnswered || KP.mirrorDoorsAnswered(state) >= 1;
         const quiet = actives.find(m => !busyPerson(state, m.id) &&
           m.morale < FR.quietMorale &&
+          (doorsAnswered || m.personality.resilience >= FR.confessResilience) &&
           (m.fatigue >= FR.quietFatigue || m.personality.resilience >= FR.confessResilience) &&
           (KP.voiceOf(state, m) === 'softspoken' || m.personality.dominance < FR.quietDominance ||
            m.personality.resilience >= FR.confessResilience));

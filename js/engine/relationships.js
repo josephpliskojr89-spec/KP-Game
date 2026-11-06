@@ -56,6 +56,10 @@
           const prof = (a.personality.professionalism + b.personality.professionalism) / 2;
           rel.score += (-rel.score) * R.reversion * (0.5 + prof / 100);
           if (rel.score < -14 && !shared) rel.score += R.coolOff;
+          // the seating chart (v0.10.40, §88 D): kept apart, a feud cools faster
+          if (rel.score < -14 && gA && KP.keptApart && KP.keptApart(gA, a.id, b.id)) {
+            rel.score += R.coolOff * (KP.C.PAIR.seatCoolMult - 1);
+          }
         }
 
         const st = KP.relState(rel.score);
@@ -142,8 +146,12 @@
     const prof = (a.personality.professionalism + b.personality.professionalism) / 2;
     const warmth = (a.personality.warmth + b.personality.warmth) / 2;
     const bothDominant = a.personality.dominance > 65 && b.personality.dominance > 65;
+    // the seating chart (v0.10.40): weeks apart make the sit-down likelier
+    const gAB = KP.groupOf(state, a.id);
+    const apart = gAB && KP.keptApart && KP.keptApart(gAB, a.id, b.id) && gAB.seating &&
+      state.week - gAB.seating.since >= KP.C.PAIR.seatMediationAfter ? KP.C.PAIR.seatMediationBonus : 0;
     const chance = KP.clamp(
-      M.baseChance + (prof - 50) / 220 + (warmth - 50) / 260 - (bothDominant ? 0.18 : 0),
+      M.baseChance + (prof - 50) / 220 + (warmth - 50) / 260 - (bothDominant ? 0.18 : 0) + apart,
       0.15, 0.9);
     const roll = rng.next();
     const A = KP.publicGiven(a), B = KP.publicGiven(b);
@@ -192,8 +200,9 @@
         const rel = (state.relationships || {})[pairKey(members[i], members[j])];
         pairSum += rel ? rel.score : 0;
         // the bad blood (v0.9.21): a rivalry that got a NAME drags the
-        // room beyond what the pair score already says
-        if (rel && rel.rivalry) pairSum -= KP.C.BADBLOOD.rivalryChemDrag;
+        // room beyond what the pair score already says — and a rivalry
+        // framed as competition that soured drags double (v0.10.40)
+        if (rel && rel.rivalry) pairSum -= KP.C.BADBLOOD.rivalryChemDrag * (rel.rivalry.soured ? KP.C.PAIR.rivalrySourDrag : 1);
         pairs++;
       }
     }

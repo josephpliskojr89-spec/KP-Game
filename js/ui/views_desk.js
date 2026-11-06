@@ -112,6 +112,8 @@
       const open = KP.C.HIRES.SEATS.filter(seat => !S[seat.id] && (!KP.chairOpenable || KP.chairOpenable(state, seat.id)));
       html.push('<div class="kicker">The building</div>');
       html.push('<div class="card" data-action="desk-sub" data-sub="building" style="cursor:pointer">' +
+        // the mirror (v0.10.40, §88 E): the building's read of YOU, in words
+        (KP.mirrorLine ? '<div style="font-size:.76rem;color:var(--ink-dim);margin-bottom:6px;font-style:italic">' + UI.esc(KP.mirrorLine(state)) + '</div>' : '') +
         '<div style="font-size:.78rem">' +
         KP.C.HIRES.SEATS.filter(seat => S[seat.id]).map(seat =>
           UI.esc(S[seat.id].name) + ' <span style="color:var(--ink-dim)">(' + UI.esc(seat.label) + ')</span>').join(' · ') +
@@ -398,6 +400,12 @@
     const HR = KP.C.HIRES;
     const searchBusy = !!state.staffSearch ||
       (state.scenes || []).some(sc => sc.kind === 'theInterview');
+    // the mirror (v0.10.40, §88 E): the manager's shadow, said out loud
+    if (KP.mirrorLine) {
+      html.push('<div class="card" style="border-color:var(--gold)"><div style="font-weight:800;font-size:.84rem">The mirror</div>' +
+        '<div style="font-size:.78rem;margin-top:4px;line-height:1.5">' + UI.esc(KP.mirrorLine(state)) + '</div>' +
+        '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:6px">Read from what you actually did to the people in this building — the ledger each of them keeps, added up. It changes which questions they bring you, and how soon.</div></div>');
+    }
     html.push('<div class="pad" style="font-size:.74rem;color:var(--ink-dim);margin-top:4px">' +
       'Ten chairs — the second studio chairs open when the first prove out. The file on each shows who they are, where they were, and what the industry says — never what they are worth. That part costs a year, and it never prints.</div>');
     if (state.staffSearch) {

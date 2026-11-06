@@ -86,6 +86,7 @@
           title: KP.genSongTitle(rng, usedTitles),
           producer: KP.displayName(w), producerId: null,
           writtenBy: w.id, writerId: w.id, writer: KP.displayName(w),
+          coWriter: KP.coWriterFor ? KP.coWriterFor(state, group, w.id) : null,   // the writing pair (v0.10.40)
           theme: penThemes[rng.int(0, penThemes.length - 1)],   // the pen writes what she owns (v0.10.35)
           conceptId: concept.id,
           toBrief: !!(direction && concept.id === direction.id),
