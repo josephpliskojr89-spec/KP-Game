@@ -7139,6 +7139,319 @@ checks: the strip is on the person tab and opens with where she is
 from), lockstep 0.10.33.
 
 
+## §91 The comeback (PLANNED — the song made, the chart earned, the stage judged)
+
+Owner, thinking out loud: "something that really defines kpop and
+it's the comeback. The anticipation, the promotion, the stages, and
+the charts. But the songs are what lead up to that. Right now, we
+pick options and get the wheel in motion. What if on top of line
+distribution, we essentially made the whole process player
+controlled with a commercial and critical rating resulting from
+your choices. We'd hire producers for our company. We'd have
+writers. We'd have control over concepts and themes. We'd make
+decisions on all of this based on who's most proficient at what
+we're trying to do. Assigning a hip hop producer to an ethereal or
+dreamy song wouldn't be likely to work well, regardless of how
+skilled the producer is, for example. And the quality of the song,
+the size of the fan base, and the effectiveness of marketing should
+impact how the song charts. It shouldn't necessarily impact the
+critical reception. Plenty of great songs never chart high.. Then,
+after release, we'd have more control over promotion as well. And
+each stage would be rated based on how well your performer(s) did.
+Fatigue, morale, chemistry, and skill would all matter here."
+
+**The law.** A record is MADE by named people, JUDGED twice, and
+HEARD once. Made: every record names its brief, its producer, its
+writer, its choreographer and the voices that sang each part — and
+a person out of their lane makes a worse record no matter how good
+they are. Judged twice: CRAFT is what the critics hear (the record
+itself) and APPEAL is what the public wants (the hook, the moment,
+the sound of the year); neither is the other, and neither is
+printed as a number. Heard once: the chart is appeal × reach ×
+marketing × the calendar — reach is built and bought, craft never
+is. "Plenty of great songs never chart high" is a sentence the game
+must be able to say about YOUR record, out loud, often.
+
+**A. What the audit found (three read-only passes over the code).**
+Much of the owner's sketch already exists in pieces, and the pieces
+do not know each other:
+1. THE SONG IS PICKED, NEVER MADE. Four demos a cycle (songs.js;
+   two written to the brief, a stretch, a wildcard), plus the camp
+   and a member's own; the player chooses one. A demo carries ONE
+   quality (`hook`, normal 55/14) plus demands and a `trendFit`
+   that is a random draw with no world behind it. No theme, no
+   mood, no writer — the producer is the only credit.
+2. PRODUCERS ARE NAMES WITH LANES, NOT SKILLS. Six persistent
+   producers per world (credits.js), each with a home lane, a works
+   ledger read as heat, snubs and bonds, an asking price and a
+   circulating window (market.js). Nothing in the hook depends on
+   WHO produced it: an out-of-lane producer pitches with no penalty
+   (`laneStickiness` only biases who pitches). No writers at all;
+   eight named choreographers the player cannot choose. The
+   building's six seats (hires.js) include an A&R lead (hook shift)
+   and a marketing lead (push momentum) — no producer, writer or
+   stylist chair.
+3. ONE NUMBER JUDGES EVERYTHING. `resolveDebut` folds ~20 terms into
+   a single `reception`: hook ×.3, trendFit ×.13, performance ×.3,
+   concept fit ×.14, chemistry, promo level (a flat ±), popularity
+   lift, hype, anticipation, the MV tier, memory, season, hiatus,
+   the crowd, bad blood, luck — then concept fatigue, the obscurity
+   wall, the fusion roll. Chart score = (reception + pop×.2) × reach.
+   Revenue, trust, reputation, awards, producer heat, the copycat,
+   the sleeper, the war — every reader reads the same number. The
+   only "critics" in the engine are the fusion lane's `acclaim`
+   roll (caps reception at 45; `release.acclaim` is written and
+   never read) and flavour strings ("reviews are kind").
+4. PROMOTION IS LOCKED BEFORE THE SONG LANDS. The rollout plan (two
+   slots a week, four weeks, nine activities) is billed at lock and
+   plays out unchanged; after release the levers are the one-a-week
+   point nudge and the content desk. Anticipation (teasers,
+   campaign pushes, bookings) is real but pre-release only.
+5. A STAGE IS NEVER A PERFORMANCE. `showsWeek` scores popularity ×
+   fandom weight + `livePerf` × live weight + freshness + a hash
+   wobble; livePerf is a group mean of talent and live reliability
+   (fatigue enters at ≈ −0.03 points per fatigue point; morale only
+   through the slump; chemistry, relationships and bad blood never).
+   Festivals, tours, the circuit, Japan, gayo and fancons rate
+   nothing. The one real performance read (`performance`, from
+   demands vs skills, fatigue, benched, the choreo bill) runs ONCE,
+   at release, inside reception. The encore reads vocals; the ending
+   fairy reads visuals; `performance` in company reputation has no
+   writer at all.
+6. THE LINE CARD IS THREE BUTTONS. Recording opens trust / spread /
+   center (pipeline.js); reception never reads it; `lineShare` is a
+   reserved discourse kind (§89 D13: "let it become the line sheet
+   the owner sketched"). No member share of any song exists.
+What is right and stays: the brief (§29) and identity streak, the
+producer pool with heat and the ghost story (§48), the song market
+(§80.11), the making's stations (§80.5), the tracklist and the pen
+(§36, §48), the rollout desk's constrained plan (§25: "never twenty
+sliders"), the three shows with different natures (§27), the
+release war (§26), the pressing sheet and the chodong (§80.1), the
+expectation bar (§77), the point desk in words (§80.9).
+
+**B. The design.**
+
+*B1. Two verdicts (the release read, rebuilt — §89 D11 done
+properly).* Every modifier `resolveDebut` stacks today is tagged
+once, in a registry, as CRAFT, APPEAL or REACH, and the three sums
+are kept on the release:
+- CRAFT (the record, as the critics hear it): the composition
+  (the producer's craft × the fit law, B2), the lyric (the writer's
+  craft × theme fit, B2), the recording (the voices on the parts —
+  the sheet, B3), concept fit (the song suits who they are), the
+  room's chemistry (a tense room records cold), identity (a known
+  sound, deepened), the fusion outcome (acclaim lifts craft, flop
+  sinks both), luck (σ6). NEVER popularity, hype, promo spend,
+  anticipation, the crowd, the season, the wall.
+- APPEAL (what the public wants): the catch (a second seed from the
+  commission — the producer's commercial sense), the sound of the
+  year (B2: `trendFit` becomes real), the moment (the center's
+  pull, the breakout, the spark), the MV tier, the lane's breadth
+  (bright and performance read broad; dreamy and futuristic read
+  narrow — breadth is a number on CONCEPTS), the theme's breadth,
+  identity (a known sound sells), minus concept fatigue, luck (σ9).
+- REACH (who hears it): fame (the wall), popularity, the fandom
+  (intensity, the fanbase read), followers, momentum, anticipation,
+  the promo level (the paid push × the marketing seat, the wall's
+  waste), hiatus/tour/return lifts, the January dead zone, the crowd
+  and the war, the house's own traffic, the overseas multipliers.
+Then: `commercial = appeal × (.55 + .45 × reachIndex) + marketing
+lift`, bounded as the wall bounds it today; chart score and peaks
+from commercial exactly as from reception now; `release.reception`
+KEEPS ITS NAME and means commercial (how it did) for every reader
+that means that — popularity, trust, revenue, the chodong lift, the
+war, the copycat, the expectation bar, memory's hitFactory. Readers
+that mean the RECORD move to craft: producer heat (works carry
+craft), the memory pedigree's vocalHouse, the reputation keys
+`vocal` and `performance`, the catalog annuity's longevity (craft
+keeps paying), the sleeper (craft high, commercial low → the long
+tail: a late re-entry, a critics' list, the truthers), the pen's
+value, the awards' new `record` category (the critics' album/song
+of the year, by craft; `song` stays the public's). THE CRITICS: three
+invented outlets (content law), each with a taste (a lane it
+favours, a severity) and a verdict band per record from craft ±
+taste ± hash — acclaimed / warm / mixed / cold / panned — printed
+in WORDS on the results page and the discography, never as a
+number; a split verdict is a story; the critics' expectation (the
+house's last craft) settles against craft the way the public's
+settles against commercial — the sophomore slump and the grower are
+both sentences now. Measured-first bands: the critics' darling
+(craft ≥ 68, commercial < 50) and the panned hit (commercial ≥ 64,
+craft < 45) must both appear in a real share of careers.
+
+*B2. The studio (the song, made).* The pitch stays — the world's
+producers still send four demos a cycle, their themes, their
+price — and the COMMISSION joins it: brief a record (a lane from
+CONCEPTS; a THEME from a new small table — longing, first love,
+defiance, summer, the night drive, grief, confidence, nostalgia,
+escape, devotion — each with an age band, the lanes it sits in
+naturally, and a breadth), choose the producer and the writer, pay
+their fees, wait the writing weeks (the camp's shape: 2–3), and the
+demo arrives in `g.demos` with its hidden craft and catch seeds and
+the staff's words. THE FIT LAW: a producer has lanes (one home, at
+most one second) and the composition's craft is CAPPED by fit —
+home 1.0, neighbour .85 (a small adjacency table: bright–retro–
+elegant; dark–performance–hiphop–futuristic; dreamy–elegant–retro;
+fusion neighbours everything at .85), far .65. A 90 producer on a
+far lane lands near 58: it works, it just isn't them — the owner's
+hip-hop producer on the ethereal song. The writer's home themes cap
+the lyric the same way, and a theme that fights the room (grief on
+sixteen-year-olds, swagger on a warm room: the age band and the
+personality read) costs craft and gets NAMED by the critics. The
+members who write (the pen) are writers too, with affinities drawn
+from personality. THE PEOPLE: producers and writers become persons
+with a hidden craft and catch (the second fog: lanes are public
+knowledge, quality is read only through the works ledger and the
+critics' words on each record); the world's six producers and a new
+pool of six writers are BOOKABLE per record at the market's price
+by heat, and access is gated the holdout way — unproven and
+workmanlike take any call, reliable wants fame ≥ .30 or a bond, in
+demand wants fame ≥ .55 or the relationship; IN-HOUSE chairs join
+hires.js as a seat family (`producer` ×2, `writer` ×2): hired at
+theInterview, fame-gated tiers, no per-record fee, exclusive (a
+rival cannot buy their ghost), bonds that form faster — and their
+lane is their lane, so the in-house hip-hop chair and a dreamy
+brief send you to the market anyway. That is the decision the owner
+asked for: who is most proficient at what we are trying to do.
+THE SOUND OF THE YEAR: `state.trend = {lane, since}` — the national
+pool's releases carry lanes, the trades print the year's sound
+every January, a record in the trend lane gains appeal and a far
+one loses it, the trend drifts yearly on hash and a fusion
+`shift` moves it for real ("changed the industry" means something);
+copycat rivals read it. The fresh label's path is written into
+this: unknown producers, in-lane only, no names on the phone — and
+a cheap record can still be the critics' darling, because craft is
+skill × fit and reach is what money buys.
+
+*B3. The sheet (line distribution, where it finally matters).* The
+recording station opens the SHEET instead of three buttons: the
+song arrives with PARTS from its lane (verse, pre-chorus, chorus,
+the rap, the bridge, the killing part — each with a demand: range,
+rap, presence) and the producer's proposed distribution by the
+voices (the ace's killing part, the lead vocal's chorus, the
+rapper's rap). Options: trust the producer (the proposal, the bot's
+default), every voice (flatten), front-load the ace, or the custom
+sheet (the panel's steppers, bounded). The sheet feeds: craft's
+recording term (the right voice on the demanding part; a weak voice
+on the chorus costs the record), the stage's load (B4: who carries
+the live), medical's vocal strain (singing-load weeks already roll
+it), morale and the `linesCut` grievance (exists), the `lineShare`
+discourse (a member under the floor share → the stopwatch posts,
+the company answers), the center's hype. The three-card line card
+retires; open cards migrate to sheets.
+
+*B4. The stage, judged.* ONE rating, `KP.stageRead(state, g, stage)`
+→ {score, perMember, moments}, from: the song's live demand (its
+lane: a performance record lives on dance, a dreamy one on voice),
+each member's live skill against HER load (the sheet's shares),
+live reps and stage IQ, the choreography's difficulty against the
+room, fatigue (steeper than today's −0.03 a point), morale (a low
+room goes through the motions), chemistry (the relationship ledger:
+tense pairs read cold in formation, close ones read as not acting),
+the rehearsal (the performance director's seat — a chair that
+finally multiplies something weekly), the slump, injuries and the
+seated arrangement, and a hash wobble per (seed, stage, week) —
+television, not the stream. Consumers: the three shows' live term
+(replacing livePerf, with each show's nature kept — Prime Stage
+weighs it most), the encore and fancam lotteries (keyed to the
+rating and the member who carried), the ending fairy, fandom
+intensity (±1), morale (±1), the discourses that are dead today
+(`didntStand` and `encore` wake on bad stages; a carried stage
+posts the clip), festivals (a rated set → next year's invitation),
+tour nights (a bad night sells the next leg softer), gayo, the
+circuit, Japan nights, the comeback stage (B5). The member's record
+keeps a stage count (carried / fumbled) the dossier reads in words;
+the act's rolling stage craft gives the reputation key `performance`
+its first writer and the awards' `artist` a performance term. The
+read posts IN WORDS, at most once a week, the point-desk way:
+"Minji carried Prime Stage; the second-chorus formation came apart
+behind her." Bad decisions have teeth: a punishing choreography on
+a tired room is a fumbled stage on national television.
+
+*B5. The promotion, after release.* The plan stays the plan (two
+slots a week, four weeks, billed at lock — the owner's own law) and
+gains four doors: THE OFFERS — each promo week the desk receives
+invitations keyed to how the record is actually doing (a show
+invites the chart's risers, variety invites faces with media reps,
+a festival, a brand) and the player may SWAP a planned slot for one
+(a cancelled booking costs a little trust with that broadcaster —
+a small ledger, read at the next invitation); THE EXTENSION — at
+week four a record still climbing (chart up, or the sleeper) can
+run two more weeks for a fatigue price (`eraExtended` exists as an
+ind and finally has a verb); THE COMEBACK STAGE — the era's first
+stage is a named special: rated (B4), watched by the critics,
+hype-bearing, the one everyone clips; MARKETING FIT — campaign
+pushes are keyed to the record (a club record pushes through the
+challenge, a ballad through radio and OST, a performance record
+through the stage clip) and the marketing seat reads the fit:
+effectiveness is a match, not a budget line.
+
+*B6. The fog, kept.* Craft and appeal are never printed. Before
+release the staff read the record in words through their own seats
+(the A&R lead's call, the marketing lead's nerves — fogged by seat
+truth, the second fog); after release the critics' words and the
+chart's numbers are the truth; a stage posts a staff line. Names,
+never reads (§87-adjacent law): the dossier says she carried the
+stage, not what she scored.
+
+**C. Phases.** Each a full-ritual release; each shifts the stream
+(suite repairs by pattern); each a migration for open preps.
+- PHASE 1 — THE TWO VERDICTS (v0.10.34): the registry, craft /
+  appeal / reach / commercial on the release, the critics' three
+  outlets and words, every downstream reader sorted (the table in
+  B1), the awards' `record` category, the one expectation bar
+  (public vs critics), the sound of the year. Subsumes §89 Phase 5
+  (D11). Highest risk — every balance suite pins reception and the
+  debut bands get re-measured — and the foundation everything else
+  writes into. Bands: critics' darling, panned hit, trend named.
+- PHASE 2 — THE STUDIO (v0.10.35): the fit law, producers and
+  writers as persons with craft and catch, the themes table, the
+  commission verb and its card, the in-house chairs in hires.js, the
+  access gates. Medium risk (songs/credits/market surgery; suites
+  033, 049, 059, 085). Bands: commissioned ≥ .60, in-house hired,
+  off-lane record seen, theme named by the critics.
+- PHASE 3 — THE SHEET (v0.10.36): parts per lane, the proposal,
+  the panel, craft's recording term, the load, the discourse, the
+  line card retired. Low-medium risk. Bands: sheet set, lineShare
+  litigated [.05, .60].
+- PHASE 4 — THE STAGE (v0.10.37): stageRead and its consumers, the
+  per-member moments, the performance reputation, the words.
+  Medium risk (suite_031 and the show bands). Bands: stage carried,
+  stage fumbled, chemistry read on a stage.
+- PHASE 5 — THE PROMOTION (v0.10.38): the offers, the swap ledger,
+  the extension, the comeback stage, marketing fit. Medium risk
+  (rollout suites, the bot's plan). Bands: offer taken, extended.
+Phases 3 and 4 can swap; 2 cannot precede 1 (the seeds need the
+registry). The owner reorders.
+
+**D. Rulings needed (recommendations marked).**
+1. Producers and writers: in-house chairs AND the bookable world
+   pools (recommended — the fresh label books, the established
+   label hires exclusives), or one of the two?
+2. Craft and appeal as words only (recommended: the fog is the
+   game), or a number somewhere?
+3. Themes: a separate writer axis with age and room fit
+   (recommended, ten themes), or lane only for the first cut?
+4. The fit law's teeth: a cap (recommended: far-lane work tops out
+   near 60 whatever the skill) or a gentler slope?
+5. Stages with teeth: a fumbled stage drops intensity and wakes the
+   storm (recommended), or words only?
+6. Promotion: offers and swaps on the locked plan (recommended),
+   or a fully weekly desk?
+7. The critics: three invented outlets with tastes that disagree
+   (recommended — a split verdict is a story), or one voice?
+
+**E. One truth per number, after.** `reception` = commercial (the
+chart's side); `craft` = the record; `appeal`, `reach` stored for
+the record. Deleted or merged: `release.acclaim` (into craft),
+`COMEBACK.FOCUS` and `ROLLOUT.encoreChance` and `SEASON.festFatigue`
+(dead), the random `trendFit` (into the trend), the three-card line
+card (into the sheet), `livePerf` and the gig pile's `stageRead`
+(into the one stageRead), the fusion roll's reception floors and
+caps (into craft/appeal moves on the fusion lane), the release's
+one-shot `performance` (into the recording's craft and the stage).
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -10293,3 +10606,18 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > merge gate counts scene rivals only. Migration 0.10.33 derives the
 > file from old history. Suite_100 (311). Battery 100/100, soak 40
 > clean, longhaul 10x620, e2e 113, lockstep 0.10.33. Rode to main.
+
+> **Planning — the comeback (§91).** Owner: "something that really
+> defines kpop and it's the comeback… a commercial and critical
+> rating resulting from your choices… hire producers for our
+> company… writers… control over concepts and themes… each stage
+> would be rated." Three read-only audits of the pipeline (songs →
+> release → chart; stages and critics; staff, producers, concepts)
+> found the sketch half-built and unconnected: one `reception`
+> number judges everything, producers have lanes but no skill and
+> no fit penalty, a stage is never a performance, the line card is
+> three buttons. §91 written: the law (made by named people, judged
+> twice, heard once), two verdicts with a tagged registry, the
+> studio's commission and fit law with in-house and bookable
+> producers and writers, the sheet, the judged stage, promotion's
+> offers; five phases and seven rulings pending the owner. No code.
