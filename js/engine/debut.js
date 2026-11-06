@@ -1063,13 +1063,10 @@
       KP.publicCompare(state, g, reception, eyeNotes, rng);
       eyeNotes.forEach(push);
     }
-    // the critics speak (v0.10.34): the verdict, the darling, the panned
-    // hit, and the critics' own bar — the house's last record
-    {
-      const prevRel = (g.releases || [])[(g.releases || []).length - 1];
-      const prevCraft = prevRel && prevRel.craft != null ? prevRel.craft : null;
-      KP.verdictNotes(state, g, { title: demo.title, craft, reception, critics, conceptId: concept.id }, prevCraft).forEach(push);
-    }
+    // the critics speak AFTER the war is scored (below): the battle is the
+    // louder letter of a release week, and the trim reads arrival order
+    const prevRelForCritics = (g.releases || [])[(g.releases || []).length - 1];
+    const prevCraft = prevRelForCritics && prevRelForCritics.craft != null ? prevRelForCritics.craft : null;
     // the bad blood (v0.9.21): a unit track shared by named rivals is a
     // dispute the booklet cannot hide — once per era, both pay
     {
@@ -1244,6 +1241,9 @@
     const war = KP.releaseWar(state, g, score, reception, concept.id, rng);
     war.notes.forEach(push);
     if (war.battle) g.results.battle = war.battle;
+    // the critics speak (v0.10.34): the verdict, the darling, the panned
+    // hit, and the critics' own bar — the house's last record
+    KP.verdictNotes(state, g, { title: demo.title, craft, reception, critics, conceptId: concept.id }, prevCraft).forEach(push);
     // the release exports (v0.6.6): concept resonance decides where
     KP.regionsOnRelease(state, g, reception, concept.id).forEach(push);
     // the era's leftovers (v0.9.17): the demos the meeting passed on stay

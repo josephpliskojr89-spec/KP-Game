@@ -7139,7 +7139,7 @@ checks: the strip is on the person tab and opens with where she is
 from), lockstep 0.10.33.
 
 
-## §91 The comeback (RULED — the song made, the chart earned, the stage judged)
+## §91 The comeback (PHASE 1 SHIPPED v0.10.34 — the song made, the chart earned, the stage judged)
 
 Owner, thinking out loud: "something that really defines kpop and
 it's the comeback. The anticipation, the promotion, the stages, and
@@ -7452,6 +7452,132 @@ card (into the sheet), `livePerf` and the gig pile's `stageRead`
 (into the one stageRead), the fusion roll's reception floors and
 caps (into craft/appeal moves on the fusion lane), the release's
 one-shot `performance` (into the recording's craft and the stage).
+
+**As built — Phase 1, v0.10.34 "the two verdicts".** Owner: "I like
+your recommendation on all 7." verdict.js is the module (loaded before
+songs.js); debut.js's resolver was rebuilt around it; songs, memory,
+fame, credits, tracks, awards, catalog, industry, sagas, publiceye and
+newgame learned the record. Suite_101_verdicts (107 checks).
+
+*The registry.* `KP.readLedger()` — every modifier `resolveDebut`
+used to stack is tagged once, craft | appeal | reach, and the three
+sums live on the report (`g.results.ledger`, rows with their names:
+"the hook", "the recording", "the year's sound", "the promo buy").
+CRAFT = hook ×.42 + the recording (the old `performance` read:
+demands vs skills, fatigue, benched, the choreo bill) ×.30 + concept
+fit ×.14 + the room (chem−50) ×.10 + pedigree (memory's vocal-house
+read moved here — it is about the record) + identity (+2 on a
+brief's second record) + luck σ6; the mash's outcome is a MOVE on it
+(VERDICT.FUSION_MOVES: acclaim +14, shift +8, worked +3, flop −12).
+APPEAL = 2 + the catch ×.55 + the performance ×.15 (the public hears
+a record performed well) + the year's sound ×.13 + the lane's
+breadth (CONCEPTS.breadth: bright +4 … dreamy −3) + the moment
+(soloEdge + spark) + the video + the summer lift + identity −
+sameness (the old concept fatigue) + luck σ9; the mash moves it too
+(shift +16, acclaim −12, flop −14, worked +4). REACH is the additive
+lifts the chart runs on: popularity, hype, anticipation, the promo
+buy, the tour, the returns (dormancy, hiatus, the return run), the
+January dead zone, the crowd, bad blood, the expectation drag (the
+old "giant fanbase raises the bar"). Then `reception = appeal ×
+(.8 + .2 × chartReach) + Σreach`, the wall (an industry SHIFT pierces
+it: `pierce` lifts the cap three sparks' worth), the repackage
+carry, clamp — and every reader that means "how it did" reads the
+same `reception` it always did: popularity, trust, revenue, the
+chodong, the war, the copycat, the public's bar, the seats' rep
+rise, fame's hit count. The fusion lane's floors and caps
+(shiftReceptionMin, acclaimReceptionCap, flopReceptionCap,
+workedLift) and `release.acclaim` are gone.
+
+*The catch.* Every demo carries `catch` beside `hook` — hash-derived
+(seed, id, title; hook ×.5 + 27.5 ± 18), so the sheet can diverge
+without a new draw. `trendFit` on a demo is DELETED (it was a random
+number with no world behind it): `KP.trendFit(state, lane)` reads
+the lane against the year at resolve — in the lane 70, next door
+58, far 45 (TREND.NEIGHBOURS, the adjacency table §91 B2 named;
+fusion neighbours everything). The pitch sheet says it in words
+("Right sound, right year" / "Nobody is asking for this sound right
+now") and shows the chip; the exec-taste stamp now reaches the
+member's own demo too (latent since v0.9.17 — the stream shift found
+it).
+
+*The sound of the year.* `KP.trendLane(state, year)` is a pure read:
+a hash per year chained with persistence (TREND.keepChance .55) from
+the world's first year, overridden from a fusion shift's year on
+(`state.trendOverrides`). The trades name it in January — and on a
+career's first week — as `trendNamed` (normal priority; the Industry
+page carries it permanently: "The sound of the year: Dark / Dramatic
+· 2 years running"). A shift sets the lane to genre-bending: every
+other sound is "next door" until the wind changes.
+
+*The critics' circle.* Three invented outlets (VERDICT.OUTLETS: The
+Needle, severe, loves elegant/dreamy/retro and resents bright;
+Mixdown Monthly, even, the producers' magazine; Chorus & Co.,
+generous, the pop site) read the SAME craft through a taste (±4 on
+a lane they love or hate), a severity (−3 / 0 / +3) and a per-review
+hash wobble (±8); the consensus is the median voice; two bands of
+spread is a SPLIT. Bands at 76 / 64 / 52 / 40 (acclaimed, warm,
+mixed, cold, panned) — calibrated so "acclaimed" is rare against a
+craft mean of 63 on the first smoke. The words never carry a number:
+`KP.criticsLine` on the results page and in the `criticsVerdict`
+letter (normal; high when split, acclaimed or panned), the consensus
+on the discography and as a chip, a quote in the outlet's own voice.
+The letter lands AFTER the war's (the battle is the louder letter of
+a release week — the first soak lost warLost's floor to arrival
+order). The old "Reviews are kind; numbers are cautious" flavour now
+reads the critics' word, one truth.
+
+*The divergences — "plenty of great songs never chart high."* The
+critics' darling (craft ≥ 70, reception < 50: a critical letter, +2
+fandom pride) and the panned hit (reception ≥ 64, craft < 48) are
+real letters with feed reactions; the critics' own bar is the
+house's last craft — the sophomore slump (−12 from a warm-or-better
+record) and the grower (+12). Measured, 40 orgs: darling 23/40,
+panned hit 11/40, split review 35/40, the year's sound named 40/40;
+debut reception median 53 (min 26, max 80), sensation 3/40, strong+
+8/40, quiet/miss 16/40 — the old bands hold on the new read.
+
+*The readers that mean the record.* Producer heat reads craft (works
+carry it; old works fall back to their reception); the sleeper is
+judged as a record (`tracklistResolve` takes craft; a quiet chart
+week no longer hides a good b-side); the catalog keeps a well-made
+record in the lottery (craft ≥ 60) and sorts revivals by it; the
+awards gained `record` — Record of the Year, the critics' circle's
+bonsang, by craft, while Song of the Year stays the public's (a
+rival's loud, panned single wins the one; our buried record wins the
+other — suite-pinned); the vocal house moves on records (craft ≥ 68
+→ vocal +3); a great record is the fandom's pride whatever it sold.
+Rival records carry a craft too (quality ×.9 ± a hash wobble; the
+opening world's and the sagas' records included), so the circle can
+judge the whole year.
+
+*The one bar.* `KP.expectationRead(state, g, {comeback:true})` adds
+the act's own standing (popularity above 40, ×.5) and
+`KP.comebackExpectation` mints it at lock (a letter at loud or
+above); `settleExpectations` knows debut from comeback in its words.
+The old debut-only bar is the same bar now. (§89 D11's three
+expectation reads: the popularity drag is a tagged reach row, the
+pedigree is a craft row, the public bar settles against reception —
+one registry.)
+
+*The migration (0.10.34)* derives craft (reception ± 8 by hash),
+appeal (= reception) and the critics' retroactive verdict on every
+release, result, rival record and producer work that predates them;
+deletes `trendFit` and stamps `catch` on every demo in a drawer;
+drops `acclaim`. `KP.deriveVerdict` is the one derive — the opening
+world's back-dated discographies use it at creation, so a current
+save never changes under a reload. Harness bands (measure-first):
+criticsDarling [.02–.90], pannedHit [0–.80], criticsSplit
+[.05–1.0], trendNamed [.95–1.0]. The inbox: the executive's
+directive-and-grant letter and the hiatus walk-down are critical
+now (one-shot decisions and milestones the critics' letters were
+crowding off a release week). Repairs by pattern (the stream shift:
+one craft-luck draw per release, two trend draws fewer per demo):
+twelve fixtures re-pinned (the scar door's wait, the waiting room's
+rival act, the quit letter's bench, the fusion table as moves, the
+season's forgotten count, the truck's cooling margin).
+
+Battery 101/101, soak 40 clean, longhaul 10x620, e2e 113, lockstep
+0.10.34.
 
 ## §18 Watch items
 
@@ -10607,6 +10733,22 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > merge gate counts scene rivals only. Migration 0.10.33 derives the
 > file from old history. Suite_100 (311). Battery 100/100, soak 40
 > clean, longhaul 10x620, e2e 113, lockstep 0.10.33. Rode to main.
+
+> **0.10.34 — the two verdicts.** §91 Phase 1, owner: "I like your
+> recommendation on all 7." The release read is a tagged registry —
+> craft (the record: the hook, the recording, fit, the room,
+> pedigree, identity, the mash), appeal (the catch, the performance,
+> the year's sound, breadth, the moment, the video, sameness), reach
+> (the lifts the chart runs on) — and `reception` keeps its name as
+> the commercial result. Three invented critic outlets speak in
+> words (the median voice, the split review); the trades name the
+> sound of the year; the critics' darling and the panned hit are
+> letters; producer heat, the sleeper, the catalog, the vocal house
+> and the new Record of the Year read craft; the comeback has a bar.
+> trendFit and the fusion floors/caps deleted; migration 0.10.34.
+> Measured: darling 23/40, panned hit 11/40, split 35/40. Suite_101
+> (107). Battery 101/101, soak 40 clean, longhaul 10x620, e2e 113,
+> lockstep 0.10.34. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

@@ -200,7 +200,8 @@
     const notes = [];
     led.verdicts++;
     if (rel.critics.split) led.splits++;
-    notes.push({ kind: 'public', ind: 'criticsVerdict', priority: 'high', groupId: g.id,
+    const loud = rel.critics.split || ['acclaimed', 'panned'].includes(rel.critics.consensus);
+    notes.push({ kind: 'public', ind: 'criticsVerdict', priority: loud ? 'high' : 'normal', groupId: g.id,
       consensus: rel.critics.consensus, split: rel.critics.split,
       text: KP.criticsLine(state, rel.critics, rel.title) });
     if (rel.craft >= V.darlingCraft && rel.reception < V.darlingBelow) {
