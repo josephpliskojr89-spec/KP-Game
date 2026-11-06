@@ -167,12 +167,29 @@
       }
     });
 
+    // the b-sides, judged (v0.11.1, §92 A): a PUBLIC heat per b-side — the
+    // hook stays hidden; the streams the fans can see are a number
+    const bsides = tracks.filter(tr => tr.kind === 'bside').map(tr => {
+      const credit = tr.credit ? (tr.credit.type === 'solo' ? T.heatCredit.solo : T.heatCredit.unit) : 0;
+      const pen = tr.writtenBy ? T.heatPen : 0;
+      const wobble = (KP.hash01([state.seed, g.id, tr.title, 'heat'].join('|')) * 2 - 1) * T.heatWobble;
+      return { n: tr.n, title: tr.title, credit: tr.credit ? tr.credit.type : null,
+        heat: KP.clamp(Math.round(tr.hook * T.heatFromHook + record * T.heatFromCraft + credit + pen + wobble), 1, 100) };
+    });
+    const fanPick = bsides.slice().sort((a, b) => b.heat - a.heat)[0] || null;
     // the sleeper: after a record people actually played, the fandom
-    // digs one b-side out and refuses to put it back
+    // digs one b-side out and refuses to put it back — the truthers
+    // organize around a SONG now: the pick's heat prices the roll (same
+    // draw as before; the chance moved)
     let sleeper = null;
-    if (record >= T.sleeperReceptionMin && rng.chance(T.sleeperChance)) {
-      sleeper = tracks.filter(tr => tr.kind === 'bside')
-        .sort((a, b) => b.hook - a.hook)[0] || null;
+    if (record >= T.sleeperReceptionMin) {
+      const chance = fanPick
+        ? KP.clamp(T.sleeperChance + (fanPick.heat - T.sleeperHeatAt) * T.sleeperChanceSpan, T.sleeperChanceFloor, T.sleeperChanceCap)
+        : T.sleeperChance;
+      if (rng.chance(chance) && fanPick) {
+        sleeper = tracks.find(tr => tr.title === fanPick.title) || null;
+        fanPick.sleeper = true;
+      }
       if (sleeper) {
         g.popularity = KP.clamp((g.popularity || 0) + T.sleeperPop, 0, 100);
         notes.push({ kind: 'public', ind: 'bsideSleeper', priority: 'normal',
@@ -181,7 +198,19 @@
             (sleeper.credit ? 'unbearable' : 'organized') + ' about it. Playlist adds say they might not be wrong.' });
       }
     }
-    return { notes, tracks, sleeperTitle: sleeper ? sleeper.title : null };
+    return { notes, tracks, sleeperTitle: sleeper ? sleeper.title : null, bsides, fanPick: fanPick ? fanPick.title : null };
+  };
+  // the words (v0.11.1): a b-side's public standing, never the hook
+  KP.heatWord = function (heat) {
+    const row = (KP.C.TRACKS.HEAT_WORDS || []).find(([at]) => (heat || 0) >= at);
+    return row ? row[1] : 'quiet';
+  };
+  KP.bsideWord = function (b) {
+    if (!b) return '';
+    if (b.revivedWeek) return 'a reverse run';
+    if (b.peak) return 'charted #' + b.peak + (b.late ? ', late' : '');
+    if (b.sleeper) return 'the sleeper';
+    return KP.heatWord(b.heat);
   };
 
   // ---- her discography, from the file ------------------------------------

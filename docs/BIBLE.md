@@ -8491,6 +8491,185 @@ the band's floor stays 0 until a soak says otherwise.
 Battery 106/106, soak 40 clean, longhaul 10x620, e2e 114,
 lockstep 0.10.39.
 
+## §92 The b-side and the reverse run (SHIPPED v0.11.1)
+
+Owner: "I want to add more attention to B-sides and chart reversal
+chances."
+
+The audit of what exists: the tracklist (v0.7.5) gives every b-side
+a name, a producer, a hidden hook, a credit slot (a solo, a unit) and
+the pen (v0.9.7); the sleeper (22% after a record people played)
+blesses the best-hook b-side with a note, +2 popularity, the
+extension's "still climbing" read and a +20 key in the catalog's
+revival pick; the catalog (v0.9.15) reverse-charts one record per
+group at 0.003 a week (0.04 while a resurfaced clip burns), the
+title or the sleeper, onto the scene chart only — measured 27/40
+orgs per career. Nothing else reads a b-side: it never charts
+beside its title, it never climbs mid-era, the reverse run reads
+neither the song's quality nor what the act is doing that month,
+and the player has no verb for the catalog at all. The two asks are
+one system: the record is more than its title, and the chart has a
+back door.
+
+**A. The b-sides, judged.** At landing every b-side gets a PUBLIC
+heat — the streams the fans can see — from the hidden hook, the
+record's craft, the credit (a solo, a unit, a member's pen) and a
+hash wobble; the record keeps `bsides[]` beside the tracklist (the
+hook stays hidden; heat is a number everyone can read, so the UI
+reads it in words). The best b-side is the FAN PICK. The sleeper
+reads heat instead of a flat roll: the pick's heat past a bar makes
+the sleeper likelier, below it rarer — the truthers organize around
+a song, not a coin.
+
+**B. Double charting.** A fan pick hot enough enters the SCENE chart
+beside the title the week the record lands, at a fraction of the
+title's score, marked as a b-side (the chart row says so). A record
+with two songs charting is the story every tracklist poster thread
+wanted. The national board stays the title's and the reverse run's.
+
+**C. The late climb.** During promotion an uncharted fan pick with
+real heat can enter the chart on a small weekly roll — the in-era
+reverse, the b-side the second stage keeps pushing until the public
+agrees. The extension's "still climbing" read already honors it.
+
+**D. The reverse run, re-priced.** The catalog's weekly roll reads
+the song (craft and heat: a good record is a better ticket), the
+act's month (a stage, a festival, a tour leg or a variety panel
+inside a window doubles it — people hear old songs where they hear
+the act), and the push (E). B-sides with heat are candidates in
+their own right, each spent once; a strong revival enters the
+NATIONAL board too, at a discount — the reverse run that reaches
+the whole industry is the one the trades write up. The windfall
+and the provenance stay as they are.
+
+**E. The catalog push (the verb).** A desk verb per debuted group:
+pick a catalog song (a title old enough, or a b-side with heat) and
+a push — the streaming party (cheap, the fandom's own machine), the
+dance challenge (needs a dancer, travels further), the live clip
+(needs a stage inside the window) — each a cost, a multiplier on
+the revival roll and a window of weeks; one push live per group, a
+cooldown after; marketing's line on the books; the ledger counts
+pushes and the ones that paid out. The bot pushes when flush and a
+sleeper exists.
+
+**F. The surfaces.** The discography names the fan pick and reads
+each b-side in words (quiet · the fan pick · a sleeper · charted);
+the Groups tab gets THE SECOND LIFE card: the catalog's candidates
+with their words and the push buttons; the chart marks b-side rows;
+the release results list the b-sides' words beside the credits.
+
+**G. Harness.** Bands measure-first: a b-side charting beside its
+title, a b-side's reverse run, the bot's push; catalogRevived keeps
+its ceiling (a lottery everyone wins is a salary). Numbers unruled
+— measure then rule, with history comments. Candidate slot: v0.11.1.
+
+**As built (v0.11.1).** Everything above shipped.
+
+A. At landing every b-side gets a PUBLIC heat (tracks.js:
+hook × .62 + the record's craft × .28 + a credit lift (solo 6, unit
+4) + the pen 3 + a hash wobble ±6), kept beside the tracklist as
+`bsides[]` with the hook still hidden; the hottest is `fanPick`.
+The sleeper reads the pick's heat: the base .22 at heat 62, ±.02
+a point, floor .06, cap .60 — the same rng draw as before, so the
+stream kept its shape; the sleeper is marked on her b-side. The
+words (KP.heatWord: burning 70 · warm 58 · quiet 45 · skipped;
+KP.bsideWord adds the sleeper, a chart peak, a reverse run) never
+say the hook.
+
+B+C. A fan pick at DOUBLE.heatAt 72 enters the scene chart the
+week the record lands at .6 of the title's score, as a b-side
+entry carrying `releaseWeek`; chartStamp stamps its peak and weeks
+on the record's bsides and never on the title (catalog and shelf
+entries are skipped for the release's peak too — the old same-week
+overwrite is gone). During promotion an uncharted fan pick at
+LATE.heatAt 62 enters on a weekly hash (.05) at .7 of the title's
+live score — a world fact, not a draw.
+
+D. catalog.js keeps one draw per group per week; KP.revivalChanceOf
+is the one read: the base (.003, +.04 while a clip burns) × the
+ticket's quality (1 + (q − 50)/50 × .4) × the act's month (×1.5 —
+KP.catalogActive: a judged stage inside 8 weeks, since settleStage
+stamps g.lastActivityWeek, or a tour, or a member's panel/MC seat)
+× the push's multiplier. KP.catalogCandidates lists the tickets:
+the title (reception 50+, the sleeper, or craft at the longevity
+bar) and every b-side at heat 58+, each spent once (`revivedWeek`
+on the record or the b-side); a record from before the judging
+keeps the old nod (its sleeper's title rides the record's ticket).
+A revival at quality 72+ enters the national board at .8 of its
+scene score; the peak lands on the b-side (`nationalPeak`) or the
+record (`revivalNationalPeak`); the milestone letters still speak.
+KP.revivalLine says a b-side, a push, a clip, the national crossing.
+
+E. KP.pushCatalog(state, groupId, title, kind): the streaming
+party (6, ×4, 6 weeks), the dance challenge (12, ×6, 8 weeks, a
+member's dance 60+), the live clip (8, ×5, 6 weeks, a stage inside
+8 weeks); KP.catalogPushRead gates it (one per group, a cooldown of
+20 after the window, the tickets, the kinds' reasons); marketing's
+line; the ledger counts pushes, pushPaid, bsideRevivals,
+nationalRevivals, lateClimbs; a push that never pays winds down at
+flavor priority; an unknown title is refused with nothing spent.
+
+F. The discography names the fan pick in words and the b-sides
+that charted or ran again, and a record's reverse run with its
+national peak; THE SECOND LIFE card on the group page (the tickets
+as chips, the three pushes with their reasons, the running push);
+the chart marks b-side, reverse-run and folded-label rows; the
+release results list the b-sides' words beside the credits. The
+timeline answers bsideCharts, bsideClimbs, catalogPush and the
+richer catalogRevival.
+
+G. Measured, 40 orgs, then tuned with history comments: double
+charting 34/40 → 21 (heatAt 66→72), the late climb 20 → 23
+(58→62), a b-side's own reverse run 16 → 8, the national back door
+36 → 24 (64→72), the bot's push 40 → 38 (quarterly, not every nine
+weeks), paid out 30 → 4, the lottery ticket 27/40 before the
+release → 39 → 35 → 34 (activityMult 2→1.5, qualitySpan .5→.4; the
+band's ceiling .85→.90 by ruling, with the salary check printed:
+0.62 reverse runs per org-year, under the ~1 where the windfall
+would be wages). One fixture repair (057, the old nod). Suite_111
+(62). Battery 111/111, soak 40 clean, longhaul 11x620, e2e 134,
+lockstep 0.11.1.
+
+## §93 The flavor expansion (PLANNED — v0.11.2)
+
+Owner: "we need to big flavor text addition so we don't see so many
+repeats."
+
+The census first (tools/audit_repeats.js: the soak's 40 orgs × 140
+weeks, every kept note, timeline post and spotlight line normalized
+so a sentence that only swaps a name counts as the same sentence).
+Measured at v0.11.0: 276 kept notes per org-year over 2,935
+templates; the top template is the relationship friction note at
+10.7 per org-year (4 variants carry 17 a year); the rival-signing
+note is one sentence 14 times a year; the spotlight shows 113 lines
+per org-year from 71 templates and its top line — the day-off piano
+— 18.1 times a year, every third week; the timeline runs 28 posts
+per org-year over 514 templates and its top filler 2.1. The repeats
+the owner sees are a few families seen weekly, not a thin game.
+
+The law: one mechanism, a family of sentences (the OPENERS rule) —
+variants keyed by voice and trait so the same event reads
+differently for different people; never the same line to the same
+person inside a memory window; the content law throughout (snark at
+institutions, never bodies; invented names and outlets only).
+
+Targets, in order of weight: (1) the spotlight — three or more
+lines per key, a per-person recency memory that skips what she was
+last seen doing, and keys that read the situation (the era, the
+season, the count) so the piano stays a surprise; (2) the
+relationship notes — friction, settled, the pair that works —
+keyed by the pair's dominant traits and the room they happened in;
+(3) the rival-signing note — keyed by the rival's philosophy and
+our relation to the lead (a file we read, a lead we never looked
+at, a lineup rumor); (4) the countdown and the comeback-result
+lines by band; (5) the single-variant inds (rivalHit, showcase,
+masterMinted, application, gayoInvite, neverPaid) to four each;
+(6) the health benching, the rival scouts, the eval-cut industry
+line; (7) the timeline's top ten weekly fillers. The census prints
+a REPEAT INDEX (the top template's count per org-year on each
+surface); the Bible records it at every release from here, and the
+number only goes down. Candidate slot: v0.11.2.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -11834,6 +12013,23 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > their books; the longhaul bot funds its first debut and shares the
 > hiring gate. Suite_110 (100). Battery 110/110, soak 40 clean,
 > longhaul 11x620, e2e 132, lockstep 0.11.0. Rode to main.
+
+> **0.11.1 — the b-side and the reverse run.** Owner: "more attention
+> to B-sides and chart reversal chances." §92 shipped whole: every
+> b-side judged in public heat at landing (the hook stays hidden),
+> the fan pick, the sleeper reading her heat instead of a coin; a hot
+> fan pick charting beside the title with its own peak, a warm one
+> climbing mid-era on a hash; the reverse run re-priced on the song,
+> the act's month and the push, b-sides as tickets of their own, the
+> national back door for a strong revival; the catalog push (party,
+> challenge, live clip) as the desk's verb on the shelf; the second
+> life card, the chart marks, the discography's words. Measured and
+> tuned: double charting 21/40, the late climb 23, a b-side's own run
+> 8, the national crossing 24, the lottery ticket 34/40 at 0.62 runs
+> per org-year (ceiling .85→.90 by ruling). Suite_111 (62). Battery
+> 111/111, soak 40 clean, longhaul 11x620, e2e 134, lockstep 0.11.1.
+> Rode to main. §93 (the flavor expansion) planned from the repeat
+> census: tools/audit_repeats.js.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

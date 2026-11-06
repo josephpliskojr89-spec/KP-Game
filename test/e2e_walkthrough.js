@@ -353,6 +353,22 @@ async function main() {
   await tap('[data-action=hold-fancon][data-format=free]');
   await page.waitForTimeout(100);
   ok(await page.evaluate(() => (KP.App.state.commerceLedger || {}).fanMeetings === 1), 'the free fan meeting is held from the group page, on the fan event’s one clock');
+  // the second life (v0.11.1, §92 E+F): the legacy act's shelf is old enough
+  // to push — the card names the tickets, the party runs from one tap
+  await page.evaluate(() => { KP.App.state.budget += 40; KP.App.save(); });
+  await tap('[data-action=back]');
+  await tap('[data-nav=groups]');
+  await page.waitForSelector('[data-action=open-grouppage]');
+  await page.click('[data-action=open-grouppage]:nth-of-type(1)');   // the legacy act's page (its shelf is years old)
+  await page.waitForTimeout(120);
+  const shelfText = await page.textContent('#screen');
+  ok(/The second life/.test(shelfText), 'the group page shows the shelf’s second life');
+  if (await page.$('[data-action=catalog-push][data-kind=party]:not([disabled])')) {
+    await tap('[data-action=catalog-push][data-kind=party]');
+    ok(await page.evaluate(() => KP.App.state.groups.some(g2 => g2.catalogPush && g2.catalogPush.kind === 'party')), 'one tap runs a streaming party on the shelf’s best ticket');
+  } else {
+    ok(/running through|campaign|old enough/.test(await page.textContent('#screen')), 'the card says why the push waits');
+  }
   await tap('[data-action=back]');
   await tap('[data-nav=studio]');
 

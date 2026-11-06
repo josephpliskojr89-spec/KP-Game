@@ -508,6 +508,24 @@
         App.render();
         break;
       }
+      // the second life (v0.11.1, §92 E): pick a song on the shelf, push it
+      case 'catalog-pick': {
+        App._catalogPick = App._catalogPick || {};
+        App._catalogPick[t.dataset.id] = t.dataset.title;
+        App.render();
+        break;
+      }
+      case 'catalog-push': {
+        const g = KP.groupById(s, t.dataset.id);
+        const picked = (App._catalogPick || {})[t.dataset.id];
+        const first = g ? (KP.catalogCandidates(s, g)[0] || {}).title : null;
+        const r = KP.pushCatalog(s, t.dataset.id, picked || first, t.dataset.kind);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast('The push is running through ' + KP.weekLabel(r.until).text + '. Watch the chart.');
+        App.render();
+        break;
+      }
       case 'hold-fancon': {
         const r = KP.holdFancon(s, t.dataset.id, t.dataset.format || 'ticketed');
         if (!r.ok) { UI.toast(r.reason, true); break; }

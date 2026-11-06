@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.0',
+    VERSION: '0.11.1',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1223,6 +1223,28 @@
       // still owns the masters. Claims something real, per §55.6.
       revivalWindfallBase: 25,
       revivalWindfallPerReception: 1.2,   // × max(0, reception − 30)
+      // the reverse run, re-priced (v0.11.1, §92 D): the roll reads the song,
+      // the act's month and the push; b-sides with heat are tickets of their
+      // own; a strong revival reaches the national board at a discount
+      qualitySpan: 0.4,          // chance × (1 + (quality − 50) / 50 × this) — .5→.4 at the second soak (35/40 orgs; the ticket stays a ticket)
+      activityWindow: 8,         // a judged stage, a tour or a panel seat inside this many weeks…
+      // activityMult 2→1.5 at the first soak: with every judged stage stamping
+      // the month, a promoting act is 'active' most weeks and the lottery
+      // ticket flooded 39/40 (band ceiling .85 — a lottery everyone wins is
+      // a salary); the lift is real, not a doubling
+      activityMult: 1.5,         // …lifts the roll: people hear old songs where they hear the act
+      bsideRevivalHeat: 58,      // a b-side is a candidate from this heat
+      nationalRevivalAt: 72,     // a revival this good enters the national board too… (64→72 at the first soak: 36/40 crossed — the trades write up the rare one)
+      nationalScoreMult: 0.8,    // …at this discount on its scene score
+      // the catalog push (§92 E): the desk's verb on the shelf
+      PUSH: {
+        KINDS: {
+          party:     { label: 'Streaming party', cost: 6, mult: 4, weeks: 6 },
+          challenge: { label: 'Dance challenge', cost: 12, mult: 6, weeks: 8, dance: 60 },      // needs a dancer
+          liveClip:  { label: 'The live clip', cost: 8, mult: 5, weeks: 6, stageWithin: 8 },   // needs a stage inside the window
+        },
+        cooldown: 20,            // weeks after a push ends before the next
+      },
     },
 
     // ---- The disappearance (v0.9.12): hiatus as strategy ----------------
@@ -2776,9 +2798,27 @@
       soloMorale: 5,
       unitMorale: 3,             // both/all unit members feel seen
       unitCloseBonus: 4,         // a close pair's unit cuts DEEPER (morale, both)
-      sleeperChance: 0.22,       // one b-side may quietly outgrow the record
+      sleeperChance: 0.22,       // one b-side may quietly outgrow the record — the base, at the heat bar
       sleeperPop: 2,             // the truthers move the number a little
       sleeperReceptionMin: 55,   // nobody digs into a record nobody played
+      // the b-side and the reverse run (v0.11.1, §92 A): every b-side gets
+      // a PUBLIC heat at landing — the streams the fans can see — from the
+      // hidden hook, the record's craft, the credit and the pen; the best
+      // is the fan pick, and the sleeper reads her heat instead of a coin
+      heatFromHook: 0.62, heatFromCraft: 0.28,
+      heatCredit: { solo: 6, unit: 4 }, heatPen: 3, heatWobble: 6,
+      sleeperHeatAt: 62,         // the truthers organize around a song: at this heat the base chance
+      sleeperChanceSpan: 0.02,   // per heat point above (below) the bar
+      sleeperChanceFloor: 0.06, sleeperChanceCap: 0.60,
+      // §92 B: a fan pick this hot charts beside the title the week the record lands
+      // heatAt 66→72 at the first soak: 34/40 orgs double-charted — a story
+      // every other record tells is wallpaper; the bar sits where a mini's
+      // best b-side clears it maybe once a career
+      DOUBLE: { heatAt: 72, scoreMult: 0.6 },
+      // §92 C: the late climb — an uncharted fan pick with real heat enters
+      // on a small weekly hash during promotion (a world fact, not a draw)
+      LATE: { heatAt: 62, chance: 0.05, scoreMult: 0.7 },   // heatAt 58→62 at the first soak (20/40 climbed): the climb is the rarer story
+      HEAT_WORDS: [[70, 'burning'], [58, 'warm'], [45, 'quiet'], [0, 'skipped']],
     },
     // ---- The stage door (v0.8.0) — scenes, claims, directed acts --------
     SCENES: {

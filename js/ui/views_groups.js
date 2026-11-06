@@ -51,6 +51,39 @@
       '</div></div>';
   }
 
+  // the second life (v0.11.1, §92 E+F): the shelf's tickets, in words, and
+  // the push — a streaming party, a dance challenge, the live clip
+  function secondLifeCard(state, g) {
+    if (!KP.catalogPushRead) return '';
+    const read = KP.catalogPushRead(state, g);
+    const cands = (read.candidates || []).slice(0, 5);
+    const live = read.live || (g.catalogPush && state.week <= g.catalogPush.until ? g.catalogPush : null);
+    if (!cands.length && !live) return '';
+    const App = KP.App || {};
+    const picked = (App._catalogPick && App._catalogPick[g.id]) || (cands[0] && cands[0].title);
+    const active = KP.catalogActive ? KP.catalogActive(state, g) : false;
+    const html = ['<div class="kicker">The second life</div><div class="card" style="font-size:.8rem;line-height:1.55">'];
+    html.push('<div style="color:var(--ink-dim)">Old records are lottery tickets: every song on the shelf can reverse-chart years later — the better the record, the better the ticket' +
+      (active ? '; the act is on stages this month, and people hear old songs where they hear the act, so every ticket doubles' : '') + '.</div>');
+    if (cands.length) {
+      html.push('<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">' + cands.map(c =>
+        '<button class="btn small' + (c.title === picked ? ' primary' : ' ghost') + '" style="' + (c.title === picked ? '' : 'border:1px solid var(--line)') +
+        '" data-action="catalog-pick" data-id="' + g.id + '" data-title="' + UI.esc(c.title) + '">“' + UI.esc(c.title) + '”' +
+        (c.kind === 'bside' ? ' · b-side, ' + UI.esc(KP.bsideWord(c.b)) : c.r.sleeperTitle ? ' · the record with the sleeper' : '') + '</button>').join('') + '</div>');
+    }
+    if (live) {
+      html.push('<div style="margin-top:8px;color:var(--gold)">' + UI.esc(KP.C.CATALOG.PUSH.KINDS[live.kind].label) + ' on “' + UI.esc(live.title) + '” — running through ' + UI.esc(KP.weekLabel(live.until).text) + '.</div>');
+    } else if (read.ok) {
+      html.push('<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">' + read.kinds.map(k =>
+        '<button class="btn small"' + (k.ok ? '' : ' disabled title="' + UI.esc(k.reason || '') + '"') +
+        ' data-action="catalog-push" data-id="' + g.id + '" data-kind="' + k.id + '">' + UI.esc(k.label) + ' · ' + k.cost + '</button>').join('') + '</div>');
+    } else if (read.reason) {
+      html.push('<div style="margin-top:8px;color:var(--ink-dim)">' + UI.esc(read.reason) + '</div>');
+    }
+    html.push('</div>');
+    return html.join('');
+  }
+
   function groupCard(state, g) {
     const promoting = g.debuted && state.week <= (g.promoUntil || 0);
     const status = g.debuted
@@ -419,6 +452,7 @@
          state.week - (g.lastEnWeek || -999) >= KP.C.CIRCUIT.EN.cooldown
           ? '<div style="margin-top:8px"><button class="btn small" data-action="en-version" data-id="' + g.id + '">Cut the English version · ' + KP.C.CIRCUIT.EN.cost + '</button></div>' : '') +
         '<div style="margin-top:8px"><button class="btn small ghost" style="border:1px solid var(--line)" data-action="declare-hiatus" data-id="' + g.id + '">Declare an official hiatus</button></div></div>');
+      html.push(secondLifeCard(state, g));   // the second life (v0.11.1, §92 E+F)
       // the units on the record (v0.9.26)
       (g.units || []).forEach(u => {
         if (!u.eras.length) return;
@@ -447,7 +481,14 @@
             }).join(' & ') + ' unit “' + UI.esc(tr.title) + '”');
           }
         });
-        if (r.sleeperTitle) creditBits.push('b-side hit “' + UI.esc(r.sleeperTitle) + '”');
+        // the b-sides, judged (v0.11.1, §92 A): the fan pick in words, and
+        // any b-side that charted or ran again — never the hook
+        if (r.bsides && r.bsides.length) {
+          const pick = r.bsides.slice().sort((a, b) => b.heat - a.heat)[0];
+          creditBits.push('fan pick “' + UI.esc(pick.title) + '” · ' + UI.esc(KP.bsideWord(pick)) +
+            r.bsides.filter(b => b !== pick && (b.peak || b.revivedWeek)).map(b => ' · “' + UI.esc(b.title) + '” ' + UI.esc(KP.bsideWord(b))).join(''));
+        } else if (r.sleeperTitle) creditBits.push('b-side hit “' + UI.esc(r.sleeperTitle) + '”');
+        if (r.revivedWeek) creditBits.push('reverse run ' + UI.esc(KP.weekLabel(r.revivedWeek).text) + (r.revivalNationalPeak ? ' (national #' + r.revivalNationalPeak + ')' : ''));
         // the pen credits (v0.9.7): names inside the booklet
         (r.tracklist || []).forEach(tr => {
           if (!tr.writtenBy) return;

@@ -162,7 +162,13 @@ const BANDS = {
   // at the old ceiling twice in one patch cycle (30, 27, 31/40); the
   // 80-seed operating point is 65%, so the ceiling moves outside the
   // small-sample noise (~2 sigma) instead of sitting inside it.
-  catalogRevived:    { lo: 0.02, hi: 0.85, label: 'orgs whose catalog track reverse-charted (the lottery ticket)' },
+  // ceiling .85→.90 by ruling (v0.11.1, §92 D): the owner asked for more
+  // reverse-run chances, and the roll reads the song, the month and the
+  // push now — measured 27/40 before, 39/40 at the first soak (activity
+  // doubled, the bot pushing every nine weeks), 35/40 tuned. The alarm
+  // this band keeps is the salary: revivals per org-year prints in the
+  // header; past ~1 a year the windfall is wages, not a lottery
+  catalogRevived:    { lo: 0.02, hi: 0.90, label: 'orgs whose catalog track reverse-charted (the lottery ticket)' },
   viralSourced:      { lo: 0.50, hi: 1.00, label: 'orgs whose viral moments carry provenance (the clip has a stage)' },
   obligationMissed:  { lo: 0.00, hi: 0.80, label: 'orgs that missed a sponsored appearance (the road won)' },
   dealClawedBack:    { lo: 0.00, hi: 0.50, label: 'orgs a brand terminated for cause (two misses)' },
@@ -589,6 +595,13 @@ const BANDS = {
   scarCarried:       { lo: 0.00, hi: 0.80, label: 'orgs where somebody carried a boiled storm for weeks' },
   unitCredit:        { lo: 0.05, hi: 1.00, label: 'orgs that cut a unit track (full albums open the second slot)' },
   sleeperHeard:      { lo: 0.30, hi: 1.00, label: 'orgs where a b-side outgrew its record (the truthers organize)' },
+  // the b-side and the reverse run (v0.11.1, §92) — measure-first
+  bsideCharted:      { lo: 0.00, hi: 1.00, label: 'orgs where a b-side charted beside its title (double charting)' },
+  bsideClimbed:      { lo: 0.00, hi: 1.00, label: 'orgs where a b-side climbed onto the chart mid-era' },
+  bsideRevived:      { lo: 0.00, hi: 1.00, label: 'orgs whose b-side reverse-charted years later' },
+  nationalRevived:   { lo: 0.00, hi: 1.00, label: 'orgs whose reverse run crossed onto the national board' },
+  catalogPushed:     { lo: 0.00, hi: 1.00, label: 'orgs that pushed a song on the shelf (the bot, when flush)' },
+  pushPaidOut:       { lo: 0.00, hi: 1.00, label: 'orgs whose push paid out in a reverse run' },
   // floor 0 by ruling: going quiet needs morale under 38, and the bot
   // rests, mediates, and wins its way out of that hole — a risk
   // mechanic reading zero under a competent bot is working (see
@@ -729,6 +742,7 @@ const tally = {
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
   soloCredit: 0, unitCredit: 0, sleeperHeard: 0,
+  bsideCharted: 0, bsideClimbed: 0, bsideRevived: 0, nationalRevived: 0, catalogPushed: 0, pushPaidOut: 0,
   doorKnocked: 0, askPromiseKept: 0, momentChoiceSeen: 0, doorLeftWaiting: 0,
   annivFelt: 0, scarCarried: 0,
   boysSigned: 0, boyGroupFormed: 0, staffNamed: 0, boardFaced: 0, petAssigned: 0,
@@ -748,6 +762,7 @@ const endBudgets = [];
 let totalSaveKB = 0, maxSaveKB = 0, maxSaveSeed = '', maxPeople = 0;
 let mediationsRun = 0;
 let totalReleases = 0;
+let totalRevivals = 0;
 const receptions = [];
 const growths = [];
 const allAges = [];
@@ -950,6 +965,17 @@ for (let s = 0; s < SEEDS; s++) {
       if (state.week < (g.fanEventQuietUntil || 0)) return;
       if (state.budget < KP.C.MERCH.fanconCost + 80 || restRead(g) >= 50) return;
       KP.holdFancon(state, g.id);
+    });
+    // the second life (v0.11.1, §92 E): a flush label between eras pushes
+    // its best ticket — the party by default, the clip after a stage
+    if (KP.pushCatalog) state.groups.forEach(g => {
+      if (!g.debuted || g.retiredWeek || g.prep || g.tour || g.hiatus) return;
+      if (state.week <= (g.promoUntil || 0)) return;
+      if (state.budget < 300 || state.week % 20 !== 0) return;   // a quarterly campaign, not a weekly habit (every 9 weeks at the first soak paid out 30/40 and flooded the lottery)
+      const read = KP.catalogPushRead(state, g);
+      if (!read.ok || !read.candidates.length) return;
+      const kind = read.kinds.find(k => k.id === 'liveClip' && k.ok) ? 'liveClip' : 'party';
+      KP.pushCatalog(state, g.id, read.candidates[0].title, kind);
     });
     // the Japan cycle (v0.10.8): an idle warm group flies out — the
     // bot runs the version lane (cheap) unless the room is devoted
@@ -1854,6 +1880,7 @@ for (let s = 0; s < SEEDS; s++) {
   const cl = state.catalogLedger || {};
   if ((cl.resurfaced || 0) >= 1) tally.clipResurfaced++;
   if ((cl.revivals || 0) >= 1) tally.catalogRevived++;
+  totalRevivals += cl.revivals || 0;   // the salary check (v0.11.1)
   if (Object.values(state.people).some(p =>
       (p.history || []).some(hh => /Went viral: /.test(hh.text)))) tally.viralSourced++;
   // the gravity (v0.9.18): the ledger and the narratives are durable
@@ -2197,6 +2224,16 @@ for (let s = 0; s < SEEDS; s++) {
   if (credits.some(tk => tk.credit.type === 'solo')) tally.soloCredit++;
   if (credits.some(tk => tk.credit.type === 'unit')) tally.unitCredit++;
   if (allReleases.some(r => r.sleeperTitle)) tally.sleeperHeard++;
+  // the b-side and the reverse run (v0.11.1)
+  if (allReleases.some(r => (r.bsides || []).some(b => b.charted && !b.late))) tally.bsideCharted++;
+  if (allReleases.some(r => (r.bsides || []).some(b => b.late))) tally.bsideClimbed++;
+  {
+    const cl2 = state.catalogLedger || {};
+    if ((cl2.bsideRevivals || 0) >= 1) tally.bsideRevived++;
+    if ((cl2.nationalRevivals || 0) >= 1) tally.nationalRevived++;
+    if ((cl2.pushes || 0) >= 1) tally.catalogPushed++;
+    if ((cl2.pushPaid || 0) >= 1) tally.pushPaidOut++;
+  }
 
   // memory census + guards (v0.6.0)
   guard((state.memory || []).length <= KP.C.MEMORY.cap, seed + ' memory over cap');
@@ -2265,6 +2302,7 @@ const med = receptions[Math.floor(receptions.length / 2)] || 0;
 console.log('debut reception: median ' + med +
   ', min ' + (receptions[0] || 0) + ', max ' + (receptions[receptions.length - 1] || 0));
 console.log('releases per org: ' + (totalReleases / SEEDS).toFixed(1) + ' average; groups per org: ' + (totalGroups / SEEDS).toFixed(1));
+console.log('reverse runs per org-year: ' + (totalRevivals / (SEEDS * 140 / 52)).toFixed(2) + ' (the lottery ticket stays a ticket under ~1; v0.11.1)');
 console.log('date ambushes per career: ' + (totalAmbushes / SEEDS).toFixed(1) + ' average (pettiness stays memorable, not constant)');
 console.log('best overseas region at career end: ' + bestRegions.map(v => Math.round(v)).sort((a, b) => a - b).join(','));
 console.log('save size after 140 weeks: ' + Math.round(totalSaveKB / SEEDS) + ' KB average, widest ' + maxSaveKB + ' KB (' + maxSaveSeed + '); most real people in one world ' + maxPeople + ' (quota ~5 MB)');

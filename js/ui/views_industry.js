@@ -238,7 +238,10 @@
         '<span class="cr-pos">' + pos + '</span>' +
         '<div class="cr-body"><div class="cr-title">' + UI.esc(e.title) + '</div>' +
         '<div class="cr-act">' + UI.esc(e.act) + ' · ' + UI.esc(e.company) +
-        (e.isPlayer ? ' <span class="chip gold" style="margin-left:4px">yours</span>' : '') + '</div></div>' +
+        (e.isPlayer ? ' <span class="chip gold" style="margin-left:4px">yours</span>' : '') +
+        (e.bside ? ' <span class="chip" style="margin-left:4px">b-side</span>' : '') +            // §92 B+C
+        (e.catalog ? ' <span class="chip cool" style="margin-left:4px">reverse run</span>' : '') +   // §92 D
+        (e.shelf ? ' <span class="chip" style="margin-left:4px">a folded label’s</span>' : '') + '</div></div>' +
         move +
         '<span class="cr-weeks">' + (e.weeksOn || 0) + 'w</span>' +
         '</div>');

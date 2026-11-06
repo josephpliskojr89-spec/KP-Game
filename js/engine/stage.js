@@ -207,6 +207,7 @@
     if (mo.fumbled && state.people[mo.fumbled]) state.people[mo.fumbled].stages.fumbled++;
     if (read.band === 'carried') led.carried++;
     if (read.band === 'fumbled') led.fumbled++;
+    g.lastActivityWeek = state.week;   // the reverse run reads the act's month (v0.11.1, §92 D)
     if (opts.light) return notes;
     // the teeth (ruling 5): a carried stage warms the fandom and the
     // room and writes the performance house; a fumbled one cools them

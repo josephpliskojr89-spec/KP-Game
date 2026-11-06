@@ -124,6 +124,16 @@
       if (!e.isPlayer || !e.groupId || e.peakPos == null) return;
       const g = KP.groupById(state, e.groupId);
       if (!g) return;
+      // a b-side's run is the b-side's (v0.11.1, §92 B+C): it stamps its
+      // own peak on the record's bsides, never the title's; a catalog
+      // revival and a folded shelf's run never stamp a release at all
+      if (e.bside) {
+        const rel2 = (g.releases || []).find(r => r.week === (e.releaseWeek != null ? e.releaseWeek : e.entered));
+        const bs = rel2 && (rel2.bsides || []).find(b => b.title === e.title);
+        if (bs) { bs.peak = e.peakPos; bs.weeks = e.weeksOn + 1; }
+        return;
+      }
+      if (e.catalog || e.shelf) return;
       const rel = (g.releases || []).find(r => r.week === e.entered);
       if (rel) { rel.chartPeak = e.peakPos; rel.chartWeeks = e.weeksOn + 1; }
       if (g.results && g.results.week === e.entered) {
@@ -136,11 +146,21 @@
       if (!e.isPlayer || !e.groupId || e.peakPos == null) return;
       const g = KP.groupById(state, e.groupId);
       if (!g) return;
+      if (e.catalog || e.bside || e.shelf) {
+        // the national reverse run (v0.11.1, §92 D) keeps its own peak on the
+        // record or the b-side it came from; the milestones below still speak
+        const rel2 = (g.releases || []).find(r => r.week === (e.releaseWeek != null ? e.releaseWeek : -1));
+        if (rel2) {
+          if (e.bside) { const bs = (rel2.bsides || []).find(b => b.title === e.title); if (bs) bs.nationalPeak = e.peakPos; }
+          else rel2.revivalNationalPeak = e.peakPos;
+        }
+      } else {
       const rel = (g.releases || []).find(r => r.week === e.entered);
       if (rel) { rel.nationalPeak = e.peakPos; rel.nationalWeeks = e.weeksOn + 1; }
       if (g.results && g.results.week === e.entered) {
         g.results.nationalPeak = e.peakPos;
         g.results.nationalWeeks = e.weeksOn + 1;
+      }
       }
       // milestones: record every tier crossed, speak only the deepest new one
       const N = KP.C.NATIONAL;

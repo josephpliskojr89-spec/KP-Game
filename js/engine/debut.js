@@ -1061,6 +1061,7 @@
       craft, appeal, reach: Math.round(reachIndex * 100), critics, ledger: L.rows(),
       breakoutId: breakout.id,
       tracklist: tl.tracks, sleeperTitle: tl.sleeperTitle || null,
+      bsides: tl.bsides || null, fanPick: tl.fanPick || null,   // the b-sides, judged (v0.11.1, §92 A)
       centerOvershadowed,
       chem, groupFit: Math.round(groupFit),
       trustDelta, revenue,
@@ -1143,6 +1144,8 @@
       // the first time anything edits a released tracklist)
       tracklist: (tl.tracks || []).map(t => Object.assign({}, t)),
       sleeperTitle: tl.sleeperTitle || null,
+      bsides: (tl.bsides || []).map(b => Object.assign({}, b)),   // the b-sides, judged (v0.11.1): the record's own copy
+      fanPick: tl.fanPick || null,
       mash, fusionOutcome,
       // the two verdicts (v0.10.34): the record's own numbers, and the
       // critics' consensus — words, forever
@@ -1270,6 +1273,25 @@
       isPlayer: true, groupId: g.id,
       score, entered: state.week,
     });
+    // double charting (v0.11.1, §92 B): a fan pick hot enough enters the
+    // scene chart beside the title, at a fraction of its score — the
+    // record with two songs charting is the tracklist poster's dream
+    {
+      const D = KP.C.TRACKS.DOUBLE;
+      const rel = g.releases[g.releases.length - 1];
+      const pick = (rel.bsides || []).slice().sort((a, b) => b.heat - a.heat)[0] || null;
+      if (pick && pick.heat >= D.heatAt) {
+        pick.charted = state.week;
+        KP.chartEnter(state, {
+          title: pick.title, act: g.name, company: state.company.short,
+          isPlayer: true, groupId: g.id, bside: true, releaseWeek: rel.week,
+          score: score * D.scoreMult, entered: state.week,
+        });
+        push({ kind: 'public', ind: 'bsideCharts', priority: 'high', groupId: g.id, trackTitle: pick.title,
+          text: KP.bsideChartsLine ? KP.bsideChartsLine(state, g, demo.title, pick) :
+            '“' + pick.title + '” is charting beside “' + demo.title + '” — two songs off one record on the same board.' });
+      }
+    }
     // the release war (v0.6.4): a same-week landing is a head-to-head
     // battle the world keeps score on — and a hit this big may get its
     // concept stolen by the trend chasers
