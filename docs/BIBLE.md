@@ -4789,7 +4789,9 @@ with base difficulty; a punishing rating ≥68 against a room under
 58 avg dance costs 6 performance on the stage and raises the
 encore-lottery odds — reach priced against grasp); the MV shoot
 spikes fatigue 7 and runs the on-set clip lottery (7%, momentum
-+6); jackets warm the era +3. Release archives choreo + lineCard.
++6); jackets warm the era +3. Release archives choreo + lineCard
+(the card retired for the SHEET in v0.10.36, §91 Phase 3; releases
+archive `sheet` from there).
 `medical.js` (weekly order 290, after the tour's load) — injuries
 as ARCS: risk per idol-week (base 0.0011 × fatigue≥68 ×3 × heavy
 weeks ×1.9 × chronic files ×1.5 each × push-watch ×2) opens
@@ -7139,7 +7141,7 @@ checks: the strip is on the person tab and opens with where she is
 from), lockstep 0.10.33.
 
 
-## §91 The comeback (PHASES 1–2 SHIPPED v0.10.34–35 — the song made, the chart earned, the stage judged)
+## §91 The comeback (PHASES 1–3 SHIPPED v0.10.34–36 — the song made, the chart earned, the stage judged)
 
 Owner, thinking out loud: "something that really defines kpop and
 it's the comeback. The anticipation, the promotion, the stages, and
@@ -7680,6 +7682,121 @@ pattern.
 
 Battery 102/102, soak 40 clean, longhaul 10x620, e2e 113,
 lockstep 0.10.35.
+
+**As built — Phase 3, v0.10.36 "the sheet".** Owner: "Go ahead with
+phase 3." sheet.js is the module (loaded before pipeline.js);
+pipeline.js opens it at the recording station and audits it at
+release; debut.js, medical.js, discourse.js, save.js, the harness,
+the Studio and the Desk learned it. Suite_103_sheet (64 checks);
+suite_084 re-pinned to the sheet.
+
+*The parts.* A record reaches the booth with PARTS from its lane
+(`KP.songParts(demo, laneId)`): the first verse and the second, the
+pre-chorus, the chorus, the rap, the bridge, the killing part — each
+with a DEMAND (range, the flow, presence), a BAR scaled from the
+song's own numbers (vocal parts from vocalDemand × a part factor —
+the verse .97, the pre-chorus 1.12, the chorus 1.25, the bridge 1.4,
+"the high note" at/above 65; the rap from rapDemand × 1.08; the
+killing part from 30 + choreoPotential × .5 against stage presence)
+and a SHARE of the running time (SHEET.PARTS × the lane's SHAPE:
+hip-hop doubles the rap and halves the bridge, dreamy and elegant
+live on the bridge and barely rap, performance and futuristic enlarge
+the killing part; the rap's share follows the song's rap demand and a
+record with less than 20 of it has no rap part; no part is a
+footnote — a sliver is lifted to 5% and the record gives way). Shares
+sum to one and are PUBLIC (the fandom times them); the bars and what
+a voice is worth on its part are not.
+
+*The proposal and the ear.* `KP.buildSheet` assigns the parts by the
+voices as the producer's ear hears them: each voice ± (100 − his
+craft) × .18 by hash (a clean ear hears the truth; the unproven
+mis-hears), greedy by share — the chorus first — with a second part
+costing 30 fit points and the ace heard +8 on the killing part.
+Measured on 160 debut fixtures, the proposal's top voice carries
+~40% (a repeat penalty of 10 handed one voice 59%), one sheet in six
+is heavy, and 0.4 voices a sheet sit under the floor: the producer's
+sheet is top-heavy the way real sheets are, not absurd. The scene
+`theSheet` (expires in two weeks; silence sends the producer's
+sheet) says the song's shape and the proposal in words — "Yuna
+carries the chorus and the bridge; Minji takes the first verse; Sora
+has the killing part. Eunbi is not on it." — with four doors: the
+producer's sheet stands (the bot's default), every voice on the
+record (flat: everyone gets a part before anyone gets a second),
+front-load the ace (the chorus, the killing part and the first verse
+are hers; the rest by the ear among the others — she carries ≥ .45 in
+every lane), or "I'll write it — in the Studio": the custom sheet,
+the proposal as the starting point, a stepper per part cycling the
+voices in the booth (members on a break are not in it), bounded —
+one voice holds at most three parts or the even split, a preset is
+not editable, nothing moves after the lock — and a Lock button;
+release week locks whatever is on the desk. A booth of one (a solo)
+sings every part and skips the question.
+
+*The lock is paid for once* (`KP.lockSheet`, settle): the booth's
+hours ride the share (fatigue + share × 10); every voice on the
+record warms the room (+2); a voice under the floor (share < .05)
+counts her seconds (morale −3) and, under professionalism 45, keeps
+the count — `linesCut` on the directed ledger with a history line;
+the voice of the record gains hype by her share ((share − .20) × 20,
+cap 6; a solo IS the record, no lift). `pipeLedger.sheets`,
+`customSheets`, `quietVoices`.
+
+*The record and the stage.* Craft's recording row reads the SHEET:
+`KP.sheetRead` sums share × min(1.15, voice ÷ bar) over the parts
+(fit), and recording = fit × SHEET.recordingScale 57 + the rehearsal
+bonus − the fatigue and benched penalties — through the registry as
+'the recording' × craftRecording .30. Measured against the room
+average it replaces, on the same 160 fixtures: the craft row p10/50/90
+16.6/19.4/21.5 against 16.8/19.5/22.3 before; craft 35/47/59 against
+36/47/59 — the median held, the top compressed a touch (a voice over
+its bar stops paying at the cap), and the spread now belongs to the
+sheet: trust fit .95, every voice .89, front-load .87 (the ace on a
+chorus she cannot carry costs the record — teeth). The results carry
+`recording` and `sheetLine` ("The booth: Yuna owned the chorus; Sora
+reached for the rap and did not quite get there." — names, never
+numbers; suite-pinned) under the critics' line on the report.
+`performance` keeps the stage until the stage is judged (B4) and
+still feeds appeal's 'the performance'. The release archives
+`sheet` {mode, parts, shares, quiet, top} for B4.
+
+*The strain and the stopwatch.* The medical desk's vocal roll reads
+the share (`KP.sheetShareOf`: the sheet in production, the last
+record's through promotion): a voice carrying ≥ .40 is a vocal lead
+whatever her number says, and the nodules roll scales × (1 + share ×
+2). The audit at release: each FAULT on the sheet — a voice under the
+floor, one voice carrying ≥ .45 — is a lineWarChance (.30) roll on
+the `lineShare` discourse, whose headline now carries the names (the
+quiet voices' bars are very short / one colour is most of the video:
+Minji). A flat sheet gives the stopwatch nothing (pinned).
+
+*The bot and the bands.* The harness front-loads a real ace (hype ≥
+12), flattens a sour room (morale < 50), else trusts the producer;
+the custom sheet is the player's verb. Bands: sheetSet [.90–1.0]
+(replacing lineCarded), lineWarSeen [.05–.70] (§91 C said .60; measured).
+Measured, 40 orgs: a sheet set 40/40; the stopwatch thread 22/40
+(26/40 at .30 a fault — lineWarChance .30 → .20; 72/120 on the
+120-org run; band hi .60 → .70, measured); the critics' darling
+17/40, the panned hit 14/40, a theme named 32/40, commissioned 40/40
+— the Phase 1–2 bands hold; debut reception median 54 (min 28, max
+74), strong+ 8/40, quiet/miss 15/40, end budget median 3106. The
+sensation band read 0/40 on the gate run: on the same build 120 orgs
+gave 5 (max 94) and a paired run of the previous build against this
+one on the same 40 seeds moved the first debut −0.7 on average (the
+stream re-rolled; 16 up, 22 down) — a ~4% event cannot carry a 2%
+floor on 40 orgs (P(0) ≈ 18%), so the floor is 0 with the history on
+the band and the 120-org run as the tail's guard. Longhaul saves
+615–1001 KB (the archived sheet rides each release).
+
+*The migration (0.10.36)* retires the three-card line card: an open
+`lineCard` scene becomes `theSheet` over the producer's proposal; an
+answered card (`g.prep.lineCard`) becomes its preset, locked and
+already paid (no second settle); old releases keep `lineCard` as
+history. No-op on a fresh save (pinned). Stream shift: the audit's
+roll runs per fault, the medical roll reads the share — repairs by
+pattern.
+
+Battery 103/103, soak 40 clean, longhaul 10x620, e2e 113,
+lockstep 0.10.36.
 
 ## §18 Watch items
 
@@ -10866,6 +10983,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > commissioned 39/40, a house chair filled 40/40, a theme named by
 > the critics 32/40, the darling 19/40. Suite_102 (102). Battery 102/102, soak 40 clean,
 > longhaul 10x620, e2e 113, lockstep 0.10.35. Rode to main.
+
+> **0.10.36 — the sheet.** §91 Phase 3, owner: "Go ahead with phase
+> 3." The three-card line card retires for the SHEET: a record
+> reaches the booth with parts from its lane (two verses, the
+> pre-chorus, the chorus, the rap, the bridge with the high note, the
+> killing part — a demand, a bar and a public share each), the
+> producer proposes by the voices his ear hears (a weak ear
+> mis-hears), and the desk trusts, flattens, front-loads the ace or
+> writes its own in the Studio with bounded steppers and a lock.
+> The lock is paid once: the booth's hours by share, morale, the
+> `linesCut` grievance under the floor, the voice of the record's
+> hype. Craft's recording row reads the voices on the parts (the
+> median held against the room average it replaced; the spread is
+> now the sheet's); the vocal strain rides the share; the stopwatch
+> thread organizes per fault and names names. Measured:
+> a sheet set 40/40, the stopwatch 22/40 (72/120), the darling 17/40,
+> the panned hit 14/40, debut median 54; the sensation floor → 0 with
+> its history (5/120 on this build). Suite_103 (64). Battery 103/103, soak 40 clean,
+> longhaul 10x620, e2e 113, lockstep 0.10.36. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

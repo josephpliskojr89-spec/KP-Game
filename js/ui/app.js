@@ -433,6 +433,21 @@
         break;
       }
       // the studio (v0.10.35): brief a record
+      // the sheet (v0.10.36): the custom sheet's steppers and its lock
+      case 'sheet-cycle': {
+        const r = KP.cycleSheetPart(s, t.dataset.id, t.dataset.part, parseInt(t.dataset.dir, 10));
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); App.render();
+        break;
+      }
+      case 'sheet-lock': {
+        const r = KP.lockSheet(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        if (r.toast) UI.toast(r.toast);
+        App.render();
+        break;
+      }
       case 'comm-lane': { (App.commDraft = App.commDraft || {}).lane = t.dataset.id; App.render(); break; }
       case 'comm-theme': { (App.commDraft = App.commDraft || {}).theme = t.dataset.id; App.render(); break; }
       case 'comm-producer': { (App.commDraft = App.commDraft || {}).producerId = t.dataset.id; App.render(); break; }

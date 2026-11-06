@@ -142,10 +142,14 @@
       }
       // the new case: rare, load-priced, one desk at a time
       if (sceneOpen()) return;
-      const vocalLead = g && p.talents.vocals.cur >= 60 &&
+      // the sheet (v0.10.36): the share she sings is the singing load —
+      // a voice carrying the record is a vocal lead whatever her number
+      // says, and the roll scales with the share
+      const share = KP.sheetShareOf ? KP.sheetShareOf(state, g, p.id) : 0;
+      const vocalLead = g && (p.talents.vocals.cur >= 60 || share >= M.strainShare) &&
         (state.week <= (g.promoUntil || 0) ||
          (g.prep && (g.prep.stations || []).some(st => st.id === 'recording' && !st.done)));
-      const vocalRoll = vocalLead && p.fatigue >= 60 && rng.chance(M.nodulesBase);
+      const vocalRoll = vocalLead && p.fatigue >= 60 && rng.chance(M.nodulesBase * (1 + share * M.strainMult));
       const physRoll = rng.chance(risk);
       if (!vocalRoll && !physRoll) return;
       const kindOf = vocalRoll ? 'vocal' : 'physical';

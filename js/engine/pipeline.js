@@ -1,7 +1,7 @@
 /* The making (v0.10.4, §80 finding 5) — the production pipeline.
    Prep stops being an opaque countdown: the runway auto-schedules
-   STATIONS — recording (with the line-distribution card the fandom
-   audits), choreo creation (a NAMED choreographer whose difficulty
+   STATIONS — recording (which opens the SHEET, sheet.js v0.10.36 — the
+   line distribution the fandom audits), choreo creation (a NAMED choreographer whose difficulty
    the stage pays for), the MV shoot (a fatigue spike and the on-set
    clip lottery), the jacket shoot. Stations slip when the people
    they need are benched, and slippage inside the final stretch is a
@@ -15,7 +15,8 @@
   function ledger(state) {
     state.pipeLedger = state.pipeLedger ||
       { stationsRun: 0, recSlips: 0, slipScenes: 0, postponed: 0, crunched: 0,
-        clips: 0, lineCards: 0, lineWars: 0, hardEras: 0 };
+        clips: 0, lineCards: 0, lineWars: 0, hardEras: 0,
+        sheets: 0, customSheets: 0, quietVoices: 0 };   // the sheet (v0.10.36)
     return state.pipeLedger;
   }
   KP.pipeLedger = ledger;
@@ -70,55 +71,11 @@
     prep.stations.forEach(st => { if (!st.done && st.week >= fromWeek) st.week += by; });
   }
 
-  // ---- the line card: one decision the fandom litigates ----------------
-  KP.registerScene('lineCard', {
-    title: (state, sc) => {
-      const g = KP.groupById(state, sc.groupId);
-      return (g ? g.name : 'The record') + ' · line distribution';
-    },
-    body: (state, sc) => {
-      const g = KP.groupById(state, sc.groupId);
-      return 'Recording week for ' + (g ? g.name : 'the group') + ', and the producer slides one sheet ' +
-        'across the desk: the line distribution. Who opens, who carries the chorus, who gets eight ' +
-        'seconds and a look. The fandom will time every second of this with a stopwatch, because they ' +
-        'always do. The sheet is one decision, and it is yours to duck or make.';
-    },
-    options: () => [
-      { id: 'trust', label: 'The producer calls it' },
-      { id: 'spread', label: 'Every voice on the record' },
-      { id: 'center', label: 'Front-load the ace' },
-    ],
-    resolve: (state, sc, optionId) => {
-      const g = KP.groupById(state, sc.groupId);
-      if (!g || !g.prep) return { toast: 'The session moved on without the sheet.' };
-      const choice = ['trust', 'spread', 'center'].includes(optionId) ? optionId : 'trust';
-      g.prep.lineCard = choice;
-      ledger(state).lineCards++;
-      const members = g.members.map(id => state.people[id]).filter(Boolean);
-      if (choice === 'spread') {
-        members.forEach(m => { m.morale = KP.clamp(m.morale + 2, 0, 100); });
-        return { toast: 'Every voice gets its bars. The room is warmer; the hook is more crowded.' };
-      }
-      if (choice === 'center') {
-        const ace = state.people[g.roles && g.roles.center] || members[0];
-        if (ace) ace.hype = KP.clamp((ace.hype || 0) + 4, 0, 100);
-        const thin = members.filter(m => m.id !== (ace && ace.id))
-          .sort((a, b) => a.talents.vocals.cur - b.talents.vocals.cur)[0];
-        if (thin && thin.personality.professionalism < 45) {
-          KP.recordDirected(state, thin.id, 'linesCut');
-          thin.history.push({ week: state.week, text: 'Saw the line distribution sheet. Counted ' +
-            'the seconds. Said nothing in the room, which is not the same as saying nothing.' });
-        }
-        return { toast: 'The ace carries it. The hook will hit — and somebody counted her own seconds.' };
-      }
-      return { toast: 'The producer’s sheet stands. Nobody’s feelings were consulted, which is a kind of fairness.' };
-    },
-    expire: (state, sc) => {
-      const g = KP.groupById(state, sc.groupId);
-      if (g && g.prep) { g.prep.lineCard = 'trust'; ledger(state).lineCards++; }
-      return null;
-    },
-  });
+  // ---- the line card retired (v0.10.36, §91 Phase 3): the recording
+  // station opens THE SHEET (sheet.js) — the song's parts, the
+  // producer's proposal, the presets and the Studio's own sheet. Open
+  // cards migrated (save.js 0.10.36); the ledger's `lineCards` count
+  // stays as history, `sheets` counts from here.
 
   // ---- the slip: postpone or crunch ------------------------------------
   KP.registerScene('theSlip', {
@@ -209,9 +166,7 @@
             return;   // the board on the group page shows the slip (§89 C)
           }
           st.done = 1; led.stationsRun++;
-          if (!(state.scenes || []).some(sc => sc.kind === 'lineCard')) {
-            KP.openScene(state, { kind: 'lineCard', groupId: g.id, expiresWeek: state.week + 2 });
-          }
+          KP.openSheet(state, g);   // the sheet (v0.10.36): parts, proposal, the question
           return;
         }
         // -- choreo: the named hire defines the stage bill --------------
@@ -253,7 +208,9 @@
         }
       });
     });
-    // ---- the audit: a center-cut line card gets litigated at release.
+    // ---- the audit: the sheet gets litigated at release — a voice under
+    // the floor, or one voice carrying the record, is a fault the
+    // stopwatch thread organizes around (per fault, lineWarChance).
     // This weekly runs BEFORE the week's release resolves (order 120),
     // so the fresh record is seen on the NEXT tick — stamp, don't race.
     KP.groups(state).forEach(g => {
@@ -267,7 +224,10 @@
         // ch.works was written and never read (§89 C) — the pool keeps
         // its names for the day it becomes a cast member
       }
-      if (rel.lineCard === 'center' && KP.igniteDiscourse && rng.chance(KP.C.PIPE.lineWarChance)) {
+      const sh = rel.sheet;
+      if (!sh || !KP.igniteDiscourse) return;
+      const faults = (sh.quiet || []).length + (sh.top && sh.top.share >= KP.C.SHEET.heavyShare ? 1 : 0);
+      if (faults > 0 && rng.chance(Math.min(1, P.lineWarChance * faults))) {
         led.lineWars++;
         const d = KP.igniteDiscourse(state, rng, 'lineShare', 'group', g.id, g.id);
         if (d) inbox.push(d);

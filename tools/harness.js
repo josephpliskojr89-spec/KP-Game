@@ -14,7 +14,12 @@ const KP = loadEngine();
 
 // alive-and-plausible bands, as fraction of seeds
 const BANDS = {
-  sensation:         { lo: 0.02, hi: 0.30, label: 'sensation debuts' },
+  // sensation floor .02 → 0 (v0.10.36): a ~4% event cannot carry a 2% floor
+  // on 40 orgs — measured 2/40 (v0.10.34), 2/40 (v0.10.35), then 0/40 with
+  // 5/120 and max 94 on the same build (P(0 of 40) ≈ 18%); a paired run on
+  // the same 40 seeds moved the first debut −0.7 on average (noise). The
+  // 120-org run at release is the tail's guard; the ceiling still catches floods.
+  sensation:         { lo: 0.00, hi: 0.30, label: 'sensation debuts' },
   strongPlus:        { lo: 0.15, hi: 0.75, label: 'strong-or-better debuts' },
   missOrQuiet:       { lo: 0.05, hi: 0.55, label: 'quiet/miss debuts' },
   // the season (v0.10.32): an ex-contestant debuts with a public already
@@ -362,8 +367,8 @@ const BANDS = {
   stationRun:        { lo: 0.90, hi: 1.00, label: 'orgs whose eras ran the production board' },
   slipDecided:       { lo: 0.15, hi: 1.00, label: 'orgs that faced postpone-or-crunch' },
   clipCaught:        { lo: 0.20, hi: 1.00, label: 'orgs whose MV set leaked the free trailer' },
-  lineCarded:        { lo: 0.90, hi: 1.00, label: 'orgs that answered the line-distribution card' },
-  lineWarSeen:       { lo: 0.05, hi: 0.80, label: 'orgs audited by the stopwatch thread' },
+  sheetSet:          { lo: 0.90, hi: 1.00, label: 'orgs that set a sheet at the booth' },
+  lineWarSeen:       { lo: 0.05, hi: 0.70, label: 'orgs litigated by the stopwatch thread' },   // §91 Phase 3: measured 26/40 at .30 a fault, 22/40 and 72/120 at .20 — hi .60→.70
   // the song market (v0.10.5): ruled first soak — 40/40, 39/40, 39/40.
   // Hot hooks sit past windows constantly over long orgs (the bot
   // deliberates like everyone else); camps fire whenever a cold sheet
@@ -669,7 +674,7 @@ const tally = {
   channelSeen: 0, gaffeLottery: 0, storySeen: 0, storyForced: 0,
   clubOpened: 0, greetingsOut: 0, fanconHeld: 0, catalogPaying: 0, atmStorm: 0,
   soloEraRun: 0, soloCutOut: 0, frictionFlows: 0, frictionTeeth: 0,
-  stationRun: 0, slipDecided: 0, clipCaught: 0, lineCarded: 0, lineWarSeen: 0,
+  stationRun: 0, slipDecided: 0, clipCaught: 0, sheetSet: 0, lineWarSeen: 0,
   medCase: 0, medChronic: 0, flareFelt: 0,
   demoLost: 0, campHeld: 0, bondWorking: 0,
   interviewHeld: 0, seatHired: 0, seatCalled: 0, staffVoice: 0, meshFelt: 0,
@@ -1326,14 +1331,17 @@ for (let s = 0; s < SEEDS; s++) {
           state.budget > KP.C.HIRES.raiseCost + 100 ? 'raise' : 'walk');
         return;
       }
-      if (sc.kind === 'lineCard') {
-        // the making (v0.10.4): front-load a real ace, else trust the
-        // producer — a boss with a breakout plays the hand it built
+      if (sc.kind === 'theSheet') {
+        // the sheet (v0.10.36): front-load a real ace, flatten a sour
+        // room, else trust the producer — a boss with a breakout plays
+        // the hand it built; the custom sheet is the player's verb
         const g2 = KP.groupById(state, sc.groupId);
         const ace = g2 && state.people[g2.roles && g2.roles.center];
+        const room = g2 ? g2.members.map(id => state.people[id]).filter(Boolean) : [];
+        const morale = room.length ? room.reduce((s, m) => s + m.morale, 0) / room.length : 60;
         // hype builds late in an era — at recording time even a modest
         // read on the center is enough for a boss to play the hand
-        KP.resolveScene(state, sc.id, ace && (ace.hype || 0) >= 12 ? 'center' : 'trust');
+        KP.resolveScene(state, sc.id, ace && (ace.hype || 0) >= 12 ? 'center' : morale < 50 ? 'spread' : 'trust');
         return;
       }
       if (sc.kind === 'theDiagnosis') {
@@ -1887,7 +1895,7 @@ for (let s = 0; s < SEEDS; s++) {
   if ((ppl.stationsRun || 0) >= 1) tally.stationRun++;
   if ((ppl.postponed || 0) + (ppl.crunched || 0) >= 1) tally.slipDecided++;
   if ((ppl.clips || 0) >= 1) tally.clipCaught++;
-  if ((ppl.lineCards || 0) >= 1) tally.lineCarded++;
+  if ((ppl.sheets || 0) >= 1) tally.sheetSet++;   // the sheet (v0.10.36)
   if ((ppl.lineWars || 0) >= 1) tally.lineWarSeen++;
   const mdl = state.medLedger || {};
   if ((mdl.cases || 0) >= 1) tally.medCase++;

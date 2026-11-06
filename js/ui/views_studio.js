@@ -106,7 +106,53 @@
         '<span class="chip hot">' + (inW <= 0 ? 'this week' : inW + ' week' + (inW === 1 ? '' : 's') + ' to ' + (g.debuted ? 'comeback' : 'debut')) + '</span></div>' +
         '<div style="color:var(--ink-dim);font-size:.84rem;margin-top:12px;line-height:1.5">Rehearsal split — vocals ' + g.prep.alloc.vocals + '%, dance ' + g.prep.alloc.dance + '%, rap ' + g.prep.alloc.rap + '%, media ' + g.prep.alloc.media + '%. Advance the weeks.' +
         (clash && !clash.resolved ? '' : ' The date does not move.') + '</div></div>' + clashCard +
+        sheetCard(state, g) +
         tracklistCard(state, g);
+    }
+
+    // the sheet (v0.10.36): the line distribution over the song's parts.
+    // Shares are public (the fandom times them); the fit of a voice on
+    // its part is a read through the staff's eyes — words, never numbers.
+    function sheetCard(state, g) {
+      const sh = g.prep.sheet;
+      const st = (g.prep.stations || []).find(x => x.id === 'recording');
+      if (!sh) {
+        return st && !st.done
+          ? '<div class="kicker" style="margin-top:14px">The sheet</div><div class="card"><div style="color:var(--ink-dim);font-size:.78rem;line-height:1.5">The booth opens ' +
+            UI.esc(KP.weekLabel(st.week).text) + '. The producer brings the line sheet with the session; the fandom brings a stopwatch.</div></div>'
+          : '';
+      }
+      const SH = KP.C.SHEET;
+      const editing = sh.mode === 'custom' && !sh.locked;
+      const shares = KP.sheetShares(sh);
+      const members = g.members.map(id => state.people[id]).filter(Boolean);
+      const rows = sh.parts.map(p => {
+        const m = p.who ? state.people[p.who] : null;
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)">' +
+          '<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:.84rem">' + UI.esc(p.label) +
+          ' <span style="color:var(--ink-dim);font-weight:400;font-size:.74rem">· ' + Math.round(p.share * 100) + '% · ' + UI.esc(KP.partDemandWord(p)) + '</span></div>' +
+          '<div style="font-size:.76rem;color:var(--ink-dim)">' + (m ? UI.esc(KP.displayName(m)) + ' · ' + UI.esc(KP.partFitWord(state, m, p)) : 'nobody') + '</div></div>' +
+          (editing
+            ? '<button class="btn" data-action="sheet-cycle" data-id="' + g.id + '" data-part="' + p.id + '" data-dir="-1">‹</button>' +
+              '<button class="btn" data-action="sheet-cycle" data-id="' + g.id + '" data-part="' + p.id + '" data-dir="1">›</button>'
+            : '') +
+          '</div>';
+      }).join('');
+      const chips = members.map(m => {
+        const sv = shares[m.id] || 0;
+        const cls = sv < SH.floorShare ? ' clash' : sv >= SH.heavyShare ? ' hot' : '';
+        return '<span class="chip' + cls + '">' + UI.esc(KP.displayName(m)) + ' ' + (sv ? Math.round(sv * 100) + '%' : '—') + '</span>';
+      }).join('');
+      const modeWord = { trust: 'the producer’s sheet', spread: 'every voice', center: 'front-loaded', custom: 'your sheet' }[sh.mode] || 'the producer’s proposal';
+      return '<div class="kicker" style="margin-top:14px">The sheet · ' + UI.esc(modeWord) + (sh.locked ? ' · locked' : sh.mode ? '' : ' · waiting on the Desk') + '</div>' +
+        '<div class="card">' + rows +
+        '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">' + chips + '</div>' +
+        (editing ? '<div style="margin-top:10px"><button class="btn primary" style="width:100%" data-action="sheet-lock" data-id="' + g.id + '">Lock the sheet</button></div>' : '') +
+        '<div style="color:var(--ink-dim);font-size:.72rem;padding-top:8px;line-height:1.5">' +
+        (editing
+          ? 'Cycle the voice on each part. One voice holds at most ' + KP.sheetCap(state, g) + ' parts. Release week locks whatever is on the desk.'
+          : 'Who sings what is public the minute the record is out — the fandom times it to the second. What each voice is worth on its part is a read.') +
+        '</div></div>';
     }
 
     // --- on the road (v0.6.8): the tour owns the calendar
@@ -507,6 +553,8 @@
       // the two verdicts (v0.10.34): the critics' consensus, in a word
       (r.critics ? '<div style="margin-top:6px;font-size:.78rem;color:var(--ink-dim)">' +
         UI.esc(KP.criticsLine(state, r.critics, r.songTitle)) + '</div>' : '') +
+      // the sheet (v0.10.36): the booth's verdict — who owned her part, who reached
+      (r.sheetLine ? '<div style="margin-top:4px;font-size:.78rem;color:var(--ink-dim)">' + UI.esc(r.sheetLine) + '</div>' : '') +
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px">' +
       (r.critics ? '<span class="chip ' + (['acclaimed', 'warm'].includes(r.critics.consensus) ? 'cool' : r.critics.consensus === 'mixed' ? '' : 'clash') + '">critics: ' + UI.esc(KP.verdictWord(r.critics.consensus)) + '</span>' : '') +
       '<span class="chip">stage: ' + perfWord(r.performance) + '</span>' +

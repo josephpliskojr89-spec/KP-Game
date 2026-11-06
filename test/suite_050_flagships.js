@@ -124,8 +124,9 @@ function debuted(seed) {
       dNoms[0].score - dNoms[1].score < KP.C.AWARDS.rookieDaesangMargin) {
     guard = 0;
     while (((state.week - 1) % KP.C.WEEKS_PER_YEAR) + 1 !== KP.C.AWARDS.ceremonyWeek && guard++ < 10) KP.advanceWeek(state);
-    t.ok(state.inbox.some(n => n.ind === 'daesangTenure'), 'the envelope had a debate inside it');
-    t.ok(!state.inbox.some(n => n.ind === 'daesang' && n.groupId === g.id), 'and the rookie did not take the grand prize');
+    const landed = state.inbox.concat(KP.lastTickNotes || []);   // pre-trim read (the inbox law)
+    t.ok(landed.some(n => n.ind === 'daesangTenure'), 'the envelope had a debate inside it');
+    t.ok(!landed.some(n => n.ind === 'daesang' && n.groupId === g.id), 'and the rookie did not take the grand prize');
   } else {
     // margins are stream-dependent; the arithmetic contract still holds
     t.ok(KP.C.AWARDS.rookieDaesangMargin > 0, 'the tenure margin exists (fixture landed outside the close-call window)');

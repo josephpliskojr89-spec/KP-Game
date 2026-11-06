@@ -610,6 +610,17 @@
     const performance = KP.clamp(
       skillVsDemand * 52 + liveRel * 0.28 + prepBonus - Math.max(0, fatigueAvg - 60) * 0.3
       - benched.length * KP.C.COMEBACK.OVERWORK.perfPenalty - choreoBill, 5, 100);
+    // the sheet (v0.10.36, §91 Phase 3): the record is sung by the
+    // voices on its parts — the booth's term reads who carried what,
+    // not the room's average. A release that beat its booth (a one-week
+    // runway) sings the producer's sheet; an unlocked custom sheet locks
+    // as it stands. The stage keeps `performance` until it is judged (B4).
+    const SH = KP.C.SHEET;
+    const sheet = KP.settleSheetForRelease(state, g);
+    const sheetRead = KP.sheetRead(state, sheet);
+    const recording = KP.clamp(
+      sheetRead.fit * SH.recordingScale + prepBonus - Math.max(0, fatigueAvg - 60) * 0.3
+      - benched.length * KP.C.COMEBACK.OVERWORK.perfPenalty, 5, 100);
 
     // --- group concept fit + chemistry
     const fits = members.map(m => KP.conceptFit(m, concept));
@@ -715,7 +726,7 @@
     L.add('craft', 'the hook', demo.hook * V.craftHook);
     L.add('craft', 'the lyric', lyric * V.craftLyric);
     if (roomMiss) L.add('craft', 'the theme fights the room', -ST.roomMissCraft);
-    L.add('craft', 'the recording', performance * V.craftRecording);
+    L.add('craft', 'the recording', recording * V.craftRecording);   // the sheet's voices on the parts (v0.10.36)
     L.add('craft', 'concept fit', groupFit * V.craftFit);
     L.add('craft', 'the room', (chem - 50) * V.craftChem);
     L.add('craft', 'pedigree', memRead.craft || 0);
@@ -1039,6 +1050,8 @@
       conceptId: concept.id,
       format: format.id,
       performance: Math.round(performance),
+      recording: Math.round(recording),                      // the sheet (v0.10.36)
+      sheetLine: KP.sheetLine(state, sheet, sheetRead),
       reception, receptionBand: band.key, receptionLabel: label,
       // the two verdicts (v0.10.34): the record and the want, the reach it
       // travelled through, the critics' words, and the ledger itself
@@ -1138,9 +1151,10 @@
       fitMult: demo.fitMult != null ? demo.fitMult : null, commissioned: !!demo.commissioned,
       mv: mvTier, writtenBy: demo.writtenBy || null,
       repackageOf: repack ? repack.of : null,
-      // the making (v0.10.4): who built the stage, and whose lines it was
+      // the making (v0.10.4): who built the stage — and the sheet
+      // (v0.10.36): whose lines they were, to the second
       choreo: g.prep.choreo || null,
-      lineCard: g.prep.lineCard || null,
+      sheet: KP.sheetArchive(sheet),
     });
     // the return run lands (v0.9.25): the alum stood in her old spot
     if (g.prep.returnRun) {

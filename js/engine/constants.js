@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.35',
+    VERSION: '0.10.36',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1800,7 +1800,50 @@
       hardDanceFloor: 58,         // avg dance below this pays on stage
       hardPerfPenalty: 6,         // the stage bill for reach > grasp
       hardEncoreBonus: 0.08,      // and the encore lottery watches closer
-      lineWarChance: 0.30,        // a center-cut line card gets audited
+      lineWarChance: 0.20,        // per fault on the sheet (a quiet voice, one voice carrying
+                                  // the record), the stopwatch thread organizes at release
+    },
+    // the sheet (v0.10.36, §91 Phase 3) — the line distribution over the
+    // song's PARTS. Shares are running-time fractions the fandom times
+    // with a stopwatch (public facts, never a read); bars are the demand
+    // each part makes on its voice, scaled from the song's own demands.
+    // The producer proposes by the voices as his ear hears them — a
+    // weak ear mis-hears — and the desk trusts, flattens, front-loads
+    // the ace, or writes its own, bounded.
+    SHEET: {
+      PARTS: [
+        { id: 'verse1', label: 'the first verse', share: 0.11, demand: 'vocals', bar: 0.97 },
+        { id: 'verse2', label: 'the second verse', share: 0.11, demand: 'vocals', bar: 0.97 },
+        { id: 'pre', label: 'the pre-chorus', share: 0.12, demand: 'vocals', bar: 1.12 },
+        { id: 'chorus', label: 'the chorus', share: 0.26, demand: 'vocals', bar: 1.25 },
+        { id: 'rap', label: 'the rap', share: 0.14, demand: 'rap', bar: 1.08 },
+        { id: 'bridge', label: 'the bridge', share: 0.12, demand: 'vocals', bar: 1.4 },
+        { id: 'killing', label: 'the killing part', share: 0.14, demand: 'presence', bar: 1.0 },
+      ],
+      // the lane's shape: share multipliers per part (missing = 1)
+      SHAPES: {
+        bright: { killing: 1.2 }, elegant: { rap: 0.4, bridge: 1.5 }, dreamy: { rap: 0.3, bridge: 1.5, pre: 1.2 },
+        retro: { rap: 0.5, killing: 0.8 }, dark: { rap: 1.3, killing: 1.2 }, hiphop: { rap: 2.0, bridge: 0.5, pre: 0.8 },
+        performance: { killing: 1.8, bridge: 0.6 }, futuristic: { killing: 1.4, rap: 1.2 }, fusion: {},
+      },
+      rapFrom: 20,                // a song with less rap demand than this has no rap part
+      minShare: 0.05,             // no part is a footnote — a sliver is lifted to this
+      rapDemandAt: 50, rapDemandSpan: [0.5, 1.4],   // the rap's share follows the song's rap demand
+      presenceBase: 30, presencePer: 0.5,    // the killing part's bar, from the song's choreo potential
+      barFloor: 30, ratioCap: 1.15,          // a voice over its bar stops paying past the cap
+      earDefault: 60, earWobble: 0.18,       // the producer's ear: ±(100 − craft) × wobble on each voice
+      repeatPenalty: 30,          // fit points a second part costs on the proposal (measured v0.10.36:
+                                  // 10 handed one voice 59% of the record; 30 → top voice ~40%, one in six sheets heavy)
+      aceBonus: 8,                // the producer hears the ace on the killing part
+      maxParts: 3,                // a custom sheet hands one voice at most three parts (or the even split)
+      floorShare: 0.05,           // under this, the stopwatch calls her quiet
+      heavyShare: 0.45,           // at/above: one voice carries the record
+      recordingScale: 57,         // measured v0.10.36 (160 debut fixtures, trust): fit p10/50/90 .78/.95/1.08 →
+                                  // the recording term's row lands where the room average left it (19.4 of craft)
+      boothFatigue: 10,           // × share, the booth's hours
+      quietMorale: 3, spreadMorale: 2, grievancePro: 45,   // under the floor / every voice on it
+      hypeFrom: 0.20, hypePer: 20, hypeCap: 6,             // the voice of the record
+      centerParts: ['chorus', 'killing', 'verse1'],         // front-load the ace
     },
     // the medical desk (v0.10.4, §80 finding 12) — injuries as arcs,
     // not a meter: the diagnosis scene, the chronic file, the flare.
@@ -1815,6 +1858,8 @@
       pushChronicChance: 0.35,    // pushing through mints a chronic file
       pushWatchWeeks: 8, pushWatchMult: 2.0,
       nodulesBase: 0.0015,        // vocal cords in singing-load weeks
+      strainShare: 0.40,          // the sheet (v0.10.36): a share at/above makes her a vocal lead…
+      strainMult: 2.0,            // …and the roll scales with the share (× (1 + share × mult))
       flareChance: 0.05,          // per chronic, in high-load weeks
       flareFatigue: 6,
       playedHurtAt: 2,            // pushes before the world names it

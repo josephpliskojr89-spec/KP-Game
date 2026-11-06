@@ -1,5 +1,6 @@
 /* Suite 084 — the making (v0.10.4, §80 findings 5+12). The production
-   pipeline: stations on the runway, the line card the fandom audits,
+   pipeline: stations on the runway, the sheet the fandom audits (the
+   line card until v0.10.36 — sheet.js, suite_103 owns the sheet itself),
    the named choreographer whose difficulty the stage pays for, the MV
    clip lottery, and slippage as a decision — postpone or crunch, never
    silent. The medical desk: the diagnosis scene's three doors, the
@@ -32,25 +33,25 @@ function debutWorld(seed, weeks) {
   let sawLine = false, guard = 0;
   while (g.prep && guard++ < 12) {
     KP.advanceWeek(s);
-    const sc = (s.scenes || []).find(x => x.kind === 'lineCard');
+    const sc = (s.scenes || []).find(x => x.kind === 'theSheet');
     if (sc) { sawLine = true; KP.resolveScene(s, sc.id, 'center'); }
   }
-  t.ok(sawLine, 'recording week slides the line sheet across the desk');
+  t.ok(sawLine, 'recording week slides the sheet across the desk');
   t.eq(s.pipeLedger.stationsRun, 4, 'every station ran');
   const rel = g.releases[0];
   t.ok(rel.choreo && rel.choreo.name, 'the choreographer has a NAME on the record (' + (rel.choreo && rel.choreo.name) + ')');
-  t.eq(rel.lineCard, 'center', 'and the line card is archived with the release');
-  t.ok(s.inbox.concat([]).length >= 0 && s.pipeLedger.lineCards === 1, 'ledgered');
+  t.eq(rel.sheet && rel.sheet.mode, 'center', 'and the sheet is archived with the release');
+  t.ok(s.inbox.concat([]).length >= 0 && s.pipeLedger.sheets === 1, 'ledgered');
 }
 
-// ---- the line card: three doors, priced --------------------------------
+// ---- the sheet's preset doors, priced (the line card until v0.10.36) ----
 {
   const mk = (seed, opt) => {
     const { s, g } = debutWorld(seed);
     let sc = null, guard = 0;
     while (!sc && guard++ < 10) {
       KP.advanceWeek(s);
-      sc = (s.scenes || []).find(x => x.kind === 'lineCard');
+      sc = (s.scenes || []).find(x => x.kind === 'theSheet');
     }
     const members = g.members.map(id => s.people[id]);
     const before = members.map(m => ({ id: m.id, morale: m.morale, hype: m.hype || 0 }));
@@ -65,14 +66,14 @@ function debutWorld(seed, weeks) {
   t.ok((ace.hype || 0) > aceBefore.hype, 'front-loading the ace buys her shine');
 }
 {
-  // the audit: a center-cut card gets litigated at release
+  // the audit: a front-loaded sheet gets litigated at release
   const { s, g } = debutWorld('mk-linewar');
   const LW = KP.C.PIPE.lineWarChance;
   KP.C.PIPE.lineWarChance = 1;
   let guard = 0;
   while (g.prep && guard++ < 12) {
     KP.advanceWeek(s);
-    const sc = (s.scenes || []).find(x => x.kind === 'lineCard');
+    const sc = (s.scenes || []).find(x => x.kind === 'theSheet');
     if (sc) KP.resolveScene(s, sc.id, 'center');
   }
   // the discourse cap can be holding coverClips from the run-up — clear
@@ -92,7 +93,7 @@ function debutWorld(seed, weeks) {
   let guard = 0;
   while (g.prep && !(s.pipeLedger || {}).clips && guard++ < 12) {
     KP.advanceWeek(s);
-    const sc = (s.scenes || []).find(x => x.kind === 'lineCard');
+    const sc = (s.scenes || []).find(x => x.kind === 'theSheet');
     if (sc) KP.resolveScene(s, sc.id, 'trust');
   }
   KP.C.PIPE.mvClipChance = CC;
@@ -139,7 +140,7 @@ function debutWorld(seed, weeks) {
   let guard = 0;
   while (g.prep && g.prep.scheduledWeek - s.week > 1 && guard++ < 10) {
     KP.advanceWeek(s);
-    const sc = (s.scenes || []).find(x => x.kind === 'lineCard');
+    const sc = (s.scenes || []).find(x => x.kind === 'theSheet');
     if (sc) KP.resolveScene(s, sc.id, 'trust');
   }
   g.members.map(id => s.people[id]).forEach(m => { m.talents.dance.cur = 40; });

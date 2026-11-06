@@ -1012,6 +1012,27 @@
     (state.demos || []).forEach(d => fix(d, 'state|' + d.id + '|' + d.title));
   } });
 
+  // the sheet (v0.10.36, §91 Phase 3): the three-card line card retires.
+  // An open card becomes the sheet scene over the producer's proposal;
+  // an answered card becomes that preset, locked and already paid for.
+  MIGRATIONS.push({ v: '0.10.36', fn: function (state) {
+    (state.scenes || []).forEach(sc => {
+      if (sc.kind !== 'lineCard') return;
+      const g = KP.groupById(state, sc.groupId);
+      if (g && g.prep && g.prep.songId && !g.prep.sheet) KP.buildSheet(state, g);
+      sc.kind = 'theSheet';   // without a prep, the body says the session moved on and the clock expires it
+    });
+    KP.groups(state).forEach(g => {
+      if (!g.prep || !g.prep.lineCard) return;
+      if (!g.prep.sheet) {
+        KP.buildSheet(state, g);
+        KP.applySheetPreset(state, g, g.prep.lineCard);
+        KP.lockSheet(state, g.id, { silent: true });
+      }
+      delete g.prep.lineCard;
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

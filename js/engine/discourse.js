@@ -63,7 +63,26 @@
       case 'aceSnub': return who + ' was left off the year-end ballot the fandom expected, and the receipts thread is three hundred posts long. Snubs organize a fanbase faster than wins.';
       case 'albumDump': return 'Photos of ' + who + ' albums in a dumpster — the fan-sign leftovers, unboxed and abandoned — are moving fast. The thread is aimed at the sign rounds, which is to say at the company.';
       case 'atmStory': return 'The ' + who + ' fandom did the math out loud: membership, the drop, the fancon, the versions, one season. The thread is titled “we are not ATMs,” and it is aimed at the calendar.';
-      case 'lineShare': return 'The ' + who + ' line-distribution video is out, colour-coded to the second, and the quiet members’ bars are very short. The comment section has names and numbers.';
+      case 'lineShare': {
+        // the sheet (v0.10.36): the thread has the names — the quiet
+        // voices, or the one colour that is most of the video
+        const g = d.groupId ? KP.groupById(state, d.groupId) : null;
+        const rel = g && (g.releases || []).length ? g.releases[g.releases.length - 1] : null;
+        const sh = rel && rel.sheet;
+        const quiet = sh && sh.quiet ? sh.quiet.map(id => state.people[id]).filter(Boolean) : [];
+        const names = quiet.map(KP.displayName);
+        const listed = names.length <= 1 ? names.join('') : names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+        if (quiet.length) {
+          return 'The ' + who + ' line-distribution video is out, colour-coded to the second, and ' + listed +
+            (quiet.length === 1 ? '’s bar is' : '’s bars are') + ' very short. The comment section has names and numbers.';
+        }
+        const top = sh && sh.top ? state.people[sh.top.id] : null;
+        if (top) {
+          return 'The ' + who + ' line-distribution video is out, colour-coded to the second, and one colour is most of the video: ' +
+            KP.displayName(top) + '. The comment section has names and numbers.';
+        }
+        return 'The ' + who + ' line-distribution video is out, colour-coded to the second, and the quiet members’ bars are very short. The comment section has names and numbers.';
+      }
       case 'scandal': return 'A story about ' + who + ' is moving — the outlets holding it are not asking for comment as a courtesy, and the quote-posts have started before the response desk opened.';
       default: return 'Something about ' + who + ' is trending.';
     }

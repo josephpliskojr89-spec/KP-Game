@@ -129,7 +129,16 @@ function rideToKnock(state, maxWeeks) {
   her.morale = 30; her.personality.resilience = 75;   // too tough for the staff scan, tough enough to knock
   // folded into the quiet no (v0.10.30, §89 D1): resilience brings her to the door
   let sc = null, guardC = 0;
-  while (!sc && guardC++ < 20) { her.morale = 30; KP.advanceWeek(state); sc = doorScene(state); }
+  while (!sc && guardC++ < 24) {
+    her.morale = 30; KP.advanceWeek(state); sc = doorScene(state);
+    // the queue opens ONE door a week across every source — another
+    // member's knock (the stream moved with v0.10.36) is not hers; let
+    // it pass and keep riding until the tough one comes herself
+    if (sc && !(sc.kind === 'frictionQuietNo' && sc.personId === her.id)) {
+      state.scenes = state.scenes.filter(x => x.id !== sc.id);
+      sc = null;
+    }
+  }
   t.ok(sc && sc.kind === 'frictionQuietNo' && sc.personId === her.id, 'the tough one brings it to you herself');
   const r = KP.resolveScene(state, sc.id, 'ask');
   t.ok(r.ok && /You asked/.test(r.toast), 'asking is the answer she needed');

@@ -93,7 +93,7 @@ function makeStrained(state, p) {
   g.members.forEach(id => windowFor(state, state.people[id]));
   const sc = rideToTable(state);
   t.ok(sc, 'the folder goes up at year five');
-  t.ok(state.inbox.some(n => /folder nobody rushes to open/.test(n.text)), 'and the desk letter lands');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => /folder nobody rushes to open/.test(n.text)), 'and the desk letter lands');   // pre-trim read (the inbox law)
   t.eq((state.scenes || []).filter(x => x.kind === 'renewal').length, 1, 'one conversation at a time');
 }
 
