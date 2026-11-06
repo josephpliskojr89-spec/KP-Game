@@ -433,6 +433,15 @@
         break;
       }
       // the studio (v0.10.35): brief a record
+      // the promotion (v0.10.38): the second wind
+      case 'era-extend': {
+        const r = KP.extendEra(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        if (r.toast) UI.toast(r.toast);
+        App.render();
+        break;
+      }
       // the sheet (v0.10.36): the custom sheet's steppers and its lock
       case 'sheet-cycle': {
         const r = KP.cycleSheetPart(s, t.dataset.id, t.dataset.part, parseInt(t.dataset.dir, 10));

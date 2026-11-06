@@ -32,7 +32,9 @@
     return read;
   }
   function planFor(state, g) {
-    const idx = KP.clamp(state.week - (g.lastReleaseWeek || 0) - 1, 0, KP.C.ROLLOUT.weeks - 1);
+    // the extension (v0.10.38) can make a plan longer than the four weeks
+    const last = Math.max(KP.C.ROLLOUT.weeks, (g.rollout || []).length) - 1;
+    const idx = KP.clamp(state.week - (g.lastReleaseWeek || 0) - 1, 0, last);
     return (g.rollout && g.rollout[idx]) || [];
   }
   function promoting(state, g) {
@@ -230,15 +232,44 @@
     KP.groups(state).forEach(g => {
       if (!promoting(state, g) || !reads[g.id]) return;
       let notable = null;
-      planFor(state, g).filter(KP.isShowActivity).forEach(showId => {
+      const booked = planFor(state, g).filter(KP.isShowActivity);
+      // the comeback stage (v0.10.38, §91 B5): the era's first stage is a
+      // named special — rated like any night, hype-bearing, the one
+      // everyone clips, watched by the critics who already filed
+      const rel = (g.releases || []).length ? g.releases[g.releases.length - 1] : null;
+      const comebackId = rel && !rel.comebackStage && state.week === rel.week + 1 ? booked[0] : null;
+      booked.forEach(showId => {
         const read = reads[g.id][showId];
         if (!read) return;
         KP.settleStage(state, rng, g, read, { where: KP.showLabel(showId) }).forEach(keep);
         const edge = Math.abs(read.score - KP.C.STAGE.cleanAt) +
-          (read.band === 'carried' || read.band === 'fumbled' ? 100 : 0);
+          (read.band === 'carried' || read.band === 'fumbled' ? 100 : 0) + (showId === comebackId ? 1000 : 0);
         if (!notable || edge > notable.edge) notable = { read, showId, edge };
       });
-      if (notable) {
+      if (notable && notable.showId === comebackId) {
+        const CB = KP.C.PROMO.CB;
+        const read = notable.read;
+        const carrier = read.moments.carried ? state.people[read.moments.carried] : null;
+        rel.comebackStage = { showId: comebackId, score: read.score, band: read.band, carried: carrier ? carrier.id : null };
+        if (g.results && g.results.week === rel.week) g.results.comebackStage = { showId: comebackId, band: read.band };
+        KP.promoLedger(state).comebackStages++;
+        const members = g.members.map(id => state.people[id]).filter(Boolean);
+        if (carrier) carrier.hype = KP.clamp((carrier.hype || 0) + CB.carrierHype, 0, 100);
+        else if (read.band === 'carried') members.forEach(m => { m.hype = KP.clamp((m.hype || 0) + CB.roomHype, 0, 100); });
+        if (carrier && rng.chance(CB.clipChance)) {
+          KP.stageLedger(state).fancams++;
+          keep(KP.recordViral(state, carrier, { kind: 'fancam', label: 'the comeback-stage fancam' }));
+          keep(KP.igniteDiscourse(state, rng, 'fancam', 'idol', carrier.id, g.id));
+        }
+        const line = KP.stageLine(state, g, read, 'the comeback stage');
+        g.stageNoteWeek = state.week; g.lastStageBand = read.band;
+        KP.stageLedger(state).lines++;
+        keep({ kind: 'public', ind: 'comebackStage', priority: 'high', groupId: g.id, band: read.band,
+          personId: carrier ? carrier.id : null,
+          text: 'THE COMEBACK STAGE, on ' + KP.showLabel(comebackId) + ': ' + line +
+            (rel.critics && rel.critics.consensus ? ' The critics, who called the record ' + KP.verdictWord(rel.critics.consensus) + ', watched from the front row.' : '') });
+        weekCarried[g.id] = carrier ? carrier.id : null;
+      } else if (notable) {
         keep(KP.stageNote(state, g, notable.read, KP.showLabel(notable.showId)));
         weekCarried[g.id] = notable.read.moments.carried || null;
       }

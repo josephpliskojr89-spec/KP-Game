@@ -161,12 +161,18 @@
         Object.keys(P).map(k => {
           const disabled = pushedThisWeek || (P[k].once && c[k + 'Done']) ||
             state.budget < P[k].cost || (P[k].needsFame && fame < P[k].needsFame);
+          const fitWord = KP.promoFitWord ? KP.promoFitWord(g.prep.conceptId, k) : null;   // marketing fit (v0.10.38)
           return '<button class="btn small' + (disabled ? '' : ' primary') + '"' +
-            (disabled ? ' disabled' : '') +
+            (disabled ? ' disabled' : '') + (fitWord ? ' title="' + UI.esc(fitWord) + '"' : '') +
             ' data-action="campaign-push" data-group="' + g.id + '" data-kind="' + k + '">' +
-            UI.esc(P[k].label) + ' · ' + P[k].cost + '</button>';
+            UI.esc(P[k].label) + ' · ' + P[k].cost + (fitWord ? (fitWord === 'built for this record' ? ' ★' : ' ✕') : '') + '</button>';
         }).join('') +
-        '</div></div>');
+        '</div>' +
+        (KP.promoFitSummary ? (() => {
+          const f = KP.promoFitSummary(g.prep.conceptId);
+          return '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:6px">The marketing seat reads the fit: ★ built for this record, ✕ the wrong tool. A push is a match, not a budget line.</div>';
+        })() : '') +
+        '</div>');
     });
 
     // the grind (v0.9.37, §76 D): the booking pile — the pile deals

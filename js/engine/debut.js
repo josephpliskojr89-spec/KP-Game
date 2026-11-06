@@ -500,8 +500,11 @@
   KP.rolloutWeek = function (state, g, rng) {
     const R = KP.C.ROLLOUT, CB = KP.C.COMEBACK;
     const notes = [];
-    const idx = KP.clamp(state.week - (g.lastReleaseWeek || 0) - 1, 0, R.weeks - 1);
+    // the extension (v0.10.38) can make a plan longer than the four weeks
+    const idx = KP.clamp(state.week - (g.lastReleaseWeek || 0) - 1, 0, Math.max(R.weeks, (g.rollout || []).length) - 1);
     const plan = (g.rollout && g.rollout[idx]) || ['popWave'];
+    // marketing fit (v0.10.38, §91 B5): a push is a match to the record
+    const lane = KP.eraLane ? KP.eraLane(state, g) : null;
     const members = g.members.map(id => state.people[id]).filter(p => p && p.status === 'idol');
     const soloMult = g.type === 'solo' ? KP.C.SOLO.promoFatigueMult : 1;
 
@@ -533,7 +536,7 @@
         m.liveExp += A.liveExp;
         m.mediaExp += A.mediaExp;
         if (A.morale) m.morale = KP.clamp(m.morale + A.morale, 0, 100);
-        if (A.pop) g.popularity = KP.clamp((g.popularity || 0) + A.pop, 0, 100);
+        if (A.pop) g.popularity = KP.clamp((g.popularity || 0) + A.pop * (KP.promoFit ? KP.promoFit(lane, actId) : 1), 0, 100);
         if (A.followers) KP.socialSpike(state, m, A.followers, 'promo-' + actId);
         // fan-facing care builds devotion (v0.7.0) — once per activity, not per member
         if (m === members[0]) {

@@ -168,7 +168,9 @@
             Math.floor((act.debutWeek - 1) / KP.C.WEEKS_PER_YEAR) + 1 === debutYear).map(x => x.act.name);
           if (classmates.length) {
             g.cohortNotedYear = curYear;
-            inbox.push({ kind: 'public', ind: 'debutClass', groupId: g.id,
+            // once a year per act — it lands (v0.10.38: the promotion's
+            // letters crowded it out of the week; a class line-up is a story)
+            inbox.push({ kind: 'public', ind: 'debutClass', priority: 'high', groupId: g.id,
               text: 'Award season did the thing it does every year: the fan accounts lined up the Year ' + debutYear +
                 ' debut class — ' + g.name + ', ' + classmates.slice(0, 3).join(', ') +
                 ' — side by side, then and now. Same starting line, very different roads. The quote-posts are a whole genre tonight.' });

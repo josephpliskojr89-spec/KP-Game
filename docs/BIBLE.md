@@ -7141,7 +7141,7 @@ checks: the strip is on the person tab and opens with where she is
 from), lockstep 0.10.33.
 
 
-## §91 The comeback (PHASES 1–4 SHIPPED v0.10.34–37 — the song made, the chart earned, the stage judged)
+## §91 The comeback (ALL FIVE PHASES SHIPPED v0.10.34–38 — the song made, the chart earned, the stage judged)
 
 Owner, thinking out loud: "something that really defines kpop and
 it's the comeback. The anticipation, the promotion, the stages, and
@@ -7916,6 +7916,102 @@ panned hit 20/40, viral provenance 40/40; debut reception median 54
 
 Battery 104/104, soak 40 clean, longhaul 10x620, e2e 113,
 lockstep 0.10.37.
+
+**As built — Phase 5, v0.10.38 "the promotion".** Owner: "Go for
+phase 5." promo.js is the module (loaded after stage.js); shows.js,
+debut.js, bookings.js, the Desk's campaign card, the Studio's
+rollout builder and promo view, the release report and the harness
+learned it. Suite_105_promotion (59 checks). No migration: the
+broadcaster ledger and the promo ledger mint lazily; an old release
+without `offers` starts at zero.
+
+*The plan stays the plan.* Two slots a week, four weeks, billed at
+lock — the owner's own law (§22: "constrained choices and
+opportunity costs"). Ruling 6: offers and swaps on the locked plan,
+not a weekly desk.
+
+*The offers.* `KP.registerWeekly('promotion', 585)` — after the
+shows air, before the week's releases. Each promo week with a NEXT
+week on the plan, a promoting act may get ONE invitation for that
+week: a SHOW not already on it (its booking desk above the trust
+floor) when the record is climbing, the week's stage was carried, or
+the record is simply warm (reception ≥ 62 — "the numbers";
+showChance .4, the show by hash); failing that, VARIETY when a face
+reads varietySkill ≥ 60 with media reps ≥ 6 (varietyChance .3). At
+most two invitations an era (`rel.offers`) — a choice, not a task
+list. The invitation is the scene `promoOffer` on the Desk, expiring
+with the week (silence is a no, the plan untouched), plus a 'high'
+letter; the engine names the SWAP it would make
+(`KP.offerSwapTarget`: the weakest booking of next week by pop,
+never a stage while a non-stage booking stands; null when the week
+has room). TAKE swaps the slot on the locked plan and bills the cost
+difference (refused when the account cannot); cancelling a STAGE
+writes the broadcaster ledger (`state.broadcasters[showId]` −1,
+floor −3, +1 every 12 weeks) and a desk at or under −1 stops
+calling — `KP.broadcasterLines` says so on the promo view ("Prime
+Stage's booking desk remembers a cancellation — they are not
+calling."). The bot takes an invitation that costs a lesser booking
+and keeps a stage it already has.
+
+*The extension.* `KP.extensionRead` / `KP.extendEra`: in the LAST
+week of promotion, a record still climbing — `KP.recordClimbing`:
+the scene entry's rank rose this week (pos < lastPos), or the
+national board's, or the sleeper b-side — runs two more weeks: the
+plan gains its own light weeks (popWave + radio, then a livestream),
+`promoUntil` +2, the members pay fatigue 6, the bookings bill; once
+an era; the `eraExtended` letter finally has a verb behind it (the
+feed keeps its repackage lines for the repackage and gets the
+extension's own). `planFor` and `rolloutWeek` read plans longer
+than four weeks. The bot extends when the room is not already tired
+(avg fatigue < 70).
+
+*The comeback stage.* The era's first stage — the first show booked
+in the first promo week — is a named special inside the shows' pass:
+the same read as the live term, archived on the release
+(`rel.comebackStage` {showId, score, band, carried}) and the report
+(the "comeback stage: carried" chip replaces the old stage word),
+HYPE-BEARING (the carrier +3 hype, or the whole room +1 on a carried
+night), THE ONE EVERYONE CLIPS (a second fancam roll at .15 for the
+carrier, provenance "the comeback-stage fancam"), and the week's one
+stage line is its letter: "THE COMEBACK STAGE, on Pop Wave: Minji
+carried the comeback stage — the clip is hers. The critics, who
+called the record warm, watched from the front row."
+
+*Marketing fit.* `KP.promoFit(laneId, actId)` (PROMO.FIT): the
+challenge is built for performance, hip-hop, futuristic and dark
+records and the wrong tool for dreamy, elegant and retro ones; radio
+(and the radio push) the reverse; the content drop for futuristic,
+fusion and bright; the showcase for performance, hip-hop and dark;
+Prime Stage leans to the performance lanes, Pop Wave to bright and
+fusion. Home ×1.25, off ×.75 on the campaign push's momentum
+(stacking on the marketing seat's multiplier) and on a rollout
+booking's pop gain. The marketing seat reads the fit in words: the
+campaign card marks each push ★ built for this record / ✕ the wrong
+tool, the rollout builder summarizes the lane ("For a dreamy record
+the marketing seat reads: built for it — Radio; the wrong tool —
+Dance challenge, Prime Stage"). Effectiveness is a match, not a
+budget line.
+
+*The bands* (measure-first): offerTaken [.30–1.0], eraExtended
+[.10–.90], comebackStaged [.90–1.0]. Two older bands moved with
+reasons on them: the debut-class line-up note (society.js, once a
+year per act) now lands 'high' — the promotion's letters had
+crowded it out of its week (7/40 read on the trimmed inbox, the
+mechanism unchanged); the warehouse-memo floor .30 → .20 (measured
+14/40, 22/40, 11/40 across v0.10.36–38 — the stage's intensity and
+the promotion sell more pressings through; the tail is alive).
+Measured, 40 orgs: an invitation taken 40/40, an era extended on a
+climbing record 12/40 (the chart's rank rarely rises by construction
+— same-rate entries never swap — so the sleeper carries most of
+them), the era opened on a comeback stage 40/40; the debut class
+39/40 once it landed 'high'; carried 40/40, fumbled 33/40, the
+darling 23/40, the stopwatch 18/40; debut reception median 53 (min
+27, max 79), sensation 2/40, strong+ 11/40, quiet/miss 15/40, end
+budget median 3155 (the offers bill their swaps). Longhaul saves
+615–975 KB; the walkthrough grew a check (114).
+
+Battery 105/105, soak 40 clean, longhaul 10x620, e2e 114,
+lockstep 0.10.38.
 
 ## §18 Watch items
 
@@ -11138,6 +11234,24 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 25/40, a pair read 40/40, the darling narrative 19/40, trophies
 > 180 → 191 on the same seeds. Suite_104 (60). Battery 104/104, soak 40 clean, longhaul 10x620,
 > e2e 113, lockstep 0.10.37. Rode to main.
+
+> **0.10.38 — the promotion.** §91 Phase 5, owner: "Go for phase
+> 5." The plan stays the plan and gains four doors: the OFFERS (a
+> show calls the risers, the carriers and the warm records, variety
+> calls a face with media reps — one invitation a week for next
+> week, two an era, a swap on the locked plan that bills the
+> difference; cancelling a stage writes the broadcaster ledger and a
+> desk that remembers stops calling), the EXTENSION (the last week,
+> a record still climbing — the chart's rank rose, or the sleeper —
+> runs two more weeks for fatigue and the bookings), the COMEBACK
+> STAGE (the era's first stage, rated, hype-bearing, the one everyone
+> clips, the critics in the front row), and MARKETING FIT (the
+> challenge carries a performance record, radio a ballad; the seat
+> reads it in words on the campaign card and the builder). Measured:
+> an invitation taken 40/40, extended 12/40, a comeback stage 40/40;
+> the debut-class note lands 'high', the warehouse floor .30 → .20
+> with its history. Suite_105 (59). Battery 105/105, soak 40 clean,
+> longhaul 10x620, e2e 113, lockstep 0.10.38. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

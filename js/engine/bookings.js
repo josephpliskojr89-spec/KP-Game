@@ -282,8 +282,11 @@
     state.budget -= P.cost;
     if (KP.ledgerFlow) KP.ledgerFlow(state, 'marketing', -P.cost);
     const rng = KP.rngFor(state);
-    // the staff (v0.10.6): the marketing seat moves what a push buys
-    const gain = addMomentum(state, g, P.mom * (KP.seatMult ? KP.seatMult(state, 'marketing') : 1));
+    // the staff (v0.10.6): the marketing seat moves what a push buys —
+    // and the push is a match to the record (v0.10.38, §91 B5)
+    const fit = KP.promoFit ? KP.promoFit(g.prep.conceptId, kindId) : 1;
+    if (KP.promoLedger) { if (fit > 1) KP.promoLedger(state).fitHome++; else if (fit < 1) KP.promoLedger(state).fitOff++; }
+    const gain = addMomentum(state, g, P.mom * (KP.seatMult ? KP.seatMult(state, 'marketing') : 1) * fit);
     c.worked++; c.lastPush = state.week;
     if (P.once) c[kindId + 'Done'] = true;
     const members = g.members.map(id => state.people[id]).filter(Boolean);

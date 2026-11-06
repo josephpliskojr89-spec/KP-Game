@@ -198,8 +198,10 @@ const read = (s, g, id) => KP.stageRead(s, g, { kind: 'show', id: id || 'countdo
   KP.advanceWeek(s);
   const notes = KP.lastTickNotes || [];   // the week's emissions, pre-trim (the inbox keeps the same objects)
   t.ok(s.stageLedger.rated > before, 'every booked stage is rated');
-  t.eq(notes.filter(n => n.ind === 'stageRead' && n.groupId === g.id).length, 1, 'the read posts once a week, in words');
-  const note = notes.find(n => n.ind === 'stageRead');
+  // the era's first stage posts as the comeback stage (v0.10.38) — still the week's ONE line
+  const lines = notes.filter(n => ['stageRead', 'comebackStage'].includes(n.ind) && n.groupId === g.id);
+  t.eq(lines.length, 1, 'the read posts once a week, in words');
+  const note = lines[0];
   t.ok(!/\d/.test(note.text) && /Countdown|Pop Wave|Prime Stage/.test(note.text), 'names and a stage, never a number');
   t.ok(g.members.every(id => (s.people[id].stages || {}).played >= 2), 'two stages a week, two on every record');
   t.ok(g.stageCraft != null, 'the act’s rolling craft is on the group');

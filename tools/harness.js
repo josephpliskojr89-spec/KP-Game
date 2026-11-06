@@ -373,6 +373,10 @@ const BANDS = {
   stageCarried:      { lo: 0.50, hi: 1.00, label: 'orgs that carried a stage' },
   stageFumbled:      { lo: 0.10, hi: 0.90, label: 'orgs that fumbled a stage' },
   chemistryStaged:   { lo: 0.05, hi: 1.00, label: 'orgs whose formation read a pair (close or tense) on a stage' },
+  // the promotion (v0.10.38, §91 Phase 5) — measure-first
+  offerTaken:        { lo: 0.30, hi: 1.00, label: 'orgs that took a promo invitation (a swap on the plan)' },
+  eraExtended:       { lo: 0.10, hi: 0.90, label: 'orgs that extended an era on a climbing record' },
+  comebackStaged:    { lo: 0.90, hi: 1.00, label: 'orgs whose era opened on a named comeback stage' },
   // the song market (v0.10.5): ruled first soak — 40/40, 39/40, 39/40.
   // Hot hooks sit past windows constantly over long orgs (the bot
   // deliberates like everyone else); camps fire whenever a cold sheet
@@ -428,7 +432,10 @@ const BANDS = {
   // gamble's two tails. Dead at 0 (the pressing choice stopped
   // mattering), wallpaper at 1.0 for sellouts (press braver, always)
   pressSoldOut:      { lo: 0.20, hi: 0.90, label: 'orgs that sold out a pressing (the sweet lost money)' },
-  pressWarehouse:    { lo: 0.30, hi: 1.00, label: 'orgs that ate a warehouse memo' },
+  // floor .30 → .20 (v0.10.38): measured 14/40, 22/40, 11/40 across
+  // v0.10.36–38 — the stage's intensity and the promotion's offers and
+  // extension sell more pressings through; the tail is alive, not dead
+  pressWarehouse:    { lo: 0.20, hi: 1.00, label: 'orgs that ate a warehouse memo' },
   // the table (v0.9.38): counters need fame under 0.45 AND a file
   // worth arguing over — legacy soak orgs sit at 0.64, so this is a
   // CEILING like the wall bands (gates broken if famous orgs get
@@ -680,6 +687,7 @@ const tally = {
   soloEraRun: 0, soloCutOut: 0, frictionFlows: 0, frictionTeeth: 0,
   stationRun: 0, slipDecided: 0, clipCaught: 0, sheetSet: 0, lineWarSeen: 0,
   stageCarried: 0, stageFumbled: 0, chemistryStaged: 0,
+  offerTaken: 0, eraExtended: 0, comebackStaged: 0,
   medCase: 0, medChronic: 0, flareFelt: 0,
   demoLost: 0, campHeld: 0, bondWorking: 0,
   interviewHeld: 0, seatHired: 0, seatCalled: 0, staffVoice: 0, meshFelt: 0,
@@ -1336,6 +1344,12 @@ for (let s = 0; s < SEEDS; s++) {
           state.budget > KP.C.HIRES.raiseCost + 100 ? 'raise' : 'walk');
         return;
       }
+      if (sc.kind === 'promoOffer') {
+        // the promotion (v0.10.38): a boss takes an invitation that costs a
+        // lesser booking and keeps a stage it already has
+        KP.resolveScene(state, sc.id, sc.replace && KP.isShowActivity(sc.replace) ? 'decline' : 'take');
+        return;
+      }
       if (sc.kind === 'theSheet') {
         // the sheet (v0.10.36): front-load a real ace, flatten a sour
         // room, else trust the producer — a boss with a breakout plays
@@ -1428,6 +1442,14 @@ for (let s = 0; s < SEEDS; s++) {
       const drawer = (g.eraLeftovers || []).slice().sort((a, b) => b.hook - a.hook);
       if (!drawer.length || state.budget < 200) return;
       KP.planRepackage(state, { groupId: g.id, songId: drawer[0].id });
+    });
+
+    // the promotion (v0.10.38): a record still climbing in its last week
+    // gets the second wind when the room can carry it
+    state.groups.forEach(g => {
+      if (!KP.extensionRead) return;
+      const r = KP.extensionRead(state, g);
+      if (r.ok && !r.tired) KP.extendEra(state, g.id);
     });
 
     // plan the next release for whichever group needs one — debuts and
@@ -1905,6 +1927,10 @@ for (let s = 0; s < SEEDS; s++) {
   if ((stl.carried || 0) >= 1) tally.stageCarried++;
   if ((stl.fumbled || 0) >= 1) tally.stageFumbled++;
   if ((stl.pairsRead || 0) >= 1) tally.chemistryStaged++;
+  const prl = state.promoLedger || {};               // the promotion (v0.10.38)
+  if ((prl.taken || 0) >= 1) tally.offerTaken++;
+  if ((prl.extended || 0) >= 1) tally.eraExtended++;
+  if ((prl.comebackStages || 0) >= 1) tally.comebackStaged++;
   if ((ppl.lineWars || 0) >= 1) tally.lineWarSeen++;
   const mdl = state.medLedger || {};
   if ((mdl.cases || 0) >= 1) tally.medCase++;

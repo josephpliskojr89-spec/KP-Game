@@ -91,11 +91,14 @@ const t = makeT('suite_014_hype_solo');
     week: state.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
   let guard = 0;
   while (!g.debuted && guard++ < 12) KP.advanceWeek(state);
+  // read the cash-in on debut night: the first promo week's comeback
+  // stage is hype-bearing (v0.10.38) and would already be writing again
+  const hypeOnDebutNight = star.hype;
   KP.advanceWeek(state);
   t.ok(!state.hypeDirective, 'directive resolved and archived');
   t.ok(state.objectiveHistory.some(o => o.type === 'hypeDebut' && o.status === 'met'), 'met, on the record');
   t.ok(state.trust > trustBefore - 5, 'meeting the directive does not cost trust');
-  t.eq(star.hype, 0, 'her hype was cashed into the debut');
+  t.eq(hypeOnDebutNight, 0, 'her hype was cashed into the debut');
 }
 
 // missing the directive: trust hit, hype collapses, it does not come back

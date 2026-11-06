@@ -221,6 +221,31 @@
               '<button class="btn small primary" data-action="studio-repackage" data-id="' + g.id + '" data-song="' + d.id + '"' +
               (state.budget < repackBill ? ' disabled' : '') + '>Repackage</button></div>').join('');
         }
+        // the promotion desk (v0.10.38, §91 B5): the plan's weeks, the
+        // offer waiting on the Desk, the extension, the booking desks' memory
+        let promoHtml = '';
+        if (promoting && g.rollout) {
+          const A = KP.C.ROLLOUT.ACTIVITIES;
+          const idx = state.week - (g.lastReleaseWeek || 0) - 1;
+          const offer = (state.scenes || []).find(sc => sc.kind === 'promoOffer' && sc.groupId === g.id);
+          const ext = KP.extensionRead ? KP.extensionRead(state, g) : { ok: false };
+          const climb = KP.recordClimbing ? KP.recordClimbing(state, g) : { climbing: false };
+          const weeks = g.rollout.map((wk, i) => '<div style="display:flex;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)' + (i < idx ? ';opacity:.5' : '') + '">' +
+            '<span style="font-size:.72rem;color:var(--ink-dim);min-width:46px">Wk ' + (i + 1) + (i === idx ? ' · now' : '') + '</span>' +
+            '<span style="font-size:.8rem">' + (wk.length ? wk.map(a => UI.esc((A[a] || { label: a }).label)).join(' · ') : 'a breather') + '</span></div>').join('');
+          const desks = KP.broadcasterLines ? KP.broadcasterLines(state) : [];
+          promoHtml = '<div class="kicker" style="margin-top:16px">The promotion' + (g.eraExtendedWeek ? ' · extended' : '') + '</div>' +
+            '<div class="card">' + weeks +
+            '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:8px;line-height:1.5">' +
+            (climb.climbing ? 'The record is climbing — ' + UI.esc(climb.why) + ' says so. ' : 'The record is holding, not climbing. ') +
+            (offer ? 'An invitation is waiting on the Desk — it answers within the week. ' : 'Offers arrive keyed to how the record is doing: a show for the risers and the carriers, variety for a face. ') +
+            desks.map(UI.esc).join(' ') + '</div>' +
+            (ext.ok
+              ? '<div style="margin-top:10px"><button class="btn primary" style="width:100%" data-action="era-extend" data-id="' + g.id + '">Extend the era · ' + ext.weeks + ' weeks · bookings ' + ext.bill + '</button>' +
+                '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:6px">On the strength of ' + UI.esc(ext.why) + '. The members pay in hours' + (ext.tired ? ' — and the staff say the room is already tired' : '') + '.</div></div>'
+              : (state.week === (g.promoUntil || 0) && !g.eraExtendedWeek ? '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">The last week. ' + UI.esc(ext.reason || '') + '</div>' : '')) +
+            '</div>';
+        }
         return switcher + '<div class="group-hero"><div class="g-status">' +
           (promoting ? 'Mid-promotion · ' : 'Scheduled rest · ') + UI.esc(g.name) + '</div>' +
           '<div class="g-name" style="font-size:clamp(1.7rem,8vw,2.4rem)">' +
@@ -234,7 +259,7 @@
           (promoting
             ? 'Promotion runs hot by design. The rest window after it is contractual — the next release cannot be locked until the calendar reopens.'
             : 'The rest is contractual and it works: recovery runs at double pace until the calendar reopens. The producers are already writing.') +
-          '</div></div>' + repackHtml;
+          '</div></div>' + promoHtml + repackHtml;
       }
     }
 
@@ -407,6 +432,15 @@
           UI.esc(R.ACTIVITIES[a].label) + '</button>').join('') +
         '</div></div>').join('') +
         '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">The Countdown is the Sunday institution, Prime Stage rewards performers, Pop Wave takes chances on new faces — and every show week, somebody goes home with the trophy. Variety builds faces; fan signs buy loyalty; the challenge is cheap reach; rest is rest. They cannot be everywhere — pick.</div>' +
+        // marketing fit (v0.10.38, §91 B5): the seat reads the record's lane
+        (KP.promoFitSummary && draft.conceptId ? (() => {
+          const f = KP.promoFitSummary(draft.conceptId);
+          return (f.home.length || f.off.length)
+            ? '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:6px">For a ' + UI.esc((KP.conceptById(draft.conceptId) || { label: '' }).label.toLowerCase()) + ' record the marketing seat reads: ' +
+              (f.home.length ? 'built for it — ' + f.home.map(UI.esc).join(', ') : '') + (f.home.length && f.off.length ? '; ' : '') +
+              (f.off.length ? 'the wrong tool — ' + f.off.map(UI.esc).join(', ') : '') + '.</div>'
+            : '';
+        })() : '') +
         '</div>');
 
       // the product (v0.10.0, §80): the pressing sheet — the album is a
@@ -557,7 +591,9 @@
       (r.sheetLine ? '<div style="margin-top:4px;font-size:.78rem;color:var(--ink-dim)">' + UI.esc(r.sheetLine) + '</div>' : '') +
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px">' +
       (r.critics ? '<span class="chip ' + (['acclaimed', 'warm'].includes(r.critics.consensus) ? 'cool' : r.critics.consensus === 'mixed' ? '' : 'clash') + '">critics: ' + UI.esc(KP.verdictWord(r.critics.consensus)) + '</span>' : '') +
-      '<span class="chip">stage: ' + perfWord(r.performance) + '</span>' +
+      // the comeback stage (v0.10.38): the era's first stage, by band
+      (r.comebackStage ? '<span class="chip ' + (r.comebackStage.band === 'carried' ? 'gold' : r.comebackStage.band === 'fumbled' ? 'clash' : '') + '">comeback stage: ' + UI.esc(r.comebackStage.band) + '</span>'
+        : '<span class="chip">stage: ' + perfWord(r.performance) + '</span>') +
       '<span class="chip">room: ' + chemWord(r.chem) + '</span>' +
       (r.chartPeak != null ? '<span class="chip cool">scene #' + r.chartPeak + '</span>' : '') +
       (r.nationalPeak != null ? '<span class="chip gold">national #' + r.nationalPeak + '</span>' : '') +

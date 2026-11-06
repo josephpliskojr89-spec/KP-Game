@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.37',
+    VERSION: '0.10.38',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1802,6 +1802,42 @@
       hardEncoreBonus: 0.08,      // and the encore lottery watches closer
       lineWarChance: 0.20,        // per fault on the sheet (a quiet voice, one voice carrying
                                   // the record), the stopwatch thread organizes at release
+    },
+    // the promotion (v0.10.38, §91 Phase 5) — the plan stays the plan
+    // (two slots a week, four weeks, billed at lock — the owner's law)
+    // and gains four doors: the OFFERS (a show invites the risers and
+    // the carriers, variety invites a face with media reps — a swap on
+    // the locked plan, with a broadcaster ledger that remembers a
+    // cancellation), the EXTENSION (a record still climbing runs two
+    // more weeks for a fatigue price), the COMEBACK STAGE (the era's
+    // first stage is a named special), and MARKETING FIT (a push is a
+    // match to the record, not a budget line).
+    PROMO: {
+      FIT: {   // home ×1.25 / off ×.75 / otherwise ×1 — by the record's lane
+        challenge:   { home: ['performance', 'hiphop', 'futuristic', 'dark'], off: ['dreamy', 'elegant', 'retro'] },
+        radio:       { home: ['dreamy', 'elegant', 'retro', 'bright'], off: ['performance', 'hiphop', 'futuristic'] },
+        radioPush:   { home: ['dreamy', 'elegant', 'retro', 'bright'], off: ['performance', 'hiphop', 'futuristic'] },
+        contentDrop: { home: ['futuristic', 'fusion', 'bright'], off: ['retro'] },
+        showcase:    { home: ['performance', 'hiphop', 'dark'], off: ['dreamy', 'elegant'] },
+        primeStage:  { home: ['performance', 'hiphop', 'dark', 'futuristic'], off: [] },
+        popWave:     { home: ['bright', 'fusion'], off: [] },
+      },
+      fitHome: 1.25, fitOff: 0.75,
+      OFFERS: {
+        showChance: 0.4,          // per promo week with a reason (climbing, a carried stage, or the numbers)
+        showOfferReception: 62,   // "the numbers": a record this warm gets the call anyway
+        varietyChance: 0.3,       // a face the variety producers want
+        varietySkillAt: 60, varietyMediaAt: 6,
+        perEra: 2,                // the desk fields at most this many invitations an era — a choice, not a task list
+        trustMin: -1,             // a broadcaster at/under this does not call
+      },
+      trustFloor: -3, trustHealWeeks: 12,   // the booking desks forgive, slowly
+      EXT: {
+        weeks: 2, fatigue: 6,     // the second wind, and what the members pay for it
+        plan: [['popWave', 'radio'], ['livestream']],   // the extension's own light plan
+        warnFatigue: 70,          // the staff flag a tired room before it signs on
+      },
+      CB: { carrierHype: 3, roomHype: 1, clipChance: 0.15 },   // the comeback stage: hype-bearing, the one everyone clips
     },
     // the stage, judged (v0.10.37, §91 Phase 4) — ONE rating per
     // performance, `KP.stageRead`: each voice against her load on the

@@ -251,6 +251,7 @@
   KP.stageNote = function (state, g, read, where) {
     if (g.stageNoteWeek === state.week) return null;
     g.stageNoteWeek = state.week;
+    g.lastStageBand = read.band;   // the promotion (v0.10.38): the offers read the week's stage
     ledger(state).lines++;
     const notable = read.band === 'carried' || read.band === 'fumbled';
     return { kind: 'public', ind: 'stageRead', priority: notable ? 'high' : 'normal', groupId: g.id,
