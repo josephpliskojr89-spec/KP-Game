@@ -932,7 +932,13 @@ for (let s = 0; s < SEEDS; s++) {
     if (KP.commissionRecord) state.groups.forEach(g => {
       if (g.retiredWeek || g.prep || g.tour || g.hiatus || g.commission || !g.members.length) return;
       if (g.debuted && state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) return;
-      if (state.budget < 450) return;   // the ground game and the shows come first (soak: the darling band starved at 200)
+      if (state.budget < 600) return;   // the ground game and the shows come first (soak: the darling band starved at 200 and 450)
+      // a player briefs a record when the pitched sheet is weak, or now and
+      // then on principle — not every cycle (the first soaks did, and the
+      // fees ate the show bookings)
+      const bestHook = (g.demos || []).reduce((m, d) => Math.max(m, d.hook || 0), 0);
+      const onPrinciple = ((g.releases || []).length % 3) === 1;
+      if (g.demos && g.demos.length && bestHook >= 62 && !onPrinciple) return;
       const lastRel = (g.releases || [])[(g.releases || []).length - 1];
       const lane = g.concept || (lastRel && lastRel.conceptId) || 'bright';
       const roomNow = g.members.map(id => state.people[id]).filter(Boolean);
@@ -950,7 +956,7 @@ for (let s = 0; s < SEEDS; s++) {
       const ws = [KP.houseWriter(state)].filter(Boolean).concat(KP.writersOf(state));
       const w = ws.find(x => x.themes.includes(theme)) || ws[0];
       const fee = KP.producerFee(pr) + KP.writerFee(w);
-      if (state.budget < fee + 450) return;
+      if (state.budget < fee + 600) return;
       KP.commissionRecord(state, g.id, { lane, theme, producerId: pr.id, writerId: w.id });
     });
     // the album promise gets kept (v0.9.25): produce her record when
@@ -1308,8 +1314,11 @@ for (let s = 0; s < SEEDS; s++) {
       if (sc.kind === 'theInterview') {
         // the staff (v0.10.6): a flush boss takes the bet — the fog
         // means the bot cannot cherry-pick, which is the point
+        // the studio chairs (v0.10.35) are a luxury the ground game pays for
+        // first — the first soak starved the show bookings into the darling band
+        const studioChair = (KP.C.HIRES.SEATS.find(x => x.id === sc.cand.seatId) || {}).studio;
         KP.resolveScene(state, sc.id,
-          state.budget > KP.C.HIRES.hireCost[sc.cand.tier] + 200 ? 'hire' : 'pass');
+          state.budget > KP.C.HIRES.hireCost[sc.cand.tier] + (studioChair ? 500 : 200) ? 'hire' : 'pass');
         return;
       }
       if (sc.kind === 'seatPoach') {
