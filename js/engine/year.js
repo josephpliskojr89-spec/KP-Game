@@ -117,6 +117,17 @@
 
   // ---- the timeline answers ---------------------------------------------
   KP.onFeedEvent('festival', (state, n, rng) => {
+    // the far markets (v0.10.43): the convention weekend, with or without a voice
+    if (n.abroad) {
+      if (n.voice) return rng.chance(0.5) ? rng.pick([
+        { persona: 'fan', text: 'convention footage: three thousand people who learned korean from lyrics singing every word back. the world is smaller than the industry maps say' },
+        { persona: 'casual', text: 'the overseas convention circuit is how groups actually break markets between tours and it gets covered like a hobby. those rooms BUY TICKETS later' },
+      ]) : null;
+      return rng.pick([
+        { persona: 'casual', text: 'the interpreter-pause clip is making the rounds again. the stage was great! the interview was a hostage video! languages are part of the job now, somebody tell the training rooms' },
+        { persona: 'fan', text: 'protecting them from the awkward-interview clip with my LIFE. learn the language or bring the member who did, agencies. we keep saying this' },
+      ]);
+    }
     return rng.pick([
       { persona: 'fan', text: 'festival season fancams are a genre of their own. wind, golden hour, a b-side, ten thousand students losing their minds. cinema' },
       { persona: 'casual', text: 'went to a university festival for the food and left an idol fan. this happens to hundreds of people every spring and nobody warns you' },

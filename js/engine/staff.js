@@ -16,17 +16,12 @@
     const g = MGR_GIVEN[Math.floor(KP.hash01(seedKey + '|giv') * MGR_GIVEN.length)];
     return f + ' ' + g;
   }
-  KP.staffOf = function (state) {
-    state.staffRoster = state.staffRoster || { managers: {} };
-    if (!state.staffRoster.coach) {
-      state.staffRoster.coach = { name: genStaffName(state.seed + '|coach'), role: 'head vocal coach', since: 1 };
-    }
-    return state.staffRoster;
-  };
-  KP.managerOf = function (state, g) {
-    const st = KP.staffOf(state);
-    return (g && st.managers[g.id]) || null;
-  };
+  // the seats seed the founding trio from the same hash (v0.10.43)
+  KP.staffName = genStaffName;
+  // one staff (v0.10.43, §89 D8): the seats are the building's, the road
+  // manager is the group's — state.staffRoster and the legacy coach are
+  // gone; the vocal seat IS the coach, and the poach is one scene (hires.js)
+  KP.managerOf = function (state, g) { return (g && g.manager) || null; };
 
   // ---- exec taste (hash-truth, never stored) -----------------------------
   // the succession era (v0.9.32): a new chair brings new taste — the
@@ -42,36 +37,17 @@
 
   // ---- the weekly building (order 788) -----------------------------------
   KP.registerWeekly('building', 788, function (state, rng, inbox, roster, groups) {
-    const st = KP.staffOf(state);
     const B = KP.C.BUILDING;
 
-    // every debuted group gets a road manager the week it needs one
+    // every debuted group gets a road manager the week it needs one —
+    // on the group (v0.10.43); the poach is hires.js's one scene
     groups.forEach(g => {
-      if (!g.debuted || st.managers[g.id]) return;
-      st.managers[g.id] = { name: genStaffName(state.seed + '|mgr|' + g.id + '|' + (g.managerGen || 0)),
-        since: state.week };
+      if (!g.debuted || g.manager) return;
+      g.manager = { name: genStaffName(state.seed + '|mgr|' + g.id + '|' + (g.managerGen || 0)), since: state.week };
       inbox.push({ kind: 'company', priority: 'normal', groupId: g.id,
-        text: st.managers[g.id].name + ' takes over as ' + g.name + '’s road manager this week. Within two days ' +
+        text: g.manager.name + ' takes over as ' + g.name + '’s road manager this week. Within two days ' +
           'the van seating chart, the coffee orders, and one member’s secret convenience-store route are all committed to memory. The good ones are like that.' });
     });
-
-    // the poach: rivals hire people too — a beloved manager is an asset
-    if (!(state.scenes || []).some(sc => sc.kind === 'staffPoach') &&
-        state.week > (state.poachQuietUntil || 0)) {
-      const target = groups.find(g => g.debuted && st.managers[g.id] &&
-        (g.popularity || 0) >= B.poachPopMin &&
-        state.week - st.managers[g.id].since >= B.poachTenureMin);
-      if (target && rng.chance(B.poachChance)) {
-        state.poachQuietUntil = state.week + B.poachCooldown;
-        const rival = state.rivals[Math.floor(KP.hash01([state.seed, 'poacher', state.week].join('|')) * state.rivals.length)];
-        KP.openScene(state, { kind: 'staffPoach', groupId: target.id,
-          rivalName: rival ? rival.name : 'a rival house',
-          expiresWeek: state.week + 2 });
-        inbox.push({ kind: 'company', priority: 'high', groupId: target.id,
-          text: st.managers[target.id].name + ' got an offer from ' + (rival ? rival.name : 'a rival house') +
-            ' — better title, better hours, someone else’s vans. The counter-offer window is on the Desk, and the members have already noticed the long phone calls.' });
-      }
-    }
 
     // exec taste (v0.8.4): this week's release lands differently
     // depending on whether it is HER kind of record
@@ -114,62 +90,7 @@
     }
   });
 
-  // ---- the poach scene ----------------------------------------------------
-  KP.registerScene('staffPoach', {
-    title: (state, sc) => {
-      const g = KP.groupById(state, sc.groupId);
-      const m = g && KP.managerOf(state, g);
-      return (m ? m.name : 'The manager') + ' · the counter-offer';
-    },
-    body: (state, sc) => {
-      const g = KP.groupById(state, sc.groupId);
-      const m = g && KP.managerOf(state, g);
-      if (!g || !m) return '';
-      return sc.rivalName + ' wants ' + m.name + ' — the person who knows ' + g.name +
-        '’s van seating, coffee orders, and bad days better than the members’ own families do. Money keeps ' +
-        (m.name.split(' ')[0]) + '; nothing else will.';
-    },
-    options: (state) => [
-      state.budget >= KP.C.BUILDING.counterCost
-        ? { id: 'counter', label: 'Counter-offer · ' + KP.C.BUILDING.counterCost } : null,
-      { id: 'release', label: 'Wish them well' },
-    ].filter(Boolean),
-    resolve: (state, sc, optionId) => {
-      const g = KP.groupById(state, sc.groupId);
-      const st = KP.staffOf(state);
-      const m = g && st.managers[g.id];
-      if (!g || !m) return {};
-      if (optionId === 'counter') {
-        // the money gets found — even if the books complain about it
-        state.budget -= KP.C.BUILDING.counterCost;
-        m.countered = state.week;
-        return { toast: m.name + ' stays — better pay, same vans, and one very relieved group chat. The members threw a small dorm party with a hand-drawn banner. The banner misspells “congratulations.” It is already framed.' };
-      }
-      delete st.managers[g.id];
-      g.managerGen = (g.managerGen || 0) + 1;
-      g.members.forEach(id => {
-        const p = state.people[id];
-        if (p) p.morale = KP.clamp(p.morale - KP.C.BUILDING.poachMorale, 0, 100);
-      });
-      return { toast: m.name + ' left on good terms, which somehow made the last van ride quieter. A new manager starts next week. The seating chart starts from zero.',
-        note: { kind: 'company', groupId: g.id,
-          text: g.name + ' said goodbye to ' + m.name + ' this week. The maknae cried at the send-off dinner, then everyone did, including — briefly, professionally — ' + m.name + '.' } };
-    },
-    expire: (state, sc) => {
-      const g = KP.groupById(state, sc.groupId);
-      const st = KP.staffOf(state);
-      const m = g && st.managers[g.id];
-      if (!g || !m) return null;
-      delete st.managers[g.id];
-      g.managerGen = (g.managerGen || 0) + 1;
-      g.members.forEach(id => {
-        const p = state.people[id];
-        if (p) p.morale = KP.clamp(p.morale - KP.C.BUILDING.poachMorale, 0, 100);
-      });
-      return { kind: 'company', priority: 'high', groupId: g.id,
-        text: 'The counter-offer window closed unanswered, and ' + m.name + ' signed elsewhere. The members found out from the group chat. The silence in the van this week has a new-staff-orientation quality to it.' };
-    },
-  });
+  // the poach scene is hires.js's seatPoach, for seats and managers alike (v0.10.43)
 
   // ---- board season --------------------------------------------------------
   KP.registerScene('boardSeason', {

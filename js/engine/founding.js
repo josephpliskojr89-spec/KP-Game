@@ -191,7 +191,7 @@
       deadlineWeek: state.week + F.deadlineWeeks,
       status: 'open',
     };
-    state.staffRoster = null;
+    (state.groups || []).forEach(g => { delete g.manager; });   // the managers re-mint under the new house (v0.10.43)
     state.managerGen = (state.managerGen || 0) + 1;
     state.nextMeetingWeek = state.week + 8;
     delete state.knockLedger;   // the one door opens fresh for the new house (v0.10.30)

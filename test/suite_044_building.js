@@ -115,44 +115,45 @@ function debuted(seed) {
   const m = KP.managerOf(state, g);
   t.ok(m && m.name && m.since >= g.debutWeek, 'the road manager takes over after the debut');
   t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => /road manager/.test(n.text)), 'and the desk introduces them');
-  const coach = KP.staffOf(state).coach;
-  t.ok(coach && coach.name, 'the head vocal coach has always had a name (' + coach.name + ')');
+  const coach = KP.staffSeats(state).vocal;   // the legacy coach IS the vocal seat (v0.10.43, §89 D8)
+  t.ok(coach && coach.name, 'the head vocal coach has always had a name — the vocal chair (' + (coach && coach.name) + ')');
+  t.ok(KP.staffOf === undefined, 'and the staff roster is gone: one staff');
 }
 
 // ---- the poach: counter or goodbye ----
 {
   const { state, g } = debuted('bldg-poach');
   g.popularity = 60;
-  KP.staffOf(state).managers[g.id].since = state.week - 30;
-  const B = KP.C.BUILDING;
+  g.manager.since = state.week - 30;   // on the group (v0.10.43)
+  const B = KP.C.HIRES.MANAGER;
   const oldChance = B.poachChance; B.poachChance = 1;   // mechanism test
   let sc = null, guard = 0;
   while (!sc && guard++ < 10) {
     KP.advanceWeek(state);
-    sc = (state.scenes || []).find(x => x.kind === 'staffPoach');
+    sc = (state.scenes || []).find(x => x.kind === 'seatPoach' && x.groupId === g.id);   // one poach scene (v0.10.43)
   }
   B.poachChance = oldChance;
-  t.ok(sc, 'a good manager on a hot group draws an offer');
+  t.ok(sc, 'a good manager on a hot group draws an offer — through the one poach scene');
   const before = state.budget;
   const name = KP.managerOf(state, g).name;
-  const r = KP.resolveScene(state, sc.id, 'counter');
+  const r = KP.resolveScene(state, sc.id, 'raise');
   t.ok(r.ok && /banner misspells/.test(r.toast), 'the counter keeps her, at a price');
-  t.eq(before - state.budget, KP.C.BUILDING.counterCost, 'the price is real');
+  t.eq(before - state.budget, KP.C.HIRES.raiseCost, 'the price is real — the same raise every chair costs');
   t.eq(KP.managerOf(state, g).name, name, 'and she stays');
 
   // the goodbye path
   const { state: s2, g: g2 } = debuted('bldg-poach2');
   g2.popularity = 60;
-  KP.staffOf(s2).managers[g2.id].since = s2.week - 30;
+  g2.manager.since = s2.week - 30;
   B.poachChance = 1;
   let sc2 = null; guard = 0;
   while (!sc2 && guard++ < 10) {
     KP.advanceWeek(s2);
-    sc2 = (s2.scenes || []).find(x => x.kind === 'staffPoach');
+    sc2 = (s2.scenes || []).find(x => x.kind === 'seatPoach' && x.groupId === g2.id);
   }
   B.poachChance = oldChance;
   const oldName = KP.managerOf(s2, g2).name;
-  KP.resolveScene(s2, sc2.id, 'release');
+  KP.resolveScene(s2, sc2.id, 'walk');
   t.ok(!KP.managerOf(s2, g2), 'wishing them well means they go');
   KP.advanceWeek(s2);
   const newMgr = KP.managerOf(s2, g2);

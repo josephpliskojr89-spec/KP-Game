@@ -326,7 +326,7 @@
     // migration: worlds born before the schools get them on the next tick
     if (!state.schools) {
       KP.generateSchools(state, rng);
-      inbox.push({ kind: 'industry', text: 'Scout Im filed a memo nobody asked for and everybody needed: a directory of the regional training schools — ' +
+      inbox.push({ kind: 'industry', text: KP.scoutName(state) + ' filed a memo nobody asked for and everybody needed: a directory of the regional training schools — ' +
         state.schools.map(s => s.name + ' (' + s.city + ')').join(', ') + '. The talent was never only in Seoul.' });
     }
 
@@ -436,7 +436,7 @@
           schoolLedgerOf(state).graduated = (schoolLedgerOf(state).graduated || 0) + 1;
           if (s.visitedWeek) {
             inbox.push({ kind: 'scouting', priority: 'flavor',
-              text: 'A face aged out of ' + s.name + '’s class this season — one of the students Scout Im never got a read on. Somewhere in ' + s.city + ' a family is having the conversation about college. The board will never know what it missed, which is the point of visiting more often.' });
+              text: 'A face aged out of ' + s.name + '’s class this season — one of the students ' + KP.scoutName(state) + ' never got a read on. Somewhere in ' + s.city + ' a family is having the conversation about college. The board will never know what it missed, which is the point of visiting more often.' });
           }
           return;
         }
@@ -463,7 +463,7 @@
             schoolLedgerOf(state).fogPoached = (schoolLedgerOf(state).fogPoached || 0) + 1;
             if (s.visitedWeek) {
               inbox.push({ kind: 'scouting', ind: 'fogPoach', priority: 'high',
-                text: top.short + ' signed a trainee contract out of ' + s.name + ' this week — a student Scout Im never got in front of. Their scouts knew the name before we knew the face. That is what a scouting department the size of a building buys.' });
+                text: top.short + ' signed a trainee contract out of ' + s.name + ' this week — a student ' + KP.scoutName(state) + ' never got in front of. Their scouts knew the name before we knew the face. That is what a scouting department the size of a building buys.' });
             }
           }
         }
@@ -527,7 +527,7 @@
     // one trip per week (0.9.16.1, owner: "my scout shouldn't be able to
     // hit every school in one week") — Scout Im is one person on one train
     if ((state.schools || []).some(s2 => s2.visitedWeek === state.week)) {
-      return { ok: false, reason: 'Scout Im is already on a train this week. The regions are not going anywhere.' };
+      return { ok: false, reason: KP.scoutName(state) + ' is already on a train this week. The regions are not going anywhere.' };
     }
     const rng = KP.rngFor(state);
     state.budget -= tripCost;
@@ -565,8 +565,8 @@
     state.rngState = rng.state();
     const note = { kind: 'scouting', ind: 'schoolTrip',
       text: (local
-        ? 'Scout Im walked to ' + s.name + ' — the home-town academy, ten minutes up the road, no train ticket. A day watching the ' + LANE_LABELS[s.lane] + ' classes from the back row. '
-        : 'Scout Im took the ' + s.city + ' train: a day at ' + s.name + ' watching the ' + LANE_LABELS[s.lane] + ' classes from the back row. ') +
+        ? KP.scoutName(state) + ' walked to ' + s.name + ' — the home-town academy, ten minutes up the road, no train ticket. A day watching the ' + LANE_LABELS[s.lane] + ' classes from the back row. '
+        : KP.scoutName(state) + ' took the ' + s.city + ' train: a day at ' + s.name + ' watching the ' + LANE_LABELS[s.lane] + ' classes from the back row. ') +
         (sharpened ? 'Sharper reads on ' + sharpened + ' file' + (sharpened === 1 ? '' : 's') + ' already on our board. ' : '') +
         (met.length
           ? 'New name' + (met.length === 1 ? '' : 's') + ' worth the notebook: ' + met.join('; ') + '.' +

@@ -158,7 +158,7 @@ function planFirst(s, promo) {
   }
   KP.C.BOOK.camBase = CB;
   t.ok(viral, 'somebody always has a phone out');
-  t.ok(s.inbox.some(n => n.ind === 'gigViral'), 'and the clip is the story');
+  t.ok(s.inbox.some(n => n.ind === 'bookingViral'), 'and the clip is the story');
   t.ok((g.prep === null) || (g.prep.viralLift || 0) > 0 || g.debuted,
     'a mid-campaign clip lifts the era ceiling');
 }

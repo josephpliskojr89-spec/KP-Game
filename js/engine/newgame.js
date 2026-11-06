@@ -375,8 +375,8 @@
     const open = [
       { kind: 'executive', urgent: true, text: state.executive.name + ' — ' + opener.intro + ' ' + opener.exec },
       { kind: 'scouting', text: count
-        ? 'Scout Im left the prospect board on your desk with a sticky note: “The good ones never wait. Neither do Novaline and Aurum.”'
-        : 'Scout Im left an EMPTY board on your desk, with a sticky note: “The talent is all out there. Applications, referrals, the washouts, the street, an open call when we can afford one — we choose who we uncover. That is the whole job.”' },
+        ? KP.scoutName(state) + ' left the prospect board on your desk with a sticky note: “The good ones never wait. Neither do Novaline and Aurum.”'
+        : KP.scoutName(state) + ' left an EMPTY board on your desk, with a sticky note: “The talent is all out there. Applications, referrals, the washouts, the street, an open call when we can afford one — we choose who we uncover. That is the whole job.”' },
       { kind: 'company', text: opener.welcome },
     ];
     open.forEach(n => { n.week = 1; n.read = false; n.id = 'm' + (state.nextMsgId++); });

@@ -583,7 +583,7 @@
         }
       });
       state.prospects = state.prospects.filter(id => state.people[id] && state.people[id].status === 'prospect');
-      notes.push({ kind: 'scouting', text: 'Scout Im thinned the board: ' + stale.length +
+      notes.push({ kind: 'scouting', text: KP.scoutName(state) + ' thinned the board: ' + stale.length +
         ' long-listed lead' + (stale.length === 1 ? '' : 's') + ' aged past the market and signed elsewhere, or went back to school, or both. The board is for the ones still reachable.' });
     }
     // fresh leads arrive through the NETWORK now (v0.9.35, §75):

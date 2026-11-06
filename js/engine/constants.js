@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.42',
+    VERSION: '0.10.43',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1276,7 +1276,21 @@
           popMin: 58, pay: 40, travel: 12, fatigue: 6, blurb: 'the year’s biggest open-air bill — headlining it is a line in a career summary' },
         { id: 'firstFrost', name: 'First Frost Fest', woy: 49, tier: 1,
           popMin: 25, pay: 12, travel: 3, fatigue: 3, blurb: 'the winter campus circuit, breath clouds and hot packs taped inside coats' },
+        // the overseas conventions (v0.10.9's circuit; FESTS rows since
+        // v0.10.43, §89 D9): region-keyed, warmth-gated, the tongue applied
+        // on resolve — one weekend a year per far market, the old bills
+        { id: 'conHarbour', name: 'the Harbour Lights Showcase', woy: 14, tier: 1, region: 'cn',
+          popMin: 30, warmthMin: 12, pay: 10, travel: 14, fatigue: 6, warmth: 6, blurb: 'a harbour-side convention hall and a crowd that found them through a screen' },
+        { id: 'conBangkok', name: 'K-Fest Bangkok', woy: 21, tier: 1, region: 'sea',
+          popMin: 30, warmthMin: 12, pay: 10, travel: 15, fatigue: 6, warmth: 6, blurb: 'a humid convention weekend, three thousand fans and a fanchant in two languages' },
+        { id: 'conDallas', name: 'K-Wave Con Dallas', woy: 27, tier: 1, region: 'na',
+          popMin: 30, warmthMin: 12, pay: 10, travel: 20, fatigue: 6, warmth: 6, blurb: 'a convention-center ballroom, a long flight, and people who drove six hours' },
+        { id: 'conCDMX', name: 'Ola Coreana CDMX', woy: 33, tier: 1, region: 'latam',
+          popMin: 30, warmthMin: 12, pay: 10, travel: 22, fatigue: 6, warmth: 6, blurb: 'a city that sings every line back at double volume, altitude included' },
+        { id: 'conBerlin', name: 'Hallyu Expo Berlin', woy: 41, tier: 1, region: 'eu',
+          popMin: 30, warmthMin: 12, pay: 10, travel: 20, fatigue: 6, warmth: 6, blurb: 'an expo hall, a continent of fans on one train network, the interview booth right by the stage' },
       ],
+      maxAbroadPerYear: 2,     // the far markets, two weekends a year at most
     },
     AWARD_NIGHT: {
       speakerMorale: 6,        // the mic is a gift to whoever holds it
@@ -1675,14 +1689,8 @@
     // tongue-gated stage — and its gains feed the next tour's routing
     // through region warmth, the one truth the map already keeps.
     CIRCUIT: {
-      inviteChance: 0.045,      // per week, one invite at a time
-      minWarmth: 12,            // the region has to have heard of them
-      minPop: 30,               // conventions book acts with a pulse
-      travelBase: 12,           // the bill, plus distance
-      travelFar: { na: 8, latam: 10, eu: 8, cn: 2, sea: 3 },
-      warmthGain: 6,            // a stage that lands
-      fatigue: 6,
-      fee: 10,                  // conventions pay, modestly
+      // the overseas conventions moved onto the festival calendar — the
+      // region-keyed FESTS rows (v0.10.43, §89 D9); only the version lane stays
       EN: { cost: 18, cooldown: 16, minRec: 55,   // the English-version lane
         warmth: 7, rev: 0.35 },                    // x last reception
     },
@@ -1772,6 +1780,10 @@
       repRiseAt: 68, repRiseChance: 0.30,   // hits polish the seats' names
       poachTierMin: 2, poachChance: 0.010, poachCooldown: 30,
       raiseCost: 25,
+      // the road manager (v0.8.4; on the group since v0.10.43, §89 D8): one
+      // staff — the seats are the building's, the manager is the group's,
+      // and one poach scene covers every chair (the raise is the same 25)
+      MANAGER: { poachPopMin: 45, poachTenureMin: 20, poachChance: 0.04, poachMorale: 3 },
       // the help wanted (v0.10.11): act on the market instead of
       // waiting for it — and fire into the fog, severance attached
       searchCost: 12, searchCooldown: 8,
@@ -2343,6 +2355,9 @@
       flyerBoost: 1.35, flyerFatigue: 4,  // papering the neighborhood is work
       TOWNS: ['Suwon', 'Jeonju', 'Changwon', 'Cheongju', 'Pohang', 'Bucheon',
         'Anyang', 'Gimhae', 'Jeju City', 'Chuncheon', 'Mokpo', 'Gumi'],
+      // university festival, local radio, the bookstore fan-sign, the radio
+      // tour and the festival opener slot left the pile (v0.10.43, §89 D9):
+      // the named festivals and the campaign pushes already cover them
       KINDS: {
         schoolShow:  { rung: 0, label: 'school assembly',       fee: [1, 2],  fans: [140, 300],  pop: 0.10, fatigue: 3, liveExp: 1.2, morale: 1,  viralMult: 1.3 },
         wedding:     { rung: 0, label: 'wedding stage',         fee: [2, 3],  fans: [80, 200],   pop: 0.05, fatigue: 3, liveExp: 0.8, morale: -1, viralMult: 1.5 },
@@ -2350,16 +2365,11 @@
         sportsDay:   { rung: 0, label: 'halftime stage',        fee: [1, 2],  fans: [160, 380],  pop: 0.10, fatigue: 3, liveExp: 1.0, morale: 0,  viralMult: 1.2 },
         townFair:    { rung: 0, label: 'regional fair',         fee: [1, 2],  fans: [180, 400],  pop: 0.12, fatigue: 4, liveExp: 1.2, morale: 0,  viralMult: 1.0 },
         theaterNight:{ rung: 0, label: 'small-theater night',   fee: [-2, -2], fans: [240, 520], pop: 0.16, fatigue: 4, liveExp: 1.8, morale: 1,  viralMult: 1.2, flyerable: true },
-        uniFestival: { rung: 1, label: 'university festival',   fee: [3, 5],  fans: [500, 1100], pop: 0.30, fatigue: 5, liveExp: 2.0, morale: 2,  viralMult: 1.6, seasonWoy: [[18, 23], [36, 41]] },
-        localRadio:  { rung: 1, label: 'local radio guesting',  fee: [1, 2],  fans: [260, 520],  pop: 0.12, fatigue: 2, liveExp: 0.4, morale: 0,  viralMult: 0.6 },
         clubNight:   { rung: 1, label: 'club-circuit night',    fee: [2, 4],  fans: [340, 700],  pop: 0.16, fatigue: 5, liveExp: 2.2, morale: 0,  viralMult: 1.2, flyerable: true },
         busking:     { rung: 1, label: 'busking permit',        fee: [0, 0],  fans: [300, 900],  pop: 0.10, fatigue: 4, liveExp: 1.6, morale: 1,  viralMult: 2.0 },
-        fanSignSmall:{ rung: 1, label: 'bookstore fan-sign',    fee: [1, 2],  fans: [280, 560],  pop: 0.08, fatigue: 3, liveExp: 0.2, morale: 2,  viralMult: 0.8, fandom: 1 },
         cableSpot:   { rung: 1, label: 'cable variety spot',    fee: [2, 4],  fans: [420, 900],  pop: 0.14, fatigue: 4, liveExp: 0.3, morale: 0,  viralMult: 0.9, mediaExp: 2 },
         showcase:    { rung: 2, label: 'showcase hall',         fee: [4, 7],  fans: [700, 1500], pop: 0.35, fatigue: 5, liveExp: 2.5, morale: 2,  viralMult: 1.4 },
         brandStage:  { rung: 2, label: 'brand stage',           fee: [5, 8],  fans: [600, 1200], pop: 0.25, fatigue: 4, liveExp: 1.0, morale: 0,  viralMult: 1.0 },
-        radioTour:   { rung: 2, label: 'radio tour week',       fee: [2, 4],  fans: [500, 1000], pop: 0.20, fatigue: 4, liveExp: 0.5, morale: 0,  viralMult: 0.6, mediaExp: 3 },
-        openerSlot:  { rung: 2, label: 'festival opener slot',  fee: [3, 6],  fans: [800, 1600], pop: 0.30, fatigue: 5, liveExp: 2.2, morale: 1,  viralMult: 1.5 },
       },
     },
     // the portfolio (v0.9.26, §69) — "a major company might only debut
@@ -2839,12 +2849,7 @@
     },
     // ---- The building (v0.8.4) — staff, taste, board season -------------
     BUILDING: {
-      poachPopMin: 45,           // rivals hire from winners
-      poachTenureMin: 20,        // a manager worth poaching has history
-      poachChance: 0.04,         // weekly, when a target exists
-      poachCooldown: 30,         // rare enough to hurt
-      counterCost: 25,           // keeping her costs real money
-      poachMorale: 3,            // losing her costs the members
+      // the manager's poach moved to HIRES.MANAGER (v0.10.43, §89 D8)
       boardWeek: 46,             // the year answers for itself
       petAfterWeek: 60,          // the pet project waits for a real company
       petChance: 0.06,           // weekly, once eligible — once per career

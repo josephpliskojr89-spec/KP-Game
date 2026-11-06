@@ -326,7 +326,7 @@
   KP.evaluate = function (state, person) {
     const uncertain = person.status === 'prospect' && !(person.observations > 0);
     const domains = KP.C.TALENTS.map(domain => {
-      const ev = laneEvaluator(domain);
+      const ev = KP.seatEvaluator ? KP.seatEvaluator(state, laneEvaluator(domain)) : laneEvaluator(domain);   // the byline is the chair's (v0.10.43)
       const val = KP.reportRead(state, person, domain);
       const band = bandKey(val);
       const line = KP.fillPro(composeLine(LINES[domain][band],

@@ -1353,15 +1353,7 @@ for (let s = 0; s < SEEDS; s++) {
         }
         return;
       }
-      if (sc.kind === 'circuitInvite') {
-        // the world circuit (v0.10.9): take the weekend when flush and
-        // the room is rested — that is what the far markets cost
-        const g2 = KP.groupById(state, sc.groupId);
-        const avgF2 = g2 ? g2.members.reduce((s2, id) => s2 + (state.people[id] ? state.people[id].fatigue : 0), 0) /
-          (g2.members.length || 1) : 100;
-        KP.resolveScene(state, sc.id, state.budget > 80 && avgF2 < 60 ? 'accept' : 'decline');
-        return;
-      }
+      // the far markets (v0.10.43): the conventions are festival invites now — handled above
       if (sc.kind === 'theInterview') {
         // the staff (v0.10.6): a flush boss takes the bet — the fog
         // means the bot cannot cherry-pick, which is the point
@@ -1985,8 +1977,9 @@ for (let s = 0; s < SEEDS; s++) {
   if ((mdl.flares || 0) >= 1) tally.flareFelt++;
   // the world circuit (v0.10.9): the ledger is durable
   const cir = state.circuitLedger || {};
-  if ((cir.played || 0) >= 1) tally.circuitPlayed++;
-  if ((cir.tongueFlops || 0) >= 1) tally.circuitFlopped++;
+  const flA = state.festivalLedger || {};   // the far markets live on the festival ledger (v0.10.43)
+  if ((flA.abroadPlayed || 0) >= 1) tally.circuitPlayed++;
+  if ((flA.tongueFlops || 0) >= 1) tally.circuitFlopped++;
   if ((cir.enCuts || 0) >= 1) tally.enVersioned++;
   // the Japan cycle (v0.10.8): the ledger is durable
   const jpl = state.jpLedger || {};

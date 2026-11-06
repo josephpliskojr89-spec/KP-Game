@@ -1078,6 +1078,41 @@
     });
   } });
 
+  // the one market, part 2 (v0.10.43, §89 D8/D9): the road managers move
+  // onto their groups, the legacy coach is the vocal seat, the manager's
+  // poach is the seat poach; the overseas conventions are festival rows
+  // (open invites expire — the rows have dates now); the pile's festival,
+  // radio and fan-sign kinds are gone
+  MIGRATIONS.push({ v: '0.10.43', fn: function (state) {
+    const roster = state.staffRoster || {};
+    (state.groups || []).forEach(g => {
+      const m = roster.managers && roster.managers[g.id];
+      if (m && !g.manager) g.manager = { name: m.name, since: m.since, countered: m.countered };
+    });
+    delete state.staffRoster;
+    if (state.poachQuietUntil) {
+      state.seatPoachQuiet = Math.max(state.seatPoachQuiet || 0, state.poachQuietUntil);
+      delete state.poachQuietUntil;
+    }
+    (state.scenes || []).forEach(sc => { if (sc.kind === 'staffPoach') sc.kind = 'seatPoach'; });
+    const cl = state.circuitLedger;
+    if (cl && (cl.invites != null || cl.played != null)) {
+      const fl = state.festivalLedger = state.festivalLedger ||
+        { invites: 0, booked: 0, declined: 0, played: 0, headlines: 0, missed: 0 };
+      fl.invites = (fl.invites || 0) + (cl.invites || 0);
+      fl.declined = (fl.declined || 0) + (cl.declined || 0);
+      fl.abroadPlayed = (fl.abroadPlayed || 0) + (cl.played || 0);
+      fl.tongueFlops = (fl.tongueFlops || 0) + (cl.tongueFlops || 0);
+      state.circuitLedger = { enCuts: cl.enCuts || 0 };
+    }
+    state.scenes = (state.scenes || []).filter(sc => sc.kind !== 'circuitInvite');
+    const MAP = { uniFestival: 'showcase', openerSlot: 'showcase', localRadio: 'cableSpot', radioTour: 'cableSpot', fanSignSmall: 'mallOpening' };
+    state.bookings = (state.bookings || []).filter(o => !(MAP[o.kindId] && !o.taken));
+    state.bookings.forEach(o => {
+      if (MAP[o.kindId]) { o.kindId = MAP[o.kindId]; o.rung = KP.C.BOOK.KINDS[o.kindId].rung; }
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

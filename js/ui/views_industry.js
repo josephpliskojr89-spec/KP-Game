@@ -311,7 +311,7 @@
       if (lost.length) {
         html.push('<div class="note">' + UI.esc(lost.map(m => KP.displayName(m)).join(' and ')) +
           (lost.length === 1 ? ' was' : ' were') + ' on our scouting board once. ' + UI.esc(r.short) +
-          ' moved faster. Worth remembering how that felt.<span class="n-who">— Scout Im, in passing</span></div>');
+          ' moved faster. Worth remembering how that felt.<span class="n-who">— ' + UI.esc(KP.scoutName(state)) + ', in passing</span></div>');
       }
     }
 

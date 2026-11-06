@@ -508,7 +508,7 @@
         '<span class="n-who">— overall recommendation' + (evl.uncertain ? ', pending a real look' : '') + '</span></div>');
       if (evl.instinct) {
         html.push('<div class="note urgent">“' + UI.esc(evl.instinct) + '”' +
-          '<span class="n-who">— Scout Im, off the record</span></div>');
+          '<span class="n-who">— ' + UI.esc(KP.scoutName(state)) + ', off the record</span></div>');
       }
       if (isTrainee) {
         const notes = derivedNotes(p).concat(KP.stageRecordLines ? KP.stageRecordLines(state, p) : []);   // the stage (v0.10.37)

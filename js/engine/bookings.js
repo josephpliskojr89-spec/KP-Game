@@ -43,16 +43,11 @@
       case 'sportsDay': return 'a ' + town + ' league halftime stage';
       case 'townFair': return 'the ' + town + (autumn ? ' harvest fair' : spring ? ' blossom fair' : ' town fair');
       case 'theaterNight': return 'a 300-seat theater night in ' + town;
-      case 'uniFestival': return town + ' University festival stage';
-      case 'localRadio': return town + ' FM drive-time guesting';
       case 'clubNight': return 'a ' + town + ' club-circuit night';
       case 'busking': return 'a busking permit — ' + town + ' riverside';
-      case 'fanSignSmall': return 'a bookstore fan-sign in ' + town;
       case 'cableSpot': return 'a late-slot cable variety spot';
       case 'showcase': return 'a Seoul showcase hall';
       case 'brandStage': return 'a brand launch stage in Seoul';
-      case 'radioTour': return 'a national radio tour week';
-      case 'openerSlot': return 'a festival opener slot in ' + town;
       default: return town + ' stage';
     }
   }
@@ -190,7 +185,7 @@
     // most gigs are a line in the feed at best; the notable ones write
     // the file
     if (rng.chance(0.45)) {
-      inbox.push({ kind: 'debut', ind: 'gigPlayed', priority: 'flavor', groupId: g.id,
+      inbox.push({ kind: 'debut', ind: 'bookingPlayed', priority: 'flavor', groupId: g.id,   // the pile's own name (v0.10.43, §89 D9)
         text: g.name + ' played ' + o.label + '. ' + gigLine(rng, o, q) });
     }
     if (led.played === 1) {
@@ -215,7 +210,7 @@
         const narNote = KP.recordViral(state, face,
           { kind: 'gigcam', label: 'the phone-shot ' + o.label + ' clip' });
         if (narNote) inbox.push(narNote);
-        inbox.push({ kind: 'public', ind: 'gigViral', priority: 'high',
+        inbox.push({ kind: 'public', ind: 'bookingViral', priority: 'high',
           personId: face.id, groupId: g.id,
           text: 'Somebody filmed ' + KP.displayName(face) + ' at ' + o.label +
             ' on a phone, posted it with a shaky caption, and woke up famous-adjacent: the clip is doing numbers no booking fee could buy. ' +
@@ -344,23 +339,16 @@
   });
 
   // ---- the timeline reacts ---------------------------------------------
-  KP.onFeedEvent('gigPlayed', (state, n, rng) => rng.pick([
+  KP.onFeedEvent('bookingPlayed', (state, n, rng) => rng.pick([
     { persona: 'fan', text: 'the fancafe found the small-stage schedule and treats every gym and fair like a world tour date. attendance: 40. energy: sold-out dome' },
     { persona: 'casual', text: 'saw an actual idol group perform at a local event today?? between a trot singer and a raffle?? they were good. this industry is enormous and mostly invisible' },
     { persona: 'stan', text: 'small-venue era is the best era. front row costs nothing, the members can SEE you, and in three years this footage will be a documentary cold open' },
   ]));
-  KP.onFeedEvent('gigViral', (state, n, rng) => rng.pick([
+  KP.onFeedEvent('bookingViral', (state, n, rng) => rng.pick([
     { persona: 'casual', text: 'a shaky phone clip from some regional stage has 40 quote posts on my feed asking WHO IS SHE. the algorithm has spoken and it chose a wedding singer' },
     { persona: 'fan', text: 'the clip everyone is sharing was filmed VERTICALLY at a MALL and it still goes harder than most stage cams. talent does not care about production values' },
     { persona: 'stan', text: 'phone-cam clip blowing up and the fandom-of-12 is holding the door like bouncers. we knew first. the receipts are timestamped' },
     { persona: 'press', text: 'This week’s viral stage was shot on a phone at a venue that seats 300. The broadcast circuit keeps forgetting it does not own the cameras anymore.' },
   ]));
-  KP.onFeedEvent('gigBooked', (state, n, rng) => rng.chance(0.4) ? rng.pick([
-    { persona: 'fan', text: 'new small-stage date posted. printing the bus schedule. this is what devotion looks like before the arenas: logistics' },
-    { persona: 'casual', text: 'a label hand-flyering a theater show in the year of our streaming age is either desperation or romance and honestly it might be both' },
-  ]) : null);
-  KP.onFeedEvent('campaignPush', (state, n, rng) => rng.chance(0.35) ? rng.pick([
-    { persona: 'fan', text: 'the street team was OUT today. flyers, stickers, a sign-up sheet on a clipboard. analog fandom recruitment. it works because it is embarrassing to refuse' },
-    { persona: 'casual', text: 'got handed a debut flyer at the station by someone who clearly practiced the pitch. respect the hustle, kept the flyer' },
-  ]) : null);
+  // the gigBooked / campaignPush reactions answered notes §89 C deleted — gone with them (v0.10.43)
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -225,7 +225,6 @@
   function seats(state) {
     if (!state.seats) {
       state.seats = {};
-      const legacy = KP.staffOf(state);
       const mk = (seatId, name) => {
         const sid = 'sf0_' + seatId;
         state.seats[seatId] = { id: sid, name, seatId, tier: 'working',
@@ -234,7 +233,7 @@
           candor: Math.round(h(state, sid, 'pc') * 100),
           resume: ['here since the beginning — the résumé is this company'] };
       };
-      mk('vocal', (legacy.coach && legacy.coach.name) || 'Coach Baek');
+      mk('vocal', KP.staffName ? KP.staffName(state.seed + '|coach') : 'Coach Baek');   // the legacy coach IS the vocal seat (v0.10.43)
       mk('dance', 'Coach ' + FAM[Math.floor(h(state, 'seed-dance', 'f') * FAM.length)]);
       mk('perf', 'Director Cha');
       mk('scout', 'Scout Im');
@@ -243,6 +242,20 @@
     return state.seats;
   }
   KP.staffSeats = seats;
+  // one staff (v0.10.43, §89 D8): every name the building speaks comes
+  // from a chair — the scout's stories, the referral's voucher, the
+  // evaluators' bylines. An empty chair speaks as the desk.
+  KP.seatHolderName = function (state, seatId, fallback) {
+    const st = seats(state)[seatId];
+    return st ? st.name : (fallback || 'the ' + ((KP.C.HIRES.SEATS.find(x => x.id === seatId) || {}).label || seatId) + ' desk');
+  };
+  KP.scoutName = function (state) { return KP.seatHolderName(state, 'scout', 'the scouting desk'); };
+  const EVAL_SEAT = { ev_vocal: 'vocal', ev_perf: 'perf', ev_scout: 'scout' };
+  KP.seatEvaluator = function (state, ev) {
+    const seatId = ev && EVAL_SEAT[ev.id];
+    if (!seatId) return ev;
+    return Object.assign({}, ev, { name: seatId === 'scout' ? KP.scoutName(state) : KP.seatHolderName(state, seatId) });
+  };
 
   // ---- the interview: personality only, zero skill signal --------------
   KP.registerScene('theInterview', {
@@ -311,12 +324,38 @@
   });
 
   // ---- the poach: your results made them famous -------------------------
+  // the road manager's goodbye (the old staffPoach's release path)
+  function managerWalks(state, g, sc) {
+    const MG = KP.C.HIRES.MANAGER;
+    const m = g.manager;
+    delete g.manager;
+    g.managerGen = (g.managerGen || 0) + 1;
+    g.members.forEach(id => {
+      const p = state.people[id];
+      if (p) p.morale = KP.clamp(p.morale - MG.poachMorale, 0, 100);
+    });
+    ledger(state).walked++;
+    return m;
+  }
   KP.registerScene('seatPoach', {
     title: (state, sc) => {
+      if (sc.groupId) {   // the road manager (v0.10.43): one scene for every chair
+        const g = KP.groupById(state, sc.groupId);
+        const m = g && g.manager;
+        return (m ? m.name : 'The road manager') + ' · the counter-offer';
+      }
       const st = (state.seats || {})[sc.seatId];
       return (st ? st.name : 'The chair') + ' · the offer from outside';
     },
     body: (state, sc) => {
+      if (sc.groupId) {
+        const g = KP.groupById(state, sc.groupId);
+        const m = g && g.manager;
+        if (!g || !m) return '';
+        return sc.rivalName + ' wants ' + m.name + ' — the person who knows ' + g.name +
+          '’s van seating, coffee orders, and bad days better than the members’ own families do. Money keeps ' +
+          (m.name.split(' ')[0]) + ' (' + KP.C.HIRES.raiseCost + '); nothing else will.';
+      }
       const st = (state.seats || {})[sc.seatId];
       const seat = KP.C.HIRES.SEATS.find(x => x.id === sc.seatId);
       return (st ? st.name : 'Your ' + seat.label) + ' got the call — ' + sc.rivalName +
@@ -330,6 +369,22 @@
     ],
     resolve: (state, sc, optionId) => {
       const led = ledger(state);
+      if (sc.groupId) {
+        const g = KP.groupById(state, sc.groupId);
+        const m = g && g.manager;
+        if (!g || !m) return { toast: 'The van had already found a new driver.' };
+        if (optionId === 'raise' && state.budget >= KP.C.HIRES.raiseCost) {
+          state.budget -= KP.C.HIRES.raiseCost;
+          if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -KP.C.HIRES.raiseCost);
+          m.countered = state.week;
+          led.raises++;
+          return { toast: m.name + ' stays — better pay, same vans, and one very relieved group chat. The members threw a small dorm party with a hand-drawn banner. The banner misspells “congratulations.” It is already framed.' };
+        }
+        managerWalks(state, g, sc);
+        return { toast: m.name + ' left on good terms, which somehow made the last van ride quieter. A new manager starts next week. The seating chart starts from zero.',
+          note: { kind: 'company', groupId: g.id,
+            text: g.name + ' said goodbye to ' + m.name + ' this week. The maknae cried at the send-off dinner, then everyone did, including — briefly, professionally — ' + m.name + '.' } };
+      }
       const st = (state.seats || {})[sc.seatId];
       if (!st) return { toast: 'The chair had already emptied.' };
       if (optionId === 'raise' && state.budget >= KP.C.HIRES.raiseCost) {
@@ -346,6 +401,13 @@
     },
     expire: (state, sc) => {
       // an unanswered offer answers itself
+      if (sc.groupId) {
+        const g = KP.groupById(state, sc.groupId);
+        if (!g || !g.manager) return null;
+        const m = managerWalks(state, g, sc);
+        return { kind: 'company', priority: 'high', groupId: g.id,
+          text: 'The counter-offer window closed unanswered, and ' + m.name + ' signed elsewhere. The members found out from the group chat. The silence in the van this week has a new-staff-orientation quality to it.' };
+      }
       const st = (state.seats || {})[sc.seatId];
       if (st) { ledger(state).walked++; delete state.seats[sc.seatId]; }
       return null;
@@ -430,17 +492,32 @@
         // call that follows is the event
       });
     });
-    // the poach call
+    // the poach call: one scene for every chair in the building — the
+    // seats the industry read the credits of, and the road managers the
+    // members cannot imagine the van without (v0.10.43, §89 D8)
     if (!(state.scenes || []).some(sc => sc.kind === 'seatPoach') &&
         state.week > (state.seatPoachQuiet || 0)) {
-      const target = Object.keys(S).find(seatId => S[seatId] &&
+      const MG = HR.MANAGER;
+      const seatTarget = Object.keys(S).find(seatId => S[seatId] &&
         KP.C.HIRES.REP_TIERS.indexOf(S[seatId].tier) >= HR.poachTierMin);
-      if (target && rng.chance(HR.poachChance)) {
+      const mgrTarget = KP.groups(state).find(g => g.debuted && !g.retiredWeek && g.manager &&
+        (g.popularity || 0) >= MG.poachPopMin && state.week - g.manager.since >= MG.poachTenureMin);
+      const rivalOf = () => (state.rivals || [])[rng.int(0, Math.max(0, (state.rivals || []).length - 1))];
+      if (seatTarget && rng.chance(HR.poachChance)) {
         state.seatPoachQuiet = state.week + HR.poachCooldown;
         led.poachCalls++;
-        const rival = (state.rivals || [])[rng.int(0, Math.max(0, (state.rivals || []).length - 1))];
-        KP.openScene(state, { kind: 'seatPoach', seatId: target,
+        const rival = rivalOf();
+        KP.openScene(state, { kind: 'seatPoach', seatId: seatTarget,
           rivalName: rival ? rival.name : 'a rival house', expiresWeek: state.week + 2 });
+      } else if (mgrTarget && rng.chance(MG.poachChance)) {
+        state.seatPoachQuiet = state.week + HR.poachCooldown;
+        led.poachCalls++;
+        const rival = rivalOf();
+        const rivalName = rival ? rival.name : 'a rival house';
+        KP.openScene(state, { kind: 'seatPoach', groupId: mgrTarget.id, rivalName, expiresWeek: state.week + 2 });
+        inbox.push({ kind: 'company', priority: 'high', groupId: mgrTarget.id,
+          text: mgrTarget.manager.name + ' got an offer from ' + rivalName +
+            ' — better title, better hours, someone else’s vans. The counter-offer window is on the Desk, and the members have already noticed the long phone calls.' });
       }
     }
   });

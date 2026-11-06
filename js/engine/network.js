@@ -124,7 +124,7 @@
         const p = mint(state, rng, { channel: 'referral', source: 'Referral',
           observations: N.REF.observations });
         led.refs++;
-        const coach = (KP.staffOf(state).coach || {}).name || 'the vocal coach';
+        const coach = KP.seatHolderName(state, 'vocal', 'the vocal coach');   // the vocal seat IS the coach (v0.10.43)
         const idols = state.roster.map(id => state.people[id]).filter(x => x && x.status === 'idol');
         const voucher = idols.length && rng.chance(0.5) ? KP.displayName(rng.pick(idols)) : coach;
         inbox.push({ kind: 'scouting', ind: 'referral', priority: 'flavor', personId: p.id,
@@ -208,16 +208,29 @@
   // back-fill it — hash-picked, so history is retroactively what it
   // always was. The has* checks match ANY pool entry, because a
   // deepened pool reshuffles the pick for a given hash.
+  // the scout in the story is whoever holds the chair (v0.10.43, §89 D8)
   KP.streetStoryOf = function (state, p) {
     return KP.fillPro(STREET_STORIES[
-      Math.floor(KP.hash01([state.seed, p.id, 'streetStory'].join('|')) * STREET_STORIES.length)], p);
+      Math.floor(KP.hash01([state.seed, p.id, 'streetStory'].join('|')) * STREET_STORIES.length)]
+      .replace(/Scout Im/g, KP.scoutName(state)), p);
   };
   KP.callStoryOf = function (state, p) {
     return KP.fillPro(CALL_STORIES[
       Math.floor(KP.hash01([state.seed, p.id, 'callStory'].join('|')) * CALL_STORIES.length)], p);
   };
   function hasStoryFrom(pool, p) {
-    return (p.history || []).some(h => pool.some(t => KP.fillPro(t, p) === h.text));
+    // the scout's name is the chair's, so compare with the name blanked
+    const blank = t => t.replace(/Scout Im/g, '§');
+    const blankTexts = pool.map(t => blank(KP.fillPro(t, p)));
+    return (p.history || []).some(h => {
+      const text = h.text || '';
+      return blankTexts.some(b => {
+        const parts = b.split('§');
+        if (parts.length === 1) return b === text;
+        if (!text.startsWith(parts[0]) || !text.endsWith(parts[parts.length - 1])) return false;
+        return parts.every(part => text.includes(part));
+      });
+    });
   }
   KP.hasStreetStory = function (state, p) { return hasStoryFrom(STREET_STORIES, p); };
   KP.hasCallStory = function (state, p) { return hasStoryFrom(CALL_STORIES, p); };

@@ -6343,7 +6343,7 @@ deposit that compounds? Current lean: deposits that compound into
 the doors that already exist (renewals, walkouts, storms) — the
 game already knows how to make small things become big.
 
-## §89 The pruning (PHASES 1–3 SHIPPED v0.10.29–30, 41; PHASE 4 IN TWO PARTS, 42– — what to quiet, delete, and merge)
+## §89 The pruning (ALL FOUR PHASES SHIPPED v0.10.29–30, 41, 42–43 — what to quiet, delete, and merge)
 
 Owner: "Let's start with pruning. A full audit of anything that is
 redundant or just not used much. And make notes of what could be
@@ -6582,7 +6582,7 @@ scenes/claims.
   (D6–D10, D12). Save-shape changes; medium risk each.
   → D7 (the market lane) shipped inside §90 Phases A and C (v0.10.31
   and v0.10.33). PART 1 — D6, D10, D12 — SHIPPED v0.10.42 (as built
-  below). PART 2 — D8, D9 — is v0.10.43.
+  below). PART 2 — D8, D9 — SHIPPED v0.10.43 (as built below).
 - PHASE 5 — THE RELEASE READ (v0.11.x): the modifier registry + one
   expectation bar (D11), with a rebalance pass. Only after the line
   sheet is designed, since it will be the biggest new reader.
@@ -6879,6 +6879,69 @@ second job ended early 37. Save 523 KB average, widest 581.
 
 Battery 108/108, soak 40 clean, longhaul 10x620, e2e 122, lockstep
 0.10.42.
+
+**As built — Phase 4, part 2, v0.10.43 "the one market".** Owner:
+"Start tackling the queue." D8 and D9, the last two merges on the
+list; the pruning's four phases are done. Suite_109 (35 checks);
+migration 0.10.43; the stream moved again (suite repairs: 044 speaks
+the group's manager and the one poach vocabulary, 078 the pile's ind,
+089 rewritten for the festival calendar).
+
+*D8, ONE STAFF.* The road manager lives on the group (`g.manager
+{name, since, countered}`; `KP.managerOf` reads it) — the weekly
+mints one per debuted group as before, by the same hash. The legacy
+coach IS the vocal seat: `state.staffRoster` and `KP.staffOf` are
+gone, the vocal chair is seeded from the coach's old hash
+(`KP.staffName`, the same name the roster carried), and the referral
+credits whoever holds that chair. One poach scene: `seatPoach` takes
+a `seatId` OR a `groupId`; the hires weekly rolls the seats first
+(the industry reads the credits) and the managers second (the
+members cannot imagine the van without her), on one cooldown
+(`seatPoachQuiet`), one vocabulary (raise | walk), one price
+(`HIRES.raiseCost`); the manager's constants moved to
+`HIRES.MANAGER`, BUILDING keeps the board season and the pet
+project. Every name the building speaks comes from a chair:
+`KP.seatHolderName(state, seatId)` and `KP.scoutName(state)` — the
+street stories, the schools' memos and train rides, the thinned
+board, the opening sticky note, the Industry and dossier bylines all
+say whoever holds the scout chair ("the scouting desk" when nobody
+does); the evaluators' bylines on the reports follow the vocal, perf
+and scout chairs (`KP.seatEvaluator` — the eyes stay the evaluator's,
+the signature is the chair's). The data entry 'Scout Im' is the
+founding scout's name, not a law.
+
+*D9, THE STAGE SURFACES.* The overseas conventions are festival rows:
+FESTS.LIST gained one region-keyed row per far market (the Harbour
+Lights Showcase, K-Fest Bangkok, K-Wave Con Dallas, Ola Coreana
+CDMX, Hallyu Expo Berlin — the circuit's old names, dates on the
+year now, the circuit's old bills: travel 14–22 against a 10 fee,
+warmth 6, fatigue 6), gated by the region's warmth (`warmthMin` 12)
+and the act's pulse, capped at `maxAbroadPerYear` 2 beside the home
+cap, invited through the ONE invitation scene (the body reads the
+tongue out loud beside the schedule), played on the festival week
+through the one ledger (`abroadPlayed`, `tongueFlops`): the stage
+rated light, the warmth priced by `tongueFactor`, the interview clip
+the story (ind `festival` with `abroad` and `voice`; the timeline
+answers both). `circuitInvite` and its weekly are gone; circuit.js
+keeps only the English-version lane and its count. The pile lost
+its festival, radio and fan-sign kinds (uniFestival, openerSlot,
+localRadio, radioTour, fanSignSmall — the named festivals and the
+campaign pushes already covered them); its inds carry its own name
+(`bookingPlayed`, `bookingViral`); the two reactions that answered
+notes §89 C deleted are gone. The festival fee and the travel bill
+land on the stage-fee line now (they fell into operations before).
+One latent bug fixed on the way: an invitation that expires this
+week no longer blocks the next one (the expiry pass runs later in
+the tick than the festival weekly).
+
+*Measured, 40 orgs.* A far-market convention 40 (30 before — the annual
+rows call every warm region), the interpreter's clip 40, the festival
+organizers 40, a named road manager 40; the pile's bands stayed where
+they were (0 of 40 — the soak orgs outgrow the pile by year two, as
+before). Save 538 KB average, widest 584.
+
+Battery 109/109, soak 40 clean, longhaul 10x620, e2e 122,
+lockstep 0.10.43.
 
 
 ## §90 The trainee ecosystem (PHASES A–C SHIPPED v0.10.31–33 — one world of people)
@@ -11559,6 +11622,21 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > the books, the scenes and the clocks. Suite_108 (59). Battery
 > 108/108, soak 40 clean, longhaul 10x620, e2e 122, lockstep
 > 0.10.42. Rode to main.
+
+> **0.10.43 — the one market, part 2.** §89 Phase 4 D8 + D9 — the
+> pruning's four phases are done. One staff: the road manager lives
+> on the group, the legacy coach is the vocal seat, one poach scene
+> (seats first, managers second, one cooldown, one vocabulary, one
+> price), every name the building speaks comes from a chair — the
+> scout's stories and memos, the evaluators' bylines. The stage
+> surfaces: the overseas conventions are region-keyed festival rows
+> through the one invitation scene and the one ledger, the tongue
+> read out loud beside the schedule; the pile lost its festival,
+> radio and fan-sign kinds and speaks its own name; the festival fee
+> and travel land on the stage-fee line. Migration 0.10.43. Measured: a far-market convention 40/40 (was 30),
+> the interpreter 40, a named road manager 40.
+> Suite_109 (35). Battery 109/109, soak 40 clean, longhaul 10x620,
+> e2e 122, lockstep 0.10.43. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
