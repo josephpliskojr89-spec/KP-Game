@@ -31,11 +31,34 @@
   }
   KP.hiresLedger = ledger;
 
+  // ---- the second chair (v0.10.39, §91 B2): a second studio chair opens
+  // only when the first has records to show — a building earns depth
+  KP.chairOpenable = function (state, seatId) {
+    const HR = KP.C.HIRES;
+    const seat = HR.SEATS.find(x => x.id === seatId);
+    if (!seat) return false;
+    if (!seat.second) return true;
+    const first = (state.seats || {})[seat.second];
+    return !!(first && (first.works || []).length >= HR.secondChairAfter);
+  };
+  KP.chairOpenReason = function (state, seatId) {
+    const HR = KP.C.HIRES;
+    const seat = HR.SEATS.find(x => x.id === seatId);
+    if (!seat || !seat.second) return null;
+    const firstDef = HR.SEATS.find(x => x.id === seat.second);
+    const first = (state.seats || {})[seat.second];
+    return !first
+      ? 'A second chair opens when the first ' + firstDef.label + ' has records to show. The first chair is empty.'
+      : 'A second chair opens when ' + first.name + ' has ' + HR.secondChairAfter + ' records for this house — ' +
+        ((first.works || []).length || 'none') + ' so far.';
+  };
+
   // ---- the help wanted (v0.10.11): act on the market ---------------------
   KP.openSearch = function (state, seatId) {
     const HR = KP.C.HIRES;
     const seat = HR.SEATS.find(x => x.id === seatId);
     if (!seat) return { ok: false, reason: 'No such chair in this building.' };
+    if (!KP.chairOpenable(state, seatId)) return { ok: false, reason: KP.chairOpenReason(state, seatId) };
     if (state.staffSearch) return { ok: false, reason: 'One search at a time — the industry reads a company posting two as a company on fire.' };
     if ((state.scenes || []).some(sc => sc.kind === 'theInterview')) {
       return { ok: false, reason: 'A candidate is already in the building. Finish that meeting first.' };
@@ -134,7 +157,7 @@
     const seatDef = HR.SEATS.find(x => x.id === seatId);
     if (seatDef && seatDef.studio) {
       cand.knownForTag = null;
-      if (seatId === 'producer') {
+      if ((seatDef.second || seatId) === 'producer') {   // the second chair (v0.10.39) is the same family
         const lanes = KP.C.CONCEPTS.filter(c => c.id !== 'fusion');
         cand.lane = lanes[Math.floor(h(state, sid, 'lane') * lanes.length)].id;
         cand.lane2 = null;
@@ -346,9 +369,10 @@
         seat = HR.SEATS.find(x => x.id === state.staffSearch.seatId) || null;
         delete state.staffSearch;
       } else {
-        const open = HR.SEATS.filter(x => !S[x.id]);
+        // a second studio chair is not open until the first proves out (v0.10.39)
+        const open = HR.SEATS.filter(x => !S[x.id] && KP.chairOpenable(state, x.id));
         const pool = open.length && rng.chance(0.7) ? open
-          : HR.SEATS.filter(x => !S[x.id] || state.week - (S[x.id].since || 0) > 30);
+          : HR.SEATS.filter(x => (!S[x.id] && KP.chairOpenable(state, x.id)) || (S[x.id] && state.week - (S[x.id].since || 0) > 30));
         if (pool.length) seat = pool[rng.int(0, pool.length - 1)];
       }
       if (seat) {

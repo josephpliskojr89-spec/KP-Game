@@ -109,7 +109,7 @@
     // at-a-glance line — the cards and the verbs live on the tab
     if (KP.staffSeats) {
       const S = KP.staffSeats(state);
-      const open = KP.C.HIRES.SEATS.filter(seat => !S[seat.id]);
+      const open = KP.C.HIRES.SEATS.filter(seat => !S[seat.id] && (!KP.chairOpenable || KP.chairOpenable(state, seat.id)));
       html.push('<div class="kicker">The building</div>');
       html.push('<div class="card" data-action="desk-sub" data-sub="building" style="cursor:pointer">' +
         '<div style="font-size:.78rem">' +
@@ -322,6 +322,8 @@
     marketing: 'decides what a campaign push actually buys',
     producer: 'writes the company’s own records — no fee, nobody else’s ghost, and their lane is their lane',
     writer: 'writes the company’s own lyrics — the themes they own, free, for every room in the building',
+    producer2: 'writes the company’s records from a second lane — the house stops being one sound',
+    writer2: 'writes the company’s lyrics from a second set of themes — more rooms get a lyric that fits',
   };
   // ---- the content desk (v0.10.18): the company account ----------------
   // The law of the menu: only what is actually happening can be filmed —
@@ -397,7 +399,7 @@
     const searchBusy = !!state.staffSearch ||
       (state.scenes || []).some(sc => sc.kind === 'theInterview');
     html.push('<div class="pad" style="font-size:.74rem;color:var(--ink-dim);margin-top:4px">' +
-      'Eight chairs. The file on each shows who they are, where they were, and what the industry says — never what they are worth. That part costs a year, and it never prints.</div>');
+      'Ten chairs — the second studio chairs open when the first prove out. The file on each shows who they are, where they were, and what the industry says — never what they are worth. That part costs a year, and it never prints.</div>');
     if (state.staffSearch) {
       const seat = HR.SEATS.find(x => x.id === state.staffSearch.seatId);
       html.push('<div class="card" style="border-color:var(--gold)"><div style="font-size:.78rem;color:var(--gold)">A posting is up for the ' +
@@ -409,6 +411,15 @@
     HR.SEATS.forEach(seat => {
       const st = S[seat.id];
       const cooled = state.week - ((state.seatSearchCooldowns || {})[seat.id] || -999) >= HR.searchCooldown;
+      if (!st && KP.chairOpenable && !KP.chairOpenable(state, seat.id)) {
+        // the second chair (v0.10.39): not open yet — the first has to prove out
+        html.push('<div class="card" style="opacity:.75">' +
+          '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">' +
+          '<span style="font-weight:800">' + UI.esc(seat.label) + '</span>' +
+          '<span class="chip">not yet</span></div>' +
+          '<div style="font-size:.76rem;color:var(--ink-dim);margin-top:5px">' + UI.esc(KP.chairOpenReason(state, seat.id)) + '</div></div>');
+        return;
+      }
       if (!st) {
         html.push('<div class="card">' +
           '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">' +

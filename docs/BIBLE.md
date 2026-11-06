@@ -6503,6 +6503,10 @@ scenes/claims.
 - PHASE 5 — THE RELEASE READ (v0.11.x): the modifier registry + one
   expectation bar (D11), with a rebalance pass. Only after the line
   sheet is designed, since it will be the biggest new reader.
+  → SHIPPED as §91 Phase 1 (v0.10.34, the two verdicts): the
+  registry, one expectation bar for debut and comeback. D13 (the
+  line card) shipped as §91 Phase 3 (the sheet). Phases 3 and 4
+  remain the queue (v0.10.39 ledger).
 
 **As built — Phase 1, v0.10.29 "the quiet".** Owner: "go ahead with
 phase 1." Shipped as one release: the inbox law (B), the delete list
@@ -8012,6 +8016,53 @@ budget median 3155 (the offers bill their swaps). Longhaul saves
 
 Battery 105/105, soak 40 clean, longhaul 10x620, e2e 114,
 lockstep 0.10.38.
+
+**As built — the second chair, v0.10.39.** Owner: "Start tackling
+the queue." The queue's smallest item first: §91 B2 said `producer`
+×2 and `writer` ×2 and Phase 2 shipped one of each "— the second
+chair when the first proves out." HIRES.SEATS gains `producer2`
+and `writer2` (studio chairs with `second: 'producer' | 'writer'`;
+ten chairs in the building). THE LAW: a second chair is not open
+until the first has HIRES.secondChairAfter (2) records for this
+house — `KP.chairOpenable` / `KP.chairOpenReason` ("A second chair
+opens when Baek Ki-tae has 2 records for this house — 1 so far.");
+the market never knocks about it, the posting is refused with the
+reason, the building card shows it as "not yet" with the reason
+instead of a help-wanted button, and Today's open-chairs line skips
+it. The interview reads the family (lanes for either producer
+chair, themes for either writer chair; the second chair's truth is
+its own craft like the first's). studio.js seats the family:
+`KP.houseProducers` / `KP.houseWriters` (ids `seat:<seatId>`), the
+first chair's old doors (`houseProducer` / `houseWriter`) kept;
+`producerOf` and `writerById` resolve any `seat:` id; the
+commission card and the bot list both chairs beside the market;
+either producer chair's record counts as a house record.
+
+*The bug the second chair found.* credits.js stamped a release on
+its producer through `producerById`, which only knew the market
+pool — a HOUSE producer's works never landed, so its heat read
+"unproven" forever, the building card never counted its records,
+and (now) the second chair could never have opened. The release
+ledger resolves through `producerOf`; suite-pinned (the first
+chair's receipt lands; its heat reads the record). The writer chair
+was never affected (`writerById` already knew the house).
+
+*The bands.* secondChair [0–1.0] (measure-first; the bot hires a
+studio chair whenever it is invited and flush, so the band reads
+how often a first chair proves out inside 140 weeks). No migration.
+Measured, 40 orgs: the first soak read 0/40 — the bot picked
+producers fit-first, so its free, bonded house chair sat idle and
+never earned its two records; with the bot using the house chair
+whenever the brief is at least next door (a player would), first
+producer chairs with two records 5/40, first writer chairs 2/40,
+a second producer seated 6/40, a second writer 2/40 (house records
+28 of 251 commissions — the chair's lane is the hire's luck, which
+the bot does not choose); commissioned 39/40, the darling 27/40,
+end budget median 3303. A late-game depth feature by construction;
+the band's floor stays 0 until a soak says otherwise.
+
+Battery 106/106, soak 40 clean, longhaul 10x620, e2e 114,
+lockstep 0.10.39.
 
 ## §18 Watch items
 
@@ -11251,7 +11302,20 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > an invitation taken 40/40, extended 12/40, a comeback stage 40/40;
 > the debut-class note lands 'high', the warehouse floor .30 → .20
 > with its history. Suite_105 (59). Battery 105/105, soak 40 clean,
-> longhaul 10x620, e2e 113, lockstep 0.10.38. Rode to main.
+> longhaul 10x620, e2e 114, lockstep 0.10.38. Rode to main.
+
+> **0.10.39 — the second chair.** Owner: "Start tackling the queue."
+> §91 B2's second house producer and writer: chairs that open only
+> when the first has two records for this house (the market never
+> knocks, the posting is refused with the reason, the building card
+> says "not yet"), the same family at the interview, both chairs on
+> the commission card and in the bot's picks, either chair's record
+> a house record. The bug it found: a house producer's works never
+> landed (credits.js resolved the pool only) — fixed, pinned. The
+> queue after this: §88 D+E, §89 Phases 3–4, §86. Measured: a
+> second chair seated 6/40 once the bot used its house chair (0/40
+> before); house records 28 of 251 commissions. Suite_106 (25). Battery 106/106, soak 40 clean,
+> longhaul 10x620, e2e 114, lockstep 0.10.39. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

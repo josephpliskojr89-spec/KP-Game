@@ -644,8 +644,8 @@
     const lane = cd.lane ? KP.conceptById(cd.lane) : null;
     const theme = cd.theme ? KP.themeById(cd.theme) : null;
     const members = g.members.map(id => state.people[id]).filter(Boolean);
-    const producers = [KP.houseProducer(state)].filter(Boolean).concat(KP.producersOf(state));
-    const writers = [KP.houseWriter(state)].filter(Boolean).concat(KP.writersOf(state))
+    const producers = KP.houseProducers(state).concat(KP.producersOf(state));   // both house chairs (v0.10.39)
+    const writers = KP.houseWriters(state).concat(KP.writersOf(state))
       .concat(members.filter(KP.canWrite).map(p => KP.penWriter(state, p)));
     const read = cd.lane && cd.theme && cd.producerId && cd.writerId
       ? KP.commissionRead(state, g.id, { lane: cd.lane, theme: cd.theme, producerId: cd.producerId, writerId: cd.writerId }) : null;

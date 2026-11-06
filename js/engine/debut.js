@@ -724,7 +724,7 @@
     const lyric = writer && theme ? writer.craft * ((writer.themes || []).includes(theme.id) ? ST.themeFit.home : ST.themeFit.far) : 0;
     const roomMiss = theme && KP.themeRoomMiss ? KP.themeRoomMiss(state, members, theme) : null;
     if (roomMiss) KP.studioLedger(state).roomMiss++;
-    if (demo.producerId === 'seat:producer') KP.studioLedger(state).houseRecords++;
+    if (String(demo.producerId || '').indexOf('seat:producer') === 0) KP.studioLedger(state).houseRecords++;   // either house chair (v0.10.39)
     // craft: the record
     L.add('craft', 'the hook', demo.hook * V.craftHook);
     L.add('craft', 'the lyric', lyric * V.craftLyric);

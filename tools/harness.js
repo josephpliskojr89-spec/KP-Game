@@ -377,6 +377,8 @@ const BANDS = {
   offerTaken:        { lo: 0.30, hi: 1.00, label: 'orgs that took a promo invitation (a swap on the plan)' },
   eraExtended:       { lo: 0.10, hi: 0.90, label: 'orgs that extended an era on a climbing record' },
   comebackStaged:    { lo: 0.90, hi: 1.00, label: 'orgs whose era opened on a named comeback stage' },
+  // the second chair (v0.10.39) — measure-first: the first chair must prove out first
+  secondChair:       { lo: 0.00, hi: 1.00, label: 'orgs that seated a second studio chair' },
   // the song market (v0.10.5): ruled first soak — 40/40, 39/40, 39/40.
   // Hot hooks sit past windows constantly over long orgs (the bot
   // deliberates like everyone else); camps fire whenever a cold sheet
@@ -687,7 +689,7 @@ const tally = {
   soloEraRun: 0, soloCutOut: 0, frictionFlows: 0, frictionTeeth: 0,
   stationRun: 0, slipDecided: 0, clipCaught: 0, sheetSet: 0, lineWarSeen: 0,
   stageCarried: 0, stageFumbled: 0, chemistryStaged: 0,
-  offerTaken: 0, eraExtended: 0, comebackStaged: 0,
+  offerTaken: 0, eraExtended: 0, comebackStaged: 0, secondChair: 0,
   medCase: 0, medChronic: 0, flareFelt: 0,
   demoLost: 0, campHeld: 0, bondWorking: 0,
   interviewHeld: 0, seatHired: 0, seatCalled: 0, staffVoice: 0, meshFelt: 0,
@@ -965,13 +967,18 @@ for (let s = 0; s < SEEDS; s++) {
       const pickFrom = themes.length ? themes : themesAll;
       const theme = pickFrom.length ? pickFrom[Math.floor(KP.hash01([seed, g.id, 'botTheme', (g.releases || []).length].join('|')) * pickFrom.length)].id : 'longing';
       const heatRank = { 'in demand': 4, reliable: 3, workmanlike: 2, unproven: 1, 'cold streak': 0 };
-      const prs = [KP.houseProducer(state)].filter(Boolean).concat(KP.producersOf(state))
+      // the second chair (v0.10.39): a player uses the free, bonded house
+      // chair whenever it is at least next door to the brief — fit first
+      // among the rest, then heat
+      const houseFirst = pr => (pr.house && KP.laneFitMult(KP.producerLanes(pr), lane) >= KP.C.STUDIO.fit.neighbour) ? 1 : 0;
+      const prs = KP.houseProducers(state).concat(KP.producersOf(state))
         .filter(pr => KP.producerAccess(state, g, pr).ok)
-        .sort((a, b) => (KP.laneFitMult(KP.producerLanes(b), lane) - KP.laneFitMult(KP.producerLanes(a), lane)) ||
+        .sort((a, b) => (houseFirst(b) - houseFirst(a)) ||
+          (KP.laneFitMult(KP.producerLanes(b), lane) - KP.laneFitMult(KP.producerLanes(a), lane)) ||
           ((heatRank[KP.producerHeat(b)] || 0) - (heatRank[KP.producerHeat(a)] || 0)));
       const pr = prs[0];
       if (!pr) return;
-      const ws = [KP.houseWriter(state)].filter(Boolean).concat(KP.writersOf(state));
+      const ws = KP.houseWriters(state).concat(KP.writersOf(state));
       const w = ws.find(x => x.themes.includes(theme)) || ws[0];
       const fee = KP.producerFee(pr) + KP.writerFee(w);
       if (state.budget < fee + 600) return;
@@ -1931,6 +1938,7 @@ for (let s = 0; s < SEEDS; s++) {
   if ((prl.taken || 0) >= 1) tally.offerTaken++;
   if ((prl.extended || 0) >= 1) tally.eraExtended++;
   if ((prl.comebackStages || 0) >= 1) tally.comebackStaged++;
+  if ((state.seats || {}).producer2 || (state.seats || {}).writer2) tally.secondChair++;   // the second chair (v0.10.39)
   if ((ppl.lineWars || 0) >= 1) tally.lineWarSeen++;
   const mdl = state.medLedger || {};
   if ((mdl.cases || 0) >= 1) tally.medCase++;

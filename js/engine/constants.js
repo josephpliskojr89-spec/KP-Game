@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.38',
+    VERSION: '0.10.39',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1744,7 +1744,11 @@
         // the studio (v0.10.35): two chairs whose truth is a craft, not a multiplier
         { id: 'producer', label: 'house producer', studio: true },
         { id: 'writer', label: 'house writer', studio: true },
+        // the second chair (v0.10.39, §91 B2): opens when the first proves out
+        { id: 'producer2', label: 'second house producer', studio: true, second: 'producer' },
+        { id: 'writer2', label: 'second house writer', studio: true, second: 'writer' },
       ],
+      secondChairAfter: 2,       // records the first chair has to show before the second opens
       REP_TIERS: ['unknown', 'working', 'known', 'a name'],
       hireCost: { 'unknown': 8, 'working': 18, 'known': 40, 'a name': 80 },
       // the hidden range — never printed anywhere

@@ -130,25 +130,35 @@
     const apt = KP.staffTruth(state, st).apt;
     return KP.clamp(Math.round(S.houseCraftBase + apt * S.houseCraftSpan), 10, 95);
   }
-  KP.houseProducer = function (state) {
-    const st = (state.seats || {}).producer;
+  // the second chair (v0.10.39, §91 B2): the house seats a family of two
+  // producer chairs and two writer chairs; the ids read 'seat:<seatId>'
+  function houseProducerAt(state, seatId) {
+    const st = (state.seats || {})[seatId];
     if (!st) return null;
     const S = ST();
-    return { id: 'seat:producer', name: st.name, lane: st.lane || 'bright', lane2: st.lane2 || null,
+    return { id: 'seat:' + seatId, seatId, name: st.name, lane: st.lane || 'bright', lane2: st.lane2 || null,
       craft: houseCraft(state, st),
       catch: Math.round(S.catchSpread[0] + h(state, st.id + ':catch') * (S.catchSpread[1] - S.catchSpread[0])),
       works: st.works || (st.works = []), house: true };
-  };
-  KP.houseWriter = function (state) {
-    const st = (state.seats || {}).writer;
+  }
+  function houseWriterAt(state, seatId) {
+    const st = (state.seats || {})[seatId];
     if (!st) return null;
-    return { id: 'seat:writer', name: st.name, themes: st.themes || ['longing'], craft: houseCraft(state, st),
+    return { id: 'seat:' + seatId, seatId, name: st.name, themes: st.themes || ['longing'], craft: houseCraft(state, st),
       works: st.works || (st.works = []), house: true };
+  }
+  KP.houseProducers = function (state) {
+    return ['producer', 'producer2'].map(id => houseProducerAt(state, id)).filter(Boolean);
   };
+  KP.houseWriters = function (state) {
+    return ['writer', 'writer2'].map(id => houseWriterAt(state, id)).filter(Boolean);
+  };
+  KP.houseProducer = function (state) { return houseProducerAt(state, 'producer'); };
+  KP.houseWriter = function (state) { return houseWriterAt(state, 'writer'); };
   // one resolver for every writer id: the pool, the house, the pen
   KP.writerById = function (state, id) {
     if (!id) return null;
-    if (id === 'seat:writer') return KP.houseWriter(state);
+    if (String(id).indexOf('seat:') === 0) return houseWriterAt(state, String(id).slice(5));
     const w = KP.writersOf(state).find(x => x.id === id);
     if (w) return w;
     const p = state.people && state.people[id];
@@ -157,7 +167,7 @@
   // one resolver for every producer id: the pool, the house
   KP.producerOf = function (state, id) {
     if (!id) return null;
-    if (id === 'seat:producer') return KP.houseProducer(state);
+    if (String(id).indexOf('seat:') === 0) return houseProducerAt(state, String(id).slice(5));
     return KP.producerById(state, id);
   };
   // the pitch's writer: a pool writer with a theme natural to the lane

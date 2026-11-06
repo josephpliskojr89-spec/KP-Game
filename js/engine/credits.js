@@ -104,7 +104,9 @@
       // track record; enough records together become a signature sound
       if (g.lastReleaseWeek === state.week && (g.releases || []).length) {
         const rel = g.releases[g.releases.length - 1];
-        const pr = rel.producerId && KP.producerById(state, rel.producerId);
+        // the house chairs keep their receipts too (v0.10.39: producerById
+        // only knew the pool — a house producer's works never landed)
+        const pr = rel.producerId && (KP.producerOf ? KP.producerOf(state, rel.producerId) : KP.producerById(state, rel.producerId));
         if (pr) {
           pr.works.push({ week: state.week, title: rel.songTitle, reception: rel.reception,
             craft: rel.craft != null ? rel.craft : rel.reception, groupId: g.id });
