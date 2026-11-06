@@ -61,6 +61,7 @@ const S = () => KP.C.TIME;
 // ---- succession: the record transfers, the devotion does not ----------
 {
   const state = KP.newGame('tt-succ', null, { legacy: true });
+  state.budget = 9000;   // the red weeks (v0.11.0): a hundred untended weeks would dissolve the house first
   for (let w = 0; w < 100; w++) KP.advanceWeek(state);
   const oldName = state.executive.name;
   const oldTaste = KP.execTaste(state);

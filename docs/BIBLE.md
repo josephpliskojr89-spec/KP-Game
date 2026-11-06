@@ -5823,7 +5823,7 @@ total, offers capped ~770. What the audit confirmed already held:
 the pass bar, paid-promo pricing, brand-deal caps, the booking
 pile, chodong sublinearity.
 
-## §86 The last statement (PLANNED — insolvency & the second chances)
+## §86 The last statement (SHIPPED v0.11.0 — insolvency & the second chances)
 
 Owner (ruling, after the hostile audit flagged that no fail state
 exists): "insolvency should mean game over, at least for that
@@ -5919,6 +5919,55 @@ to die in the neglect scenario — a longhaul where haul-neglect
 dissolves is the proof the teeth are real; bands then guard that
 standard play survives.
 
+**Ruled before build (v0.11.0).** Owner: "write it up and I'll trust
+your judgement on when to implement." The five questions answered
+the way the rest of the game answers them — one number everyone can
+learn, the same world, the teeth real:
+
+(1) THE CLOCK. A red week is a week the label is BEHIND on what it
+owes: the month-end invoice (payroll, the practice rooms, the
+commute) and the fund's toll are not forgiven when the account
+cannot cover them any more — the shortfall is ARREARS, and every won
+that arrives afterwards pays the arrears first. While arrears stand
+the week is red; a quarter the clawback cannot be paid in full is
+red too. Twelve red weeks to dissolution, at every door. A clean
+week cools the counter by one (decay, not reset — a label lurching
+in and out of default is still dying). Difficulty does not scale the
+clock; it scales the obligations (a fresh label's buffers are thin,
+which is already the law). The ladder is legible the whole way: the
+accountant's memo at the first red week, the staff meeting nobody
+called at four (every roster file takes an UNPAID entry on the
+directed ledger; morale erodes weekly from here), the creditors'
+letters at eight (the ledger entry again; the staff take the calls
+— the poach roll triples and the tier gate drops), the FINAL NOTICE
+at ten with the date on it. Measure-first: the soak guards that
+standard play never dissolves; the number moves only with a history
+comment.
+
+(2) THE WORLD. The second chances run in the SAME save. The dead
+label becomes world memory: its people scatter through the exits
+that exist, its shelf goes to the distributor and keeps charting
+against you, the funds' ledger (financing.burned, the kept
+covenants) survives the company. A fresh seed would throw away the
+one thing the ending is for.
+
+(3) SCOPE. The employed-CEO doors (the exec, the board) run the same
+ladder — the company dies regardless of whose name is on the
+building; the exec is the creditor who signs the final notice.
+Being FIRED by board patience is a separate mechanic for a later
+slot, not v0.11.0.
+
+(4) THE ONE WHO STAYED. Out for v1. The protégé's door delivers the
+feeling it was for — a specific person with a specific bond history
+brings you in — without a second, expensive-to-balance carry-over.
+
+(5) BOT POLICY. The harness bot is ALLOWED to die: the longhaul gains
+a haul-insolvent scenario (a neglected fresh label) that is expected
+to dissolve — the proof the teeth are real — and the standard soak
+guards the other side: a red-week census band measure-first,
+dissolved 0/40 in standard play. A band that never lets the company
+die would be the old fail-state-free game wearing a counter.
+
 Implementation notes: red counter lives beside the books (one
 truth: the clamps REPORT what they swallowed, the counter reads
 the report); dissolution is a scene (options[0] = read the last
@@ -5927,6 +5976,118 @@ world state rather than a fresh seed; epilogue text generated from
 the ledger, not adjectives. Harness: red-week census band; longhaul
 gains a haul-insolvent scenario. Candidate slot: v0.11.0 — it is a
 chapter mechanic, not a patch.
+
+**As built (v0.11.0).** Everything above shipped, under the rulings
+stated before the build. The module is estate.js.
+
+The red weeks. One truth beside the books: the clamps REPORT what
+they swallowed (KP.redReport — the month boundary's payroll +
+practice rooms + commute against the stipend and the account, the
+toll's unpaid share; the clawback's short quarter stamps the week
+red and keeps its own balance on f.debt), and the weekly at order
+762 reads the report: the paydown first (every won on the account
+pays the arrears before anything else), then the count — a week
+with arrears standing is red, a clean week cools the count by
+RED.decayPerCleanWeek (1), the episode re-arms the letters at zero.
+RED { weeksToDissolve 12, memoAt 1, meetingAt 4, creditorsAt 8,
+finalNoticeAt 10, moralePerWeek 1, poachMult 3, sceneFuseWeeks 1 }.
+The ladder: the memo (high), the staff meeting (every roster file
+takes LEDGER.KINDS.unpaid, w −2 grudge 1; morale −1 weekly from
+here), the creditors' letters (unpaid again; hires.js rolls the
+poach at ×3 with the tier gate dropped — any chair takes the call),
+the FINAL NOTICE (critical, dated; the date rides KP.upcoming and
+the calendar strip). At twelve the scene lastStatement opens — one
+option, read (options[0]); the expiry only SENTENCES (red.sentenced)
+and sim.js reads the page at the end of the tick, after every
+phase, never mid-pipeline. The honest moves: release, disband,
+pitch (finance.js prints the deck on credit while the count runs —
+the cost joins the arrears), and sell the shelf (KP.shelfPrice /
+KP.sellShelf: SHELF.salePct .4 of each record's revival windfall
+above saleMinReception 40, once; sold records leave catalogOf for
+good). KP.redRead is the one read (weeks, arrears, word, finalWeek).
+
+The dissolution. KP.dissolveLabel(state, how) computes the
+statement first (KP.lastStatementOf — debuts, records, peaks,
+trophies, honors through KP.careerHonors, who carried the
+letterhead, who stood on a stage), then scatters through the exits
+that exist: a trainee from a living academy under CLASS.leaveAge
+goes back as a student (chapter released/folded + enrolled); a
+project member goes with the show (leftUs's own branch); a soldier
+finishes the service with no letterhead (serviceDone, reentryAt at
+discharge); everyone else is 'released' with the chapter 'folded'
+and lands on the open board through floor.js's re-entry clock with
+every line of the file. The acts retire onto state.estate.folded
+(the shelf: name, members, releases with their verdicts, trophies);
+the chairs take named rival calls (hash-picked, on the statement);
+state.seats, the distributor, the running financing paper, the
+board, the claims, the scenes, the outside desk, the taken
+bookings and the private-channel leads die with the estate; the
+public board, the world's people, the memory of other companies,
+financing.burned and the kept covenants, awardHistory and the
+relationships survive. state.budget 0, state.red reset with its
+history kept, state.scar { week, co, count }, state.dissolved
+{ week, name, short, door: null, statement }. The obituary is
+critical and reads first; the trades and the fandom follow; the
+timeline answers 'dissolution'. The shelf keeps charting: a weekly
+at 566 rolls SHELF.runChance per folded label and enters the best
+unspent record on the scene chart as a non-player entry
+(shelf: true, the dead short as company) with the note that the
+royalties go to a liquidator. KP.advanceWeek is a no-op while
+KP.chapterPending (the week waits for a door).
+
+The second chances. KP.chapterDoors reads the career: salaried
+(a scene-chart peak ≤ DOORS.salaried.chartedAt 10, or an award, or
+≥ 3 trophies), investor (financing.reputation ≥ 1 and not burned),
+protégé (KP.protegeOf: a person with wasOurs or a 'stayed' chapter,
+in a living rival act at popAt 30+, whose UNDECAYED kindnesses
+minus twice the grudge reach bondAt 6), blank (always). KP.nextChapter
+(state, door, { companyName }) rebuilds the company in the same
+world: a hash-picked new exec, the door's trust / chest / signings /
+board of founding leads (stampBorn 'founding'), the 18-month
+objective, fresh chairs with chapter-salted names, state.chapterSince,
+state.career appended, dissolved.door stamped. Salaried: a
+KP.genCompanyName label, four inherited trainees (served 20–90
+weeks), one aging act (legacy-flagged, four idols, pop 30, two
+records with the two verdicts, a dorm), budget 110, trust 50, three
+signings, state.founded deleted (the founding door reopens later).
+Investor: the player's name, chest 180, the hand attached by hash —
+f.board or f.revShare on the fund's own horizon, ledgered. Protégé:
+chest 150, state.host { company, personId, act }, DOORS.protege.loaned
+2 of the host's floor walk in as trainees (chapter signed/hosted,
+off the floor), her ledger takes promiseKept — her door, answered.
+Blank: chest 120, the founder's board seats itself again. A taken
+name — a building's or an obituary's — is refused.
+
+UI: the red count beside the directive on Today and beside the
+books on The record (the moves, the sell-the-shelf button); the
+epilogue (App.mode 'epilogue', UI.renderEpilogue): the last
+statement as an accounting — what you built, where they went, the
+chairs — then the four doors with the locked ones' reasons, the
+name field, one button; reached from the rail's read, from the
+advance that read the page, and from Continue on a dissolved save.
+
+Measured, 40 orgs: a red week in 24/40 (the count bites normal
+play), dissolved 0/40 once the soak bot made the honest moves
+(1/40 before — soak-12 formed a second lineup on an empty account
+at week 16 and saw no income for twelve weeks; a fatal decision,
+not a bug — the standard-play guard is a band, hi .05, not a hard
+zero). Four fixtures pinned their books (014, 042, 073, 099:
+untended sixty-to-a-hundred-week runs now dissolve); the clock pass
+keeps its slim bot whole (it measures the paper, not the economy);
+the longhaul bot funds its first debut before it spends and shares
+the soak bot's hiring gate (it used to hire every candidate on the
+fresh door's seed money and never debut). The longhaul's ruling
+E5: the neglected fresh label (haul-insolvent) dissolves at week
+68 and the world runs on through the blank page for the rest of
+the decade; every attentive scenario — fresh, home and founder
+included — lives its full 620 weeks once the bot stopped hiring on
+seed money (the legacy house under neglect survives on its act's
+trickle and, later, an empty roster's stipend — attrition, not
+insolvency). themeNamed's ceiling .90→.95 (first chase, at
+the operating point). Suite_110 (100). The salaried door's
+constants moved once at the first smoke (70/5 → 110/4: a neglected
+salaried label was red by week 16 and gone by 28 — a death trap,
+not a situation).
 
 ## §87 The solo era (PLANNED — in-group solo releases)
 
@@ -11644,6 +11805,35 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > the interpreter 40, a named road manager 40.
 > Suite_109 (35). Battery 109/109, soak 40 clean, longhaul 10x620,
 > e2e 122, lockstep 0.10.43. Rode to main.
+
+> **0.11.0 — the last statement.** §86 shipped whole, under five
+> rulings stated before the build (twelve red weeks at every door,
+> the same world, the employed doors on the same ladder, the one
+> who stayed out for v1, the bot allowed to die). A red week is a
+> week behind on the building: the month-end invoice and the toll
+> report their shortfall as arrears instead of being forgiven, what
+> comes in pays the arrears first, a clean week cools the count by
+> one. The ladder is legible (the memo, the staff meeting with the
+> 'unpaid' ledger entry and the morale drain, the creditors with the
+> poach roll tripled, the FINAL NOTICE dated on the calendar), the
+> page at twelve reads itself at the tick's end if unread; the
+> honest moves are real (the deck prints on credit; the shelf sells
+> once). The dissolution closes the company on the record through
+> the exits that exist (students home to the academies, project
+> members with the show, soldiers at discharge, the rest onto the
+> open market with their files), retires the acts onto a shelf that
+> keeps charting against you, scatters the chairs to named houses,
+> settles the estate while the funds' ledger survives, and writes
+> the obituary in the game's voice. The doors run in the same world:
+> the salaried chapter, the investor's call with its hand attached,
+> the protégé's door with the host's bench, the blank page again —
+> the epilogue is an accounting, not a fail screen. Measured: a red
+> week in 24/40, dissolved 0/40 once the soak bot made the honest
+> moves (1/40 before; the guard is a band, hi .05); haul-insolvent
+> dissolves at week 68 and the decade runs on; four fixtures pinned
+> their books; the longhaul bot funds its first debut and shares the
+> hiring gate. Suite_110 (100). Battery 110/110, soak 40 clean,
+> longhaul 11x620, e2e 132, lockstep 0.11.0. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

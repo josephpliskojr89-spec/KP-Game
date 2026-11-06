@@ -18,7 +18,7 @@
   function catalogOf(state, g) {
     const C = KP.C.CATALOG;
     return (g.releases || []).filter(r =>
-      state.week - r.week >= C.minAgeWeeks && !r.revivedWeek &&
+      state.week - r.week >= C.minAgeWeeks && !r.revivedWeek && !r.sold &&   // a sold shelf pays somebody else (v0.11.0, §86)
       (r.reception >= C.minReception || r.sleeperTitle ||
         (r.craft || 0) >= KP.C.VERDICT.longevityCraft));   // the two verdicts (v0.10.34): craft keeps paying
   }

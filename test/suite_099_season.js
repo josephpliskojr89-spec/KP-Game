@@ -203,6 +203,7 @@ function ready(seed, gender) {
 {
   t.ok(KP.C.NETWORK.SHOW === undefined, 'NETWORK.SHOW left with the mint');
   const state = KP.newGame('ss-law', null, { legacy: true });
+  state.budget = 9000;   // the red weeks (v0.11.0): two untended years would dissolve the house — the claim is the calendar
   let casts = 0, finales = 0, showKids = 0;
   for (let w = 0; w < WPY * 2 + 4; w++) {
     KP.advanceWeek(state);

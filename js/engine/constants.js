@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.43',
+    VERSION: '0.11.0',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -2593,6 +2593,46 @@
       flopMorale: 3,
     },
 
+    // ---- The last statement (v0.11.0, §86) -----------------------------
+    // Owner: "insolvency should mean game over, at least for that
+    // company... your reputation should at least provide the possibility
+    // of getting another job." A red week is a week the label is BEHIND
+    // on what it owes: the month-end invoice and the fund's toll are not
+    // forgiven any more — the shortfall is arrears, and what comes in
+    // pays the arrears first. Twelve red weeks to dissolution at every
+    // door; a clean week cools the counter by one. Measure-first (ruling
+    // E1): the soak guards that standard play never dissolves; the clock
+    // moves only with a history comment.
+    RED: {
+      weeksToDissolve: 12,     // the clock, at every door — the FINAL NOTICE carries the date
+      decayPerCleanWeek: 1,    // decay, not reset: lurching in and out of default is still dying
+      memoAt: 1,               // the accountant's memo
+      meetingAt: 4,            // the staff meeting nobody called: the ledger takes 'unpaid', morale erodes weekly
+      creditorsAt: 8,          // the creditors' letters: 'unpaid' again, the chairs take the calls
+      finalNoticeAt: 10,       // the date on it
+      moralePerWeek: 1,        // from the staff meeting on — the fog eats a drowning company first
+      poachMult: 3,            // from the creditors' letters on: the poach roll triples, the tier gate drops
+      sceneFuseWeeks: 1,       // the last statement waits one week to be read, then reads itself
+      // the second chances (§86 C): what the career earned, gated on
+      // things the save already tracks — observables, the financing law
+      DOORS: {
+        // budget 70/5 trainees → 110/4 at first smoke: a neglected salaried
+        // label was red by week 16 and gone by 28 — a death trap, not a
+        // situation. At 110/4 the month runs −16 and the act's comeback is
+        // open from the first morning: ~7 months to the first red week
+        salaried: { budget: 110, trust: 50, signings: 3, trainees: 4, board: 8, rep: 32,
+          chartedAt: 10, trophiesAt: 3,   // a debuted act that charted, or hardware
+          groupPop: 30, groupAge: 120 },  // their aging act: a release this old
+        investor: { chest: 180, trust: 55, signings: 6, board: 10, rep: 30 },
+        protege:  { chest: 150, trust: 58, signings: 6, board: 10, rep: 32,
+          bondAt: 6, popAt: 30, loaned: 2 },   // her undecayed kindnesses; her act's pull; the bench that walks in with you
+        blank:    { chest: 120, trust: 50, signings: 6, board: 4, rep: 25 },
+      },
+      // the shelf (§86 B): a dead label's songs keep existing — and charting;
+      // and sold alive (§86 A), the catalog's upside is one of the honest moves
+      SHELF: { runChance: 0.004,     // weekly, per folded label: a reverse run nobody here gets paid for
+        salePct: 0.4, saleMinReception: 40 },   // the distributor pays this share of each record's revival windfall, once
+    },
     // ---- The founding (v0.9.9, Phase C opens) ---------------------------
     // Owner: "I'm not the CEO, I work below them... option, after your
     // reputation is high enough, to leave and start your own label.
@@ -2794,6 +2834,7 @@
         standardTerms:    { w: -1, words: 'given the standard paper, nothing more' },
         leanSettlement:   { w: -1, grudge: 1, words: 'a lean settlement, hers to notice' },
         neverPaid:        { w: -1, grudge: 1, words: 'a settlement that never came' },
+        unpaid:           { w: -2, grudge: 1, words: 'a month the company could not pay' },   // the red weeks (v0.11.0, §86)
         // being held, pressed, managed
         heldBack:         { w: -2, grudge: 1, words: 'held back when she wanted forward' },
         heldLine:         { w: -1, words: 'the company held the line over her ask' },

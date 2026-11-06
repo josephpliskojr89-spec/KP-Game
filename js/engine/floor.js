@@ -80,10 +80,12 @@
       }
       case 'enrolled': return 'Enrolled at ' + (ch.school || 'an academy');
       case 'signed': return 'Signed to ' + co + ({ board: ' off the open board', window: ' after the window closed', late: ', late',
-        market: ' off the open market', back: ' — came back', season: ' off the season', inherited: ' (inherited)', opening: '' }[ch.how] || '');
+        market: ' off the open market', back: ' — came back', season: ' off the season', inherited: ' (inherited)', opening: '',
+        hosted: ' through the host’s door' }[ch.how] || '');   // the protégé's door (v0.11.0)
       case 'cut': return 'Cut at ' + co + '’s evaluation';
       case 'released': return { quit: 'Left ' + co, farewell: 'Term ran out at ' + co, scandal: 'Released from ' + co + ' after the story',
-        promise: 'Left ' + co + ' over a broken promise', silence: 'Left ' + co + ' unanswered' }[ch.how] || 'Released from ' + co;
+        promise: 'Left ' + co + ' over a broken promise', silence: 'Left ' + co + ' unanswered',
+        folded: 'Lost ' + co + ' when it folded' }[ch.how] || 'Released from ' + co;   // the last statement (v0.11.0)
       case 'reentry': return 'Back on the open board';
       case 'debut': return 'Debuted with ' + (ch.group || 'the group');
       case 'seasonSent': return 'Sent to ' + ch.show;

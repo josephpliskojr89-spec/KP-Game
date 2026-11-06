@@ -31,6 +31,8 @@
         years * F.seedPerYear)) };
   }
 
+  KP.careerHonors = careerHonors;   // the last statement reads the same career (v0.11.0, §86)
+
   KP.foundingEligible = function (state) {
     const F = KP.C.FOUNDING;
     const h = careerHonors(state);

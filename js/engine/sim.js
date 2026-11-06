@@ -230,7 +230,13 @@
           g.debuted && !g.retiredWeek && g.members.length
             ? s + g.members.length * KP.C.ECON.idolPayrollPerMember
             : s, 0);
-        state.budget = Math.max(0, state.budget + KP.C.ECON.monthlyStipend - upkeep - payroll - commute);
+        // the red weeks (v0.11.0, §86): the clamp still takes only what
+        // exists — but the rest is not forgiven any more. The shortfall
+        // is REPORTED as arrears, and the counter beside the books reads it
+        const owed = upkeep + payroll + commute;
+        const have = state.budget + KP.C.ECON.monthlyStipend;
+        state.budget = Math.max(0, have - owed);
+        if (owed > have && KP.redReport) KP.redReport(state, 'payroll', owed - have);
 
         // fiscal pressure (v0.2.3): once the signing cap lifts, the CEO
         // reads the books on a rolling quarter — one big album month is
@@ -319,6 +325,9 @@
   ];
 
   KP.advanceWeek = function (state) {
+    // the last statement (v0.11.0, §86): a dissolved label waits at the
+    // epilogue for a door — the week does not move until one is chosen
+    if (KP.chapterPending && KP.chapterPending(state)) { KP.lastTickNotes = []; return []; }
     const rng = KP.rngFor(state);
     const inbox = [];
     state.week++;
@@ -326,6 +335,11 @@
     const groups = KP.groups(state);
 
     KP.weeklyPipeline(CORE_PHASES).forEach(p => p.fn(state, rng, inbox, roster, groups));
+    // the sentence (v0.11.0): an unread last statement reads itself at
+    // the END of the week, after every phase — never mid-tick
+    if (state.red && state.red.sentenced && !KP.chapterPending(state) && KP.dissolveLabel) {
+      KP.dissolveLabel(state, 'silence');
+    }
 
     // trim + stamp through the kernel: priorities, one lifecycle. The
     // pre-trim array is kept on the engine (not the save) so tests and
@@ -592,6 +606,11 @@
     });
     if (state.objective.status === 'open') {
       items.push({ week: state.objective.deadlineWeek, label: 'Executive deadline', hot: true });
+    }
+    // the final notice (v0.11.0, §86): the date on it is a calendar date
+    if (KP.redRead) {
+      const red = KP.redRead(state);
+      if (red.finalWeek != null) items.push({ week: red.finalWeek, label: 'The last statement — unless the arrears clear', hot: true, clash: true });
     }
     return items.filter(i => i.week >= state.week).sort((a, b) => a.week - b.week).slice(0, 5);
   };

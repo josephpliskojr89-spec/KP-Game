@@ -295,7 +295,11 @@ const BANDS = {
   commissioned:      { lo: 0.60, hi: 1.00, label: 'orgs that commissioned a record' },
   offLaneRecord:     { lo: 0.05, hi: 1.00, label: 'orgs that released a producer out of his lane' },
   houseChair:        { lo: 0.00, hi: 1.00, label: 'orgs that filled a house producer or writer chair' },
-  themeNamed:        { lo: 0.00, hi: 0.90, label: 'orgs whose critics named a theme that fought the room' },
+  // ceiling .90→.95 (v0.11.0): measured 26–35/40 across v0.10.35–43 and
+  // 101/120 at the wide run — the operating point sits AT the old ceiling,
+  // and the red weeks' pitches moved the stream in 24 orgs (37/40). First
+  // chase; a second flap re-points the band at the mechanism (§18 rule)
+  themeNamed:        { lo: 0.00, hi: 0.95, label: 'orgs whose critics named a theme that fought the room' },
   pannedHit:         { lo: 0.00, hi: 0.80, label: 'orgs with a hit the critics panned' },
   criticsSplit:      { lo: 0.05, hi: 1.00, label: 'orgs that drew a split review' },
   trendNamed:        { lo: 0.95, hi: 1.00, label: 'worlds where the trades named the year’s sound' },
@@ -645,6 +649,14 @@ const BANDS = {
   warLost:           { lo: 0.25, hi: 1.00, label: 'orgs that LOST a head-to-head week (the era is contested)' },
   flagshipHunt:      { lo: 0.30, hi: 1.00, label: 'worlds where a flagship openly hunted the leader' },
   peakDenied:        { lo: 0.25, hi: 1.00, label: 'orgs with a release that missed #1 on the scene chart' },
+  // the last statement (v0.11.0, §86) — measure-first: a red week is a
+  // week behind on the building; standard play must never DISSOLVE (a
+  // hard guard below), but may well run red for a week or two
+  redWeekSeen:       { lo: 0.00, hi: 1.00, label: 'orgs that ran a red week (behind on the building)' },
+  // measured 1/40 at the first soak (soak-12 formed a second lineup on an
+  // empty account at week 16 and saw no income for twelve weeks — a fatal
+  // decision, not a bug) — the ceiling guards the teeth biting NORMAL play
+  dissolvedStd:      { lo: 0.00, hi: 0.05, label: 'orgs that DISSOLVED in standard play (a fatal week, never a flood)' },
 };
 
 const tally = {
@@ -727,6 +739,7 @@ const tally = {
   fusionTried: 0, fusionShift: 0, fusionAcclaim: 0, fusionFlop: 0,
   truckParked: 0, fanMeetingHeld: 0, lightstickOut: 0,
   warLost: 0, flagshipHunt: 0, peakDenied: 0,
+  redWeekSeen: 0, dissolvedStd: 0,
 };
 let totalGroups = 0;
 let totalAmbushes = 0;
@@ -796,6 +809,30 @@ for (let s = 0; s < SEEDS; s++) {
   const fatigueTrace = [];   // weekly avg fatigue of debuted idols (v0.4.2)
 
   for (let w = 0; w < 140; w++) {
+    // the last statement (v0.11.0, §86): a dissolved label takes the first
+    // open door — the bot is allowed to die, and the world keeps running
+    if (KP.chapterPending && KP.chapterPending(state)) {
+      const door = KP.chapterDoors(state).find(d => d.open);
+      KP.nextChapter(state, door.id, { companyName: 'Soak Again' });
+    }
+    // the honest moves a competent broke label makes (§86 A): from the
+    // staff meeting on, release the weakest free trainee once a month,
+    // sell the shelf at the creditors' letters, pitch while the funds will
+    // still take the meeting — and sign nobody while behind
+    const redNow = KP.redRead ? KP.redRead(state) : { weeks: 0 };
+    if (redNow.weeks >= KP.C.RED.meetingAt) {
+      if (state.week % 4 === 0) {
+        const freeRed = KP.freeTrainees(state).map(id => state.people[id]);
+        if (freeRed.length > 1) {
+          const worst = freeRed.slice().sort((a, b) =>
+            KP.C.TALENTS.reduce((sum, d) => sum + KP.perceived(state, a, d, scout), 0) -
+            KP.C.TALENTS.reduce((sum, d) => sum + KP.perceived(state, b, d, scout), 0))[0];
+          KP.releaseTrainee(state, worst.id);
+        }
+      }
+      if (redNow.weeks >= KP.C.RED.creditorsAt && KP.shelfPrice && KP.shelfPrice(state).ok) KP.sellShelf(state);
+      if (KP.pitchFinancing) KP.pitchFinancing(state);
+    }
     // --- auto-player policy (perceived reads only) ---
     // pre-debut: use the tutorial allowance; post-cap: restock the trainee
     // room when it runs thin and the books allow (v0.2.3)
@@ -809,9 +846,9 @@ for (let s = 0; s < SEEDS; s++) {
     const hallOf = gdr => freeNow.filter(p => (p.gender || 'f') === gdr).length;
     const leadHall = hallOf('m') > hallOf('f') ? 'm' : 'f';
     const hallShort = openLight && Math.max(hallOf('f'), hallOf('m')) < 4;
-    const wantSign = KP.signingsCapped(state)
+    const wantSign = redNow.weeks === 0 && (KP.signingsCapped(state)
       ? (state.week <= 3 && state.signingsUsed < state.signingsAllowed)
-      : ((freeNow.length < 4 || hallShort) && state.budget > (openLight ? 120 : 150));
+      : ((freeNow.length < 4 || hallShort) && state.budget > (openLight ? 120 : 150)));
     if (wantSign) {
       // the network (v0.9.35): a thin board is a verb problem now —
       // the bot holds an open call when the name can draw one, and
@@ -1701,7 +1738,7 @@ for (let s = 0; s < SEEDS; s++) {
   // the census reads the bot's OWN work: the legacy group is inherited
   const ownGroups = state.groups.filter(x => !x.legacy);
   const g = ownGroups.find(x => x.debuted && x.results) || ownGroups[0];
-  guard(!!(g && g.debuted), seed + ' auto-player failed to reach a debut');
+  guard(!!(g && g.debuted) || !!state.dissolved, seed + ' auto-player failed to reach a debut');   // a dissolved org is counted by its own band (v0.11.0)
   if (ownGroups.length >= 2) tally.secondGroup++;
   totalGroups += ownGroups.length;
   guard((state.objectiveHistory || []).length >= 1, seed + ' the objective ladder never advanced');
@@ -1746,6 +1783,8 @@ for (let s = 0; s < SEEDS; s++) {
   if (sawFriction) tally.frictionSeen++;
   if (pressureSeen || pressureWarned) tally.fiscalNoticed++;
   if (state.budget < 300) tally.fiscalWarned++;   // the poverty tail (re-pointed v0.9.30)
+  if ((state.red || {}).total > 0) tally.redWeekSeen++;   // the red weeks (v0.11.0)
+  if (state.dissolved) tally.dissolvedStd++;
   if (hypeSeen) tally.hypeSeen++;
   if (directiveSeen) tally.directiveFired++;
   if (state.groups.some(gg => gg.type === 'solo' && gg.debuted)) tally.soloDebuts++;
@@ -2285,6 +2324,12 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
           if (opts && opts.length) KP.resolveScene(state, sc.id, opts[0].id);
         }
       });
+      // the red weeks (v0.11.0): the slim clock bot never plans comebacks,
+      // so its balance pins at the monthly floor — which is now a death
+      // sentence. The pass measures the seven-year PAPER, not the economy
+      // (the economy's teeth are the main pass's guard and haul-insolvent),
+      // so the books are kept whole here
+      if (state.budget < 200) state.budget = 200;
       KP.advanceWeek(state);
       const errs = KP.validateState(state);
       guard(errs.length === 0, seed + ' long clock wk' + state.week + ': ' + errs[0]);

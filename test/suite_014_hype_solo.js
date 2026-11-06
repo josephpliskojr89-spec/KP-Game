@@ -53,9 +53,11 @@ const t = makeT('suite_014_hype_solo');
   let hi = 0, lo = 0;
   for (let s = 0; s < 24; s++) {
     const a2 = KP.newGame('hs-events' + s, null, { legacy: true });
+    a2.budget = 9000;   // the red weeks (v0.11.0): an untended legacy org dissolves inside 60 weeks — the claim is the lens, not the books
     for (let w = 0; w < 60; w++) KP.advanceWeek(a2);
     if (Math.max.apply(null, a2.roster.map(id => a2.people[id].hype || 0)) >= 15) hi++;
     const b2 = KP.newGame('hs-events' + s, null, { legacy: false });
+    b2.budget = 9000;
     for (let w = 0; w < 60; w++) KP.advanceWeek(b2);
     if (Math.max.apply(null, b2.roster.map(id => b2.people[id].hype || 0)) >= 15) lo++;
   }

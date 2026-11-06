@@ -178,6 +178,17 @@ function botWeek(state, mode) {
       return;
     }
     if (sc.kind === 'execQuestion') { KP.answerMeeting(state, 0); return; }
+    // the staff (v0.11.0): options[0] of the interview is the hire, and a
+    // fresh label taking every candidate on its seed money never reached
+    // its first debut — the soak bot's flush gate, shared
+    if (sc.kind === 'theInterview') {
+      KP.resolveScene(state, sc.id, state.budget > KP.C.HIRES.hireCost[sc.cand.tier] + 200 ? 'hire' : 'pass');
+      return;
+    }
+    if (sc.kind === 'seatPoach') {
+      KP.resolveScene(state, sc.id, state.budget > KP.C.HIRES.raiseCost + 100 ? 'raise' : 'walk');
+      return;
+    }
     const def = KP.sceneDef(sc.kind);
     if (def) {
       const opts = def.options(state, sc);
@@ -195,7 +206,23 @@ function botWeek(state, mode) {
   if (KP.fandomEligible) {
     state.groups.forEach(g => { if (KP.fandomEligible(state, g)) KP.nameFandom(state, g.id, 0); });
   }
-  if (mode !== 'neglect') {
+  if (mode !== 'neglect' && mode !== 'insolvent') {
+    // the red weeks (v0.11.0, §86): the honest moves a competent broke label
+    // makes — from the staff meeting on, release the weakest free trainee
+    // past a lineup's worth, one a month, and sign nobody while behind
+    const redNow = KP.redRead ? KP.redRead(state) : { weeks: 0 };
+    // a small label's first job is the first debut (v0.11.0): until an own
+    // act is on a stage, the seed money is for the record, not for content
+    // posts and extra signings — the grind bot used to spend the fresh
+    // door's 80 on uploads and die at week 40 under the red weeks
+    const ownDebuted = state.groups.some(g => !g.legacy && g.debuted);
+    if (redNow.weeks >= KP.C.RED.meetingAt && state.week % 4 === 0) {
+      const free = KP.freeTrainees(state).map(id => state.people[id]);
+      if (free.length > 5) {
+        const worst = free.slice().sort((a, b) => KP.peakOf(a) - KP.peakOf(b))[0];
+        KP.releaseTrainee(state, worst.id);
+      }
+    }
     // the grind (v0.9.37): work every locked era, take a stage a week
     const restRead = g => {
       const ms = g.members.map(id => state.people[id]).filter(Boolean);
@@ -222,19 +249,21 @@ function botWeek(state, mode) {
         if (pick) KP.takeBooking(state, offer.id, pick.id);
       }
     }
-    // sign a prospect when thin
-    if (state.roster.filter(id => state.people[id].status === 'trainee').length < 5 &&
+    // sign a prospect when thin — never while behind on the building (v0.11.0)
+    if (redNow.weeks === 0 &&
+        state.roster.filter(id => state.people[id].status === 'trainee').length < 5 &&
         state.prospects.length < 4 && state.budget > 160) {
       // the network (v0.9.35): a thin board is a verb problem now
       if (!KP.holdOpenCall(state).ok) KP.streetCast(state);
     }
     // the content desk (v0.10.18): the long game films what happens
-    if (KP.contentTopics && state.budget > 60 && state.week % 3 === 0) {
+    if (KP.contentTopics && state.budget > 60 && state.week % 3 === 0 && (ownDebuted || state.budget > 120)) {
       const openTopic = KP.contentTopics(state).find(tp => tp.open && state.budget > tp.cost + 40);
       if (openTopic) KP.postContent(state, openTopic.id);
     }
-    if (state.roster.filter(id => state.people[id].status === 'trainee').length < 5 &&
-        state.prospects.length && state.budget > 60) {
+    if (redNow.weeks === 0 &&
+        state.roster.filter(id => state.people[id].status === 'trainee').length < 5 &&
+        state.prospects.length && state.budget > (ownDebuted ? 60 : 100)) {
       // a holdout's no (v0.9.33) walks the bot down the board; the
       // founding directive is a girl group, so the bot casts for it
       const girls = state.prospects.filter(id => (state.people[id].gender || 'f') === 'f');
@@ -261,7 +290,9 @@ function botWeek(state, mode) {
     // years, which left every under-the-wall path unwitnessed here.
     state.groups.forEach(g => {
       if (g.legacy || g.debuted || g.prep || g.retiredWeek || !g.members.length) return;
-      if (state.budget < 90) return;
+      // the red weeks (v0.11.0): a fresh label never sees 90 — it debuts
+      // with what the modest single actually bills, plus a month's cushion
+      if (state.budget < KP.recordBill(g, 'modest', 'single') + 12) return;
       if (!g.demos) {
         const rng = KP.rngFor(state);
         g.demos = KP.generateDemos(state, rng, g);
@@ -340,6 +371,10 @@ const SCENARIOS = [
   { seed: 'haul-major', mode: 'major' },         // stewardship decade (0.9.35.2 —
                                                  // the 'fierce' crash hid here)
   { seed: 'haul-fresh', mode: 'fresh' },         // the grind decade (v0.9.37):
+  { seed: 'haul-insolvent', mode: 'insolvent' }, // the last statement (v0.11.0, §86):
+                                                 // a neglected fresh label is EXPECTED
+                                                 // to dissolve — the proof the teeth
+                                                 // are real — then the blank page, again
   { seed: 'haul-home', mode: 'home' },           // the regional decade (v0.10.10):
                                                  // Busan founding, same fresh grind
                                                  // a small label lives UNDER the
@@ -347,6 +382,8 @@ const SCENARIOS = [
 ];
 
 const sizes = {};
+const dissolvedWeeks = {};
+const careers = {};
 for (const sc of SCENARIOS) {
   const state = KP.newGame(sc.seed, null,
     sc.mode === 'blank' ? { door: 'blank', companyName: 'Audit Blank House' }
@@ -357,11 +394,27 @@ for (const sc of SCENARIOS) {
       // coin flip on this horizon, so the walk-out starts where honors
       // arrive on schedule: a major house (the same door, guaranteed open)
       : sc.mode === 'founder' ? { door: 'major' }
-      : sc.mode === 'home' ? { door: 'fresh', homeCity: 'busan' } : undefined);
+      : sc.mode === 'home' ? { door: 'fresh', homeCity: 'busan' }
+      : sc.mode === 'insolvent' ? { door: 'fresh' } : undefined);
   if (sc.mode === 'service') seedBoyGroup(state);
   let founded = false;
+  let dissolvedAt = null;
   for (let w = 0; w < WEEKS; w++) {
+    // the last statement (v0.11.0, §86): the bot is allowed to die. A
+    // dissolved label takes the blank page and the world keeps running
+    if (KP.chapterPending && KP.chapterPending(state)) {
+      if (dissolvedAt == null) dissolvedAt = state.week;
+      const r = KP.nextChapter(state, 'blank', { companyName: 'Chapter' + ((state.career || []).length + 2) + ' House' });   // a distinct short per chapter — the obituaries keep their names
+      if (!r.ok) flag(sc.seed, state.week, 'the blank page refused: ' + r.reason);
+    }
     botWeek(state, sc.mode);
+    if (process.env.HAUL_TRACE === sc.seed && state.week <= 60) {
+      const g0 = state.groups.find(g => !g.legacy);
+      console.log('[trace] ' + sc.seed + ' wk' + state.week + ' budget ' + Math.round(state.budget) + ' red ' + ((state.red || {}).weeks || 0) + '/' + ((state.red || {}).arrears || 0) +
+        ' roster ' + state.roster.length + ' free ' + KP.freeTrainees(state).length + ' prospects ' + state.prospects.length +
+        (g0 ? ' own ' + g0.name + ' debuted ' + !!g0.debuted + ' prep ' + !!g0.prep + ' bill ' + KP.recordBill(g0, 'modest', 'single') : ' own -') +
+        ' notes ' + (KP.lastTickNotes || []).map(n => n.ind).filter(Boolean).slice(0, 4).join(','));
+    }
     // the founding, once eligible (founder scenario only). This audit
     // exists to soak the FOUNDED state shape for 500 weeks — the odds of
     // a bot earning trust 70 belong to the soak, not here. If trust is
@@ -395,6 +448,11 @@ for (const sc of SCENARIOS) {
   checkNumbersDeep(sc.seed, state.week, JSON.parse(KP.serialize(state)), 'state');
   checkIntegrity(sc.seed, state.week, state);
   checkRoundtrip(sc.seed, state.week, state);
+  dissolvedWeeks[sc.seed] = dissolvedAt;
+  careers[sc.seed] = (state.career || []).map(c => c.door + '@' + c.week).join(',');
+  if (sc.mode === 'insolvent' && dissolvedAt == null) {
+    flag(sc.seed, state.week, 'the insolvent scenario never dissolved — the teeth are not real');
+  }
   if (sc.mode === 'founder' && !founded) {
     flag(sc.seed, state.week, 'founder scenario never became eligible in ' + WEEKS + ' weeks');
   }
@@ -486,6 +544,7 @@ for (const sc of SCENARIOS) {
     ', trained ' + ((state.tableLedger || {}).trained || 0));
 }
 
+console.log('dissolutions (the last statement, v0.11.0): ' + SCENARIOS.map(sc => sc.seed + ' ' + (dissolvedWeeks[sc.seed] == null ? '—' : 'wk ' + dissolvedWeeks[sc.seed] + (careers[sc.seed] ? ' then ' + careers[sc.seed] : ''))).join(' · '));
 report();
 function report() {
   if (problems.length) {

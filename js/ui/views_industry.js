@@ -481,4 +481,84 @@
       '<button class="btn primary" style="width:100%;margin-top:8px" data-action="start-career">Take the job</button>' +
       '</div>';
   };
+
+  // ---- the epilogue (v0.11.0, §86): the last statement, then the doors ----
+  // NOT a fail screen; an accounting — what you built, who you built,
+  // where they all went — and what the career earned next, in the same
+  // world. The locked doors say why, in words.
+  const CHAPTER_DOORS = {
+    salaried: { title: 'The salaried chapter',
+      chips: '<span class="chip">someone else’s name on the door</span><span class="chip cool">their roster, their act</span><span class="chip hot">trust starts low</span>',
+      quote: '“I read your file. All of it. The job is yours if you want to be humbled by it.”',
+      copy: 'A small label with a lease, a half-built roster, an aging act, and an exec who read your last statement and hired you anyway. You run their situation, not yours — three signings on a short leash, eighteen months, and a building that will decide what you are worth by the quarter.' },
+    investor: { title: 'The investor’s call',
+      chips: '<span class="chip gold">a fund you never burned</span><span class="chip">a war chest</span><span class="chip hot">a hand on the label from day one</span>',
+      quote: '“We watched you keep a covenant once. That is rarer than a hit. Here is the money, and here is the chair we keep.”',
+      copy: 'The kept covenants were a reputation, and a reputation is a phone call. A fund backs a NEW label around you — the money arrives with its hand already on the label: a board seat or the toll, pre-installed, from the first Monday. Funded founding is the blank page with a landlord.' },
+    protege: { title: 'The protégé’s door',
+      chips: '<span class="chip gold">someone you built brings you in</span><span class="chip cool">the host’s bench</span><span class="chip">their name beside yours</span>',
+      quote: '“You answered the door every time I knocked. My turn.”',
+      copy: 'Someone you developed got big enough on the other side of the wall to have an opinion about where you go next — and said it out loud, to her company. The house hosts the imprint; two of their bench walk in with you; the trades call it the reunion. The rarest door, and the one that feels like something.' },
+    blank: { title: 'The blank page, again',
+      chips: '<span class="chip">no calls</span><span class="chip">no reputation</span><span class="chip hot">the scar</span>',
+      quote: '“Nobody called. Start anyway.”',
+      copy: 'Start from nothing in the same world — a name you choose, a seed round that remembers the last one, an industry with your obituary on file and your ex-idols on other labels’ stages. Always available: the floor is never a locked save.' },
+  };
+  UI.renderEpilogue = function (state, door) {
+    const dead = state.dissolved || {};
+    const st = dead.statement || {};
+    const doors = KP.chapterDoors ? KP.chapterDoors(state) : [];
+    door = doors.some(d => d.id === door && d.open) ? door : (doors.find(d => d.open) || { id: 'blank' }).id;
+    const chosen = doors.find(d => d.id === door) || { id: door, open: true };
+    const D = CHAPTER_DOORS[door];
+    const when = KP.weekLabel(dead.week || state.week).text;
+    const pro = chosen.personId ? state.people[chosen.personId] : null;
+    const html = ['<div class="nc-wrap epilogue">'];
+    html.push('<div class="d-label">The last statement</div>');
+    html.push('<div class="nc-co">' + UI.esc(dead.name || state.company.name) + '</div>');
+    html.push('<div class="title-sub" style="margin:4px 0 14px">dissolved ' + UI.esc(when) + ' · ' +
+      (st.years ? st.years + ' year' + (st.years === 1 ? '' : 's') : (st.weeks || 0) + ' weeks') + '</div>');
+    html.push('<div class="nc-quote">“The month-end won. The songs did not lose.”</div>');
+    // what you built — observables only, the ledger's own numbers
+    const built = [];
+    built.push((st.debuts || 0) + ' debut' + (st.debuts === 1 ? '' : 's') + ' · ' + (st.releases || 0) + ' record' + (st.releases === 1 ? '' : 's'));
+    if (st.bestScene != null) built.push('best scene-chart peak #' + st.bestScene + (st.bestNational != null ? ' · national #' + st.bestNational : ''));
+    if (st.trophies) built.push(st.trophies + ' music-show troph' + (st.trophies === 1 ? 'y' : 'ies'));
+    if (st.daesangs || st.bonsangs) built.push((st.daesangs ? st.daesangs + ' daesang' + (st.daesangs > 1 ? 's' : '') : '') + (st.daesangs && st.bonsangs ? ', ' : '') + (st.bonsangs ? st.bonsangs + ' bonsang' + (st.bonsangs > 1 ? 's' : '') : ''));
+    built.push((st.signed || 0) + ' people carried this letterhead · ' + (st.debutedPeople || 0) + ' of them stood on a stage for it');
+    html.push('<div class="kicker">What you built</div><div class="card" style="font-size:.82rem;line-height:1.6">' +
+      built.map(l => '<div>' + UI.esc(l) + '</div>').join('') +
+      (st.acts && st.acts.length ? '<div style="color:var(--ink-dim);margin-top:6px">' + st.acts.map(a => UI.esc(a.name) + ' — ' + a.releases + ' record' + (a.releases === 1 ? '' : 's') + (a.peak ? ', peak #' + a.peak : '')).join(' · ') + '</div>' : '') +
+      '</div>');
+    const went = st.went || {};
+    const seats = st.seats || [];
+    html.push('<div class="kicker">Where they went</div><div class="card" style="font-size:.82rem;line-height:1.6">' +
+      '<div>' + ((went.market || 0) + (went.service || 0)) + ' onto the open market with real history' + (went.service ? ' (' + went.service + ' after the service)' : '') + '</div>' +
+      (went.academy ? '<div>' + went.academy + ' back to the academies</div>' : '') +
+      (went.project ? '<div>' + went.project + ' stayed with the show</div>' : '') +
+      (seats.length ? '<div style="color:var(--ink-dim);margin-top:6px">' + seats.map(s2 => UI.esc(s2.name) + ' (' + UI.esc(s2.seat) + ') → ' + UI.esc(s2.where)).join(' · ') + '</div>' : '') +
+      '<div style="color:var(--ink-dim);margin-top:6px">The shelf went to the distributor against the debts. The songs keep existing; the royalties do not come here.</div>' +
+      '</div>');
+    // the doors: what the career earned
+    html.push('<div class="kicker">The doors</div>');
+    html.push('<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px">' + doors.map(d =>
+      '<button class="btn small' + (d.id === door ? ' primary' : ' ghost') + '" style="flex:1 1 46%' + (d.id === door ? '' : ';border:1px solid var(--line)') +
+      (d.open ? '' : ';opacity:.55') + '" data-action="pick-chapter" data-door="' + d.id + '">' + CHAPTER_DOORS[d.id].title + (d.open ? '' : ' · locked') + '</button>').join('') + '</div>');
+    html.push('<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px">' + D.chips + '</div>');
+    html.push('<div class="nc-quote">' + (door === 'protege' && pro ? '“' + UI.esc(KP.displayName(pro)) + ' made the call. ' + UI.esc(chosen.hostName || '') + ' said yes.”' : D.quote) + '</div>');
+    html.push('<div class="nc-p">' + D.copy + '</div>');
+    if (!chosen.open) {
+      html.push('<div class="card" style="color:var(--ink-dim);font-size:.8rem;line-height:1.5">Locked: ' + UI.esc(chosen.reason || '') + '</div>');
+    } else {
+      if (door !== 'salaried') {
+        html.push('<label style="font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)">Company name</label>' +
+          '<input class="nc-input" id="ch-company" placeholder="' + { investor: 'Second Label', protege: 'Reunion Label', blank: 'Paper Label' }[door] + '" maxlength="28">');
+      }
+      html.push('<button class="btn primary" style="width:100%;margin-top:8px" data-action="take-door" data-door="' + door + '">' +
+        { salaried: 'Take the job', investor: 'Sign the term sheet', protege: 'Walk through her door', blank: 'Register the name' }[door] + '</button>');
+    }
+    html.push('<div class="title-foot">The world kept running while you read this. The career did not end; the company did.</div>');
+    html.push('</div>');
+    return html.join('');
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

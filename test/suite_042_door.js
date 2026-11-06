@@ -275,6 +275,7 @@ function carryFixture(seed) {
   const tired = state.people[g.members[1]];
   let sc = null;
   for (let w = 0; w < 60 && !sc; w++) {
+    state.budget = Math.max(state.budget, 1000);   // the red weeks (v0.11.0): sixty untended weeks would dissolve the house first
     tired.fatigue = 92; leader.morale = 60; leader.fatigue = 20; leader.flags.spotWeek = -99;   // the week's recovery must leave her over 70 at the spotlight
     // keep the desk clear of other knocks so the call is the pick
     (state.scenes || []).slice().forEach(x => {

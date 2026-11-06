@@ -562,6 +562,42 @@ async function main() {
   ok(/comeback — /.test(await page.textContent('#screen')),
     'announced rival comebacks reach the calendar strip on The record');
 
+  // --- the last statement (v0.11.0, §86): the red weeks, the page, the doors
+  // Eleven weeks behind with arrears no trickle can clear: the next week is
+  // the twelfth, the page waits on the rail, reading it dissolves the label
+  // on the record, and the epilogue offers the doors the career earned.
+  await page.evaluate(() => {
+    const s = KP.App.state;
+    s.budget = 0;
+    s.red = { weeks: 11, arrears: 100000, rung: 4, peak: 11, total: 11, paid: 0, episodes: 1 };
+    KP.App.save();
+  });
+  await tap('[data-action=desk-sub][data-sub=today]');
+  ok(/The red weeks/.test(await page.textContent('#screen')), 'the red count reads on Today beside the directive');
+  await advanceWeek();
+  await tap('[data-nav=desk]');
+  await page.waitForSelector('[data-action=scene-opt][data-opt=read]');
+  ok(await page.$('[data-action=scene-opt][data-opt=read]') !== null, 'the last statement waits on the one rail');
+  await tap('[data-action=desk-sub][data-sub=record]');
+  ok(/Owed to the building/.test(await page.textContent('#screen')), 'the counter lives beside the books on The record');
+  await tap('[data-action=desk-sub][data-sub=today]');
+  await tap('[data-action=scene-opt][data-opt=read]');
+  await page.waitForSelector('.epilogue');
+  const epi = await page.textContent('.epilogue');
+  ok(/dissolved/.test(epi) && /What you built/.test(epi) && /Where they went/.test(epi), 'reading it opens the epilogue: the accounting, not a fail screen');
+  ok(await page.$('#advance-btn:not([hidden])') === null, 'the week cannot move from the epilogue');
+  ok(await page.$('[data-action=pick-chapter][data-door=blank]') !== null, 'the blank page is always a door');
+  const pending = await page.evaluate(() => KP.chapterPending(KP.App.state) && KP.App.state.roster.length === 0 && KP.App.state.groups.length === 0);
+  ok(pending, 'the company closed on the record — roster and lineups gone, the save at the epilogue');
+  await tap('[data-action=pick-chapter][data-door=blank]');
+  await page.fill('#ch-company', 'E2E Again');
+  await tap('[data-action=take-door][data-door=blank]');
+  await page.waitForSelector('.objective');
+  ok((await page.textContent('.objective')).includes('E2E Again'), 'the next chapter opens on the Desk under the new name');
+  ok(await page.$('#advance-btn:not([hidden])') !== null, 'and the week moves again');
+  const after = await page.evaluate(() => ({ co: KP.App.state.company.short, dead: KP.App.state.dissolved.door, scar: KP.App.state.scar.count, folded: KP.App.state.estate.folded.length }));
+  ok(after.co === 'E2E' && after.dead === 'blank' && after.scar === 1 && after.folded === 1, 'the record keeps the door, the scar and the shelf');
+
   await browser.close();
   server.close();
   console.log('PASS e2e_walkthrough: ' + checks + ' checks');

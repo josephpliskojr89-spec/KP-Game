@@ -29,6 +29,8 @@
   function usedCompanyShorts(state) {
     const used = new Set([String(state.company.short).toLowerCase()]);
     (state.rivals || []).forEach(r => used.add(String(r.short).toLowerCase()));
+    // a folded label's name stays on its obituary (v0.11.0, §86)
+    ((state.estate && state.estate.folded) || []).forEach(f => used.add(String(f.short).toLowerCase()));
     return used;
   }
 

@@ -16,6 +16,7 @@
 
   const FUNDS = ['Hana Bridge Partners', 'Seongsu Capital', 'Mokran Ventures',
     'Paldo Content Fund', 'BlueGate Partners', 'Yeouido Growth'];
+  KP.FUNDS = FUNDS;   // the investor's call (v0.11.0, §86 C) names a fund from the same pool
 
   function ledger(state) {
     state.financeLedger = state.financeLedger ||
@@ -90,8 +91,15 @@
     if (state.week - (f.lastPitchWeek || -999) < F.pitchCooldown) {
       return { ok: false, reason: 'The funds remember last quarter’s deck. Give the story ' + (F.pitchCooldown - (state.week - f.lastPitchWeek)) + ' more week(s) to change.' };
     }
-    if (state.budget < F.pitchCost) return { ok: false, reason: 'The data room costs ' + F.pitchCost + ' to print, and the label cannot currently afford paper.' };
-    state.budget -= F.pitchCost;
+    if (state.budget < F.pitchCost) {
+      // the red weeks (v0.11.0, §86): a label behind on the building can
+      // still take the meeting — the deck prints on credit and joins the arrears
+      const red = KP.redRead ? KP.redRead(state) : null;
+      if (!(red && red.weeks > 0)) return { ok: false, reason: 'The data room costs ' + F.pitchCost + ' to print, and the label cannot currently afford paper.' };
+      KP.redReport(state, 'credit', F.pitchCost);
+    } else {
+      state.budget -= F.pitchCost;
+    }
     if (KP.ledgerFlow) KP.ledgerFlow(state, 'financing', -F.pitchCost);
     f.pending = { week: state.week };
     ledger(state).pitches++;
@@ -268,6 +276,9 @@
     // repay — clamped like every debit to what actually exists
     if (f.debt > 0 && woy % KP.C.BOOKS.quarterWeeks === 0 && state.week > 4) {
       const pay = Math.min(f.debt, Math.max(0, state.budget));
+      // the red weeks (v0.11.0, §86): a quarter the clawback cannot be
+      // paid in full reads red — the balance stays on f.debt, not the arrears
+      if (pay < f.debt && KP.redReport) KP.redReport(state, 'clawback', f.debt - pay);
       if (pay > 0) {
         state.budget -= pay;
         f.debt -= pay;
@@ -288,6 +299,8 @@
       // the toll never overdraws the account (the 0.10.11 clamp law:
       // a debit takes what exists, not what the formula says)
       const cut = Math.min(Math.round(gross * f.revShare.pct), Math.max(0, state.budget));
+      // ...and what the account could not cover is owed (v0.11.0, §86)
+      if (cut < Math.round(gross * f.revShare.pct) && KP.redReport) KP.redReport(state, 'toll', Math.round(gross * f.revShare.pct) - cut);
       if (cut > 0) {
         state.budget -= cut;
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'financing', -cut);

@@ -498,18 +498,22 @@
     if (!(state.scenes || []).some(sc => sc.kind === 'seatPoach') &&
         state.week > (state.seatPoachQuiet || 0)) {
       const MG = HR.MANAGER;
+      // the red weeks (v0.11.0, §86): from the creditors' letters on, the
+      // chairs take the calls — any seat, three times as often
+      const redHot = !!(KP.redRead && KP.redRead(state).weeks >= KP.C.RED.creditorsAt);
+      const redMult = redHot ? KP.C.RED.poachMult : 1;
       const seatTarget = Object.keys(S).find(seatId => S[seatId] &&
-        KP.C.HIRES.REP_TIERS.indexOf(S[seatId].tier) >= HR.poachTierMin);
+        (redHot || KP.C.HIRES.REP_TIERS.indexOf(S[seatId].tier) >= HR.poachTierMin));
       const mgrTarget = KP.groups(state).find(g => g.debuted && !g.retiredWeek && g.manager &&
         (g.popularity || 0) >= MG.poachPopMin && state.week - g.manager.since >= MG.poachTenureMin);
       const rivalOf = () => (state.rivals || [])[rng.int(0, Math.max(0, (state.rivals || []).length - 1))];
-      if (seatTarget && rng.chance(HR.poachChance)) {
+      if (seatTarget && rng.chance(HR.poachChance * redMult)) {
         state.seatPoachQuiet = state.week + HR.poachCooldown;
         led.poachCalls++;
         const rival = rivalOf();
         KP.openScene(state, { kind: 'seatPoach', seatId: seatTarget,
           rivalName: rival ? rival.name : 'a rival house', expiresWeek: state.week + 2 });
-      } else if (mgrTarget && rng.chance(MG.poachChance)) {
+      } else if (mgrTarget && rng.chance(MG.poachChance * redMult)) {
         state.seatPoachQuiet = state.week + HR.poachCooldown;
         led.poachCalls++;
         const rival = rivalOf();

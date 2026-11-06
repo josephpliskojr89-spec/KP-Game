@@ -38,6 +38,21 @@
       '<span class="chip">trust: ' + trustWord(state.trust) + '</span>' +
       '</div></div>');
 
+    // the red weeks (v0.11.0, §86): the count beside the directive — the
+    // one clock that ends the company, legible the whole way
+    if (KP.redRead) {
+      const red = KP.redRead(state);
+      if (red.weeks > 0 || red.arrears > 0) {
+        const R = KP.C.RED;
+        html.push('<div class="objective" style="margin-top:10px;border-color:color-mix(in srgb,var(--danger,#e05a5a) 60%,var(--line))">' +
+          '<div class="o-from" style="color:var(--danger,#e05a5a)">The red weeks · ' + UI.esc(red.word) + '</div>' +
+          '<div class="o-text">' + red.weeks + ' of ' + R.weeksToDissolve + ' weeks behind' +
+          (red.arrears > 0 ? ' · ' + red.arrears + ' owed to the building — every won that arrives pays it first' : ' · the arrears cleared; a clean week cools the count by one') +
+          (red.finalWeek != null ? '. The last statement is dated ' + UI.esc(KP.weekLabel(red.finalWeek).text) + ' unless the arrears clear.' : '.') + '</div>' +
+          '<div class="o-meta"><span class="chip hot">' + (red.weeks >= R.creditorsAt ? 'the chairs are taking the calls' : red.weeks >= R.meetingAt ? 'morale draining weekly' : 'the memo is on file') + '</span></div></div>');
+      }
+    }
+
     // the hype directive: a second clock, and it is not yours (v0.2.6)
     if (state.hypeDirective && state.hypeDirective.status === 'open') {
       const hd = state.hypeDirective;
@@ -450,6 +465,29 @@
     const html = [];
     const claims = state.claims || [];
     html.push(calendarStrip(state));
+    // the red counter lives beside the books (v0.11.0, §86): one truth —
+    // the clamps report what they swallowed, the counter reads the report
+    if (KP.redOf) {
+      const red = KP.redOf(state);
+      if (red.total > 0 || red.arrears > 0) {
+        const now = KP.redRead(state);
+        html.push('<div class="kicker">The red weeks</div>' +
+          '<div class="card" style="font-size:.78rem;line-height:1.6">' +
+          '<div style="font-weight:600;color:' + (now.weeks > 0 ? 'var(--magenta)' : 'var(--gold)') + '">' +
+          (now.weeks > 0 ? now.weeks + ' of ' + KP.C.RED.weeksToDissolve + ' weeks behind · ' + UI.esc(now.word) : 'Clean this week') + '</div>' +
+          '<div>Owed to the building: ' + red.arrears + '</div>' +
+          '<div style="color:var(--ink-dim)">Red weeks this career: ' + red.total + ' · longest run ' + red.peak + ' · arrears paid down ' + red.paid + '</div>' +
+          (now.finalWeek != null ? '<div style="color:var(--magenta);margin-top:4px">The last statement is dated ' + UI.esc(KP.weekLabel(now.finalWeek).text) + '.</div>' : '') +
+          (now.weeks > 0 ? (() => {
+            // the honest moves (§86 A): release someone, end an act, sell the shelf, pitch if unburned
+            const q = KP.shelfPrice ? KP.shelfPrice(state) : { ok: false };
+            return '<div style="margin-top:8px;font-size:.74rem;color:var(--ink-dim)">The moves left: release someone (Talent), end an act (Groups), pitch the funds below — the deck prints on credit while the count runs' +
+              (q.ok ? ', or sell the shelf.' : '.') + '</div>' +
+              (q.ok ? '<div style="display:flex;gap:8px;margin-top:8px"><button class="btn small" data-action="sell-shelf">Sell the shelf · +' + q.price + '</button></div>' : '');
+          })() : '') +
+          '</div>');
+      }
+    }
     html.push(booksCard(state));
     const who = c => c.subject.kind === 'exec' ? state.executive.name
       : c.subject.kind === 'idol' ? (state.people[c.subject.id || c.personId] ? KP.displayName(state.people[c.subject.id || c.personId]) : 'her')

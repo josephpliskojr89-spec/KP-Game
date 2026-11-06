@@ -36,9 +36,13 @@
   App.render = function () {
     const el = document.getElementById('screen');
     const s = App.state;
+    // the last statement (v0.11.0, §86): a dissolved label reads its
+    // epilogue before anything else renders — the doors are the only page
+    if (App.mode === 'game' && s && KP.chapterPending && KP.chapterPending(s)) App.mode = 'epilogue';
     if (App.mode !== 'game' || !s) {
       setChrome(false);
-      el.innerHTML = App.mode === 'newcareer' ? UI.renderNewCareer(App._door || 'current') : UI.renderTitle(KP.saveMeta(null));
+      el.innerHTML = App.mode === 'epilogue' && s ? UI.renderEpilogue(s, App._chapter)
+        : App.mode === 'newcareer' ? UI.renderNewCareer(App._door || 'current') : UI.renderTitle(KP.saveMeta(null));
       window.scrollTo(0, 0);
       App._lastSig = 'title';
       return;
@@ -144,6 +148,8 @@
     const s = App.state;
     const notes = KP.advanceWeek(s);
     App.save();
+    // the page read itself (v0.11.0): the epilogue is the next screen
+    if (KP.chapterPending && KP.chapterPending(s)) { App.mode = 'epilogue'; App.render(); return; }
     const urgent = notes.filter(n => n.urgent);
     const resolved = KP.groups(s).find(g => g.results && g.results.week === s.week);
     App.render();
@@ -289,7 +295,26 @@
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
         if (r.toast) UI.toast(r.toast);
+        // the last statement, read (v0.11.0): the epilogue is the next screen
+        if (KP.chapterPending && KP.chapterPending(s)) App.mode = 'epilogue';
         App.render();
+        break;
+      }
+      // the doors (v0.11.0, §86): the second chances, in the same world
+      case 'pick-chapter': {
+        App._chapter = t.dataset.door;
+        App.render();
+        break;
+      }
+      case 'take-door': {
+        const coEl = document.getElementById('ch-company');
+        const r = KP.nextChapter(s, t.dataset.door, { companyName: coEl ? coEl.value : '' });
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App._chapter = null;
+        App.mode = 'game';
+        App.save();
+        UI.toast(r.name + ' exists. Eighteen months.');
+        go('desk');
         break;
       }
       case 'dorm-shuffle': {
@@ -323,6 +348,13 @@
         const r = KP.pitchFinancing(s);
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save(); UI.toast('The deck went out. Funds answer within the week — watch the Desk.'); App.render();
+        break;
+      }
+      // the shelf, sold (v0.11.0, §86 A): the catalog's upside for cash now
+      case 'sell-shelf': {
+        const r = KP.sellShelf(s);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast('+' + r.price + '. The shelf is the distributor’s now.'); App.render();
         break;
       }
       case 'content-post': {
