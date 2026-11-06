@@ -617,6 +617,10 @@
     const items = [];
     const nextShowcase = state.week + (KP.C.TRAIN.showcaseEveryWeeks - (state.week % KP.C.TRAIN.showcaseEveryWeeks));
     items.push({ week: nextShowcase, label: 'Monthly showcase' });
+    // the season (v0.11.4, §95): the finale is a date on the one calendar
+    if (state.season && state.season.status !== 'done' && state.season.finaleWeek > state.week) {
+      items.push({ week: state.season.finaleWeek, label: state.season.show + ' finale', hot: (state.season.contestants || []).some(c => c.source === 'player' && !c.eliminatedWeek) });
+    }
     KP.groups(state).forEach(g => {
       if (g.prep) items.push({ week: g.prep.scheduledWeek,
         label: g.name + (g.debuted ? ' comeback' : ' debut'), hot: true,

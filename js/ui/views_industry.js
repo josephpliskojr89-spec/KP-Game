@@ -113,24 +113,44 @@
       html.push('<div class="card">' + rows + '</div>');
     }
 
-    // the season (v0.10.32, §90 B): the show the whole world sent people to
+    // the season (v0.10.32, §90 B; televised v0.11.4, §95): the show the
+    // whole world sent people to — the board, the line, the mission, the
+    // pick, and the doors for whoever is ours
     if (state.season && (state.season.status !== 'done' || state.week - state.season.finaleWeek <= 4)) {
       const s = state.season;
-      const alive = s.contestants.filter(c => !c.eliminatedWeek && state.people[c.personId]);
-      const bySrc = {};
-      alive.forEach(c => { bySrc[c.source] = (bySrc[c.source] || 0) + 1; });
-      const ours = s.contestants.filter(c => c.source === 'player').map(c => {
+      const S = KP.C.COMPETITION;
+      const board = KP.seasonBoard(state);
+      const line = KP.seasonLine(state);
+      const mission = KP.seasonMission(state);
+      const oursAll = s.contestants.filter(c => c.source === 'player').map(c => {
         const p = state.people[c.personId];
-        return p ? UI.esc(KP.displayName(p)) + (c.eliminatedWeek ? (c.rank && c.rank <= KP.C.COMPETITION.lineupSize ? ' — the lineup' : ' — out week ' + (c.eliminatedWeek - s.startWeek)) : ' — still in') : '';
+        return p ? UI.esc(KP.displayName(p)) + (c.eliminatedWeek ? (c.rank && c.rank <= S.lineupSize ? ' — the lineup' : c.withdrawn ? ' — withdrawn week ' + (c.eliminatedWeek - s.startWeek) : ' — out week ' + (c.eliminatedWeek - s.startWeek) + (c.rank ? ', ' + KP.ordinal(c.rank) : '')) : '') : null;
       }).filter(Boolean);
       html.push('<div class="kicker">The season</div>');
       html.push('<div class="card"><b>' + UI.esc(s.show) + '</b> · ' + (s.gender === 'm' ? 'boys’' : 'girls’') + ' season · ' +
-        (s.status === 'casting' ? 'casting' : s.status === 'airing' ? 'week ' + (state.week - s.startWeek) + ' of ' + (s.finaleWeek - s.startWeek) : 'the finale aired' + (s.permanent != null ? ' — ' + (s.permanent ? 'a PERMANENT lineup' : 'a ' + KP.C.COMPETITION.termWeeks + '-week project run') : '')) +
-        '<div style="font-size:.75rem;color:var(--ink-dim);margin-top:4px">' +
-        (s.status === 'done' ? s.contestants.filter(c => c.rank && c.rank <= KP.C.COMPETITION.lineupSize).map(c => state.people[c.personId] ? UI.esc(KP.displayName(state.people[c.personId])) : '').filter(Boolean).join(', ')
-          : alive.length + ' still in — ' + Object.entries(bySrc).map(([k, v]) => ({ rival: 'company trainees', school: 'academy students', board: 'unsigned', player: 'ours' }[k] + ' ' + v)).join(' · ')) +
-        (ours.length ? '<div style="margin-top:4px;color:var(--gold)">' + ours.join(' · ') + '</div>' : '') +
-        '</div></div>');
+        (s.status === 'casting' ? 'casting' : s.status === 'airing' ? 'episode ' + (state.week - s.startWeek) + ' of ' + (s.finaleWeek - s.startWeek) : 'the finale aired' + (s.permanent != null ? (s.permanent ? ' — the lineup is PERMANENT' : ' — a project run') : '')) +
+        (s.status === 'airing' && mission ? '<div style="font-size:.75rem;color:var(--ink-dim);margin-top:4px">This week: ' + UI.esc(mission) + (line ? ' · the line falls at ' + KP.ordinal(line) : '') +
+          (s.fanPick && state.people[s.fanPick] ? ' · the public’s pick: ' + UI.esc(KP.displayName(state.people[s.fanPick])) : '') + '</div>' : '') +
+        (s.status === 'done'
+          ? '<div style="font-size:.75rem;color:var(--ink-dim);margin-top:4px">' + s.contestants.filter(c => c.rank && c.rank <= S.lineupSize).sort((a, b) => a.rank - b.rank).map(c => state.people[c.personId] ? KP.ordinal(c.rank) + ' ' + UI.esc(KP.displayName(state.people[c.personId])) : '').filter(Boolean).join(' · ') + '</div>'
+          : board.length
+            ? '<div style="font-size:.78rem;margin-top:6px;line-height:1.7">' + board.filter((row, i) => i < 8 || row.ours).map(row => {
+                const move = row.prev == null || row.rank == null ? '' : row.rank < row.prev ? ' <span style="color:var(--gold)">▲' + (row.prev - row.rank) + '</span>' : row.rank > row.prev ? ' <span style="color:var(--danger,#e05a5a)">▼' + (row.rank - row.prev) + '</span>' : ' <span style="color:var(--ink-dim)">—</span>';
+                const onLine = line && row.rank && row.rank > line;
+                return '<div' + (row.ours ? ' style="color:var(--gold)"' : onLine ? ' style="color:var(--ink-dim)"' : '') + '>' + (row.rank ? KP.ordinal(row.rank) : '—') + ' ' + UI.esc(KP.displayName(row.p)) + ' <span style="color:var(--ink-dim)">· ' + UI.esc(row.company) + '</span>' + move + (row.ours ? ' · ours' : '') + '</div>';
+              }).join('') + (board.length > 8 ? '<div style="color:var(--ink-dim)">… ' + board.length + ' still in</div>' : '') + '</div>'
+            : '<div style="font-size:.75rem;color:var(--ink-dim);margin-top:4px">the cast is in; the first ranking reveal airs next week</div>') +
+        (oursAll.length ? '<div style="margin-top:6px;color:var(--gold);font-size:.78rem">' + oursAll.join(' · ') + '</div>' : '') +
+        (s.status === 'airing' ? KP.seasonOurs(state).filter(c => !c.eliminatedWeek).map(c => {
+            const p = state.people[c.personId];
+            const push = KP.seasonPushRead(state, p.id), coach = KP.seasonCoachRead(state, p.id);
+            return '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">' +
+              '<button class="btn small" data-action="season-push" data-id="' + p.id + '"' + (push.ok ? '' : ' disabled') + ' title="' + UI.esc(push.ok ? '' : push.reason) + '">Vote push · ' + S.pushCost + (push.ok ? ' (' + push.left + ' left)' : '') + '</button>' +
+              '<button class="btn small" data-action="season-coach" data-id="' + p.id + '"' + (coach.ok ? '' : ' disabled') + ' title="' + UI.esc(coach.ok ? '' : coach.reason) + '">Send the coach · ' + S.coachCost + '</button>' +
+              '<button class="btn small danger" data-action="season-withdraw" data-id="' + p.id + '">Withdraw ' + UI.esc(KP.publicGiven(p)) + '</button>' +
+              '</div>';
+          }).join('') : '') +
+        '</div>');
     }
 
     // the open market lane folded into the scouting board (v0.10.33, §89 D7):

@@ -53,6 +53,27 @@
       }
     }
 
+    // the season, televised (v0.11.4, §95): while somebody of ours is on the air
+    if (state.season && state.season.status === 'airing') {
+      const s = state.season;
+      const ours = KP.seasonOurs(state).filter(c => !c.eliminatedWeek);
+      if (ours.length) {
+        const line = KP.seasonLine(state);
+        const rows = ours.map(c => {
+          const p = state.people[c.personId];
+          const rk = c.ranks && c.ranks.length ? c.ranks[c.ranks.length - 1] : null;
+          const pv = c.ranks && c.ranks.length > 1 ? c.ranks[c.ranks.length - 2] : null;
+          return UI.esc(KP.displayName(p)) + (rk ? ' is ' + KP.ordinal(rk) + (pv != null ? (rk < pv ? ' (▲' + (pv - rk) + ')' : rk > pv ? ' (▼' + (rk - pv) + ')' : ' (—)') : '') : ' awaits the first reveal');
+        });
+        html.push('<div class="objective" style="margin-top:10px;border-color:color-mix(in srgb,var(--gold) 50%,var(--line))">' +
+          '<div class="o-from" style="color:var(--gold)">On the air · ' + UI.esc(s.show) + ' · episode ' + (state.week - s.startWeek) + ' of ' + (s.finaleWeek - s.startWeek) + '</div>' +
+          '<div class="o-text">' + rows.join('; ') + (line ? '. The line falls at ' + KP.ordinal(line) + '.' : '.') + '</div>' +
+          '<div class="o-meta"><span class="chip">' + UI.esc(KP.seasonMission(state) || 'the week') + '</span>' +
+          (s.fanPick && state.people[s.fanPick] ? '<span class="chip gold">the public’s pick: ' + UI.esc(KP.publicGiven(state.people[s.fanPick])) + '</span>' : '') +
+          '<span class="chip">the board is on the Industry tab</span></div></div>');
+      }
+    }
+
     // the hype directive: a second clock, and it is not yours (v0.2.6)
     if (state.hypeDirective && state.hypeDirective.status === 'open') {
       const hd = state.hypeDirective;

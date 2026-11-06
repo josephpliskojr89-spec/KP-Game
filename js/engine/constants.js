@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.3',
+    VERSION: '0.11.4',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -2964,6 +2964,18 @@
       returnPolish: 3,          // what a year on real stages taught her
       NAMES: ['STARFORGE', 'THE FINAL LINEUP', 'DEBUT OR NOTHING',
         'CLASS OF NEXT YEAR', 'ELEVEN LIGHTS'],
+      // the season, televised (v0.11.4, §95): the event's numbers
+      MISSIONS: ['the signal song', 'the position evaluation', 'the first ranking reveal', 'the team battle',
+        'the concept evaluation', 'the cover mission', 'the second ranking reveal', 'the unit stage',
+        'the fan-vote mission', 'the final-mission rehearsal', 'the final mission', 'the finale'],
+      pushCost: 8, pushScores: [6, 4, 2], pushCalledChance: 0.25, pushCalledHype: -6,   // the vote push: three a season, thinner each time; the edit may call it company money
+      coachCost: 3, coachScore: 4, coachAwayMult: 0.7,                                 // the chair flies out; the room at home trains thinner that week
+      editWeekMin: 3, editWeekMax: 5, editChance: 0.5, editWeeks: 3,                    // the producers cut her an edit once a season
+      villainPenalty: 5, underdogBonus: 4, editStatementCost: 4, editStatementHype: -3,
+      nervesMorale: 2, nervesWithin: 2, topMorale: 2, topAt: 3,                         // her arc on the line and at the top
+      withdrawMorale: -8, withdrawHypeMult: 0.5,
+      fanPickFlip: 0.3, pickFollowers: [6000, 15000],                                 // the public's pick, paid in followers
+      finalistInterest: 2,                                                            // the scouts have an eliminated finalist's number
     },
     // ---- the floor (v0.10.31, §90 Phase A) ---------------------------------
     // One world of people: rival trainee floors are people, a cut is a

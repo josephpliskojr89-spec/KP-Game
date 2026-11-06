@@ -8947,6 +8947,148 @@ Thirteen tuning constants nothing read were deleted, and the season's
   4 / 30, feed 10 / 90, spotlight 6); lockstep 0.11.3 with the sixth
   place.
 
+## §95 The season, televised (SHIPPED v0.11.4)
+
+Owner: *"How deep is the survival show setup? I'd like that to feel
+like an event when it runs."*
+
+**How deep it is (v0.10.32–v0.11.3).** The season is real but quiet.
+Once a year (castWoy 22) a show with a rotating title casts from the
+world — two camera-ready trainees per rival floor, four known
+academy students, four unsigned names off the board — and invites
+this building through one Desk scene (send two, one or none). Twelve
+weeks air: every week the field is cut on a hidden score (readiness
+± noise 14, hash-judged so the save never moves), the eliminated go
+home famous (hype, followers, a chapter on the file), the rest get
+tired and seen. The finale forms a five-member project act under the
+broadcaster's house, fixed-term or permanent on a roll; your finalist
+is held out of your lineups for the term and comes back with a public
+(or, on a permanent roll, the show keeps her). The soak: 40/40 worlds
+air a season, 35/40 orgs are invited, 20/40 send somebody.
+
+What the player sees of those twelve weeks: the casting letter, the
+invitation, one timeline post a week (three templates), one letter
+when her kid is cut and one at the finale, and a status line on the
+Industry tab. No rankings, no episodes, no missions, no named
+moments, nothing to decide once she is sent, no world reacting to who
+is winning, no ceremony. The mechanism is sound; the EVENT is
+missing. (One audit leftover found on the way in: the v0.11.3 bench
+rest reached contestants and project members — `onBreak` covers
+them — so a trainee on television was resting; scoped to the bench
+and the personal break.)
+
+**The plan — one mechanism per beat, every beat a letter or a door:**
+1. *Rankings and the line.* Every week on air the whole field is
+   ranked on the score the cut already uses; the ranks are kept per
+   contestant (`c.ranks`), and the cut line is a number the player can
+   read. The Industry tab becomes a leaderboard: the top eight and
+   yours, with movement arrows, companies, the line drawn, the
+   mission of the week, the public's pick.
+2. *Episodes.* A fixed twelve-week mission schedule (the signal song,
+   the position evaluation, the team battle, the concept evaluation,
+   the cover mission, the final mission…) and one letter a week —
+   `seasonEpisode` — that says the mission, her rank and movement (or
+   the leader's, when nobody of yours is in), one named moment (the
+   center that held the camera, the climber, the one on the line, the
+   fancam that crossed a million by morning), and who went home. The
+   letter is critical on the weeks she sits on the line or goes home;
+   the timeline's weekly post reads the pick and the leader.
+3. *Doors during the run.* The vote push (budget, three a season with
+   diminishing effect, and a hash chance the edit calls it "company
+   money"); the coach visit (the vocal or dance chair flies out: a
+   score bump this week, the room at home trains thinner); the edit —
+   once a season the producers cut her a villain or an underdog edit,
+   and the desk answers with a statement or lets it ride (a statement
+   defuses a villain edit at a price; a statement spoils an underdog);
+   withdraw (pull her out: morale, hype and a public that noticed).
+4. *The public's pick.* A fan favourite from the cast on (the highest
+   hype, flipping to the leader by hash), named in the timeline, paid
+   in followers; a pick that misses the lineup is the finale's
+   "robbed" story.
+5. *Her arc.* Nerves on the line (morale), a lift at the top; a
+   friendship made on the set (the industry-friends system) at the
+   finale; rival interest stamped on an eliminated finalist (the
+   scouts have her number); the file reads the whole run.
+6. *The finale as a ceremony.* The ranks read in reverse, eighth to
+   first, with companies; the lineup and its act; the roll; her place
+   in it. Critical when she was in the finale.
+7. *The Desk.* The finale on the upcoming strip; a Today card during
+   the run when she is in ("episode 7 of 12 — she is 4th; the line is
+   9th").
+Bands measure-first (pushes, edits, coaches); the soak bot pushes
+when she sits near the line and the account can pay. Suite_114.
+Candidate slot: v0.11.4.
+
+**As built (v0.11.4).** season.js grew the event on the mechanism it
+had; nothing about who is cast, who is cut or who wins moved, and
+every new number is hashed off the seed, the person and the week —
+the suite's fork across a whole season is byte-identical.
+
+*The ranking reveal.* Every week on air the field is scored once
+(`weekScore`: readiness ± noise 14, plus the week's push, the coach,
+the edit) and ranked first to last; the rank is kept per contestant
+(`c.ranks`, one number a week). `KP.seasonBoard` is the board the
+Industry tab reads (rank, movement, company, ours), `KP.seasonLine`
+the last safe rank next week as the field stands, `KP.seasonMission`
+the week's mission from a twelve-week schedule (COMPETITION.MISSIONS:
+the signal song, the position evaluation, the first ranking reveal,
+the team battle, the concept evaluation, the cover mission, the second
+ranking reveal, the unit stage, the fan-vote mission, the rehearsal,
+the final mission, the finale).
+
+*The episode.* One letter a week, `seasonEpisode`: the mission; her
+place and movement (or the leader's and the public's pick when nobody
+of ours is in); where the line falls next week; one named moment; who
+went home, with companies. Priority: critical when she sits within two
+of the line or goes home, high while she is in, normal for a season
+without us (the inbox law trims it in a loud week; the timeline's
+post carries the night). The moment is a family picked by hash among
+what the week offers — the center, the mentors' line, the climber,
+the faller, the one on the line, the pick's fancam (paid in followers),
+ours at the top — never the same kind two weeks running
+(`s.lastMomentKind`). The elimination letter for ours is critical now
+and names the mission and her rank at the reveal.
+
+*The doors.* `KP.seasonPush` (pushCost 8; pushScores 6/4/2 — three a
+season, thinner each time; a hash chance .25 the recap calls it
+"company money": hype −6 and a letter the timeline answers).
+`KP.seasonCoach` (coachCost 3; coachScore 4; the vocal or dance chair
+flies out — `state.coachAway` — and `KP.seatMult` reads .7 for that
+seat that week: the room at home trains thinner). `KP.seasonWithdraw`
+(morale −8, hype halved, the record says withdrawn, a critical letter,
+the thread). The edit: once a season, at a hashed week 3–5 with chance
+.5, the producers cut her a villain or an underdog edit (`seasonEdit`,
+a scene with a one-week fuse): ride (default — a villain costs 5 a
+week for three weeks; an underdog earns 4) or a statement
+(editStatementCost 4, hype −3: it ends a villain edit, it spoils an
+underdog). The verbs live on the Industry board beside her row; the
+Desk shows a gold "On the air" card while she is in (episode, her
+place, the line, the mission, the pick) and the finale sits on the
+upcoming strip, hot while ours is in.
+
+*Her arc.* Top three: morale +2 a week; within two of the line: −2. A
+finalist of ours makes a friend on the set (`industryFriends`, how
+'season', hash-picked among the other finalists); an eliminated
+finalist's number goes to the two biggest signing houses (interest 2).
+The public's pick: the highest hype from the cast on, flipping to the
+week's leader with chance .3, paid in followers when the fancam
+moment lands; the finale names whether the pick made it ("robbed").
+
+*The ceremony.* The finale letter reads the eight in reverse with
+companies, names the lineup and its act, the roll, her place, and the
+pick's fate; critical when she was in the finale. The show's name
+carries its own article now ("THE FINAL LINEUP finale", "the
+STARFORGE finale").
+
+*The audit leftover.* `onBreak` covers the season and the project run,
+so the v0.11.3 bench rest reached contestants; the rest is scoped to
+the bench and the personal break — a trainee on television works.
+
+Suite_114 (41). Measured in the first soak (40 orgs): vote pushes
+16, coach visits 19, edits cut 13, episode letters with ours in 20 —
+every org that sent — and the bands ruled from these. Battery
+114/114, soak 40 clean, longhaul 11 × 620, e2e 134, lockstep 0.11.4.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -12349,6 +12491,24 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > repo tool, Math.random poisoned in the loader, the lockstep's sixth
 > place, the longhaul's validator. Battery 113/113, soak 40 clean,
 > longhaul 11x620, e2e 134, lockstep 0.11.3. Rode to main.
+
+> **0.11.4 — the season, televised.** Owner: "How deep is the
+> survival show setup? I'd like that to feel like an event when it
+> runs." §95: the assessment (a sound mechanism, a quiet one) and the
+> event on top of it — rankings kept per contestant and a board with
+> the line drawn; a twelve-week mission schedule; one episode letter a
+> week with her place, a named moment from a rotating family and who
+> went home (critical on the line); the vote push, the coach visit,
+> the edit (villain or underdog; ride or statement) and the
+> withdrawal; the public's pick; her arc (nerves, the top, a friend on
+> the set, the scouts' interest); the finale read in reverse as a
+> ceremony; the Desk's "On the air" card and the finale on the strip.
+> Nothing about who is cast, cut or crowned moved; a whole season
+> forks byte-identical. The audit's bench rest scoped away from
+> contestants and project members. Measured: pushes 16/40, coaches
+> 19, edits 13, episodes with ours 20 (every org that sent). Suite_114
+> (41). Battery 114/114, soak 40 clean, longhaul 11x620, e2e 134,
+> lockstep 0.11.4. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

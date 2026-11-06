@@ -218,7 +218,10 @@
     if (!st) return 1;
     const HR = KP.C.HIRES;
     const t = KP.staffTruth(state, st);
-    return KP.clamp(HR.multLo + t.apt * (HR.multHi - HR.multLo) + meshOf(state, st), 0.85, 1.18);
+    const mult = KP.clamp(HR.multLo + t.apt * (HR.multHi - HR.multLo) + meshOf(state, st), 0.85, 1.18);
+    // the season, televised (v0.11.4): the chair that flew out to the set this week is not in the room
+    if (state.coachAway && state.coachAway.week === state.week && state.coachAway.seat === seatId) return mult * KP.C.COMPETITION.coachAwayMult;
+    return mult;
   };
 
   // ---- the founding hires: the incumbent trio become somebody ----------

@@ -535,6 +535,33 @@
         App.render();
         break;
       }
+      case 'season-push': {
+        const r = KP.seasonPush(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast(r.note); App.render();
+        break;
+      }
+      case 'season-coach': {
+        const r = KP.seasonCoach(s, t.dataset.id);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast(r.note); App.render();
+        break;
+      }
+      case 'season-withdraw': {
+        const p = s.people[t.dataset.id];
+        UI.modal('Withdraw ' + (p ? KP.displayName(p) : 'her') + '?',
+          '<div class="pad" style="font-size:.88rem;line-height:1.55;color:var(--ink-dim)">' + KP.fillPro('{She} comes home before the show is done with {her}. The caption will say “schedule conflict”; the timeline will say other things. Morale, hype and a public that noticed.', p) + '</div>',
+          '<button class="btn" data-action="close-modal" style="flex:1">Keep ' + UI.esc(p ? KP.publicGiven(p) : 'her') + ' in</button>' +
+          '<button class="btn danger" data-action="season-withdraw-confirm" data-id="' + UI.esc(t.dataset.id) + '" style="flex:1">Withdraw</button>');
+        break;
+      }
+      case 'season-withdraw-confirm': {
+        const r = KP.seasonWithdraw(s, t.dataset.id);
+        UI.closeModal();
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save(); UI.toast('Withdrawn. The thread is already up.'); App.render();
+        break;
+      }
       case 'catalog-push': {
         const g = KP.groupById(s, t.dataset.id);
         const picked = (App._catalogPick || {})[t.dataset.id];

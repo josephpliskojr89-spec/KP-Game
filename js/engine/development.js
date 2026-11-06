@@ -74,8 +74,12 @@
     // is still hers when she is back (audit v0.11.3: a benched trainee
     // trained 'light' at +5 fatigue a week and hit the same wall for years)
     if (KP.onBreak(person)) {
+      // the bench and the break REST; a season, a project run or the
+      // service are work somewhere else — no practice room, no rest
+      // (v0.11.4: the audit's rest reached contestants on television)
+      const resting = person.flags.burnout > 0 || !!person.flags.personalHiatus;
       if (person.flags.burnout > 0) person.flags.burnout--;
-      person.fatigue = KP.clamp(person.fatigue - KP.C.COMEBACK.OVERWORK.benchRecovery, 0, 100);
+      if (resting) person.fatigue = KP.clamp(person.fatigue - KP.C.COMEBACK.OVERWORK.benchRecovery, 0, 100);
       return notes;
     }
     const PR = KP.C.PROJECT;

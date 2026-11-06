@@ -287,6 +287,12 @@ const BANDS = {
   // measured 23/40 at v0.10.32, 25/40 at v0.10.35 (two stream shifts) — hi .60→.70
   seasonOursLineup:  { lo: 0.00, hi: 0.70, label: 'orgs whose trainee made a finale lineup (held, or kept)' },
   seasonPermanent:   { lo: 0.02, hi: 0.90, label: 'worlds where a season’s roll came up permanent' },
+  // the season, televised (v0.11.4, §95): measure-first
+  // ruled v0.11.4 from the first soak: pushed 16/40, coached 19, edited 13, episodes 20 (= every org that sent)
+  seasonPushed:      { lo: 0.10, hi: 0.90, label: 'orgs that bought a vote push for their contestant' },
+  seasonCoached:     { lo: 0.10, hi: 0.90, label: 'orgs that flew a coach to the set' },
+  seasonEdited:      { lo: 0.05, hi: 0.80, label: 'orgs whose contestant was cut an edit' },
+  seasonEpisodes:    { lo: 0.10, hi: 1.00, label: 'orgs that read an episode letter with their kid in it' },
   // v0.10.33 — the one market: a collapse's signing class is on the open
   // board and the bot buys a career when flush. Measure-first: collapses
   // are rare inside 140 weeks, so the floor is 0 until a census says more.
@@ -706,6 +712,7 @@ const tally = {
   holdoutMet: 0, holdoutWon: 0, holdoutLost: 0,
   networkApps: 0, networkRefs: 0, washoutReturned: 0, seasonAired: 0, callHeld: 0,
   seasonCastWorld: 0, seasonInvited: 0, seasonSent: 0, seasonOursLineup: 0, seasonPermanent: 0,
+  seasonPushed: 0, seasonCoached: 0, seasonEdited: 0, seasonEpisodes: 0,
   careerSigned: 0,
   criticsDarling: 0, pannedHit: 0, criticsSplit: 0, trendNamed: 0,
   commissioned: 0, offLaneRecord: 0, houseChair: 0, themeNamed: 0,
@@ -810,6 +817,7 @@ for (let s = 0; s < SEEDS; s++) {
   let warAnnounceSeen = false, warAmbushSeen = false, warBattleSeen = false, warWonSeen = false;
   let personMomentWeeks = 0, quietWeekSeen = false;
   let doorKnockSeen = false, momentChoiceWasSeen = false, doorWaitSeen = false;
+  let seasonEpisodeSeen = false;
   let annivSeen = false, scarSeen = false;
   let tourSoldOutSeen = false, tourSoftSeen = false, awardSnubSeen = false;
   let circuitSeen = false, encoreSeen = false, truckSeen = false,
@@ -978,6 +986,16 @@ for (let s = 0; s < SEEDS; s++) {
       const kind = read.kinds.find(k => k.id === 'liveClip' && k.ok) ? 'liveClip' : 'party';
       KP.pushCatalog(state, g.id, read.candidates[0].title, kind);
     });
+    // the season, televised (v0.11.4, §95): the bot pushes when its kid sits
+    // near the line and the account can pay; sends the coach once from the top
+    if (KP.seasonOurs && state.season && state.season.status === 'airing') {
+      KP.seasonOurs(state).filter(c => !c.eliminatedWeek).forEach(c => {
+        const rk = c.ranks && c.ranks.length ? c.ranks[c.ranks.length - 1] : null;
+        const line = KP.seasonLine(state);
+        if (rk != null && line != null && rk >= line - 2 && state.budget >= 300 && KP.seasonPushRead(state, c.personId).ok) KP.seasonPush(state, c.personId);
+        else if (rk != null && rk <= 3 && !c.coachWeek && state.budget >= 200 && KP.seasonCoachRead(state, c.personId).ok) KP.seasonCoach(state, c.personId);
+      });
+    }
     // the Japan cycle (v0.10.8): an idle warm group flies out — the
     // bot runs the version lane (cheap) unless the room is devoted
     if (KP.planJapanRelease && state.jpPartner) state.groups.forEach(g => {
@@ -1670,6 +1688,7 @@ for (let s = 0; s < SEEDS; s++) {
     if ((state.knockLedger || {}).asked >= 1) doorKnockSeen = true;
     if ((state.spotlight || []).some(m => m.week === state.week && m.choice)) momentChoiceWasSeen = true;
     if (notes.some(n => /stopped waiting|stopped asking for that minute/.test(n.text))) doorWaitSeen = true;
+    if (notes.some(n => n.ind === 'seasonEpisode' && n.kind === 'company')) seasonEpisodeSeen = true;
     if (notes.some(n => n.ind === 'anniversary')) annivSeen = true;
     if (state.roster.some(id => (state.people[id].flags || {}).scar > 0)) scarSeen = true;
     if (!regionStorySeen && (state.memory || []).some(n => n.key === 'regionStronghold')) regionStorySeen = true;
@@ -1976,6 +1995,9 @@ for (let s = 0; s < SEEDS; s++) {
   if ((sel.castMax || 0) >= 8 && (sel.castSourcesMax || 0) >= 3) tally.seasonCastWorld++;
   if ((sel.invited || 0) >= 1) tally.seasonInvited++;
   if ((sel.sent || 0) >= 1) tally.seasonSent++;
+  if ((sel.pushes || 0) >= 1) tally.seasonPushed++;
+  if ((sel.coached || 0) >= 1) tally.seasonCoached++;
+  if ((sel.edits || 0) >= 1) tally.seasonEdited++;
   if ((sel.oursLineup || 0) >= 1) tally.seasonOursLineup++;
   if ((sel.permanent || 0) >= 1) tally.seasonPermanent++;
   if (((state.riseFallLedger || {}).faSigned || 0) >= 1) tally.careerSigned++;   // the one market (v0.10.33)
@@ -2172,6 +2194,7 @@ for (let s = 0; s < SEEDS; s++) {
   if (doorKnockSeen) tally.doorKnocked++;
   if ((state.claims || []).some(c => c.type === 'ambitionPromise' && c.resolved === 'met')) tally.askPromiseKept++;
   if (momentChoiceWasSeen) tally.momentChoiceSeen++;
+  if (seasonEpisodeSeen) tally.seasonEpisodes++;
   if (doorWaitSeen) tally.doorLeftWaiting++;
   if (annivSeen) tally.annivFelt++;
   if (scarSeen) tally.scarCarried++;

@@ -74,7 +74,8 @@
       .sort((a, b) => (b.hype || 0) - (a.hype || 0) || KP.seasonReadiness(state, b) - KP.seasonReadiness(state, a) || h(state, a, 'cast') - h(state, b, 'cast'))
       .slice(0, S.boardSlots).forEach(p => add(p, 'board', null));
     state.season = { year: yr, show, gender, status: 'casting', startWeek: state.week,
-      finaleWeek: state.week + (S.finaleWoy - S.castWoy), contestants, eliminations: [], invited: false, ours: [] };
+      finaleWeek: state.week + (S.finaleWoy - S.castWoy), contestants, eliminations: [], invited: false, ours: [], fanPick: null };
+    state.season.fanPick = pickFan(state, state.season);   // the public's pick, from the cast on (v0.11.4)
     led.cast++;
     const sources = new Set(contestants.map(c => c.source));
     led.castSourcesMax = Math.max(led.castSourcesMax, sources.size);
@@ -163,6 +164,96 @@
     delete p.flags.onSeason;
   }
 
+  // ---- the season, televised (v0.11.4, §95) --------------------------------
+  // Rankings the player can read, a mission a week, a named moment, the
+  // doors during the run, the public's pick, the ceremony. Every number
+  // here is hashed off the seed, the person and the week — television,
+  // not the stream — so the event never moves the save.
+  const ordinal = n => { const r = n % 100; if (r >= 11 && r <= 13) return n + 'th'; const d = n % 10; return n + (d === 1 ? 'st' : d === 2 ? 'nd' : d === 3 ? 'rd' : 'th'); };
+  KP.ordinal = ordinal;
+  function aliveOf(state, s) { return (s.contestants || []).filter(c => !c.eliminatedWeek && state.people[c.personId]); }
+  function pickFan(state, s) {
+    const alive = aliveOf(state, s);
+    if (!alive.length) return null;
+    return alive.slice().sort((a, b) => ((state.people[b.personId].hype || 0) - (state.people[a.personId].hype || 0)) ||
+      (h(state, state.people[a.personId], 'pick') - h(state, state.people[b.personId], 'pick')))[0].personId;
+  }
+  // the score the cut uses, with the week's modifiers: the push, the coach, the edit
+  function weekScore(state, c, p, tag, extra) {
+    const S = KP.C.COMPETITION;
+    let score = KP.seasonReadiness(state, p) + (h(state, p, tag, extra) - 0.5) * 2 * S.noise;
+    if (c.pushWeek === state.week) score += c.pushScore || 0;
+    if (c.coachWeek === state.week) score += S.coachScore;
+    if (c.edit && !c.editAnswered && state.week - (c.editWeek || 0) <= S.editWeeks) {
+      score += c.edit === 'villain' ? -S.villainPenalty : S.underdogBonus;
+    }
+    return score;
+  }
+  const lastRank = c => (c.ranks && c.ranks.length) ? c.ranks[c.ranks.length - 1] : null;
+  const prevRank = c => (c.ranks && c.ranks.length > 1) ? c.ranks[c.ranks.length - 2] : null;
+  // the board the Industry tab reads: the alive field by last rank, with movement
+  KP.seasonBoard = function (state) {
+    const s = state.season;
+    if (!s || s.status === 'done') return [];
+    return aliveOf(state, s).map(c => ({ c, p: state.people[c.personId], rank: lastRank(c), prev: prevRank(c),
+      ours: c.source === 'player', company: c.source === 'rival' ? c.company : c.source === 'player' ? state.company.short : c.source === 'school' ? 'academy' : 'unsigned' }))
+      .sort((a, b) => (a.rank || 99) - (b.rank || 99));
+  };
+  // the line: the last safe rank next week, as the field stands
+  KP.seasonLine = function (state) {
+    const s = state.season;
+    if (!s || s.status === 'done') return null;
+    const S = KP.C.COMPETITION;
+    const field = aliveOf(state, s).length;
+    const weeksLeft = s.finaleWeek - (state.week + 1);
+    if (weeksLeft < 0) return null;
+    const target = S.lineupSize + S.runnersUp;
+    const toCut = Math.max(0, Math.ceil((field - target) / Math.max(1, weeksLeft)));
+    return field - toCut;
+  };
+  KP.seasonMission = function (state) {
+    const s = state.season;
+    if (!s || s.status === 'done') return null;
+    const weekNo = state.week - s.startWeek;
+    return KP.C.COMPETITION.MISSIONS[Math.max(0, Math.min(KP.C.COMPETITION.MISSIONS.length - 1, weekNo - 1))];
+  };
+  KP.seasonOurs = function (state) {
+    const s = state.season;
+    if (!s) return [];
+    return (s.contestants || []).filter(c => c.source === 'player' && state.people[c.personId]);
+  };
+  // the named moment of the week: one sentence the letter keeps — picked by
+  // hash among what the week offers (the center, the climber, the faller,
+  // the one on the line, the pick's fancam, ours at the top), never the
+  // same kind two weeks running
+  function momentOf(state, s, scored, line, mission) {
+    const S = KP.C.COMPETITION;
+    const N = r => KP.displayName(r.x.p);
+    const leader = scored[0];
+    const moved = scored.map(r => ({ r, k: (prevRank(r.x.c) == null ? 0 : prevRank(r.x.c) - lastRank(r.x.c)) }));
+    const climber = moved.slice().sort((a, b) => b.k - a.k)[0];
+    const faller = moved.slice().sort((a, b) => a.k - b.k)[0];
+    const onLine = scored.find(r => lastRank(r.x.c) === line);
+    const pickP = s.fanPick && s.fanPick !== leader.x.p.id ? state.people[s.fanPick] : null;
+    const oursTop = scored.find(r => r.x.c.source === 'player' && lastRank(r.x.c) <= S.topAt && r !== leader);
+    const kinds = [
+      { kind: 'center', text: () => KP.fillPro(N(leader) + ' took the center of ' + mission + ' and the camera did not leave {her}.', leader.x.p) },
+      { kind: 'mentor', text: () => KP.fillPro('The mentors stopped ' + mission + ' to say something about ' + N(leader) + ' that the subtitles put in a bigger font.', leader.x.p) },
+    ];
+    if (climber && climber.k >= 2) kinds.push({ kind: 'climber', text: () => N(climber.r) + ' climbed ' + climber.k + ' places on the back of a ' + mission + ' clip that would not stop circulating.' });
+    if (faller && faller.k <= -2 && faller.r !== leader) kinds.push({ kind: 'faller', text: () => KP.fillPro(N(faller.r) + ' dropped ' + (-faller.k) + ' places after ' + mission + ' — the edit showed the mistake twice, once in slow motion.', faller.r.x.p) });
+    if (onLine) kinds.push({ kind: 'line', text: () => KP.fillPro(N(onLine) + ' sat on the line until the last name was read, and the last name was not {hers}.', onLine.x.p) });
+    if (pickP) kinds.push({ kind: 'fancam', text: () => { KP.socialSpike(state, pickP, hin(state, pickP, 'pickFancam', S.pickFollowers, state.week), 'seasonfancam' + state.week); return 'The ' + KP.displayName(pickP) + ' fancam crossed a million by morning.'; } });
+    if (oursTop) kinds.push({ kind: 'ours', text: () => KP.fillPro(N(oursTop) + ' owned ' + mission + ' — the room at home watched it twice, once with the sound off to see {pos} face.', oursTop.x.p) });
+    const pool = kinds.filter(k => k.kind !== s.lastMomentKind);
+    const pick = pool[Math.floor(KP.hash01([state.seed, 'seasonMoment', state.week].join('|')) * pool.length)] || kinds[0];
+    s.lastMomentKind = pick.kind;
+    return pick.text();
+  }
+  // the show's name in a sentence: "THE FINAL LINEUP finale", "the STARFORGE finale"
+  const showRef = s => (/^THE\b/i.test(s.show) ? '' : 'the ') + s.show;
+  KP.seasonShowRef = showRef;
+
   // ---- the house: the broadcaster's label ----------------------------------
   function projectHouse(state, show) {
     let house = (state.rivals || []).find(r => r.projectHouse && r.show === show);
@@ -246,14 +337,19 @@
     if (state.week > s.startWeek && state.week < s.finaleWeek) {
       if (s.status === 'casting') s.status = 'airing';
       const field = alive();
+      const weekNo = state.week - s.startWeek;
       const weeksLeft = s.finaleWeek - state.week;
       const target = S.lineupSize + S.runnersUp;
       const toCut = Math.max(0, Math.ceil((field.length - target) / Math.max(1, weeksLeft)));
+      const mission = S.MISSIONS[Math.max(0, Math.min(S.MISSIONS.length - 1, weekNo - 1))];
+      // the ranking reveal (v0.11.4): every contestant's place this week, kept on the file
       const scored = field.map(c => ({ c, p: state.people[c.personId] }))
-        .map(x => ({ x, score: KP.seasonReadiness(state, x.p) + (h(state, x.p, 'judge', state.week) - 0.5) * 2 * S.noise }))
-        .sort((a, b) => a.score - b.score);
+        .map(x => ({ x, score: weekScore(state, x.c, x.p, 'judge', state.week) }))
+        .sort((a, b) => b.score - a.score);
+      scored.forEach((row, i) => { row.x.c.ranks = (row.x.c.ranks || []).concat([i + 1]); });
+      const line = field.length - toCut;   // the last safe rank this week
       const gone = [];
-      scored.slice(0, toCut).forEach(({ x }) => {
+      scored.slice().reverse().slice(0, toCut).forEach(({ x }) => {
         x.c.eliminatedWeek = state.week;
         x.c.rank = field.length - gone.length;
         gone.push(x.p);
@@ -263,8 +359,8 @@
         KP.chapter(state, x.p, 'seasonOut', { show: s.show, weekNo: state.week - s.startWeek });
         if (x.c.source === 'player' && x.p.status === 'trainee' && (state.roster || []).includes(x.p.id)) {
           led.oursEliminated++;
-          inbox.push({ kind: 'company', ind: 'seasonElim', priority: 'high', personId: x.p.id,
-            text: KP.fillPro(KP.displayName(x.p) + ' was eliminated from ' + s.show + ' last night — week ' + (state.week - s.startWeek) + ', a vote nobody in the building saw coming. {She} is back in the practice room Monday with ' +
+          inbox.push({ kind: 'company', ind: 'seasonElim', priority: 'critical', personId: x.p.id,
+            text: KP.fillPro(KP.displayName(x.p) + ' was eliminated from ' + s.show + ' last night — ' + mission + ', week ' + (state.week - s.startWeek) + ', ' + ordinal(x.c.rank) + ' of ' + field.length + ' at the reveal. {She} is back in the practice room Monday with ' +
               KP.fmtCount(KP.socialOf(state, x.p)) + ' followers who watched {her} go. Nobody here will say the word "exposure." Everyone is thinking it.', x.p) });
         } else if (x.c.source === 'school') {
           KP.seasonRevealStudent(state, x.p);
@@ -279,8 +375,52 @@
         p.mediaExp = (p.mediaExp || 0) + S.weeklyMedia;
         KP.socialSpike(state, p, hin(state, p, 'seasonWeek', S.weeklyFollowers, state.week), 'season' + s.year + 'w' + state.week);
       });
-      inbox.push({ kind: 'public', feedOnly: true, ind: 'seasonWeek', show: s.show, weekNo: state.week - s.startWeek,
-        gone: gone.map(p => KP.displayName(p)), remaining: alive().length, text: 'the season airs' });
+      // the public's pick: the highest hype from the cast; a leader can take it
+      const remaining = scored.filter(r => !r.x.c.eliminatedWeek);
+      if (s.fanPick && !remaining.some(r => r.x.p.id === s.fanPick)) s.fanPick = null;
+      if (remaining.length && (!s.fanPick || (remaining[0].x.p.id !== s.fanPick && KP.hash01([state.seed, 'pickflip', state.week].join('|')) < S.fanPickFlip))) {
+        s.fanPick = remaining[0].x.p.id;
+      }
+      // the named moment, the arc on the line, the edit
+      const moment = remaining.length ? momentOf(state, s, remaining, line, mission) : '';
+      const ours = remaining.filter(r => r.x.c.source === 'player' && r.x.p.status === 'trainee' && (state.roster || []).includes(r.x.p.id));
+      let danger = false;
+      ours.forEach(r => {
+        const c = r.x.c, p = r.x.p, rk = lastRank(c);
+        if (rk <= S.topAt) p.morale = KP.clamp(p.morale + S.topMorale, 0, 100);
+        if (rk >= line - S.nervesWithin) { p.morale = KP.clamp(p.morale - S.nervesMorale, 0, 100); danger = true; }
+        // the edit: once a season, the producers decide what she is
+        const editAt = S.editWeekMin + Math.floor(h(state, p, 'editAt', s.year) * (S.editWeekMax - S.editWeekMin + 1));
+        if (!c.edit && weekNo === editAt && h(state, p, 'edit', s.year) < S.editChance) {
+          c.edit = h(state, p, 'editKind', s.year) < 0.5 ? 'villain' : 'underdog';
+          c.editWeek = state.week;
+          led.edits = (led.edits || 0) + 1;
+          KP.openScene(state, { kind: 'seasonEdit', personId: p.id, edit: c.edit, expiresWeek: state.week + 1 });
+          inbox.push({ kind: 'company', ind: 'seasonEdit', priority: 'critical', personId: p.id, edit: c.edit,
+            text: KP.fillPro(s.show + ' cut ' + KP.displayName(p) + ' ' + (c.edit === 'villain'
+              ? 'the villain edit this week — a reaction shot, a line out of context, a caption that chose a side. The comments found {her} by midnight.'
+              : 'the underdog edit this week — the practice-room footage, the late-night run, the mentor who said {she} was not ready and the clip of {her} proving otherwise. The nation is rooting.') +
+              ' The desk can answer with a statement, or let it ride. The call is on the Desk; it answers within the week.', p) });
+        }
+      });
+      // the episode: one letter a week, the shape of the night
+      const leaderP = remaining.length ? remaining[0].x.p : null;
+      const rankLine = ours.length
+        ? ours.map(r => { const c = r.x.c, rk = lastRank(c), pv = prevRank(c);
+            const move = pv == null ? '' : rk < pv ? ' (up ' + (pv - rk) + ')' : rk > pv ? ' (down ' + (rk - pv) + ')' : ' (holding)';
+            return KP.displayName(r.x.p) + ' is ' + ordinal(rk) + ' of ' + remaining.length + move; }).join('; ') +
+          '. The line falls at ' + ordinal(Math.max(1, KP.seasonLine(state) || line)) + ' next week.'
+        : (leaderP ? KP.displayName(leaderP) + ' holds first' + (s.fanPick && s.fanPick !== leaderP.id && state.people[s.fanPick]
+            ? '; the public’s pick is ' + KP.displayName(state.people[s.fanPick]) + '.' : ', and the public agrees.') : '');
+      const goneLine = gone.length ? ' Gone: ' + gone.map(p => { const c = s.contestants.find(x => x.personId === p.id);
+        return KP.displayName(p) + (c && c.source === 'rival' ? ' (' + c.company + ')' : c && c.source === 'school' ? ' (academy)' : c && c.source === 'player' ? ' (' + state.company.short + ')' : ''); }).join(', ') + '.' : ' Nobody went home.';
+      inbox.push({ kind: ours.length ? 'company' : 'industry', ind: 'seasonEpisode', priority: ours.length ? (danger ? 'critical' : 'high') : 'normal',
+        show: s.show, weekNo,
+        text: s.show + ', episode ' + weekNo + ' — ' + mission + '. ' + rankLine + (moment ? ' ' + moment : '') + goneLine });
+      inbox.push({ kind: 'public', feedOnly: true, ind: 'seasonWeek', show: s.show, weekNo,
+        gone: gone.map(p => KP.displayName(p)), remaining: remaining.length,
+        leader: leaderP ? KP.displayName(leaderP) : null, pick: s.fanPick && state.people[s.fanPick] ? KP.displayName(state.people[s.fanPick]) : null,
+        mission, text: 'the season airs' });
       return;
     }
 
@@ -295,11 +435,11 @@
       runners.forEach(({ x }, i) => {
         x.c.eliminatedWeek = state.week; x.c.rank = S.lineupSize + i + 1;
         touch(state, x.p, 'finalist');
-        x.p.history.push({ week: state.week, text: 'Made the ' + s.show + ' finale and missed the lineup. The fandom that voted has not logged off.' });
+        x.p.history.push({ week: state.week, text: 'Made ' + showRef(s) + ' finale and missed the lineup. The fandom that voted has not logged off.' });
         KP.chapter(state, x.p, 'seasonFinalist', { show: s.show });
         if (x.c.source === 'school') KP.seasonRevealStudent(state, x.p);
         if (x.c.source === 'player' && x.p.status === 'trainee' && (state.roster || []).includes(x.p.id)) inbox.push({ kind: 'company', ind: 'seasonFinalist', priority: 'high', personId: x.p.id,
-          text: KP.fillPro(KP.displayName(x.p) + ' made the ' + s.show + ' finale and missed the lineup by a televised vote. {She} is yours again Monday — with a fandom that already has a name for itself.', x.p) });
+          text: KP.fillPro(KP.displayName(x.p) + ' made ' + showRef(s) + ' finale and missed the lineup by a televised vote. {She} is yours again Monday — with a fandom that already has a name for itself.', x.p) });
       });
       const permanent = KP.hash01([state.seed, 'seasonRoll', s.year].join('|')) < S.permanentChance;
       s.permanent = permanent;
@@ -324,15 +464,15 @@
             p.company = house.short;
             p.signedWeek = state.week;
             p.flags.seasonHome = { company: null, keptFrom: state.company.short };
-            p.history.push({ week: state.week, text: 'Won the ' + s.show + ' lineup — and the broadcaster’s label kept it. Left ' + state.company.short + ' on the finale night, on television, to applause.' });
+            p.history.push({ week: state.week, text: 'Won ' + showRef(s) + ' lineup — and the broadcaster’s label kept it. Left ' + state.company.short + ' on the finale night, on television, to applause.' });
             inbox.push({ kind: 'company', ind: 'seasonKept', priority: 'critical', personId: p.id,
-              text: KP.fillPro(KP.displayName(p) + ' made the ' + s.show + ' lineup — and this season the lineup is PERMANENT. The broadcaster’s label holds {pos} contract now; you held the tape. ' +
+              text: KP.fillPro(KP.displayName(p) + ' made ' + showRef(s) + ' lineup — and this season the lineup is PERMANENT. The broadcaster’s label holds {pos} contract now; you held the tape. ' +
                 'Every rival desk sent somebody knowing this could happen. So did you.', p) });
           } else {
             p.flags.onProject = { until: state.week + S.termWeeks, house: house.short, show: s.show };
-            p.history.push({ week: state.week, text: 'Won the ' + s.show + ' lineup. A ' + S.termWeeks + '-week project run under the broadcaster’s label; the seat at ' + state.company.short + ' is held.' });
+            p.history.push({ week: state.week, text: 'Won ' + showRef(s) + ' lineup. A ' + S.termWeeks + '-week project run under the broadcaster’s label; the seat at ' + state.company.short + ' is held.' });
             inbox.push({ kind: 'company', ind: 'seasonLineup', priority: 'critical', personId: p.id,
-              text: KP.fillPro(KP.displayName(p) + ' made the ' + s.show + ' lineup. The project group debuts under the broadcaster’s label for ' + S.termWeeks + ' weeks — {she} is theirs on stage and yours on paper until ' +
+              text: KP.fillPro(KP.displayName(p) + ' made ' + showRef(s) + ' lineup. The project group debuts under the broadcaster’s label for ' + S.termWeeks + ' weeks — {she} is theirs on stage and yours on paper until ' +
                 KP.weekLabel(state.week + S.termWeeks).text + ', and {she} comes back with a public. Your lineups wait.', p) });
           }
         } else {
@@ -346,7 +486,7 @@
           p.status = 'rival';
           p.company = house.short;
           if (p.signedWeek == null) p.signedWeek = state.week;
-          p.history.push({ week: state.week, text: 'Won the ' + s.show + ' lineup' + (permanent ? ' — the broadcaster’s label keeps it.' : ' — a ' + S.termWeeks + '-week project run, then home.') });
+          p.history.push({ week: state.week, text: 'Won ' + showRef(s) + ' lineup' + (permanent ? ' — the broadcaster’s label keeps it.' : ' — a ' + S.termWeeks + '-week project run, then home.') });
         }
       });
       const made = KP.makeRivalAct(state, rng, house, { members: memberIds, gender: s.gender });
@@ -361,14 +501,167 @@
       s.actId = made ? made.act.id : null;
       s.houseShort = house.short;
       const names = lineup.map(({ x }) => KP.displayName(x.p));
-      inbox.push({ kind: 'industry', ind: 'seasonFinale', priority: 'high', show: s.show, permanent,
-        text: 'The ' + s.show + ' finale aired last night: ' + names.join(', ') + ' are the lineup' + (made ? ' — ' + made.act.name : '') + '. ' +
+      // the ceremony (v0.11.4): the ranks read in the order the stage read them
+      const coOf = c => c.source === 'rival' ? c.company : c.source === 'player' ? state.company.short : c.source === 'school' ? 'academy' : 'unsigned';
+      const readOut = field.slice().reverse().map(({ x }, i) => ordinal(field.length - i) + ' ' + KP.displayName(x.p) + ' (' + coOf(x.c) + ')').join(' · ');
+      const oursInFinale = field.filter(({ x }) => x.c.source === 'player');
+      const oursLine = oursInFinale.length ? ' ' + oursInFinale.map(({ x }) => KP.displayName(x.p) + ' finished ' + ordinal(x.c.rank) + (x.c.rank <= S.lineupSize ? ' — in the lineup.' : '.')).join(' ') : '';
+      const pickP = s.fanPick ? state.people[s.fanPick] : null;
+      const pickLine = pickP ? (lineup.some(({ x }) => x.p.id === pickP.id) ? ' The public’s pick, ' + KP.displayName(pickP) + ', made it; the voting app is a victory parade.' : ' The public’s pick, ' + KP.displayName(pickP) + ', missed the lineup; the word “robbed” trended before the credits.') : '';
+      inbox.push({ kind: oursInFinale.length ? 'company' : 'industry', ind: 'seasonFinale', priority: oursInFinale.length ? 'critical' : 'high', show: s.show, permanent,
+        text: showRef(s).charAt(0).toUpperCase() + showRef(s).slice(1) + ' finale, read in the order the stage read it: ' + readOut + '. The lineup: ' + names.join(', ') + (made ? ' — ' + made.act.name : '') + '. ' +
           (permanent ? 'And the roll came up PERMANENT: the broadcaster’s label keeps them. Five companies just lost a trainee each to a television show, and the fandom that voted is already buying lightsticks.'
             : 'A ' + S.termWeeks + '-week project run, then everyone goes home — which every fandom knows and refuses to believe.') +
-          ' The finalists who missed the lineup are the morning’s favorite market.' });
+          oursLine + pickLine + ' The finalists who missed the lineup are the morning’s favorite market.' });
+      // the set makes a friend (the industry-friends system), and the scouts have a finalist's number
+      field.forEach(({ x }) => {
+        if (x.c.source !== 'player' || !(state.roster || []).includes(x.p.id)) return;
+        const others = field.filter(o => o.x.p.id !== x.p.id && o.x.c.source !== 'player');
+        if (others.length && !(state.industryFriends || []).some(f => f.a === x.p.id || f.b === x.p.id)) {
+          const friend = others[Math.floor(h(state, x.p, 'setFriend', s.year) * others.length)].x.p;
+          state.industryFriends = state.industryFriends || [];
+          state.industryFriends.push({ a: x.p.id, b: friend.id, actId: made ? made.act.id : null, since: state.week, how: 'season' });
+          x.p.history.push({ week: state.week, text: 'Made a real friend on the ' + s.show + ' set: ' + KP.displayName(friend) + '. Three months of dorm rooms and cut lines; the number stays.' });
+        }
+        if (x.c.rank > S.lineupSize) {
+          KP.signingHouses(state).slice().sort((a, b) => (b.prestige || 0) - (a.prestige || 0)).slice(0, 2).forEach(r => {
+            r.interest = r.interest || {}; r.interest[x.p.id] = Math.max(r.interest[x.p.id] || 0, S.finalistInterest);
+          });
+        }
+      });
       s.contestants.forEach(c => { const p = state.people[c.personId]; if (p) delete p.flags.onSeason; });
       return;
     }
+  });
+
+  // ---- the doors during the run (v0.11.4, §95) ------------------------------
+  function ourAlive(state, personId) {
+    const s = state.season;
+    if (!s || s.status !== 'airing') return { ok: false, reason: 'No season is on the air.' };
+    const c = (s.contestants || []).find(x => x.personId === personId && x.source === 'player');
+    if (!c || c.eliminatedWeek) return { ok: false, reason: 'She is not on the show.' };
+    const p = state.people[personId];
+    if (!p || !(state.roster || []).includes(p.id)) return { ok: false, reason: 'She is not on the roster.' };
+    return { ok: true, s, c, p };
+  }
+  // the vote push: the fandom machinery, bought — three a season, thinner each time
+  KP.seasonPushRead = function (state, personId) {
+    const S = KP.C.COMPETITION;
+    const r = ourAlive(state, personId);
+    if (!r.ok) return r;
+    if ((r.c.pushes || 0) >= S.pushScores.length) return { ok: false, reason: 'Three pushes a season is the ceiling. The app has seen the pattern.' };
+    if (r.c.pushWeek === state.week) return { ok: false, reason: 'The push is already running this week.' };
+    if (state.budget < S.pushCost) return { ok: false, reason: 'A push bills ' + S.pushCost + '. The account says no.' };
+    return { ok: true, cost: S.pushCost, left: S.pushScores.length - (r.c.pushes || 0) };
+  };
+  KP.seasonPush = function (state, personId) {
+    const S = KP.C.COMPETITION;
+    const read = KP.seasonPushRead(state, personId);
+    if (!read.ok) return read;
+    const { s, c, p } = ourAlive(state, personId);
+    state.budget -= S.pushCost;
+    if (KP.ledgerFlow) KP.ledgerFlow(state, 'marketing', -S.pushCost);
+    c.pushes = (c.pushes || 0) + 1;
+    c.pushWeek = state.week;
+    c.pushScore = S.pushScores[c.pushes - 1];
+    ledger(state).pushes = (ledger(state).pushes || 0) + 1;
+    // the edit may call it: company money is a story the show loves
+    const called = h(state, p, 'pushCalled', state.week) < S.pushCalledChance;
+    if (called) {
+      p.hype = KP.clamp((p.hype || 0) + S.pushCalledHype, 0, 100);
+      c.pushCalled = state.week;
+      KP.note(state, { kind: 'public', ind: 'seasonPushCalled', priority: 'high', personId: p.id,
+        text: KP.fillPro(showRef(s).charAt(0).toUpperCase() + showRef(s).slice(1) + ' recap caught the push: a graphic, a pause, “company money.” ' + KP.displayName(p) + '’s votes are up and {pos} comments are a courtroom.', p) });
+    }
+    return { ok: true, called, note: 'The voting push runs this week — ' + (c.pushes === 1 ? 'the first' : c.pushes === 2 ? 'the second' : 'the last') + ' of the season' + (called ? ', and the edit noticed.' : '.') };
+  };
+  // the coach visit: the chair flies out; the room at home trains thinner that week
+  KP.seasonCoachRead = function (state, personId) {
+    const S = KP.C.COMPETITION;
+    const r = ourAlive(state, personId);
+    if (!r.ok) return r;
+    const seat = (state.seats || {}).vocal ? 'vocal' : (state.seats || {}).dance ? 'dance' : null;
+    if (!seat) return { ok: false, reason: 'No vocal or dance chair to send.' };
+    if (r.c.coachWeek === state.week) return { ok: false, reason: 'The coach is already on the set this week.' };
+    if (state.coachAway && state.coachAway.week === state.week) return { ok: false, reason: 'One chair flies out a week.' };
+    if (state.budget < S.coachCost) return { ok: false, reason: 'The trip bills ' + S.coachCost + '. The account says no.' };
+    return { ok: true, seat, cost: S.coachCost };
+  };
+  KP.seasonCoach = function (state, personId) {
+    const S = KP.C.COMPETITION;
+    const read = KP.seasonCoachRead(state, personId);
+    if (!read.ok) return read;
+    const { s, c, p } = ourAlive(state, personId);
+    state.budget -= S.coachCost;
+    if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -S.coachCost);
+    c.coachWeek = state.week;
+    state.coachAway = { seat: read.seat, week: state.week };
+    ledger(state).coached = (ledger(state).coached || 0) + 1;
+    const st = state.seats[read.seat];
+    return { ok: true, note: (st ? st.name : 'The coach') + ' flies out to the ' + s.show + ' set for ' + KP.displayName(p) + '’s week. The practice room at home runs on the assistants.' };
+  };
+  // the withdrawal: she comes home before the show is done with her
+  KP.seasonWithdraw = function (state, personId) {
+    const S = KP.C.COMPETITION;
+    const r = ourAlive(state, personId);
+    if (!r.ok) return r;
+    const { s, c, p } = r;
+    const field = aliveOf(state, s).length;
+    c.eliminatedWeek = state.week; c.rank = field; c.withdrawn = true;
+    p.morale = KP.clamp(p.morale + S.withdrawMorale, 0, 100);
+    p.hype = Math.round((p.hype || 0) * S.withdrawHypeMult);
+    delete p.flags.onSeason;
+    p.seasonRecord = { show: s.show, year: s.year, result: 'withdrawn' };
+    KP.chapter(state, p, 'seasonOut', { show: s.show, weekNo: state.week - s.startWeek, withdrawn: true });
+    p.history.push({ week: state.week, text: 'Pulled out of ' + s.show + ' in week ' + (state.week - s.startWeek) + ' by the company. The show ran a caption. The fandom ran a thread.' });
+    ledger(state).withdrawn = (ledger(state).withdrawn || 0) + 1;
+    if (state.scenes) state.scenes = state.scenes.filter(sc => !(sc.kind === 'seasonEdit' && sc.personId === p.id));
+    KP.note(state, { kind: 'company', ind: 'seasonWithdrawn', priority: 'critical', personId: p.id,
+      text: KP.fillPro(KP.displayName(p) + ' is out of ' + s.show + ' — the company pulled {her} in week ' + (state.week - s.startWeek) + '. The caption said “schedule conflict.” The timeline said other things. {She} is in the practice room Monday, quieter than {she} left.', p) });
+    return { ok: true };
+  };
+  // the edit: the producers decided what she is; the desk decides what to say
+  KP.registerScene('seasonEdit', {
+    title: (state, sc) => { const p = state.people[sc.personId]; return (p ? KP.displayName(p) : 'The edit') + ' · the edit'; },
+    body: (state, sc) => {
+      const p = state.people[sc.personId];
+      const S = KP.C.COMPETITION;
+      if (!p) return '';
+      return KP.fillPro(sc.edit === 'villain'
+        ? 'The show has decided ' + KP.displayName(p) + ' is this season’s villain: the reaction shots, the subtitles, the music under {pos} interviews. It costs votes every week it runs. A statement from the company (' + S.editStatementCost + ') ends the story at the price of looking defensive; letting it ride keeps {her} in the edit, and the villain who survives is a star.'
+        : 'The show has decided ' + KP.displayName(p) + ' is this season’s underdog: the late-night footage, the mentor who doubted, the clip of {her} proving otherwise. The nation is rooting and the votes show it. A statement from the company would only remind everyone there is a company; the underdog story is the one thing money cannot buy.', p);
+    },
+    options: (state, sc) => [
+      { id: 'ride', label: 'Let it ride' },
+      ...(state.budget >= KP.C.COMPETITION.editStatementCost ? [{ id: 'statement', label: 'Put out a statement · ' + KP.C.COMPETITION.editStatementCost }] : []),
+    ],
+    resolve: (state, sc, optionId) => {
+      const S = KP.C.COMPETITION;
+      const p = state.people[sc.personId];
+      const s = state.season;
+      const c = s && (s.contestants || []).find(x => x.personId === sc.personId);
+      if (!p || !c) return { toast: 'The moment passed.' };
+      if (optionId === 'statement') {
+        state.budget -= S.editStatementCost;
+        if (KP.ledgerFlow) KP.ledgerFlow(state, 'marketing', -S.editStatementCost);
+        c.editAnswered = true;
+        p.hype = KP.clamp((p.hype || 0) + S.editStatementHype, 0, 100);
+        ledger(state).statements = (ledger(state).statements || 0) + 1;
+        return { toast: sc.edit === 'villain'
+          ? 'The statement ran. The edit lost its subject; the comments lost their fun. The votes stopped bleeding — and the story that would have made her is over.'
+          : KP.fillPro('The statement ran, and the underdog story died on the spot: there was a company all along. {She} is just a contestant again.', p) };
+      }
+      c.editRode = true;
+      return { toast: sc.edit === 'villain'
+        ? KP.fillPro('You let it ride. The edit will cost {her} for a few weeks. If {she} survives it, {she} survives it on camera — and the public remembers who did not flinch.', p)
+        : KP.fillPro('You let it ride. The nation keeps rooting; the votes keep coming. Nobody mentions the company, which is the point.', p) };
+    },
+    expire: (state, sc) => {
+      const s = state.season;
+      const c = s && (s.contestants || []).find(x => x.personId === sc.personId);
+      if (c) c.editRode = true;
+      return null;   // silence lets it ride
+    },
   });
 
   // a student the cameras found: she is on the open board now, public
@@ -391,8 +684,31 @@
     return rng.pick([
       { persona: 'fan', text: n.show + ' week ' + n.weekNo + (gone ? ': ' + gone + ' went home and I am NOT okay. ' : ': nobody I love went home. ') + n.remaining + ' left. the voting app is my full-time job now' },
       { persona: 'casual', text: 'watching ' + n.show + ' purely as a sociologist. ' + n.remaining + ' teenagers, one lineup, and a nation that has opinions about key changes' },
-      { persona: 'stan', text: (gone ? gone + ' eliminated from ' + n.show + ' week ' + n.weekNo + ' is the robbery of the decade. SOMEBODY sign her. ' : n.show + ' week ' + n.weekNo + ' and my kid survived. ') + 'rank reveal at midnight' },
+      { persona: 'stan', text: (gone ? gone + ' eliminated from ' + n.show + ' week ' + n.weekNo + ' is the robbery of the decade. SOMEBODY sign them. ' : n.show + ' week ' + n.weekNo + ' and my kid survived. ') + 'rank reveal at midnight' },
+      ...(n.leader ? [{ persona: 'stan', text: n.leader + ' holding first on ' + n.show + ' after ' + n.mission + '. the gap is not closing. the gap is a lifestyle' }] : []),
+      ...(n.pick ? [{ persona: 'fan', text: 'the ' + n.show + ' fan pick is ' + n.pick + ' and it is not close. the fancams have fancams. the voting app crashed twice' }] : []),
+      ...(n.mission ? [{ persona: 'casual', text: n.show + ' did ' + n.mission + ' this week and I have never cared about a key change this much in my life. ' + n.remaining + ' left' }] : []),
+      ...(n.pick && n.leader && n.pick !== n.leader ? [{ persona: 'anti', text: n.show + ': the judges have ' + n.leader + ' first, the internet has ' + n.pick + ' first. one of these groups votes at 2am. guess which' }] : []),
     ]);
+  });
+  KP.onFeedEvent('seasonEdit', (state, n, rng) => {
+    const p = state.people[n.personId];
+    if (!p) return null;
+    return rng.pick(n.edit === 'villain' ? [
+      { persona: 'anti', text: KP.fillPro('the ' + KP.publicGiven(p) + ' edit this week was a crime scene. one reaction shot, one caption, and {she} is the villain of the season. editors are the real contestants', p) },
+      { persona: 'fan', text: KP.fillPro('they gave ' + KP.publicGiven(p) + ' the VILLAIN EDIT and I have the full clip and {she} was being NICE. timestamps in the replies. defending with my life', p) },
+    ] : [
+      { persona: 'fan', text: KP.fillPro(KP.publicGiven(p) + ' underdog edit. the practice-room footage. the mentor who said no. I am sobbing at a survival show at 1am and I regret nothing', p) },
+      { persona: 'casual', text: 'the show found its underdog and it is ' + KP.publicGiven(p) + '. the nation has adopted a child. the nation does this every year and never learns' },
+    ]);
+  });
+  KP.onFeedEvent('seasonPushCalled', (state, n, rng) => {
+    const p = state.people[n.personId];
+    return p ? { persona: 'anti', text: 'the “company money” graphic on ' + KP.publicGiven(p) + '’s votes… the show said it so I don’t have to. anyway the votes are real and so is the invoice' } : null;
+  });
+  KP.onFeedEvent('seasonWithdrawn', (state, n, rng) => {
+    const p = state.people[n.personId];
+    return p ? { persona: 'fan', text: KP.fillPro(KP.publicGiven(p) + ' pulled from the show mid-season by {pos} own company. “schedule conflict.” sure. the thread has 4k replies and none of them believe it', p) } : null;
   });
   KP.onFeedEvent('seasonFinale', (state, n, rng) => rng.pick([
     { persona: 'fan', text: 'the ' + n.show + ' finale robbed my kid AGAIN. she trained on national television for three months and missed the lineup by ONE vote. some company better call her by Monday' },
