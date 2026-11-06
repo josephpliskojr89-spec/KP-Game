@@ -196,15 +196,14 @@
   // ---- the quarterly close + red ink + the grind -----------------------
   const STREAM_LABELS = [
     ['albums', 'Album sales'], ['streams', 'Streaming & digital'],
-    ['tours', 'Touring'], ['deals', 'Brand deals'],
-    ['appearances', 'Appearances & gigs'], ['distributor', 'Distribution'],
+    ['tours', 'Touring'], ['outside', 'Outside work'],   // brand deals + second jobs (v0.10.42, §89 D6)
+    ['appearances', 'Stage fees'], ['distributor', 'Distribution'],
     ['production', 'Production & pressing'], ['marketing', 'Marketing'],
     ['signings', 'Signings & scouting'], ['artistPay', 'Artist settlement'],
-    ['commerce', 'Fandom commerce'], ['catalog', 'Catalog royalties'],
+    ['commerce', 'Fandom commerce'], ['catalog', 'Catalog & archive'],   // royalties + the WeCast ad settlement (§89 D10)
     ['japan', 'Japan cycle'],
     ['trainees', 'Practice rooms & stipends'],
     ['financing', 'Financing'],   // the runway (v0.10.19): raises in, the toll out
-    ['adRevenue', 'WeCast ad revenue'],   // the ad settlement (v0.10.20)
   ];
   KP.lastStatement = function (state) { return (state.books || {}).last || null; };
   KP.registerWeekly('books', 758, function (state, rng, inbox) {

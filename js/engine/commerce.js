@@ -14,7 +14,7 @@
 
   function ledger(state) {
     state.commerceLedger = state.commerceLedger ||
-      { clubs: 0, renewals: 0, greetings: 0, fancons: 0, tourMerch: 0,
+      { clubs: 0, renewals: 0, greetings: 0, fancons: 0, fanMeetings: 0, tourMerch: 0,
         catalogPaid: 0, royaltyChecks: 0, atmStorms: 0 };
     return state.commerceLedger;
   }
@@ -41,20 +41,48 @@
     }
   }
 
-  // ---- the fancon: the between-eras verb -------------------------------
-  KP.holdFancon = function (state, groupId) {
+  // ---- the fan event: the between-eras verb, two formats ---------------
+  // the fancon (ticketed: the till, the intensity, the ATM audit) and
+  // the fan meeting (free, at cost: the warmth, the grudge cooled — the
+  // constituency's old verb, folded here v0.10.42, §89 D10). One clock:
+  // the event sets its own quiet, and the fans were just here either way.
+  KP.fanEventRead = function (state, groupId, format) {
     const M = KP.C.MERCH;
-    const g = KP.groups(state).find(x => x.id === groupId);
-    if (!g || !g.debuted || g.retiredWeek) return { ok: false, reason: 'A fancon needs a debuted act and a room that wants it.' };
+    const g = KP.groupById(state, groupId);
+    const free = format === 'free';
+    if (!g || !g.debuted || g.retiredWeek) return { ok: false, reason: (free ? 'Fan meetings are for debuted groups.' : 'A fancon needs a debuted act and a room that wants it.') };
     if (g.prep || g.tour || g.hiatus || g.jpAway) return { ok: false, reason: 'The calendar is spoken for.' };
-    if (state.week <= (g.promoUntil || 0)) return { ok: false, reason: 'Mid-promotion. The fancon is for the quiet between.' };
-    if (!g.fandom || (g.fandom.intensity || 0) < M.fanconMinIntensity) {
-      return { ok: false, reason: 'A fancon for an unorganized fandom is a theater rental with extra sadness. Build the room first.' };
+    if (state.week <= (g.promoUntil || 0)) return { ok: false, reason: 'Mid-promotion. The fan event is for the quiet between.' };
+    if (!free && (!g.fandom || (g.fandom.intensity || 0) < M.fanconMinIntensity)) {
+      return { ok: false, reason: 'A fancon for an unorganized fandom is a theater rental with extra sadness. Build the room first — or hold the free meeting.' };
     }
-    if (state.week - (g.lastFanconWeek || -999) < M.fanconCooldown) {
-      return { ok: false, reason: 'The last fancon is still a fresh memory — that is what makes it worth money.' };
+    if (state.week < (g.fanEventQuietUntil || 0)) {
+      return { ok: false, reason: free ? 'The last fan event is still being posted about. Let it breathe.' : 'The last fan event is still a fresh memory — that is what makes it worth money.' };
     }
-    if (state.budget < M.fanconCost) return { ok: false, reason: 'The venue bills up front.' };
+    const cost = free ? M.fanMeetingCost : M.fanconCost;
+    if (state.budget < cost) return { ok: false, reason: free ? 'The venue, the security, the printed slogans — it costs ' + cost + '.' : 'The venue bills up front.' };
+    return { ok: true, g, cost };
+  };
+  KP.holdFancon = function (state, groupId, format) {
+    const M = KP.C.MERCH;
+    const read = KP.fanEventRead(state, groupId, format);
+    if (!read.ok) return read;
+    const g = read.g;
+    if (format === 'free') {
+      state.budget -= M.fanMeetingCost;
+      if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', -M.fanMeetingCost);   // §89 E
+      g.fanEventQuietUntil = state.week + M.fanMeetingCooldown;
+      KP.fandomGain(g, M.fanMeetingFandomGain);
+      g.fandomGrudge = Math.max(0, (g.fandomGrudge || 0) - 0.5);
+      g.members.forEach(id => {
+        const m = state.people[id];
+        if (m) m.morale = KP.clamp(m.morale + M.fanMeetingMorale, 0, 100);
+      });
+      ledger(state).fanMeetings++;
+      KP.note(state, { kind: 'public', ind: 'fanMeeting', priority: 'high', groupId: g.id,
+        text: g.name + ' held a fan meeting — games, letters, one member crying at a fan’s handmade gift, security gently confiscating a cake shaped like the road manager. Three hours where the parasocial contract was just social. The fandom will run on this for months.' });
+      return { ok: true, cost: M.fanMeetingCost };
+    }
     state.budget -= M.fanconCost;
     const fanbase = KP.fanbaseRead ? KP.fanbaseRead(state, g) : 2000;
     const revenue = Math.round((fanbase / 1000) * M.fanconPerK);
@@ -62,7 +90,7 @@
     if (KP.ledgerFlow) { KP.ledgerFlow(state, 'commerce', revenue - M.fanconCost); }
     if (KP.settleShare) KP.settleShare(state, g, revenue);
     g.fandom.intensity = KP.clamp(g.fandom.intensity + M.fanconIntensity, 0, 100);
-    g.lastFanconWeek = state.week;
+    g.fanEventQuietUntil = state.week + M.fanconCooldown;
     g.members.map(id => state.people[id]).filter(Boolean).forEach(m => {
       if (KP.onBreak(m)) return;
       m.fatigue = KP.clamp(m.fatigue + M.fanconFatigue, 0, 100);
@@ -213,7 +241,7 @@
         const fanbase = KP.fanbaseRead ? KP.fanbaseRead(state, g) : 2000;
         const revenue = Math.round((fanbase / 1000) * M.tourMerchPerK);
         state.budget += revenue;
-        if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', revenue);
+        if (KP.ledgerFlow) KP.ledgerFlow(state, 'tours', revenue);   // the tour's line (§89 D10)
         led.tourMerch++;   // a books line, not a letter (§89 C)
         // the table is a push like any other — a tour landing on top of
         // the greetings and the fancon is exactly the stacked season the

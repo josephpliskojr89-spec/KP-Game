@@ -123,7 +123,7 @@
       const voice = KP.voiceAbroad ? KP.voiceAbroad(state, g, 'jp') : null;
       let score = (regions.jp * 0.55 + lastRec * 0.45) * lane.mult *
         (0.9 + rng.next() * 0.25);
-      if (!voice) score *= J.noVoiceDamp;
+      score *= KP.tongueFactor(state, g, 'jp', 'japan');   // one table (§89 D12)
       const board = J.titans.map((name, i) => ({ name, score: titanScore(state, i) }));
       board.push({ name: g.name, score, mine: true });
       board.sort((a, b) => b.score - a.score);

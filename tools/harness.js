@@ -910,7 +910,7 @@ for (let s = 0; s < SEEDS; s++) {
       if (!g.debuted || g.retiredWeek || g.prep || g.tour || g.hiatus) return;
       if (state.week <= (g.promoUntil || 0)) return;
       if (!g.fandom || (g.fandom.intensity || 0) < KP.C.MERCH.fanconMinIntensity) return;
-      if (state.week - (g.lastFanconWeek || -999) < KP.C.MERCH.fanconCooldown) return;
+      if (state.week < (g.fanEventQuietUntil || 0)) return;
       if (state.budget < KP.C.MERCH.fanconCost + 80 || restRead(g) >= 50) return;
       KP.holdFancon(state, g.id);
     });
@@ -1168,20 +1168,20 @@ for (let s = 0; s < SEEDS; s++) {
     state.groups.forEach(g => {
       if (KP.fandomEligible(state, g)) KP.nameFandom(state, g.id, 0);
     });
-    KP.openDealOffers(state).forEach(o => KP.respondDeal(state, o.id, true));
+    KP.openOutsideOffers(state, 'brand').forEach(o => KP.respondOutside(state, o.id, true));
 
     // the second job (v0.9.11): a sensible boss books the gig when the
     // idol has room — and pulls her out once the misses start stacking
     // against a long remaining run (the controlled exit beats the recast)
-    KP.openGigOffers(state).forEach(o => {
+    KP.openOutsideOffers(state, 'show').forEach(o => {
       const p = state.people[o.personId];
       const g = p && KP.groupOf(state, p.id);
       const busy = g && (g.prep || g.tour);
-      KP.respondGig(state, o.id, !!(p && !busy && p.fatigue < 55));
+      KP.respondOutside(state, o.id, !!(p && !busy && p.fatigue < 55));
     });
     KP.activeGigs(state).forEach(gig => {
       if ((gig.strain || 0) >= KP.C.GIGS.strainRecastAt - 1 && gig.weeksLeft > 4) {
-        KP.quitGig(state, gig.id);
+        KP.quitOutside(state, gig.id);
       }
     });
 
@@ -1417,7 +1417,7 @@ for (let s = 0; s < SEEDS; s++) {
     state.groups.forEach(g => {
       if (!g.debuted || !g.fandom || !g.fandom.name) return;
       if (!g.lightstickWeek) KP.launchLightstick(state, g.id);
-      if (state.budget > 150) KP.fanMeeting(state, g.id);
+      if (state.budget > 150) KP.holdFancon(state, g.id, 'free');   // the free format (v0.10.42)
     });
 
     // the help wanted (v0.10.11): a flush boss with an empty chair posts
@@ -1451,7 +1451,7 @@ for (let s = 0; s < SEEDS; s++) {
       // bot stayed home, stacked comebacks, and award season inflated
       // (daesang flood) while tour income vanished. Four weeks covers the
       // actual tour span; a single landing mid-tour just reschedules.
-      if ((state.deals || []).some(d => d.weeksLeft > 0 &&
+      if (KP.outsideJobs(state, 'brand').some(d =>
           g.members.includes(d.personId) &&
           (d.nextObligationWeek || 0) <= state.week + 4)) return;
       // a booked festival slot grounds the road (0.9.22): the boss does
@@ -2101,7 +2101,7 @@ for (let s = 0; s < SEEDS; s++) {
   if (tourSoftSeen) tally.tourSoft++;
   if ((state.discourses || []).some(d => d.kind === 'gaffe')) tally.gaffeSeen++;
   if (state.groups.some(g => g.fandom)) tally.fandomNamed++;
-  if ((state.deals || []).length || Object.values(state.people).some(p => (p.dealCount || 0) > 0)) tally.dealSigned++;
+  if (KP.outsideJobs(state, 'brand').length || Object.values(state.people).some(p => (p.dealCount || 0) > 0)) tally.dealSigned++;
   if ((state.awardHistory || []).some(a => a.isPlayer)) tally.awardWon++;
   if (awardSnubSeen) tally.awardSnubbed++;
   if (state.feed.some(p => /bubble/.test(p.text))) tally.bubbleSeen++;
@@ -2141,7 +2141,7 @@ for (let s = 0; s < SEEDS; s++) {
   if (truckSeen2) tally.truckParked++;
   // player actions write to state.inbox directly, not the weekly notes —
   // read the durable stamps, not the stream
-  if (state.groups.some(g => g.fanMeetingQuiet)) tally.fanMeetingHeld++;
+  if (((state.commerceLedger || {}).fanMeetings || 0) >= 1) tally.fanMeetingHeld++;
   if (state.groups.some(g => g.lightstickWeek)) tally.lightstickOut++;
   // the year census (v0.9.5)
   if (festSeen) tally.festPlayed++;

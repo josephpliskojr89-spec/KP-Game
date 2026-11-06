@@ -309,6 +309,51 @@ async function main() {
     ok(pushed, 'a worked push builds real momentum');
   }
   ok(/booking pile|Booked stages|The campaign/.test(campDesk), 'the desk carries the grind');
+
+  // --- the one desk for the outside work (v0.10.42, §89 D6): a brand call
+  // and a casting call wait on the same rail; the signing lands on her
+  // Career tab; the fan meeting is the fancon's free format (D10) ---
+  const outsideIds = await page.evaluate(() => {
+    const s = KP.App.state;
+    const g = s.groups.find(x => x.debuted) || s.groups[0];
+    const a = s.people[g.members[0]], b = s.people[g.members[1]];
+    s.outsideOffers = (s.outsideOffers || []).concat([
+      { id: 'e2e-brand', kind: 'brand', label: 'Léore (cosmetics)', personId: a.id, lump: 10, weekly: 2, weeks: 12, expiresWeek: s.week + 3 },
+      { id: 'e2e-panel', kind: 'panel', label: 'Off-Duty', personId: b.id, weeks: 10, weekly: 3, expiresWeek: s.week + 3 },
+    ]);
+    s.budget = Math.max(s.budget, 200);
+    if (!g.fandom) g.fandom = { name: 'WALKERS', color: 'coral rose', intensity: 40 };
+    KP.App.save(); KP.App.render();
+    return { a: a.id, b: b.id, g: g.id };
+  });
+  await page.waitForSelector('[data-action=outside-accept]');
+  ok(await page.$$eval('[data-action=outside-accept]', els => els.length) >= 2, 'the brand call and the casting call wait on one rail');
+  const railText = await page.textContent('#screen');
+  ok(/Brand offer/.test(railText) && /Variety offer/.test(railText), 'each card says what kind of call it is');
+  await tap('[data-action=outside-accept][data-id="e2e-brand"]');
+  await page.waitForTimeout(100);
+  ok(await page.evaluate(() => KP.outsideJobs(KP.App.state, 'brand').some(j => j.id === 'e2e-brand')), 'signing from the rail lands the job on the one list');
+  await tap('[data-action=outside-decline][data-id="e2e-panel"]');
+  await page.waitForTimeout(80);
+  ok(await page.$('[data-action=outside-accept]') === null, 'and the desk clears');
+  await tap('[data-nav=talent]');
+  await tap('[data-action=talent-sub][data-sub=roster]');
+  await page.waitForSelector('.talent-row');
+  await tap('[data-action=open-dossier][data-id="' + outsideIds.a + '"]');
+  await page.waitForSelector('[data-action=dossier-tab][data-tab=career]');
+  await tap('[data-action=dossier-tab][data-tab=career]');
+  await page.waitForTimeout(80);
+  const careerText = await page.textContent('#screen');
+  ok(/Outside work/.test(careerText) && /face of/.test(careerText), 'her Career tab carries the outside work');
+  await tap('[data-action=back]');
+  await tap('[data-nav=groups]');
+  await page.waitForSelector('[data-action=open-grouppage]');
+  await page.click('[data-action=open-grouppage]:nth-of-type(1)');
+  await page.waitForSelector('[data-action=hold-fancon][data-format=free]');
+  await tap('[data-action=hold-fancon][data-format=free]');
+  await page.waitForTimeout(100);
+  ok(await page.evaluate(() => (KP.App.state.commerceLedger || {}).fanMeetings === 1), 'the free fan meeting is held from the group page, on the fan event’s one clock');
+  await tap('[data-action=back]');
   await tap('[data-nav=studio]');
 
   // --- ride to the debut ---

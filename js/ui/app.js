@@ -319,12 +319,6 @@
         App.save(); UI.toast('On the calendar. Small stage, real stage.'); App.render();
         break;
       }
-      case 'fan-meeting': {
-        const r = KP.fanMeeting(s, t.dataset.id);
-        if (!r.ok) { UI.toast(r.reason, true); break; }
-        App.save(); UI.toast('The fan meeting happened. Somebody brought a cake shaped like the road manager.'); App.render();
-        break;
-      }
       case 'fund-pitch': {
         const r = KP.pitchFinancing(s);
         if (!r.ok) { UI.toast(r.reason, true); break; }
@@ -367,24 +361,17 @@
         App.render();
         break;
       }
-      case 'deal-accept': case 'deal-decline': {
-        const r = KP.respondDeal(s, t.dataset.id, act === 'deal-accept');
+      // the outside work (one list since v0.10.42, §89 D6)
+      case 'outside-accept': case 'outside-decline': {
+        const r = KP.respondOutside(s, t.dataset.id, act === 'outside-accept');
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
         UI.toast(r.note.slice(0, 120));
         App.render();
         break;
       }
-      case 'gig-accept': case 'gig-decline': {
-        const r = KP.respondGig(s, t.dataset.id, act === 'gig-accept');
-        if (!r.ok) { UI.toast(r.reason, true); break; }
-        App.save();
-        UI.toast(r.note.slice(0, 120));
-        App.render();
-        break;
-      }
-      case 'gig-quit': {
-        const r = KP.quitGig(s, t.dataset.id);
+      case 'outside-quit': {
+        const r = KP.quitOutside(s, t.dataset.id);
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
         UI.toast(r.note.slice(0, 120));
@@ -490,7 +477,7 @@
         break;
       }
       case 'hold-fancon': {
-        const r = KP.holdFancon(s, t.dataset.id);
+        const r = KP.holdFancon(s, t.dataset.id, t.dataset.format || 'ticketed');
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
         UI.toast('Fancon held — ' + r.revenue + ' through the till, and the room got warmer.');

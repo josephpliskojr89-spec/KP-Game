@@ -28,8 +28,8 @@
     const S = KP.C.SCANDAL;
     let surfaces = 0;
     if (p.broadcast) surfaces++;
-    if ((state.deals || []).some(d => d.personId === p.id && d.weeksLeft > 0)) surfaces++;
-    if ((state.gigs || []).some(gg => gg.personId === p.id && gg.weeksLeft > 0)) surfaces++;
+    if (KP.outsideOf(state, p.id, 'brand')) surfaces++;
+    if (KP.outsideOf(state, p.id, 'show')) surfaces++;
     return 1 + surfaces * S.exposurePer;
   }
   function personRisk(state, p) {
@@ -84,9 +84,7 @@
     p.morale = KP.clamp(p.morale - 4, 0, 100);
     if (sev >= 2) {
       led.sponsorHits++;
-      (state.deals || []).forEach(dl => {
-        if (dl.personId === p.id && dl.weeksLeft > 0) dl.cooled = true;
-      });
+      KP.outsideJobs(state, 'brand').forEach(dl => { if (dl.personId === p.id) dl.cooled = true; });
       if (g && g.debuted) g.popularity = KP.clamp((g.popularity || 0) - 3, 0, 100);
     }
     KP.openScene(state, { kind: 'theStory', personId: p.id, sev, shape,
@@ -253,7 +251,7 @@
       delete p.flags.personalHiatus;
       // the departure sweep (latent v0.10.2 bug): her deals wind down
       // and her scenes come off the desk with her, like every other exit
-      if (state.deals) state.deals = state.deals.filter(d => d.personId !== p.id);
+      KP.outsideDrop(state, p.id);
       if (state.scenes) state.scenes = state.scenes.filter(x => x.personId !== p.id);
       p.history.push({ week: state.week, text: 'Released. The statement used the word “mutual,” and nobody anywhere believed it. The story won.' });
       KP.note(state, { kind: 'public', ind: 'scandalRelease', priority: 'high', personId: p.id,
@@ -287,7 +285,7 @@
       state.roster = state.roster.filter(id => id !== p.id);
       delete p.flags.personalHiatus;
       delete p.scandal;
-      if (state.deals) state.deals = state.deals.filter(d => d.personId !== p.id);
+      KP.outsideDrop(state, p.id);
       if (state.scenes) state.scenes = state.scenes.filter(x => x.personId !== p.id);
       p.history.push({ week: state.week, text: 'Released by a company that never held the meeting. The silence was the decision.' });
       return { kind: 'public', ind: 'scandalRelease', priority: 'high', personId: p.id,

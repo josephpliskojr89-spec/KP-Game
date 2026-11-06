@@ -46,7 +46,7 @@ function pinInvite(s) {
   t.ok(gain > 0, 'the weekend warms the market (+' + gain.toFixed(1) + ')');
   // the tongue prices the gain: full weight with a speaker, half without
   const C = KP.C.CIRCUIT;
-  const expected = s.circuitLedger.tongueFlops ? Math.round(C.warmthGain * C.tongueDamp) : C.warmthGain;
+  const expected = s.circuitLedger.tongueFlops ? Math.round(C.warmthGain * KP.C.TONGUE.FACTOR.circuit) : C.warmthGain;   // one table (v0.10.42)
   t.eq(Math.round(gain), expected, 'and the tongue prices it — ' +
     (s.circuitLedger.tongueFlops ? 'half, with the awkward clip attached' : 'full, with a voice in the room'));
   t.ok(s.inbox.some(n => n.ind === 'circuitStage' || n.ind === 'circuitFlop'), 'the stage is on the record');

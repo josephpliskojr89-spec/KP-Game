@@ -102,7 +102,7 @@
     notes.push({ kind: 'industry', ind: 'signingClass', priority: 'high',
       text: 'The ' + folded.short + ' collapse has a second act: ' +
         named.map(p => KP.displayName(p)).join(', ') +
-        (named.length === 1 ? ' is' : ' are') + ' on the open market — trained careers, real fandoms, and every label in the scene doing the same math you are. The signing window will not stay open long. Free agents are on the Industry desk.' });
+        (named.length === 1 ? ' is' : ' are') + ' on the open market — trained careers, real fandoms, and every label in the scene doing the same math you are. The signing window will not stay open long. The free agents are on the board.' });
   };
 
   // ---- the player verb: sign a name with a career ---------------------

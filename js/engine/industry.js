@@ -32,17 +32,38 @@
     return used;
   }
 
-  // ---- the weekly scene chart -------------------------------------------
-  KP.chartEnter = function (state, entry) {
-    state.chart = state.chart || { entries: [] };
-    entry.weeksOn = 0;
-    entry.pos = null; entry.lastPos = null; entry.peakPos = null;
-    state.chart.entries.push(entry);
-    if (state.chart.entries.length > KP.C.CHART.maxEntries) {
-      state.chart.entries.sort((a, b) => b.score - a.score);
-      state.chart.entries.length = KP.C.CHART.maxEntries;
-    }
+  // ---- the boards (v0.10.42, §89 D12): one entry, one rank ---------------
+  // The scene chart and the national board were entered by two bodies
+  // that differed in one line. One door now: the board's container, its
+  // cap, a fresh position; the stamp tracks the peaks from there.
+  const BOARDS = {
+    scene: { key: 'chart', make: () => ({ entries: [] }), max: () => KP.C.CHART.maxEntries, fresh: true },
+    national: { key: 'national', make: () => ({ artists: [], entries: [] }), max: () => KP.C.NATIONAL.maxEntries, fresh: false },
   };
+  KP.boardOf = function (state, board) {
+    const B = BOARDS[board];
+    state[B.key] = state[B.key] || B.make();
+    return state[B.key];
+  };
+  KP.boardEnter = function (state, board, entry) {
+    const B = BOARDS[board];
+    const b = KP.boardOf(state, board);
+    entry.weeksOn = B.fresh ? 0 : (entry.weeksOn || 0);
+    entry.pos = null; entry.lastPos = null; entry.peakPos = null;
+    b.entries.push(entry);
+    if (b.entries.length > B.max()) {
+      b.entries.sort((x, y) => y.score - x.score);
+      b.entries.length = B.max();
+    }
+    return entry;
+  };
+  // the opening rank a score would take today — the release reads it the
+  // night it lands; the stamp keeps the truth from there
+  KP.boardRank = function (state, board, score) {
+    return 1 + KP.boardOf(state, board).entries.filter(e => e.score > score).length;
+  };
+  // ---- the weekly scene chart -------------------------------------------
+  KP.chartEnter = function (state, entry) { return KP.boardEnter(state, 'scene', entry); };
   KP.chartPositions = function (state) {
     return ((state.chart && state.chart.entries) || []).slice().sort((a, b) => b.score - a.score);
   };
@@ -195,17 +216,7 @@
   KP.nationalPositions = function (state) {
     return ((state.national && state.national.entries) || []).slice().sort((a, b) => b.score - a.score);
   };
-  KP.nationalEnter = function (state, entry) {
-    state.national = state.national || { artists: [], entries: [] };
-    entry.weeksOn = entry.weeksOn || 0;
-    entry.pos = null; entry.lastPos = null; entry.peakPos = null;
-    state.national.entries.push(entry);
-    if (state.national.entries.length > KP.C.NATIONAL.maxEntries) {
-      state.national.entries.sort((a, b) => b.score - a.score);
-      state.national.entries.length = KP.C.NATIONAL.maxEntries;
-    }
-    return entry;
-  };
+  KP.nationalEnter = function (state, entry) { return KP.boardEnter(state, 'national', entry); };
   function nationalTitles(state) {
     const used = usedTitles(state);
     ((state.national && state.national.entries) || []).forEach(e => { used[e.title] = true; });

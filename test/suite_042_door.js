@@ -47,7 +47,19 @@ function rideToKnock(state, maxWeeks) {
   const her = state.people[g.members[0]];
   delete her.flags.ambitionMet;                       // she still wants it
   g.debutWeek = state.week - KP.C.DOOR.askAfterWeeks; // and it has been long enough
-  const sc = rideToKnock(state, 30);
+  // other knocks can come first on any stream (v0.10.42 shift: a friction
+  // clip-call for a roommate) — answer them with the bot default, ride on
+  let sc = null, ride = 0;
+  while (ride++ < 40) {
+    sc = (state.scenes || []).find(x => x.kind === 'idolAsk' && x.personId === her.id) || null;
+    if (sc) break;
+    (state.scenes || []).slice().forEach(x => {
+      if (!KP.isKnockKind(x.kind)) return;
+      const d = KP.sceneDef(x.kind);
+      if (d) KP.resolveScene(state, x.id, d.options(state, x)[0].id);
+    });
+    KP.advanceWeek(state);
+  }
   t.ok(sc && sc.kind === 'idolAsk' && sc.personId === her.id, 'the one still waiting is the one who knocks');
   t.ok((state.scenes || []).filter(x => x.kind === 'idolAsk').length === 1, 'the door card on the Desk IS the letter (§89 B: no announcement note)');
   const def = KP.sceneDef('idolAsk');

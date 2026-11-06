@@ -137,7 +137,7 @@ function debuted(seed) {
   G.offerBaseChance = oldBase; G.naturalBonus = oldNat; G.hiatusOfferBonus = oldHia;
   t.ok(KP.openGigOffers(state).length === 1, 'productions call the moment the group parks');
   // and the gig runs clash-free: a hiatus group is never busy
-  KP.respondGig(state, KP.openGigOffers(state)[0].id, true);
+  KP.respondOutside(state, KP.openGigOffers(state)[0].id, true);
   for (let w = 0; w < 4; w++) KP.advanceWeek(state);
   const gig = KP.activeGigs(state)[0];
   t.ok(!gig || !gig.strain, 'no missed tapings on an empty calendar');

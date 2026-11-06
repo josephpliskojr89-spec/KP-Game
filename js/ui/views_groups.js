@@ -207,7 +207,6 @@
       const C = KP.C.CONSTITUENCY;
       html.push('<div class="pad" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:6px">' +
         '<button class="btn small ghost" data-action="cafe-notice" data-id="' + g.id + '">Café notice</button>' +
-        '<button class="btn small ghost" data-action="fan-meeting" data-id="' + g.id + '">Fan meeting · ' + C.fanMeetingCost + '</button>' +
         (!g.lightstickWeek ? '<button class="btn small ghost" data-action="lightstick" data-id="' + g.id + '">Launch the lightstick · ' + C.lightstickCost + '</button>' : '') +
         '</div>');
     } else if (KP.fandomEligible(state, g)) {
@@ -398,14 +397,18 @@
         state.week - (g.lastUnitWeek || -999) >= KP.C.PORTFOLIO.UNIT.cooldown;
       // the fancon (v0.10.3): the between-eras verb — membership-warm,
       // cheap to stage, impossible to review badly
-      const fanconReady = g.debuted && g.fandom &&
-        (g.fandom.intensity || 0) >= KP.C.MERCH.fanconMinIntensity &&
-        state.week - (g.lastFanconWeek || -999) >= KP.C.MERCH.fanconCooldown;
+      // the fan event (v0.10.3; two formats since v0.10.42, §89 D10): the
+      // ticketed fancon, or the free meeting at cost — one clock
+      const fanconReady = KP.fanEventRead(state, g.id, 'ticketed').ok;
+      const meetReady = KP.fanEventRead(state, g.id, 'free').ok;
       html.push('<div class="card">The room between releases is where momentum goes to die. The producers have fresh demos in the Studio' +
         (unitReady ? ' — and the between is what units are for.' : '.') +
         '<div style="margin-top:12px"><button class="btn primary" data-nav="studio">Plan the comeback</button></div>' +
         (unitReady ? '<div style="margin-top:8px"><button class="btn small" data-action="plan-unit" data-id="' + g.id + '">Plan a unit era · ' + KP.C.PORTFOLIO.UNIT.cost + '</button></div>' : '') +
-        (fanconReady ? '<div style="margin-top:8px"><button class="btn small" data-action="hold-fancon" data-id="' + g.id + '">Hold a fancon · ' + KP.C.MERCH.fanconCost + '</button></div>' : '') +
+        (fanconReady || meetReady ? '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">' +
+          (fanconReady ? '<button class="btn small" data-action="hold-fancon" data-format="ticketed" data-id="' + g.id + '">Hold a fancon · ' + KP.C.MERCH.fanconCost + '</button>' : '') +
+          (meetReady ? '<button class="btn small ghost" style="border:1px solid var(--line)" data-action="hold-fancon" data-format="free" data-id="' + g.id + '">Free fan meeting · ' + KP.C.MERCH.fanMeetingCost + '</button>' : '') +
+          '</div>' : '') +
         (state.jpPartner && (KP.regionsOf(g).jp || 0) >= KP.C.JAPAN.minWarmth &&
          state.week - (g.lastJpWeek || -999) >= KP.C.JAPAN.cooldown
           ? '<div style="margin-top:8px;display:flex;gap:6px">' +

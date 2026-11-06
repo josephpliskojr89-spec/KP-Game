@@ -128,7 +128,7 @@ function debuted(seed) {
   t.ok(offer, 'the market calls eventually');
   if (offer) {
     const cash = state.budget;
-    const r = KP.respondDeal(state, offer.id, true);
+    const r = KP.respondOutside(state, offer.id, true);
     t.ok(r.ok, 'signing signs');
     t.eq(state.budget, cash + offer.lump, 'the lump lands today');
     t.eq(KP.activeDeals(state).length, 1, 'the contract is live');
@@ -138,11 +138,12 @@ function debuted(seed) {
     state.discourses = state.discourses || [];
     state.discourses.push({ id: 'dX', kind: 'gaffe', subjectType: 'idol', subjectId: offer.personId,
       groupId: g.id, week: state.week, heat: 90, negative: true, status: 'boiled', responded: false });
-    const cashBefore = state.budget;
-    const notes = KP.dealsWeek(state, KP.rngFor(state));
+    // the outside work runs in its own weekly now (v0.10.42) — the clause
+    // bites on the tick, and the letter is read pre-trim
+    KP.advanceWeek(state);
     t.eq(KP.activeDeals(state).length, 0, 'the conduct clause bites');
-    t.ok(state.budget < cashBefore, 'with a clawback');
-    t.ok(notes.some(m => /conduct clause/.test(m.text)), 'and a cold letter');
+    const letter = state.inbox.concat(KP.lastTickNotes || []).find(m => /conduct clause/.test(m.text || ''));
+    t.ok(letter && /clawback/.test(letter.text), 'with a clawback, and a cold letter');
   }
 }
 

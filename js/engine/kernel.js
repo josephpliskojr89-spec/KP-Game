@@ -252,19 +252,15 @@
     });
     if (!isFinite(state.budget)) bad('budget NaN');
     if (!isFinite(state.trust)) bad('trust NaN');
-    (state.deals || []).forEach(d => { if (!state.people[d.personId]) bad('deal ghost ' + d.personId); });
+    (state.outside || []).forEach(d => { if (!state.people[d.personId]) bad('outside-work ghost ' + d.personId); });
     // 0.9.13 audit: the harness never saw the departure holes because the
     // validator only checked existence — engagements must target LIVE idols,
-    // and a retired group must not hold a schedule
-    (state.deals || []).forEach(d => {
+    // and a retired group must not hold a schedule (one list, v0.10.42)
+    (state.outside || []).forEach(d => {
       const dp = state.people[d.personId];
-      if (d.weeksLeft > 0 && dp && dp.status !== 'idol') bad('active deal on non-idol ' + d.personId);
+      if (d.weeksLeft > 0 && (!dp || dp.status !== 'idol')) bad('active ' + d.kind + ' job on non-idol ' + d.personId);
     });
-    (state.gigs || []).forEach(gg => {
-      const gp = state.people[gg.personId];
-      if (gg.weeksLeft > 0 && (!gp || gp.status !== 'idol')) bad('active gig on non-idol ' + gg.personId);
-    });
-    (state.dealOffers || []).concat(state.gigOffers || []).forEach(o => {
+    (state.outsideOffers || []).forEach(o => {
       const op = state.people[o.personId];
       if (o.expiresWeek >= state.week && (!op || op.status !== 'idol')) bad('open offer for non-idol ' + o.personId);
     });

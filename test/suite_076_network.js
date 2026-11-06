@@ -79,8 +79,14 @@ const N = () => KP.C.NETWORK;
   // into a lineup, where the cull cannot touch her — the claim is about
   // the evaluation, so hold the debut calendar off
   r.nextDebutWeek = 9999;
+  // the claim is the castoff DOOR, not the board's cap: on a full board
+  // the market holds her instead (cutFromFloor → 'market'), and which
+  // weeks fill the board is stream-dependent (v0.10.42 shift) — pin the cap
+  const cap0 = KP.C.NETWORK.boardCap;
+  KP.C.NETWORK.boardCap = 999;
   let guard = 0;
   while (pc.status === 'rival' && guard++ < 60) { r.nextDebutWeek = 9999; KP.advanceWeek(s); }
+  KP.C.NETWORK.boardCap = cap0;
   t.eq(pc.status, 'prospect', 'the named cut stops vanishing');
   t.eq(pc.channel, 'castoff', 'and lands on the open board as the castoff she is (v0.10.31)');
   t.ok(s.prospects.includes(pc.id), 'file and history intact');

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.41',
+    VERSION: '0.10.42',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1125,15 +1125,20 @@
       COLORS: ['pearl violet', 'coral rose', 'midnight teal', 'champagne gold',
         'arctic mint', 'garnet red', 'moonstone grey', 'electric periwinkle'],
     },
+    // ---- The outside work (v0.10.42, §89 D6): one desk for the calls ---
+    // Brand deals and the second job were the same machine twice. One
+    // list, one expiry, one capacity — the kinds keep their own teeth.
+    OUTSIDE: {
+      expiresWeeks: 3,          // offers do not wait — brands or broadcast
+      maxActive: 5,             // running jobs + open calls, company-wide (was 3 brand + 2 show)
+    },
     DEALS: {
       offerBaseChance: 0.04,    // weekly, once anyone is famous enough
       minSocial: 40000,         // brands want reach
       itGirlBonus: 0.06,        // the narrative does the selling
       lump: [6, 14], weekly: [1, 2], weeks: [12, 20],
-      expiresWeeks: 3,          // offers do not wait
       shootFatigue: 2,          // monthly, the shoots are real work
       scandalPenaltyMult: 0.5,  // a cancelled deal claws back half the lump
-      maxActive: 3,             // the market has limits
       brandDarlingAt: 2,        // deals before the narrative forms
       // the invoice (v0.9.14): sponsorship is a JOB — periodic appearances
       // that claim real weeks, a strain ladder when the van cannot make
@@ -1162,8 +1167,6 @@
     GIGS: {
       offerBaseChance: 0.09,     // weekly, when anyone qualifies
       naturalBonus: 0.06,        // a variety natural in the building attracts calls
-      expiresWeeks: 3,           // productions do not wait either
-      maxActive: 2,              // company-wide; the schedule is finite
       // eligibility: the market reads the derived stats, not the résumé
       panelSkillMin: 60,         // varietySkill — the funny one
       mcPoiseMin: 62,            // stagePresence — the poised one
@@ -1420,7 +1423,10 @@
       koIdle: 0.25, koActive: 0.5,   // weekly Korean growth (trainee / active idol)
       koConversational: 60,      // the interview stops needing subtitles
       interpreterFee: 6,         // per overseas tour leg with no fluent voice
-      voiceRevenueMult: 1.18,    // the fluent leg sells like a homecoming
+      // one table (v0.10.42, §89 D12): what a fluent voice is worth per
+      // surface — the tour leg sells like a homecoming; the convention
+      // and the Japan cycle lose warmth and interviews without one
+      FACTOR: { tour: 1.18, circuit: 0.5, japan: 0.82 },
       airportMorale: 8,          // the hometown airport, full
       AUDITION: {
         // §82 B: 60 buys a LIST now — owner: "I should get a decent
@@ -1618,6 +1624,9 @@
       greetingsPerK: 3, greetingsLavishMult: 1.6, greetingsLavishCost: 8,
       tourMerchPerK: 4,           // the merch line at every tour start
       fanconCost: 10, fanconPerK: 7, fanconIntensity: 4,
+      // the free format (v0.10.42, §89 D10): the fan meeting, at cost —
+      // no till, a warmer room, the grudge cooled; one clock for both
+      fanMeetingCost: 25, fanMeetingFandomGain: 5, fanMeetingMorale: 2, fanMeetingCooldown: 16,
       fanconCooldown: 36, fanconFatigue: 5, fanconMinIntensity: 30,
       // v0.10.23 (the hostile audit): the window was arithmetically
       // unreachable — fancon cooldown 36 + annual greetings could never
@@ -1672,7 +1681,6 @@
       travelBase: 12,           // the bill, plus distance
       travelFar: { na: 8, latam: 10, eu: 8, cn: 2, sea: 3 },
       warmthGain: 6,            // a stage that lands
-      tongueDamp: 0.5,          // no speaker: half gains + the awkward clip
       fatigue: 6,
       fee: 10,                  // conventions pay, modestly
       EN: { cost: 18, cooldown: 16, minRec: 55,   // the English-version lane
@@ -1698,7 +1706,6 @@
       revPerScore: 1.6,         // pre-partner-cut
       warmthGain: { version: 4, original: 8 },
       fansPerScore: 22,         // the JP fanbase the ladder climbs on
-      noVoiceDamp: 0.82,        // no JP speaker: interviews flop (§55.5)
       titans: ['AOI GATE', 'Shirahama Eight', 'Kaguya Moon', 'Denkou City'],
       titanBase: [78, 70, 62, 55],
       LADDER: [
@@ -2601,9 +2608,6 @@
       quietWeeks: 10,            // between actions — outrage has logistics
       grievanceWindow: 3,        // weeks a grievance stays truck-worthy
       concedeCost: 20,           // catering, statements, the walked-back plan
-      fanMeetingCost: 25,        // the fan meeting: a real event
-      fanMeetingFandomGain: 5,
-      fanMeetingMorale: 2,
       lightstickPopAt: 45,       // the launch: a fandom this warm sells one
       lightstickCost: 35,
       lightstickRevenue: 60,     // it sells out — that is what lightsticks do

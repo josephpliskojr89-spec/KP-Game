@@ -145,13 +145,11 @@
     (state.claims || []).forEach(c => {
       if (!c.resolved) { c.resolved = 'void'; c.resolvedWeek = state.week; }
     });
-    state.deals = [];
-    // the deal/gig surfaces post-date v0.9.9 and were missed (audit H2/M2):
-    // offers naming the rival's idols come off the new label's desk, and
-    // active second jobs end with the era
-    state.dealOffers = [];
-    state.gigOffers = [];
-    state.gigs = [];
+    // the outside work (one list, v0.10.42): offers naming the rival's
+    // idols come off the new label's desk, and the running jobs end with
+    // the era (audit H2/M2)
+    state.outside = [];
+    state.outsideOffers = [];
     state.project = null;
     // fan-account adoptions of people who crossed the wall release their
     // handles back to the pool (audit L2)

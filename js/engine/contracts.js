@@ -445,12 +445,10 @@
     // the group: lineup, roles, rooms — the validator's whole checklist
     if (g) KP.lineupSurgery(state, g, p, warm, push);
 
-    // the desk: deals wind down, her claims settle void
-    (state.deals || []).slice().forEach(d => {
-      if (d.personId === p.id) {
-        state.deals = state.deals.filter(x => x !== d);
-        push({ kind: 'company', text: KP.fillPro('The ' + (d.brand || 'brand') + ' contract wound down with ' + KP.displayName(p) + '’s departure — the clause everyone signs and nobody reads. The brand sent flowers, which was a first.', p) });
-      }
+    // the desk: her outside work winds down (one list, v0.10.42), her
+    // claims settle void
+    KP.outsideDrop(state, p.id).forEach(d => {
+      if (d.kind === 'brand') push({ kind: 'company', text: KP.fillPro('The ' + (d.label || 'brand') + ' contract wound down with ' + KP.displayName(p) + '’s departure — the clause everyone signs and nobody reads. The brand sent flowers, which was a first.', p) });
     });
     (state.claims || []).forEach(c => {
       if (!c.resolved && c.subject && c.subject.kind === 'idol' && c.subject.id === p.id) {
@@ -458,8 +456,6 @@
       }
     });
     // pending offers naming {her} come off the desk too (0.9.13 audit H1)
-    if (state.dealOffers) state.dealOffers = state.dealOffers.filter(o => o.personId !== p.id);
-    if (state.gigOffers) state.gigOffers = state.gigOffers.filter(o => o.personId !== p.id);
     // any scene still holding her name comes off the desk with her —
     // nobody renews, promises, or consoles a person who already left
     if (state.scenes) state.scenes = state.scenes.filter(sc => sc.personId !== p.id);

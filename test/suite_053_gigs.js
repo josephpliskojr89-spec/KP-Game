@@ -53,10 +53,10 @@ function famous(state, p) {
   t.ok(offers.length >= 1, 'the calls came in');
   t.ok(hers, 'for the funny one, by name');
   t.eq(hers.kind, 'panel', 'and it is a panel seat — the market read the derived stat');
-  t.ok(G.SHOWS.includes(hers.show), 'the show has a name');
-  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => n.ind === 'gigOffer'), 'the offer reaches the desk');
+  t.ok(G.SHOWS.includes(hers.label), 'the show has a name');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => n.ind === 'outsideOffer'), 'the offer reaches the desk');
   // decline: the desk clears, nothing sticks to her file
-  offers.forEach(o => t.ok(KP.respondGig(state, o.id, false).ok, 'declined: ' + o.kind));
+  offers.forEach(o => t.ok(KP.respondOutside(state, o.id, false).ok, 'declined: ' + o.kind));
   t.ok(KP.openGigOffers(state).length === 0, 'declining clears the desk');
 }
 
@@ -77,7 +77,7 @@ function famous(state, p) {
   g.popularity = 5;   // far under the bar: promo-week gains cannot recross it
   // and clear any offer that rolled naturally during the debut weeks —
   // a stale card on the desk blocks the pinned one (maxActive)
-  state.gigOffers = [];
+  state.outsideOffers = [];
   const old = G.offerBaseChance;
   G.offerBaseChance = 1;
   KP.advanceWeek(state);
@@ -85,7 +85,7 @@ function famous(state, p) {
   const o = KP.openGigOffers(state)[0];
   t.ok(o && o.kind === 'ost' && o.personId === voice.id, 'the music director asked for the voice by name');
   const budget0 = state.budget;
-  KP.respondGig(state, o.id, true);
+  KP.respondOutside(state, o.id, true);
   let guard = 0;
   while (KP.activeGigs(state).length && guard++ < 6) KP.advanceWeek(state);
   t.ok(state.budget > budget0, 'the OST paid on delivery');
@@ -95,7 +95,7 @@ function famous(state, p) {
   t.ok(voice.history.some(h => /Sang the .* OST/.test(h.text)), 'and the file keeps the receipt');
   // second drop mints the narrative
   voice.flags.ostDrops = KP.C.GIGS.ostVoiceAt - 1;
-  state.gigs.push({ id: 'gigx', kind: 'ost', personId: voice.id, show: 'Signal Garden',
+  state.outside.push({ id: 'gigx', kind: 'ost', personId: voice.id, label: 'Signal Garden',
     weeksLeft: 1, weekly: 0, lump: 5, signedWeek: state.week, strain: 0, weeksRun: 0 });
   KP.advanceWeek(state);
   t.ok(KP.getNarrative(state, 'ostVoice', 'idol', voice.id), 'two dramas deep, she is the OST voice');
@@ -107,7 +107,7 @@ function famous(state, p) {
   const p = state.people[g.members[0]];
   famous(state, p);
   state.week = Math.max(state.week, (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks + 1);   // idle group: no clash
-  state.gigs = [{ id: 'gig1', kind: 'panel', personId: p.id, show: 'Off-Duty',
+  state.outside = [{ id: 'gig1', kind: 'panel', personId: p.id, label: 'Off-Duty',
     weeksLeft: 6, weekly: 3, lump: 0, signedWeek: state.week, strain: 0, weeksRun: 0 }];
   const media0 = p.mediaExp, social0 = p.social || 0;
   // the wrap bump (+completePop) measures against the week it LANDS —
@@ -124,7 +124,7 @@ function famous(state, p) {
   t.eq(p.flags.panelArcs, 1, 'the wrapped arc is counted');
   t.ok(g.popularity >= pop0 + KP.C.GIGS.completePop, 'the group felt the individual shine');
   t.ok(state.inbox.some(n => n.ind === 'gigWrapped'), 'the sendoff gets told');
-  t.ok(KP.feedReactionFor('gigSigned') && KP.feedReactionFor('gigWrapped') &&
+  t.ok(KP.feedReactionFor('outsideSigned') && KP.feedReactionFor('gigWrapped') &&
        KP.feedReactionFor('gigRecast') && KP.feedReactionFor('ostDrop'),
     'every second-job ind answers through the registry');
 }
@@ -135,7 +135,7 @@ function famous(state, p) {
   const G = KP.C.GIGS;
   const p = state.people[g.members[0]];
   state.week = Math.max(state.week, (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks + 1);
-  state.gigs = [{ id: 'gig1', kind: 'panel', personId: p.id, show: 'Panic Quiz Club',
+  state.outside = [{ id: 'gig1', kind: 'panel', personId: p.id, label: 'Panic Quiz Club',
     weeksLeft: 12, weekly: 3, lump: 0, signedWeek: state.week, strain: 0, weeksRun: 0 }];
   g.demos = KP.generateDemos(state, KP.rngFor(state), g);
   const r = KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest',
@@ -147,7 +147,7 @@ function famous(state, p) {
   let guard = 0;
   while (KP.activeGigs(state).length && guard++ < 8) KP.advanceWeek(state);
   G.clashMissChance = oldMiss;
-  const gig = state.gigs ? state.gigs.find(x => x.id === 'gig1') : null;
+  const gig = state.outside ? state.outside.find(x => x.id === 'gig1') : null;
   t.ok(!KP.activeGigs(state).length, 'three missed tapings and the seat is gone');
   t.ok(state.inbox.some(n => n.ind === 'gigRecast'), 'the “lineup refresh” gets announced');
   t.ok(p.history.some(h => /Quietly written out/.test(h.text)), 'the file remembers how it ended');
@@ -158,10 +158,10 @@ function famous(state, p) {
 {
   const { state, g } = debuted('gig-quit');
   const p = state.people[g.members[0]];
-  state.gigs = [{ id: 'gig1', kind: 'mc', personId: p.id, show: 'Weekly Antenna',
+  state.outside = [{ id: 'gig1', kind: 'mc', personId: p.id, label: 'Weekly Antenna',
     weeksLeft: 15, weekly: 5, lump: 0, signedWeek: state.week, strain: 2, weeksRun: 4 }];
   const morale0 = p.morale;
-  const r = KP.quitGig(state, 'gig1');
+  const r = KP.quitOutside(state, 'gig1');
   t.ok(r.ok, 'the company can end it first');
   t.eq(KP.activeGigs(state).length, 0, 'the booking is over');
   t.eq(p.morale, Math.max(0, morale0 - KP.C.GIGS.quitMorale), 'being pulled out stings — less than being cut, but it stings');
@@ -176,7 +176,7 @@ function famous(state, p) {
   famous(state, p);
   state.week = Math.max(state.week, (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks + 1);
   p.flags.panelArcs = KP.C.GIGS.varietyMonsterAt - 1;
-  state.gigs = [{ id: 'gig1', kind: 'panel', personId: p.id, show: 'Homework Hotel',
+  state.outside = [{ id: 'gig1', kind: 'panel', personId: p.id, label: 'Homework Hotel',
     weeksLeft: 1, weekly: 3, lump: 0, signedWeek: state.week, strain: 0, weeksRun: 9 }];
   KP.advanceWeek(state);
   const nar = KP.getNarrative(state, 'varietyMonster', 'idol', p.id);
@@ -185,7 +185,7 @@ function famous(state, p) {
   t.ok(KP.narrativeText(state, nar).includes(KP.displayName(p)), 'by name');
   // an MC run is a story on the first completion — the public trusts few faces
   const q = state.people[g.members[1]];
-  state.gigs.push({ id: 'gig2', kind: 'mc', personId: q.id, show: 'Weekly Antenna',
+  state.outside.push({ id: 'gig2', kind: 'mc', personId: q.id, label: 'Weekly Antenna',
     weeksLeft: 1, weekly: 5, lump: 0, signedWeek: state.week, strain: 0, weeksRun: 15 });
   KP.advanceWeek(state);
   t.ok(KP.getNarrative(state, 'nationalMC', 'idol', q.id), 'a full MC run is canon at once');
@@ -200,7 +200,7 @@ function famous(state, p) {
   t.eq(KP.ambitionOf(state, p), 'variety', 'fixture: she wants this');
   delete p.flags.ambitionMet;
   state.week = Math.max(state.week, (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks + 1);
-  state.gigs = [{ id: 'gig1', kind: 'panel', personId: p.id, show: 'The Long Lunch',
+  state.outside = [{ id: 'gig1', kind: 'panel', personId: p.id, label: 'The Long Lunch',
     weeksLeft: 1, weekly: 3, lump: 0, signedWeek: state.week, strain: 0, weeksRun: 11 }];
   KP.advanceWeek(state);
   t.ok(p.flags.ambitionMet, 'wrapping her own panel run is the thing she always wanted');
@@ -219,8 +219,8 @@ function famous(state, p) {
   G.offerBaseChance = 1;
   for (let w = 0; w < 4; w++) KP.advanceWeek(state);
   G.offerBaseChance = old;
-  t.ok(KP.openGigOffers(state).length + KP.activeGigs(state).length <= G.maxActive,
-    'open engagements cap at ' + G.maxActive + ' — the schedule is finite');
+  t.ok(KP.openOutsideOffers(state).length + KP.outsideJobs(state).length <= KP.C.OUTSIDE.maxActive,
+    'open engagements cap at ' + KP.C.OUTSIDE.maxActive + ' — one desk, one capacity (v0.10.42)');
 }
 
 // ---- determinism ----

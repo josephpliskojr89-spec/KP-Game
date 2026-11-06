@@ -1033,6 +1033,51 @@
     });
   } });
 
+  // the one market, part 1 (v0.10.42, §89 D6/D10): brand deals and second
+  // jobs become one list; the brand line folds into outside work, the ad
+  // settlement into the catalog & archive line; the fan meeting's quiet
+  // and the fancon's clock become one
+  MIGRATIONS.push({ v: '0.10.42', fn: function (state) {
+    const jobs = [], offers = [];
+    (state.deals || []).forEach(d => {
+      const j = Object.assign({}, d, { kind: 'brand', label: d.brand || d.label || 'the brand', weeksRun: d.weeksRun || 0 });
+      delete j.brand; jobs.push(j);
+    });
+    (state.gigs || []).forEach(x => {
+      const j = Object.assign({}, x, { label: x.show || x.label || 'the show' });
+      delete j.show; jobs.push(j);
+    });
+    (state.dealOffers || []).forEach(o => {
+      const f = Object.assign({}, o, { kind: 'brand', label: o.brand || o.label || 'the brand' });
+      delete f.brand; offers.push(f);
+    });
+    (state.gigOffers || []).forEach(o => {
+      const f = Object.assign({}, o, { label: o.show || o.label || 'the show' });
+      delete f.show; offers.push(f);
+    });
+    state.outside = (state.outside || []).concat(jobs);
+    state.outsideOffers = (state.outsideOffers || []).concat(offers);
+    state.nextOutsideId = Math.max(state.nextOutsideId || 1, state.nextDealId || 1, state.nextGigId || 1);
+    ['deals', 'gigs', 'dealOffers', 'gigOffers', 'nextDealId', 'nextGigId'].forEach(k => { delete state[k]; });
+    (state.scenes || []).forEach(sc => {
+      if (sc.kind === 'sponsorSolo' && sc.dealId && !sc.jobId) { sc.jobId = sc.dealId; delete sc.dealId; }
+    });
+    const cur = state.books && state.books.cur;
+    if (cur) {
+      if (cur.deals != null) { cur.outside = (cur.outside || 0) + cur.deals; delete cur.deals; }
+      if (cur.adRevenue != null) { cur.catalog = (cur.catalog || 0) + cur.adRevenue; delete cur.adRevenue; }
+    }
+    if (state.commerceLedger && state.commerceLedger.fanMeetings == null) state.commerceLedger.fanMeetings = 0;
+    const M = KP.C.MERCH;
+    (state.groups || []).forEach(g => {
+      let until = 0;
+      if (g.lastFanconWeek != null) until = Math.max(until, g.lastFanconWeek + M.fanconCooldown);
+      if (g.fanMeetingQuiet) until = Math.max(until, g.fanMeetingQuiet);
+      if (until > state.week) g.fanEventQuietUntil = until;
+      delete g.lastFanconWeek; delete g.fanMeetingQuiet;
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

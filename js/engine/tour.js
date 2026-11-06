@@ -259,7 +259,7 @@
       const voice = KP.voiceAbroad(state, g, regionId);
       const tl = state.tongueLedger || (state.tongueLedger = { auditions: 0, intlMinted: 0, intlSigned: 0, voiceLegs: 0, interpreterLegs: 0, airports: 0 });
       if (voice) {
-        revenue *= KP.C.TONGUE.voiceRevenueMult;
+        revenue *= KP.tongueFactor(state, g, regionId, 'tour');
         tl.voiceLegs++;
         notes.push({ kind: 'company', groupId: g.id, personId: voice.id,
           text: KP.fillPro(KP.displayName(voice) + ' ran the ' + KP.regionLabel(regionId) + ' leg’s mics — local radio in the morning, the ments at night, every joke landing in the room’s own language. The promoter called {her} “the reason the meet-and-greet went long.” The voice abroad is worth real money.', voice) });

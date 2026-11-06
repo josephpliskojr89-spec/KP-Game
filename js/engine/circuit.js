@@ -63,7 +63,7 @@
       // — a fumbled set warms the market less, whatever the tongue did
       const read = KP.stageRead(state, g, { kind: 'circuit', id: sc.con });
       KP.settleStage(state, null, g, read, { light: true });
-      const gain = Math.round((voice ? C.warmthGain : Math.round(C.warmthGain * C.tongueDamp)) * (read.band === 'fumbled' ? 0.7 : 1));
+      const gain = Math.round((voice ? C.warmthGain : Math.round(C.warmthGain * KP.tongueFactor(state, g, sc.regionId, 'circuit'))) * (read.band === 'fumbled' ? 0.7 : 1));
       regions[sc.regionId] = KP.clamp((regions[sc.regionId] || 0) + gain, 0, 100);
       g.members.map(id => state.people[id]).filter(Boolean).forEach(m => {
         if (!KP.onBreak(m)) m.fatigue = KP.clamp(m.fatigue + C.fatigue, 0, 100);
@@ -100,7 +100,7 @@
     g.lastEnWeek = state.week;
     const voice = KP.voiceAbroad ? KP.voiceAbroad(state, g, 'na') : null;
     const regions = KP.regionsOf(g);
-    const gain = voice ? E.warmth : Math.round(E.warmth * KP.C.CIRCUIT.tongueDamp);
+    const gain = voice ? E.warmth : Math.round(E.warmth * KP.tongueFactor(state, g, 'na', 'circuit'));
     regions.na = KP.clamp((regions.na || 0) + gain, 0, 100);
     regions.eu = KP.clamp((regions.eu || 0) + gain, 0, 100);
     const revenue = Math.round((last.reception || 0) * E.rev);

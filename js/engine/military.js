@@ -46,10 +46,9 @@
     // an unanswered papers scene is answered by the bus leaving
     state.scenes = (state.scenes || []).filter(sc =>
       !(sc.kind === 'enlistPapers' && sc.personId === p.id));
-    // brand campaigns close with a farewell post — nobody bills a soldier
-    (state.deals || []).forEach(d => {
-      if (d.personId === p.id && d.weeksLeft > 0) d.weeksLeft = 0;
-    });
+    // brand campaigns close with a farewell post, productions recast —
+    // nobody bills a soldier and nobody tapes one (one list, v0.10.42)
+    KP.outsideDrop(state, p.id);
     // a live solo clamor goes back in its box — the service parks every
     // conversation; the gravity (§60) can re-form it when he is home
     if (g && g.gravity && g.gravity.personId === p.id && !g.gravity.settled) delete g.gravity;

@@ -106,32 +106,21 @@
           '</div></div>');
       });
     }
-    // the deals desk (v0.7.0): offers wait for an answer, briefly
-    KP.openDealOffers(state).forEach(o => {
+    // the outside work (brand deals v0.7.0 + the second job v0.9.11; one
+    // list since v0.10.42, §89 D6): the calls wait for an answer, briefly
+    KP.openOutsideOffers(state).forEach(o => {
       const p = state.people[o.personId];
-      rail.push('<div class="war-card held"><div class="w-flag">Brand offer · expires ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '</div>' +
-        '<div class="w-text">' + UI.esc(o.brand) + ' wants ' + (p ? UI.esc(KP.displayName(p)) : 'her') +
-        ': ' + o.lump + ' up front, ' + o.weekly + '/week for ' + o.weeks + ' weeks. The shoots cost energy; the billboard pays in more than money.</div>' +
+      const who = p ? UI.esc(KP.displayName(p)) : 'She';
+      const text = o.kind === 'brand'
+        ? UI.esc(o.label) + ' wants ' + who + ': ' + o.lump + ' up front, ' + o.weekly + '/week for ' + o.weeks + ' weeks. The shoots cost energy; the billboard pays in more than money.'
+        : who + ' is wanted for ' + (o.kind === 'panel' ? 'a fixed panel seat on ' : o.kind === 'mc' ? 'the MC mic at ' : 'the OST for ') + UI.esc(o.label) + ': ' +
+          (o.kind === 'ost' ? o.lump + ' on delivery, three weeks of recording' : o.weekly + '/week for ' + o.weeks + ' weeks, taping weekly') +
+          '. A second job pays the person — and claims the weeks.';
+      rail.push('<div class="war-card held"><div class="w-flag">' + KP.outsideKindLabel(o.kind) + ' · expires ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '</div>' +
+        '<div class="w-text">' + text + '</div>' +
         '<div class="w-actions">' +
-        '<button class="btn primary" data-action="deal-accept" data-id="' + o.id + '">Sign it</button>' +
-        '<button class="btn" data-action="deal-decline" data-id="' + o.id + '">Pass</button>' +
-        '</div></div>');
-    });
-    // the second job (v0.9.11): productions call, the desk answers
-    KP.openGigOffers(state).forEach(o => {
-      const p = state.people[o.personId];
-      const terms = o.kind === 'ost'
-        ? o.lump + ' on delivery, three weeks of recording'
-        : o.weekly + '/week for ' + o.weeks + ' weeks, taping weekly';
-      const seat = o.kind === 'panel' ? 'a fixed panel seat on ' : o.kind === 'mc' ? 'the MC mic at ' : 'the OST for ';
-      rail.push('<div class="war-card held"><div class="w-flag">' +
-        (o.kind === 'ost' ? 'OST offer' : o.kind === 'mc' ? 'MC offer' : 'Variety offer') +
-        ' · expires ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '</div>' +
-        '<div class="w-text">' + (p ? UI.esc(KP.displayName(p)) : 'She') + ' is wanted for ' + seat + UI.esc(o.show) +
-        ': ' + terms + '. A second job pays the person — and claims the weeks.</div>' +
-        '<div class="w-actions">' +
-        '<button class="btn primary" data-action="gig-accept" data-id="' + o.id + '">Book it</button>' +
-        '<button class="btn" data-action="gig-decline" data-id="' + o.id + '">Pass</button>' +
+        '<button class="btn primary" data-action="outside-accept" data-id="' + o.id + '">' + (o.kind === 'brand' ? 'Sign it' : 'Book it') + '</button>' +
+        '<button class="btn" data-action="outside-decline" data-id="' + o.id + '">Pass</button>' +
         '</div></div>');
     });
     if (rail.length) {

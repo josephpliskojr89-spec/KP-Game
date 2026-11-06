@@ -99,7 +99,7 @@ function era(s, g, debtAfterLock) {
   t.ok(st, 'the quarter closes into a statement');
   t.ok(st.lines.some(l => /Production/.test(l)), 'the era bills are a line');
   t.ok(typeof st.net === 'number' && typeof st.other === 'number', 'net and operations are computed');
-  t.ok(s.inbox.some(n => n.ind === 'quarterlyBooks'), 'and the statement reaches the desk');
+  t.ok(s.inbox.concat(KP.lastTickNotes || []).some(n => n.ind === 'quarterlyBooks'), 'and the statement reaches the desk (read pre-trim: the week can be loud)');
 }
 
 // ---- the red ledger ----------------------------------------------------

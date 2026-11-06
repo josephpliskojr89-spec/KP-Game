@@ -6343,7 +6343,7 @@ deposit that compounds? Current lean: deposits that compound into
 the doors that already exist (renewals, walkouts, storms) — the
 game already knows how to make small things become big.
 
-## §89 The pruning (PHASES 1–3 SHIPPED v0.10.29–30, 41 — what to quiet, delete, and merge)
+## §89 The pruning (PHASES 1–3 SHIPPED v0.10.29–30, 41; PHASE 4 IN TWO PARTS, 42– — what to quiet, delete, and merge)
 
 Owner: "Let's start with pruning. A full audit of anything that is
 redundant or just not used much. And make notes of what could be
@@ -6580,6 +6580,9 @@ scenes/claims.
 - PHASE 4 — THE ONE MARKET (v0.11.x): outside bookings, the market
   lane, staff seats, stage surfaces, money lines, boards + tongue
   (D6–D10, D12). Save-shape changes; medium risk each.
+  → D7 (the market lane) shipped inside §90 Phases A and C (v0.10.31
+  and v0.10.33). PART 1 — D6, D10, D12 — SHIPPED v0.10.42 (as built
+  below). PART 2 — D8, D9 — is v0.10.43.
 - PHASE 5 — THE RELEASE READ (v0.11.x): the modifier registry + one
   expectation bar (D11), with a rebalance pass. Only after the line
   sheet is designed, since it will be the biggest new reader.
@@ -6806,6 +6809,76 @@ feed-filter, content-locked-toggle.
 
 Battery 107/107, soak 40 clean, longhaul 10x620, e2e 116,
 lockstep 0.10.41.
+
+**As built — Phase 4, part 1, v0.10.42 "the one market".** Owner:
+"Start tackling the queue." The audit first: D7 was already done (the
+one open board through `KP.boardMarketFile`, v0.10.31/33 — only a
+stale note text and two dead 'washout' label readers remained; the
+text is fixed, the readers are harmless). D6, D10 and D12 are this
+release; D8 and D9 (the staff and the stage surfaces) are part 2,
+because each is its own save-shape change. Suite_108 (59 checks);
+migration 0.10.42; the phase moved the rng stream (suite repairs:
+042 the ask fixture lets other knocks pass, 076 pins the board cap
+around the castoff door, 081 reads the statement note pre-trim, and
+the deal/gig suites 035/045/053/054/055/056 speak the one list).
+
+*D6, THE OUTSIDE WORK (outside.js replaces deals.js + gigs.js).* One
+list — `state.outside` (the running jobs) and `state.outsideOffers`
+(the calls), kinds brand | panel | mc | ost, one id counter — one
+law: `OUTSIDE.expiresWeeks` 3 and `OUTSIDE.maxActive` 5 across
+running jobs AND open calls (the brand's old 3 and the shows' old 2,
+which never counted each other), one weekly phase at the deals'
+old slot (520), one books line ('outside' → "Outside work"; the
+stage fees keep 'appearances'), one offer ind (`outsideOffer`, the
+kind on the note), one signing ind (`outsideSigned`, with a brand
+reaction on the timeline now), one desk card renderer and one
+Career block ("Outside work", with the production's step-down
+button finally rendered — `quitOutside` refuses a brand: the
+termination clause is theirs). The kinds keep every tooth: the
+brand's invoice, strain ladder, solo request and conduct clause;
+the production's clash, recast and wrap. `KP.outsideDrop(state,
+personId)` is the one exit for departures, the service, the
+scandal's release — brand AND show jobs end with the person, the
+calls come off the desk (before, a soldier's panel seat kept
+taping). The old doors stay as views (`activeDeals`, `activeGigs`,
+`gigOf`, `openDealOffers`, `openGigOffers`, `gigLabel`); the verbs
+are `respondOutside` / `quitOutside`.
+
+*D10, ONE MONEY LINE.* The fan meeting is the fan event's free
+format: `KP.holdFancon(state, groupId, 'free' | 'ticketed')` with
+`KP.fanEventRead` as the one gate — the free meeting (cost 25, no
+till, warmth +5, the grudge cooled, morale +2) is open to any
+debuted room; the ticketed fancon keeps its intensity bar and its
+revenue; ONE clock, `g.fanEventQuietUntil`, set by the event held
+(16 weeks after a meeting, 36 after a fancon) — the fans were just
+here either way. `KP.fanMeeting` and the constituency's constants
+are gone; the ledger counts `fanMeetings` beside `fancons`. Tour
+merch rides the tour's line ('tours', not 'commerce'); the WeCast
+ad settlement rides the archive line ('catalog' → "Catalog &
+archive"). The statement lost "Brand deals", "Appearances & gigs"
+and "WeCast ad revenue" and gained "Outside work" and "Stage fees".
+
+*D12, BOARDS + TONGUE.* `KP.boardEnter(state, 'scene' | 'national',
+entry)` is the one door onto a board (container, cap, fresh
+position; the national board keeps `weeksOn`, the one difference,
+kept); `chartEnter` / `nationalEnter` are that door. `KP.boardRank`
+is the one body for the opening rank the release reads the night it
+lands (debut.js's two inline counts are gone; `chartStamp` tracks
+the truth from there). Nichion stays a one-night board — it has no
+week-to-week life to merge. `KP.tongueFactor(state, g, regionId,
+surface)` reads ONE table, `TONGUE.FACTOR { tour 1.18, circuit .5,
+japan .82 }` — the tour leg sells like a homecoming with a voice,
+the convention and the Japan cycle lose warmth and interviews
+without one; `voiceRevenueMult`, `CIRCUIT.tongueDamp` and
+`JAPAN.noVoiceDamp` are gone.
+
+*Measured, 40 orgs (no new bands — the old ones held).* A brand deal
+40, a second job 40, the invoice worked 40, the road won 13, the
+solo request 40, a fancon 40, a fan meeting 40, a run wrapped 36, a
+second job ended early 37. Save 523 KB average, widest 581.
+
+Battery 108/108, soak 40 clean, longhaul 10x620, e2e 122, lockstep
+0.10.42.
 
 
 ## §90 The trainee ecosystem (PHASES A–C SHIPPED v0.10.31–33 — one world of people)
@@ -11472,6 +11545,20 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > one ambition wording. UI only — no engine change, no rng shift.
 > Battery 107/107, soak 40 clean, longhaul 10x620, e2e 116,
 > lockstep 0.10.41. Rode to main.
+
+> **0.10.42 — the one market, part 1.** §89 Phase 4 D6 + D10 + D12
+> (D7 was already done; D8 + D9 are part 2), owner: "Start tackling
+> the queue." outside.js replaces deals.js + gigs.js: one list of
+> jobs and calls (brand | panel | mc | ost), one capacity, one
+> expiry, one weekly, one books line, one card, one Career block,
+> one exit for departures — the kinds keep their teeth. The fan
+> meeting becomes the fancon's free format on one clock; tour merch
+> rides the tour's line, the ad settlement the archive's. boardEnter
+> and boardRank are the one door and one rank for both boards;
+> tongueFactor reads one table. Migration 0.10.42 folds the lists,
+> the books, the scenes and the clocks. Suite_108 (59). Battery
+> 108/108, soak 40 clean, longhaul 10x620, e2e 122, lockstep
+> 0.10.42. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

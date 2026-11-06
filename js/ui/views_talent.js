@@ -364,24 +364,24 @@
         html.push('<div class="card">' + KP.fillPro('Songwriting credits on record: ' + p.flags.writerCredits +
           '. The word “artist” has started replacing “performer” in {pos} coverage, which was the whole point of the pen.', p) + '</div>');
       }
-      const deals = (KP.activeDeals ? KP.activeDeals(state) : []).filter(d => d.personId === p.id);
-      if (deals.length) {
-        html.push('<div class="kicker">Sponsorships</div>');
-        deals.forEach(d => html.push('<div class="card">' + UI.esc(d.brand) + ' · ' + d.weeksLeft + ' weeks left' +
-          ((d.missStreak || 0) > 0 ? ' · <span style="color:var(--magenta)">missed ×' + d.missStreak + '</span>' : '') +
-          (d.cooled ? ' · cooled' : '') + '</div>'));
-      }
-      const gig = KP.gigOf ? KP.gigOf(state, p.id) : null;
-      if (gig) {
-        html.push('<div class="kicker">The second job</div>');
-        html.push('<div class="card">' + UI.esc(KP.gigLabel(gig)) + ' · ' + gig.weeksLeft + ' weeks left on the run.</div>');
+      // the outside work (one list since v0.10.42, §89 D6): the campaign
+      // and the second job, with the production's lever
+      const work = KP.outsideJobs(state).filter(j => j.personId === p.id);
+      if (work.length) {
+        html.push('<div class="kicker">Outside work</div>');
+        work.forEach(j => html.push('<div class="card">' + UI.esc(KP.outsideLabel(j)) + ' · ' + j.weeksLeft + ' weeks left' +
+          (j.kind === 'brand'
+            ? ((j.missStreak || 0) > 0 ? ' · <span style="color:var(--magenta)">missed ×' + j.missStreak + '</span>' : '') + (j.cooled ? ' · cooled' : '')
+            : ((j.strain || 0) > 0 ? ' · <span style="color:var(--magenta)">' + j.strain + ' taping' + (j.strain === 1 ? '' : 's') + ' missed</span>' : '') +
+              '<div style="margin-top:8px"><button class="btn small ghost" style="border:1px solid var(--line)" data-action="outside-quit" data-id="' + j.id + '">Step down from ' + UI.esc(j.label) + '</button></div>') +
+          '</div>'));
       }
       if (p.broadcast) {
         html.push('<div class="kicker">The channel</div>');
         html.push('<div class="card">Broadcasting since ' + UI.esc(KP.weekLabel(p.broadcast.since).text) +
           ' · ' + (p.broadcast.uploads || 0) + ' uploads. The archive is hers; the ad checks are the company’s (§85 would like a word).</div>');
       }
-      if (!solos.length && !credits.length && !gig && !p.broadcast && !p.dualCareer && !(p.flags.writerCredits || 0)) {
+      if (!solos.length && !credits.length && !work.length && !p.broadcast && !p.dualCareer && !(p.flags.writerCredits || 0)) {
         html.push('<div class="card" style="color:var(--ink-dim);font-style:italic">' +
           KP.fillPro('The career page is blank so far — every name on it will be earned.', p) + '</div>');
       }

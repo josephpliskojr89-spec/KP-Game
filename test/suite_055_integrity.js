@@ -52,19 +52,17 @@ function debuted(seed, n) {
   const { state, g } = debuted('aud-h1');
   const p = state.people[g.members[0]];
   // an offer is on the desk when she departs
-  state.dealOffers = [{ id: 'deal9', brand: 'Léore (cosmetics)', personId: p.id,
-    lump: 10, weekly: 2, weeks: 12, expiresWeek: state.week + 3 }];
-  state.gigOffers = [{ id: 'gig9', kind: 'panel', personId: p.id, show: 'Off-Duty',
-    weeks: 12, weekly: 3, expiresWeek: state.week + 3 }];
+  state.outsideOffers = [
+    { id: 'deal9', kind: 'brand', label: 'Léore (cosmetics)', personId: p.id, lump: 10, weekly: 2, weeks: 12, expiresWeek: state.week + 3 },
+    { id: 'gig9', kind: 'panel', label: 'Off-Duty', personId: p.id, weeks: 12, weekly: 3, expiresWeek: state.week + 3 }];
   KP.departIdol(state, p.id, 'warm');
-  t.eq(state.dealOffers.length, 0, 'the brand offer left the desk with her');
-  t.eq(state.gigOffers.length, 0, 'so did the casting call');
+  t.eq(state.outsideOffers.length, 0, 'the brand offer and the casting call left the desk with her (one list, v0.10.42)');
   // and even a stale offer cannot be signed for a non-idol
-  state.dealOffers = [{ id: 'deal10', brand: 'Peau (cosmetics)', personId: p.id,
+  state.outsideOffers = [{ id: 'deal10', kind: 'brand', label: 'Peau (cosmetics)', personId: p.id,
     lump: 10, weekly: 2, weeks: 12, expiresWeek: state.week + 3 }];
-  const r = KP.respondDeal(state, 'deal10', true);
+  const r = KP.respondOutside(state, 'deal10', true);
   t.ok(!r.ok, 'no free money from a departed face');
-  t.eq(state.dealOffers.length, 0, 'and the dead offer clears itself');
+  t.eq(state.outsideOffers.length, 0, 'and the dead offer clears itself');
 }
 
 // ---- H3 + L1: the tracklist and the maknae survive a departure ----
@@ -117,9 +115,9 @@ function debuted(seed, n) {
   state.week += KP.C.WEEKS_PER_YEAR * 2 + 2;
   state.awardHistory = [{ isPlayer: true, category: 'bonsang', year: 1 }];
   const p0 = state.people[g.members[0]];
-  state.dealOffers = [{ id: 'd1', brand: 'Fizzi (soft drink)', personId: p0.id,
+  state.outsideOffers = [{ id: 'd1', kind: 'brand', label: 'Fizzi (soft drink)', personId: p0.id,
     lump: 8, weekly: 1, weeks: 10, expiresWeek: state.week + 3 }];
-  state.gigs = [{ id: 'g1', kind: 'mc', personId: p0.id, show: 'Weekly Antenna',
+  state.outside = [{ id: 'g1', kind: 'mc', personId: p0.id, label: 'Weekly Antenna',
     weeksLeft: 10, weekly: 4, lump: 0, signedWeek: state.week, strain: 0, weeksRun: 5 }];
   state.project = { locked: [state.roster[5] || state.roster[0]], seeking: [] };
   const oldProspects = state.prospects.slice();
@@ -131,8 +129,8 @@ function debuted(seed, n) {
   KP.foundLabel(a, 'Fork House');
   KP.foundLabel(b, 'Fork House');
   t.eq(KP.serialize(a), KP.serialize(b), 'founding forks byte-identical (module id counter re-synced)');
-  t.eq(a.dealOffers.length, 0, 'the old world’s brand offers are gone');
-  t.eq(a.gigs.length, 0, 'and its second jobs ended with the era');
+  t.eq(a.outsideOffers.length, 0, 'the old world’s offers are gone');
+  t.eq(a.outside.length, 0, 'and its outside work ended with the era');
   t.ok(!a.project, 'and the half-built project shelf is empty');
   oldProspects.forEach(id => t.ok(!a.people[id], 'never-signed lead ' + id + ' left no ghost file'));
   a.prospects.forEach(id => t.ok(typeof a.people[id].social === 'number',

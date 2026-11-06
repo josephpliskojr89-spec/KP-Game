@@ -21,10 +21,10 @@ function debuted(seed) {
   return { state, g };
 }
 function signDeal(state, p, over) {
-  state.deals = state.deals || [];
-  const d = Object.assign({ id: 'dT', brand: 'Léore (cosmetics)', personId: p.id,
+  state.outside = state.outside || [];
+  const d = Object.assign({ id: 'dT', kind: 'brand', label: 'Léore (cosmetics)', personId: p.id,
     lump: 12, weekly: 2, weeksLeft: 40, signedWeek: state.week }, over || {});
-  state.deals.push(d);
+  state.outside.push(d);
   return d;
 }
 
@@ -65,7 +65,7 @@ function signDeal(state, p, over) {
   const d = signDeal(state, p, { nextObligationWeek: state.week + 1 });
   // AB fork: the same week without the deal — the difference IS the work
   const twin = KP.deserialize(KP.serialize(state));
-  twin.deals = [];
+  twin.outside = [];
   KP.advanceWeek(state);
   KP.advanceWeek(twin);
   t.eq(d.obligationsKept, 1, 'the appearance happened');
@@ -140,7 +140,7 @@ function signDeal(state, p, over) {
   while (s2.week % KP.C.WEEKS_PER_MONTH === 0) KP.advanceWeek(s2);
   const cash2 = s2.budget;
   KP.advanceWeek(s2);
-  t.eq(s2.budget - cash2 >= 0 && s2.deals[0].cooled ? Math.max(0, d2.weekly - KP.C.DEALS.cooledWeeklyCut) : -1,
+  t.eq(s2.budget - cash2 >= 0 && s2.outside[0].cooled ? Math.max(0, d2.weekly - KP.C.DEALS.cooledWeeklyCut) : -1,
     2, 'a cooled brand pays with less warmth (' + (d2.weekly - KP.C.DEALS.cooledWeeklyCut) + '/week)');
 }
 

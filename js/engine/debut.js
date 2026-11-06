@@ -307,7 +307,7 @@
     if (moonlighter) {
       const gig = KP.gigOf(state, moonlighter.id);
       warning = (warning ? warning + ' And ' : 'The staff flag the schedule: ') +
-        KP.fillPro(KP.displayName(moonlighter) + ' still tapes ' + gig.show +
+        KP.fillPro(KP.displayName(moonlighter) + ' still tapes ' + gig.label +
           ' every week — this cycle will stretch {her}, and productions notice stretched.', moonlighter);
     }
     if (pitchNote) warning = warning ? warning + ' ' + pitchNote : pitchNote;
@@ -1017,8 +1017,8 @@
     // the entry charts. The scene is the lane; the national board is the
     // whole industry, titans included, and it is harder by construction.
     const score = (reception + (g.popularity || 0) * 0.2) * reach;
-    const peak = 1 + KP.chartPositions(state).filter(e => e.score > score).length;
-    const natPeak = 1 + KP.nationalPositions(state).filter(e => e.score > score).length;
+    const peak = KP.boardRank(state, 'scene', score);       // one body for both boards (v0.10.42, §89 D12)
+    const natPeak = KP.boardRank(state, 'national', score);
     const weeksOn = 1;
 
     if (isDebut) {

@@ -276,7 +276,7 @@
       const won = Math.floor(state.adViews / C.adViewsPerWon);
       state.adViews -= won * C.adViewsPerWon;
       state.budget += won;
-      if (KP.ledgerFlow) KP.ledgerFlow(state, 'adRevenue', won);
+      if (KP.ledgerFlow) KP.ledgerFlow(state, 'catalog', won);   // the archive's line (§89 D10)
       const first = !(led.adPaid > 0);
       led.adPaid = (led.adPaid || 0) + won;
       if (first) {

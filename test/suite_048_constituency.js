@@ -175,10 +175,12 @@ function openCal(state, g) {
   t.ok(r1.ok && state.inbox.some(n => n.ind === 'cafeNotice'), 'the café notice posts');
   t.ok(!KP.cafeNotice(state, g.id).ok, 'one notice at a time');
   const cash = state.budget;
-  const r2 = KP.fanMeeting(state, g.id);
-  t.ok(r2.ok && cash - state.budget === KP.C.CONSTITUENCY.fanMeetingCost, 'the fan meeting is a real event with a real bill');
+  // the fan meeting is the fan event's free format now (v0.10.42, §89 D10)
+  const r2 = KP.holdFancon(state, g.id, 'free');
+  t.ok(r2.ok && cash - state.budget === KP.C.MERCH.fanMeetingCost, 'the fan meeting is a real event with a real bill');
   t.ok(state.inbox.some(n => /cake shaped like the road manager/.test(n.text)), 'the cake incident is canon');
-  t.ok(!KP.fanMeeting(state, g.id).ok, 'and it needs to breathe before the next one');
+  t.ok(!KP.holdFancon(state, g.id, 'free').ok, 'and it needs to breathe before the next one');
+  t.ok(!KP.holdFancon(state, g.id, 'ticketed').ok, 'the ticketed room waits on the same clock');
   const b0 = state.budget;
   const r3 = KP.launchLightstick(state, g.id);
   t.ok(r3.ok, 'the lightstick launches');

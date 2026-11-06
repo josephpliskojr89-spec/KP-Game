@@ -203,7 +203,7 @@ function makeStrained(state, p) {
   const p = state.people[g.members[1]];
   const wasLeader = g.roles.leader === p.id;
   g.roles.center = p.id;   // make it hard: she is the center
-  state.deals = [{ id: 'dl1', personId: p.id, brand: 'Lumière', weekly: 2, weeks: 10 }];
+  state.outside = [{ id: 'dl1', kind: 'brand', personId: p.id, label: 'Lumière', weekly: 2, weeks: 10, weeksLeft: 10 }];
   KP.openClaim(state, { type: 'ambitionPromise', subject: { kind: 'idol', id: p.id },
     personId: p.id, ambition: 'solo', byWeek: state.week + 40 });
   // a close friend will grieve
@@ -220,7 +220,7 @@ function makeStrained(state, p) {
   t.ok(g.members.includes(g.roles.center), 'the center was reassigned inside the lineup');
   t.ok(Object.values(g.roles).every(id => g.members.includes(id)), 'every role held by a current member');
   t.eq(g.rooms.flat().sort().join(), g.members.slice().sort().join(), 'the room chart re-partitions');
-  t.eq((state.deals || []).length, 0, 'her deals wound down');
+  t.eq(KP.outsideJobs(state, 'brand').length, 0, 'her deals wound down');
   t.ok((state.claims || []).every(c => c.subject.id !== p.id || c.resolved === 'void'), 'her open promises settle void');
   // grief lands as a ledger entry — end-state morale is confounded by the
   // same week's release results, so the durable record is the assertion

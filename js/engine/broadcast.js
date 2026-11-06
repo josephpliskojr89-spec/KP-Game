@@ -66,11 +66,11 @@
         text: KP.fillPro('A clip from ' + KP.displayName(p) + '’s ' + where + ' is circulating with the caption doing all the work. What {she} said matters less than how many people were listening — and a face this known had EVERYONE listening. The company phone is ringing in the specific tone of sponsors.', p) });
       const d = KP.igniteDiscourse && KP.igniteDiscourse(state, rng, 'gaffe', 'idol', p.id, g ? g.id : null);
       if (d) inbox.push(d);
-      (state.deals || []).forEach(dl => {
-        if (dl.personId === p.id && dl.weeksLeft > 0 && !dl.cooled && rng.chance(0.4)) {
+      KP.outsideJobs(state, 'brand').forEach(dl => {
+        if (dl.personId === p.id && !dl.cooled && rng.chance(0.4)) {
           dl.cooled = true;
           inbox.push({ kind: 'company', ind: 'dealCooled', priority: 'high', personId: p.id,
-            text: 'The ' + dl.brand + ' account manager called “to check in,” which is brand for “we saw the clip.” The weekly fee just got a haircut until this blows over.' });
+            text: 'The ' + dl.label + ' account manager called “to check in,” which is brand for “we saw the clip.” The weekly fee just got a haircut until this blows over.' });
         }
       });
     } else {

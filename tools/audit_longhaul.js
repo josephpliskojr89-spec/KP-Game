@@ -126,15 +126,11 @@ function checkIntegrity(seed, week, state) {
   }));
   // engagements point at LIVE IDOLS — existence alone hid the departure
   // holes from every earlier harness (0.9.13)
-  (state.deals || []).forEach(d => {
+  (state.outside || []).forEach(d => {
     const dp = person(d.personId);
-    if (d.weeksLeft > 0 && (!dp || dp.status !== 'idol')) flag(seed, week, 'active deal on non-idol ' + d.personId);
+    if (d.weeksLeft > 0 && (!dp || dp.status !== 'idol')) flag(seed, week, 'active ' + d.kind + ' job on non-idol ' + d.personId);
   });
-  (state.gigs || []).forEach(gg => {
-    const gp = person(gg.personId);
-    if (gg.weeksLeft > 0 && (!gp || gp.status !== 'idol')) flag(seed, week, 'active gig on non-idol ' + gg.personId);
-  });
-  (state.dealOffers || []).concat(state.gigOffers || []).forEach(o => {
+  (state.outsideOffers || []).forEach(o => {
     const op = person(o.personId);
     if (o.expiresWeek >= state.week && (!op || op.status !== 'idol')) flag(seed, week, 'open offer for non-idol ' + o.personId);
   });
@@ -195,8 +191,7 @@ function botWeek(state, mode) {
     KP.respondDiscourse(state, d.id, actions[0]);
   });
   // offers: take everything (stress, not strategy)
-  KP.openDealOffers(state).forEach(o => KP.respondDeal(state, o.id, true));
-  KP.openGigOffers(state).forEach(o => KP.respondGig(state, o.id, true));
+  KP.openOutsideOffers(state).forEach(o => KP.respondOutside(state, o.id, true));
   if (KP.fandomEligible) {
     state.groups.forEach(g => { if (KP.fandomEligible(state, g)) KP.nameFandom(state, g.id, 0); });
   }

@@ -155,27 +155,7 @@
     return { ok: true };
   };
 
-  KP.fanMeeting = function (state, groupId) {
-    const C = KP.C.CONSTITUENCY;
-    const g = KP.groupById(state, groupId);
-    if (!g || !g.debuted) return { ok: false, reason: 'Fan meetings are for debuted groups.' };
-    if (state.budget < C.fanMeetingCost) return { ok: false, reason: 'The venue, the security, the printed slogans — it costs ' + C.fanMeetingCost + '.' };
-    if (state.week < (g.fanMeetingQuiet || 0)) return { ok: false, reason: 'The last fan meeting is still being posted about. Let it breathe.' };
-    if (g.tour || g.prep) return { ok: false, reason: 'The calendar is full. A fan meeting deserves a clear week.' };
-    state.budget -= C.fanMeetingCost;
-    if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', -C.fanMeetingCost);   // §89 E
-    g.fanMeetingQuiet = state.week + 16;
-    KP.fandomGain(g, C.fanMeetingFandomGain);
-    g.fandomGrudge = Math.max(0, (g.fandomGrudge || 0) - 0.5);
-    g.members.forEach(id => {
-      const p = state.people[id];
-      if (p) p.morale = KP.clamp(p.morale + C.fanMeetingMorale, 0, 100);
-    });
-    KP.note(state, { kind: 'public',
-      ind: 'fanMeeting', priority: 'high', groupId: g.id,
-      text: g.name + ' held a fan meeting — games, letters, one member crying at a fan’s handmade gift, security gently confiscating a cake shaped like the road manager. Three hours where the parasocial contract was just social. The fandom will run on this for months.' });
-    return { ok: true, cost: C.fanMeetingCost };
-  };
+  // the fan meeting lives in commerce.js as the fan event's free format (v0.10.42, §89 D10)
 
   KP.launchLightstick = function (state, groupId) {
     const C = KP.C.CONSTITUENCY;

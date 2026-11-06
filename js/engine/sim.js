@@ -127,11 +127,7 @@
       // 5. table events
       KP.eventsWeek(state, rng).forEach(n => inbox.push(n));
     } },
-    { name: 'deals', order: 520, fn: (state, rng, inbox, roster, groups) => {
-      // 5a2. the deals desk (v0.7.0): offers arrive, contracts pay, scandal
-      //      clauses bite
-      KP.dealsWeek(state, rng).forEach(n => inbox.push(n));
-    } },
+    // 5a2. the outside work (v0.10.42) registers its own weekly at 520
     { name: 'releaseWar', order: 540, fn: (state, rng, inbox, roster, groups) => {
       // 5b-pre. the release war (v0.6.4): comebacks go public, locked dates
       //     leak, and rivals with a motive park releases on them

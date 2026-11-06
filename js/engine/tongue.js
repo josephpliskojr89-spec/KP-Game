@@ -33,6 +33,15 @@
     return g.members.map(id => state.people[id]).filter(Boolean)
       .find(m => !KP.onBreak(m) && KP.speaks(m, lang)) || null;
   };
+  // one table (v0.10.42, §89 D12): what the voice abroad is worth on a
+  // surface — the tour leg sells like a homecoming WITH one; the
+  // convention and the Japan cycle lose warmth and interviews WITHOUT
+  KP.tongueFactor = function (state, g, regionId, surface) {
+    const F = KP.C.TONGUE.FACTOR;
+    const voice = !!KP.voiceAbroad(state, g, regionId);
+    if (surface === 'tour') return voice ? F.tour : 1;
+    return voice ? 1 : (F[surface] != null ? F[surface] : 1);
+  };
 
   // ---- the world's auditions: fund a tour, mint the class -------------
   KP.fundAudition = function (state, regionId) {
