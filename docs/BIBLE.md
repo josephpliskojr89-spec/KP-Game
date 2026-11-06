@@ -7658,7 +7658,18 @@ the best-fitting name that takes the call (fit first, then heat),
 the house writer or one who owns the theme; interviews for the
 studio chairs are answered like any chair's. Bands: commissioned
 [.60–1.0], offLaneRecord [.05–1.0], houseChair [0–1.0], themeNamed
-[0–.90] (measure-first). Measured, 40 orgs: {{SOAK}}.
+[0–.90] (measure-first). Measured, 40 orgs: commissioned 39/40,
+a producer out of his lane released 40/40 (next door counts), a house
+chair filled 40/40, a theme named by the critics 32/40; the critics'
+darling 19/40 and the panned hit 8/40 still live; debut reception
+median 52 (min 25, max 79), sensation 2/40, strong+ 9/40, quiet/miss
+13/40 — the old bands hold. The first soaks found the bot briefing a
+record EVERY open cycle and starving its own show bookings (the
+darling band went extinct at 9/40, the debut-class band at 5/40, the
+end budget down a fifth); with the bot briefing like a player — on a
+weak sheet, or every third cycle on principle, flush at 600 — both
+bands came back (12/40, 9/40) and the budget with them. A strategy
+feature is a spending change, and the bot must answer it.
 
 *The migration (0.10.35)* backfills every demo on a desk with a
 writer, a theme and the fit it was written at (by hash, natural to
@@ -7667,7 +7678,7 @@ the pool's hidden numbers on first read. Stream shift: the hook's
 draw changed shape and each pitch draws a writer — repairs by
 pattern.
 
-Battery {{BATTERY}}, soak 40 clean, longhaul 10x620, e2e {{E2E}},
+Battery 102/102, soak 40 clean, longhaul 10x620, e2e 113,
 lockstep 0.10.35.
 
 ## §18 Watch items
@@ -10852,7 +10863,8 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > a craft row; a theme that fights the room is named by every critic.
 > A clause walk can no longer pull a contestant off a season, and the
 > finale counts whoever is on the roster that night. Measured:
-> {{LEDGER}}. Suite_102 (102). Battery 102/102, soak 40 clean,
+> commissioned 39/40, a house chair filled 40/40, a theme named by
+> the critics 32/40, the darling 19/40. Suite_102 (102). Battery 102/102, soak 40 clean,
 > longhaul 10x620, e2e 113, lockstep 0.10.35. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
