@@ -30,7 +30,7 @@ function debuted(seed) {
   t.ok(!byId.tourVlog.open, 'no tour, no tour vlog — the owner’s example is the law');
   t.ok(/van is parked/.test(byId.tourVlog.reason), 'and the lock says why, in words');
   t.ok(!byId.dancePractice.open, 'no release, no practice video');
-  t.ok(!byId.birthdayCam.open || true, 'birthday gate is calendar-driven');
+  t.ok(typeof byId.birthdayCam.open === 'boolean' && (byId.birthdayCam.open || /birthday|calendar|week/i.test(byId.birthdayCam.reason || '')), 'birthday gate is calendar-driven, and says so when closed');
   t.ok(byId.coverSong.open, 'a roster is enough for a cover — somebody, a mic, a take');
   // a locked topic REFUSES at the verb too — one truth
   const r = KP.postContent(state, 'tourVlog');

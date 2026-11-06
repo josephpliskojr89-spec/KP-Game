@@ -81,16 +81,16 @@ function planFirst(s, memberIds, week) {
       m.talents[d] = { cur: 80, ceilLo: 88, ceilHi: 95, growth: 1 }; });
     m.liveExp = 40; });
   let guard = 0;
+  // the bar is pinned under any landing so the over-delivery path RUNS (audit v0.11.3: it never did)
+  const savedBar = KP.C.PUBLIC.EXPECT.bar.slice(), savedMargin = KP.C.PUBLIC.EXPECT.exceedMargin;
+  KP.C.PUBLIC.EXPECT.bar[0] = 1; KP.C.PUBLIC.EXPECT.exceedMargin = 0;
   while (!g.debuted && guard++ < 12) KP.advanceWeek(s);
-  if (g.results.reception >= KP.C.PUBLIC.EXPECT.bar[0] + KP.C.PUBLIC.EXPECT.exceedMargin) {
-    t.eq(s.publicEyeLedger.overDelivered, 1, 'nobody was watching; everybody is now');
-    // the debut week is the loudest week there is — the story is WRITTEN;
-    // whether it lands is the inbox law's call (§89 B, v0.10.29)
-    t.ok(s.inbox.concat(KP.lastTickNotes || []).some(n => n.ind === 'overDelivered' && /ambush/.test(n.text)),
-      'the underdog story reads like one');
-  } else {
-    t.ok(true, '(the landing stayed modest this stream — the settle logic is held above)');
-  }
+  KP.C.PUBLIC.EXPECT.bar.splice(0, savedBar.length, ...savedBar); KP.C.PUBLIC.EXPECT.exceedMargin = savedMargin;
+  t.eq(s.publicEyeLedger.overDelivered, 1, 'nobody was watching; everybody is now');
+  // the debut week is the loudest week there is — the story is WRITTEN;
+  // whether it lands is the inbox law's call (§89 B, v0.10.29)
+  t.ok(s.inbox.concat(KP.lastTickNotes || []).some(n => n.ind === 'overDelivered' && /ambush/.test(n.text)),
+    'the underdog story reads like one');
 }
 
 // ---- the comparisons --------------------------------------------------

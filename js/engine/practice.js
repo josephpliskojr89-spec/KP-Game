@@ -177,7 +177,7 @@
       { id: 'promise', label: 'Promise the next lineup' },
       state.budget >= KP.C.PRACTICE.pleadCost
         ? { id: 'plead', label: 'A real week off — then decide' } : null,
-      { id: 'accept', label: 'Let her go with grace' },
+      { id: 'accept', label: KP.fillPro('Let {her} go with grace', state.people[sc.personId]) },
     ].filter(Boolean),
     resolve: (state, sc, optionId) => {
       const P = KP.C.PRACTICE;
@@ -226,10 +226,10 @@
       const tenure = p ? Math.round((state.week - (p.signedWeek || state.week)) / KP.C.WEEKS_PER_YEAR * 10) / 10 : 0;
       return KP.fillPro((p ? KP.displayName(p) : 'She') + ' — ' + tenure + ' years in the practice room, ' + (p ? p.age : '?') + ' now — asked the only question that matters: “Am I ever debuting?” {She} has earned a real answer, and every trainee in the building will hear whichever one you give.', p);
     },
-    options: () => [
+    options: (state, sc) => [
       { id: 'promise', label: 'The next lineup. Promised.' },
       { id: 'honest', label: 'Be honest — no guarantees' },
-      { id: 'release', label: 'The kind cut — release her now' },
+      { id: 'release', label: KP.fillPro('The kind cut — release {her} now', state.people[sc.personId]) },
     ],
     resolve: (state, sc, optionId) => {
       const P = KP.C.PRACTICE;

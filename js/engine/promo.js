@@ -76,10 +76,16 @@
   KP.recordClimbing = function (state, g) {
     const rel = (g.releases || []).length ? g.releases[g.releases.length - 1] : null;
     if (!rel) return { climbing: false, why: null };
-    const rising = list => (list || []).find(e => e.isPlayer && e.groupId === g.id && e.entered === rel.week &&
+    // the title's entry or a b-side's — a b-side enters the week it climbs,
+    // so it is matched by the record it belongs to (audit v0.11.3: the
+    // late climb never counted as still climbing)
+    const rising = list => (list || []).find(e => e.isPlayer && e.groupId === g.id &&
+      (e.entered === rel.week || (e.bside && e.releaseWeek === rel.week)) &&
       e.pos != null && e.lastPos != null && e.pos < e.lastPos);
     if (rising((state.chart || {}).entries)) return { climbing: true, why: 'the scene chart' };
     if (rising((state.national || {}).entries)) return { climbing: true, why: 'the national board' };
+    // a b-side that climbed onto the chart this month IS the record moving (§92 C)
+    if ((rel.bsides || []).some(b => b.late && b.charted && state.week - b.charted <= 4)) return { climbing: true, why: 'the b-side' };
     if (rel.sleeperTitle) return { climbing: true, why: 'the sleeper' };
     return { climbing: false, why: null };
   };

@@ -209,6 +209,7 @@
     const full = (state.prospects || []).length >= KP.C.NETWORK.boardCap;
     if (full) {
       p.status = 'released';
+      KP.socialOf(state, p);   // the door mints the number (social.js's law)
       led.marketed++;
       return 'market';
     }
@@ -227,6 +228,7 @@
     p.company = null;
     delete p.reentryAt;
     p.observations = Math.max(p.observations || 0, opts.obs || KP.C.NETWORK.CASTOFF.obs);   // somebody trained them; the file is real
+    KP.socialOf(state, p);   // the door mints the number (social.js's law; audit v0.11.3)
     KP.takeReads(state, p);
     (state.rivals || []).forEach(r => { if (r.interest) delete r.interest[p.id]; });
     if (!(state.prospects || []).includes(p.id)) state.prospects.push(p.id);
@@ -249,6 +251,10 @@
     p.releasedFrom = state.company.short;
     p.releasedWeek = state.week;
     delete p.reentryAt;
+    // the bench, the break and the scar's return belong to the building she
+    // left (audit v0.11.3: a released idol on a personal break re-signed
+    // as a trainee who was on break forever)
+    if (p.flags) { delete p.flags.personalHiatus; delete p.flags.burnout; delete p.flags.scarReturn; }
     KP.chapter(state, p, 'released', { co: state.company.short, how: how || 'released' });
     // the season (v0.10.32): leaving this building mid-term hands the
     // project house her contract — the seat was held for her here, and

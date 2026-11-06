@@ -155,7 +155,7 @@
       }
       p.broadcast = { since: state.week, uploads: 0 };
       ledger(state).channels++;
-      p.history.push({ week: state.week, text: 'Opened a personal WeCast channel — her own voice, on the record, weekly.' });
+      p.history.push({ week: state.week, text: KP.fillPro('Opened a personal WeCast channel — {pos} own voice, on the record, weekly.', p) });
       KP.note(state, { kind: 'public', ind: 'channelOpened', priority: 'high', personId: p.id,
         text: KP.fillPro(KP.displayName(p) + '’s personal WeCast channel is LIVE. First upload: ' +
           (p.personality.creativity >= 60 ? 'a bedroom demo nobody at the label had heard' : 'a day-in-the-life with aggressively normal lunch content') +
@@ -197,10 +197,10 @@
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'marketing', -C.trainCost);
         p.flags.mediaTrained = 1;
         ledger(state).trained++;
-        return { toast: 'Mandatory coaching, framed as an upgrade. She rolled her eyes and took notes anyway.' };
+        return { toast: KP.fillPro('Mandatory coaching, framed as an upgrade. {She} rolled {pos} eyes and took notes anyway.', p) };
       }
       p.flags.castEmboldened = 1;
-      return { toast: 'You let it slide. It DID work. She noticed both facts, and only one of them was the lesson you intended.' };
+      return { toast: KP.fillPro('You let it slide. It DID work. {She} noticed both facts, and only one of them was the lesson you intended.', p) };
     },
     expire: () => null,
   });
@@ -271,14 +271,14 @@
 
   // ---- the timeline reacts ---------------------------------------------
   KP.onFeedEvent('channelOpened', (state, n, rng) => rng.pick([
-    { persona: 'fan', text: 'SHE HAS A CHANNEL. personal uploads. her own voice. subscribing was the fastest decision of my week and I include lunch' },
+    { persona: 'fan', text: KP.fillPro('{She} HAS A CHANNEL. personal uploads. {pos} own voice. subscribing was the fastest decision of my week and I include lunch', state.people[n.personId]).replace(/^(She|He) HAS/, m => m.toUpperCase()) },
     { persona: 'casual', text: 'idol opens a personal WeCast and the first upload is just… a person? being normal? this is the content actually. companies take note' },
     { persona: 'press', text: 'Another artist opens a personal channel — the industry’s most reliable arbitrage: authenticity the label cannot manufacture, at a price the label cannot beat.' },
   ]));
   KP.onFeedEvent('castViral', (state, n, rng) => rng.pick([
     { persona: 'casual', text: 'a bedroom upload from an idol channel is outperforming actual marketing campaigns this week. the mic is mightier than the media plan' },
     { persona: 'stan', text: 'the channel upload went viral and we KNEW. we were in the first hundred comments. archaeologists will find our receipts' },
-    { persona: 'fan', text: 'her own upload, her own voice, no company filter, one million views. this is why you let them have the mic' },
+    { persona: 'fan', text: KP.fillPro('{pos} own upload, {pos} own voice, no company filter, one million views. this is why you let them have the mic', state.people[n.personId]) },
   ]));
   KP.onFeedEvent('castGaffe', (state, n, rng) => rng.pick([
     { persona: 'press', text: 'The weekly reminder that a live mic is a liability instrument: one sentence, one clip, one caption doing the damage. The company statement is being drafted in the usual font.' },
@@ -286,7 +286,7 @@
     { persona: 'fan', text: 'the clip is out of context and we have the full VOD and nobody who is quote-posting will watch it. defending with timestamps anyway. this is devotion' },
   ]));
   KP.onFeedEvent('liveHappened', (state, n, rng) => rng.chance(0.35) ? rng.pick([
-    { persona: 'fan', text: 'she went live at midnight and 3 hours later I know her skincare order and her childhood dog’s name. best broadcast of the year. no competition' },
+    { persona: 'fan', text: KP.fillPro('{she} went live at midnight and 3 hours later I know {pos} skincare order and {pos} childhood dog’s name. best broadcast of the year. no competition', state.people[n.personId]) },
     { persona: 'casual', text: 'the idol live-broadcast genre remains undefeated: no script, no edit, just a person and forty thousand strangers having dinner together' },
   ]) : null);
   KP.onFeedEvent('unsancLive', (state, n, rng) => rng.pick([

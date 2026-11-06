@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.2',
+    VERSION: '0.11.3',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -479,7 +479,6 @@
       roomMissCraft: 6,                                     // a theme that fights the room (age band, trait)
       pen: { base: 20, perCreativity: 0.6 },               // a member writer's craft, from creativity
       houseCraftBase: 30, houseCraftSpan: 60,               // a house chair's craft from its hidden aptitude
-      houseBond: 5,                                         // the house chair is bonded from day one
       devotionFandom: 1,                                    // the fan song feeds the fandom
       COMMISSION: {
         writeWeeks: [2, 3],                                 // the writing room's clock
@@ -626,6 +625,10 @@
       restRecovery: 15,            // scheduled rest actually restores people
       promoSoftCap: 70,            // above this, managers rotate her stages…
       promoSoftMult: 0.5,          // …and the promo load halves (not the risk)
+      // the rollout promotes the ACT once per activity, scaled by who showed
+      // up; the norm (a typical five) keeps the trajectory the soaks were
+      // tuned on when the gain paid per member (audit v0.11.3)
+      popLineupNorm: 5,
       OVERWORK: {                  // pushing a gassed roster is legal — and risky
         threshold: 88,             // fatigue where incidents become possible
         chance: 0.045,             // weekly, per member, during promo/prep
@@ -715,8 +718,6 @@
         purgeFactor: 0.6,        // …cutting this share of the overage at once
         cullNoteAt: 3,           // cuts this deep make the wire
         namedTenure: 40,         // weeks a signee gets before the bar applies
-        namedBar: 58,            // peak talent below this is not cutting it
-        namedMax: 1,             // named cuts per evaluation
         actPace: 7,              // extra debut-delay weeks per active act
         overextendAt: 5,         // active acts past which the bottom act prunes faster
         comfortBase: 2,          // active acts a company runs comfortably…
@@ -967,7 +968,7 @@
         // broke. One kind for both the WeCast slip and the v0.6.8
         // posting incident — a duplicate key here used to shadow this
         // entry entirely (fixed v0.10.4)
-        gaffe: { label: 'the clip of what she said', negative: true, start: [20, 45],
+        gaffe: { label: 'the clip of what was said', negative: true, start: [20, 45],   // the subject can be anyone (audit v0.11.3)
           actions: ['apology', 'statement', 'meme'] },
         // the recurring money (v0.10.3): squeeze the fandom too hard
         atmStory: { label: '"we are not ATMs"', negative: true, start: [25, 45],
@@ -1296,7 +1297,7 @@
           popMin: 45, pay: 24, travel: 9, fatigue: 5, blurb: 'heritage grounds, lantern light, the set every act films for the archive' },
         { id: 'neonHarbor', name: 'Neon Harbor', woy: 44, tier: 3,
           popMin: 58, pay: 40, travel: 12, fatigue: 6, blurb: 'the year’s biggest open-air bill — headlining it is a line in a career summary' },
-        { id: 'firstFrost', name: 'First Frost Fest', woy: 49, tier: 1,
+        { id: 'firstFrost', name: 'First Frost Fest', woy: 47, tier: 1,   // inside the 48-week year (audit v0.11.3: 49 was next January, and the festival went biennial)
           popMin: 25, pay: 12, travel: 3, fatigue: 3, blurb: 'the winter campus circuit, breath clouds and hot packs taped inside coats' },
         // the overseas conventions (v0.10.9's circuit; FESTS rows since
         // v0.10.43, §89 D9): region-keyed, warmth-gated, the tongue applied
@@ -1637,7 +1638,6 @@
       overpressAt: 1.6,        // run past demand x this = the warehouse memo
       repackDemand: 0.55,      // reprints sell real, not full (era heat carries)
       signRoundCost: 3, signRoundBoost: 0.11, signRoundsMax: 3, signFatigue: 4,
-      cutSeatsPerRound: 80,    // seats per fan-sign round — the cut line divides
       dumpRiskAt: 2, dumpChance: 0.30,  // heavy rounds roll the album-dump story
       digitalPerReception: 1.25, digitalPopFactor: 0.25,
       titanSkew: 2.2, rumorSkew: 0.45,  // phys/dig ratio bars for the identity story
@@ -1983,7 +1983,6 @@
       repPer: 1,                  // reputation.performance ± on carried / fumbled (its first writer)
       craftAlpha: 0.25,           // the act's rolling stage craft
       awardsPer: 0.3,             // (stageCraft − 55) × this on the artist ballot
-      gigLight: true,             // the booking pile rates light: counts and craft, no teeth
       badNightDemand: 0.9, goodNightDemand: 1.05,   // the tour: a bad night sells the next week softer
       festMorale: { carried: 2, clean: 1, shaky: 0, fumbled: -1 },
       gayoCarriedFandom: 1,       // on top of the gayo stage's own
@@ -2786,7 +2785,6 @@
       birthdaySpike: 3000,
       birthdayMorale: 2,
       birthdayAdIntensity: 50,   // a devoted fandom funds the subway ad
-      liveClipChance: 0.35,      // a livestream week leaves a clip behind
     },
     // ---- The tracklist (v0.7.5) — the record is more than its title ----
     TRACKS: {
@@ -2866,7 +2864,6 @@
         stingCoached:     { w: 1,  words: 'the coach sent over when a loss sat badly' },
         stingRespected:   { w: 1,  words: 'let a loss fuel her, on purpose' },
         carrySeen:        { w: 2,  words: 'carried the group; it went in her file' },
-        glueSeen:         { w: 1,  words: 'the one holding the room together — and you said so' },
         unitCredit:       { w: 1,  words: 'a unit credit, hers' },
         soloCredit:       { w: 3,  words: 'the solo credit, on a record' },
         realTerms:        { w: 2,  words: 'offered real terms at renewal' },
@@ -3008,10 +3005,6 @@
       promiseMorale: 6,          // a plan means everything
       deflectMorale: -3,
       expireMorale: -2,          // waiting and hearing nothing
-      breatherFatigue: -14,      // the granted rest week actually rests
-      breatherCost: 5,           // the schedule shuffle has a price
-      coachTalkMorale: 4,
-      pushThroughMorale: -3,
       // moment-choice scenes (persona teeth): small, honest effects
       restDayFatigue: -8, restDayCost: 3,
       coachOverCost: 2, coachOverMorale: 3,
@@ -3057,7 +3050,6 @@
     RIVALS: {
       count: 3,   // v0.4.0: Whitecliff finally activates — the world is full
 
-      interestLevels: ['watching', 'interested', 'hot'],
       weeklyInterestShift: 0.26,  // chance a rival escalates interest (v0.4.3: hungrier)
     },
 

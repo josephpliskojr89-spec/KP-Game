@@ -291,6 +291,13 @@
     state.budget = 0;
     state.fiscal = { monthStartBudget: 0, pressure: 0, monthSignings: 0 };
     state.red = { weeks: 0, arrears: 0, rung: 0, peak: red.peak, total: red.total, paid: red.paid, episodes: red.episodes };
+    // the dead label's books close with it (audit v0.11.3: the next
+    // chapter's first statement netted the old streams); its trophies
+    // and its daesang are its own — the next company's first is a first
+    state.books = { cur: {}, curStartBudget: 0, last: null, closed: (state.books && state.books.closed) || 0 };
+    delete state.gravityExecAsk;
+    state.firstShowWinWeek = 0;
+    delete state.daesangWonYear;
 
     // ---- the record ----------------------------------------------------------
     stmt.went = went; stmt.seats = seatsWent; stmt.how = how || 'read';
@@ -325,6 +332,7 @@
     const L = KP.C.LEDGER.KINDS;
     let best = null;
     (state.rivals || []).forEach(r => (r.acts || []).forEach(a => {
+      if (r.projectHouse) return;   // a broadcaster's house hosts nobody (audit v0.11.3)
       if (a.retired || (a.popularity || 0) < P.popAt) return;
       (a.members || []).forEach(id => {
         const p = state.people[id];
@@ -483,6 +491,10 @@
     const chest = door === 'salaried' ? R.budget : R.chest;
     state.budget = chest;
     state.fiscal = { monthStartBudget: chest, pressure: 0, monthSignings: 0 };
+    if (state.books) state.books.curStartBudget = chest;   // the first statement nets from the chest, not from zero
+    // the salaried door inherits an act with trophies on the wall — its
+    // first win is not the company's first; every other door starts clean
+    state.firstShowWinWeek = door === 'salaried' ? week - R.groupAge : 0;
     state.signingsAllowed = R.signings;
     state.signingsUsed = 0;
     state.objective = {
@@ -572,6 +584,12 @@
       st.since = week;
       st.resume = [door === 'salaried' ? 'here before you — the résumé is this company' : 'here since the second beginning'];
     });
+    // every door people enter the world through mints the public number
+    // on the spot (social.js's law; audit v0.11.3: the chapter's trainees
+    // and the inherited act minted at first render and forked the twin)
+    const minted = new Set();
+    (state.roster || []).forEach(id => { const p = state.people[id]; if (p && !minted.has(id)) { minted.add(id); KP.socialOf(state, p); } });
+    KP.groups(state).forEach(g => (g.members || []).forEach(id => { const p = state.people[id]; if (p && !minted.has(id)) { minted.add(id); KP.socialOf(state, p); } }));
     // what follows you
     state.career = (state.career || []).concat([{ week, from: dead.short, door, to: short }]);
     dead.door = door; dead.doorWeek = week;
@@ -610,7 +628,7 @@
       if (!r.sold && (r.reception || 0) >= S.saleMinReception) r.sold = state.week;
     }));
     state.budget += q.price;
-    if (KP.ledgerFlow) KP.ledgerFlow(state, 'catalog', q.price);
+    if (KP.ledgerFlow) KP.ledgerFlow(state, 'financing', q.price);   // an asset sale is capital — the fund's toll reads revenue, not the shelf (audit v0.11.3)
     state.shelfSales = (state.shelfSales || 0) + 1;
     KP.note(state, { kind: 'company', ind: 'shelfSold', priority: 'high',
       text: 'The shelf is sold: ' + q.tracks + ' record' + (q.tracks === 1 ? '' : 's') + ' of masters’ upside to the distributor for ' + q.price + ', wired today. The songs keep their history and lose their royalties — a reverse run on any of them pays somebody else now. The accountant called it “liquidity.” The members called it something shorter.' });

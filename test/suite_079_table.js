@@ -77,7 +77,7 @@ function worthy(s, id, channel) {
   if (cb && cb.kind === 'bonus') {
     t.ok(cb.price >= KP.C.TABLE.bonusMin, 'the bonus is real money');
   }
-  t.ok(true, 'counter kinds are hash-stable per file');
+  t.eq(JSON.stringify(KP.counterOf(s, bn)), JSON.stringify(KP.counterOf(s, bn)), 'counter kinds are hash-stable per file');
 }
 
 // ---- the clause has teeth: kept ---------------------------------------

@@ -21,7 +21,7 @@
         const def = KP.sceneDef(sc.kind);
         let n = null;
         if (def && def.expire) {
-          n = def.expire(state, sc);
+          n = def.expire(state, sc, rng);   // the phase's stream (audit v0.11.3)
           if (n) inbox.push(n);
         }
         // the conversation record keeps the silences too — including

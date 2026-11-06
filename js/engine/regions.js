@@ -60,6 +60,12 @@
     }
     return g.regions;
   };
+  // the read that never writes (audit v0.11.3: a render created g.regions
+  // and the viewed save differed from its unviewed twin)
+  KP.regionsRead = function (g) {
+    if (g.regions) return g.regions;
+    const z = {}; regionIds().forEach(id => { z[id] = 0; }); return z;
+  };
   KP.regionWord = function (v) {
     const R = KP.C.REGIONAL;
     if (v >= R.devotedAt) return 'devoted';

@@ -333,10 +333,21 @@
         p.history.push({ week: state.week, text: 'The ' + g.name + ' project was dissolved before the stage. Back to the practice room, carrying it.' });
       }
     });
+    // the clean exits: every live pointer settles, every open question
+    // about these people or this act leaves the desk (audit v0.11.3: a
+    // sting's door outlived its group and crashed the Desk; the gravity
+    // watch sat on a non-member forever)
+    members.forEach(p => KP.lineupPointerSweep(state, g, p.id));
+    if (g.gravity && !g.gravity.settled) { g.gravity.settled = 'disband'; g.gravity.settledWeek = state.week; }
+    delete g.gravityWatch;
+    const gone = new Set(members.map(p => p.id));
+    state.scenes = (state.scenes || []).filter(sc => !(sc.personId && gone.has(sc.personId)) && sc.groupId !== g.id);
+    if (state.pendingMoment && gone.has(state.pendingMoment.personId)) state.pendingMoment = null;
     // the record keeps the lineup; every gate reads empty from here
     g.finalLineup = g.members.slice();
     g.members = []; g.roles = {}; g.rooms = null; g.maknae = null;
     g.prep = null; g.demos = null; g.tour = null; g.hiatus = null;
+    g.promoUntil = 0; g.rollout = null; delete g.catalogPush;
     delete g.returnFrom;
     g.retiredWeek = state.week;
     // promises about a group that no longer exists settle void

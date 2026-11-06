@@ -13,7 +13,7 @@
   // overseas legs on the region's warmth
   function legDemand(state, g, regionId) {
     if (regionId === 'kr') return g.popularity || 0;
-    return (KP.regionsOf(g)[regionId] || 0);
+    return (KP.regionsRead(g)[regionId] || 0);
   }
   KP.tourLegOptions = function (state, g) {
     const T = KP.C.TOUR;
@@ -264,7 +264,7 @@
         notes.push({ kind: 'company', groupId: g.id, personId: voice.id,
           text: KP.fillPro(KP.displayName(voice) + ' ran the ' + KP.regionLabel(regionId) + ' leg’s mics — local radio in the morning, the ments at night, every joke landing in the room’s own language. The promoter called {her} “the reason the meet-and-greet went long.” The voice abroad is worth real money.', voice) });
       } else {
-        revenue -= KP.C.TONGUE.interpreterFee;
+        revenue = Math.max(0, revenue - KP.C.TONGUE.interpreterFee);   // a thin leg pays the interpreter out of the gate, never below zero (audit v0.11.3)
         tl.interpreterLegs++;
       }
       // the airport (v0.9.29): the tour reaches somebody's HOME

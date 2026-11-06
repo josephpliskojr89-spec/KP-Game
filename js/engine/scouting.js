@@ -123,6 +123,11 @@
   // first debut. After that the agency is open — the CEO watches the
   // books instead (fiscal pressure, sim.js).
   KP.signingsCapped = function (state) {
+    // a later chapter's leash (the salaried door's three signings) binds
+    // until a debut in THAT chapter — the inherited act does not count
+    // (audit v0.11.3: eighteen signings in one sitting on a "short leash")
+    const since = state.chapterSince;
+    if (since != null) return !KP.groups(state).some(g => g.debuted && (g.debutWeek || 0) >= since);
     return !KP.groups(state).some(g => g.debuted);
   };
 

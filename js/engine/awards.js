@@ -17,12 +17,15 @@
   // candidates per category: {name, company, isPlayer, groupId?, score}
   function fieldFor(state, category) {
     const A = KP.C.AWARDS;
-    const from = yearStart(state);
+    // the field runs from the week after LAST year's nominations closed
+    // (audit v0.11.3: a debut or a record in the year's last four weeks
+    // fell between two seasons and was never eligible)
+    const from = yearStart(state) - (KP.C.WEEKS_PER_YEAR - A.nominationWeek);
     const list = [];
     const jitter = key => KP.hash01([state.seed, 'award', yearOf(state), category, key].join('|')) * A.jitter;
     if (category === 'rookie') {
       KP.groups(state).forEach(g => {
-        if (!g.debuted || (g.debutWeek || 0) < from) return;
+        if (!g.debuted || g.retiredWeek || (g.debutWeek || 0) < from) return;
         const r0 = (g.releases || [])[0];
         if (r0) list.push({ name: g.name, company: state.company.short, isPlayer: true,
           groupId: g.id, score: r0.reception + (g.popularity || 0) * 0.2 + jitter(g.id) });
@@ -35,6 +38,7 @@
       }));
     } else if (category === 'song') {
       KP.groups(state).forEach(g => {
+        if (g.retiredWeek) return;   // a closed chapter does not compete (audit v0.11.3)
         (g.releases || []).forEach(r => {
           if (r.week < from) return;
           list.push({ name: '“' + r.songTitle + '” — ' + g.name, company: state.company.short,
@@ -54,6 +58,7 @@
       // craft, never the chart, never the fandom
       const craftOf = r => (r.craft != null ? r.craft : r.reception);
       KP.groups(state).forEach(g => {
+        if (g.retiredWeek) return;
         (g.releases || []).forEach(r => {
           if (r.week < from) return;
           list.push({ name: '“' + r.songTitle + '” — ' + g.name, company: state.company.short,
@@ -69,7 +74,7 @@
       }));
     } else {  // artist
       KP.groups(state).forEach(g => {
-        if (!g.debuted) return;
+        if (!g.debuted || g.retiredWeek) return;
         // the year's shelf, not the career's (0.9.13 audit B2: all-time
         // tallies made the top prizes an annuity by year five)
         const trophies = g.trophiesYear || 0;
@@ -218,6 +223,15 @@
     }
 
     if (woy === A.ceremonyWeek && state.awardSeason && state.awardSeason.year === yearOf(state)) {
+      // an unanswered seating question is answered by protocol NOW — the
+      // stage manager does not wait for next week (audit v0.11.3: the
+      // scene expired a week after the trophies and the speech never ran)
+      (state.scenes || []).filter(sc => sc.kind === 'awardNight' && sc.year === state.awardSeason.year).forEach(sc => {
+        const def = KP.sceneDef('awardNight');
+        const n = def && def.expire ? def.expire(state, sc) : null;
+        if (n) notes.push(n);
+        state.scenes = state.scenes.filter(x => x !== sc);
+      });
       const results = [];
       let bonsangTonight = 0;   // the ladder: bonsangs first, then the one that matters
       const snubs = [];

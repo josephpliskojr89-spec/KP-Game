@@ -163,11 +163,11 @@
         ? KP.fillPro(KP.displayName(p) + ' is at your door with {pos} bag still on: {she} wants the practice room after the schedule ends. Again. The trainer’s log already has {her} down for more hours than anyone; the medical desk’s line on {her} chart is not red yet, but it is not white either. {She} is not asking for permission so much as informing you politely.', p)
         : KP.fillPro(KP.displayName(p) + ' catches you in the hallway and asks — carefully, with a rehearsed lightness — whether {she} could sit out the extra rehearsal block this week. The trainer’s log says {she} is genuinely running low. The trainer’s face says this is also not the first corner {she} has looked for.', p);
     },
-    options: (state, sc) => sc.variant === 'grinder'
+    options: (state, sc) => { const p = state.people[sc.personId]; return sc.variant === 'grinder'
       ? [{ id: 'refuse', label: 'The schedule is the schedule — go home' },
-         { id: 'allow', label: 'Leave the lights on for her' }]
+         { id: 'allow', label: KP.fillPro('Leave the lights on for {her}', p) }]
       : [{ id: 'hold', label: 'The block stands — everyone rehearses' },
-         { id: 'lighten', label: 'Give her the lighter week' }],
+         { id: 'lighten', label: KP.fillPro('Give {her} the lighter week', p) }]; },
     resolve: (state, sc, optionId, rng) => {
       const FR = KP.C.FRICTION;
       const p = state.people[sc.personId];
@@ -238,9 +238,9 @@
       if (!p) return '';
       return KP.fillPro('A fan-sign clip of ' + KP.displayName(p) + ' is doing numbers: asked a loaded question, {she} answered exactly like {herself} — which is the problem and the appeal in one sentence. The team can get it pulled in an hour. Or it rides. The staff are split down the middle and both halves are certain.', p);
     },
-    options: () => [
+    options: (state, sc) => [
       { id: 'kill', label: 'Pull the clip — clean and quiet' },
-      { id: 'ride', label: 'Let it ride — that IS her' },
+      { id: 'ride', label: KP.fillPro('Let it ride — that IS {her}', state.people[sc.personId]) },
     ],
     resolve: (state, sc, optionId, rng) => {
       const FR = KP.C.FRICTION;
@@ -314,7 +314,7 @@
           teeth(state, 'substitution');
           worn.morale = KP.clamp(worn.morale - FR.subPrideMorale, 0, 100);
           KP.recordDirected(state, worn.id, 'benchedPride');
-          worn.history.push({ week: state.week, text: 'Watched her parts get redistributed “for her own good.” Thanked everyone involved. Memorized the date.' });
+          worn.history.push({ week: state.week, text: KP.fillPro('Watched {pos} parts get redistributed “for {pos} own good.” Thanked everyone involved. Memorized the date.', worn) });
           return { toast: KP.fillPro('The load shifted. ' + KP.publicGiven(worn) + ' thanked ' + KP.publicGiven(v) + ' in front of the room, beautifully, and has not unclenched {pos} jaw since. You saved {pos} body and taxed something {she} values more.', worn) };
         }
         worn.morale = KP.clamp(worn.morale + FR.subGratefulMorale, 0, 100);
@@ -336,10 +336,10 @@
       const p = state.people[sc.personId];
       const g = KP.groupById(state, sc.groupId);
       if (!p) return '';
-      return KP.fillPro('A panel show called, and the production was specific in the way productions are when they have watched the fancams: they want ' + KP.displayName(p) + '. Just {her}. The booking is good, the exposure is real, and the words “just her” will be heard by everyone in ' + (g ? g.name : 'the group') + ' whether you repeat them or not.', p);
+      return KP.fillPro('A panel show called, and the production was specific in the way productions are when they have watched the fancams: they want ' + KP.displayName(p) + '. Just {her}. The booking is good, the exposure is real, and the words “just {her}” will be heard by everyone in ' + (g ? g.name : 'the group') + ' whether you repeat them or not.', p);
     },
-    options: () => [
-      { id: 'send', label: 'Send her — the show knows what it wants' },
+    options: (state, sc) => [
+      { id: 'send', label: KP.fillPro('Send {her} — the show knows what it wants', state.people[sc.personId]) },
       { id: 'pair', label: 'Counter with a pair — two or nobody' },
       { id: 'decline', label: 'Pass on the booking' },
     ],
@@ -390,9 +390,9 @@
       if (!p) return '';
       return KP.fillPro('The manager flags it because it has never happened before: ' + KP.displayName(p) + ' asked to skip a schedule. No drama, no doctor’s note — just a quiet “I would rather not this week,” from the person who has never once said it. The calendar needs {her}. The precedent of asking says something the calendar cannot read.', p);
     },
-    options: () => [
+    options: (state, sc) => [
       { id: 'ask', label: 'Sit down and ask why' },
-      { id: 'press', label: 'The week needs her — she goes' },
+      { id: 'press', label: KP.fillPro('The week needs {her} — {she} goes', state.people[sc.personId]) },
     ],
     resolve: (state, sc, optionId, rng) => {
       const FR = KP.C.FRICTION;

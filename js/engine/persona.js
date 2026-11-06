@@ -134,7 +134,9 @@
           s.week - (g.lastReleaseWeek || 0) <= 4 && p.personality.competitiveness >= 65;
       },
       effect: (s, p) => { p.morale = KP.clamp(p.morale - 1, 0, 100); },
-      lines: (s, p) => { const g = KP.groupOf(s, p.id); const act = g.results.battle.actName;
+      lines: (s, p) => { const g = KP.groupOf(s, p.id);
+        // the group can be gone by the time the door is read (audit v0.11.3: a disband mid-fuse crashed the Desk)
+        const act = (g && g.results && g.results.battle && g.results.battle.actName) || 'the other';
         return [
           KP.displayName(p) + ' has rewatched the ' + act + ' stages from the shared week three times, taking notes nobody asked {her} to take. Losing sits badly with {her}. That is not entirely a flaw.',
           KP.displayName(p) + ' has the ' + act + ' stage from the shared week saved offline, and the staff caught {her} counting their formation changes on {pos} fingers at breakfast. Losing sits badly with {her}. That is not entirely a flaw.',
@@ -145,7 +147,7 @@
           g.members.some(id => (s.people[id] || {}).fatigue >= 70);
       },
       lines: (s, p) => { const g = KP.groupOf(s, p.id);
-        const tired = s.people[g.members.find(id => s.people[id].fatigue >= 70)];
+        const tired = g ? s.people[(g.members || []).find(id => s.people[id] && s.people[id].fatigue >= 70)] : null;
         const tn = tired ? KP.publicGiven(tired) : 'the tired one';
         return [
           KP.displayName(p) + ' rearranged the van seating so ' + tn + ' gets the window and the extra twenty minutes of sleep, then took the early interviews {herself}. Nobody upstairs will ever see this work. It is the job anyway.',
@@ -212,7 +214,7 @@
         return [
           N + ' — who ' + fact + ' — dragged ' + F + ' into it at 2am, and the staff group chat has photos. Some friendships are the actual product. This is one.',
           N + ' and ' + F + ' were found asleep on the practice-room floor at 6am, head to head, one pair of earbuds between them. The cleaning crew took a photo before waking them. It is the group chat’s banner now.',
-          F + ' says ' + N + ' is the only person who knows {pos} real coffee order, which is a secret, and which ' + N + ' told the whole van. Some friendships are the actual product. This is one.',
+          KP.fillPro(F + ' says ' + N + ' is the only person who knows {pos} real coffee order, which is a secret, and which ' + N + ' told the whole van. Some friendships are the actual product. This is one.', f),   // the friend's own pronoun
           N + ' — who ' + fact + ' — taught ' + F + ' the whole thing on a rest day, badly at first and then not badly at all. Neither of them will admit who laughed harder.',
           N + ' and ' + F + ' have a handshake that takes eleven seconds and has a spoken part. It was performed in the lobby, in full, in front of a delivery driver who was not ready for it.',
           F + ' keeps a running list of things ' + N + ' has said at 2am, titled “evidence,” and read three entries aloud in the van. ' + N + ' denies all three. The van believes the list.',
@@ -407,7 +409,10 @@
     body: (state, sc) => {
       const p = state.people[sc.personId];
       const m = MOMENTS.find(x => x.key === sc.momentKey);
-      return p && m ? m.text(state, p) + ' The call is yours.' : '';
+      // the line the spotlight recorded, never re-derived (audit v0.11.3:
+      // the memory had already moved, so the door read a different sentence)
+      const rec = (state.spotlight || []).find(x => x.personId === sc.personId && x.key === sc.momentKey);
+      return p && m ? ((rec && rec.text) || m.text(state, p)) + ' The call is yours.' : '';
     },
     options: (state, sc) => {
       const p = state.people[sc.personId] || null;
@@ -450,7 +455,9 @@
     if (!roster.length) return;
     const count = roster.length > 6 ? 2 : 1;
     // pressure first: whoever's life is on fire, recent features excluded
-    const fresh = roster.filter(p => p && p.status !== 'released' &&
+    // a benched, enlisted or away person is not up close this week (audit
+    // v0.11.3: "logged out of the building at 1am" about someone on ordered rest)
+    const fresh = roster.filter(p => p && p.status !== 'released' && !KP.onBreak(p) &&
       state.week - (p.flags.spotWeek || -99) >= 4);
     const byPressure = fresh
       .map(p => ({ p, s: pressureOf(state, p) }))
@@ -461,7 +468,7 @@
     // the rota fills the quiet weeks — everyone still gets her turn
     for (let k = 0; picks.length < count && k < roster.length; k++) {
       const p = roster[(state.week * count + k) % roster.length];
-      if (p && p.status !== 'released' && !picks.includes(p) &&
+      if (p && p.status !== 'released' && !KP.onBreak(p) && !picks.includes(p) &&
           state.week - (p.flags.spotWeek || -99) >= 4) picks.push(p);
     }
     picks.forEach(p => {

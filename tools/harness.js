@@ -27,7 +27,7 @@ const BANDS = {
   nonCenterBreakout: { lo: 0.10, hi: 0.80, label: 'public picked a non-center breakout' },
   rivalSteals:       { lo: 0.30, hi: 1.00, label: 'rivals signed >=1 prospect' },
   burnouts:          { lo: 0.00, hi: 0.45, label: 'orgs with a burnout incident' },
-  instinctSigning:   { lo: 0.00, hi: 1.00, label: 'scout instinct notes seen' },
+  instinctSigning:   { lo: 0.30, hi: 1.00, label: 'scout instinct notes seen' },   // ruled v0.11.3 from the measured count
   frictionSeen:      { lo: 0.20, hi: 1.00, label: 'orgs that saw real friction' },
   // ceiling 0.25→0.30 (0.9.24.1): the virality retune shifted every rng
   // stream; measured 11/40 (27.5%) and 20/80 (exactly 25%) after — the
@@ -173,7 +173,7 @@ const BANDS = {
   obligationMissed:  { lo: 0.00, hi: 0.80, label: 'orgs that missed a sponsored appearance (the road won)' },
   dealClawedBack:    { lo: 0.00, hi: 0.50, label: 'orgs a brand terminated for cause (two misses)' },
   soloRequested:     { lo: 0.05, hi: 1.00, label: 'orgs that got the sponsor solo request' },
-  soloAllowed:       { lo: 0.00, hi: 1.00, label: 'orgs that let the solo stage happen' },
+  soloAllowed:       { lo: 0.50, hi: 1.00, label: 'orgs that let the solo stage happen' },   // ruled v0.11.3 from the measured count
   // the practice room years + the regional schools (v0.9.16). Floors on
   // the rare arcs (quit, aging-out, last-chance) open at 0 for the first
   // soak and tighten once measured — the ceilings are the day-one alarms.
@@ -183,13 +183,13 @@ const BANDS = {
   // the gravity (v0.9.18). Floors open low/zero on the rare arcs for the
   // first soak; ceilings are the day-one alarms.
   clamorBegan:       { lo: 0.05, hi: 1.00, label: 'orgs where the transcendence clamor began (the trades feature)' },
-  clamorSettled:     { lo: 0.00, hi: 1.00, label: 'orgs that settled a clamor with the in-group solo' },
+  clamorSettled:     { lo: 0.50, hi: 1.00, label: 'orgs that settled a clamor with the in-group solo' },   // ruled v0.11.3 from the measured count
   // ceiling re-ruled 0.90→0.97 at v0.10.7 (37/40): the scout seat
   // (v0.10.6) multiplies applicant flow, so long soak orgs sign a
   // transcendent — and pay her clock — in most worlds now. Alive both
   // ways while any world escapes it; watch for 40/40 wallpaper.
   clamorHeld:        { lo: 0.00, hi: 0.97, label: 'orgs that held a transcendent and paid the resentment clock' },
-  soloKnocked:       { lo: 0.00, hi: 1.00, label: 'orgs where she knocked with the rehearsed ask' },
+  soloKnocked:       { lo: 0.50, hi: 1.00, label: 'orgs where she knocked with the rehearsed ask' },   // ruled v0.11.3 from the measured count
   slumpSeen:         { lo: 0.00, hi: 0.80, label: 'orgs where somebody lost the nerve (the slump)' },
   footingFound:      { lo: 0.00, hi: 0.80, label: 'orgs where the nerve came back (the footing)' },
   arcMinted:         { lo: 0.02, hi: 1.00, label: 'orgs that minted a group identity arc (icons/variety/OST)' },
@@ -197,7 +197,7 @@ const BANDS = {
   rivalCulled:       { lo: 0.05, hi: 1.00, label: 'worlds where a rival evaluation cut the trainee floor' },
   // ceiling 0.90→1.00 by ruling (0.9.18.1, first soak): median 3 named
   // cuts per world across FIVE companies in 140 weeks — one per company
-  // every two years, capped structurally at namedMax per evaluation.
+  // every two years, lowest peak first once tenure runs (audit v0.11.3: no cap).
   // Ruthless is the owner's brief; the alarm guards extinction.
   rivalNamedCut:     { lo: 0.05, hi: 1.00, label: 'worlds where a NAMED signee was cut at an evaluation' },
   // the mandate (v0.9.19): first soak; ceilings are the day-one alarms
@@ -205,7 +205,7 @@ const BANDS = {
   // floor 0.02→0 (v0.9.19 first soak): the bot ALWAYS pitches before the
   // floor gets loud enough, so the unasked greenlight is bot-dormant by
   // construction — the resignation-letter pattern. Suite-held, §18.
-  mandateBoard:      { lo: 0.00, hi: 1.00, label: 'orgs the board greenlit unasked (the loud floor)' },
+  mandateBoard:      { lo: 0.20, hi: 1.00, label: 'orgs the board greenlit unasked (the loud floor)' },   // ruled v0.11.3 from the measured count
   mandateLapsed:     { lo: 0.00, hi: 0.60, label: 'orgs that let a greenlight lapse dark' },
   // floor 0.40→0.05 by ruling (0.9.20.1): the one-hall bot consumes
   // its bench into lineups before any term laps (6/80) — the table
@@ -259,9 +259,9 @@ const BANDS = {
   doctrineDeniedSeen:{ lo: 0.00, hi: 1.00, label: 'orgs told no by their own doctrine' },
   // the tongue (v0.9.29): first soak — provisional
   auditionRun:       { lo: 0.10, hi: 1.00, label: 'orgs that funded a global audition tour' },
-  intlSigned:        { lo: 0.00, hi: 1.00, label: 'orgs that signed an international trainee' },
+  intlSigned:        { lo: 0.10, hi: 0.90, label: 'orgs that signed an international trainee' },   // ruled v0.11.3 from the measured count
   // the secret (v0.9.30): first soak — provisional
-  secretFormed:      { lo: 0.00, hi: 1.00, label: 'orgs where a private life deepened (19+ only)' },
+  secretFormed:      { lo: 0.20, hi: 1.00, label: 'orgs where a private life deepened (19+ only)' },   // ruled v0.11.3 from the measured count
   revealSeen:        { lo: 0.00, hi: 0.80, label: 'orgs where the midnight photos landed' },
   // the sagas (v0.9.31): the hash window [60,320] puts ~31% of first
   // sagas inside a 140-week census; the rest belong to the longhaul,
@@ -272,8 +272,8 @@ const BANDS = {
   // (measured 2/40 first soak)
   jvAnswered:        { lo: 0.00, hi: 0.30, label: 'orgs that answered the co-build term sheet' },
   // the network (v0.9.35): first soak — provisional, measure then rule
-  networkApps:       { lo: 0.00, hi: 1.00, label: 'orgs whose application pile produced a file' },
-  networkRefs:       { lo: 0.00, hi: 1.00, label: 'orgs the building referred somebody to' },
+  networkApps:       { lo: 0.60, hi: 1.00, label: 'orgs whose application pile produced a file' },   // ruled v0.11.3 from the measured count
+  networkRefs:       { lo: 0.50, hi: 1.00, label: 'orgs the building referred somebody to' },   // ruled v0.11.3 from the measured count
   washoutReturned:   { lo: 0.50, hi: 1.00, label: 'worlds where a rival cut a REAL trainee (the floor is people, v0.10.31)' },
   reentrySeen:       { lo: 0.30, hi: 1.00, label: 'orgs where a released trainee resurfaced on the open board (v0.10.31)' },
   rivalDoorBorn:     { lo: 0.90, hi: 1.00, label: 'worlds where a rival signed somebody at its own door, with a hometown' },
@@ -300,7 +300,7 @@ const BANDS = {
   // market sends a candidate. Measure-first floors on the chairs.
   commissioned:      { lo: 0.60, hi: 1.00, label: 'orgs that commissioned a record' },
   offLaneRecord:     { lo: 0.05, hi: 1.00, label: 'orgs that released a producer out of his lane' },
-  houseChair:        { lo: 0.00, hi: 1.00, label: 'orgs that filled a house producer or writer chair' },
+  houseChair:        { lo: 0.60, hi: 1.00, label: 'orgs that filled a house producer or writer chair' },   // ruled v0.11.3 from the measured count
   // ceiling .90→.95 (v0.11.0): measured 26–35/40 across v0.10.35–43 and
   // 101/120 at the wide run — the operating point sits AT the old ceiling,
   // and the red weeks' pitches moved the stream in 24 orgs (37/40). First
@@ -388,12 +388,12 @@ const BANDS = {
   eraExtended:       { lo: 0.10, hi: 0.90, label: 'orgs that extended an era on a climbing record' },
   comebackStaged:    { lo: 0.90, hi: 1.00, label: 'orgs whose era opened on a named comeback stage' },
   // the second chair (v0.10.39) — measure-first: the first chair must prove out first
-  secondChair:       { lo: 0.00, hi: 1.00, label: 'orgs that seated a second studio chair' },
+  secondChair:       { lo: 0.00, hi: 0.60, label: 'orgs that seated a second studio chair' },   // ruled v0.11.3 from the measured count
   // the pair and the mirror (v0.10.40, §88 D+E) — measure-first
   mentorPaired:      { lo: 0.10, hi: 1.00, label: 'orgs that paired a mentor with a struggling rookie' },
-  writingPaired:     { lo: 0.00, hi: 1.00, label: 'orgs that paired two pens (and a co-written track landed)' },
-  keptApart:         { lo: 0.00, hi: 1.00, label: 'orgs that seated a feud apart' },
-  rivalryFramed:     { lo: 0.00, hi: 1.00, label: 'orgs that framed an in-group rivalry as competition' },
+  writingPaired:     { lo: 0.02, hi: 0.80, label: 'orgs that paired two pens (and a co-written track landed)' },   // ruled v0.11.3 from the measured count
+  keptApart:         { lo: 0.05, hi: 0.90, label: 'orgs that seated a feud apart' },   // ruled v0.11.3 from the measured count
+  rivalryFramed:     { lo: 0.02, hi: 0.80, label: 'orgs that framed an in-group rivalry as competition' },   // ruled v0.11.3 from the measured count
   mirrorSpoken:      { lo: 0.80, hi: 1.00, label: 'orgs whose building formed a read of the boss' },
   // the song market (v0.10.5): ruled first soak — 40/40, 39/40, 39/40.
   // Hot hooks sit past windows constantly over long orgs (the bot
@@ -425,7 +425,6 @@ const BANDS = {
   jpDropped:         { lo: 0.85, hi: 1.00, label: 'orgs that posted a record to the Nichion weekly' },
   jpRungUp:          { lo: 0.70, hi: 1.00, label: 'orgs that climbed a rung of the JP ladder' },
   jpDomed:           { lo: 0.00, hi: 0.60, label: 'orgs that played the dome' },
-  evalRun:           { lo: 0.90, hi: 1.00, label: 'orgs whose practice room ran the monthly sheet' },
   evalTalked:        { lo: 0.70, hi: 1.00, label: 'orgs that held the after-eval talk' },
   breakdownRead:     { lo: 0.80, hi: 1.00, label: 'orgs that read a point breakdown out loud' },
   nearMissFuel:      { lo: 0.50, hi: 1.00, label: 'orgs whose near-miss fed the fandom' },
@@ -476,8 +475,8 @@ const BANDS = {
   // top slice of talent AND rival heat >= 2 on the same file; the bot
   // meets them wherever its wanted prospect is also the market's.
   holdoutMet:        { lo: 0.00, hi: 1.00, label: 'orgs a recruit said no to (the board has agency)' },
-  holdoutWon:        { lo: 0.00, hi: 1.00, label: 'orgs that got a holdout signed by any path' },
-  holdoutLost:       { lo: 0.00, hi: 1.00, label: 'orgs whose holdout signed with a power instead' },
+  holdoutWon:        { lo: 0.02, hi: 0.80, label: 'orgs that got a holdout signed by any path' },   // ruled v0.11.3 from the measured count
+  holdoutLost:       { lo: 0.50, hi: 1.00, label: 'orgs whose holdout signed with a power instead' },   // ruled v0.11.3 from the measured count
   // time takes its share (v0.9.32): first soak — provisional. The
   // legacy act's members cross 28 inside 140 weeks in most worlds;
   // drift needs trust above 75, which the bot rarely holds; and
@@ -533,7 +532,7 @@ const BANDS = {
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
-  agingOutFaced:     { lo: 0.00, hi: 1.00, label: 'orgs where the aging-out clock got loud' },
+  agingOutFaced:     { lo: 0.00, hi: 0.60, label: 'orgs where the aging-out clock got loud' },   // ruled v0.11.3 from the measured count
   lastChanceSeen:    { lo: 0.00, hi: 0.60, label: 'orgs where the long-timer finally debuted (the story everyone wants)' },
   // ceiling 0.95→1.00 by ruling (v0.9.15): a fatigue-reading boss
   // declares at least one hiatus in nearly every 140-week career — the
@@ -547,7 +546,7 @@ const BANDS = {
   // ceiling 1.00 by design (v0.9.12): anticipation only accrues past the
   // grace window, so every hiatus that earns its bonus pays the cooling
   // toll — cooled-among-declarers ≈ 100% is the bet working, not a flood
-  hiatusCooled:      { lo: 0.00, hi: 1.00, label: 'orgs that stayed gone past the grace window (the forgetting)' },
+  hiatusCooled:      { lo: 0.50, hi: 1.00, label: 'orgs that stayed gone past the grace window (the forgetting)' },   // ruled v0.11.3 from the measured count
   gigWrapped:        { lo: 0.10, hi: 1.00, label: 'orgs where a full gig run wrapped with a sendoff' },
   // floor 0.05→0.02 (v0.10.1): the grind-era calendar is FULLER —
   // sign rounds, flyer weeks, and campaign pushes bench more idols,
@@ -596,12 +595,12 @@ const BANDS = {
   unitCredit:        { lo: 0.05, hi: 1.00, label: 'orgs that cut a unit track (full albums open the second slot)' },
   sleeperHeard:      { lo: 0.30, hi: 1.00, label: 'orgs where a b-side outgrew its record (the truthers organize)' },
   // the b-side and the reverse run (v0.11.1, §92) — measure-first
-  bsideCharted:      { lo: 0.00, hi: 1.00, label: 'orgs where a b-side charted beside its title (double charting)' },
-  bsideClimbed:      { lo: 0.00, hi: 1.00, label: 'orgs where a b-side climbed onto the chart mid-era' },
-  bsideRevived:      { lo: 0.00, hi: 1.00, label: 'orgs whose b-side reverse-charted years later' },
-  nationalRevived:   { lo: 0.00, hi: 1.00, label: 'orgs whose reverse run crossed onto the national board' },
-  catalogPushed:     { lo: 0.00, hi: 1.00, label: 'orgs that pushed a song on the shelf (the bot, when flush)' },
-  pushPaidOut:       { lo: 0.00, hi: 1.00, label: 'orgs whose push paid out in a reverse run' },
+  bsideCharted:      { lo: 0.15, hi: 0.90, label: 'orgs where a b-side charted beside its title (double charting)' },   // ruled v0.11.3 from the measured count
+  bsideClimbed:      { lo: 0.15, hi: 0.90, label: 'orgs where a b-side climbed onto the chart mid-era' },   // ruled v0.11.3 from the measured count
+  bsideRevived:      { lo: 0.02, hi: 0.80, label: 'orgs whose b-side reverse-charted years later' },   // ruled v0.11.3 from the measured count
+  nationalRevived:   { lo: 0.15, hi: 0.95, label: 'orgs whose reverse run crossed onto the national board' },   // ruled v0.11.3 from the measured count
+  catalogPushed:     { lo: 0.40, hi: 1.00, label: 'orgs that pushed a song on the shelf (the bot, when flush)' },   // ruled v0.11.3 from the measured count
+  pushPaidOut:       { lo: 0.02, hi: 0.60, label: 'orgs whose push paid out in a reverse run' },   // ruled v0.11.3 from the measured count
   // floor 0 by ruling: going quiet needs morale under 38, and the bot
   // rests, mediates, and wins its way out of that hole — a risk
   // mechanic reading zero under a competent bot is working (see
@@ -665,7 +664,7 @@ const BANDS = {
   // the last statement (v0.11.0, §86) — measure-first: a red week is a
   // week behind on the building; standard play must never DISSOLVE (a
   // hard guard below), but may well run red for a week or two
-  redWeekSeen:       { lo: 0.00, hi: 1.00, label: 'orgs that ran a red week (behind on the building)' },
+  redWeekSeen:       { lo: 0.20, hi: 1.00, label: 'orgs that ran a red week (behind on the building)' },   // ruled v0.11.3 from the measured count
   // measured 1/40 at the first soak (soak-12 formed a second lineup on an
   // empty account at week 16 and saw no income for twelve weeks — a fatal
   // decision, not a bug) — the ceiling guards the teeth biting NORMAL play
@@ -726,7 +725,7 @@ const tally = {
   demoLost: 0, campHeld: 0, bondWorking: 0,
   interviewHeld: 0, seatHired: 0, seatCalled: 0, staffVoice: 0, meshFelt: 0,
   searchPosted: 0,
-  evalRun: 0, evalTalked: 0, breakdownRead: 0, nearMissFuel: 0, nudgeRun: 0,
+  evalTalked: 0, breakdownRead: 0, nearMissFuel: 0, nudgeRun: 0,
   jpSigned: 0, jpDropped: 0, jpRungUp: 0, jpDomed: 0,
   circuitPlayed: 0, circuitFlopped: 0, enVersioned: 0,
   traineeTabled: 0, traineeWalked: 0, anticipationBanked: 0,
@@ -1856,7 +1855,7 @@ for (let s = 0; s < SEEDS; s++) {
   if (warBattleSeen) tally.warBattled++;
   if (warWonSeen) tally.warWon++;
   if ((state.memory || []).some(n => n.key === 'rivalry')) tally.warRivalry++;
-  if (state.firstShowWinWeek) tally.showFirstWin++;
+  if (KP.groups(state).some(g => Object.values(g.trophies || {}).some(n => n >= 1))) tally.showFirstWin++;   // a trophy won in THIS career (audit v0.11.3: the legacy door's old win read as truthy)
   if (state.rivals.some(r => (r.acts || []).some(a => (a.showWins || 0) >= 1))) tally.showRivalWins++;
   if ((state.memory || []).some(n => n.key === 'showDarling')) tally.showDarling++;
   // the second job (v0.9.11): the files are the durable record
@@ -2058,7 +2057,6 @@ for (let s = 0; s < SEEDS; s++) {
   if ((jpl.domes || 0) >= 1) tally.jpDomed++;
   // the rituals (v0.10.7): both ledgers are durable
   const evl = state.evalLedger || {};
-  if ((evl.sheets || 0) >= 1) tally.evalRun++;
   if ((evl.talks || 0) >= 1) tally.evalTalked++;
   const ptl = state.pointLedger || {};
   if ((ptl.breakdowns || 0) >= 1) tally.breakdownRead++;

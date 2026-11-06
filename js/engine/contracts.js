@@ -346,6 +346,13 @@
     }
     if (g.gravityWatch && g.gravityWatch.personId === pid) delete g.gravityWatch;
     if (state.gravityExecAsk && state.gravityExecAsk.personId === pid) delete state.gravityExecAsk;
+    // the line sheet: her parts are nobody's until the sheet is re-cut
+    // (audit v0.11.3: the record was sung in a voice that had left)
+    if (g.prep && g.prep.sheet && g.prep.sheet.parts) {
+      let orphaned = false;
+      g.prep.sheet.parts.forEach(pt => { if (pt.who === pid) { pt.who = null; orphaned = true; } });
+      if (orphaned && !g.prep.sheet.locked && KP.applySheetPreset) KP.applySheetPreset(state, g, g.prep.sheet.mode || 'balanced');
+    }
     if (g.prep && g.prep.tracks) {
       g.prep.tracks.forEach(tr => {
         if (!tr.credit) return;
@@ -427,6 +434,7 @@
         g.retiredWeek = state.week;
         g.prep = null; g.demos = null; g.tour = null;
         g.hiatus = null; delete g.returnFrom;
+        g.promoUntil = 0; g.rollout = null; delete g.catalogPush;   // nobody promotes an empty act (audit v0.11.3)
         push({ kind: 'public', priority: 'high', groupId: g.id,
           text: g.name + '’s chapter closes with the last contract — the company statement thanks the fans for every era, and means it. The scheduled work comes off the calendar. The catalog stays.' });
       }

@@ -14,6 +14,7 @@
   const SHOW = ['panel', 'mc', 'ost'];
   function offers(state) { return state.outsideOffers = state.outsideOffers || []; }
   function jobs(state) { return state.outside = state.outside || []; }
+  KP.outsideOffersList = offers;   // for KP.ensureLedgers (audit v0.11.3)
   function nextId(state) {
     state.nextOutsideId = state.nextOutsideId || 1;
     return 'out' + (state.nextOutsideId++);
@@ -27,6 +28,7 @@
     return state.sponsorLedger = state.sponsorLedger ||
       { kept: 0, missed: 0, clawbacks: 0, soloAsked: 0, soloAllowed: 0, soloDeclined: 0 };
   }
+  KP.sponsorLedgerOf = sponsor;
 
   // ---- the one list, read by family -----------------------------------
   KP.outsideJobs = function (state, which) {

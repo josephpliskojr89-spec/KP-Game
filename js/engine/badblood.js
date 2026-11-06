@@ -109,8 +109,11 @@
       if (r.status !== 'live') return;
       r.heat = Math.max(0, (r.heat || 0) - B.heatDecay);
       const act = KP.rivalActById && KP.rivalActById(state, r.actId);
-      if (!act || act.act.retired) { r.status = 'faded'; r.fadedWeek = state.week; }
+      const ours = r.groupId ? KP.groupById(state, r.groupId) : null;
+      if (!act || act.act.retired || (r.groupId && (!ours || ours.retiredWeek))) { r.status = 'faded'; r.fadedWeek = state.week; }
     });
+    // a faded rivalry is remembered for a year, then leaves the papers (audit v0.11.3: the list only grew)
+    state.sceneRivalries = state.sceneRivalries.filter(r => r.status === 'live' || state.week - (r.fadedWeek || 0) < KP.C.WEEKS_PER_YEAR);
     // formation: each debuted player group scans its sources
     groups.forEach(g => {
       if (!g.debuted || g.retiredWeek || !g.members.length) return;
@@ -239,7 +242,7 @@
         const dn = KP.igniteDiscourse(state, rng, 'masterTurn', 'idol', p.id, g && g.id);
         if (dn) inbox.push(dn);
         inbox.push({ kind: 'public', ind: 'masterTurned', priority: 'critical', personId: p.id,
-          text: '@' + h + ' posted a closing notice at 2am — the format every fandom dreads: thanks, dates, and a last paragraph aimed straight at the COMPANY. “She deserved better than this building.” The receipts thread under it is long, organized, and not wrong about the dates. The gasoline has a face, and it used to be on your side.' });
+          text: '@' + h + ' posted a closing notice at 2am — the format every fandom dreads: thanks, dates, and a last paragraph aimed straight at the COMPANY. “' + KP.pro(p).She + ' deserved better than this building.” The receipts thread under it is long, organized, and not wrong about the dates. The gasoline has a face, and it used to be on your side.' });
       }
     });
   });

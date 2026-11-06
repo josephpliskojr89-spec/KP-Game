@@ -294,8 +294,12 @@
     // the toll (§85 B): the revenue share reads the closing quarter's gross
     if (f.revShare && state.week < f.revShare.until &&
         woy % KP.C.BOOKS.quarterWeeks === 0 && state.week > 4 && state.books) {
-      const gross = Object.values(state.books.cur || {})
-        .reduce((s2, v) => s2 + Math.max(0, v), 0);
+      // revenue only: a fund's own wire, a distributor's advance and an
+      // asset sale are capital (audit v0.11.3: the fund took 12% of its
+      // own raise back in the quarter it landed)
+      const CAPITAL = { financing: 1, distributor: 1 };
+      const gross = Object.entries(state.books.cur || {})
+        .reduce((s2, [k, v]) => s2 + (CAPITAL[k] ? 0 : Math.max(0, v)), 0);
       // the toll never overdraws the account (the 0.10.11 clamp law:
       // a debit takes what exists, not what the formula says)
       const cut = Math.min(Math.round(gross * f.revShare.pct), Math.max(0, state.budget));

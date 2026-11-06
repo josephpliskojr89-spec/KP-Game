@@ -350,16 +350,14 @@
       { id: 'sign', label: 'Sign the pact — build it together' },
       { id: 'decline', label: 'Decline — we build alone' },
     ],
-    resolve: (state, sc, optionId) => {
+    resolve: (state, sc, optionId, rng) => {
       const S = KP.C.SAGA;
       const led = ledger(state);
       if (optionId === 'sign') {
         led.jvSigned++;
         state.jv = { partner: sc.company, since: state.week,
           until: state.week + S.JV.years * KP.C.WEEKS_PER_YEAR, share: S.JV.share };
-        const rng = KP.rngFor(state);
-        const names = mintWorldClass(state, rng, 'JV worldwide audition — ' + sc.company);
-        state.rngState = rng.state();
+        const names = mintWorldClass(state, rng, 'JV worldwide audition — ' + sc.company);   // the kernel's stream (audit v0.11.3)
         return { toast: 'Signed. ' + sc.company + '’s first worldwide sweep was already in motion — ' + names.join(', ') + ' land on the board this week, on their money. The pact runs ' + S.JV.years + ' years: their auditions, their split of the road abroad, our rooms, our name on half of everything. The world’s inputs just changed shape.' };
       }
       return { toast: declineJV(state, sc) };
@@ -370,7 +368,7 @@
   function declineJV(state, sc) {
     const S = KP.C.SAGA;
     ledger(state).jvDeclined++;
-    const partner = (state.rivals || []).filter(r => !r.founderGrudge)
+    const partner = KP.signingHouses(state).filter(r => !r.founderGrudge)
       .sort((a, b) => (b.prestige || 0) - (a.prestige || 0))[0];
     if (partner) {
       partner.prestige = KP.clamp((partner.prestige || 0) + S.JV.declinePrestige, 5, 95);

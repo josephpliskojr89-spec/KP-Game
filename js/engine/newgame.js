@@ -396,6 +396,7 @@
 
     state.nextPersonId = KP.peekNextId();
     state.rngState = rng.state();
+    if (KP.ensureLedgers) KP.ensureLedgers(state);   // no render is the first to touch a ledger (audit v0.11.3)
     return state;
   };
 })(typeof window !== 'undefined' ? window : globalThis);

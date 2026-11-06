@@ -141,7 +141,21 @@ function checkIntegrity(seed, week, state) {
   });
   (state.scenes || []).forEach(sc => {
     if (sc.personId && !person(sc.personId)) flag(seed, week, 'scene ' + sc.kind + ' holds missing person ' + sc.personId);
+    if (sc.groupId && !(state.groups || []).some(g => g.id === sc.groupId)) flag(seed, week, 'scene ' + sc.kind + ' holds missing group ' + sc.groupId);
   });
+  // the audit (v0.11.3): the kernel's validator every ten weeks; a LIVE rival
+  // act holds real members; open claims and the season point at people
+  (KP.validateState(state) || []).forEach(e => flag(seed, week, 'validate: ' + e));
+  (state.rivals || []).forEach(r => (r.acts || []).forEach(a => {
+    if (a.retired) return;
+    (a.members || []).forEach(id => { if (!person(id)) flag(seed, week, a.name + ' (live) holds missing member ' + id); });
+  }));
+  (state.claims || []).forEach(c => {
+    if (c.resolved) return;
+    if (c.subject && c.subject.kind === 'idol' && !person(c.subject.id)) flag(seed, week, 'open claim on missing person ' + c.subject.id);
+  });
+  // (a season's eliminated contestants may since have gone home — pruned by
+  // design, read only through guarded lookups; not flagged)
   // trust, budget, clock
   if (!num(state.trust) || state.trust < 0 || state.trust > 100) flag(seed, week, 'trust out of range: ' + state.trust);
   if (!num(state.budget)) flag(seed, week, 'budget is not a number: ' + state.budget);

@@ -51,14 +51,25 @@
     if (!gate.ok) return { ok: false, reason: gate.reasons[0] };
     name = String(name || '').trim().slice(0, 14);
     if (name.length < 2) return { ok: false, reason: 'A label needs a name you would put on a building.' };
-    const taken = (state.rivals || []).some(r =>
-      r.name.toLowerCase() === name.toLowerCase() || r.short.toLowerCase() === name.toLowerCase()) ||
-      state.company.name.toLowerCase() === name.toLowerCase() ||
-      state.company.short.toLowerCase() === name.toLowerCase();
+    // the derived short (the first word) is what every file is keyed on —
+    // it must be free too, and a folded label's name stays on its
+    // obituary (audit v0.11.3: "HCG Records" founded next to HCG conflated
+    // the two houses on every chart and file)
+    const lc = s => String(s || '').toLowerCase();
+    const short = name.split(/\s+/)[0];
+    const used = new Set();
+    (state.rivals || []).forEach(r => { used.add(lc(r.name)); used.add(lc(r.short)); });
+    used.add(lc(state.company.name)); used.add(lc(state.company.short));
+    ((state.estate && state.estate.folded) || []).forEach(f => { used.add(lc(f.name)); used.add(lc(f.short)); });
+    (state.deadShorts || []).forEach(x => used.add(lc(x)));
+    const taken = used.has(lc(name)) || used.has(lc(short));
     if (taken) return { ok: false, reason: 'That name is already on a building in this industry.' };
 
-    const push = n => state.inbox.push(Object.assign({ week: state.week, read: false,
-      id: 'm' + (state.nextMsgId++) }, n));
+    // the letters ride the bus (audit v0.11.3: a hand-stamped tail push
+    // fell off the end of a full inbox on the next tick); noted last
+    // reads first, so they are collected and sent in reverse
+    const letters = [];
+    const push = n => letters.push(n);
     const h = gate.honors;
     const oldCo = state.company;
     const oldGroups = KP.groups(state).slice();
@@ -111,6 +122,7 @@
         : 'The A&R architect left ' + oldCo.short + ' to found ' + name + '. The building carried on. Buildings do.' });
       p.status = 'rival';
       p.company = legacy.short;   // the legacy house can cast them later (audit A3)
+      p.flags.wasOurs = 1;        // she carried this letterhead; the world never forgets her (audit v0.11.3)
       if (p.signedWeek == null) p.signedWeek = state.week;
       delete p.contract;
       KP.chapter(state, p, 'stayed', { co: legacy.short });
@@ -165,10 +177,18 @@
     state.discourses = (state.discourses || []).filter(d =>
       !(d.subjectType === 'group' && oldGroupIds.includes(d.subjectId)));
     // the old board's never-signed leads vanish entirely — no file, no
-    // ghost aging in the save (audit A3)
-    (state.prospects || []).forEach(id => { delete state.people[id]; });
+    // ghost aging in the save (audit A3). A file with a chapter (a lead
+    // this desk read, a castoff, a re-entry) is a person the world knows:
+    // she goes home the floor's way instead (audit v0.11.3, the §70 law)
+    (state.prospects || []).forEach(id => {
+      const p = state.people[id];
+      if (!p) return;
+      if (KP.hasChapter && KP.hasChapter(state, p) && KP.goHome) { KP.goHome(state, p, 'the founding'); return; }
+      delete state.people[id];
+    });
     state.prospects = [];
     state.awardSeason = null;
+    delete state.gravityExecAsk;   // the ask belonged to the old building (audit v0.11.3)
 
     // ---- the fresh start -------------------------------------------------
     state.founded = { week: state.week, from: oldCo.short, warChest: h.warChest };
@@ -184,6 +204,13 @@
     state.trust = F.newTrust;
     state.budget = h.warChest;
     state.fiscal = { monthStartBudget: h.warChest, pressure: 0, monthSignings: 0 };
+    // the new label starts its own books and owes nothing the old one owed
+    // (audit v0.11.3: the war chest paid the company you left)
+    {
+      const red = state.red || {};
+      state.red = { weeks: 0, arrears: 0, rung: 0, peak: red.peak || 0, total: red.total || 0, paid: red.paid || 0, episodes: red.episodes || 0 };
+      state.books = { cur: {}, curStartBudget: h.warChest, last: null, closed: (state.books && state.books.closed) || 0 };
+    }
     state.signingsAllowed = 6;
     state.signingsUsed = 0;
     state.objective = {
@@ -234,6 +261,7 @@
       text: 'The trades called it before lunch: the architect of ' + oldCo.short + '’s era is out, and the new shingle reads ' + name + '. Half the industry sent flowers. The other half sent lawyers to re-read their producer contracts. ' + oldCo.short + ' promoted from within and scheduled a comeback with unusual speed.' });
     push({ kind: 'public', priority: 'high',
       text: 'The fandoms are having a full identity crisis in real time: do they follow the company, the groups, or the person who chose every title track they ever cried to? The quote-posts have citations. Somebody made a timeline video already. It has chapters.' });
+    letters.reverse().forEach(n => KP.note(state, n));
     return { ok: true, warChest: h.warChest };
   };
 

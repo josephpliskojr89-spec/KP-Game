@@ -54,7 +54,7 @@
     if (!rookies.length) return { ok: false, reason: 'Nobody in the room is struggling enough to need a hand — or the last hand was recent.' };
     const mentee = rookies.slice().sort((a, b) => a.morale - b.morale)[0];
     const mentors = room.filter(m => m.id !== mentee.id && m.personality.warmth >= C.mentorWarmth && lead(m, mentee) >= C.mentorLead);
-    if (!mentors.length) return { ok: false, reason: 'No warm veteran stands far enough ahead of ' + KP.publicGiven(mentee) + ' to bring her along.' };
+    if (!mentors.length) return { ok: false, reason: KP.fillPro('No warm veteran stands far enough ahead of ' + KP.publicGiven(mentee) + ' to bring {her} along.', mentee) };
     const mentor = mentors.slice().sort((a, b) => lead(b, mentee) - lead(a, mentee) || b.personality.warmth - a.personality.warmth)[0];
     return { ok: true, mentor, mentee, cost: C.cost,
       reason: KP.publicGiven(mentee) + (mentee.morale < C.menteeMorale ? ' is low' : ' is sliding on the sheet') + '; ' + KP.displayName(mentor) + ' is warm and ahead.' };
@@ -70,7 +70,7 @@
     if (g.mentorship && state.week < g.mentorship.until) return { ok: false, reason: 'A mentorship is already running in this room.' };
     if (mentor.personality.warmth < C.mentorWarmth) return { ok: false, reason: KP.displayName(mentor) + ' is not the warm one. A mentorship needs warmth before it needs seniority.' };
     if (lead(mentor, mentee) < C.mentorLead) return { ok: false, reason: 'They are peers. A mentor has to stand somewhere ahead.' };
-    if (state.week - (mentee.flags.mentoredUntil || -999) < C.mentorCooldown) return { ok: false, reason: 'She was just brought along. Another hand this soon reads as a message.' };
+    if (state.week - (mentee.flags.mentoredUntil || -999) < C.mentorCooldown) return { ok: false, reason: KP.fillPro('{She} was just brought along. Another hand this soon reads as a message.', mentee) };
     if (state.budget < C.cost) return { ok: false, reason: 'Staff time bills ' + C.cost + '. The account says no.' };
     state.budget -= C.cost;
     if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -C.cost);
@@ -82,7 +82,7 @@
     mentee.history.push({ week: state.week, text: KP.fillPro(KP.displayName(mentor) + ' was asked to bring {her} along — practice-room hours, the ride home, the questions nobody else answers.', mentee) });
     mentor.history.push({ week: state.week, text: KP.fillPro('Asked to mentor ' + KP.publicGiven(mentee) + '. {She} said yes before the sentence ended.', mentor) });
     ledger(state).mentorships++;
-    return { ok: true, note: KP.displayName(mentor) + ' takes ' + KP.publicGiven(mentee) + ' under her wing — ' + C.mentorWeeks + ' weeks of hours nobody bills.' };
+    return { ok: true, note: KP.fillPro(KP.displayName(mentor) + ' takes ' + KP.publicGiven(mentee) + ' under {pos} wing — ' + C.mentorWeeks + ' weeks of hours nobody bills.', mentor) };
   };
 
   // ---- the writing pair ----------------------------------------------------
@@ -265,7 +265,7 @@
 
   // ---- the timeline reacts ---------------------------------------------------
   KP.onFeedEvent('mentorEnded', (state, n, rng) => rng.chance(0.5) ? rng.pick([
-    { persona: 'fan', text: 'the senior member walking the rookie through the hard choreo in the practice-room vlog. nobody told her to. this is the content' },
+    { persona: 'fan', text: KP.fillPro('the senior member walking the rookie through the hard choreo in the practice-room vlog. nobody told {her} to. this is the content', state.people[n.personId] || { gender: 'f' }) },
     { persona: 'casual', text: 'every group has one member who is secretly the staff. you can tell by who the rookies look at when they are lost' },
   ]) : null);
 })(typeof window !== 'undefined' ? window : globalThis);

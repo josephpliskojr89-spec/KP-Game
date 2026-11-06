@@ -54,6 +54,17 @@ cssFiles.forEach(f => {
   if (!sw.includes("'css/" + f + "?v=' + V")) problems.push('stylesheet not precached: css/' + f);
 });
 
+// 6. the test loader runs the SAME engine in the SAME order as the page
+//    (audit v0.11.3: a module added to the page but not to ENGINE_FILES
+//    passed lockstep while every suite ran without it)
+try {
+  const ENGINE_FILES = require(path.join(rootDir, 'test', 'load_engine')).ENGINE_FILES || [];
+  const pageOrder = (html.match(/src="js\/engine\/([^"?]+)\?v=/g) || []).map(m => m.replace(/^src="js\/engine\//, '').replace(/\?v=$/, ''));
+  if (pageOrder.join(',') !== ENGINE_FILES.join(',')) {
+    problems.push('test/load_engine.js ENGINE_FILES differs from index.html (' + ENGINE_FILES.length + ' vs ' + pageOrder.length + ' engine scripts, or a different order)');
+  }
+} catch (e) { problems.push('could not read test/load_engine.js: ' + e.message); }
+
 if (problems.length) {
   console.error('LOCKSTEP FAILED for v' + V + ':');
   problems.forEach(p => console.error('  ✗ ' + p));

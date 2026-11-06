@@ -113,7 +113,7 @@
     body: (state) => {
       const s = state.season;
       const free = KP.seasonEligible(state);
-      const names = free.slice(0, 2).map(p => KP.displayName(p));
+      const names = free.slice(0, KP.C.COMPETITION.playerSlots).map(p => KP.displayName(p));
       return 'The ' + (s ? s.show : 'season') + ' producers called: they want trainees from this building for the ' +
         (s && s.gender === 'm' ? 'boys’' : 'girls’') + ' season — ' + (s ? s.contestants.length : 0) + ' names are already in. ' +
         'Twelve weeks of national television, eliminations every week, and the finale lineup debuts as a project group under the broadcaster’s label. ' +
@@ -134,7 +134,7 @@
       if (!s || s.status !== 'casting' || optionId === 'none' || !free.length) {
         return { toast: 'The practice room keeps its people. The season airs without this building.' };
       }
-      const sent = free.slice(0, optionId === 'two' ? 2 : 1);
+      const sent = free.slice(0, optionId === 'two' ? KP.C.COMPETITION.playerSlots : 1);
       sent.forEach(p => {
         s.contestants.push({ personId: p.id, source: 'player', company: state.company.short, eliminatedWeek: null, rank: null });
         s.ours.push(p.id);
@@ -224,6 +224,7 @@
       });
       if (!(r.acts || []).some(a => !a.retired) && !KP.rivalFloor(state, r).length) {
         state.rivals = state.rivals.filter(x => x !== r);   // the house folds its tent until the next season
+        if (KP.forgetCompany) KP.forgetCompany(state, r);
       }
     });
 

@@ -154,7 +154,7 @@
         }
         toast = broke
           ? 'The response went out — and so did the hiatus notice. Twelve weeks, minimum. The story chose the calendar.'
-          : 'The response went out. She weathers it in place — there was no lineup to step back from.';
+          : KP.fillPro('The response went out. {She} weathers it in place — there was no lineup to step back from.', p);
       } else {
         toast = optionId === 'statement'
           ? 'The statement landed inside the first cycle — the frame is yours now, mostly. The fee was worth it.'
@@ -169,7 +169,7 @@
           text: KP.fillPro('The weight of the ' + KP.displayName(p) + ' story has outgrown the response desk. The next meeting has two chairs and one question, and every label answers it eventually: protect {her}, or let {her} go. The table is on the Desk.', p) });
       } else if (p.scandal.sev < 3) {
         // survivable: the scar files, the story fades on its own clock
-        KP.recordEvidence(state, 'weatheredStory', 'idol', p.id);
+        { const nar = KP.recordEvidence(state, 'weatheredStory', 'idol', p.id); if (nar) KP.note(state, nar); }
       }
       if (p.scandal.sev < 4) p.scandalFading = state.week + S.denyWindow;
       return { toast };
@@ -200,10 +200,13 @@
         'Protect {her} — money, trust, and a wound the fandom will carry — or release {her}, and ' +
         'let the wound close over an empty chair. There is no third door. There never is.', p);
     },
-    options: () => [
-      { id: 'protect', label: 'Protect her — ' + KP.C.SCANDAL.protectCost + ', whatever else it costs' },
-      { id: 'release', label: 'Let her go' },
-    ],
+    options: (state, sc) => {
+      const p = state.people[sc.personId];
+      return [
+        { id: 'protect', label: KP.fillPro('Protect {her} — ' + KP.C.SCANDAL.protectCost + ', whatever else it costs', p) },
+        { id: 'release', label: KP.fillPro('Let {her} go', p) },
+      ];
+    },
     resolve: (state, sc, optionId) => {
       const p = state.people[sc.personId];
       if (!p) return { toast: 'The moment passed.' };
@@ -219,13 +222,14 @@
         const paid = Math.min(S.protectCost, Math.max(0, state.budget));
         state.budget -= paid;
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'marketing', -paid);
+        if (paid < S.protectCost && KP.redReport) KP.redReport(state, 'protect', S.protectCost - paid);
         state.trust = KP.clamp(state.trust - S.protectTrust, 0, 100);
         if (g && g.fandom) g.fandom.intensity = KP.clamp(g.fandom.intensity - S.protectFandom, 0, 100);
         p.morale = KP.clamp(p.morale + 6, 0, 100);
-        KP.recordEvidence(state, 'stoodByHer', 'idol', p.id);
+        { const nar = KP.recordEvidence(state, 'stoodByHer', 'idol', p.id); if (nar) KP.note(state, nar); }
         p.history.push({ week: state.week, text: 'The company stood in front of the story and did not move. Whatever else is ever said about this label, that is on the record too.' });
         delete p.scandal;
-        return { toast: 'You protected her. It cost money, trust, and part of a fandom — and bought the only thing those can’t: the roster knowing what this label does when it matters.' };
+        return { toast: KP.fillPro('You protected {her}. It cost money, trust, and part of a fandom — and bought the only thing those can’t: the roster knowing what this label does when it matters.', p) };
       }
       led.released++;
       if (g) {
@@ -258,7 +262,7 @@
         groupId: g ? g.id : undefined,
         text: KP.fillPro('It is done: ' + KP.displayName(p) + ' and the company have parted ways. The statement is four sentences; the fandom’s response will run for months. An empty chair closes a wound and opens a different one — every label learns which trade this was, later.', p) });
       delete p.scandal;
-      return { toast: 'She’s gone. The wound will close over the empty chair. What kind of label survives is now a settled question — the answer just cost you a person.' };
+      return { toast: KP.fillPro('{She}’s gone. The wound will close over the empty chair. What kind of label survives is now a settled question — the answer just cost you a person.', p) };
     },
     expire: (state, sc) => {
       const p = state.people[sc.personId];

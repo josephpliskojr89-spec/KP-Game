@@ -289,13 +289,6 @@
               '. Someone in accounting ran the numbers out of habit and then did not share them.',
           ]) });
       }
-      // a livestream week leaves a clip the timeline keeps
-      const promoting = !g.prep && state.week <= (g.promoUntil || 0) && state.week > (g.lastReleaseWeek || 0);
-      if (promoting && g.rollout) {
-        const idx = KP.clamp(state.week - (g.lastReleaseWeek || 0) - 1, 0, KP.C.ROLLOUT.weeks - 1);
-        // the live clip note was 76% trimmed (§89 A) — the live itself is
-        // the event, and liveHappened already tells it
-      }
     });
 
     // heartbreak: a boiled storm on a regular's bias breaks the parasocial

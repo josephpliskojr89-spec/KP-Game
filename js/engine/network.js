@@ -76,7 +76,7 @@
   function stampPreKnown(state, p) {
     const chance = KP.C.NETWORK.preKnownChance || 0;
     if (!chance || KP.hash01([state.seed, p.id, 'preKnown'].join('|')) >= chance) return null;
-    const tops = (state.rivals || []).slice()
+    const tops = KP.signingHouses(state).slice()
       .sort((a, b) => (b.prestige || 0) - (a.prestige || 0)).slice(0, 3);
     if (!tops.length) return null;
     p.industryKnown = 1;

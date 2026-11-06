@@ -101,7 +101,7 @@
         id: 'bk' + (state.nextBookingId++), kindId, rung: K.rung,
         label: venueLabel(state, kindId, town, (woy + lead) % 48), town,
         week: state.week + lead, expiresWeek: state.week + B.expireWeeks,
-        fee, taken: null, flyered: false, home: home || undefined,
+        fee, taken: null, flyered: false, home: home || null,
       });
     }
   }
@@ -136,7 +136,7 @@
       ledger(state).flyered++;
     }
     o.taken = g.id;
-    if (o.fee < 0) state.budget += o.fee;   // the rental bills at signing
+    if (o.fee < 0) { state.budget += o.fee; if (KP.ledgerFlow) KP.ledgerFlow(state, 'appearances', o.fee); }   // the rental bills at signing, on the stage-fee line
     // no echo note (§89 B): the toast said it, the calendar strip shows it
     return { ok: true, offer: o };
   };

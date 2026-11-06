@@ -8717,7 +8717,10 @@ The census, before → after (40 orgs × 140 weeks, the same worlds):
 inbox notes 2,935 → 3,273 templates, the top template 10.7 → 2.3 per
 org-year, templates seen at least yearly 31 → 19; timeline posts 514
 → 552, the top filler 2.1 → 0.5, none at yearly; spotlight lines 71
-→ 205, the top line 18.1 → 3.8. The relationship friction note was
+→ 205, the top line 18.1 → 3.8. *Correction (v0.11.3, §94): the
+timeline numbers here were an undercount — the census read only the
+feed's length delta and missed two thirds of the posts once the cap was
+hit; the corrected measure is in §94.* The relationship friction note was
 the loudest sentence in the game; now nothing on any surface reaches
 a player four times a year. The REPEAT INDEX line and its ceilings
 (notes 4 / 30, feed 1 / 6, spotlight 6) guard the number from here:
@@ -8731,6 +8734,218 @@ families are already wide (76, 61 and 223 templates) and sit at
 the trades' "three hits in a row", the renewal folder. If the owner
 still sees repeats after this, the next pass should look at event
 cadence, not add sentences.
+
+## §94 The audit (0.11.3) — the world holds, again
+
+Owner: *"Ok good time for a code audit."* Eight parallel read-only
+review passes (determinism and the kernel; lifecycle and the estate;
+the money law; releases and the charts; people and the text they
+generate; the world outside the company; the UI and the PWA shell; the
+test battery and the audit tools themselves) plus a scan of every
+tuning constant nothing reads. Every finding was verified against the
+code before it was fixed — most by a probe that reproduced it — and
+every fix that can be pinned from outside is pinned in suite 113 (64
+assertions). Two ritual tools grew: the longhaul's checker now runs
+`KP.validateState` on the horizon and checks live rival acts, open
+claims and scene groups; the lockstep checks `ENGINE_FILES` against
+the page; the bump is a tool in the repo (`tools/bump_version.js`),
+not a script in a scratchpad; and the test loader makes `Math.random`
+throw inside the engine, so the determinism law is enforced at test
+time, not remembered.
+
+**Fixed — save-killers and determinism:**
+- The prep week and the training week ran `burnout--` for every
+  member on a break — soldiers, personal breaks, seasons — who never
+  had a bench: `undefined--` wrote NaN into the save, the reload
+  turned it into `null` and counted down from there, and the two
+  careers diverged. Guarded both; the validator now reads every
+  numeric flag; the 0.11.3 migration deletes the NaN.
+- Three scene resolves (the diagnosis, its expiry, the JV pact) drew
+  on a second `rngFor` that the kernel's own save then overwrote, so
+  the rest length replayed as next week's first roll. Resolves use
+  the stream the kernel hands them; expiries get the phase's.
+- Reads that wrote: `socialOf` minted a castoff's, a student's and the
+  next chapter's public numbers at first render (a viewed save
+  diverged from its unviewed twin); `regionsOf`, the content, fame,
+  discourse and outside ledgers were created by whichever render
+  touched them first. Every door mints at the door; every ledger
+  exists from `newGame` (`KP.ensureLedgers`) and the migration gives
+  old saves theirs; reads go through `regionsRead`.
+- `undefined` keys written into national entries and bookings (JSON
+  dropped them; a reload had a different key order); the seed chart
+  entry's `weeksOn` written to the wrong row after a cap sort.
+
+**Fixed — the money law:**
+- The revenue-share toll read every positive stream, the fund's own
+  wire included: the fund took 12% of its raise back in the quarter
+  it landed. The toll reads revenue; financing, the distributor's
+  advance and the shelf sale are capital.
+- The fair settlement debited backpay from nothing, the lavish
+  greetings edition billed an empty account, a thin overseas leg paid
+  the interpreter below zero, protecting her with nothing in the
+  account was free. The clamp law everywhere: take what exists, owe
+  the rest, or do not offer the door.
+- "Match it" was offered with no money and fell through to the walk.
+  Options the account cannot pay are not on the table.
+- `KP.resolveScene` ignored a resolve's `{ok:false}`: the walkout's
+  "negotiate" at an empty account dismissed the walkout for free, the
+  festival "accept" consumed the invitation. A refused resolve keeps
+  the question on the desk.
+- The directive's grant paid out after a MISSED deadline, off the
+  books (the soak's unexplained residual); the theater rental billed
+  off the books; the settlement letter was returned to callers that
+  dropped it. Ruled: a miss earns no reinvestment, every movement is
+  booked, the letter rides the bus from inside `settleShare`.
+- The pitch button was disabled whenever the account was short, so the
+  §86 "deck prints on credit" door was unreachable by the player.
+
+**Fixed — lifecycle, the estate, the founding:**
+- Neither the dissolution nor the next chapter reset the books: the
+  new label's first statement netted the dead label's streams and
+  booked the chest as payroll. The founding never reset the red: the
+  war chest paid the company you left. Both reset; the first
+  statement nets from the chest.
+- The founding's three letters were pushed by hand to the tail of a
+  full inbox and fell off on the next tick; the derived short was not
+  checked against the old company's (one letterhead, two houses); every
+  prospect file was deleted, chapters and all; the people who stayed
+  never got `wasOurs`. The letters ride the bus, the short is checked
+  against rivals and the folded, chaptered files go home the floor's
+  way, the stayed are remembered.
+- A released idol kept her personal break and her bench, re-signed as
+  a trainee who was on break forever. `leftUs` clears them.
+- The salaried door's "three signings on a short leash" never bound
+  (the inherited act counted as the debut). The leash binds until a
+  debut of THIS chapter. The next building's chairs re-minted with the
+  dead building's ids (same hidden truths on strangers): the seat ids
+  carry the chapter. The chapter's trophies and daesang were the dead
+  label's; the inherited act's past read as "undefined · Wk 0 · Y-5".
+- A departed member's voice stayed on the line sheet (the record was
+  sung by someone who had left); the pointer sweep clears her parts
+  and re-cuts the preset.
+- `disbandGroup` left the gravity watch, the open doors about the
+  lineup and the promotion on the retired act; a sting's door outlived
+  its group and crashed the Desk on every render. The disband sweeps
+  every pointer and every open question.
+
+**Fixed — the world:**
+- The broadcaster's project house was read as a prestige-sorted
+  letterhead: the fog poach signed academy students to a house that
+  runs no floor, no evaluation and no age-out, and the house could
+  never fold its tent; it filled the power ranking, stamped interest
+  that raised the player's sign cost and took the flagship catch-up.
+  Every prestige-sorted pick reads `signingHouses`.
+- An act paused for service announced comebacks it could not make
+  (and ambushed with them). The calendar skips the paused; the pause
+  clears the announcement.
+- A collapsed, merged or folded company's short went back into the
+  name pool and a reborn short inherited the dead company's
+  narratives. `deadShorts` keeps them retired; `forgetCompany` sweeps
+  the stories.
+- Debuts and records in the year's last four weeks were never
+  award-eligible (two seasons, no window). The field runs from the
+  week after last year's nominations closed.
+- A disbanded act was invited to the gayo, "fumbled" a stage with no
+  members, and could win Song of the Year; an emptied lineup stayed a
+  show contender through its window. Closed chapters do not compete.
+
+**Fixed — the record:**
+- A commission landing while the calendar was closed blocked the pitch
+  meeting for the whole cycle; a repackage locked during a hiatus left
+  the hiatus running through the era; the winter festival sat at week
+  49 of a 48-week year (biennial, and it ate a January slot); the
+  tight-belt discount was spent by a refused lock; an act in Japan
+  booked and "played" festivals in Korea; a reverse run restamped the
+  era's b-side peak; the Studio read its own copy of the b-sides while
+  the group page read the release's (one truth now: the release); the
+  late-climb b-side never counted as "still climbing" for the second
+  wind — and the suite line that would have caught it carried
+  `|| true`; the award-night question expired a week after the
+  trophies, so the speech never ran.
+- Ruled: a rollout activity's popularity paid PER MEMBER (a quintet
+  promoted five times harder than a soloist on the same stage, against
+  the fandom lines' explicit "once per activity"). It now pays once
+  per activity, scaled by who showed up, times a lineup norm of five —
+  the typical lineup's trajectory the soaks were tuned on is unchanged;
+  soloists and septets now promote like acts.
+
+**Fixed — the text:**
+- A benched trainee trained "light" at +5 fatigue a week with the wall
+  roll still running: pinned at 100, she hit the same wall every ten
+  weeks for years, each time an `urgent` letter with no decision in
+  it, and her chosen intensity was overwritten for good. The bench
+  rests (the idol week's law), counts down, and leaves her intensity
+  alone. The spotlight no longer reads a benched person as "logged out
+  of the building at 1am".
+- The one door re-derived its line after the memory had moved, so the
+  card and the door showed different sentences; the door reads the
+  recorded line.
+- Thirty-odd lines hard-coded "her" and "she" in option labels,
+  toasts, histories and feed reactions while the boys' hall runs
+  (option labels are rendered raw): every one is filled for the
+  person. The gaffe's headline names nobody's gender. The weathered
+  story's formation letter was raw tokens and, like the stood-by-her
+  letter, was never sent.
+- Letters sent from the desk (`KP.note`) never reached the feed pass,
+  so nine registered reactions (the seated notice, the opened channel,
+  the snub answered, the chronic file…) could never fire; the feed now
+  reads the week's action letters too. The biased regular's post was
+  attributed to a random handle; faded rivalries were never pruned.
+
+**Fixed — the UI and the shell:** the release-confirm modal rendered a
+player-typed stage name unescaped (the one injection sink); the free
+fan meeting's toast read `undefined`; unit-era and solo-disc reception
+printed digits (the reveal law — now words); a corrupt save meta threw
+before the splash timer and the splash never left; a corrupt or
+broken save loaded with no message (now a toast and a validator
+warning); the desk's drafts crossed careers (one `resetDrafts` on
+every career boundary); the service worker cached 404s and served
+`index.html` for failed script fetches.
+
+**Fixed — the tools' honesty:** the repeat census counted only the
+feed's length delta and so missed two thirds of the timeline once the
+cap was hit — the §93 ledger's "timeline 2.1→0.5" was an artifact; the
+corrected census reads ~400 posts per org-year with the top filler at
+14 (a comeback-announcement reaction with two variants; now seven, the
+fancam two → seven). The census also counted the long-clock pass
+(every per-org-year rate 12% high), keyed every spotlight line as
+family "?", and ate "Choreography" for Cho. The soak's first-trophy
+band read the legacy door's old win as truthy (40/40 forever), two
+bands tallied one fact, and thirty bands at 0–100% could never alarm
+(twenty-five now ruled from the measured counts). Six unfailable
+assertions became claims; four suites that only ever passed through
+their fallback branch (the critics' darling, the tour's nights, the
+over-delivery, the extension's read) now run the path they name.
+Thirteen tuning constants nothing read were deleted, and the season's
+"two trainees" is read from its constant.
+
+**Measured, ruled, watched:**
+- The dead-in-soak bands stay at 0–100% with their reasons on record:
+  `doctrineDeniedSeen`, `careerSigned`, `callHeld`, `holdoutMet` (the
+  bot never takes those doors; the suites hold the mechanisms) and
+  `quietWeekCaught` (0/40 — morale never falls to 38 under the bot;
+  watch in human play).
+- The Japan lane now refuses when a booked festival falls inside the
+  trip (the audit made the missed-slot path honest and the bot flew
+  over its own bookings: 32/40 misses).
+- The default door's signing leash is unchanged (the legacy act counts
+  as the first debut, as the constant's comment says); only a later
+  chapter's leash binds until its own debut. If the owner wants the
+  tutorial rail on the default door too, it is one line.
+- What is left for later: the narrative/executive/company letters
+  recur because the events recur (§93); the Japan calendar and the
+  tour desk do not consult festival bookings symmetrically (tours were
+  tuned around it); `state.host` is written and never read (the
+  protégé host has no mechanics yet).
+- The numbers at the ship: battery 113/113; soak 40 clean, every band
+  alive (the flare chain: 133 cases, 75 chairs, 25 pushes, 33 rests,
+  11 chronic files, 7 flares across 40 orgs); longhaul 11 × 620 clean
+  with the validator on the horizon; e2e 134; the corrected census —
+  inbox top template 2.0 per org-year (13 at yearly), timeline 6.9
+  (73 at yearly) from 14.6 before the two families widened, spotlight
+  3.3 (25 at yearly); the census ceilings re-ruled from these (notes
+  4 / 30, feed 10 / 90, spotlight 6); lockstep 0.11.3 with the sixth
+  place.
 
 ## §18 Watch items
 
@@ -12108,6 +12323,32 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > (12-seed A/B, case for case). The soak prints the flare chain's
 > throughput. Suite_112 (38). Battery 112/112, soak 40 clean, longhaul
 > 11x620, e2e 134, lockstep 0.11.2. Rode to main.
+
+> **0.11.3 — the audit.** Owner: "good time for a code audit." §94:
+> eight read-only review passes plus a dead-constant scan, ~70
+> findings verified against the code, every one fixed and pinned in
+> suite_113 (64). Save-killers: NaN benches on soldiers and breaks,
+> clobbered scene rng, render-time mints and ledgers. The money law:
+> the toll read the fund's own wire, four unclamped debits, a refused
+> resolve that dismissed the scene, the grant after a miss, the
+> unreachable credit pitch. The estate: books and red carried across
+> chapters and foundings, the founding's lost letters and reused
+> short, the leash that never bound, chairs with the dead building's
+> truths, the break that followed a released idol. The world: the
+> project house read as a letterhead, soldiers announcing comebacks,
+> dead shorts reborn with their stories, the award window's four lost
+> weeks, closed chapters competing. The record: the commission that
+> blocked the pitch, the hiatus the repackage ignored, the biennial
+> winter festival, the per-member rollout popularity (ruled: per
+> activity × who showed up × a lineup norm of five). The text: the
+> benched trainee's treadmill, the door's re-derived line, thirty
+> hard-coded "her"s, nine feed reactions that could never fire. The
+> tools: the census that missed two thirds of the timeline (the §93
+> ledger's timeline numbers corrected here), dead and duplicate bands,
+> six unfailable assertions, four fallback-only suites, the bump as a
+> repo tool, Math.random poisoned in the loader, the lockstep's sixth
+> place, the longhaul's validator. Battery 113/113, soak 40 clean,
+> longhaul 11x620, e2e 134, lockstep 0.11.3. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

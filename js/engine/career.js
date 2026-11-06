@@ -38,9 +38,10 @@
       lastReception + (confident ? 3 : -4) + (prev.status === 'missed' ? -6 : 0)), 40, 82);
     const deadline = state.week + CB.objectiveWeeks;
 
-    // the board reinvests in what works
-    const grant = Math.round(25 + Math.max(0, lastReception - 45) * 0.6);
-    state.budget += grant;
+    // the board reinvests in what works — and not in a missed deadline
+    // (audit v0.11.3: the grant paid out after a miss, off the books)
+    const grant = prev.status === 'missed' ? 0 : Math.round(25 + Math.max(0, lastReception - 45) * 0.6);
+    if (grant > 0) { state.budget += grant; if (KP.ledgerFlow) KP.ledgerFlow(state, 'financing', grant); }
     // the first post-debut directive announces the opening-up: the
     // signing allowance is retired, the books become the leash
     const capJustLifted = prev.type === 'debutGirlGroup';
@@ -58,7 +59,7 @@
     return {
       kind: 'executive', urgent: true, priority: 'critical',   // the directive and its grant (v0.10.34: the critics' letters share the week)
       text: state.executive.name + ': ' + line +
-        ' The division books show a ' + grant + ' reinvestment.' +
+        (grant > 0 ? ' The division books show a ' + grant + ' reinvestment.' : ' The division books show no reinvestment this time.') +
         (capJustLifted
           ? ' “And the signing allowance is retired — the division is yours to staff. Sign who you need. I read the books every month, and so does the board.”'
           : ''),

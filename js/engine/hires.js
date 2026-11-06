@@ -225,8 +225,11 @@
   function seats(state) {
     if (!state.seats) {
       state.seats = {};
+      // a later building's chairs are new people — the hidden truths are
+      // hashed off the seat id, so the id carries the chapter (audit v0.11.3)
+      const gen = state.managerGen || 0;
       const mk = (seatId, name) => {
-        const sid = 'sf0_' + seatId;
+        const sid = 'sf' + gen + '_' + seatId;
         state.seats[seatId] = { id: sid, name, seatId, tier: 'working',
           knownForTag: null, since: 1, style: STYLES[Math.floor(h(state, sid, 'st') * STYLES.length)],
           warmth: Math.round(h(state, sid, 'pw') * 100),
@@ -363,10 +366,11 @@
         'reads your credits and hires your people. A raise keeps the chair (' + KP.C.HIRES.raiseCost +
         '); pride keeps nothing.';
     },
-    options: () => [
-      { id: 'raise', label: 'Match it · ' + KP.C.HIRES.raiseCost },
-      { id: 'walk', label: 'Wish them well' },
-    ],
+    // the raise is offered only when the account can pay it (audit
+    // v0.11.3: an unaffordable "Match it" fell through to the walk)
+    options: (state) => (state.budget >= KP.C.HIRES.raiseCost
+      ? [{ id: 'raise', label: 'Match it · ' + KP.C.HIRES.raiseCost }] : [])
+      .concat([{ id: 'walk', label: 'Wish them well' }]),
     resolve: (state, sc, optionId) => {
       const led = ledger(state);
       if (sc.groupId) {
@@ -506,7 +510,7 @@
         (redHot || KP.C.HIRES.REP_TIERS.indexOf(S[seatId].tier) >= HR.poachTierMin));
       const mgrTarget = KP.groups(state).find(g => g.debuted && !g.retiredWeek && g.manager &&
         (g.popularity || 0) >= MG.poachPopMin && state.week - g.manager.since >= MG.poachTenureMin);
-      const rivalOf = () => (state.rivals || [])[rng.int(0, Math.max(0, (state.rivals || []).length - 1))];
+      const rivalOf = () => { const hs = KP.signingHouses(state); return hs[rng.int(0, Math.max(0, hs.length - 1))]; };
       if (seatTarget && rng.chance(HR.poachChance * redMult)) {
         state.seatPoachQuiet = state.week + HR.poachCooldown;
         led.poachCalls++;

@@ -75,7 +75,7 @@
     // December: the gayo stages
     if (woy === S.gayoInviteWeek) {
       groups.forEach(g => {
-        if (!g.debuted) return;
+        if (!g.debuted || g.retiredWeek) return;   // a closed chapter is not invited (audit v0.11.3)
         if ((g.popularity || 0) >= S.gayoPopAt) {
           g.gayoYear = year;
           inbox.push({ kind: 'public', ind: 'gayoInvite', priority: 'high', groupId: g.id,
@@ -92,7 +92,7 @@
     }
     if (woy === S.gayoStageWeek) {
       groups.forEach(g => {
-        if (!g.debuted || (g.gayoYear || 0) !== year) return;
+        if (!g.debuted || g.retiredWeek || !g.members.length || (g.gayoYear || 0) !== year) return;
         const members = g.members.map(id => state.people[id]).filter(Boolean);
         members.forEach(m => { m.morale = KP.clamp(m.morale + S.gayoMorale, 0, 100); });
         // the stage, judged (v0.10.37): December is rated like any night

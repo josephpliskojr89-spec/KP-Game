@@ -38,8 +38,8 @@
     return (g.rollout && g.rollout[idx]) || [];
   }
   function promoting(state, g) {
-    return g.debuted && !g.prep && state.week <= (g.promoUntil || 0) &&
-      state.week > (g.lastReleaseWeek || 0);
+    return g.debuted && !g.prep && !g.retiredWeek && g.members.length > 0 &&
+      state.week <= (g.promoUntil || 0) && state.week > (g.lastReleaseWeek || 0);
   }
 
   // Everyone on stages this week, per show. `reads` collects the stage

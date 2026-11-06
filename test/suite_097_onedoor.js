@@ -146,7 +146,7 @@ function clearOthers(state, keep) {
   KP.resolveScene(state, (state.scenes || []).find(x => x.kind === 'soloKnock').id, 'promise');
   const claim = (state.claims || []).find(c => !c.resolved && c.type === 'soloPromise' && c.personId === p.id);
   t.ok(claim && claim.rung === 2, 'the rung is on the claim — soloAlbumPromise is gone');
-  t.ok(!KP.claimCheckFor('soloAlbumPromise') || true, 'no second claim type');
+  t.ok(!(state.claims || []).some(c => c.type === 'soloAlbumPromise'), 'no second claim type is ever opened');
   p.soloDisc = [{ week: state.week + 1, title: 'a single' }];
   KP.advanceWeek(state);
   t.ok(!claim.resolved, 'a single does not keep the ALBUM promise');

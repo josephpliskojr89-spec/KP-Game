@@ -17,13 +17,17 @@ const realLoad = loader.loadEngine;
 const TOP = parseInt(process.argv[3] || '40', 10);
 
 const T = { notes: {}, feed: {}, spot: {}, orgs: new Set(), noteTotal: 0, feedTotal: 0, spotTotal: 0 };
-// the ceilings (measure-first, §93). History: v0.11.1 text measured notes
-// 10.7 / 31, feed 2.1 / 4, spotlight 18.1 / 24; v0.11.2 (the families)
-// measured notes 2.3 / 19, feed 0.5 / 0, spotlight 3.8 / 35 on the same
-// worlds. The spotlight's yearly count is not a repeat measure (113 lines
-// a year spread over more templates reach yearly more often), so only
-// its top line is guarded. null = no guard.
-const CEILING = { notes: { top: 4, yearly: 30 }, feed: { top: 1, yearly: 6 }, spot: { top: 6, yearly: null } };
+// the ceilings (measure-first, §93/§94). History: v0.11.1 text measured
+// notes 10.7 / 31, spotlight 18.1 / 24; v0.11.2 (the families) notes
+// 2.3 / 19, spotlight 3.8 / 35. The feed's v0.11.1–v0.11.2 numbers (2.1,
+// 0.5) were an undercount — the scan read only the feed's length delta
+// and missed two thirds once the cap was hit (audit v0.11.3, §94); the
+// corrected census reads ~400 posts per org-year, top 14.6 / 62 before
+// the two loudest families were widened, 6.9 / 73 after. The spotlight's
+// yearly count is not a repeat measure (100+ lines a year spread over
+// more templates reach yearly more often), so only its top is guarded.
+// null = no guard.
+const CEILING = { notes: { top: 4, yearly: 30 }, feed: { top: 10, yearly: 90 }, spot: { top: 6, yearly: null } };
 
 function normalizer(KP, state) {
   // every name the world can speak, longest first so compounds go whole
@@ -38,7 +42,7 @@ function normalizer(KP, state) {
   Object.values(state.seats || {}).forEach(st => { if (st) names.push(st.name); });
   (state.groups || []).forEach(g => { if (g.manager) names.push(g.manager.name); });
   const uniq = Array.from(new Set(names.filter(n => n && n.length >= 3))).sort((a, b) => b.length - a.length);
-  const re = uniq.length ? new RegExp(uniq.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g') : null;
+  const re = uniq.length ? new RegExp('\\b(?:' + uniq.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')\\b', 'g') : null;   // whole names only (audit v0.11.3: Cho ate "Choreography")
   return text => {
     let s = String(text || '');
     s = s.replace(/[“"][^”"]{1,80}[”"]/g, '“…”');   // titles, quotes
@@ -59,10 +63,11 @@ loader.loadEngine = function () {
   const seenFeed = new WeakMap();
   const seenSpot = new WeakMap();
   KP.advanceWeek = function (state) {
-    const feedBefore = (state.feed || []).length;
     const spotBefore = (state.spotlight || []).length;
     const kept = realAdvance.call(this, state);
+    if (/^clock-/.test(String(state.seed))) return kept;   // the long-clock pass is not the census (audit v0.11.3)
     T.orgs.add(state.seed);
+    T.ticks = (T.ticks || 0) + 1;
     const norm = normalizer(KP, state);
     (kept || []).forEach(n => {
       if (!n || !n.text) return;
@@ -70,10 +75,10 @@ loader.loadEngine = function () {
       bump(T.notes, key, state.seed); T.noteTotal++;
       if (!T.notes[key].sample) T.notes[key].sample = n.text.slice(0, 140);
     });
-    // the feed is capped and unshifted: new posts are the ones this tick added
+    // every post on the feed that has not been counted yet (audit v0.11.3:
+    // counting only the length delta missed two thirds once the cap was hit)
     const feed = state.feed || [];
-    const added = Math.max(0, feed.length - feedBefore + (feed.length === KP.C.FEED.maxPosts ? 0 : 0));
-    feed.slice(0, Math.max(added, 0)).forEach(p => {
+    feed.forEach(p => {
       if (!p || !p.text || seenFeed.get(p)) return;
       seenFeed.set(p, 1);
       const key = (p.persona || '?') + ' | ' + norm(p.text);
@@ -85,7 +90,7 @@ loader.loadEngine = function () {
     (state.spotlight || []).forEach(m => {
       if (!m || !m.text || m.week !== state.week || seenSpot.get(m)) return;
       seenSpot.set(m, 1);
-      const key = (m.kind || m.moment || '?') + ' | ' + norm(m.text);
+      const key = (m.key || '?') + ' | ' + norm(m.text);
       bump(T.spot, key, state.seed); T.spotTotal++;
       if (!T.spot[key].sample) T.spot[key].sample = m.text.slice(0, 140);
     });
@@ -96,7 +101,7 @@ loader.loadEngine = function () {
 
 process.on('exit', () => {
   const N = T.orgs.size || 1;
-  const yrs = (N * 140) / 52;
+  const yrs = Math.max(1, (T.ticks || N * 140)) / 52;   // the org-years actually counted
   const family = key => key.split(' | ')[0];
   const report = (label, store, total) => {
     const rows = Object.entries(store).sort((a, b) => b[1].n - a[1].n);

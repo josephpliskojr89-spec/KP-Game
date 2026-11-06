@@ -116,6 +116,7 @@
     p.channel = 'school';
     applySchoolPolish(p, school);
     state.people[p.id] = p;
+    KP.socialOf(state, p);   // the door mints the number (social.js's law; audit v0.11.3)
     KP.stampBorn(state, p, 'academy', { city: school.cityId, schoolId: school.id });
     schoolLedgerOf(state).enrolled = (schoolLedgerOf(state).enrolled || 0) + 1;
     // the powers' head start: the obviously-talented are ALREADY known —
@@ -127,7 +128,7 @@
       (school.rep >= KP.C.SCHOOLS.hotAt ? CL.knownRepBonus : 0);
     if (KP.hash01([state.seed, p.id, 'known'].join('|')) < knownChance) {
       p.industryKnown = 1;
-      (state.rivals || []).slice().sort((a, b) => (b.prestige || 0) - (a.prestige || 0))
+      KP.signingHouses(state).slice().sort((a, b) => (b.prestige || 0) - (a.prestige || 0))
         .slice(0, 2).forEach(r => {
           r.interest = r.interest || {};
           r.interest[p.id] = Math.max(r.interest[p.id] || 0, CL.knownInterest);
@@ -176,7 +177,7 @@
     if (peak < CL.callBar) return null;
     p.flags.directorCalled = 1;   // one phone tree per student
     if (!rng.chance(CL.callChance[school.temper] || 0.4)) return null;
-    const tops = (state.rivals || []).slice()
+    const tops = KP.signingHouses(state).slice()
       .sort((a, b) => (b.prestige || 0) - (a.prestige || 0)).slice(0, CL.callRivals);
     tops.forEach(r => {
       r.interest = r.interest || {};
@@ -452,12 +453,17 @@
         // be signed away before you ever meet her — the clock ticks in
         // the dark, and the trades do not cover academy paperwork
         if (p.industryKnown && rng.chance(CL.fogPoachChance)) {
-          const top = (state.rivals || []).slice()
+          // a signing house, never the broadcaster's project house (audit
+          // v0.11.3: the house's prestige climbs with every project release
+          // and it ran the scene's floor with no evaluation and no exit)
+          const top = KP.signingHouses(state).slice()
             .sort((a, b) => (b.prestige || 0) - (a.prestige || 0))[0];
           if (top) {
             p.status = 'rival';
             p.company = top.short;
             p.signedWeek = state.week;
+            KP.chapter(state, p, 'signed', { co: top.short, how: 'fog' });
+            p.history.push({ week: state.week, text: 'Signed to ' + top.short + ' straight out of the academy — the scouts had been in the back row for a term.' });
             KP.schoolRecordAlum(state, p, top.short);
             (state.rivals || []).forEach(r => { if (r.interest) delete r.interest[p.id]; });
             schoolLedgerOf(state).fogPoached = (schoolLedgerOf(state).fogPoached || 0) + 1;

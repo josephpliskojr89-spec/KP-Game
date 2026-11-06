@@ -1,7 +1,7 @@
 /* Service worker — cache key rides the version lockstep. */
 'use strict';
-const CACHE = 'kpam-0.11.2';
-const V = '0.11.2';
+const CACHE = 'kpam-0.11.3';
+const V = '0.11.3';
 const PRECACHE = [
   '.',
   'index.html',
@@ -118,10 +118,14 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request, { ignoreSearch: false }).then(hit =>
       hit || fetch(e.request).then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy));
+        // only a good response is worth keeping (audit v0.11.3: a 404 or an
+        // opaque error was cached and served forever)
+        if (res && res.ok && res.type !== 'opaque') {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, copy));
+        }
         return res;
-      }).catch(() => caches.match('index.html'))
+      }).catch(() => (e.request.mode === 'navigate' ? caches.match('index.html') : Promise.reject(new Error('offline'))))
     )
   );
 });

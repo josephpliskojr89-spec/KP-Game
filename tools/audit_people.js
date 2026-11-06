@@ -28,6 +28,7 @@ loader.loadEngine = function () {
     const actsBefore = new Set(), rivalsBefore = new Set();
     (state.rivals || []).forEach(r => { rivalsBefore.add(r.short); (r.acts || []).forEach(a => actsBefore.add(a.id)); });
     const out = realAdvance.call(this, state);
+    if (/^clock-/.test(String(state.seed))) return out;   // the long-clock pass is not the census (audit v0.11.3)
     Object.values(state.people).forEach(p => {
       if (!before.has(p.id) && !p.born) { T.undoored++; p.born = { door: '?', city: '?', week: state.week }; }
     });

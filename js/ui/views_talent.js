@@ -347,7 +347,7 @@
         html.push('<div class="kicker">Solo discography</div>');
         solos.slice().reverse().forEach(dd => {
           html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(dd.week).text) + '</span><div>' +
-            (dd.format === 'mini' ? 'Solo mini' : 'Solo single') + ' — “' + UI.esc(dd.title) + '” · reception ' + dd.reception +
+            (dd.format === 'mini' ? 'Solo mini' : 'Solo single') + ' — “' + UI.esc(dd.title) + '” · ' + UI.esc(KP.receptionWord(dd.reception)) +
             (dd.direction === 'hers' ? ' · her direction' : dd.direction === 'cowrite' ? ' · co-written' : '') + '</div></div>');
         });
       }

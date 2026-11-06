@@ -282,7 +282,7 @@
 
     // the map (v0.6.6): where the world already knows them
     if (g.debuted) {
-      const regions = KP.regionsOf(g);
+      const regions = KP.regionsRead(g);
       const rows = KP.C.REGIONS.map(r => {
         const v = regions[r.id] || 0;
         const word = KP.regionWord(v);
@@ -442,7 +442,7 @@
           (fanconReady ? '<button class="btn small" data-action="hold-fancon" data-format="ticketed" data-id="' + g.id + '">Hold a fancon · ' + KP.C.MERCH.fanconCost + '</button>' : '') +
           (meetReady ? '<button class="btn small ghost" style="border:1px solid var(--line)" data-action="hold-fancon" data-format="free" data-id="' + g.id + '">Free fan meeting · ' + KP.C.MERCH.fanMeetingCost + '</button>' : '') +
           '</div>' : '') +
-        (state.jpPartner && (KP.regionsOf(g).jp || 0) >= KP.C.JAPAN.minWarmth &&
+        (state.jpPartner && (KP.regionsRead(g).jp || 0) >= KP.C.JAPAN.minWarmth &&
          state.week - (g.lastJpWeek || -999) >= KP.C.JAPAN.cooldown
           ? '<div style="margin-top:8px;display:flex;gap:6px">' +
             '<button class="btn small" data-action="jp-release" data-id="' + g.id + '" data-lane="version">JP-version · ' + KP.C.JAPAN.LANES.version.cost + '</button>' +
@@ -459,7 +459,7 @@
         const last = u.eras[u.eras.length - 1];
         html.push('<div class="card" style="font-size:.8rem"><b>' + UI.esc(u.name) + '</b> · ' +
           u.memberIds.map(id => state.people[id] ? UI.esc(KP.publicGiven(state.people[id])) : '').join(' · ') +
-          ' — ' + u.eras.length + ' era' + (u.eras.length === 1 ? '' : 's') + ', last “' + UI.esc(last.title) + '” (' + last.reception + ')</div>');
+          ' — ' + u.eras.length + ' era' + (u.eras.length === 1 ? '' : 's') + ', last “' + UI.esc(last.title) + '” (' + UI.esc(KP.receptionWord(last.reception)) + ')</div>');
       });
     }
 

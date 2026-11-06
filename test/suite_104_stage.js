@@ -248,16 +248,15 @@ const read = (s, g, id) => KP.stageRead(s, g, { kind: 'show', id: id || 'countdo
   const g = s.groups[0];
   g.popularity = 70; g.promoUntil = 0; g.tourRestUntil = 0;
   const opts = KP.tourLegOptions(s, g);
-  const r = KP.planTour(s, { groupId: g.id, scale: 'theater', legs: ['kr'], pacing: 'steady', setlist: 'hits' });
-  if (r.ok) {
-    let guard = 0;
-    while (g.tour && guard++ < 12) KP.advanceWeek(s);
-    t.ok((s.stageLedger || {}).rated >= 1, 'the road is rated night by night');
-    const leg = s.inbox.concat(KP.lastTickNotes || []).find(n => n.ind === 'tourLeg');
-    t.ok(!leg || /night/.test(leg.text), 'and the leg letter carries the night’s words');
-  } else {
-    t.ok(true, 'fixture: the tour desk said ' + r.reason + ' — the nights are covered by the demand multiplier pin');
-  }
+  // the calendar has to have the room (audit v0.11.3: the tour desk refused and the nights never played)
+  s.week = Math.max(s.week, (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks + 1, (g.tourRestUntil || 0) + 1);
+  const r = KP.planTour(s, { groupId: g.id, scale: 'halls', legs: ['kr'], pacing: 'humane', setlist: 'hits' });
+  t.ok(r.ok, 'the tour desk books the road (' + (r.ok ? 'ok' : r.reason) + ')');
+  let guard = 0;
+  while (g.tour && guard++ < 12) KP.advanceWeek(s);
+  t.ok((s.stageLedger || {}).rated >= 1, 'the road is rated night by night');
+  const leg = s.inbox.concat(KP.lastTickNotes || []).find(n => n.ind === 'tourLeg');
+  t.ok(!leg || /night/.test(leg.text), 'and the leg letter carries the night’s words');
 }
 
 // ---- the dossier's words, the group's line -----------------------------------------

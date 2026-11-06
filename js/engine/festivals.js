@@ -29,6 +29,7 @@
   KP.festivalConflicts = function (state, g, week) {
     const out = [];
     if (g.tour) out.push('they are ON TOUR that window');
+    if (g.jpAway) out.push('they are in Japan that window');
     if (g.prep && Math.abs(g.prep.scheduledWeek - week) <= 1) out.push('the release lands the same week');
     if (g.debuted && week <= (g.promoUntil || 0)) out.push('promotions are still running that week');
     if (g.hiatus) out.push('the group is on official hiatus');
@@ -51,10 +52,10 @@
     F.LIST.forEach(f => {
       if (woy !== f.woy - F.inviteLead) return;
       groups.forEach(g => {
-        if (!g.debuted || g.retiredWeek || !g.members.length || g.hiatus || g.tour) return;   // bookers skip acts mid-road
+        if (!g.debuted || g.retiredWeek || !g.members.length || g.hiatus || g.tour || g.jpAway) return;   // bookers skip acts mid-road (and abroad)
         if ((g.popularity || 0) < f.popMin) return;
         // the far markets (v0.10.43, §89 D9): the region has to have heard of them
-        if (f.region && (KP.regionsOf(g)[f.region] || 0) < f.warmthMin) return;
+        if (f.region && (KP.regionsRead(g)[f.region] || 0) < f.warmthMin) return;
         g.festBook = g.festBook || {};
         if (g.festBook[f.id] === year) return;   // this year's edition, once
         const abroadOf = id => !!(F.LIST.find(x => x.id === id) || {}).region;
@@ -91,7 +92,7 @@
       const f = festById(due.festivalId);
       if (!f) return;
       // the schedule moved after the ink dried: a booked slot missed
-      if (g.tour || g.hiatus || g.retiredWeek || !g.members.length ||
+      if (g.tour || g.jpAway || g.hiatus || g.retiredWeek || !g.members.length ||
           g.members.every(id => { const m = state.people[id]; return !m || (m.flags && m.flags.military); })) {
         led.missed++;
         if (g.fandom) KP.fandomGain(g, -F.missFandom);

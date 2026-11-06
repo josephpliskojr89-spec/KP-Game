@@ -7,6 +7,9 @@
   // ---- Calendar helpers -------------------------------------------------
   KP.weekLabel = function (week) {
     const C = KP.C;
+    // the inherited act's past (debuts and releases before week 1) reads as
+    // what it is (audit v0.11.3: "undefined · Wk 0 · Y-5")
+    if (!(week >= 1)) return { year: 0, month: '', weekOfMonth: 0, text: 'before your time' };
     const y = Math.floor((week - 1) / C.WEEKS_PER_YEAR) + 1;
     const m = Math.floor(((week - 1) % C.WEEKS_PER_YEAR) / C.WEEKS_PER_MONTH);
     const w = ((week - 1) % C.WEEKS_PER_MONTH) + 1;
@@ -49,11 +52,16 @@
       // pitch meetings happen on company time (v0.7.2): demos exist
       // BEFORE anyone opens the studio — render never draws rng (law)
       groups.forEach(g => {
-        if (g.demos || g.prep || g.tour || g.retiredWeek || !g.members.length) return;
+        // a drawer holding only a commission that landed while the calendar
+        // was closed is still waiting for the meeting (audit v0.11.3: it
+        // blocked the pitch for the whole cycle)
+        const drawer = g.demos;
+        const waiting = drawer && drawer.length && drawer.every(d => d.commissioned) ? drawer : null;
+        if ((drawer && drawer.length && !waiting) || g.prep || g.tour || g.retiredWeek || !g.members.length) return;
         const calendarOpen = !g.debuted ||
           (state.week > (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks &&
            state.week > (g.tourRestUntil || 0));
-        if (calendarOpen) g.demos = KP.generateDemos(state, rng, g);
+        if (calendarOpen) g.demos = KP.generateDemos(state, rng, g).concat(waiting || []);
       });
     } },
     { name: 'rollout', order: 200, fn: (state, rng, inbox, roster, groups) => {
@@ -323,7 +331,12 @@
       //    national board hands out milestone letters — then let the fans
       //    react to everything that just happened
       KP.chartStamp(state).forEach(n => inbox.push(n));
-      KP.feedWeek(state, rng, inbox);
+      // the timeline reacts to the week's letters — the tick's and the
+      // desk's (audit v0.11.3: a seated notice, an opened channel, a
+      // snub answered from the desk never reached the feed)
+      const acted = (state.inbox || []).filter(n => n.fed === false);
+      acted.forEach(n => { delete n.fed; });
+      KP.feedWeek(state, rng, inbox.concat(acted));
     } },
   ];
 

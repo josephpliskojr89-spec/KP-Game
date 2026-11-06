@@ -608,12 +608,15 @@
 
     html.push('<div class="kicker">The public decided</div>');
     r.publicNotes.forEach(n => html.push('<div class="note">' + UI.esc(n) + '<span class="n-who">— community & PR digest</span></div>'));
-    // the b-sides, judged (v0.11.1, §92 A): the record is more than its title
-    if (r.bsides && r.bsides.length) {
-      const pick = r.bsides.slice().sort((a, b) => b.heat - a.heat)[0];
+    // the b-sides, judged (v0.11.1, §92 A): the record is more than its title —
+    // read from the release, the one place they live (audit v0.11.3)
+    const relOfResults = (g.releases || []).find(x => x.week === r.week) || null;
+    const bsides = (relOfResults && relOfResults.bsides) || r.bsides || [];
+    if (bsides.length) {
+      const pick = bsides.slice().sort((a, b) => b.heat - a.heat)[0];
       html.push('<div class="kicker">The b-sides</div>');
       html.push('<div class="card" style="font-size:.8rem;line-height:1.6">' +
-        r.bsides.map(b => '<div>' + (b === pick ? '<b>' : '') + 'Track ' + b.n + ' · “' + UI.esc(b.title) + '”' + (b === pick ? '</b>' : '') +
+        bsides.map(b => '<div>' + (b === pick ? '<b>' : '') + 'Track ' + b.n + ' · “' + UI.esc(b.title) + '”' + (b === pick ? '</b>' : '') +
           (b.credit ? ' <span class="chip cool">' + UI.esc(b.credit) + '</span>' : '') +
           ' <span style="color:var(--ink-dim)">' + UI.esc(KP.bsideWord(b)) + (b === pick ? ' · the fan pick' : '') + '</span></div>').join('') +
         '<div style="color:var(--ink-dim);font-size:.72rem;margin-top:6px">The streams are public; the hooks are not. A fan pick hot enough charts beside the title; a warm one can climb mid-era; every b-side with heat is a lottery ticket on the shelf for years.</div>' +

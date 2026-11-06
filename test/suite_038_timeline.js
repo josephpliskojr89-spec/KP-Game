@@ -91,7 +91,7 @@ function debuted(seed) {
   const before = {};
   Object.values(state.people).forEach(p => { before[p.id] = p.age; });
   const startWeek = state.week;
-  for (let w = 0; w < KP.C.WEEKS_PER_YEAR; w++) KP.advanceWeek(state);
+  for (let w = 0; w < KP.C.WEEKS_PER_YEAR; w++) { state.budget = Math.max(state.budget, 9000); KP.advanceWeek(state); }   // untended fixtures dissolve (v0.11.0); the clock is the subject here
   // exactly one full year: every person alive since the start is one
   // year older — no more, no less, whatever their status
   const cohort = Object.values(state.people).filter(p => before[p.id] != null);

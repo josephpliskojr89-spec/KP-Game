@@ -49,6 +49,7 @@
     KP.noteCheck(n, 'action');
     n.week = state.week; n.read = false;
     n.id = 'm' + (state.nextMsgId++);
+    n.fed = false;   // the next feed pass reads it (audit v0.11.3: action letters never reached the timeline)
     state.inbox.unshift(n);
     return n;
   };
@@ -168,6 +169,10 @@
     const rng = KP.rngFor(state);
     const r = def.resolve(state, sc, optionId, rng) || {};
     state.rngState = rng.state();
+    // a resolve that could not be done keeps the question on the table
+    // (audit v0.11.3: the walkout's "negotiate" at an empty account
+    // dismissed the walkout for free)
+    if (r.ok === false) return { ok: false, reason: r.reason || r.toast || 'That could not be done.' };
     state.scenes = state.scenes.filter(x => x.id !== sc.id);
     // the conversation record: what was asked, what you said, and how
     // it landed — her response is kept, not shown once and gone
@@ -211,6 +216,20 @@
   // ---- 6. the state validator -------------------------------------------
   // Structural invariants only — cheap enough for the harness to run
   // weekly. Returns a list of violations; empty means sound.
+  // every ledger and list a render can read exists before the first render
+  // (audit v0.11.3: read accessors created state.contentLedger, fameLedger,
+  // discourses and outside during a render, so a viewed save differed from
+  // its unviewed twin); called at newGame and by the 0.11.3 migration
+  KP.ensureLedgers = function (state) {
+    if (KP.contentLedger) KP.contentLedger(state);
+    if (KP.fameLedger) KP.fameLedger(state);
+    if (KP.liveDiscourses) KP.liveDiscourses(state);
+    if (KP.outsideJobs) KP.outsideJobs(state);
+    if (KP.outsideOffersList) KP.outsideOffersList(state);
+    if (KP.sponsorLedgerOf) KP.sponsorLedgerOf(state);
+    state.deadShorts = state.deadShorts || [];   // the registry exists from week one, so a fork never creates it in a different order
+    return state;
+  };
   KP.validateState = function (state) {
     const v = [];
     const bad = (msg) => v.push(msg);
@@ -259,6 +278,8 @@
     Object.values(state.people).forEach(p => {
       if (!isFinite(p.fatigue) || !isFinite(p.morale)) bad(p.id + ' vital NaN');
       KP.C.TALENTS.forEach(d => { if (!isFinite(p.talents[d].cur)) bad(p.id + ' ' + d + ' NaN'); });
+      // a numeric flag that is not a number is corruption (audit v0.11.3: burnout-- on nobody's bench wrote NaN)
+      Object.keys(p.flags || {}).forEach(k => { const x = p.flags[k]; if (typeof x === 'number' && !isFinite(x)) bad(p.id + ' flag ' + k + ' is ' + x); });
     });
     if (!isFinite(state.budget)) bad('budget NaN');
     if (!isFinite(state.trust)) bad('trust NaN');

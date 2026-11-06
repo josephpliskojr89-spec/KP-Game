@@ -513,7 +513,7 @@
           ? '<div style="font-size:.74rem;color:var(--gold);margin-top:5px">' + UI.esc(f.revShare.fund) + ' takes ' + Math.round(f.revShare.pct * 100) + '% of gross until ' + UI.esc(KP.weekLabel(f.revShare.until).text) + ' — the toll line on every statement.</div>' : '') +
         '<div style="display:flex;gap:8px;margin-top:9px">' +
         '<button class="btn small" data-action="fund-pitch"' +
-        (busy || cooling || state.budget < KP.C.FINANCE.pitchCost ? ' disabled' : '') + '>' +
+        (busy || cooling || (state.budget < KP.C.FINANCE.pitchCost && !(KP.redRead && KP.redRead(state).weeks > 0)) ? ' disabled' : '') + '>' +   // the deck prints on credit in the red weeks (§86; audit v0.11.3)
         (busy ? 'Committed' : cooling ? 'Deck is stale' : 'Pitch the funds · ' + KP.C.FINANCE.pitchCost) + '</button></div>' +
         (busy ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:5px">' + UI.esc(busy) + '</div>' : '') +
         '</div>');

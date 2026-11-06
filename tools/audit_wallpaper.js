@@ -21,6 +21,7 @@ const T = {
 };
 let curOrg = 'none';
 function bump(map, key, field, extra) {
+  if (!curOrg) return;
   const e = map[key] = map[key] || { orgs: new Set() };
   e[field] = (e[field] || 0) + 1;
   e.orgs.add(curOrg);
@@ -31,8 +32,9 @@ loader.loadEngine = function () {
   const KP = realLoad.apply(this, arguments);
   const realNewGame = KP.newGame;
   KP.newGame = function (seed) {
-    curOrg = String(seed);
-    T.orgs++;
+    // the long-clock pass is not the census (audit v0.11.3)
+    curOrg = /^clock-/.test(String(seed)) ? null : String(seed);
+    if (curOrg) T.orgs++;
     return realNewGame.apply(this, arguments);
   };
   const realTrim = KP.trimWeekNotes;

@@ -68,11 +68,15 @@
     if (!g || !g.debuted || g.retiredWeek) return { ok: false, reason: 'The lane is for a debuted act.' };
     if (g.prep || g.tour || g.hiatus || g.jpAway) return { ok: false, reason: 'The calendar is spoken for.' };
     if (state.week <= (g.promoUntil || 0)) return { ok: false, reason: 'Mid-promotion. Japan claims whole weeks, not spare ones.' };
-    if ((KP.regionsOf(g).jp || 0) < J.minWarmth) {
+    if ((KP.regionsRead(g).jp || 0) < J.minWarmth) {
       return { ok: false, reason: 'The room over there is still quiet. A release into silence is a shipment, not a debut.' };
     }
     if (state.week - (g.lastJpWeek || -999) < J.cooldown) {
       return { ok: false, reason: 'The partner paces the market. The last JP record is still working.' };
+    }
+    // a booked festival inside the trip is a signed contract (audit v0.11.3)
+    if ((g.festivalBookings || []).some(b => b.week >= state.week && b.week <= state.week + lane.weeks)) {
+      return { ok: false, reason: 'A festival slot is booked inside those weeks. Play it, or decline it first.' };
     }
     if (state.budget < lane.cost) return { ok: false, reason: 'The lane bills up front — ' + lane.cost + '.' };
     state.budget -= lane.cost;
@@ -93,7 +97,7 @@
     if (!state.jpPartner &&
         state.week - (state.jpDeclinedWeek || -999) > 24 &&
         !(state.scenes || []).some(sc => sc.kind === 'partnerDeal')) {
-      const warm = KP.groups(state).some(g => g.debuted && (KP.regionsOf(g).jp || 0) >= J.partnerAt);
+      const warm = KP.groups(state).some(g => g.debuted && (KP.regionsRead(g).jp || 0) >= J.partnerAt);
       if (warm && rng.chance(0.25)) {
         led.offers++;
         const partner = PARTNERS[Math.floor(KP.hash01([state.seed, 'jppartner'].join('|')) * PARTNERS.length)];

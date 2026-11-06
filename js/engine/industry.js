@@ -29,10 +29,24 @@
   function usedCompanyShorts(state) {
     const used = new Set([String(state.company.short).toLowerCase()]);
     (state.rivals || []).forEach(r => used.add(String(r.short).toLowerCase()));
-    // a folded label's name stays on its obituary (v0.11.0, §86)
+    // a folded label's name stays on its obituary (v0.11.0, §86) — and so
+    // does a collapsed, merged or folded rival's (audit v0.11.3: a reborn
+    // short inherited the dead company's narratives)
     ((state.estate && state.estate.folded) || []).forEach(f => used.add(String(f.short).toLowerCase()));
+    (state.deadShorts || []).forEach(x => used.add(String(x).toLowerCase()));
     return used;
   }
+  // a company leaves the world: its name is retired and the stories told
+  // about it — and about its acts — are not told about its successor
+  KP.forgetCompany = function (state, r, opts) {
+    opts = opts || {};
+    state.deadShorts = state.deadShorts || [];
+    if (!state.deadShorts.includes(r.short)) state.deadShorts.push(r.short);
+    const actIds = new Set((r.acts || []).map(a => a.id));
+    state.memory = (state.memory || []).filter(n =>
+      !(n.subjectType === 'rivalCompany' && n.subjectId === r.short) &&
+      !(!opts.keepActs && n.subjectType === 'rivalAct' && actIds.has(n.subjectId)));
+  };
 
   // ---- the boards (v0.10.42, §89 D12): one entry, one rank ---------------
   // The scene chart and the national board were entered by two bodies
@@ -130,7 +144,9 @@
       if (e.bside) {
         const rel2 = (g.releases || []).find(r => r.week === (e.releaseWeek != null ? e.releaseWeek : e.entered));
         const bs = rel2 && (rel2.bsides || []).find(b => b.title === e.title);
-        if (bs) { bs.peak = e.peakPos; bs.weeks = e.weeksOn + 1; }
+        // the era's run is the era's; a reverse run keeps its own peak
+        // (audit v0.11.3: a pushed revival restamped the era's peak)
+        if (bs) { if (e.catalog) bs.revivalPeak = e.peakPos; else { bs.peak = e.peakPos; bs.weeks = e.weeksOn + 1; } }
         return;
       }
       if (e.catalog || e.shelf) return;
@@ -280,7 +296,7 @@
       KP.nationalEnter(state, {
         title: relTitle,
         act: ar.name, company: ar.typeLabel, isPlayer: false, pool: true,
-        decayRate: titan ? N.titanDecay : undefined,
+        decayRate: titan ? N.titanDecay : null,
         score: ar.fame * mult, entered: state.week,
       });
       ar.fame = KP.clamp(ar.fame + rng.int(-N.fameDriftMax, N.fameDriftMax), N.fameFloor, N.fameCap);
@@ -312,7 +328,7 @@
       const e = KP.nationalEnter(state, {
         title: KP.genSongTitle(rng, nationalTitles(state)),
         act: ar.name, company: ar.typeLabel, isPlayer: false, pool: true,
-        decayRate: titan ? N.titanDecay : undefined,
+        decayRate: titan ? N.titanDecay : null,
         score, entered: Math.max(-200, state.week - weeksAgo),
       });
       e.weeksOn = weeksAgo;
@@ -880,6 +896,7 @@
         r.prestige < I.collapsePrestige && !(r.acts || []).some(a => !a.retired));
       if (starved) {
         state.rivals = rivals.filter(r => r !== starved);
+        KP.forgetCompany(state, starved);
         bump();
         notes.push({ kind: 'industry', urgent: false, ind: 'collapse', company: starved.short,
           text: starved.name + ' has ceased operations. Overnight, their trainees are free agents and their office lease is a cautionary tale. This industry does not do gentle exits.' });
@@ -916,6 +933,7 @@
         recentMoves: ['Formed from ' + a.short + ' + ' + b.short],
       };
       state.rivals = state.rivals.filter(r => r !== a && r !== b).concat([merged]);
+      KP.forgetCompany(state, a, { keepActs: true }); KP.forgetCompany(state, b, { keepActs: true });   // the acts live on under the merged name
       // the people go where the company goes (v0.4.3)
       Object.values(state.people).forEach(p => {
         if (p.status === 'rival' && (p.company === a.short || p.company === b.short)) {
@@ -1030,9 +1048,9 @@
           const weeksAgo = state.week - lastRel;
           const score = (reception + act.popularity * 0.2) * Math.pow(KP.C.CHART.decay, weeksAgo);
           if (score >= KP.C.CHART.dropBelow) {
-            KP.chartEnter(state, { title, act: act.name, company: r.short, isPlayer: false,
+            const seeded = KP.chartEnter(state, { title, act: act.name, company: r.short, isPlayer: false,
               score, entered: lastRel });
-            state.chart.entries[state.chart.entries.length - 1].weeksOn = weeksAgo;
+            if (seeded) seeded.weeksOn = weeksAgo;   // the entry chartEnter returns, wherever the cap sorted it (audit v0.11.3)
           }
         }
       }
@@ -1096,8 +1114,11 @@
     const viral = rng.chance(KP.C.FEED.viralChance);
     // the regulars (v0.7.1): a share of the feed is voiced by the
     // recurring cast everyone recognizes — the fandom has PEOPLE in it
+    // a post written for a named regular (the biased account) speaks as
+    // her (audit v0.11.3: the adopting account never spoke)
     let handle = null;
-    if (rng.chance(KP.C.LIFE.regularShare)) {
+    if (typeof entry === 'object' && entry.handle && !usedHandles.has(entry.handle)) { handle = entry.handle; usedHandles.add(handle); }
+    else if (rng.chance(KP.C.LIFE.regularShare)) {
       const reg = KP.regularFor(state, persona, state.week);
       if (reg && !usedHandles.has(reg)) { handle = reg; usedHandles.add(reg); }
     }
@@ -1176,6 +1197,11 @@
       fancam: [
         { persona: 'stan', text: 'the ' + who + ' fancam has TWO MILLION views and I contributed forty of them personally. no regrets' },
         { persona: 'casual', text: 'the algorithm decided everyone watches ' + who + ' today and honestly? the algorithm was right' },
+        { persona: 'fan', text: 'woke up to the ' + who + ' fancam on every timeline I have. the focus cam does not pull away once. the camera operator deserves a raise and a statue' },
+        { persona: 'casual', text: 'I have watched the ' + who + ' fancam four times today and I could not name the song. that is how good the fancam is' },
+        { persona: 'stan', text: 'the ' + who + ' fancam crossed the number. you know the number. the quote-posts are a parade. we built this with our thumbs' },
+        { persona: 'press', text: 'The week’s most-watched clip is not a music video but a single-member fancam of ' + who + ' — the industry’s oldest proof that the audience edits its own show.' },
+        { persona: 'fan', text: 'the ' + who + ' fancam reached my mother. my MOTHER. she asked which one is “the tall one.” the fancam has transcended fandom' },
       ],
     };
     return rng.pick(m[d.kind] || m.fancam);
@@ -1358,6 +1384,11 @@
         posts.push(rng.pick([
           { persona: 'stan', text: n.actName + ' comeback announced. presave, hydrate, clear your schedule, warn your coworkers' },
           { persona: 'casual', text: n.actName + ' announcing a comeback date like a court summons. fine, I’ll be there' },
+          { persona: 'fan', text: n.actName + ' comeback date is OUT. the countdown graphic is already on my lock screen. the lock screen was free. my sleep was not' },
+          { persona: 'casual', text: 'every ' + n.actName + ' comeback announcement reads like a weather warning and every time I go stand in the rain' },
+          { persona: 'press', text: n.actName + ' has set a date. In this industry a date is a claim on a week, and the calendar around it has already started to move.' },
+          { persona: 'stan', text: n.actName + ' date announced. spreadsheets updated. voting accounts verified. the group chat has a theme song again' },
+          { persona: 'anti', text: n.actName + ' announcing a comeback like the last one did not just end. the industry has no off-season and neither, apparently, do I' },
         ]));
       } else if (n.ind === 'ambush') {
         posts.push(rng.pick([
@@ -1488,7 +1519,7 @@
       posts.push('“' + mine.title + '” vs “' + theirs.title + '” for the top spot this week. do not text me, I’m streaming');
     }
     // bias chatter about a debuted act
-    const acts = KP.groups(state).filter(g => g.debuted);
+    const acts = KP.groups(state).filter(g => g.debuted && !g.retiredWeek && g.members.length);
     if (acts.length && rng.chance(0.7)) {
       const g = rng.pick(acts);
       const member = state.people[rng.pick(g.members)];

@@ -35,7 +35,7 @@ function debuted(seed, opts) {
   const pick = rel.bsides.slice().sort((a, b) => b.heat - a.heat)[0];
   t.eq(rel.fanPick, pick.title, 'the fan pick is the hottest b-side');
   t.ok(rel.bsides.every(b => b.heat > 55), 'hooks of 90 read as heat (' + rel.bsides.map(b => b.heat).join('/') + ')');
-  t.ok(g.results.bsides && g.results.bsides.length === 4 && g.results.bsides !== rel.bsides, 'the results carry their own copy');
+  t.ok(!g.results.bsides && rel.bsides.length === 4 && g.results.fanPick === rel.fanPick, 'the b-sides live on the release alone — one truth (v0.11.3)');
   t.ok(['burning', 'warm', 'quiet', 'skipped'].includes(KP.heatWord(pick.heat)) && !/\d/.test(KP.heatWord(pick.heat)), 'the heat has a word, never the hook');
   const { rel: cold } = debuted('bs-cold', { hook: 15 });
   t.ok(cold.bsides.every(b => b.heat < 50), 'hooks of 15 read cold (' + cold.bsides.map(b => b.heat).join('/') + ')');
@@ -102,7 +102,7 @@ function debuted(seed, opts) {
   T.LATE.chance = old;
   t.ok(pick.charted === state.week && pick.late && state.chart.entries.some(x => x.bside && x.title === pick.title), 'during promotion the warm pick climbs onto the chart');
   t.ok((state.catalogLedger || {}).lateClimbs === 1 && (KP.lastTickNotes || []).some(n => n.ind === 'bsideClimbs'), 'ledgered, with the note');
-  t.ok(KP.recordClimbing(state, g).climbing || true, 'the extension’s read sees a record still moving');
+  t.ok(KP.recordClimbing(state, g).climbing, 'the extension’s read sees a record still moving');
   // the climb is a world fact: a fork agrees
   const { state: a, rel: ra } = debuted('bs-late-fork', { hook: 60 });
   const pa = ra.bsides.find(b => b.title === ra.fanPick); pa.heat = T.LATE.heatAt + 2; delete pa.charted; a.chart.entries = a.chart.entries.filter(x => !x.bside);

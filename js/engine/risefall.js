@@ -58,7 +58,7 @@
     return (pops[0] || 0) + (pops[1] || 0) * 0.4 + (state.trust || 0) * 0.35 + daesangs * 4;
   }
   KP.powerRankingNow = function (state) {
-    const rows = (state.rivals || []).map(r => ({
+    const rows = KP.signingHouses(state).map(r => ({
       short: r.short, name: r.name, isPlayer: false, score: Math.round(rivalScore(r)) }));
     rows.push({ short: state.company.short, name: state.company.name,
       isPlayer: true, score: Math.round(playerScore(state)) });
@@ -308,6 +308,7 @@
             text: KP.displayName(due) + ' of ' + act.name + ' enlists this week, first of the rotation — ' + r.short + ' chose the stagger, so the group holds the line short-handed while the members cycle through. The trades printed the two-year map of who is away when. The fandom laminated it.' });
         } else {
           act.servicePause = { until: state.week + M.serviceWeeks };
+          delete act.announcedWeek;   // no comeback is announced from the barracks (audit v0.11.3)
           (act.members || []).forEach(id => {
             const p = state.people[id];
             if (p && p.gender === 'm' && !p.serviceDone && p.age >= M.minTogetherAge) {

@@ -88,8 +88,8 @@
       KP.recordDirected(state, p.id, 'passedOver');
       p.history.push({ week: state.week,
         text: again
-          ? 'Passed over for a second lineup while the public watched. She read the announcement like everyone else — online, at midnight. The company keeps deciding; the internet keeps counting.'
-          : 'The lineup was announced without her — the trainee the internet already knew by name. She practiced the next morning like nothing happened, which everybody in the building understood to be the loudest possible answer.' });
+          ? KP.fillPro('Passed over for a second lineup while the public watched. {She} read the announcement like everyone else — online, at midnight. The company keeps deciding; the internet keeps counting.', p)
+          : KP.fillPro('The lineup was announced without {her} — the trainee the internet already knew by name. {She} practiced the next morning like nothing happened, which everybody in the building understood to be the loudest possible answer.', p) });
       KP.note(state, { kind: 'public', ind: 'aceSnubbed', priority: 'high', personId: p.id, groupId: g.id,
         text: KP.fillPro(again
           ? 'The question is not polite anymore: ' + KP.displayName(p) + ' — ' + KP.fmtCount(KP.socialOf(state, p)) + ' followers, the trainee this company is KNOWN for online — passed over for a SECOND lineup. The fandom-in-waiting has receipts, timestamps, and a hashtag. The company is the story now, and not the good kind.'
@@ -190,7 +190,7 @@
     if (!p) return null;
     return { persona: rng.chance(0.5) ? 'fan' : 'casual', text: rng.pick([
       'weekly check-in: still no lineup news for ' + KP.publicGiven(p) + '. the clips are RIGHT THERE. the company is sitting on a debut and calling it development',
-      KP.publicGiven(p) + ' has been "a trainee to watch" for so long the watch has a fandom. put her in a group before we age out of stanning',
+      KP.fillPro(KP.publicGiven(p) + ' has been "a trainee to watch" for so long the watch has a fandom. put {her} in a group before we age out of stanning', p),
       'the ' + state.company.short + ' trainee everyone knows is still not debuting and I think about this more than my own career',
       'petition status for ' + KP.publicGiven(p) + ' debut news: growing. patience status: not',
       KP.publicGiven(p) + ' practice clip anniversary today. one year. ONE YEAR of "soon." define soon, ' + state.company.short,
@@ -208,7 +208,7 @@
     const p = n.personId ? state.people[n.personId] : null;
     const name = p ? KP.publicGiven(p) : 'her';
     return rng.pick([
-      { persona: 'fan', text: name + ' IS IN THE LINEUP. months of clips, months of "put her in a group," and they actually did it. we manifested this. lighting a candle for the debut date' },
+      { persona: 'fan', text: KP.fillPro(name + ' IS IN THE LINEUP. months of clips, months of "put {her} in a group," and they actually did it. we manifested this. lighting a candle for the debut date', p || { gender: 'f' }) },
       { persona: 'stan', text: 'the ace made the lineup, as the prophecy foretold. pre-debut fandom promoted to actual fandom effective immediately. streaming accounts ready' },
       { persona: 'casual', text: 'company does the obviously correct thing with its famous trainee, internet celebrates like a cup final. the bar is on the floor and yet here we are, genuinely happy' },
     ]);

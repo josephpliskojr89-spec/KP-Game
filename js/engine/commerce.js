@@ -163,9 +163,9 @@
         ' — calendar, photobook, the yearly object every organized fandom budgets for. Standard run, ' +
         'or the lavish edition with the price to match. The window is now; December does not reschedule.';
     },
-    options: () => [
+    options: (state) => [
       { id: 'standard', label: 'Ship the standard' },
-      { id: 'lavish', label: 'The lavish edition' },
+      ...(state.budget >= KP.C.MERCH.greetingsLavishCost ? [{ id: 'lavish', label: 'The lavish edition · ' + KP.C.MERCH.greetingsLavishCost }] : []),
       { id: 'skip', label: 'Skip the year' },
     ],
     resolve: (state, sc, optionId) => {

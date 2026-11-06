@@ -11,7 +11,8 @@
 
   function eachAct(state, fn) {
     (state.rivals || []).forEach(r => (r.acts || []).forEach(a => {
-      if (!a.retired) fn(r, a);
+      // an act paused for service has no date to announce (audit v0.11.3)
+      if (!a.retired && !(a.servicePause && state.week < a.servicePause.until)) fn(r, a);
     }));
   }
   function actDue(a) { return (a.lastReleaseWeek || 0) + (a.cycleWeeks || 18); }

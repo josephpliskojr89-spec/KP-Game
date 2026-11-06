@@ -68,6 +68,16 @@
     // the project (v0.2.5): an open spot makes the free trainees push —
     // they train harder, and if the project declared what it needs, they
     // fill their own spare focus with it
+    // medical staff benched does none of it; she sleeps (the idol week's
+    // law, sim.js) — the bench counts down, the fatigue comes off, the
+    // walls and the injuries cannot re-trip, and the intensity she chose
+    // is still hers when she is back (audit v0.11.3: a benched trainee
+    // trained 'light' at +5 fatigue a week and hit the same wall for years)
+    if (KP.onBreak(person)) {
+      if (person.flags.burnout > 0) person.flags.burnout--;
+      person.fatigue = KP.clamp(person.fatigue - KP.C.COMEBACK.OVERWORK.benchRecovery, 0, 100);
+      return notes;
+    }
     const PR = KP.C.PROJECT;
     const isHopeful = state.project && person.status === 'trainee' &&
       !state.project.locked.includes(person.id) && !KP.groupOf(state, person.id);
@@ -132,10 +142,6 @@
     } else if (person.fatigue > T.fatigueSoftCap && intensity === 'heavy' && rng.chance(T.injuryChance)) {
       person.flags.burnout = (person.flags.burnout || 0) + 2;
       notes.push({ kind: 'health', urgent: true, text: KP.displayName(person) + ' picked up a minor injury in practice. Two weeks of careful scheduling ahead.' });
-    }
-    if (KP.onBreak(person)) {
-      person.flags.burnout--;
-      person.training.intensity = 'light';
     }
 
     return notes;

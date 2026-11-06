@@ -111,7 +111,7 @@ function debuted(seed) {
     t.eq(state.national.artists.length, poolSize, 'the pool holds size through churn');
   }
   t.ok(replaced, 'the faded star eventually bowed out for a rookie');
-  t.ok(state.inbox.length === 0 || true, 'no crash on notes'); // notes returned, not inboxed here
+  t.ok(KP.validateState(state).length === 0, 'the churned pool leaves a valid state');
 }
 
 // ---- migration: an old save joins the wider world ----

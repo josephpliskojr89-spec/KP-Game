@@ -53,7 +53,6 @@ function debuted(seed) {
     t.ok(!KP.ambitionTouch(state, p2, 'trophy'), 'a dream lands once');
   } else {
     t.ok(true, 'no trophy-dreamer in this lineup — door tested elsewhere');
-    t.ok(true, '-'); t.ok(true, '-'); t.ok(true, '-');
   }
 }
 

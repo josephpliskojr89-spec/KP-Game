@@ -86,7 +86,7 @@ function lockAndLand(state, g, plan) {
   const before = KP.trendLane(state, yNow + 1);
   KP.shiftTrend(state, 'fusion');
   t.eq(KP.trendLane(state, yNow), 'fusion', 'the industry shifted this year');
-  t.ok(KP.trendLane(state, yNow + 3) === 'fusion' || KP.trendLane(state, yNow + 3) !== before || true, 'later years chain from the shift');
+  t.ok(typeof KP.trendLane(state, yNow + 3) === 'string' && KP.trendLane(state, yNow + 3).length > 0, 'later years still name a lane after the shift');
   t.eq(KP.trendFit(state, 'dreamy'), T.neighbour, 'everything is next door to genre-bending');
   t.eq((state.verdictLedger || {}).shifts, 1, 'ledgered');
 }
@@ -169,15 +169,15 @@ function lockAndLand(state, g, plan) {
 {
   const { state, g } = room('vd-darling', { legacy: false, talent: 90 });
   g.demos.forEach(d => { d.hook = 95; d.catch = 12; d.price = 0; });
+  // the bar is pinned under the fixture's craft so the darling path RUNS (audit v0.11.3: it never did)
+  const savedBar = V().darlingCraft, savedBelow = V().darlingBelow;
+  V().darlingCraft = 40; V().darlingBelow = 100;
   const r = lockAndLand(state, g, { promo: 'modest', mv: 'plain' });
+  V().darlingCraft = savedBar; V().darlingBelow = savedBelow;
   t.ok(r.craft >= 66, 'a great record (' + r.craft + ')');
   t.ok(r.craft - r.reception >= 18, 'that the public did not buy (' + r.reception + ')');
-  if (r.craft >= V().darlingCraft && r.reception < V().darlingBelow) {
-    t.ok(notesOf(state).some(n => n.ind === 'criticsDarling'), 'the darling is named, critical priority');
-    t.eq((state.verdictLedger || {}).darlings, 1, 'ledgered');
-  } else {
-    t.ok(true, 'near the line this seed (' + r.craft + '/' + r.reception + ') — the band measures it');
-  }
+  t.ok(notesOf(state).some(n => n.ind === 'criticsDarling'), 'the darling is named, critical priority');
+  t.eq((state.verdictLedger || {}).darlings, 1, 'ledgered');
   t.ok(['acclaimed', 'warm'].includes(r.critics.consensus), 'the critics heard it (' + r.critics.consensus + ')');
 }
 

@@ -140,11 +140,13 @@
     // the song market (v0.10.5): the demo's asking price rides the bill
     let cost = KP.recordBill(g, plan.promo, format.id) + rolloutCost + mvCost + pressingCost + (demo.price || 0);
     // the red ledger (v0.10.1): the tightened belt trims the next era once
-    if (g.tightBelt) { cost = Math.round(cost * KP.C.BOOKS.tightBeltCut); delete g.tightBelt; }
+    const belted = !!g.tightBelt;
+    if (belted) cost = Math.round(cost * KP.C.BOOKS.tightBeltCut);
     // the regional founding (v0.10.10): the whole bill runs cheaper here
     if (KP.homeCostMult) cost = Math.round(cost * KP.homeCostMult(state));
     if (state.budget < cost) return { ok: false, reason: 'Budget cannot cover the record, the marketing AND this rollout. Trim something.' };
     state.budget -= cost;
+    if (belted) delete g.tightBelt;   // the discount is spent by the lock that happens, not by a refused one (audit v0.11.3)
     // jeongsan (v0.10.1): every era's bills accrue to the group's ledger
     if (KP.accrueDebt) {
       KP.accrueDebt(state, g, cost);
@@ -176,8 +178,9 @@
       // wallpaper — the rollout chips show radio instead of shows
       if (firstTime) KP.note(state, { kind: 'industry', ind: 'showsClosed', priority: 'high', groupId: g.id,
         text: 'The Countdown, Prime Stage, Pop Wave: none returned the calls. No music-show ' +
-          'stages this era — nobody books a label they have never heard of. The rollout runs ' +
-          'radio instead, and the era will be won on the ground or not at all.' });
+          'stages this era — nobody books a label they have never heard of, unless a desk calls ' +
+          'on the strength of the numbers. The rollout runs radio instead, and the era will be ' +
+          'won on the ground or not at all.' });
     }
     // ---- the title fight (v0.9.17): the pick is also a pass ------------
     // Every advocate in the meeting hears the answer, and the passed
@@ -318,6 +321,13 @@
   // A warm era re-releases with a new title track — one of the demos the
   // meeting passed on, back from the table. Cheaper, shorter, and it
   // rides the era's heat. Once per era; singles don't repackage.
+  // the reception as the public hears it — a word, never the number (the
+  // reveal law; audit v0.11.3: unit eras and solo discs printed digits)
+  KP.receptionWord = function (reception, isDebut) {
+    const D = KP.C.DEBUT;
+    const band = D.receptionBands.find(b => reception >= b.min) || D.receptionBands[D.receptionBands.length - 1];
+    return isDebut ? band.label : (KP.C.COMEBACK.bandLabels[band.key] || band.label);
+  };
   KP.planRepackage = function (state, plan) {
     const RP = KP.C.REPACKAGE;
     const D = KP.C.DEBUT;
@@ -353,6 +363,9 @@
     const cost = Math.round(KP.recordBill(g, plan.promo || 'standard', format.id) * RP.costMult) + mvCost;
     if (state.budget < cost) return { ok: false, reason: 'Even the cheaper reprint needs money we do not have.' };
     state.budget -= cost;
+    // the return (audit v0.11.3): a reissue locked during a declared hiatus
+    // is the announcement, the same as a lock
+    if (g.hiatus && KP.hiatusReturnLock) KP.hiatusReturnLock(state, g);
     g.prep = {
       songId: demo.id,
       conceptId: demo.conceptId,
@@ -438,7 +451,9 @@
     const a = g.prep.alloc;
     members.forEach(m => {
       if (KP.onBreak(m)) {
-        m.flags.burnout--;
+        // only a bench counts down — a soldier, a break or a season has
+        // none (audit v0.11.3: undefined-- wrote NaN into the save)
+        if (m.flags.burnout > 0) m.flags.burnout--;
         m.fatigue = KP.clamp(m.fatigue - OW.benchRecovery, 0, 100);
         return;
       }
@@ -548,7 +563,6 @@
         m.liveExp += A.liveExp;
         m.mediaExp += A.mediaExp;
         if (A.morale) m.morale = KP.clamp(m.morale + A.morale, 0, 100);
-        if (A.pop) g.popularity = KP.clamp((g.popularity || 0) + A.pop * (KP.promoFit ? KP.promoFit(lane, actId) : 1), 0, 100);
         if (A.followers) KP.socialSpike(state, m, A.followers, 'promo-' + actId);
         // fan-facing care builds devotion (v0.7.0) — once per activity, not per member
         if (m === members[0]) {
@@ -569,6 +583,15 @@
           notes.push(KP.overworkIncident(state, m, 'promotion', rng));
         }
       });
+      // the activity promotes the ACT, once, scaled by who showed up
+      // (audit v0.11.3: the gain used to pay per member, so a quintet
+      // promoted five times harder than a soloist on the same stage; the
+      // norm keeps the typical lineup's trajectory the soaks were tuned on)
+      if (A.pop) {
+        const present = members.filter(m => !KP.onBreak(m)).length;
+        const share = members.length ? present / members.length : 0;
+        g.popularity = KP.clamp((g.popularity || 0) + A.pop * CB.popLineupNorm * share * (KP.promoFit ? KP.promoFit(lane, actId) : 1), 0, 100);
+      }
     });
 
     // the stages that make stories — encores moved to the show desk
@@ -1001,7 +1024,7 @@
         KP.accrueDebt(state, g, members.length * KP.C.SETTLE.trainingDebtPerMember);
         g.eraSpend = (g.eraSpend || 0) - members.length * KP.C.SETTLE.trainingDebtPerMember;
       }
-      push(KP.settleShare(state, g, revenue));
+      KP.settleShare(state, g, revenue);   // the settlement letter rides the bus from inside (audit v0.11.3)
       push(KP.repayAdvance(state, product));
       // the red ledger: a loss-making era is counted, a profitable one clears
       g.lastEraNet = revenue - (g.eraSpend || 0);
@@ -1073,7 +1096,7 @@
       craft, appeal, reach: Math.round(reachIndex * 100), critics, ledger: L.rows(),
       breakoutId: breakout.id,
       tracklist: tl.tracks, sleeperTitle: tl.sleeperTitle || null,
-      bsides: tl.bsides || null, fanPick: tl.fanPick || null,   // the b-sides, judged (v0.11.1, §92 A)
+      fanPick: tl.fanPick || null,   // the b-sides live on the release — one truth (audit v0.11.3)
       centerOvershadowed,
       chem, groupFit: Math.round(groupFit),
       trustDelta, revenue,

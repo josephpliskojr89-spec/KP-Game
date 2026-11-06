@@ -46,11 +46,14 @@
           !(state.scenes || []).some(sc => sc.kind === 'firstSettlement' && sc.groupId === g.id)) {
         KP.openScene(state, { kind: 'firstSettlement', groupId: g.id,
           expiresWeek: state.week + 3 });
-        return { kind: 'company', ind: 'settlementDue', priority: 'high', groupId: g.id,
+        // the letter goes with the meeting, whichever till crossed the
+        // line (audit v0.11.3: every caller but the release discarded it)
+        KP.note(state, { kind: 'company', ind: 'settlementDue', priority: 'high', groupId: g.id,
           text: g.name + '’s ledger crossed zero this week: every won the company put into ' +
             'the practice years and the eras has been recouped. The first settlement meeting ' +
             'is on the Desk — the statements, the members, and the question of what kind of ' +
-            'label this is.' };
+            'label this is.' });
+        return null;
       }
       return null;
     }
@@ -90,8 +93,11 @@
       const members = (g.members || []).map(id => state.people[id]).filter(Boolean);
       KP.recordEvidence(state, 'firstSettlement', 'group', g.id);
       if (optionId === 'fair') {
-        state.budget -= S.backpay;
-        KP.ledgerFlow(state, 'artistPay', -S.backpay);
+        // the clamp law takes what exists; the rest is owed (audit v0.11.3)
+        const paid = Math.min(S.backpay, Math.max(0, state.budget));
+        state.budget -= paid;
+        KP.ledgerFlow(state, 'artistPay', -paid);
+        if (paid < S.backpay && KP.redReport) KP.redReport(state, 'backpay', S.backpay - paid);
         members.forEach(m => {
           m.morale = KP.clamp(m.morale + S.fairMorale, 0, 100);
           m.history.push({ week: state.week, text: 'FIRST SETTLEMENT — with backpay. The label did not have to. That is the point. The screenshot of the deposit is framed in the group chat forever.' });

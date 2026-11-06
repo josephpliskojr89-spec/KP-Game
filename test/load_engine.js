@@ -12,7 +12,11 @@ const ENGINE_FILES = [
 ];
 
 function loadEngine() {
-  const sandbox = { console, Math, JSON, Date };
+  // the determinism law, enforced: the engine never draws Math.random
+  // (audit v0.11.3) — the sandbox's Math throws on it
+  const SafeMath = Object.create(Math);
+  SafeMath.random = function () { throw new Error('Math.random inside the engine — the determinism law (hash01 or the tick rng)'); };
+  const sandbox = { console, Math: SafeMath, JSON, Date };
   sandbox.globalThis = sandbox;
   vm.createContext(sandbox);
   const dir = path.join(__dirname, '..', 'js', 'engine');

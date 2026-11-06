@@ -44,25 +44,27 @@
     },
     body: (state, sc) => {
       const p = state.people[sc.personId];
-      return 'The medical report on ' + (p ? KP.displayName(p) : 'her') + ' is one page and it is about ' +
+      return KP.fillPro('The medical report on ' + (p ? KP.displayName(p) : 'her') + ' is one page and it is about ' +
         sc.site + '. ' + (sc.kindOf === 'vocal'
           ? 'The instrument needs silence, and the schedule sells sound.'
           : 'The body needs weeks, and the calendar sells days.') +
         ' Three doors, and the whole roster will hear which one the company opened: full rest, ' +
         'a seated arrangement that keeps the schedule and shows the chair, or push through and ' +
-        'let the schedule win. The file remembers. So does she.';
+        'let the schedule win. The file remembers. So does {she}.', p);
     },
     options: () => [
       { id: 'rest', label: 'Full rest — bench the schedule' },
       { id: 'seated', label: 'Partial — the seated arrangement' },
       { id: 'push', label: 'Push through' },
     ],
-    resolve: (state, sc, optionId) => {
+    resolve: (state, sc, optionId, rng) => {
       const p = state.people[sc.personId];
       if (!p) return { toast: 'The file closed itself.' };
       const M = KP.C.MEDICAL;
       const led = ledger(state);
-      const rng = KP.rngFor(state);
+      // the kernel hands the stream in and saves it (audit v0.11.3: a
+      // second rngFor here was clobbered by the kernel's save, so the
+      // rest length replayed as next week's first roll)
       let out;
       if (optionId === 'seated') {
         led.seated++;
@@ -89,7 +91,7 @@
           const nar = KP.recordEvidence(state, 'playedHurt', 'idol', p.id);
           if (nar) KP.note(state, nar);
         }
-        out = { toast: 'The week is worked. The file is longer. The ledger she reads is too.' };
+        out = { toast: KP.fillPro('The week is worked. The file is longer. The ledger {she} reads is too.', p) };
       } else {
         led.rested++;
         p.flags.burnout = rng.int(M.restMin, M.restMax);
@@ -100,17 +102,16 @@
           text: KP.fillPro(KP.displayName(p) + ' steps back on medical guidance — ' + sc.site + ', weeks not days, seat kept. The fandom’s reply is the industry’s one unanimous sentence: health first, we will be here.', p) });
         out = { toast: 'Benched with a return date. The roster saw which door the company opened.' };
       }
-      state.rngState = rng.state();
       return out;
     },
-    expire: (state, sc) => {
+    expire: (state, sc, rng0) => {
       // nobody decided — medical staff default to the protective door
       const p = state.people[sc.personId];
       if (p) {
-        const rng = KP.rngFor(state);
+        const rng = rng0 || KP.rngFor(state);   // the phase's stream when the week expires it
         ledger(state).rested++;
         p.flags.burnout = rng.int(KP.C.MEDICAL.restMin, KP.C.MEDICAL.restMax);
-        state.rngState = rng.state();
+        if (!rng0) state.rngState = rng.state();
       }
       return null;
     },
@@ -168,7 +169,7 @@
 
   // ---- the timeline reacts ---------------------------------------------
   KP.onFeedEvent('seatedNotice', (state, n, rng) => rng.pick([
-    { persona: 'fan', text: 'she performed the whole stage SEATED and it was still the best stage of the week. the chair is getting a fan account. this is not a joke. it has 4k followers' },
+    { persona: 'fan', text: KP.fillPro('{she} performed the whole stage SEATED and it was still the best stage of the week. the chair is getting a fan account. this is not a joke. it has 4k followers', state.people[n.personId]) },
     { persona: 'casual', text: 'the seated-performance notice: the one piece of idol-industry theater that is somehow also just… true, and kind, and good. protect it' },
   ]));
   KP.onFeedEvent('medicalRest', (state, n, rng) => rng.pick([
@@ -176,7 +177,7 @@
     { persona: 'press', text: 'A rest notice with an actual end date — rarer than it should be. Companies that write these keep their veterans; companies that don’t keep their schedules.' },
   ]));
   KP.onFeedEvent('chronicOpened', (state, n, rng) => rng.chance(0.5) ? rng.pick([
-    { persona: 'fan', text: 'the word "chronic" in an official statement ages a fandom ten years in one line. tape it, pace it, PROTECT her, we are begging' },
+    { persona: 'fan', text: KP.fillPro('the word "chronic" in an official statement ages a fandom ten years in one line. tape it, pace it, PROTECT {her}, we are begging', state.people[n.personId]) },
     { persona: 'casual', text: 'every veteran act carries a file like this and the industry treats it as a rounding error until, suddenly, structurally, it is not' },
   ]) : null);
 })(typeof window !== 'undefined' ? window : globalThis);

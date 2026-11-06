@@ -1112,6 +1112,26 @@
       if (MAP[o.kindId]) { o.kindId = MAP[o.kindId]; o.rung = KP.C.BOOK.KINDS[o.kindId].rung; }
     });
   } });
+  // the audit (v0.11.3, §94): the ledgers a render used to create; a bench
+  // counter that went NaN on a soldier or a break; the live pointers a
+  // disbanded act left behind; the dead-short registry
+  MIGRATIONS.push({ v: '0.11.3', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+    Object.values(state.people || {}).forEach(p => {
+      if (p.flags && p.flags.burnout != null && !(p.flags.burnout > 0)) delete p.flags.burnout;
+    });
+    (state.groups || []).forEach(g => {
+      if (!g.retiredWeek) return;
+      if (g.gravity && !g.gravity.settled) { g.gravity.settled = 'disband'; g.gravity.settledWeek = g.retiredWeek; }
+      delete g.gravityWatch;
+      g.promoUntil = 0; g.rollout = null; delete g.catalogPush;
+    });
+    if (state.gravityExecAsk) {
+      const eg = (state.groups || []).find(x => x.id === state.gravityExecAsk.groupId);
+      if (!eg || !eg.members.includes(state.gravityExecAsk.personId)) delete state.gravityExecAsk;
+    }
+    state.deadShorts = state.deadShorts || [];
+  } });
 
   KP.migrate = function (state) {
     const applied = [];
@@ -1214,6 +1234,6 @@
     if (typeof localStorage === 'undefined') return null;
     const key = KP.C.SAVE_KEY + (slot ? '_slot' + slot : '_auto') + '_meta';
     const json = localStorage.getItem(key);
-    return json ? JSON.parse(json) : null;
+    try { return json ? JSON.parse(json) : null; } catch (e) { return null; }   // a corrupt meta is no meta (audit v0.11.3)
   };
 })(typeof window !== 'undefined' ? window : globalThis);

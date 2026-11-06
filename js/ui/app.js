@@ -22,6 +22,20 @@
       alloc: { vocals: 30, dance: 30, rap: 10, media: 30 } },
   };
 
+  // the desk's drafts belong to one career (audit v0.11.3: a catalog pick
+  // and a track rename from career A reached career B through the same
+  // group ids)
+  App.resetDrafts = function () {
+    App.view = null;
+    App.builderDraft = null;
+    App.studioDraft = { songId: null, conceptId: null, promo: 'standard', week: null,
+      format: 'single', rollout: null, alloc: { vocals: 30, dance: 30, rap: 10, media: 30 } };
+    App.studioGroupId = null;
+    App.commDraft = null;
+    App.tourDraft = null;
+    App._catalogPick = {};
+    App.trackRenames = {};
+  };
   App.save = function () {
     if (!App.state) return;
     const ok = KP.saveLocal(App.state);
@@ -135,6 +149,7 @@
     const seedRaw = (document.getElementById('nc-seed').value || '').trim();
     const coEl = document.getElementById('nc-company');
     const cityEl = document.getElementById('nc-city');
+    App.resetDrafts();
     App.state = KP.newGame(seedRaw || null, name, { door: App._door || 'current',
       companyName: coEl ? coEl.value : '',
       homeCity: cityEl ? cityEl.value : 'seoul' });
@@ -201,9 +216,13 @@
     switch (act) {
       // ---- title screen (v0.5.1) ----
       case 'title-continue': {
-        const st = KP.loadLocal(null);
+        let st = null;
+        try { st = KP.loadLocal(null); }
+        catch (e) { UI.toast('The autosave could not be read: ' + (e && e.message ? e.message : e), true); App.render(); break; }
         if (!st) { UI.toast('No career found in the autosave.', true); App.render(); break; }
-        App.state = st; App.mode = 'game';
+        const v = KP.validateState ? KP.validateState(st) : [];
+        if (v.length) UI.toast('Loaded with a warning: ' + v[0], true);
+        App.state = st; App.mode = 'game'; App.resetDrafts();
         go('desk');
         break;
       }
@@ -222,7 +241,7 @@
         const txt = (document.getElementById('import-text') || {}).value || '';
         const r = KP.tryImport(txt.trim());
         if (!r.ok) { UI.toast(r.reason, true); break; }
-        App.state = r.state;
+        App.state = r.state; App.resetDrafts();
         if (!KP.saveLocal(App.state)) UI.toast('Imported, but the autosave did not stick — storage is full. Export to keep it safe.', true);
         App.mode = 'game';
         UI.closeModal();
@@ -312,6 +331,7 @@
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App._chapter = null;
         App.mode = 'game';
+        App.resetDrafts();
         App.save();
         UI.toast(r.name + ' exists. Eighteen months.');
         go('desk');
@@ -530,7 +550,9 @@
         const r = KP.holdFancon(s, t.dataset.id, t.dataset.format || 'ticketed');
         if (!r.ok) { UI.toast(r.reason, true); break; }
         App.save();
-        UI.toast('Fancon held — ' + r.revenue + ' through the till, and the room got warmer.');
+        UI.toast((t.dataset.format || 'ticketed') === 'free'
+          ? 'Fan meeting held — ' + r.cost + ' from the books, nothing through the till, and the room got warmer.'
+          : 'Fancon held — ' + r.revenue + ' through the till, and the room got warmer.');
         App.render();
         break;
       }
@@ -816,7 +838,7 @@
         const picks = Array.from(document.querySelectorAll('.unit-pick:checked')).map(el => el.value);
         const r = KP.planUnitEra(s, t.dataset.id, picks, null);
         UI.closeModal();
-        if (r.ok) { UI.toast(r.unitName + ' — “' + r.title + '” is out. Reception ' + r.reception + '.'); App.save(); App.render(); }
+        if (r.ok) { UI.toast(r.unitName + ' — “' + r.title + '” is out. ' + KP.receptionWord(r.reception) + '.'); App.save(); App.render(); }
         else UI.toast(r.reason, true);
         break;
       }
@@ -960,7 +982,7 @@
           .filter(o => { const r = rels[KP.pairKey(p, o)]; return r && r.state === 'close'; });
         UI.modal('Release ' + KP.displayName(p) + '?',
           '<div class="pad" style="font-size:.88rem;line-height:1.55;color:var(--ink-dim)">' + KP.fillPro('{Pos} contract ends, {she} leaves the building, and the decision is yours to own. Signings spent on {her} are not refunded.', p) +
-          (close.length ? '<br><br>' + close.map(o => KP.publicGiven(o)).join(' and ') + ' will take it hard.' : '') + '</div>',
+          (close.length ? '<br><br>' + close.map(o => UI.esc(KP.publicGiven(o))).join(' and ') + ' will take it hard.' : '') + '</div>',
           '<button class="btn" data-action="close-modal" style="flex:1">' + KP.fillPro('Keep {her}', p) + '</button>' +
           '<button class="btn danger" data-action="release-confirm" data-id="' + p.id + '" style="flex:1">' + KP.fillPro('Release {her}', p) + '</button>');
         break;
@@ -1287,8 +1309,14 @@
       systemSheet();
     }
     if (t.dataset.action === 'load-slot') {
-      const st = KP.loadLocal(t.dataset.slot);
-      if (st) { App.state = st; App.save(); UI.closeModal(); go('desk'); UI.toast('Loaded.'); }
+      let st = null;
+      try { st = KP.loadLocal(t.dataset.slot); }
+      catch (e) { UI.toast('That slot could not be read: ' + (e && e.message ? e.message : e), true); return; }
+      if (st) {
+        const v = KP.validateState ? KP.validateState(st) : [];
+        App.state = st; App.resetDrafts(); App.save(); UI.closeModal(); go('desk');
+        UI.toast(v.length ? 'Loaded with a warning: ' + v[0] : 'Loaded.', !!v.length);
+      }
     }
     if (t.dataset.action === 'abandon') {
       UI.modal('Abandon this career?',
@@ -1357,12 +1385,15 @@
     if (navigator.storage && navigator.storage.persist) {
       navigator.storage.persist().catch(() => {});
     }
-    App.mode = 'title';
-    App.render();
+    // the splash leaves whatever the title does (audit v0.11.3: a corrupt
+    // save meta threw before this timer was set and the splash never left)
     setTimeout(() => {
       const sp = document.getElementById('splash');
+      if (!sp) return;
       sp.classList.add('gone');
       setTimeout(() => sp.remove(), 500);
     }, 900);
+    App.mode = 'title';
+    try { App.render(); } catch (e) { console.error(e); UI.toast('The title could not render: ' + (e && e.message ? e.message : e), true); }
   });
 })(typeof window !== 'undefined' ? window : globalThis);
