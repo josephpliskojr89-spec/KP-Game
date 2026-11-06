@@ -1,0 +1,409 @@
+=== Observatory — 40 seeds, 140 weeks each ===
+end-budget: median 2606, max 4385 (wk140, the stature bill governs)
+debut reception: median 59, min 33, max 87
+releases per org: 6.4 average; groups per org: 2.1
+medical throughput: cases 137, seated 77, pushed 27, rested 33, chronics 11, flares 6 across 40 orgs (the flare chain; v0.11.2)
+reverse runs per org-year: 0.74 (the lottery ticket stays a ticket under ~1; v0.11.1)
+date ambushes per career: 5.0 average (pettiness stays memorable, not constant)
+best overseas region at career end: 66,72,73,74,77,78,78,78,78,78,79,79,80,80,80,81,81,81,82,82,84,84,84,84,85,85,85,85,85,86,86,86,86,86,88,88,88,89,89,90
+save size after 140 weeks: 542 KB average, widest 602 KB (soak-1); most real people in one world 266 (quota ~5 MB)
+avg roster talent growth over the run: 5.0 pts
+
+--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks) ---
+renewal tables opened: 26  (renewed: 15, chose to leave: 11, departed by career end: 20; the neglect org lost 9)
+generated-pool age: mean 16.5, 13% aged 19+
+sit-downs run by the auto-player: 2161
+sensation debuts                          3/40    band [0%–30%]  ok
+strong-or-better debuts                   13/40   band [15%–75%]  ok
+quiet/miss debuts                         10/40   band [5%–55%]  ok
+public picked a non-center breakout       20/40   band [10%–80%]  ok
+rivals signed >=1 prospect                40/40   band [30%–100%]  ok
+orgs with a burnout incident              0/40    band [0%–45%]  ok
+scout instinct notes seen                 35/40   band [30%–100%]  ok
+orgs that saw real friction               40/40   band [20%–100%]  ok
+orgs ending conflict-heavy (>30% pairs)   6/40    band [0%–30%]  ok
+orgs with >=2 releases (the loop loops)   40/40   band [70%–100%]  ok
+orgs whose first group hit #1 on the scene chart 39/40   band [20%–100%]  ok
+orgs ending with a warm-or-better fanbase 39/40   band [50%–100%]  ok
+orgs that launched a second group         38/40   band [30%–100%]  ok
+orgs whose books got noticed (mature economies stay solvent) 40/40   band [30%–100%]  ok
+orgs where the internet found someone     40/40   band [30%–100%]  ok
+orgs that drew a hype directive           11/40   band [2%–80%]  ok
+orgs that debuted a solo act              8/40    band [2%–100%]  ok
+orgs that ended the career broke (end budget < 300) 0/40    band [0%–10%]  ok
+orgs whose idol weeks average off the fumes (<70, rolling) 40/40   band [50%–100%]  ok
+orgs where medical staff benched somebody 40/40   band [5%–100%]  ok
+worlds where a rival debuted a new act    40/40   band [80%–100%]  ok
+orgs that lost 3+ board prospects to rivals 40/40   band [50%–100%]  ok
+worlds where a lost prospect debuted for a rival 40/40   band [30%–100%]  ok
+worlds holding living narratives (>=2)    40/40   band [60%–100%]  ok
+worlds where a storm trended              40/40   band [50%–100%]  ok
+orgs that steered a storm successfully    40/40   band [10%–100%]  ok
+orgs that let a storm boil over           0/40    band [0%–80%]  ok
+worlds where an idol earned a personal narrative 40/40   band [5%–100%]  ok
+worlds with a living national chart (>=12 entries) 40/40   band [80%–100%]  ok
+orgs that cracked the national top 20     40/40   band [30%–100%]  ok
+orgs that reached the national top 10     40/40   band [10%–100%]  ok
+orgs that topped the national chart (guarding runaway, not rarity) 2/40    band [0%–75%]  ok
+worlds ending with a living chart (>=3 entries) 40/40   band [40%–100%]  ok
+worlds where a company rose/fell/merged/split 36/40   band [35%–100%]  ok
+worlds with a full fan feed (>=25 posts)  40/40   band [85%–100%]  ok
+orgs that reached the chart top three     40/40   band [25%–100%]  ok
+orgs that released into a crowded week    40/40   band [10%–100%]  ok
+worlds where comebacks were announced ahead (the calendar lives) 40/40   band [80%–100%]  ok
+orgs whose announced date drew an ambush (avg/career in header) 40/40   band [5%–100%]  ok
+orgs that fought a head-to-head release week 40/40   band [10%–100%]  ok
+orgs that took at least one shared week   40/40   band [5%–100%]  ok
+worlds where a rivalry became canon       22/40   band [0%–85%]  ok
+orgs that won their first music-show trophy 40/40   band [20%–100%]  ok
+worlds where rival acts took stages       40/40   band [80%–100%]  ok
+worlds where a stage became somebody's (darling narrative) 25/40   band [30%–100%]  ok
+orgs that got loud in at least one overseas region 40/40   band [20%–100%]  ok
+orgs whose overseas market became a story (the long game pays) 37/40   band [2%–100%]  ok
+orgs whose group earned a concept identity (the sound IS the group) 37/40   band [10%–100%]  ok
+orgs that took a tour on the road         40/40   band [20%–100%]  ok
+orgs that sold a leg out in minutes       40/40   band [5%–100%]  ok
+orgs that played to curtained-off sections 3/40    band [0%–80%]  ok
+worlds where a posting incident trended   37/40   band [2%–100%]  ok
+orgs whose fandom got its name            40/40   band [30%–100%]  ok
+orgs that signed a brand deal             40/40   band [10%–100%]  ok
+orgs that booked somebody a second job (panel/MC/OST) 40/40   band [30%–100%]  ok
+orgs that worked a sponsored appearance (the invoice arrives) 40/40   band [10%–100%]  ok
+worlds where an old clip resurfaced (the archive naps) 38/40   band [10%–100%]  ok
+orgs whose catalog track reverse-charted (the lottery ticket) 35/40   band [2%–90%]  ok
+orgs whose viral moments carry provenance (the clip has a stage) 40/40   band [50%–100%]  ok
+orgs that missed a sponsored appearance (the road won) 14/40   band [0%–80%]  ok
+orgs a brand terminated for cause (two misses) 3/40    band [0%–50%]  ok
+orgs that got the sponsor solo request    40/40   band [5%–100%]  ok
+orgs that let the solo stage happen       38/40   band [50%–100%]  ok
+orgs where the transcendence clamor began (the trades feature) 40/40   band [5%–100%]  ok
+orgs that settled a clamor with the in-group solo 40/40   band [50%–100%]  ok
+orgs that held a transcendent and paid the resentment clock 28/40   band [0%–97%]  ok
+orgs where she knocked with the rehearsed ask 40/40   band [50%–100%]  ok
+orgs where somebody lost the nerve (the slump) 0/40    band [0%–80%]  ok
+orgs where the nerve came back (the footing) 0/40    band [0%–80%]  ok
+orgs that minted a group identity arc (icons/variety/OST) 23/40   band [2%–100%]  ok
+worlds where a rival evaluation cut the trainee floor 40/40   band [5%–100%]  ok
+worlds where a NAMED signee was cut at an evaluation 40/40   band [5%–100%]  ok
+orgs whose pitch survived the boardroom   34/40   band [10%–100%]  ok
+orgs the board greenlit unasked (the loud floor) 37/40   band [20%–100%]  ok
+orgs that let a greenlight lapse dark     1/40    band [0%–60%]  ok
+orgs where a trainee term reached the table 6/40    band [2%–100%]  ok
+orgs where the table ended a trainee story 0/40    band [0%–90%]  ok
+orgs whose countdown banked an opening edge 40/40   band [50%–100%]  ok
+orgs where she called the meeting (the walkout) 0/40    band [0%–60%]  ok
+orgs with a named professional rivalry (the coverage found its angle) 40/40   band [5%–100%]  ok
+orgs whose rivalry ignited a fan war week 39/40   band [2%–100%]  ok
+orgs where a cold pair hardened into an in-house rivalry 5/40    band [0%–60%]  ok
+orgs whose own groups habitually cannibalize (3+ overlaps) 17/40   band [0%–80%]  ok
+orgs whose fandom minted a fansite master 40/40   band [5%–100%]  ok
+orgs that watched a fansite post the closing notice 13/40   band [0%–75%]  ok
+orgs the festival organizers called by name 40/40   band [30%–100%]  ok
+orgs whose icons took the top of a poster 1/40    band [0%–80%]  ok
+orgs that pulled out of a booked slot     11/40   band [0%–50%]  ok
+orgs that chose the microphone before the ceremony 40/40   band [10%–100%]  ok
+orgs whose chosen speaker took the mic on a win 40/40   band [2%–100%]  ok
+orgs where enlistment papers reached the desk 0/40    band [0%–10%]  ok
+orgs that sent a man to service           0/40    band [0%–10%]  ok
+worlds where the trades published the power ranking 40/40   band [90%–100%]  ok
+worlds where the top seat changed hands (any overtake) 40/40   band [50%–100%]  ok
+worlds that watched a collapse mint a signing class 7/40    band [0%–45%]  ok
+orgs the imperial house tried to hire     17/40   band [20%–100%]  ok
+worlds where a generation turned          39/40   band [30%–100%]  ok
+worlds where a rookie took the torch      39/40   band [30%–100%]  ok
+worlds where a rival act hit the service wall (age-silent in soak) 0/40    band [0%–10%]  ok
+orgs that ran a unit era between group eras 40/40   band [10%–100%]  ok
+orgs told no by their own doctrine        0/40    band [0%–100%]  ok
+orgs that funded a global audition tour   40/40   band [10%–100%]  ok
+orgs that signed an international trainee 17/40   band [10%–90%]  ok
+orgs where a private life deepened (19+ only) 27/40   band [20%–100%]  ok
+orgs where the midnight photos landed     15/40   band [0%–80%]  ok
+orgs whose world a saga invaded inside 140 weeks 9/40    band [5%–60%]  ok
+orgs that answered the co-build term sheet 2/40    band [0%–30%]  ok
+orgs whose application pile produced a file 40/40   band [60%–100%]  ok
+orgs the building referred somebody to    40/40   band [50%–100%]  ok
+worlds where a rival cut a REAL trainee (the floor is people, v0.10.31) 40/40   band [50%–100%]  ok
+orgs where a released trainee resurfaced on the open board (v0.10.31) 38/40   band [30%–100%]  ok
+worlds where a rival signed somebody at its own door, with a hometown 40/40   band [90%–100%]  ok
+worlds where a rival cut put a face on the board 40/40   band [70%–100%]  ok
+worlds whose annual season finale aired (calendar law) 40/40   band [50%–100%]  ok
+worlds whose season drew 8+ contestants from 3+ sources (cast from the world, v0.10.32) 40/40   band [50%–100%]  ok
+orgs the season producers invited (a free trainee of the season’s gender) 35/40   band [30%–100%]  ok
+orgs that sent somebody to a season       20/40   band [10%–100%]  ok
+orgs whose trainee made a finale lineup (held, or kept) 17/40   band [0%–70%]  ok
+worlds where a season’s roll came up permanent 24/40   band [2%–90%]  ok
+orgs that bought a vote push for their contestant 16/40   band [10%–90%]  ok
+orgs that flew a coach to the set         19/40   band [10%–90%]  ok
+orgs whose contestant was cut an edit     13/40   band [5%–80%]  ok
+orgs that read an episode letter with their kid in it 20/40   band [10%–100%]  ok
+orgs that signed a career off the open market (a collapse’s class) 0/40    band [0%–100%]  ok
+orgs with a critics’ darling (craft high, chart low) 14/40   band [2%–90%]  ok
+orgs that commissioned a record           40/40   band [60%–100%]  ok
+orgs that released a producer out of his lane 40/40   band [5%–100%]  ok
+orgs that filled a house producer or writer chair 40/40   band [60%–100%]  ok
+orgs whose critics named a theme that fought the room 32/40   band [0%–95%]  ok
+orgs with a hit the critics panned        12/40   band [0%–80%]  ok
+orgs that drew a split review             36/40   band [5%–100%]  ok
+worlds where the trades named the year’s sound 40/40   band [95%–100%]  ok
+orgs that held an open call or walked the districts 0/40    band [0%–100%]  ok
+orgs where somebody got the mic (channel or live) 40/40   band [80%–100%]  ok
+orgs whose open mic slipped at least once 34/40   band [50%–100%]  ok
+orgs a story broke on (the response desk opened) 34/40   band [40%–100%]  ok
+orgs where a story forced a hiatus or the choice 9/40    band [10%–90%]  ok
+orgs whose fandom opened paid membership  40/40   band [90%–100%]  ok
+orgs that shipped a Season's Greetings    40/40   band [80%–100%]  ok
+orgs that held a fancon between eras      40/40   band [70%–100%]  ok
+orgs whose shelf pays the weekly annuity  40/40   band [90%–100%]  ok
+orgs that squeezed into the ATM story     35/40   band [15%–100%]  ok
+orgs that opened an in-group solo era     40/40   band [5%–100%]  ok
+orgs whose member dropped a standalone solo single 40/40   band [5%–100%]  ok
+orgs where the person questions kept coming (3+) 40/40   band [30%–100%]  ok
+orgs that got bitten by a badly-read answer 0/40    band [0%–80%]  ok
+orgs whose eras ran the production board  40/40   band [90%–100%]  ok
+orgs that faced postpone-or-crunch        20/40   band [15%–100%]  ok
+orgs whose MV set leaked the free trailer 29/40   band [20%–100%]  ok
+orgs that set a sheet at the booth        40/40   band [90%–100%]  ok
+orgs litigated by the stopwatch thread    16/40   band [5%–70%]  ok
+orgs that carried a stage                 40/40   band [50%–100%]  ok
+orgs that fumbled a stage                 31/40   band [10%–90%]  ok
+orgs whose formation read a pair (close or tense) on a stage 40/40   band [5%–100%]  ok
+orgs that took a promo invitation (a swap on the plan) 40/40   band [30%–100%]  ok
+orgs that extended an era on a climbing record 8/40    band [10%–90%]  ok
+orgs whose era opened on a named comeback stage 40/40   band [90%–100%]  ok
+orgs that seated a second studio chair    7/40    band [0%–60%]  ok
+orgs that paired a mentor with a struggling rookie 37/40   band [10%–100%]  ok
+orgs that paired two pens (and a co-written track landed) 3/40    band [2%–80%]  ok
+orgs that seated a feud apart             12/40   band [5%–90%]  ok
+orgs that framed an in-group rivalry as competition 5/40    band [2%–80%]  ok
+orgs whose building formed a read of the boss 40/40   band [80%–100%]  ok
+orgs that played a far-market convention  40/40   band [30%–100%]  ok
+orgs whose interview needed the interpreter 40/40   band [15%–100%]  ok
+orgs that cut the English version         40/40   band [85%–100%]  ok
+orgs that signed the Japan partnership    40/40   band [90%–100%]  ok
+orgs that posted a record to the Nichion weekly 40/40   band [85%–100%]  ok
+orgs that climbed a rung of the JP ladder 40/40   band [70%–100%]  ok
+orgs that played the dome                 0/40    band [0%–60%]  ok
+orgs that held the after-eval talk        40/40   band [70%–100%]  ok
+orgs that read a point breakdown out loud 40/40   band [80%–100%]  ok
+orgs whose near-miss fed the fandom       40/40   band [50%–100%]  ok
+orgs that ran a mobilization drive        40/40   band [85%–100%]  ok
+orgs where a candidate took the meeting   40/40   band [90%–100%]  ok
+orgs that made a hire into the fog        40/40   band [80%–100%]  ok
+orgs whose staff got the outside call     40/40   band [30%–100%]  ok
+orgs that heard a staff note in their voice 40/40   band [90%–100%]  ok
+orgs whose corridor read named the friction 40/40   band [60%–100%]  ok
+orgs that posted a help wanted            40/40   band [85%–100%]  ok
+orgs that lost a circulating hook to a faster checkbook 39/40   band [60%–100%]  ok
+orgs that held a song camp                37/40   band [50%–100%]  ok
+orgs whose house regular showed his best  40/40   band [50%–100%]  ok
+orgs whose desk saw a diagnosis           37/40   band [60%–100%]  ok
+orgs carrying a chronic file              10/40   band [5%–80%]  ok
+orgs whose veteran worked around the file 4/40    band [2%–80%]  ok
+orgs whose releases printed a first-week number 40/40   band [90%–100%]  ok
+orgs that sold out a pressing (the sweet lost money) 26/40   band [20%–90%]  ok
+orgs that ate a warehouse memo            13/40   band [20%–100%]  ok
+orgs a worthwhile file countered at the table 10/40   band [0%–50%]  ok
+orgs that signed a debut-by clause (paper with teeth) 10/40   band [0%–50%]  ok
+orgs that played a stage off the booking pile 0/40    band [0%–50%]  ok
+orgs that worked a release campaign by hand 40/40   band [90%–100%]  ok
+orgs the phone-camera lottery paid out for 0/40    band [0%–50%]  ok
+orgs whose release felt the obscurity wall 0/40    band [0%–50%]  ok
+orgs that broke through the wall (the story) 0/40    band [0%–30%]  ok
+orgs whose announcement minted public expectations 40/40   band [90%–100%]  ok
+orgs where a known trainee was passed over (the story) 11/40   band [20%–95%]  ok
+orgs whose debut settled against its own announcement 40/40   band [90%–100%]  ok
+orgs the write-ups compared in-house or across the week 40/40   band [75%–100%]  ok
+orgs a recruit said no to (the board has agency) 0/40    band [0%–100%]  ok
+orgs that got a holdout signed by any path 7/40    band [2%–80%]  ok
+orgs whose holdout signed with a power instead 40/40   band [50%–100%]  ok
+orgs where an idol crossed the senescence line 39/40   band [50%–100%]  ok
+orgs whose devotion decayed above the bar 37/40   band [30%–100%]  ok
+orgs that saw a chair change inside 140 weeks (era math says none) 0/40    band [0%–10%]  ok
+orgs whose meeting carried a member-written demo 36/40   band [20%–100%]  ok
+orgs that chose her song as the title track 14/40   band [0%–90%]  ok
+orgs a snubbed producer stopped sending good hooks 0/40    band [0%–80%]  ok
+orgs that extended an era with a repackage 28/40   band [5%–100%]  ok
+orgs that shot a cinema-budget video      39/40   band [2%–100%]  ok
+orgs that shipped the performance cut (the internet noticed) 40/40   band [30%–100%]  ok
+orgs whose board carried a school-stamped file 40/40   band [60%–100%]  ok
+worlds where a school sent its class to an open casting 40/40   band [30%–100%]  ok
+orgs that took the scouting trip (the train to the regions) 40/40   band [30%–100%]  ok
+orgs that signed a first-look school partnership 40/40   band [20%–100%]  ok
+worlds where a school got HOT off its graduates 0/40    band [0%–60%]  ok
+worlds where a new school opened its doors 30/40   band [30%–100%]  ok
+worlds where a quiet school became a math hagwon 0/40    band [0%–60%]  ok
+orgs that printed a deck and pitched the funds 37/40   band [40%–100%]  ok
+orgs that took fund money (any structure) 30/40   band [30%–100%]  ok
+orgs a fund passed on — a pass is an answer 11/40   band [5%–90%]  ok
+orgs whose company account posted in-house content 40/40   band [80%–100%]  ok
+orgs with an upload that broke containment 31/40   band [40%–100%]  ok
+worlds where the fog gave up a student (trip or showcase) 40/40   band [80%–100%]  ok
+worlds where a director phoned the majors about shown interest 29/40   band [20%–100%]  ok
+worlds where a known student signed away before anyone met her 40/40   band [30%–100%]  ok
+orgs whose practice room held evaluation days 40/40   band [80%–100%]  ok
+orgs where an open project set the practice room talking 33/40   band [10%–100%]  ok
+orgs where a trainee brought the resignation letter 0/40    band [0%–80%]  ok
+orgs that lost a trainee on her own terms (quit or broken promise) 0/40    band [0%–80%]  ok
+orgs where the aging-out clock got loud   4/40    band [0%–60%]  ok
+orgs where the long-timer finally debuted (the story everyone wants) 0/40    band [0%–60%]  ok
+orgs that announced an official hiatus (the disappearance) 39/40   band [2%–100%]  ok
+orgs whose declared return converted the wait into numbers 39/40   band [2%–100%]  ok
+orgs that stayed gone past the grace window (the forgetting) 39/40   band [50%–100%]  ok
+orgs where a full gig run wrapped with a sendoff 38/40   band [10%–100%]  ok
+orgs whose idol dropped a drama OST       5/40    band [2%–100%]  ok
+orgs where a second job ended early (recast or pulled) 35/40   band [2%–100%]  ok
+worlds where a second job became a narrative (variety monster / MC / OST voice) 16/40   band [0%–90%]  ok
+orgs that took a year-end award home      40/40   band [5%–100%]  ok
+orgs that watched someone else win (the radicalizer) 5/40    band [0%–90%]  ok
+worlds where bubble screenshots reached the feed 33/40   band [50%–100%]  ok
+orgs that kept a Monday-meeting promise on the record 40/40   band [5%–100%]  ok
+worlds where somebody got the thing she always wanted 40/40   band [5%–100%]  ok
+orgs where the people were felt weekly (person-moments most weeks) 40/40   band [95%–100%]  ok
+orgs that put a member's first solo on a record 40/40   band [50%–100%]  ok
+orgs where an idol knocked on the office door 40/40   band [60%–100%]  ok
+orgs that kept a promise made across the desk to an idol 29/40   band [5%–100%]  ok
+orgs where a person-moment put the call on the desk 40/40   band [10%–100%]  ok
+orgs that left somebody waiting at the door 0/40    band [0%–60%]  ok
+orgs that celebrated a debut anniversary (the calendar knows the date) 40/40   band [80%–100%]  ok
+orgs that signed a male trainee (both halls run) 26/40   band [60%–100%]  ok
+orgs whose second act was a boy group     8/40    band [2%–80%]  ok
+orgs whose groups have a named road manager 40/40   band [90%–100%]  ok
+orgs that faced board season              40/40   band [80%–100%]  ok
+orgs handed the executive pet project     40/40   band [10%–100%]  ok
+orgs where somebody carried a boiled storm for weeks 0/40    band [0%–80%]  ok
+orgs that cut a unit track (full albums open the second slot) 40/40   band [5%–100%]  ok
+orgs where a b-side outgrew its record (the truthers organize) 35/40   band [30%–100%]  ok
+orgs where a b-side charted beside its title (double charting) 15/40   band [15%–90%]  ok
+orgs where a b-side climbed onto the chart mid-era 23/40   band [15%–90%]  ok
+orgs whose b-side reverse-charted years later 9/40    band [2%–80%]  ok
+orgs whose reverse run crossed onto the national board 26/40   band [15%–95%]  ok
+orgs that pushed a song on the shelf (the bot, when flush) 38/40   band [40%–100%]  ok
+orgs whose push paid out in a reverse run 9/40    band [2%–60%]  ok
+orgs where the staff flagged somebody going quiet 0/40    band [0%–100%]  ok
+orgs whose debuted idols all carry a stamped contract 40/40   band [90%–100%]  ok
+orgs that toured the country (home circuit wrapped) 39/40   band [20%–100%]  ok
+orgs whose city demanded a second night   39/40   band [5%–100%]  ok
+orgs whose idol made a cross-company friend 40/40   band [30%–100%]  ok
+orgs that got the coffee truck            39/40   band [2%–100%]  ok
+orgs whose rookie a senior publicly stanned 28/40   band [30%–100%]  ok
+orgs whose debut class the fans lined up at award season 39/40   band [20%–100%]  ok
+orgs that played the university festival circuit 40/40   band [50%–100%]  ok
+orgs that closed a year on the gayo stage 40/40   band [20%–100%]  ok
+orgs that took the daesang home           4/40    band [0%–60%]  ok
+orgs shortlisted that watched the daesang go elsewhere 1/40    band [0%–90%]  ok
+orgs that released a genre mash           17/40   band [10%–75%]  ok
+orgs whose mash changed the industry (the textbook entry stays rare) 10/40   band [0%–40%]  ok
+orgs with a critics-loved, public-shrugged mash 13/40   band [0%–60%]  ok
+orgs whose mash ate itself                15/40   band [0%–70%]  ok
+orgs that found a protest truck outside   33/40   band [30%–100%]  ok
+orgs that held a fan meeting              40/40   band [30%–100%]  ok
+orgs that launched the lightstick         40/40   band [30%–100%]  ok
+orgs that LOST a head-to-head week (the era is contested) 22/40   band [25%–100%]  ok
+worlds where a flagship openly hunted the leader 39/40   band [30%–100%]  ok
+orgs with a release that missed #1 on the scene chart 40/40   band [25%–100%]  ok
+orgs that ran a red week (behind on the building) 23/40   band [20%–100%]  ok
+orgs that DISSOLVED in standard play (a fatal week, never a flood) 0/40    band [0%–5%]  ok
+
+=== SOAK CLEAN: no invariant violations, all census bands alive ===
+
+=== TEXTURE PROBE: 43 orgs, 6740 weeks, 130 org-years ===
+weeks with a scene waiting at tick end: 71%
+scenes opened per org-year: 68.6 (reactive 65.2 · proactive 3.4)
+letters per week (pre-trim): 11.3 · critical per org-year: 10.7
+letters by priority per org-year: normal 257.2 · flavor 182.6 · high 136.8 · critical 10.7
+letters by kind per org-year: public 154.6 · development 107.2 · company 102.5 · industry 85.5 · scouting 44.9 · debut 31.2 · relationship 26.5 · executive 15.6 · health 5.3 · breakthrough 4.8 · plateau 4.8 · showcase 2.9 · life 1.4 · talent 0.0
+
+scenes by kind per org-year (reactive/proactive):
+  festivalInvite           11.49   11.49 / 0.00
+  frictionExtraHour         9.69   9.69 / 0.00
+  promoOffer                5.55   5.55 / 0.00
+  theSheet                  5.27   5.27 / 0.00
+  theInterview              5.24   5.24 / 0.00
+  soloDirection             3.36   0.00 / 3.36
+  idolAsk                   2.96   2.96 / 0.00
+  frictionVarietyAlone      2.59   2.59 / 0.00
+  momentChoice              2.13   2.13 / 0.00
+  execQuestion              2.06   2.06 / 0.00
+  renewal                   1.74   1.74 / 0.00
+  frictionClipCall          1.57   1.57 / 0.00
+  liveAsk                   1.53   1.53 / 0.00
+  soloKnock                 1.27   1.27 / 0.00
+  sponsorSolo               1.24   1.24 / 0.00
+  theDiagnosis              1.15   1.15 / 0.00
+  fanclubOpen               0.99   0.99 / 0.00
+  seasonsGreetings          0.97   0.97 / 0.00
+  channelAsk                0.93   0.93 / 0.00
+  seatPoach                 0.79   0.79 / 0.00
+  boardSeason               0.78   0.78 / 0.00
+  fanTruck                  0.74   0.74 / 0.00
+  seasonInvite              0.69   0.69 / 0.00
+  awardNight                0.63   0.63 / 0.00
+  theStory                  0.62   0.62 / 0.00
+  redInk                    0.44   0.44 / 0.00
+  petProject                0.35   0.35 / 0.00
+  partnerDeal               0.32   0.32 / 0.00
+  termSheet                 0.23   0.23 / 0.00
+  seasonEdit                0.22   0.22 / 0.00
+  theSlip                   0.19   0.19 / 0.00
+  idolDoor                  0.19   0.19 / 0.00
+  theReveal                 0.17   0.17 / 0.00
+  theOffer                  0.13   0.13 / 0.00
+  traineeRenewal            0.10   0.10 / 0.00
+  unsanctionedLive          0.08   0.08 / 0.00
+  frictionSubstitution      0.05   0.05 / 0.00
+  agingOutTalk              0.05   0.05 / 0.00
+  theChoice                 0.04   0.00 / 0.04
+  newChair                  0.02   0.02 / 0.00
+  globalJV                  0.02   0.02 / 0.00
+  scarRecovery              0.02   0.02 / 0.00
+  firstSettlement           0.01   0.00 / 0.01
+  clauseCall                0.01   0.01 / 0.00
+
+letters by ind per org-year (top 45):
+  undefined                   160.5
+  personMoment                70.6
+  comebackAnnounce            29.3
+  narrative                   20.5
+  staffNote                   14.5
+  seasonEpisode               12.2
+  seasonWeek                  12.2
+  festivalInvite              11.5
+  outsideOffer                10.2
+  idolBirthday                10.1
+  evalSheet                   9.6
+  discourse                   8.7
+  schoolClass                 7.8
+  rivalHit                    7.6
+  socialMilestone             7.2
+  tourLeg                     7.2
+  stageRead                   6.8
+  showWin                     6.6
+  rivalScouts                 6.5
+  promoOffer                  5.6
+  festival                    5.4
+  chodong                     5.3
+  criticsVerdict              5.3
+  interviewSet                5.2
+  natMilestone                4.8
+  application                 4.6
+  quarterlyBooks              4.1
+  demoSold                    3.8
+  castViral                   3.6
+  rivalSigned                 3.6
+  pointBreakdown              3.3
+  regionLoud                  3.3
+  rivalShowWin                3.0
+  comebackStage               2.7
+  ghostDemo                   2.7
+  houseCompare                2.6
+  meshFriction                2.6
+  rivalDebut                  2.6
+  underDelivered              2.5
+  castoffs                    2.4
+  ambitionMet                 2.3
+  battleLoss                  2.2
+  anniversary                 2.2
+  industryFriend              2.1
+  poolShowWin                 2.1
+
+distinct inds seen: 170 · distinct scene kinds: 44

@@ -9089,6 +9089,475 @@ Suite_114 (41). Measured in the first soak (40 orgs): vote pushes
 every org that sent — and the bands ruled from these. Battery
 114/114, soak 40 clean, longhaul 11 × 620, e2e 134, lockstep 0.11.4.
 
+## §96 Where we stand — the depth survey (post-0.11.4)
+
+Owner, after the televised season shipped: *"Where does this leave
+us? Can you take a look at what needs more depth and give me a
+report?"* This section is the report. It is a map, not a contract:
+the owner reorders it with a feel report, as always. No code moved
+for it.
+
+**The bar.** The season is the measuring stick, because it is the
+freshest example of the house sentence from §55.6 — an event the
+game narrates should instead ARRIVE (a scene with a decision), CLAIM
+something real, and LEAVE a mark. Before v0.11.4 a season was cast →
+twelve silent judged weeks → a cut letter → a finale letter. After,
+it has a board the player reads every week with the line drawn, a
+letter a week naming her place and a moment, doors during the run,
+an arc for the contestant, and a ceremony. The survey asks of every
+other loop: which of those does it have, and which does it only
+narrate?
+
+**The method.** Four read-only passes over the engine and the UI,
+one per slice (the record and the stage; the people; the company;
+the world), 49 loops in all, each scored 0–3 on six axes — READS
+(what the player sees and where), DECISIONS (verbs, scenes, doors;
+proactive or reactive), ARC (does it change a person, a group or the
+company durably and legibly), EVENT (a moment the player waits for,
+or plan → wait → result), FLAVOR (a family or a lone string), TEETH
+(what a bad call costs, what a good one earns, whether it can be
+ignored free). The season after v0.11.4 is the 3 on Reads, Decisions
+and Event. Every grade below is cited to file and line in the slice
+reports (the four slice reports and the texture
+probe’s output are kept under `docs/surveys/0.11.4-depth/`) and the claims the ranking leans on were re-read in
+the code before this section was written. Alongside the grades, two
+measurements: the inventory (what exists) and the texture (what
+reaches the desk in bot play, `depth/texture_probe.js` wrapping the
+40-seed soak).
+
+**The inventory (v0.11.4).** 87 engine modules + 7 UI modules; 3,078
+lines of constants; 557 exported verbs; 153 UI actions; 53
+registered scene kinds; 387 registered letter inds; 114 suites; 98
+Bible sections.
+
+**The texture (bot play, 43 orgs, 130 org-years).** A scene is
+waiting on the desk at the end of 71% of weeks. 68.6 scenes open per
+org-year — 65.2 reactive, 3.4 proactive (the bot's only proactive
+scene is the solo direction meeting). 11.3 letters a week are
+written before the inbox law trims to five; 10.7 critical letters a
+year; by priority per year: normal 257, flavor 183, high 137,
+critical 11. The desk's decisions are dominated by five small asks:
+festival invites 11.5 a year, the extra hour 9.7, promo offers 5.6,
+the sheet 5.3, the interview 5.2 — more than half of everything the
+player is asked. The big arcs are rare by design: the renewal table
+1.7, the diagnosis 1.2, award night 0.6, the story 0.6, red ink 0.4,
+the offer 0.13, the new chair 0.02, the JV 0.02. Nine registered
+scenes never opened in 130 bot-years: distributorCall (structurally
+dead on the inheritance door — fame seeds tier 2, so there is no
+next tier to court), enlistPapers and servicePlan (no boy reaches
+notice age inside 140 weeks), frictionQuietNo, lastStatement (the
+bot makes the honest moves), quietEra and returnRun (the slump,
+bot-dormant since v0.9.18 — and returnRun is unreachable for anyone,
+below), traineeQuit and walkOut (bot-dormant since v0.9.20). All are
+suite-held; §18 watches them for human play. One hygiene line: 160
+letters a year carry no `ind` — a long tail of ~100 small legacy
+templates (the feed chain the §39 debt rider names) the census
+cannot see by name.
+
+### The map
+
+Grades R/D/A/E/F/T, total of 18, thinnest first within each slice.
+
+| Slice | Loop | R | D | A | E | F | T | Σ |
+|---|---|---|---|---|---|---|---|---|
+| record | The repackage | 1 | 1 | 1 | 1 | 1 | 2 | 7 |
+| record | The commission (the writing room) | 2 | 2 | 1 | 1 | 1 | 2 | 9 |
+| record | The pitch and the song market | 2 | 2 | 2 | 1 | 1 | 2 | 10 |
+| record | The production runway (lock → stations → teasers) | 2 | 2 | 1 | 1 | 2 | 2 | 10 |
+| record | The pressing and the chodong | 2 | 1 | 1 | 2 | 2 | 2 | 10 |
+| record | The catalog's second life | 2 | 1 | 2 | 2 | 2 | 1 | 10 |
+| record | The sheet | 2 | 2 | 2 | 2 | 1 | 2 | 11 |
+| record | The music-show weeks and the point desk | 2 | 2 | 3 | 2 | 2 | 3 | 14 |
+| record | The release week and the two verdicts | 3 | 1 | 3 | 2 | 2 | 3 | 14 |
+| record | The debut itself | 3 | 2 | 3 | 2 | 2 | 3 | 15 |
+| people | The spotlight moments and the inner life | 3 | 1 | 1 | 0 | 3 | 0 | 8 |
+| people | How a group ends (departures, disband, archive) | 1 | 2 | 2 | 1 | 1 | 2 | 9 |
+| people | The training week and the monthly sheet | 2 | 1 | 2 | 1 | 2 | 2 | 10 |
+| people | The debut-team selection | 2 | 2 | 2 | 1 | 1 | 2 | 10 |
+| people | The absences (hiatus, break, service) | 2 | 2 | 2 | 2 | 1 | 1 | 10 |
+| people | The person in public (scandal, secret) | 2 | 2 | 3 | 2 | 1 | 3 | 13 |
+| people | The second calendar (channel, second job) | 2 | 2 | 2 | 2 | 2 | 3 | 13 |
+| people | The practice-room years (quit, clock, table) | 2 | 3 | 3 | 2 | 1 | 3 | 14 |
+| people | The body and the nerve (medical, scars, slump) | 3 | 2 | 3 | 2 | 2 | 2 | 14 |
+| people | The contract clock and the renewal table | 2 | 3 | 3 | 2 | 1 | 3 | 14 |
+| people | The office door and the asks | 3 | 2 | 3 | 2 | 2 | 3 | 15 |
+| people | Friction, the sit-down and the pairs | 3 | 3 | 2 | 2 | 2 | 3 | 15 |
+| people | The clamor and the solo era | 3 | 3 | 3 | 3 | 2 | 3 | 17 |
+| company | The company's own identity and history | 1 | 0 | 1 | 1 | 2 | 2 | 7 |
+| company | The content desk | 2 | 1 | 1 | 1 | 2 | 1 | 8 |
+| company | The Monday meeting and the exec's trust | 2 | 2 | 1 | 1 | 1 | 2 | 9 |
+| company | The staff seats and the interview | 2 | 2 | 1 | 1 | 2 | 1 | 9 |
+| company | The board and succession | 1 | 2 | 1 | 2 | 1 | 2 | 9 |
+| company | The mandate | 2 | 2 | 1 | 1 | 1 | 2 | 9 |
+| company | Fandom commerce | 1 | 2 | 2 | 2 | 1 | 2 | 10 |
+| company | The year's calendar | 2 | 1 | 1 | 2 | 2 | 2 | 10 |
+| company | The booking pile and the campaign | 2 | 2 | 1 | 2 | 2 | 2 | 11 |
+| company | The books, the settlement, the distributor | 2 | 2 | 2 | 2 | 2 | 2 | 12 |
+| company | The financing round | 2 | 2 | 2 | 2 | 1 | 3 | 12 |
+| company | The founding and the chapters after | 2 | 2 | 2 | 2 | 1 | 3 | 12 |
+| company | The week and the Desk | 3 | 3 | 1 | 2 | 2 | 2 | 13 |
+| company | The red weeks and the last statement | 3 | 3 | 3 | 3 | 1 | 3 | 16 |
+| world | The national chart as a read | 2 | 0 | 1 | 2 | 1 | 2 | 8 |
+| world | The rivals as characters, the power ranking | 2 | 0 | 2 | 1 | 2 | 2 | 9 |
+| world | The bad blood | 2 | 1 | 2 | 1 | 1 | 2 | 9 |
+| world | Festival season and the conventions | 2 | 2 | 1 | 1 | 1 | 2 | 9 |
+| world | The tour | 2 | 1 | 2 | 1 | 1 | 3 | 10 |
+| world | The press and the public eye | 2 | 0 | 2 | 2 | 2 | 2 | 10 |
+| world | The rival relationship (offer, JV, society, clash) | 2 | 2 | 2 | 2 | 1 | 2 | 11 |
+| world | The Japan cycle | 2 | 2 | 2 | 2 | 1 | 2 | 11 |
+| world | Award night and the year-end | 2 | 1 | 2 | 2 | 2 | 2 | 11 |
+| world | The fandom as a character | 2 | 2 | 2 | 2 | 2 | 2 | 12 |
+| world | The PR desk and the discourse | 3 | 2 | 1 | 2 | 2 | 3 | 13 |
+| world | The scouting trip, the school visit, the market | 3 | 3 | 3 | 2 | 3 | 3 | 17 |
+
+**What already meets the bar.** The clamor and the solo era (17),
+the scouting board with the schools and the market (17), the red
+weeks and the last statement (16), the debut (15), the office door
+and the friction stream (15), the landing and the music-show weeks
+(14). These are the loops the last two years built on purpose and
+they read like it — a board or a file the player returns to, doors
+during the run, memory afterwards. The spotlight's 8 is partly by
+design ("presence, not power", §88): its reads and flavor are the
+best in the game and it was never meant to decide anything; its gap
+is that the sightings never accumulate.
+
+### What the four slices agree on
+
+**1. Arc and teeth are deep; the event is thin.** The §91 comeback
+work pays and remembers almost everywhere (Arc 3, Teeth 3 on the
+landing, the shows, the debut) and rarely happens to the player as a
+night. The release is one tick: twelve letters arrive at once and
+the one that says it landed is `high`, not critical, so a loud week
+can trim it (sim.js:160). The era has no end: `promoUntil` passes
+and nothing in the engine reads its passing — no last stage, no
+tally, no letter (every reader of promoUntil is a guard). The
+repackage is one button whose own announcement the engine composes
+and the UI throws away (debut.js:393 returns the note; app.js:1163
+toasts its own line), with no choice inside it and no mark in the
+discography (`repackageOf` is rendered nowhere). The pressing's card
+promises a memo ("overpress and the warehouse writes the memo",
+views_studio.js:469) that was trimmed in §89 and never came back —
+`overpress` is computed, archived and shown nowhere. The commission
+is four picks, two silent weeks and a chip; the pitch is a card list
+that refreshes without a letter. The same shape on the road: the
+tour is four knobs, then two to eight weeks of near-identical
+normal-priority leg letters (only the airport is critical,
+tour.js:279), then a one-line count; the engine rates every night
+(stage.js:264-268 sells the next week on it) and none of it reaches
+a door, a Today card or the calendar strip (sim.js's upcoming lists
+no legs); the encore is automatic (tour.js:172-174). Festival season
+is the most frequent scene in the game and the thinnest per
+occurrence: one invite body, one sentence per night, and the booked
+slot vanishes from every page until it plays. The Japan weeks are a
+button, a fade to black and a letter.
+
+**2. The people's lifespans have doors at the forks and nothing
+between.** The trainee years: two dials, four silent weeks, an
+evaluation sheet written at `flavor` priority (rituals.js:112,124)
+— the trainee's only ceremony is the first letter the week trims —
+and the three-year trainee paper is rendered nowhere (no `js/ui`
+reader of `traineeContract`). The list on the wall, the most
+repeated ceremony of a career, is a modal of the exec's sentences
+(app.js:1116-1130) with no letter for the room and no door for the
+ace left off. The absences are the purest plan → wait → result loops
+left: a two-year service chapter is a chip and a date, "the desk has
+no verbs here; nobody does", and both unanswered service doors file
+their default at no cost (military.js:228-235, 266-271). How a group
+ends is a status flip with a good sentence on it: the farewell lap
+is announced ("the staff have started filming everything",
+contracts.js:306-307) and nothing reads `contract.leaving` for two
+years; the last contract's expiry is one `high` letter; the archive
+card reads "0 members" for an act that ended by expiry because
+`finalLineup` is written only by disbandGroup (group.js:347;
+views_groups.js:44-48); a departed idol's file "stays open forever"
+and is reachable from no list; no rival ever signs her and no "she
+debuted elsewhere" letter exists.
+
+**3. Characters without faces.** Six executives share one voice: the
+`personality` field on every exec (data.js) is read by no engine
+module, the exec has no card, tenure is never shown, and trust at
+"gone" costs nothing (the firing §86 E3 deferred). The funds are a
+hash-picked letterhead per week, so no fund remembers you. The
+rivals have a philosophy word and a scoreboard, no head, no voice,
+no door, and no memory of what you did to them — `founderGrudge` is
+an exemption flag, never behaviour. The national chart's titans have
+no page and never crowd your week (`crowdPenalty` counts rival
+releases only, industry.js:340-343). The press is a voice without an
+outlet. The staff are hired as people through the best-composed scene
+in the company slice and then kept as multipliers: no review, no
+credit, no leaving on their own terms (nothing in hires.js retires or
+resigns a chair; the bot never releases one). The board, unless
+founded, has no names; the founder's three speak twice per career.
+The fandom has fourteen named regulars and keeps receipts, and its
+only event is the truck.
+
+**4. Silence is often the safe answer.** The house law is that
+silence has teeth, and most of the game honours it (the door, the
+friction stream, the table, the red weeks). The exceptions, every one
+verified: the red-ink scene expires free where both answers cost
+(money.js:314-318); the diagnosis expires into full rest with no mark
+on anyone (medical.js:107-117); the service plan and the papers
+expire into their defaults at no cost; the offer's "leverage" is
+budget and trust against decline's smaller trust with nothing
+recorded — strictly dominant (risefall.js:338-346); the festival's
+"send regrets" writes a ledger count while the letter says "the
+organizers keep notes" (festivals.js:196-207); the distributor's
+"stay" is a toast, and because nothing records the refusal the
+courting call re-opens the next week with a high letter for as long
+as the number holds (money.js:239-247); board season's "point at the
+artists" does nothing (staff.js:128); the new chair's two answers
+both reward (tenure.js:149-158); the promo offer's decline promises
+"they wrote it down" while only cancellations write the broadcaster's
+ledger (promo.js:243-246); the interview's pass is forgotten by the
+market; the lightstick is a one-shot net gain with no trade-off
+(constituency.js:168-169); the café notice and the fandom-name
+choice are cosmetic; unpairing writers and defusing a rivalry are
+silent; the met mandate is consumed with no letter (mandate.js:
+88-102).
+
+**5. Depth that exists and cannot be reached or read.** The engine
+computes `KP.gravityWord` — the transcendence read in words, "one of
+the room" to "bigger than the group?" — and no view renders it; the
+clamor arrives as a chip after the feature. `renewalRead` bands the
+table two years early and is never surfaced before the folder.
+`p.evalHistory` keeps twelve ranks and the board shows the last.
+`toursDone` and the tour's per-member stage counts are never
+rendered; there is no tour record. `jpFans`, the rung ladder and the
+partner are never a page. The distributor's tier, the fanclub's tier
+and anniversary, the running quarter (`books.cur`), the exec's
+tenure, `objectiveHistory`, `state.career`, `estate.folded`, the
+first trophy's week, the road manager's name on a card — none has a
+reader in `js/ui`. The choreographer's track record is "written and
+never read" by its own module's admission (pipeline.js:222-226);
+writer heat exists in the ledger and is shown nowhere. The returnRun
+scene — the alum's return to the stage with her old group, the one
+door that would make the solo era bittersweet — opens only for a solo
+act with `originGroupId`, which only graduateToSolo writes, and
+graduateToSolo has no UI and no bot call: a registered scene nobody
+can reach. releaseSoloAlbum is bot-only.
+
+**6. The one queue.** Every "she comes to you" scene — the five
+frictions, the two door asks, the two gravity knocks, the scar, the
+spotlight's call, the walkout — goes through one weekly pick
+(knock.js:54-76; KNOCK gapWeeks 1, chance .6, personGapWeeks 6).
+Whatever the roster, the player answers one person-question every
+two or three weeks and a given person knocks at most every six. This
+is a ruled cadence (§40), not a bug, and it is why a six-member room
+with three live frictions still yields one question a fortnight and
+why the quiet no — the stream's best scene — never reached the soak.
+It is a lever for the owner's hand, named here because every
+person-depth release below pours into the same funnel.
+
+**7. The inbox law trims the game's own moments.** The law is right
+(five a week, critical bypasses) and some of what it trims is the
+climax: the landing letter at `high`; the evaluation sheet and the
+Season's Greetings at `flavor`; the tour's leg letters at normal; the
+catalog push's wind-down at `flavor`; and weeks 44–48 pile the
+greetings, the nominations, board season, the gayo invitation, the
+awards and the Q4 close against the same five slots. Two signposts
+mislead: the landing says "Full report in the Studio" and the report
+button lives on the group page (sim.js:162, views_groups.js:521); a
+debut's first stage is labeled "THE COMEBACK STAGE" (shows.js:273).
+One modal contradicts the engine: launching the in-house solo career
+says "{She} leaves the lineup warmly" while the engine keeps her
+seat (app.js:838 vs gravity.js:94).
+
+**8. Flavor is the weakest column outside the record.** The §93
+expansion gave the heavy inds families and left the scene bodies and
+the money letters alone: eleven of fourteen company loops and nine of
+twelve world loops are single templates where the season got
+families — every saga letter, the offer, the fund's sheet, the
+quarterly close (52 identical letters a career), the rungs of the red
+ladder, the obituary, the festival night, the tour's three city
+lines, the service's every letter ("the event the whole anticipation
+system builds toward" has no family). A player who dies twice reads
+the identical page.
+
+**9. Three reveal-law slips.** "Since debut: Vocals +7 · Dance +3"
+(views_talent.js:426-435) prints raw deltas of the hidden talent
+scale — deliberate in §88 C ("the work, in numbers") and flagged by
+two slices independently; a band word would keep the law. The solo
+project's "cut numbers" print the composite score as digits (debut.
+js:1258). Three letters print "Reception N" raw where the Career tab
+uses the word (gravity.js:488-491, group.js:438, outside.js:262).
+Borderline: the power ranking's score column (views_industry.js:
+104-110) — the deltas and ranks carry the read alone.
+
+### The shelf — agreed and unbuilt
+
+Ruled or planned in earlier sittings, never scheduled, still true:
+**the imprint** (§55.11, §39 slot 13 — the associate label, the
+founding machinery in reverse, "next on approval" three ledger
+entries running before the §80 consult overtook it); **the wardrobe
+department** (§39 slot 14 — named stylists and choreographers with
+chemistry, poachable; today stylists are flavor strings and the
+eight choreographers cannot be chosen); **the player-owned academy**
+(§84's own prequel, "the long answer" to the powers' head start);
+**the offer's accept path** (running the imperial house, §73 S18 —
+the succession machinery it needed exists); **the firing** (§86 E3 —
+trust at "gone" has no consequence). Capacitor stays parked by
+ruling.
+
+### The recommendation
+
+Ordered by how often a human lives the loop times how silent it is,
+with the cheap wiring first because every release after it reads
+better once the existing depth is reachable. Each is a full-ritual
+release; shapes only, numbers measure-first; the bot learns every
+verb; the owner reorders at will.
+
+**1. The wiring (depth hygiene — one release, like the audit).** Make
+what exists reachable and honest: render gravityWord, the renewal
+forecast in words, evaluation trajectory, the trainee paper, the tour
+record and `toursDone`, festival bookings on the strip and the group
+page, the Japan ladder, the distributor and the fanclub on the books
+card, the running quarter, the exec's tenure and the chapters; the
+warehouse memo and a restock door; the repackage's note sent and
+`repackageOf` in the discography; the landing letter critical and
+first in its week; the evaluation sheet and the greetings on a
+priority ladder; the signposts and the modal copy fixed; the free
+answers given their cost (leverage recorded on the rival, regrets
+remembered by the organizer, "stay" remembered by the distributor,
+the red-ink and service expiries with a mark, the board's third
+answer with a meaning, the interview's pass with a memory); the three
+reveal slips banded; graduateToSolo given a door or returnRun
+retired. Measured by the same soak; nothing about outcomes moves.
+
+**2. The stages, lived (the tour and festival season).** The season's
+shape on its nearest cousin. An "On the road" Today card like "On the
+air": the next city named before it plays, the room against demand in
+words, last night's band. Doors during the road: the encore offer at
+a sold-out stop (second night / rest the room / move on — today the
+encore is automatic), the road presser after a fumbled night
+(statement / ride, the edit's shape), the setlist swap when the
+fandom's b-side pick is loud. A weekly moment family (the crowd sang
+her lines, the ment that went long, the sign in two languages, the
+rain set) through `momentOf`'s pattern. The wrap read city by city as
+a ceremony — the night that went wrong and the one that went right —
+and a tour record on the group page. Festivals on the same machinery:
+the bill announced four weeks out with the headliner named and the
+slot on the strip; the set as a door inside the invite (the hits /
+the deep cut / the collab with the society friend on the same bill);
+the night reusing `stageRead` plus a moment family; headlining a
+tier-3 bill as a critical ceremony letter; regrets counted and read
+back by the next organizer. The Japan weeks get the same card and
+one in-country moment a week.
+
+**3. The era, closed (every comeback's second half).** An `eraClosed`
+family the week promotion ends — the last stage, the tally in words
+(trophies, best chart week, the chodong's standing, the critics'
+consensus), the room's state, the window if the drawer is stocked —
+the ceremony the whole comeback lacks. The reissue as a scene
+(`theReissue`: the A&R chair's pick as the bot's default, the fans'
+pick, let it rest) with its MV tier and rounds shown instead of
+inherited; announced through `eraAnnounced`'s family; the landing's
+`eraExtended` reading the first act against the second; the
+discography marking it. The pressing's pre-order week as a read and
+the restock as a door. The debut's first stage named as a debut
+stage.
+
+**4. The long goodbye (how a group ends).** The farewell lap as an
+object once the table sets `contract.leaving`, with three readers:
+the release (a farewell-era mod and a note, hiatusReadsRelease's
+shape), the last stage (critical, a family by voice), the member desk
+(one door: tell the fans now or keep it in-house until the last era,
+the fandom's temperature as the cost either way). The warm exit's
+handwritten letter as a claim with a date and the bow read in reverse
+like the finale — the eras, the center weeks, the trophies, the
+friend she leaves, the chair she keeps. The disband as a scene with
+doors (the last concert on the fancon machinery, the quiet statement,
+the farewell record through the studio) and a final statement naming
+what each member does next. `finalLineup` written on every ending;
+an alumni strip so the open files are reachable; a departed idol who
+can be signed across the street and a letter when she debuts there.
+
+**5. The practice room, attended (the trainee years as episodes).**
+The evaluation sheet on a priority ladder (critical at a first #1,
+the line or the talk; high within one of the line; flavor only when
+nothing moved) naming the month's mission, her place and movement,
+the line and one hash-picked moment that never repeats its kind
+(the season's `lastMomentKind` shape); trajectory on the board from
+`evalHistory`; a monthly theme the coaches announce so the two dials
+have a reason to move; one door a month through the one queue (the
+after-eval talk as a scene; the showcase slot as a pick); the
+year-end sheet read in reverse as the loop's ceremony. The posting as
+a critical letter for the room with a door for the ace left off. The
+absences given a cadence from the fandom's side (the countdown
+project, a letter from the base at the half, "whole again" as a
+ceremony with the return stage named).
+
+**6. The other side of the wall (rivals and the press as people).** A
+hash-stamped HEAD per signing house (an invented name and a temper
+word in the schools' pattern), shown on the card and quoted yearly in
+the ranking letter through a family per temper. A directed ledger per
+rival the way people have one (`tookOurWeek`, `lostHeadToHead`,
+`signedTheirCastoff`, `declinedTheirJV`, `leveragedTheirOffer`,
+`poachedFromUs`), read on the card in words and weighting what the
+physics already roll (the ambush's target, intake interest, the JV
+partner, the offer's suitor). One recurring door, `rivalCall`, opened
+by temper (a borrowed stage week, a trainee swap, a joint gayo stage
+with the society friend, a truce after a named rivalry), the polite no
+as the bot's default. The overtake as a two-letter event ("the seat
+is in play" in December, the ranking in January). The national
+titans' mega-weeks on the strip through `announcedWeek` so they crowd
+you and the date picker can see them; a torch letter when one
+retires. The press given an outlet and a critic with memory — a
+feature the player can sit for or refuse.
+
+**7. The people upstairs and down the hall (the exec, the staff, the
+company's file).** The exec's `personality` finally read: a question
+family per type (the profit hunter asks about the quarter, the
+traditionalist about the vocal room, the micromanager about a trainee
+by name from the eval board, the trend chaser about the sound of the
+year); an annual review scene at board week in her voice with trust
+bands that gate something visible — at "gone", probation with a dated
+directive and the salaried door as the exit, which is the deferred
+firing; a small exec-side ledger so the pitch she granted and the
+greenlight honoured are remembered in words, and succession transfers
+a record instead of a number. The staff given years: a yearly word
+from each chair about her own room, credit on the eras she coached, a
+tier-rise letter, leaving on her own terms, a market that remembers a
+pass. The company's own file: a durable history written by the rails
+that already fire (first debut, first trophy, first #1, the
+breakthrough, settlements, foundings, successions, red episodes), a
+"The company" page beside The record with the founding, the chapters
+and the years under this manager (whose title finally changes), a
+company anniversary on the founding week reusing the group
+anniversary's family, and a year-end letter at week 48 from the
+company to itself as the yearly accounting.
+
+**8. The writing room talks back (the pitch and the commission as
+meetings).** `thePitch` the week the demos land (take the sheet as it
+is — the bot's lane; hear the pushed producer's second demo, priced;
+send the wildcard back, his snub counter moving; ask for a rewrite
+for the room); a `pitchMeeting` family and the demo-opinion strings
+made families by salt. `theRewrite` on the commission's first-listen
+moments (keep the brief / let them move / pull it); demo day as a
+scene with the two seats' fogged lines (take it, shelve it to the era
+drawer — feeding the reissue — or one more week). Writers as people:
+heat words from the ledger that already exists, a `houseVoice`
+narrative on the third record together, the writer's name in the
+critics' quote when the lyric carried the record. The wardrobe
+department from the shelf attaches here or to release 2: the stylist
+chair, the choreographer chosen by name.
+
+**Then the shelf, on the owner's call:** the imprint as the late-game
+capstone (the founding machinery in reverse), the player-owned
+academy, the offer's accept path.
+
+**What this order leaves alone, on purpose.** The fandom (12) gains
+its history page inside release 7 and its named nights inside
+release 2 rather than a release of its own. The PR desk's missing
+memory (a company that always apologises) is one ledger and a family,
+a rider on release 6. The booking pile's towns with no promoter and
+the financing's faceless funds are the same finding as the rivals'
+missing heads — faces — and ride releases 6 and 7. No new market, no
+new money instrument, no new system: everything above deepens a loop
+a human already plays many times a career. The §39 honest
+constraints stand — content is the budget (families × voices), and
+the one queue is the ceiling on person-decisions until the owner
+moves it.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -12509,6 +12978,30 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 19, edits 13, episodes with ours 20 (every org that sent). Suite_114
 > (41). Battery 114/114, soak 40 clean, longhaul 11x620, e2e 134,
 > lockstep 0.11.4. Rode to main.
+
+> **Planning — the depth survey (§96, docs only).** Owner: "Where
+> does this leave us? Can you take a look at what needs more depth
+> and give me a report?" Four read-only slices, 49 loops graded on
+> six axes against the season's bar, every grade cited to the code
+> and the load-bearing claims re-read before writing; the inventory
+> and a texture probe over the 40-seed soak (a scene waits in 71% of
+> weeks; five small asks are more than half of all decisions; nine
+> scenes never open in 130 bot-years; 160 letters a year carry no
+> ind). The nine agreements: arc and teeth deep, the event thin (the
+> era never closes; the repackage's own letter is thrown away; the
+> warehouse memo promised and never sent); the people's lifespans
+> silent between the forks (the sheet trimmed as flavor; the list on
+> the wall a modal; the archive card's "0 members"); characters
+> without faces (six execs, one voice — personality read by
+> nothing); silence the safe answer at a dozen doors; depth that
+> exists unreached (gravityWord unrendered, returnRun behind a verb
+> with no door); the one queue; the inbox law trimming the climax;
+> flavor single outside the record; three reveal slips. The shelf
+> (the imprint, the wardrobe department, the own academy, the
+> accept path, the firing). Eight releases recommended in order:
+> the wiring, the stages lived, the era closed, the long goodbye,
+> the practice room attended, the other side of the wall, the people
+> upstairs, the writing room. No code.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
