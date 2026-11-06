@@ -170,10 +170,16 @@
             g.cohortNotedYear = curYear;
             // once a year per act — it lands (v0.10.38: the promotion's
             // letters crowded it out of the week; a class line-up is a story)
+            const mates = classmates.slice(0, 3).join(', ');
             inbox.push({ kind: 'public', ind: 'debutClass', priority: 'high', groupId: g.id,
-              text: 'Award season did the thing it does every year: the fan accounts lined up the Year ' + debutYear +
-                ' debut class — ' + g.name + ', ' + classmates.slice(0, 3).join(', ') +
-                ' — side by side, then and now. Same starting line, very different roads. The quote-posts are a whole genre tonight.' });
+              text: KP.lineFor(state, 'debutClass|' + g.id, [
+                'Award season did the thing it does every year: the fan accounts lined up the Year ' + debutYear +
+                  ' debut class — ' + g.name + ', ' + mates + ' — side by side, then and now. Same starting line, very different roads. The quote-posts are a whole genre tonight.',
+                'The Year ' + debutYear + ' debut class got its annual line-up tonight — ' + g.name + ', ' + mates +
+                  ' — the same photo grid the fan accounts make every award season, then and now. The replies are a referendum.',
+                'Award season, and the fan accounts did the Year ' + debutYear + ' debut class again: ' + g.name + ' beside ' + mates +
+                  ', debut stage next to latest stage. Same starting line. The quote-posts argue about everything after it.',
+              ]) });
           }
         }
       }

@@ -465,7 +465,13 @@
     });
     g.prep.progress++;
     const weeksLeft = g.prep.scheduledWeek - state.week;
-    if (weeksLeft === 2) notes.push({ kind: 'debut', text: g.name + ': two weeks out. Teasers are cut, the stage is booked, and everyone is sleeping badly.' });
+    if (weeksLeft === 2) notes.push({ kind: 'debut', text: KP.lineFor(state, 'countdown|' + g.id, [
+      g.name + ': two weeks out. Teasers are cut, the stage is booked, and everyone is sleeping badly.',
+      g.name + ': two weeks out. The choreography is locked, the stylists have opinions, and the van has started running on coffee and dread.',
+      g.name + ': two weeks out. The guide vocal is final, the MV is in color grading, and the members have started counting sleeps like children.',
+      g.name + ': two weeks out. Somebody printed the schedule and taped it to the practice-room door, and somebody else has already annotated it.',
+      g.name + ': two weeks out. The building is quiet in the specific way it gets before a release — everyone busy, nobody talking about it.',
+    ]) });
     return notes;
   };
 
@@ -490,8 +496,14 @@
       state.grievances = state.grievances || [];
       state.grievances.push({ week: state.week, kind: 'overwork', groupId: mg.id, personId: m.id });
     }
+    const N = KP.displayName(m);
     return { kind: 'health', urgent: true,
-      text: KP.displayName(m) + ' was pulled from ' + where + ' by medical staff this week. The official word is “scheduled rest.” The honest word is exhaustion, and everyone in the building knows whose calendar caused it.' };
+      text: KP.fillPro(KP.lineFor(state, 'bench|' + m.id, [
+        N + ' was pulled from ' + where + ' by medical staff this week. The official word is “scheduled rest.” The honest word is exhaustion, and everyone in the building knows whose calendar caused it.',
+        'Medical staff pulled ' + N + ' from ' + where + ' this week — the clinic used the word “depleted,” the company used “scheduled rest,” and the calendar that did it is on your desk.',
+        N + ' did not finish ' + where + ' this week: {she} sat down between runs and did not get up, and the medical staff made the decision {she} would not. Exhaustion. The schedule has a name on it.',
+        'The clinic benched ' + N + ' this week — ' + where + ' is off {pos} calendar until further notice. {She} argued. The doctor did not. Everyone in the building knows whose calendar caused it.',
+      ]), m) };
   };
 
   // Weekly promotion under the rollout plan (v0.6.3): each promo week

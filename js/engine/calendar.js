@@ -65,8 +65,13 @@
         // quiet week (v0.10.29, §89 Phase 1 — measured 17 kept/org-year at normal)
         notes.push({ kind: 'industry', ind: 'comebackAnnounce', priority: 'flavor', actName: a.name,
           company: r.short, releaseWeek: due,
-          text: r.short + ' announced ' + a.name + '’s comeback for ' + KP.weekLabel(due).text +
-            '. The date is public, which means the date is a statement. Plan around it — or through it.' });
+          text: KP.lineFor(state, 'announce|' + a.id, [
+            r.short + ' announced ' + a.name + '’s comeback for ' + KP.weekLabel(due).text + '. The date is public, which means the date is a statement. Plan around it — or through it.',
+            r.short + ' announced ' + a.name + '’s comeback for ' + KP.weekLabel(due).text + '. A date is a claim on a week. Note which one.',
+            'Trades this morning: ' + r.short + ' announced ' + a.name + '’s comeback for ' + KP.weekLabel(due).text + '. The teaser schedule follows; the week is theirs unless someone argues.',
+            r.short + ' announced ' + a.name + '’s comeback for ' + KP.weekLabel(due).text + ' — the kind of date that is picked to crowd something. Check the calendar for what.',
+            'Calendar: ' + r.short + ' announced ' + a.name + '’s comeback for ' + KP.weekLabel(due).text + '. The fan accounts have started the countdown; the desk should at least note the number.',
+          ]) });
       }
     });
 

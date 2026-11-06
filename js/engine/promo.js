@@ -184,10 +184,19 @@
       KP.openScene(state, { kind: 'promoOffer', groupId: g.id, offerKind: offer.kind, activity: offer.activity,
         personId: offer.personId || null, why: offer.why, slotWeek: nextIdx, replace, expiresWeek: state.week });
       const A = KP.C.ROLLOUT.ACTIVITIES;
+      const lead = offer.kind === 'show'
+        ? KP.lineFor(state, 'offerShow|' + g.id, [
+          A[offer.activity].label + '’s booking desk called about next week — a slot for ' + g.name + ' on the strength of ' + offer.why + '.',
+          'A call from ' + A[offer.activity].label + ': they have a slot next week and they want ' + g.name + ' in it — ' + offer.why + ' did the talking.',
+          A[offer.activity].label + ' has an opening next week and asked for ' + g.name + ' by name, citing ' + offer.why + '.',
+        ])
+        : KP.fillPro(KP.lineFor(state, 'offerVariety|' + g.id, [
+          'The variety producers called about next week — they want ' + KP.displayName(state.people[offer.personId]) + ' on the panel, and the group comes with {her}.',
+          'The variety desk wants ' + KP.displayName(state.people[offer.personId]) + ' next week — a panel seat, with the group in the shot.',
+          'Variety called: ' + KP.displayName(state.people[offer.personId]) + ' tested well with the writers’ room, and a panel slot opened for next week. The group rides along.',
+        ]), state.people[offer.personId]);
       inbox.push({ kind: 'company', ind: 'promoOffer', priority: 'high', groupId: g.id,
-        text: (offer.kind === 'show'
-          ? A[offer.activity].label + '’s booking desk called about next week — a slot for ' + g.name + ' on the strength of ' + offer.why + '.'
-          : 'The variety producers called about next week — they want ' + KP.displayName(state.people[offer.personId]) + ' on the panel, and the group comes with her.') +
+        text: lead +
           (replace ? ' Taking it means cancelling ' + A[replace].label + (A[replace].show ? ', and their desk will remember.' : '.') : ' Next week has room.') +
           ' The invitation is on the Desk; it answers within the week.' });
     });

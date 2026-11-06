@@ -79,6 +79,16 @@
     feedReactions[ind] = fn;
   };
   KP.feedReactionFor = function (ind) { return feedReactions[ind] || null; };
+  // the family (v0.11.2, §93): one mechanism, several sentences — a line
+  // picked by hash (the seed, a salt, the week), never a draw, so a family
+  // can grow without moving the stream; `last` skips what was said last time
+  KP.lineFor = function (state, salt, lines, last) {
+    if (!lines || !lines.length) return '';
+    if (lines.length === 1) return lines[0];
+    let i = Math.floor(KP.hash01([state.seed, salt, state.week].join('|')) * lines.length);
+    if (last != null && lines.length > 1 && i === last) i = (i + 1) % lines.length;
+    return lines[i];
+  };
   KP.feedReactionInds = function () { return Object.keys(feedReactions); };
 
   // ---- 3. the weekly pipeline -------------------------------------------

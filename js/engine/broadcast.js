@@ -230,7 +230,12 @@
         const nar = KP.recordViral(state, p, { kind: 'wecast', label: 'a WeCast upload' });
         if (nar) inbox.push(nar);
         inbox.push({ kind: 'public', ind: 'castViral', priority: 'high', personId: p.id,
-          text: KP.fillPro('A ' + KP.displayName(p) + ' WeCast upload broke containment overnight — reposted by accounts that have never once covered this label. The channel {she} pitched in a meeting is outperforming campaigns the company paid for.', p) });
+          text: KP.fillPro(KP.lineFor(state, 'castViral|' + p.id, [
+            'A ' + KP.displayName(p) + ' WeCast upload broke containment overnight — reposted by accounts that have never once covered this label. The channel {she} pitched in a meeting is outperforming campaigns the company paid for.',
+            KP.displayName(p) + '’s WeCast upload broke containment — the repost chain went through accounts that cover the industry, then accounts that cover nothing. {Pos} own channel, pitched in a meeting, is now the label’s best campaign.',
+            'Overnight, a ' + KP.displayName(p) + ' WeCast upload broke containment: quote-posted by the general-interest accounts, clipped by the aggregators, replied to by a brand. Marketing did not plan it and will take credit by Friday.',
+            'The ' + KP.displayName(p) + ' WeCast channel broke containment this week — one upload, the right thirty seconds, every repost account at once. The campaign the company paid for is now the campaign running behind {her}.',
+          ]), p) });
       }
       if (rng.chance(gaffeChance(state, p))) {
         gaffe(state, rng, inbox, p, 'this week’s upload');

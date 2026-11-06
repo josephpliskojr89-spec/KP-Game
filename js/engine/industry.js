@@ -655,8 +655,11 @@
                   ? 'These are ' + rival.short + '-trained names the public already half-knows — they take meetings on THEIR terms: the debut in writing, at a price that reflects who paid for the coaching. And some of them are done with all of it, which you find out when you make the offer.'
                   : 'Trained, dated files, and a short window before the market or the quiet takes them. Some of them are already done with the industry — the file does not say which.') });
           } else if (cut >= R.cullNoteAt) {
-            notes.push({ kind: 'industry', text: rival.short + '’s seasonal evaluation cut ' +
-              cut + ' from the trainee floor. The company calls it aligning the room with the roadmap. The room calls it Tuesday.' });
+            notes.push({ kind: 'industry', text: KP.lineFor(state, 'evalCut|' + rival.short, [
+              rival.short + '’s seasonal evaluation cut ' + cut + ' from the trainee floor. The company calls it aligning the room with the roadmap. The room calls it Tuesday.',
+              rival.short + ' trimmed ' + cut + ' from the trainee floor at the seasonal evaluation. The statement used the word “restructuring.” The practice room used shorter words.',
+              'Evaluation season at ' + rival.short + ': ' + cut + ' trainees out, one memo, no names. The industry reads these the way weather is read — nobody is surprised, everybody dresses for it.',
+            ]) });
           }
         }
       }
@@ -768,8 +771,13 @@
           if (rel.reception >= I.comebackNoteMin) {
             notes.push({ kind: 'industry', ind: 'rivalHit', actName: act.name, company: rival.short, actGender: act.gender || 'f',
               songTitle: rel.title,
-              text: act.name + '’s “' + rel.title + '” is everywhere this week. ' + rival.short +
-                ' will be insufferable about it, and the music shows just got harder to win.' });
+              text: KP.lineFor(state, 'rivalHit|' + act.id, [
+                act.name + '’s “' + rel.title + '” is everywhere this week. ' + rival.short + ' will be insufferable about it, and the music shows just got harder to win.',
+                'You cannot get a coffee without hearing ' + act.name + '’s “' + rel.title + '” this week. ' + rival.short + ' booked every slot that was still open, and the ones that were not.',
+                act.name + ' landed “' + rel.title + '” and the chart moved to make room. ' + rival.short + '’s staff have started answering the phone in a different tone.',
+                '“' + rel.title + '” — ' + act.name + ', ' + rival.short + ' — is the song this month, which means every stage you want next month is a negotiation now.',
+                act.name + '’s “' + rel.title + '” is the kind of hit that changes who gets the good rehearsal slots. ' + rival.short + ' will not say so out loud. They do not need to.',
+              ]) });
           }
         } else {
           act.popularity = Math.max(0, act.popularity - I.actPopDecay);
@@ -820,7 +828,11 @@
               flag.huntNoted = 1;
               notes.push({ kind: 'industry', ind: 'flagshipHunt', priority: 'high',
                 actName: flag.name, company: rival.short,
-                text: rival.short + ' has made it policy: ' + flag.name + ' goes wherever the top of the scene goes. Bigger budgets, better slots, a release cadence that mirrors ours a little too precisely. The trades are calling it a chase. The trades are right.' });
+                text: KP.lineFor(state, 'flagship|' + flag.id, [
+                  rival.short + ' has made it policy: ' + flag.name + ' goes wherever the top of the scene goes. Bigger budgets, better slots, a release cadence that mirrors ours a little too precisely. The trades are calling it a chase. The trades are right.',
+                  rival.short + ' has stopped pretending: every budget line, slot and release date at the company now serves ' + flag.name + '’s run at the top of the scene. The cadence mirrors ours too closely to be coincidence.',
+                  'The trades call it a chase and they are right: ' + rival.short + ' is pushing ' + flag.name + ' at the ceiling of the scene with bigger budgets, better slots and a release calendar that shadows ours.',
+                ]) });
             }
           }
         }
@@ -1313,11 +1325,20 @@
           ? { persona: 'stan', text: gName + ' sold out ' + (n.region === 'kr' ? 'the hometown show' : KP.regionLabel(n.region)) + ' in MINUTES. resale is a crime scene. we did this. book a stadium, cowards' }
           : n.soft
             ? { persona: 'anti', text: 'the curtained-off sections at the ' + gName + ' show… someone in that company cannot read a map. the fans deserve better routing' }
-            : { persona: 'casual', text: 'went to the ' + gName + ' show on a whim. no notes. whole room on one heartbeat. concerts are just better than everything else' })
+            : rng.pick([
+              { persona: 'casual', text: 'went to the ' + gName + ' show on a whim. no notes. whole room on one heartbeat. concerts are just better than everything else' },
+              { persona: 'casual', text: 'the ' + gName + ' show tonight had a moment in the encore where the whole hall went quiet and then did not. I was there. I will be insufferable about it' },
+              { persona: 'fan', text: gName + ' live is a different group. the album is the map; the show is the country. go. just go' },
+              { persona: 'casual', text: 'walked past the ' + gName + ' venue after the show and the line for merch was longer than the line for the train. the city belongs to them tonight' },
+            ]))
 ;
       } else if (n.ind === 'tourEnd') {
         const gName = (KP.groupById(state, n.groupId) || { name: 'they' }).name;
-        posts.push({ persona: 'fan', text: gName + ' tour wrap vlog: crying in six airports, one (1) perfect encore, and my bank account in witness protection. worth it. do it again' });
+        posts.push(rng.pick([
+          { persona: 'fan', text: gName + ' tour wrap vlog: crying in six airports, one (1) perfect encore, and my bank account in witness protection. worth it. do it again' },
+          { persona: 'fan', text: 'the ' + gName + ' tour is over and the members posted the group photo from the last stage with no caption. no caption was the caption. I am fine' },
+          { persona: 'stan', text: gName + ' tour: every city, every setlist change, every ad-lib — logged. the archive thread is 400 posts. the archive thread is my child' },
+        ]));
       } else if (n.ind === 'conceptPivot') {
         const gName = (KP.groupById(state, n.groupId) || { name: 'they' }).name;
         posts.push(n.landed
@@ -1422,15 +1443,31 @@
     const posts = [];
     // always-on timeline chatter (v0.7.3): the scene talks even on the
     // quietest week — these two guarantee the raised floor holds
+    // the family (v0.11.2, §93): the always-on pools grew from three to ten
+    // each — the same two draws a week, a wider room of sentences
     posts.push(rng.pick([
       { persona: 'casual', text: 'weekly reminder that following this industry is a part-time job with no pay and I keep showing up early' },
       { persona: 'fan', text: 'cleaning my camera roll and it is 90% stage screenshots. no regrets. some archives curate themselves' },
       { persona: 'casual', text: 'the group chat is arguing about title tracks again. day ' + (state.week % 100) + '. nobody has been right yet' },
+      { persona: 'casual', text: 'learned three new fandom names this week and forgot my own password. priorities are in order' },
+      { persona: 'fan', text: 'my “just one more fancam” has lasted four hours and a full phone battery. the algorithm knows me and I respect that' },
+      { persona: 'casual', text: 'the industry does more in a tuesday than my office does in a quarter. not a complaint. an observation. ok a complaint' },
+      { persona: 'fan', text: 'set an alarm for a teaser drop in a timezone I do not live in. this is a lifestyle, not a hobby' },
+      { persona: 'casual', text: 'every music show stage looks the same to my coworkers and completely different to me. I have been ruined in the best way' },
+      { persona: 'fan', text: 'my lock screen has changed four times this month. my personality has not. growth is nonlinear' },
+      { persona: 'casual', text: 'someone asked me to explain the comeback cycle and forty minutes later they were nodding slowly. welcome' },
     ]));
     posts.push(rng.pick([
       { persona: 'stan', text: 'streaming schedule posted. hydration schedule posted. we are ORGANIZED this comeback season' },
       { persona: 'press', text: 'Weekly desk note: the fourth-generation calendar has no quiet weeks anymore. The scene simply does not stop.' },
       { persona: 'fan', text: 'thinking about the trainee era clips again. they were BABIES. growth makes me emotional on a schedule' },
+      { persona: 'stan', text: 'voting guide pinned. streaming guide pinned. the guide to the guides is in the replies. we are a bureaucracy of love' },
+      { persona: 'press', text: 'Weekly desk note: three comebacks, two showcases and a trainee evaluation leaked by a parent. The calendar is a weather system now.' },
+      { persona: 'fan', text: 'rewatched the first showcase. the lighting was bad and the formation was late and I cried anyway. origin stories hit different' },
+      { persona: 'stan', text: 'the fandom spreadsheet has a new tab. the new tab has a new sub-tab. we are not okay and we are very productive' },
+      { persona: 'press', text: 'Weekly desk note: the discourse about the discourse has its own discourse. Somewhere underneath it, songs continue to come out.' },
+      { persona: 'fan', text: 'the practice-room selfie with the wrong exposure is my favorite photo of the year and nobody can take that from me' },
+      { persona: 'stan', text: 'comeback season protocol: sleep is optional, hydration is mandatory, the streaming playlist is law. we have been here before. we will be here again' },
     ]));
     // a hyped trainee the internet has found
     const hyped = state.roster.map(id => state.people[id])

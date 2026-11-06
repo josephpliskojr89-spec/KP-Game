@@ -103,10 +103,25 @@
       const cap = person.flags['ceil_' + d] != null ? person.flags['ceil_' + d] : 100;
       person.talents[d].cur = Math.min(cap, person.talents[d].cur + 2.5);
       person.personality.confidence = KP.clamp(person.personality.confidence + T.confidenceFromBreakthrough, 0, 100);
-      notes.push({ kind: 'breakthrough', text: KP.displayName(person) + ' had a breakthrough week in ' + KP.C.TALENT_LABELS[d].toLowerCase() + '. Something clicked — you could see it from the hallway.' });
+      {
+        const lbl = KP.C.TALENT_LABELS[d].toLowerCase();
+        notes.push({ kind: 'breakthrough', text: KP.fillPro(KP.lineFor(state, 'breakthrough|' + person.id, [
+          KP.displayName(person) + ' had a breakthrough week in ' + lbl + '. Something clicked — you could see it from the hallway.',
+          KP.displayName(person) + '’s ' + lbl + ' moved this week — a real step, the kind the coaches circle twice on the sheet.',
+          'Something clicked for ' + KP.displayName(person) + ' in ' + lbl + ' this week: the run {she} could not land on Monday was routine by Thursday.',
+          KP.displayName(person) + ' found the next gear in ' + lbl + '. The coach pretended not to react and then reacted.',
+        ]), person) });
+      }
     } else if (focus.length && rng.chance(T.plateauChance)) {
       const d = rng.pick(focus);
-      notes.push({ kind: 'plateau', text: KP.fillPro(KP.displayName(person) + ' has plateaued in ' + KP.C.TALENT_LABELS[d].toLowerCase() + '. The coaches suggest changing {pos} focus for a few weeks.', person) });
+      {
+        const lbl = KP.C.TALENT_LABELS[d].toLowerCase();
+        notes.push({ kind: 'plateau', text: KP.fillPro(KP.lineFor(state, 'plateau|' + person.id, [
+          KP.displayName(person) + ' has plateaued in ' + lbl + '. The coaches suggest changing {pos} focus for a few weeks.',
+          KP.displayName(person) + '’s ' + lbl + ' has stopped moving — the same run, the same result, four weeks straight. The coaches want {pos} focus somewhere else for a while.',
+          'The sheet says what the room already felt: ' + KP.displayName(person) + ' is parked in ' + lbl + '. A few weeks on something else usually unsticks it.',
+        ]), person) });
+      }
     }
 
     // overtraining consequences
@@ -139,7 +154,19 @@
     if (sorted.length && rng.chance(0.5)) {
       const star = sorted[0];
       star.personality.confidence = KP.clamp(star.personality.confidence + 3, 0, 100);
-      notes.push({ kind: 'showcase', text: 'Monthly showcase: staff notes are in. ' + KP.displayName(star) + ' drew the most attention on stage this time.' });
+      {
+        const N = KP.displayName(star);
+        const v = KP.voiceOf ? KP.voiceOf(state, star) : 'earnest';
+        notes.push({ kind: 'showcase', text: KP.lineFor(state, 'showcase|' + star.id, [
+          'Monthly showcase: staff notes are in. ' + N + ' drew the most attention on stage this time.',
+          'Monthly showcase: the room was ' + N + '’s this time — the coaches’ notes agree on {her}, which they agree on nothing else.',
+          'Monthly showcase: ' + N + ' took the stage the way people take stages they have decided are theirs. The staff notes use the word “presence” three times.',
+          v === 'deadpan' ? 'Monthly showcase: ' + N + ' did not smile once and nobody looked anywhere else. The staff notes are short and unanimous.'
+            : v === 'sunshine' ? 'Monthly showcase: ' + N + ' played to the back row of a room with no back row, and the back row would have loved it. The staff notes are warm.'
+            : 'Monthly showcase: when ' + N + ' finished, the coaches looked at each other before they looked at the sheet. That is the look.',
+          'Monthly showcase: ' + N + ' drew the most attention on stage, and {she} knew it halfway through, and the second half was better for it.',
+        ].map(x => KP.fillPro(x, star))) });
+      }
     }   // an uneventful showcase says nothing (§89 C)
     return notes;
   };

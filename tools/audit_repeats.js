@@ -17,6 +17,8 @@ const realLoad = loader.loadEngine;
 const TOP = parseInt(process.argv[3] || '40', 10);
 
 const T = { notes: {}, feed: {}, spot: {}, orgs: new Set(), noteTotal: 0, feedTotal: 0, spotTotal: 0 };
+// the ceilings (measure-first, §93): null = unmeasured, no guard
+const CEILING = { notes: { top: null, yearly: null }, feed: { top: null, yearly: null }, spot: { top: null, yearly: null } };
 
 function normalizer(KP, state) {
   // every name the world can speak, longest first so compounds go whole
@@ -108,6 +110,27 @@ process.on('exit', () => {
   report('inbox notes the player kept', T.notes, T.noteTotal);
   report('timeline posts', T.feed, T.feedTotal);
   report('spotlight lines', T.spot, T.spotTotal);
+
+  // the REPEAT INDEX (v0.11.2): one number per surface — how often the
+  // single most repeated template reaches a player in a year, and how many
+  // templates reach a player at least once a year. Measure-first bands:
+  // before §93 (v0.11.1 text) notes 10.7 / 31, feed 2.1 / 4, spotlight 18.1 / 24
+  const index = store => {
+    const rows = Object.values(store).map(v => v.n / yrs).sort((a, b) => b - a);
+    return { top: rows[0] || 0, yearly: rows.filter(x => x >= 1).length };
+  };
+  const ix = { notes: index(T.notes), feed: index(T.feed), spot: index(T.spot) };
+  console.log('\nREPEAT INDEX — notes: top template ' + ix.notes.top.toFixed(1) + '/org-year, ' + ix.notes.yearly + ' templates at ≥1/org-year' +
+    ' · feed: top ' + ix.feed.top.toFixed(1) + ', ' + ix.feed.yearly + ' at ≥1' +
+    ' · spotlight: top ' + ix.spot.top.toFixed(1) + ', ' + ix.spot.yearly + ' at ≥1');
+  const hot = [];
+  Object.keys(CEILING).forEach(k => {
+    const c = CEILING[k];
+    if (c.top != null && ix[k].top > c.top) hot.push(k + ' top template ' + ix[k].top.toFixed(1) + ' > ' + c.top);
+    if (c.yearly != null && ix[k].yearly > c.yearly) hot.push(k + ' yearly templates ' + ix[k].yearly + ' > ' + c.yearly);
+  });
+  if (hot.length) { console.log('REPEATS HOT: ' + hot.join('; ')); process.exitCode = 1; }
+  else console.log('REPEATS CLEAN (ceilings: notes ' + CEILING.notes.top + '/' + CEILING.notes.yearly + ', feed ' + CEILING.feed.top + '/' + CEILING.feed.yearly + ', spotlight ' + CEILING.spot.top + '/' + CEILING.spot.yearly + ')');
 });
 
 // run the soak underneath (its own stdout is the census)

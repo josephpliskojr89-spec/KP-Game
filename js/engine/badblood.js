@@ -198,9 +198,15 @@
       led.masters++;
       const g = KP.groupOf(state, p.id);
       inbox.push({ kind: 'public', ind: 'masterMinted', priority: 'high', personId: p.id,
-        text: KP.fillPro('The account everyone already followed made it official: @' + h + ' is now a full fansite master for ' + KP.displayName(p) +
-          ' — the airport previews, the cake trucks, the lens that costs more than a car. Organized devotion with a budget. ' +
-          (g ? g.name + '’s fandom infrastructure just gained a load-bearing wall.' : 'The fandom just gained a load-bearing wall.'), p) });
+        text: KP.fillPro(KP.lineFor(state, 'master|' + p.id, [
+          'The account everyone already followed made it official: @' + h + ' is now a full fansite master for ' + KP.displayName(p) +
+            ' — the airport previews, the cake trucks, the lens that costs more than a car. Organized devotion with a budget. ' +
+            (g ? g.name + '’s fandom infrastructure just gained a load-bearing wall.' : 'The fandom just gained a load-bearing wall.'),
+          '@' + h + ' went full-time on ' + KP.displayName(p) + ' this week — a fansite master now, with a watermark, a schedule and a lens the staff photographers envy. ' +
+            (g ? 'When ' + g.name + ' lands at an airport, there will be a photo before the van is loaded.' : 'There will be a photo before the van is loaded.'),
+          'The previews from @' + h + ' stopped being a hobby: the account is ' + KP.displayName(p) + '’s fansite master now, which means a camera at every schedule and a budget behind it. ' +
+            (g ? g.name + '’s fandom just acquired infrastructure.' : 'The fandom just acquired infrastructure.'),
+        ]), p) });
     });
     // the funding: a master banks the countdown (once per era)
     groups.forEach(g => {

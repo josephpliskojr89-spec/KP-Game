@@ -79,7 +79,11 @@
         if ((g.popularity || 0) >= S.gayoPopAt) {
           g.gayoYear = year;
           inbox.push({ kind: 'public', ind: 'gayoInvite', priority: 'high', groupId: g.id,
-            text: 'The year-end gayo invitations went out, and ' + g.name + ' is ON the broadcast. Invitation is by popularity, period — no politics survives December. Wardrobe has already started fighting about the special stage.' });
+            text: KP.lineFor(state, 'gayo|' + g.id, [
+              'The year-end gayo invitations went out, and ' + g.name + ' is ON the broadcast. Invitation is by popularity, period — no politics survives December. Wardrobe has already started fighting about the special stage.',
+              g.name + ' is on the year-end gayo lineup. The invitation came by courier, which is how the broadcasters say it counts. The building read it twice and then started arguing about the special stage.',
+              'December made its call: ' + g.name + ' plays the year-end broadcast. Invitation is by popularity, and popularity is the one number nobody can argue with in a meeting. The stylists have begun.',
+            ]) });
         } else if ((g.releases || []).some(r => Math.floor((r.week - 1) / KP.C.WEEKS_PER_YEAR) + 1 === year)) {
           inbox.push({ kind: 'company', priority: 'flavor', groupId: g.id,
             text: 'The gayo lineups are out; ' + g.name + ' is not on them. The building watched the announcement in silence, then someone said “next year” in a voice that made it a plan, not a hope. The quiet Decembers are the ones nobody forgets.' });

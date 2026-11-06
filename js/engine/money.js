@@ -219,10 +219,11 @@
           KP.recordDirected(state, m.id, 'neverPaid');
         });
         inbox.push({ kind: 'company', ind: 'neverPaid', priority: 'high', groupId: g.id,
-          text: 'Another year, and ' + g.name + ' has still never been settled — the eras keep ' +
-            'coming, the ledger keeps not crossing zero, and the members do the same arithmetic ' +
-            'at every schedule: working constantly, paid never. This is the number-one reason ' +
-            'renewal tables go cold.' });
+          text: KP.lineFor(state, 'neverPaid|' + g.id, [
+            'Another year, and ' + g.name + ' has still never been settled — the eras keep coming, the ledger keeps not crossing zero, and the members do the same arithmetic at every schedule: working constantly, paid never. This is the number-one reason renewal tables go cold.',
+            g.name + '’s anniversary passed with the ledger still above zero: another year of eras, stages and statements, and not one settlement. The members have stopped asking the accountant. They have started asking each other.',
+            'The grind, year by year: ' + g.name + ' has worked every month of it and been paid for none, and the recoup line is still the first thing on the statement. Renewal tables remember this before they remember anything else.',
+          ]) });
       }
     });
     // the distributor courts a chodong history

@@ -51,17 +51,40 @@
         if (KP.hash01([state.seed, p.id, state.week, 'bubble'].join('|')) >= KP.C.LIFE.bubbleChance) return;
         const fact = KP.factsOf(state, p)[state.week % 2];
         const name = KP.publicGiven(p);
+        // the families (v0.11.2, §93): every line keeps the word "bubble" —
+        // the harness tallies it
+        const salt = 'bubble|' + p.id;
         let text;
         if (p.flags.scar > 0) {
-          text = name + '’s bubble this week was two messages and a photo of the sky. no caption. we are all replying “take your time” and meaning it. {she} reads them. we know {she} reads them';
+          text = KP.lineFor(state, salt, [
+            name + '’s bubble this week was two messages and a photo of the sky. no caption. we are all replying “take your time” and meaning it. {she} reads them. we know {she} reads them',
+            name + '’s bubble: one message this week. “thank you for waiting.” that is all. that is enough. {she} is reading the replies — you can tell from the timing',
+            'the ' + name + ' bubble went quiet for six days and then: a photo of {pos} shoes by the door. going somewhere. small steps. we are here',
+          ]);
         } else if (p.fatigue >= 70) {
-          text = 'bubble from ' + name + ' at 3am: “still at the company. eat well tomorrow, promise me.” {she} is comforting US. someone protect {her}';
+          text = KP.lineFor(state, salt, [
+            'bubble from ' + name + ' at 3am: “still at the company. eat well tomorrow, promise me.” {she} is comforting US. someone protect {her}',
+            name + '’s bubble at 2am: a photo of the practice-room clock and “almost done.” the clock said 2:14. {she} was not almost done. protect {her}',
+            'bubble from ' + name + ': “slept four hours, feeling great!!” the fandom has started a sleep-tracking thread. we are not okay with four',
+          ]);
         } else if (p.morale >= 72) {
-          text = name + '’s bubble today was 14 messages, 9 of them photos of {pos} lunch, and one voice note of {her} laughing at {pos} own joke. subscription justified forever';
+          text = KP.lineFor(state, salt, [
+            name + '’s bubble today was 14 messages, 9 of them photos of {pos} lunch, and one voice note of {her} laughing at {pos} own joke. subscription justified forever',
+            name + ' sent a bubble voice note that was just {her} singing the chorus of a song {she} refuses to name. 31 seconds. the 10-hour loop is already up',
+            name + '’s bubble today: a tour of {pos} desk, item by item, with commentary. the stapler got a backstory. the subscription paid for itself',
+          ]);
         } else if (state.week <= (g.tourRestUntil || 0) || state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks && state.week > (g.promoUntil || 0)) {
-          text = 'day-off bubble: ' + name + ' — who ' + fact + ' — sent a full photo diary of it. rest era content is the BEST content';
+          text = KP.lineFor(state, salt, [
+            'day-off bubble: ' + name + ' — who ' + fact + ' — sent a full photo diary of it. rest era content is the BEST content',
+            'rest-week bubble from ' + name + ': three photos of food, one of a cat that is not {hers}, and “don’t worry about me.” we are worrying about {her} correctly',
+            'day-off bubble: ' + name + ' — who ' + fact + ' — spent the whole day on exactly that and reported in like a field scientist. rest era supremacy',
+          ]);
         } else {
-          text = name + ' casually mentioned in bubble that {she} ' + fact + '. the fandom wiki was updated within four minutes';
+          text = KP.lineFor(state, salt, [
+            name + ' casually mentioned in bubble that {she} ' + fact + '. the fandom wiki was updated within four minutes',
+            name + '’s bubble today confirmed that {she} ' + fact + '. the fan wiki has a citation now. the citation is a screenshot',
+            'bubble from ' + name + ': “random fact about me today.” the fact: {she} ' + fact + '. the wiki editors were already awake',
+          ]);
         }
         posts.push({ persona: 'fan', text: KP.fillPro(text, p) });
       });
@@ -178,8 +201,18 @@
         const p = state.people[g.members[idx]];
         if (!p) return;
         KP.socialSpike(state, p, L.selcaSpike, 'selca');
-        posts.push({ persona: 'fan', text: 'SELCA DAY and ' + KP.publicGiven(p) +
-          ' posted FOUR. the camera roll generosity. saving all of them like they owe me money' });
+        {
+          const N = KP.publicGiven(p);
+          // the family (v0.11.2, §93): "SELCA DAY" stays in every line — the
+          // timeline suite counts it
+          posts.push({ persona: 'fan', text: KP.lineFor(state, 'selcaLine|' + g.id, [
+            'SELCA DAY and ' + N + ' posted FOUR. the camera roll generosity. saving all of them like they owe me money',
+            'SELCA DAY. ' + N + ' posted one (1) photo, slightly blurry, from an angle that should not work. it works. it is my lock screen now',
+            'SELCA DAY and ' + N + ' did the mirror one, the car one and the “someone else took this” one. a full set. the fandom is eating',
+            'SELCA DAY: ' + N + ', no caption, one emoji, four million interpretations. the quote-posts are a book club',
+            'SELCA DAY and ' + N + ' posted from the practice room with the lights half off. candid era. we are so unwell',
+          ]) });
+        }
       });
     }
     return posts;
@@ -216,12 +249,19 @@
         if (birthWeekOf(state, p) === woy) {
           p.morale = KP.clamp(p.morale + L.birthdayMorale, 0, 100);
           KP.socialSpike(state, p, L.birthdaySpike, 'bday');
-          inbox.push({ kind: 'public', ind: 'idolBirthday', priority: 'flavor', personId: p.id,
-            funded: KP.fandomIntensity(g) >= L.birthdayAdIntensity,
-            text: KP.fillPro('It is ' + KP.displayName(p) + '’s birthday week — {she} turns ' + p.age + '. The members got to {pos} cake before the fans got to the hashtag — barely. ' +
-              (KP.fandomIntensity(g) >= L.birthdayAdIntensity
-                ? 'The fandom funded a subway station ad. {She} went to see it in a mask and cried anyway.'
-                : 'The fan cafés ran the countdown at midnight, as is law.'), p) });
+          {
+            const funded = KP.fandomIntensity(g) >= L.birthdayAdIntensity;
+            const N = KP.displayName(p);
+            inbox.push({ kind: 'public', ind: 'idolBirthday', priority: 'flavor', personId: p.id, funded,
+              text: KP.fillPro(KP.lineFor(state, 'bday|' + p.id, [
+                'It is ' + N + '’s birthday week — {she} turns ' + p.age + '. The members got to {pos} cake before the fans got to the hashtag — barely. ' +
+                  (funded ? 'The fandom funded a subway station ad. {She} went to see it in a mask and cried anyway.' : 'The fan cafés ran the countdown at midnight, as is law.'),
+                N + '’s birthday week — {she} turns ' + p.age + '. The dorm did the cake at midnight with the lights off and the phones up; the timeline did the hashtag at 00:01. ' +
+                  (funded ? 'The fandom bought a subway station ad. {She} went to see it in a mask and stood there longer than planned.' : 'The fan cafés ran the countdown, as is law.'),
+                'It is ' + N + '’s birthday week. {She} is ' + p.age + ' now, which the fan accounts have turned into a numbered retrospective. ' +
+                  (funded ? 'A subway-station ad, fandom-funded, is up for the week; the driver detoured the van past it without being asked.' : 'The cafés did the countdown; the members did the ambush; the cake survived, barely.'),
+              ]), p) });
+          }
         }
       });
       // the debut anniversary (v0.8.3): the most ritualized date in
@@ -235,10 +275,19 @@
           if (m) { m.morale = KP.clamp(m.morale + KP.C.ANNIV.morale, 0, 100); KP.socialSpike(state, m, KP.C.ANNIV.spike, 'anniv'); }
         });
         const story = KP.liveNarratives(state).find(n => n.subjectType === 'group' && n.subjectId === g.id);
+        const retold = story ? KP.narrativeText(state, story).toLowerCase() : '';
         inbox.push({ kind: 'public', ind: 'anniversary', priority: 'high', groupId: g.id, years,
-          text: 'It is ' + g.name + '’s ' + years + '-year anniversary week. The café banner changed at midnight, the members did the anniversary live in the practice room where it started' +
-            (story ? ', and the timeline is retelling the whole story — ' + KP.narrativeText(state, story).toLowerCase() : '') +
-            '. Somewhere in the building, someone who was in that first meeting got quietly emotional about a spreadsheet.' });
+          text: KP.lineFor(state, 'anniv|' + g.id, [
+            'It is ' + g.name + '’s ' + years + '-year anniversary week. The café banner changed at midnight, the members did the anniversary live in the practice room where it started' +
+              (story ? ', and the timeline is retelling the whole story — ' + retold : '') +
+              '. Somewhere in the building, someone who was in that first meeting got quietly emotional about a spreadsheet.',
+            g.name + '’s ' + years + '-year anniversary week: the banner at the café changed at midnight, the members streamed from the first practice room' +
+              (story ? ', and the timeline retold the whole story — ' + retold : '') +
+              '. The building let itself feel it for exactly one afternoon.',
+            'Anniversary week — ' + years + ' year' + (years === 1 ? '' : 's') + ' of ' + g.name + '. The fandom posted the debut stage frame by frame; the members posted the group photo from before the group had a name' +
+              (story ? '; the timeline retold the story — ' + retold : '') +
+              '. Someone in accounting ran the numbers out of habit and then did not share them.',
+          ]) });
       }
       // a livestream week leaves a clip the timeline keeps
       const promoting = !g.prep && state.week <= (g.promoUntil || 0) && state.week > (g.lastReleaseWeek || 0);

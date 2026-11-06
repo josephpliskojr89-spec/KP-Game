@@ -150,8 +150,11 @@
       while ((dueGroup = KP.debutDue(state))) {
         const res = KP.resolveDebut(state, rng, dueGroup);
         inbox.push({ kind: 'debut', urgent: true, groupId: dueGroup.id,
-          text: dueGroup.name + (res.isDebut ? ' debuted with “' : ' came back with “') +
-            res.songTitle + '”. ' + res.receptionLabel + '. Full report in the Studio.' });
+          text: KP.lineFor(state, 'landed|' + dueGroup.id, [
+            dueGroup.name + (res.isDebut ? ' debuted with “' : ' came back with “') + res.songTitle + '”. ' + res.receptionLabel + '. Full report in the Studio.',
+            '“' + res.songTitle + '” is out — ' + dueGroup.name + (res.isDebut ? '’s debut' : '’s comeback') + ' landed this week. ' + res.receptionLabel + '. The full report is in the Studio.',
+            (res.isDebut ? 'Debut week: ' : 'Comeback week: ') + dueGroup.name + ', “' + res.songTitle + '”. ' + res.receptionLabel + '. The numbers, the critics and the stage are in the Studio.',
+          ]) });
         // narratives born at the release (v0.6.0) reach the desk too
         (res.narrativeNotes || []).forEach(n => inbox.push(n));
         delete res.narrativeNotes;
@@ -410,6 +413,9 @@
             KP.fillPro('A dance cover ' + KP.displayName(p) + ' filmed months ago is suddenly trending. The comments all ask the same question: when does {she} debut?', p),
             'Street-cast photos of ' + KP.displayName(p) + ' resurfaced overnight and the reposts have not stopped.',
             KP.fillPro('A showcase clip of ' + KP.displayName(p) + ' escaped containment. {Pos} name is in search trends next to artists who have albums.', p),
+            KP.fillPro('A six-second clip of ' + KP.displayName(p) + ' in the practice-room mirror is doing numbers nobody at this company can explain. The caption is one word. The word is {pos} name.', p),
+            KP.fillPro('Someone cut ' + KP.displayName(p) + '’s audition tape to a trending sound and the edit outran the sound. The comments have found {pos} age and are doing the math on a debut.', p),
+            KP.fillPro('A fan account built entirely around ' + KP.displayName(p) + ' — pre-debut, no releases, no stages — crossed a follower count that has companies asking who {she} is. {She} is yours, for now.', p),
           ]) });
         }
       }
@@ -434,17 +440,24 @@
 
   function pressureLetter(state, lvl, net, spree) {
     const who = state.executive.name;
+    const red = Math.abs(Math.round(net));
     if (lvl >= 3) {
-      return who + ': “Three months of burning money. The board sees these numbers too, and unlike me, they do not know your plans. Show revenue, or show restraint.”';
+      return KP.lineFor(state, 'pressure3', [
+        who + ': “Three months of burning money. The board sees these numbers too, and unlike me, they do not know your plans. Show revenue, or show restraint.”',
+        who + ': “A quarter in the red is a plan. Three is a pattern, and the board sees these numbers before they see you. Show me revenue, or show me restraint — this month.”',
+      ]);
     }
     if (lvl === 2) {
-      return who + ': “The division is ' + Math.abs(Math.round(net)) + ' in the red over the quarter' +
-        (spree ? ' — and the trainee floor is filling up fast' : '') +
-        '. I lifted the signing cap because I trusted your judgment. Keep earning that.”';
+      return KP.lineFor(state, 'pressure2', [
+        who + ': “The division is ' + red + ' in the red over the quarter' + (spree ? ' — and the trainee floor is filling up fast' : '') + '. I lifted the signing cap because I trusted your judgment. Keep earning that.”',
+        who + ': “' + red + ' over income this quarter' + (spree ? ', and a practice room fuller than the plan' : '') + '. The cap came off because I trusted you. Keep earning that — I have to explain this upstairs in two sentences.”',
+      ]);
     }
-    return who + '’s office flagged the quarterly books: spend ran ' + Math.abs(Math.round(net)) +
-      ' over income' + (spree ? ', much of it on new signings' : '') +
-      '. Nothing said yet — but it was noticed.';
+    return KP.lineFor(state, 'pressure1', [
+      who + '’s office flagged the quarterly books: spend ran ' + red + ' over income' + (spree ? ', much of it on new signings' : '') + '. Nothing said yet — but it was noticed.',
+      'The quarterly books went upstairs with a sticky note: ' + red + ' over income' + (spree ? ', the signings circled' : '') + '. ' + who + ' said nothing. The note said enough.',
+      who + ' initialed the quarterly books and underlined one line — ' + red + ' over income' + (spree ? ', mostly signings' : '') + '. No meeting. An underline is a meeting.',
+    ]);
   }
 
   // The attribute a debuted idol works on herself: the one with the most

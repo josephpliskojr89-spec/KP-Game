@@ -450,7 +450,14 @@
             // scouts once, when their interest turns serious — the Industry page
             // carries the running count; measured 34/org-year at 'real'
             if (rival.interest[target.id] >= 3) {
-              notes.push({ kind: 'scouting', ind: 'rivalScouts', text: rival.short + ' scouts were seen at ' + KP.displayName(target) + '’s academy. Their interest looks ' + (rival.interest[target.id] === 3 ? 'serious' : 'real') + (hungry ? ' — and word is they are casting a new group' : '') + '.' });
+              const N = KP.displayName(target);
+              const PH = { trendChaser: 'the house that signs what is trending this quarter', performance: 'the choreography cultists', patient: 'the house that signs young and waits' }[rival.philosophy] || 'a house with a long memory';
+              notes.push({ kind: 'scouting', ind: 'rivalScouts', text: KP.lineFor(state, 'rivalScouts|' + target.id, [
+                rival.short + ' scouts were seen at ' + N + '’s academy. Their interest looks ' + (rival.interest[target.id] === 3 ? 'serious' : 'real') + (hungry ? ' — and word is they are casting a new group' : '') + '.',
+                'A ' + rival.short + ' business card turned up in ' + N + '’s academy office — ' + PH + ', and they do not leave cards by accident' + (hungry ? '. They are casting; the card is a countdown' : '') + '.',
+                N + '’s academy director mentioned, unprompted, that ' + rival.short + ' has called twice. Directors mention these things when they want the price to move' + (hungry ? ' — and ' + rival.short + ' is building a lineup, which moves it faster' : '') + '.',
+                rival.short + ' sent two people to ' + N + '’s showcase and neither of them clapped at the right moments, which is how scouts watch. ' + (hungry ? 'They are casting a new group. ' : '') + 'Their interest is real.',
+              ]) });
             }
           }
         }
@@ -477,8 +484,28 @@
           }
           if (wasHoldout) holdLedger(state).lostToPowers++;
           KP.rivalSignFromBoard(state, rival, p);   // the floor (v0.10.31): a real seat on a real floor
-          notes.push({ kind: 'scouting', urgent: true, text: KP.fillPro(rival.short + ' signed ' + KP.displayName(p) + '. {She} is off the board' + (hungry ? ' — and probably in their debut lineup' : '') +
-            (wasHoldout ? '. The power {she} was holding out for came knocking — it just was not us. {She} was never going to wait forever' : '') + '.', p) });
+          {
+            // the family (v0.11.2, §93): the one sentence fourteen times a year
+            // becomes eight, keyed by the house's philosophy and what this
+            // desk knew of her — a file read, a lead never opened, a holdout
+            const N = KP.displayName(p);
+            const read = !!(p.flags && p.flags.readByUs);
+            const tail = (hungry ? ' — and probably in their debut lineup' : '') +
+              (wasHoldout ? '. The power {she} was holding out for came knocking — it just was not us. {She} was never going to wait forever' : '') + '.';
+            const byPhil = {
+              trendChaser: rival.short + ' signed ' + N + ' before the quarter turned — they sign fast, they debut fast, and they drop fast. {She} is off the board' + tail,
+              performance: rival.short + ' signed ' + N + '. Their scouts watch the feet first, and {pos} feet were the point. {She} is off the board' + tail,
+              patient: rival.short + ' signed ' + N + ' and will not debut {her} for two years, which is their whole method, and it usually works. {She} is off the board' + tail,
+            }[rival.philosophy] || (rival.short + ' signed ' + N + '. {She} is off the board' + tail);
+            notes.push({ kind: 'scouting', urgent: true, text: KP.fillPro(KP.lineFor(state, 'rivalSigned|' + p.id, [
+              rival.short + ' signed ' + N + '. {She} is off the board' + tail,
+              byPhil,
+              read ? 'The file this desk read on ' + N + ' is ' + rival.short + '’s file now — they signed {her} this week. {She} is off the board' + tail
+                   : rival.short + ' signed ' + N + ', a lead this desk never opened. The board moves whether you read it or not. {She} is off the board' + tail,
+              N + '’s signing photo is up on ' + rival.short + '’s account — the pen, the handshake, the logo wall. {She} is off the board' + tail,
+              'Word came through the academies before the trades: ' + N + ' signed with ' + rival.short + '. {She} is off the board' + tail,
+            ]), p) });
+          }
           // the scouts keep score (v0.6.1): enough poaches become a name
           rival.poachCount = (rival.poachCount || 0) + 1;
           if (rival.poachCount >= KP.C.MEMORY.poachAt) {

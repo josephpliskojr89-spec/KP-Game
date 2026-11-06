@@ -156,8 +156,13 @@
       led.cases++;
       KP.openScene(state, { kind: 'theDiagnosis', personId: p.id, kindOf,
         site: siteFor(state, p, kindOf), expiresWeek: state.week + 2 });
+      const part = kindOf === 'vocal' ? 'the voice' : 'a working part of the job';
       inbox.push({ kind: 'health', ind: 'diagnosisIn', priority: 'high', personId: p.id,
-        text: KP.fillPro('The clinic report on ' + KP.displayName(p) + ' is on the desk and it is not routine — ' + (kindOf === 'vocal' ? 'the voice' : 'a working part of the job') + ' needs a decision, not a schedule. Three doors on the Desk. The roster will hear which one opens.', p) });
+        text: KP.fillPro(KP.lineFor(state, 'diagnosis|' + p.id, [
+          'The clinic report on ' + KP.displayName(p) + ' is on the desk and it is not routine — ' + part + ' needs a decision, not a schedule. Three doors on the Desk. The roster will hear which one opens.',
+          'Medical sent up ' + KP.displayName(p) + '’s clinic report, and it is not a scheduling note: ' + part + ' needs a decision. Three doors on the Desk. The roster is already listening for which one opens.',
+          KP.displayName(p) + '’s scan came back and the doctor wants a conversation, not a calendar — ' + part + ' is the issue. Three doors on the Desk; the members will know which one you took.',
+        ]), p) });
     });
   });
 

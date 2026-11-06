@@ -113,7 +113,12 @@
         inbox.push({ kind: 'scouting', ind: 'application', priority: 'flavor', personId: p.id,
           text: believer
             ? KP.fillPro('An application with a handwritten cover page: ' + KP.displayName(p) + ', ' + p.age + ', who wrote three paragraphs about THIS company — the story, the group, the reason {she} did not send this envelope to the big three first. Believers audition differently. The file is on the board, and nobody else has seen it.', p)
-            : 'An application landed on the desk: ' + KP.displayName(p) + ', ' + p.age + ', tape and photos enclosed. The pile is where careers start when nobody is looking. The file is on the board — yours alone, until a signature makes it news.' });
+            : KP.lineFor(state, 'application|' + p.id, [
+              'An application landed on the desk: ' + KP.displayName(p) + ', ' + p.age + ', tape and photos enclosed. The pile is where careers start when nobody is looking. The file is on the board — yours alone, until a signature makes it news.',
+              'In the mail pile: ' + KP.displayName(p) + ', ' + p.age + ', a two-minute tape and a photo with the kitchen in the background. Nobody else has seen it. The file is on the board.',
+              'A thick envelope, hand-addressed: ' + KP.displayName(p) + ', ' + p.age + ', sent a tape, a dance clip and a letter that uses the word “dream” twice. The file is on the board, and it is yours alone until a signature says otherwise.',
+              KP.displayName(p) + ', ' + p.age + ', applied the old way — the form, the tape, the stamp. The pile is where careers start when nobody is looking. The file is on the board.',
+            ]) });
       }
     }
 

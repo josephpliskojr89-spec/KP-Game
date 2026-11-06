@@ -110,7 +110,11 @@
           p.morale = KP.clamp(p.morale - E.bottomMorale, 0, 100);
           p.history.push({ week: state.week, text: 'The after-eval talk — the one held with the door open just enough that everyone knows it is happening. Rank ' + rank + ' of ' + of + ' again. The room gets smaller every month the sheet says the same thing.' });
           inbox.push({ kind: 'company', ind: 'evalTalk', priority: 'flavor', personId: p.id,
-            text: KP.fillPro(KP.displayName(p) + ' got the after-eval talk — bottom of the sheet twice running. {She} nodded through it and stayed two extra hours in practice room 3, which is either the answer or the beginning of a different conversation.', p) });
+            text: KP.fillPro(KP.lineFor(state, 'evalTalk|' + p.id, [
+              KP.displayName(p) + ' got the after-eval talk — bottom of the sheet twice running. {She} nodded through it and stayed two extra hours in practice room 3, which is either the answer or the beginning of a different conversation.',
+              KP.displayName(p) + ' got the after-eval talk — the door open just enough. Bottom of the sheet twice running. {She} said “yes” eleven times and nothing else, and was in practice room 3 before the coaches had left the building.',
+              'The after-eval talk, held with ' + KP.displayName(p) + ' this month: two sheets at the bottom, one quiet conversation. {She} did not cry. {She} asked for a copy of the sheet. That is either the answer or a different conversation starting.',
+            ]), p) });
         }
       } else {
         p.evalBottomStreak = 0;
@@ -118,9 +122,17 @@
     });
     const names = ranked.slice(0, 3).map((r, i) => (i + 1) + '. ' + KP.displayName(r.p));
     inbox.push({ kind: 'company', ind: 'evalSheet', priority: 'flavor',
-      text: 'Monthly evaluation day: showcase run twice, coaches at the long table, and the ranked sheet on the wall by six — ' + names.join(' · ') + ' of ' + of +
-        (climber ? '. The room’s story is ' + KP.displayName(climber) + ', up ' + climberDelta + ' — everyone recalibrated who to practice next to.' : '.') +
-        ' The sheet ranks what the coaches can SEE. Everyone in the building knows those are not always the same thing.' });
+      text: KP.lineFor(state, 'evalSheet', [
+        'Monthly evaluation day: showcase run twice, coaches at the long table, and the ranked sheet on the wall by six — ' + names.join(' · ') + ' of ' + of +
+          (climber ? '. The room’s story is ' + KP.displayName(climber) + ', up ' + climberDelta + ' — everyone recalibrated who to practice next to.' : '.') +
+          ' The sheet ranks what the coaches can SEE. Everyone in the building knows those are not always the same thing.',
+        'Evaluation day. The showcase ran twice, the coaches sat the long table, and by six the sheet was on the wall: ' + names.join(' · ') + ' of ' + of +
+          (climber ? '. ' + KP.displayName(climber) + ' is the story — up ' + climberDelta + ', and the room re-sorted itself by dinner.' : '.') +
+          ' The sheet is what the coaches saw. The building keeps its own sheet.',
+        'The monthly sheet went up at six: ' + names.join(' · ') + ' of ' + of +
+          (climber ? '. Everyone read down to ' + KP.displayName(climber) + ' first — up ' + climberDelta + ' — and then back up to see who had been passed.' : '.') +
+          ' Rank is what a showcase can measure. The rest gets argued in the hallway.',
+      ]) });
   });
 
   // ---- the timeline reacts ----------------------------------------------

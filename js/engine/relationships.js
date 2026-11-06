@@ -70,7 +70,7 @@
         const worth = st.key === 'tense' || st.key === 'conflict' || st.key === 'close' ||
           (st.key === 'neutral' && rel.state === 'tense');
         if (rel.state && st.key !== rel.state && rng.chance(R.observationChance) && worth) {
-          notes.push({ kind: 'relationship', relKey: st.key, text: relObservation(a, b, st, rel.state) });
+          notes.push({ kind: 'relationship', relKey: st.key, text: relObservation(state, a, b, st, rel.state) });
         }
         rel.state = st.key;
       }
@@ -83,18 +83,71 @@
     return notes.slice(0, 1);
   };
 
-  function relObservation(a, b, st, prev) {
+  // the family (v0.11.2, §93): the same change reads differently for
+  // different pairs — the room it happened in and the traits that drove it
+  // choose the sentence; the hash chooses among what fits
+  function relObservation(state, a, b, st, prev) {
     const A = KP.publicGiven(a), B = KP.publicGiven(b);
+    const pa = a.personality || {}, pb = b.personality || {};
+    const bothCompetitive = pa.competitiveness >= 60 && pb.competitiveness >= 60;
+    const bossy = pa.dominance - pb.dominance >= 20 ? A : pb.dominance - pa.dominance >= 20 ? B : null;
+    const other = bossy === A ? B : A;
+    const warm = pa.warmth >= 60 || pb.warmth >= 60;
+    const quiet = pa.dominance < 42 && pb.dominance < 42;
+    const salt = 'rel|' + KP.pairKey(a, b) + '|' + st.key;
+    let lines;
     switch (st.key) {
-      case 'close': return A + ' and ' + B + ' bring out the best in each other. Staff have started scheduling them together on purpose.';
-      case 'friendly': return A + ' and ' + B + ' have warmed up to each other lately.';
-      case 'neutral': return prev === 'tense'
-        ? A + ' and ' + B + ' have settled things. It’s professional again.'
-        : A + ' and ' + B + ' remain professional, but there is very little warmth between them.';
-      case 'tense': return 'There is friction between ' + A + ' and ' + B + '. Nothing public yet, but the practice room feels it.';
-      case 'conflict': return A + ' and ' + B + ' are in open conflict. This needs handling before it needs explaining.';
-      default: return A + ' and ' + B + ' were seen practicing together.';
+      case 'close':
+        lines = [
+          A + ' and ' + B + ' bring out the best in each other. Staff have started scheduling them together on purpose.',
+          A + ' and ' + B + ' have a shorthand now — half a word, a look, the count picked up mid-phrase. The choreographer has stopped explaining things to them twice.',
+          A + ' and ' + B + ' were the last two in the practice room again, and the run-through they did alone was the cleanest anyone saw all week. Nobody scheduled it. Nobody will.',
+          'The van has a new seating chart nobody wrote down: ' + A + ' and ' + B + ' in the back, sharing one playlist. The road manager calls it “the office.”',
+          warm ? A + ' and ' + B + ' have started finishing each other’s sentences in interviews, which the editors love and the members tease them for. The teasing is affectionate. So is the rest of it.'
+               : A + ' and ' + B + ' do not say much to each other, and do not need to — the eval sheet shows them climbing together, and the coaches have noticed who sits next to whom.',
+        ];
+        break;
+      case 'friendly':
+        lines = [
+          A + ' and ' + B + ' have warmed up to each other lately.',
+          A + ' and ' + B + ' ate together three times this week without anyone arranging it. The dorm noticed. The dorm notices everything.',
+          A + ' and ' + B + ' have stopped being polite to each other, which in this building is the beginning of being friends.',
+        ];
+        break;
+      case 'neutral':
+        lines = prev === 'tense' ? [
+          A + ' and ' + B + ' have settled things. It’s professional again.',
+          A + ' and ' + B + ' ran the formation without the half-second of hesitation that used to sit between them. Whatever it was, it got said. It’s professional again.',
+          'Somebody — nobody is saying who — got ' + A + ' and ' + B + ' into the same room for an hour with the door closed. They came out tired and civil. Civil holds.',
+          A + ' and ' + B + ' are back to sharing a mic stand in rehearsal, which is the building’s unit of peace. The staff exhaled.',
+        ] : [
+          A + ' and ' + B + ' remain professional, but there is very little warmth between them.',
+          A + ' and ' + B + ' are courteous in exactly the way colleagues are courteous. The room reads it as a draw.',
+        ];
+        break;
+      case 'tense':
+        lines = [
+          'There is friction between ' + A + ' and ' + B + '. Nothing public yet, but the practice room feels it.',
+          bothCompetitive ? A + ' and ' + B + ' want the same spot in the same formation, and both of them have the counts to argue for it. The choreographer is mediating with a stopwatch.'
+                          : A + ' and ' + B + ' have started leaving the room at different times. Small, deliberate, and the kind of thing the staff clock without saying so.',
+          bossy ? bossy + ' has been giving ' + other + ' notes nobody asked for, in front of people. ' + other + ' has stopped answering. The silence is louder than the notes.'
+                : 'The van went quiet when ' + A + ' and ' + B + ' ended up in adjacent seats. The road manager put music on. The music did not help.',
+          quiet ? 'Nobody has raised a voice — ' + A + ' and ' + B + ' are not the type — but the two of them have not shared a mic in rehearsal for a fortnight, and the coaches have noticed the detour.'
+                : A + ' and ' + B + ' had a short, sharp exchange in the hallway over something small enough that neither will say what it was. Everyone within earshot found a reason to be elsewhere.',
+          'The group chat has a new silence in it, and it sits between ' + A + ' and ' + B + '. Nothing public yet. The practice room feels it anyway.',
+        ];
+        break;
+      case 'conflict':
+        lines = [
+          A + ' and ' + B + ' are in open conflict. This needs handling before it needs explaining.',
+          A + ' and ' + B + ' are no longer pretending for the staff, and that is the line: when it stops being hidden from the building, it starts being visible to the cameras.',
+          'The members have started taking sides between ' + A + ' and ' + B + ', quietly, and sides are how a group becomes two groups. This needs handling before it needs explaining.',
+        ];
+        break;
+      default:
+        lines = [A + ' and ' + B + ' were seen practicing together.'];
     }
+    return KP.lineFor(state, salt, lines);
   }
 
   // Frictions among a set of people — structured, for UI buttons.

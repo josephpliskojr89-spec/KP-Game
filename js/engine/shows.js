@@ -185,8 +185,12 @@
           // is wallpaper, and wallpaper crowds real letters out of the desk
           keep({ kind: 'industry', ind: 'rivalShowWin', actName: act.name,
             company: winner.rival.short, showId,
-            text: act.name + ' won ' + label + ' — their first. ' + winner.rival.short +
-              '’s floor will be unbearable about it through Friday.' });
+            text: KP.lineFor(state, 'rivalFirstWin|' + act.id, [
+              act.name + ' won ' + label + ' — their first. ' + winner.rival.short + '’s floor will be unbearable about it through Friday.',
+              act.name + ' won ' + label + ' — their first. ' + winner.rival.short + ' had the trophy photo on every account they own before the broadcast ended.',
+              'First trophy: ' + act.name + ' won ' + label + ' — their first. ' + winner.rival.short + '’s lobby has a new framed photo and nobody is allowed to walk past it quietly.',
+              act.name + ' won ' + label + ' — their first. The encore was mostly crying. ' + winner.rival.short + ' will treat the win as a policy.',
+            ]) });
         }
       } else if (winner && winner.type === 'pool') {
         const beaten = field.find(c => c.type === 'player');

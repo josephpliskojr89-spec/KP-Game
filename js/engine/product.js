@@ -134,16 +134,26 @@
         : units <= last * 0.8 ? ' Down from ' + KP.fmtCount(last) + '. Reception is opinion; this number is wallets, and the wallets cooled.'
         : ' Holding against ' + KP.fmtCount(last) + ' last era — a fandom that shows up twice is a fandom.')
       : ' A first chodong is a birth certificate: this is how many people PAY.';
+    const pack = sheet.versions + ' version' + (sheet.versions === 1 ? '' : 's') +
+      (sheet.pob !== 'none' ? ', ' + sheet.pob + ' pre-order gifts' : '');
     notes.push({ kind: 'debut', ind: 'chodong', priority: 'high', groupId: g.id,
-      text: 'First-week sales for ' + g.name + ': ' + KP.fmtCount(units) + ' albums (' +
-        sheet.versions + ' version' + (sheet.versions === 1 ? '' : 's') +
-        (sheet.pob !== 'none' ? ', ' + sheet.pob + ' pre-order gifts' : '') + ').' + vs });
+      text: KP.lineFor(state, 'chodong|' + g.id, [
+        'First-week sales for ' + g.name + ': ' + KP.fmtCount(units) + ' albums (' + pack + ').' + vs,
+        'The chodong is in for ' + g.name + ': ' + KP.fmtCount(units) + ' albums in week one (' + pack + ').' + vs,
+        g.name + ' moved ' + KP.fmtCount(units) + ' albums in the first week — ' + pack + '.' + vs,
+      ]) });
     if (soldOut) {
       notes.push({ kind: 'debut', ind: 'soldOutStory', priority: 'high', groupId: g.id,
-        text: 'SOLD OUT: the ' + KP.fmtCount(sheet.run) + ' pressing of the ' + g.name +
-          ' record was gone inside the week — demand ran to ' + KP.fmtCount(demand) +
-          '. The reorder ships late and catches only the diehards; the rest is the ' +
-          'sweetest lost money in the business. Press braver next time. Or exactly this brave, forever, for the headlines.' });
+        text: KP.lineFor(state, 'soldOut|' + g.id, [
+          'SOLD OUT: the ' + KP.fmtCount(sheet.run) + ' pressing of the ' + g.name +
+            ' record was gone inside the week — demand ran to ' + KP.fmtCount(demand) +
+            '. The reorder ships late and catches only the diehards; the rest is the ' +
+            'sweetest lost money in the business. Press braver next time. Or exactly this brave, forever, for the headlines.',
+          'SOLD OUT. ' + KP.fmtCount(sheet.run) + ' copies of the ' + g.name + ' record, gone inside the week against demand of ' + KP.fmtCount(demand) +
+            '. The reorder lands late and catches the diehards; the difference is the sweetest money this business ever loses.',
+          'The ' + g.name + ' pressing — ' + KP.fmtCount(sheet.run) + ' — SOLD OUT before the second weekend; demand ran to ' + KP.fmtCount(demand) +
+            '. The warehouse is proud, the fans are furious, the reorder is late. Press braver, or exactly this brave for the headline.',
+        ]) });
     }
     // the warehouse memo and the cut line were 100% / 87% trimmed (§89 A):
     // the overpress shows on the product profile, the rounds on the sheet

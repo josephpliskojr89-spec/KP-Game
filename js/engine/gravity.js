@@ -167,8 +167,11 @@
               if (nar) inbox.push(nar);
               inbox.push({ kind: 'public', ind: 'gravityTrades', priority: 'critical',
                 personId: top.p.id, groupId: g.id,
-                text: KP.fillPro('The trades ran the feature everyone has been drafting for weeks: “' +
-                  KP.displayName(top.p) + ' — bigger than ' + g.name + '?” Her numbers, her narratives, her share of every camera. The piece is careful. The comment sections are not. This conversation does not go back in its box.', top.p) });
+                text: KP.fillPro(KP.lineFor(state, 'gravityTrades|' + top.p.id, [
+                  'The trades ran the feature everyone has been drafting for weeks: “' + KP.displayName(top.p) + ' — bigger than ' + g.name + '?” {Pos} numbers, {pos} narratives, {pos} share of every camera. The piece is careful. The comment sections are not. This conversation does not go back in its box.',
+                  'The feature landed: “' + KP.displayName(top.p) + ' — bigger than ' + g.name + '?” The trades spent two thousand words being careful. The comment sections spent two minutes not being. The question is public now and it does not go back.',
+                  'Front page of the trades: “Is ' + KP.displayName(top.p) + ' bigger than ' + g.name + '?” {Pos} numbers next to the group’s, {pos} narratives next to theirs. The piece reads as a question. Everyone read it as an answer.',
+                ]), top.p) });
             }
           } else {
             delete g.gravityWatch;
