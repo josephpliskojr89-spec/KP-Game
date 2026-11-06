@@ -64,83 +64,95 @@
           '<div class="o-meta"><span class="chip ' + (weeksLeft <= 8 ? 'hot' : '') + '">' +
           (weeksLeft > 0 ? weeksLeft + ' weeks left' : 'closing') + '</span></div></div>');
       });
-      const cool = (state.mandateCooldownUntil || 0) >= state.week;
-      html.push('<div class="pad" style="margin-top:10px"><button class="btn small" data-action="pitch-mandate"' +
-        (cool ? ' disabled' : '') + '>Pitch a new act upstairs' +
-        (cool ? ' · ' + (state.mandateCooldownUntil - state.week + 1) + 'w' : '') + '</button></div>');
+      // the pitch upstairs → the Groups tab (v0.10.41, §89 D15)
     }
 
     // the stage door (v0.8.0): EVERY held scene renders through this one
     // rail — the meeting today, the office door and the renewal table
     // tomorrow. New conversations never add cards here again.
-    const scenes = state.scenes || [];
-    if (scenes.length) {
-      html.push('<div class="kicker">Waiting on your answer</div>');
-      scenes.forEach(sc => {
-        const def = KP.sceneDef(sc.kind);
-        if (!def) return;
-        html.push('<div class="war-card held"><div class="w-flag">' + UI.esc(def.title(state, sc)) + '</div>' +
-          '<div class="w-text">' + UI.esc(def.body(state, sc)) + '</div>' +
-          '<div class="w-actions" style="flex-wrap:wrap">' +
-          def.options(state, sc).map(o => '<button class="btn" data-action="scene-opt" data-scene="' + sc.id + '" data-opt="' + UI.esc(o.id) + '">' + UI.esc(o.label) + '</button>').join('') +
-          '</div></div>');
-      });
-    }
-
-    // the deals desk (v0.7.0): offers wait for an answer, briefly
-    const dealOffers = KP.openDealOffers(state);
-    if (dealOffers.length) {
-      html.push('<div class="kicker">On the deals desk</div>');
-      dealOffers.forEach(o => {
-        const p = state.people[o.personId];
-        html.push('<div class="war-card held"><div class="w-flag">Brand offer · expires ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '</div>' +
-          '<div class="w-text">' + UI.esc(o.brand) + ' wants ' + (p ? UI.esc(KP.displayName(p)) : 'her') +
-          ': ' + o.lump + ' up front, ' + o.weekly + '/week for ' + o.weeks + ' weeks. The shoots cost energy; the billboard pays in more than money.</div>' +
+    // the one desk (v0.10.41, §89 D15): the offers wait on the same rail —
+    // the booking pile, the brand offers and the casting calls are answers
+    // owed too. One kicker, one list, decisions first.
+    const rail = [];
+    (state.scenes || []).forEach(sc => {
+      const def = KP.sceneDef(sc.kind);
+      if (!def) return;
+      rail.push('<div class="war-card held"><div class="w-flag">' + UI.esc(def.title(state, sc)) + '</div>' +
+        '<div class="w-text">' + UI.esc(def.body(state, sc)) + '</div>' +
+        '<div class="w-actions" style="flex-wrap:wrap">' +
+        def.options(state, sc).map(o => '<button class="btn" data-action="scene-opt" data-scene="' + sc.id + '" data-opt="' + UI.esc(o.id) + '">' + UI.esc(o.label) + '</button>').join('') +
+        '</div></div>');
+    });
+    // the grind (v0.9.37, §76 D): the booking pile — the pile deals
+    // more than a group can take; choosing is the game
+    const offers = KP.openBookings ? KP.openBookings(state) : [];
+    const bookableGs = KP.groups(state).filter(g => !g.retiredWeek && !g.hiatus && !g.tour &&
+      g.members.length && (g.debuted || g.prep));
+    if (offers.length && bookableGs.length) {
+      offers.forEach(o => {
+        const K = KP.C.BOOK.KINDS[o.kindId] || {};
+        rail.push('<div class="war-card held"><div class="w-flag">Booking · ' + UI.esc(o.label) +
+          ' · ' + UI.esc(KP.weekLabel(o.week).text) + ' · ' + (o.fee < 0 ? 'costs ' + (-o.fee) : 'fee ' + o.fee) + '</div>' +
+          '<div class="w-text">Answer by ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '.' +
+          (K.flyerable ? ' A flyer week beforehand fills the room — and earns it twice.' : '') + '</div>' +
           '<div class="w-actions">' +
-          '<button class="btn primary" data-action="deal-accept" data-id="' + o.id + '">Sign it</button>' +
-          '<button class="btn" data-action="deal-decline" data-id="' + o.id + '">Pass</button>' +
+          bookableGs.map(g =>
+            '<button class="btn small primary" data-action="take-booking" data-offer="' + o.id +
+            '" data-group="' + g.id + '">Send ' + UI.esc(g.name) + '</button>' +
+            (K.flyerable && o.week > state.week
+              ? '<button class="btn small" data-action="take-booking" data-offer="' + o.id +
+                '" data-group="' + g.id + '" data-flyer="1">+ flyer week</button>' : '')
+          ).join('') +
           '</div></div>');
       });
     }
+    // the deals desk (v0.7.0): offers wait for an answer, briefly
+    KP.openDealOffers(state).forEach(o => {
+      const p = state.people[o.personId];
+      rail.push('<div class="war-card held"><div class="w-flag">Brand offer · expires ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '</div>' +
+        '<div class="w-text">' + UI.esc(o.brand) + ' wants ' + (p ? UI.esc(KP.displayName(p)) : 'her') +
+        ': ' + o.lump + ' up front, ' + o.weekly + '/week for ' + o.weeks + ' weeks. The shoots cost energy; the billboard pays in more than money.</div>' +
+        '<div class="w-actions">' +
+        '<button class="btn primary" data-action="deal-accept" data-id="' + o.id + '">Sign it</button>' +
+        '<button class="btn" data-action="deal-decline" data-id="' + o.id + '">Pass</button>' +
+        '</div></div>');
+    });
+    // the second job (v0.9.11): productions call, the desk answers
+    KP.openGigOffers(state).forEach(o => {
+      const p = state.people[o.personId];
+      const terms = o.kind === 'ost'
+        ? o.lump + ' on delivery, three weeks of recording'
+        : o.weekly + '/week for ' + o.weeks + ' weeks, taping weekly';
+      const seat = o.kind === 'panel' ? 'a fixed panel seat on ' : o.kind === 'mc' ? 'the MC mic at ' : 'the OST for ';
+      rail.push('<div class="war-card held"><div class="w-flag">' +
+        (o.kind === 'ost' ? 'OST offer' : o.kind === 'mc' ? 'MC offer' : 'Variety offer') +
+        ' · expires ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '</div>' +
+        '<div class="w-text">' + (p ? UI.esc(KP.displayName(p)) : 'She') + ' is wanted for ' + seat + UI.esc(o.show) +
+        ': ' + terms + '. A second job pays the person — and claims the weeks.</div>' +
+        '<div class="w-actions">' +
+        '<button class="btn primary" data-action="gig-accept" data-id="' + o.id + '">Book it</button>' +
+        '<button class="btn" data-action="gig-decline" data-id="' + o.id + '">Pass</button>' +
+        '</div></div>');
+    });
+    if (rail.length) {
+      html.push('<div class="kicker">Waiting on your answer</div>');
+      html.push(rail.join(''));
+    }
+    // sponsorships and second jobs running → her file's Career tab (§89 C);
+    // booked stages → the calendar strip and the books → The record (D15)
 
-    // sponsorships running → her file's Career tab (§89 C)
-
-    // the building (v0.10.6; directory tab v0.10.15): Today keeps the
-    // at-a-glance line — the cards and the verbs live on the tab
+    // the building (v0.10.6; the directory tab v0.10.15; one line since
+    // v0.10.41, §89 D15): Today says only that a chair is open — the
+    // files, the mirror and the verbs live on the tab
     if (KP.staffSeats) {
       const S = KP.staffSeats(state);
       const open = KP.C.HIRES.SEATS.filter(seat => !S[seat.id] && (!KP.chairOpenable || KP.chairOpenable(state, seat.id)));
-      html.push('<div class="kicker">The building</div>');
-      html.push('<div class="card" data-action="desk-sub" data-sub="building" style="cursor:pointer">' +
-        // the mirror (v0.10.40, §88 E): the building's read of YOU, in words
-        (KP.mirrorLine ? '<div style="font-size:.76rem;color:var(--ink-dim);margin-bottom:6px;font-style:italic">' + UI.esc(KP.mirrorLine(state)) + '</div>' : '') +
-        '<div style="font-size:.78rem">' +
-        KP.C.HIRES.SEATS.filter(seat => S[seat.id]).map(seat =>
-          UI.esc(S[seat.id].name) + ' <span style="color:var(--ink-dim)">(' + UI.esc(seat.label) + ')</span>').join(' · ') +
-        '</div>' +
-        (open.length ? '<div style="font-size:.74rem;color:var(--gold);margin-top:4px">' +
-          open.length + ' chair' + (open.length === 1 ? '' : 's') + ' open: ' +
-          open.map(seat => UI.esc(seat.label)).join(', ') + '</div>' : '') +
-        (state.staffSearch
-          ? '<div style="font-size:.7rem;color:var(--gold);margin-top:4px">A posting is up — somebody takes the meeting within the week.</div>' : '') +
-        '<div style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">The files, the reads, and the verbs are on The Building tab.</div></div>');
-    }
-
-    // the settlement (v0.10.1): the quarterly books, on the desk
-    const stmt = KP.lastStatement ? KP.lastStatement(state) : null;
-    if (stmt) {
-      html.push('<div class="kicker">The books · Q' + stmt.quarter + ', year ' + stmt.year + '</div>');
-      html.push('<div class="card" style="font-size:.78rem;line-height:1.6">' +
-        stmt.lines.map(l => '<div>' + UI.esc(l) + '</div>').join('') +
-        '<div>Operations & payroll: ' + (stmt.other > 0 ? '+' : '') + stmt.other + '</div>' +
-        '<div style="margin-top:6px;font-weight:600;color:' + (stmt.net >= 0 ? 'var(--gold)' : 'var(--magenta)') + '">NET: ' +
-        (stmt.net > 0 ? '+' : '') + stmt.net + '</div>' +
-        KP.groups(state).filter(g => g.debuted && g.recoup && !g.retiredWeek).map(g =>
-          '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:4px">' + UI.esc(g.name) + ': ' +
-          (g.recoup.settledWeek != null
-            ? 'settled · paid out ' + g.recoup.paid + ' to date'
-            : 'unrecouped · ' + Math.max(0, Math.round(g.recoup.debt)) + ' on the ledger') + '</div>').join('') +
-        '</div>');
+      const line = state.staffSearch
+        ? 'A posting is up — somebody takes the meeting within the week.'
+        : open.length
+          ? open.length + ' chair' + (open.length === 1 ? '' : 's') + ' open: ' + open.map(seat => UI.esc(seat.label)).join(', ') + ' — the help-wanted is on The building tab.'
+          : null;
+      if (line) html.push('<div class="pad" style="font-size:.76rem;color:var(--gold);margin-top:10px;cursor:pointer" data-action="desk-sub" data-sub="building">' + line + '</div>');
     }
 
     // the grind (v0.9.37, §76 E): the era desk — a locked release is a
@@ -177,84 +189,7 @@
         '</div>');
     });
 
-    // the grind (v0.9.37, §76 D): the booking pile — the pile deals
-    // more than a group can take; choosing is the game
-    const offers = KP.openBookings ? KP.openBookings(state) : [];
-    const bookableGs = KP.groups(state).filter(g => !g.retiredWeek && !g.hiatus && !g.tour &&
-      g.members.length && (g.debuted || g.prep));
-    if (offers.length && bookableGs.length) {
-      html.push('<div class="kicker">The booking pile</div>');
-      offers.forEach(o => {
-        const K = KP.C.BOOK.KINDS[o.kindId] || {};
-        html.push('<div class="war-card held"><div class="w-flag">' + UI.esc(o.label) +
-          ' · ' + UI.esc(KP.weekLabel(o.week).text) + ' · ' + (o.fee < 0 ? 'costs ' + (-o.fee) : 'fee ' + o.fee) + '</div>' +
-          '<div class="w-text">Answer by ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '.' +
-          (K.flyerable ? ' A flyer week beforehand fills the room — and earns it twice.' : '') + '</div>' +
-          '<div class="w-actions">' +
-          bookableGs.map(g =>
-            '<button class="btn small primary" data-action="take-booking" data-offer="' + o.id +
-            '" data-group="' + g.id + '">Send ' + UI.esc(g.name) + '</button>' +
-            (K.flyerable && o.week > state.week
-              ? '<button class="btn small" data-action="take-booking" data-offer="' + o.id +
-                '" data-group="' + g.id + '" data-flyer="1">+ flyer week</button>' : '')
-          ).join('') +
-          '</div></div>');
-      });
-    }
-    // booked stages → the calendar strip (§89 C)
-
-    // the second job (v0.9.11): productions call, the desk answers
-    const gigOffers = KP.openGigOffers(state);
-    if (gigOffers.length) {
-      html.push('<div class="kicker">Casting calls</div>');
-      gigOffers.forEach(o => {
-        const p = state.people[o.personId];
-        const terms = o.kind === 'ost'
-          ? o.lump + ' on delivery, three weeks of recording'
-          : o.weekly + '/week for ' + o.weeks + ' weeks, taping weekly';
-        const seat = o.kind === 'panel' ? 'a fixed panel seat on ' : o.kind === 'mc' ? 'the MC mic at ' : 'the OST for ';
-        html.push('<div class="war-card held"><div class="w-flag">' +
-          (o.kind === 'ost' ? 'OST offer' : o.kind === 'mc' ? 'MC offer' : 'Variety offer') +
-          ' · expires ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '</div>' +
-          '<div class="w-text">' + (p ? UI.esc(KP.displayName(p)) : 'She') + ' is wanted for ' + seat + UI.esc(o.show) +
-          ': ' + terms + '. A second job pays the person — and claims the weeks.</div>' +
-          '<div class="w-actions">' +
-          '<button class="btn primary" data-action="gig-accept" data-id="' + o.id + '">Book it</button>' +
-          '<button class="btn" data-action="gig-decline" data-id="' + o.id + '">Pass</button>' +
-          '</div></div>');
-      });
-    }
-    // second jobs running → her file's Career tab (§89 C)
-
-    // calendar strip
-    const up = KP.upcoming(state);
-    if (up.length) {
-      html.push('<div class="kicker">Coming up</div><div class="calstrip">');
-      up.forEach(u => {
-        const uwl = KP.weekLabel(u.week);
-        const inW = u.week - state.week;
-        html.push('<div class="calcard' + (u.hot ? ' hot' : '') + (u.clash ? ' clash' : '') + '">' +
-          '<div class="c-when">' + UI.esc(uwl.month) + ' · wk ' + uwl.weekOfMonth +
-          (inW === 0 ? ' · now' : ' · in ' + inW + 'w') + '</div>' +
-          '<div class="c-what">' + UI.esc(u.label) + '</div></div>');
-      });
-      html.push('</div>');
-    }
-
-    // featured story: highest center-pull trainee not yet debuted
-    const feature = state.roster.map(id => state.people[id])
-      .filter(p => p.status === 'trainee')
-      .sort((a, b) => KP.derived(b).centerPull - KP.derived(a).centerPull)[0];
-    if (feature) {
-      const evl = KP.evaluate(state, feature);
-      const line = evl.instinct || evl.recommendation;
-      html.push('<div class="kicker">On the <span class="k-accent">radar</span></div>');
-      html.push('<div class="card" data-action="open-dossier" data-id="' + feature.id + '" style="display:flex;gap:14px;align-items:center">' +
-        UI.portrait(feature, 'md') +
-        '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:1rem">' + UI.esc(KP.displayName(feature)) + '</div>' +
-        '<div style="font-size:.82rem;font-style:italic;color:var(--ink-dim);margin-top:4px;line-height:1.4">“' + UI.esc(line) + '”</div></div>' +
-        '</div>');
-    }
+    // the calendar strip and the radar card → The record and the Talent roster (v0.10.41, §89 D15)
 
     // the founding (v0.9.9): the door out — shown once the career could
     // plausibly open it, locked with honest reasons until it does
@@ -347,19 +282,30 @@
       ((led.adPaid || 0) ? ' · ' + led.adPaid + ' earned lifetime' : ' · nothing settled yet') + '</div>' +
       (posted ? '<div style="font-size:.74rem;color:var(--gold);margin-top:5px">This week’s upload is out. The editor is rendering feelings.</div>' : '') +
       '</div>');
-    // the menu
-    KP.contentTopics(state).forEach(t => {
+    // the menu: the open topics, and the locked ones folded into one
+    // line that says why on request (v0.10.41, §89 D15)
+    const topics = KP.contentTopics(state);
+    topics.filter(t => t.open).forEach(t => {
       html.push('<div class="card" style="padding:11px">' +
         '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">' +
-        '<span style="font-weight:800;' + (t.open ? '' : 'color:var(--ink-dim)') + '">' + UI.esc(t.label) + '</span>' +
-        (t.open
-          ? '<button class="btn small" data-action="content-post" data-topic="' + t.id + '"' +
-            (posted || state.budget < t.cost ? ' disabled' : '') + '>' +
-            (t.cost ? 'Film · ' + t.cost : 'Post · free') + '</button>'
-          : '<span class="chip">locked</span>') + '</div>' +
-        '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:4px">' +
-        UI.esc(t.open ? t.blurb : t.reason) + '</div></div>');
+        '<span style="font-weight:800">' + UI.esc(t.label) + '</span>' +
+        '<button class="btn small" data-action="content-post" data-topic="' + t.id + '"' +
+        (posted || state.budget < t.cost ? ' disabled' : '') + '>' +
+        (t.cost ? 'Film · ' + t.cost : 'Post · free') + '</button></div>' +
+        '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:4px">' + UI.esc(t.blurb) + '</div></div>');
     });
+    const locked = topics.filter(t => !t.open);
+    if (locked.length) {
+      const show = !!(KP.App && KP.App.contentShowLocked);
+      html.push('<div class="card" style="padding:11px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">' +
+        '<span style="font-weight:800;color:var(--ink-dim)">' + locked.length + ' topic' + (locked.length === 1 ? '' : 's') + ' locked</span>' +
+        '<button class="btn small ghost" style="border:1px solid var(--line)" data-action="content-locked-toggle">' + (show ? 'Hide why' : 'Why') + '</button></div>' +
+        (show
+          ? locked.map(t => '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:6px"><b>' + UI.esc(t.label) + '</b> — ' + UI.esc(t.reason) + '</div>').join('')
+          : '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:4px">Only what is actually happening in this building can be filmed. Each lock says why, on request.</div>') +
+        '</div>');
+    }
     // the archive
     const cat = (state.contentCatalog || []).slice(-8).reverse();
     if (cat.length) {
@@ -475,9 +421,47 @@
     return html.join('');
   }
 
+  // the books (v0.10.1; on The record since v0.10.41, §89 D15): the
+  // quarterly settlement reads beside the runway and the promises
+  function booksCard(state) {
+    const stmt = KP.lastStatement ? KP.lastStatement(state) : null;
+    if (!stmt) return '';
+    return '<div class="kicker">The books · Q' + stmt.quarter + ', year ' + stmt.year + '</div>' +
+      '<div class="card" style="font-size:.78rem;line-height:1.6">' +
+      stmt.lines.map(l => '<div>' + UI.esc(l) + '</div>').join('') +
+      '<div>Operations & payroll: ' + (stmt.other > 0 ? '+' : '') + stmt.other + '</div>' +
+      '<div style="margin-top:6px;font-weight:600;color:' + (stmt.net >= 0 ? 'var(--gold)' : 'var(--magenta)') + '">NET: ' +
+      (stmt.net > 0 ? '+' : '') + stmt.net + '</div>' +
+      KP.groups(state).filter(g => g.debuted && g.recoup && !g.retiredWeek).map(g =>
+        '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:4px">' + UI.esc(g.name) + ': ' +
+        (g.recoup.settledWeek != null
+          ? 'settled · paid out ' + g.recoup.paid + ' to date'
+          : 'unrecouped · ' + Math.max(0, Math.round(g.recoup.debt)) + ' on the ledger') + '</div>').join('') +
+      '</div>';
+  }
+  // the calendar strip (on The record since v0.10.41, §89 D15): the
+  // clocks live with the promises on the clock
+  function calendarStrip(state) {
+    const up = KP.upcoming(state);
+    if (!up.length) return '';
+    const html = ['<div class="kicker">Coming up</div><div class="calstrip">'];
+    up.forEach(u => {
+      const uwl = KP.weekLabel(u.week);
+      const inW = u.week - state.week;
+      html.push('<div class="calcard' + (u.hot ? ' hot' : '') + (u.clash ? ' clash' : '') + '">' +
+        '<div class="c-when">' + UI.esc(uwl.month) + ' · wk ' + uwl.weekOfMonth +
+        (inW === 0 ? ' · now' : ' · in ' + inW + 'w') + '</div>' +
+        '<div class="c-what">' + UI.esc(u.label) + '</div></div>');
+    });
+    html.push('</div>');
+    return html.join('');
+  }
+
   function renderRecord(state) {
     const html = [];
     const claims = state.claims || [];
+    html.push(calendarStrip(state));
+    html.push(booksCard(state));
     const who = c => c.subject.kind === 'exec' ? state.executive.name
       : c.subject.kind === 'idol' ? (state.people[c.subject.id || c.personId] ? KP.displayName(state.people[c.subject.id || c.personId]) : 'her')
       : c.subject.kind === 'fund' ? (c.fundName || 'the fund')

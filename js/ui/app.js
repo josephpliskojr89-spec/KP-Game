@@ -261,6 +261,17 @@
       case 'dossier-tab': App.dossierTab = t.dataset.tab; App.render(); break;
       case 'industry-sub': App.industrySub = t.dataset.sub; App.render(); break;
       case 'industry-chart': App.industryChart = t.dataset.chart; App.render(); break;
+      // the one desk (v0.10.41, §89 D14–15): a pointer from a push-view to
+      // a tab's sub-page, the feed's barricade filter, the locked-topics fold
+      case 'go-tab': {
+        if (t.dataset.tab === 'talent' && t.dataset.sub) App.talentSub = t.dataset.sub;
+        if (t.dataset.tab === 'desk' && t.dataset.sub) App.deskSub = t.dataset.sub;
+        if (t.dataset.tab === 'industry' && t.dataset.sub) App.industrySub = t.dataset.sub;
+        go(t.dataset.tab);
+        break;
+      }
+      case 'feed-filter': App.feedFilter = t.dataset.filter; App.industrySub = 'feed'; App.render(); break;
+      case 'content-locked-toggle': App.contentShowLocked = !App.contentShowLocked; App.render(); break;
       case 'discourse-respond': {
         const r = KP.respondDiscourse(s, t.dataset.id, t.dataset.move);
         if (!r.ok) { UI.toast(r.reason, true); break; }

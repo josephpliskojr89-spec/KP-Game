@@ -99,12 +99,9 @@ async function main() {
   ok(/followers/.test(dossierText), 'the profile shows her public following (v0.6.1)');
   ok(/How the staff read/.test(dossierText), 'the staff read is on the working card (v0.9.3)');
 
-  // --- training plan: focus + intensity ---
-  await tap('.focus-chips .chip');
-  ok(await page.$('.focus-chips .chip.on') !== null, 'focus toggles on');
-  await page.click('.seg [data-intensity=heavy]');
-  await page.waitForTimeout(60);
-  ok(await page.$('.seg button.on.heavy') !== null, 'intensity set to heavy');
+  // --- the plan points at the Training page (v0.10.41, §89 D14) ---
+  ok(await page.$('[data-action=go-tab][data-sub=training]') !== null, 'the dossier points the plan at the Training page');
+  ok(await page.$('.focus-chips') === null, 'and no longer carries the controls itself');
   await tap('[data-action=back]');
 
   // --- scouting board: look, then sign ---
@@ -197,7 +194,7 @@ async function main() {
   await tap('[data-nav=talent]');
   await tap('[data-action=talent-sub][data-sub=roster]');
   await page.waitForSelector('.talent-row');
-  await page.click('.talent-row:nth-child(12)');  // 11th roster row (after the seg header) — the newest signing, appended after 6 trainees + 4 veterans
+  await page.click('.talent-row:nth-child(13)');  // 11th roster row (after the seg header and the radar card, v0.10.41) — the newest signing, appended after 6 trainees + 4 veterans
   await page.waitForSelector('[data-action=release]');
   await tap('[data-action=release]');
   await page.waitForSelector('.modal-sheet');
@@ -288,7 +285,14 @@ async function main() {
   ok(/official/.test(cnt), 'the company account has a masthead');
   ok(/locked/.test(cnt), 'irrelevant topics are locked, visibly');
   ok(/van is parked|tour actually running/.test(cnt), 'and the tour vlog lock explains itself');
+  // --- the one desk (v0.10.41, §89 D15): the clocks and the books read on
+  // The record; Today is decisions and the inbox ---
+  await tap('[data-action=desk-sub][data-sub=record]');
+  const rec = await page.textContent('#screen');
+  ok(/Coming up|The runway/.test(rec), 'the record carries the calendar beside the runway');
   await tap('[data-action=desk-sub][data-sub=today]');
+  const todayText = await page.textContent('#screen');
+  ok(!/The books · Q|On the radar|Coming up/.test(todayText), 'Today is decisions and the inbox — the books, the calendar and the radar moved');
 
   // --- the grind (v0.9.37): a locked era opens the campaign desk ---
   await tap('[data-nav=desk]');
@@ -469,6 +473,11 @@ async function main() {
   });
   await tap('[data-action=industry-sub][data-sub=feed]');
   await page.waitForSelector('.disc-card');
+  // the one desk (v0.10.41, §89 D15): the fandom is a filter on the feed
+  await tap('[data-action=feed-filter][data-filter=fandom]');
+  ok(/From the barricade/.test(await page.textContent('#screen')), 'the barricade filter shows the fandom’s timeline');
+  await tap('[data-action=feed-filter][data-filter=all]');
+  await page.waitForSelector('.disc-card');
   // another storm may already be live and render first — read them all
   const trending = await page.$$eval('.disc-card', els => els.map(e => e.textContent).join('\n'));
   ok(/STYLING DISCOURSE/.test(trending), 'the storm announces its kind');
@@ -503,9 +512,10 @@ async function main() {
     KP.App.save();
   });
   await tap('[data-nav=desk]');
+  await tap('[data-action=desk-sub][data-sub=record]');   // the calendar reads on The record now (v0.10.41, §89 D15)
   await page.waitForTimeout(120);
   ok(/comeback — /.test(await page.textContent('#screen')),
-    'announced rival comebacks reach the Desk calendar strip');
+    'announced rival comebacks reach the calendar strip on The record');
 
   await browser.close();
   server.close();

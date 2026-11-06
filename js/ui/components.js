@@ -92,6 +92,12 @@
 
   // Friction card: the problem and its handle, together. Used by dossier,
   // group page and builder — anywhere a tense pair surfaces.
+  // the pitch upstairs (v0.9.19; on the Groups tab since v0.10.41)
+  UI.pitchButton = function (state) {
+    const cool = (state.mandateCooldownUntil || 0) >= state.week;
+    return '<button class="btn small" data-action="pitch-mandate"' + (cool ? ' disabled' : '') + '>Pitch a new act upstairs' +
+      (cool ? ' · ' + (state.mandateCooldownUntil - state.week + 1) + 'w' : '') + '</button>';
+  };
   UI.frictionCard = function (state, f, g) {
     const cd = KP.mediationCooldown(state, f.a.id, f.b.id);
     // the seating chart (v0.10.40, §88 D): a body between them, for a while

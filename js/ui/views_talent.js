@@ -15,6 +15,7 @@
       '<button class="' + (sub === 'board' ? 'on' : '') + '" data-action="talent-sub" data-sub="board">Board (' + state.prospects.length + ')</button>' +
       '</div></div>');
     if (sub === 'roster') {
+      html.push(radarCard(state));   // on the radar (from Today since v0.10.41, §89 D15)
       state.roster.map(id => state.people[id]).forEach(p => html.push(rosterRow(state, p)));
       if (!state.roster.length) html.push('<div class="card">No trainees. That is a problem money can fix.</div>');
     } else if (sub === 'training') {
@@ -192,6 +193,23 @@
   }
 
   // Training page: every trainee's plan, adjustable in place.
+  // the featured story (from Today since v0.10.41, §89 D15): the highest
+  // center-pull trainee not yet debuted — one card at the head of the roster
+  function radarCard(state) {
+    const feature = state.roster.map(id => state.people[id])
+      .filter(p => p.status === 'trainee')
+      .sort((a, b) => KP.derived(b).centerPull - KP.derived(a).centerPull)[0];
+    if (!feature) return '';
+    const evl = KP.evaluate(state, feature);
+    const line = evl.instinct || evl.recommendation;
+    return '<div><div class="kicker">On the <span class="k-accent">radar</span></div>' +
+      '<div class="card" data-action="open-dossier" data-id="' + feature.id + '" style="display:flex;gap:14px;align-items:center">' +
+      UI.portrait(feature, 'md') +
+      '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:1rem">' + UI.esc(KP.displayName(feature)) + '</div>' +
+      '<div style="font-size:.82rem;font-style:italic;color:var(--ink-dim);margin-top:4px;line-height:1.4">“' + UI.esc(line) + '”</div></div>' +
+      '</div></div>';
+  }
+
   function renderTrainingPage(state) {
     const html = [];
     const trainees = state.roster.map(id => state.people[id]).filter(p => p.status === 'trainee');
@@ -340,6 +358,12 @@
             (c.type === 'solo' ? 'Solo cut' : 'Unit') + ' “' + UI.esc(c.trackTitle) + '” on ' + UI.esc(c.releaseTitle) + '</div></div>');
         });
       }
+      // the pen (v0.9.7; on Career since v0.10.41, §89 D14): the credit count
+      if ((p.flags.writerCredits || 0) > 0) {
+        html.push('<div class="kicker">The pen</div>');
+        html.push('<div class="card">' + KP.fillPro('Songwriting credits on record: ' + p.flags.writerCredits +
+          '. The word “artist” has started replacing “performer” in {pos} coverage, which was the whole point of the pen.', p) + '</div>');
+      }
       const deals = (KP.activeDeals ? KP.activeDeals(state) : []).filter(d => d.personId === p.id);
       if (deals.length) {
         html.push('<div class="kicker">Sponsorships</div>');
@@ -357,7 +381,7 @@
         html.push('<div class="card">Broadcasting since ' + UI.esc(KP.weekLabel(p.broadcast.since).text) +
           ' · ' + (p.broadcast.uploads || 0) + ' uploads. The archive is hers; the ad checks are the company’s (§85 would like a word).</div>');
       }
-      if (!solos.length && !credits.length && !gig && !p.broadcast && !p.dualCareer) {
+      if (!solos.length && !credits.length && !gig && !p.broadcast && !p.dualCareer && !(p.flags.writerCredits || 0)) {
         html.push('<div class="card" style="color:var(--ink-dim);font-style:italic">' +
           KP.fillPro('The career page is blank so far — every name on it will be earned.', p) + '</div>');
       }
@@ -367,12 +391,13 @@
     if (tab === 'person') {
       // who she is — and who she is becoming (§88 C)
       html.push('<div class="kicker">' + KP.fillPro('Who {she} is', p) + '</div>');
-      const AMBITION_WORDS = { solo: 'a stage with only her name on it', trophy: 'the trophy, held up, hers',
-        stage: 'the kind of stage people describe for years', variety: 'the seat where the funny one sits' };
+      // one ambition wording (v0.10.41, §89 D14): the life table's label,
+      // and "wanted, and got" once the ambition landed
+      const A = KP.C.LIFE.AMBITIONS[KP.ambitionOf(state, p)];
+      const want = A ? A.label : 'to be seen';
       html.push('<div class="card">' + KP.fillPro('{She} ' + KP.VOICES[KP.voiceOf(state, p)].label, p) +
         '. This week: ' + UI.esc(KP.moodOf(p)) + '. ' +
-        KP.fillPro('What {she} wants, quietly: ', p) +
-        UI.esc(AMBITION_WORDS[KP.ambitionOf(state, p)] || 'to be seen') + '.</div>');
+        KP.fillPro(p.flags.ambitionMet ? 'What {she} wanted, and got: ' + want + '.' : 'What {she} wants, quietly: ' + want + '.', p) + '</div>');
       html.push('<div class="card">' + KP.factsOf(state, p).map(f => UI.esc(f)).join('<br>') + '</div>');
       // the chapters (v0.10.33, §90 B5): where she has been — one file for life
       const chapters = KP.chaptersOf ? KP.chaptersOf(state, p) : [];
@@ -463,66 +488,13 @@
             '</span></div>');
         }
       }
-      if (p.status === 'idol' || p.status === 'trainee') {
-        const facts = KP.factsOf(state, p).map(UI.esc);
-        const voiceLine = 'In the room, {she} ' + UI.esc(KP.VOICES[KP.voiceOf(state, p)].label) + '.';
-        const factNote = pick('factNote', [
-          'Off the clock: {she} ' + facts[0] + ', and ' + facts[1] + '. ' + voiceLine,
-          'The staff profile, unofficial edition: {she} ' + facts[0] + '. Also ' + facts[1] + ' — ask anyone. ' + voiceLine,
-          'Two true things the cameras keep missing: {she} ' + facts[0] + ', and {she} ' + facts[1] + '. ' + voiceLine,
-          'What the fans would trade anything to confirm (the staff can): {she} ' + facts[0] + ', and ' + facts[1] + '. ' + voiceLine,
-        ]);
-        html.push('<div class="note">' + KP.fillPro(factNote, p) + '<span class="n-who">' +
-          KP.fillPro(pick('factWho', ['— the staff, fondly', '— the managers’ group chat, leaked internally', '— {pos} roommate, under mild duress', '— the stylists, between fittings']), p) +
-          '</span></div>');
-        if (p.status === 'idol') {
-          const amb = KP.ambitionOf(state, p);
-          const A = KP.C.LIFE.AMBITIONS[amb];
-          html.push('<div class="note">' + KP.fillPro(p.flags.ambitionMet
-            ? '{She} got the thing {she} wanted — ' + UI.esc(A.label) + ' — and it shows in how {she} carries the rest.'
-            : 'What {she} wants, if you watch closely: ' + UI.esc(pick('ambLine', A.lines)), p) +
-            '<span class="n-who">— a staff observation, not a metric</span></div>');
-        }
-        if ((p.directed || []).length) {
-          html.push('<div class="note">' + KP.fillPro('Where {she} stands with the company, if you ask the people who drive the vans: ' +
-            UI.esc(KP.standingOf(state, p)), p) +
-            '.<span class="n-who">— the road staff, off the record</span></div>');
-        }
-        // the credits (v0.9.7): the pen record
-        if ((p.flags.writerCredits || 0) > 0) {
-          html.push('<div class="note">' + KP.fillPro('Songwriting credits on record: ' + p.flags.writerCredits +
-            '. The word “artist” has started replacing “performer” in {pos} coverage, which was the whole point of the pen.', p) +
-            '<span class="n-who">— the liner notes, cumulatively</span></div>');
-        }
-        // the society (v0.9.4): friendships across company lines
-        const friends = (KP.friendsOf ? KP.friendsOf(state, p.id) : [])
-          .map(f => state.people[f.a === p.id ? f.b : f.a]).filter(Boolean);
-        if (friends.length) {
-          html.push('<div class="note">' + KP.fillPro('Industry friends, the real kind: ' +
-            friends.map(fr => UI.esc(KP.displayName(fr))).join(', ') +
-            '. Different companies, same waiting rooms. The managers pretend not to coordinate pickup times, and coordinate pickup times.', p) +
-            '<span class="n-who">— common knowledge backstage</span></div>');
-        }
-        const credits = KP.trackCreditsOf(state, p.id);
-        if (credits.length || (p.soloDisc || []).length) {
-          const first = credits.find(c => c.type === 'solo');
-          const parts = [];
-          if (first) parts.push('first solo on record: “' + UI.esc(first.trackTitle) + '” (' + UI.esc(KP.weekLabel(first.week).text) + ')');
-          // the solo era (v0.10.24): her standalone releases, in the margin
-          (p.soloDisc || []).forEach(dd => {
-            parts.push((dd.format === 'mini' ? 'solo mini' : 'solo single') + ' “' + UI.esc(dd.title) + '” (' +
-              UI.esc(KP.weekLabel(dd.week).text) + ', reception ' + dd.reception +
-              (dd.direction === 'hers' ? ', her direction' : dd.direction === 'cowrite' ? ', co-written' : '') + ')');
-          });
-          const units = credits.filter(c => c.type === 'unit');
-          if (units.length) {
-            const u = units[units.length - 1];
-            const withNames = u.withIds.map(id => state.people[id]).filter(Boolean).map(x => UI.esc(KP.publicGiven(x))).join(' & ');
-            parts.push('unit work with ' + withNames + ' on “' + UI.esc(u.trackTitle) + '”');
-          }
-          html.push('<div class="note">' + KP.fillPro('Discography margin, the part {she} checks: ', p) + parts.join('; ') +
-            '.<span class="n-who">— A&R, keeping receipts</span></div>');
-        }
+      // the file keeps the public stories, the home regions, the standing
+      // and the evaluators' words; who she is, what she wants, her people
+      // and her records live on The person and Career (v0.10.41, §89 D14)
+      if ((p.status === 'idol' || p.status === 'trainee') && (p.directed || []).length) {
+        html.push('<div class="note">' + KP.fillPro('Where {she} stands with the company, if you ask the people who drive the vans: ' +
+          UI.esc(KP.standingOf(state, p)), p) +
+          '.<span class="n-who">— the road staff, off the record</span></div>');
       }
       // the written evaluations, in the evaluators' own words — desk
       // reports (no look yet) say so in the byline (0.9.16.3)
@@ -597,19 +569,14 @@
       }
     }
 
-    // training plan
+    // the plan (v0.10.41, §89 D14): one line here, the controls on the
+    // Training page — one place to set every trainee's week
     if (p.status === 'trainee') {
+      const focus = (p.training.focus || []).map(d => KP.C.TALENT_LABELS[d]).join(' + ') || 'no focus set';
       html.push('<div class="kicker">This week’s plan</div>');
-      html.push('<div class="pad"><div class="focus-chips">' +
-        KP.C.TALENTS.map(d => '<button class="chip ' + ((p.training.focus || []).includes(d) ? 'on' : '') + '" ' +
-          'data-action="toggle-focus" data-id="' + p.id + '" data-domain="' + d + '">' + UI.esc(KP.C.TALENT_LABELS[d]) + '</button>').join('') +
-        '</div>' +
-        '<div class="seg" style="margin-top:10px">' +
-        KP.C.TRAIN.intensities.map(i => '<button class="' + (p.training.intensity === i ? 'on ' + i : '') + '" ' +
-          'data-action="set-intensity" data-id="' + p.id + '" data-intensity="' + i + '">' + i + '</button>').join('') +
-        '</div>' +
-        '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">Two focus areas max. Heavy weeks add up — so does rest.</div>' +
-        '</div>');
+      html.push('<div class="pad" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.78rem">' +
+        '<span>' + UI.esc(focus) + ' · ' + UI.esc(p.training.intensity) + '</span>' +
+        '<button class="btn small" data-action="go-tab" data-tab="talent" data-sub="training">Set it on the Training page</button></div>');
     }
 
     // actions for prospects

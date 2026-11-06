@@ -15,14 +15,29 @@
       ? '<div class="kicker" style="margin-top:16px">Concluded</div>' +
         gone.map(g => archiveCard(state, g)).join('')
       : '';
-    if (!groups.length) return renderNoGroup(state) + (state.project ? newLineupCard(state) : '') + archive;
-    if (groups.length === 1) return UI.renderGroupPage(state, groups[0]) + newLineupCard(state) + archive;
+    const lineup = newLineupCard(state);
+    const pitch = /pitch-mandate/.test(lineup) ? '' : pitchCard(state);   // the boardroom, once
+    if (!groups.length) return renderNoGroup(state) + (state.project ? lineup : '') + pitch + archive;
+    if (groups.length === 1) return UI.renderGroupPage(state, groups[0]) + lineup + pitch + archive;
     const html = [];
     groups.forEach(g => html.push(groupCard(state, g)));
-    html.push(newLineupCard(state));
+    html.push(lineup);
+    html.push(pitch);
     html.push(archive);
     return html.join('');
   };
+
+  // the pitch upstairs (from Today since v0.10.41, §89 D15): a new act
+  // starts in the boardroom, and the boardroom is reached from here
+  function pitchCard(state) {
+    if (!KP.pitchMandate) return '';
+    const open = (KP.openMandates ? KP.openMandates(state) : []).filter(m => !m.virtual);
+    return '<div class="card" style="margin-top:14px"><b>Upstairs</b> — ' +
+      (open.length
+        ? open.length + ' greenlight' + (open.length === 1 ? '' : 's') + ' open; the window' + (open.length === 1 ? ' is' : 's are') + ' on Today.'
+        : 'no greenlight is open. Debuts come down from the boardroom.') +
+      '<div style="margin-top:12px">' + UI.pitchButton(state) + '</div></div>';
+  }
 
   function archiveCard(state, g) {
     const rels = (g.releases || []).length;
@@ -66,7 +81,7 @@
       const lit = KP.mandateFitting && KP.mandateFitting(state, { kind: 'group', gender: null, memberIds: [] });
       if (!lit) {
         return '<div class="card" style="margin-top:14px">The trainee room still has people waiting for their shot — ' + free + ' without a lineup. But no greenlight covers a new act: debuts come down from upstairs.' +
-          '<div style="margin-top:12px"><button class="btn small" data-nav="desk">Pitch the board from the Desk</button></div></div>';
+          '<div style="margin-top:12px">' + UI.pitchButton(state) + '</div></div>';
       }
       return '<div class="card" style="margin-top:14px">The trainee room still has people waiting for their shot — ' + free + ' without a lineup. The greenlight is open.' +
         '<div style="margin-top:12px"><button class="btn primary" data-action="open-builder">Propose a new lineup</button></div></div>';

@@ -8,16 +8,17 @@
 
   UI.renderIndustry = function (state, sub, chartWhich) {
     sub = sub || 'scene';
+    // the fandom is a filter on the feed now (v0.10.41, §89 D15)
+    const fandom = sub === 'fandom' || !!(KP.App && KP.App.feedFilter === 'fandom');
+    if (sub === 'fandom') sub = 'feed';
     const html = [];
     html.push('<div class="pad" style="margin-top:2px"><div class="seg">' +
       '<button class="' + (sub === 'scene' ? 'on' : '') + '" data-action="industry-sub" data-sub="scene">Scene</button>' +
       '<button class="' + (sub === 'chart' ? 'on' : '') + '" data-action="industry-sub" data-sub="chart">Charts</button>' +
       '<button class="' + (sub === 'feed' ? 'on' : '') + '" data-action="industry-sub" data-sub="feed">Feed</button>' +
-      '<button class="' + (sub === 'fandom' ? 'on' : '') + '" data-action="industry-sub" data-sub="fandom">Fandom</button>' +
       '</div></div>');
     if (sub === 'chart') html.push(renderChart(state, chartWhich));
-    else if (sub === 'feed') html.push(renderFeed(state));
-    else if (sub === 'fandom') html.push(renderFandom(state));
+    else if (sub === 'feed') html.push(renderFeed(state, fandom));
     else html.push(renderScene(state));
     return html.join('');
   };
@@ -334,8 +335,14 @@
     legal: 'Legal threat', meme: 'Lean into the meme', livestream: 'Member livestream' };
   const PERSONA_LABELS = { fan: 'fan', stan: 'stan', casual: 'casual', anti: 'anti', press: 'press' };
 
-  function renderFeed(state) {
+  function renderFeed(state, fandom) {
     const html = [];
+    // the filter (v0.10.41, §89 D15): everyone, or the barricade — the
+    // adopted accounts and the stan register, the old Fandom tab
+    html.push('<div class="pad" style="margin-top:4px"><div class="seg">' +
+      '<button class="' + (!fandom ? 'on' : '') + '" data-action="feed-filter" data-filter="all">Everyone</button>' +
+      '<button class="' + (fandom ? 'on' : '') + '" data-action="feed-filter" data-filter="fandom">The barricade</button>' +
+      '</div></div>');
 
     // trending storms first (v0.6.2) — the interactive part
     const live = KP.liveDiscourses(state);
@@ -358,6 +365,7 @@
       });
     }
 
+    if (fandom) { html.push(renderFandom(state)); return html.join(''); }
     html.push('<div class="kicker">The fan feed</div>');
     const posts = state.feed || [];
     if (!posts.length) {

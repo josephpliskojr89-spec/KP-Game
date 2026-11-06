@@ -6343,7 +6343,7 @@ deposit that compounds? Current lean: deposits that compound into
 the doors that already exist (renewals, walkouts, storms) — the
 game already knows how to make small things become big.
 
-## §89 The pruning (PHASES 1–2 SHIPPED v0.10.29–30 — what to quiet, delete, and merge)
+## §89 The pruning (PHASES 1–3 SHIPPED v0.10.29–30, 41 — what to quiet, delete, and merge)
 
 Owner: "Let's start with pruning. A full audit of anything that is
 redundant or just not used much. And make notes of what could be
@@ -6576,6 +6576,7 @@ scenes/claims.
 - PHASE 3 — THE ONE DESK (v0.10.31): the UI consolidation (D14–D15) —
   Today strips to decisions, the dossier de-duplicates, Industry and
   Content shrink. The e2e walkthrough moves with it.
+  → SHIPPED v0.10.41 (as built below).
 - PHASE 4 — THE ONE MARKET (v0.11.x): outside bookings, the market
   lane, staff seats, stage surfaces, money lines, boards + tongue
   (D6–D10, D12). Save-shape changes; medium risk each.
@@ -6762,6 +6763,49 @@ burnout paths, the feed stream, the migration and the fork.
 
 Battery 97/97, soak 40 clean, longhaul 10x620, e2e 111, lockstep
 0.10.30.
+
+**As built — Phase 3, v0.10.41 "the one desk".** Owner: "Start
+tackling the queue." UI only — no engine change, no rng shift, no
+migration; the walkthrough moved with it (116 checks).
+
+*D15, the Desk.* Today is decisions and the inbox: the directive,
+the hype clock and the greenlights; ONE rail under "Waiting on your
+answer" — every held scene, then the booking pile, the brand offers
+and the casting calls as cards on the same list (one kicker, not
+four); the campaign desk per locked era; the founding door; the
+spotlight; the inbox. Gone from Today: the pitch button (→ the
+Groups tab, an "Upstairs" card beside the lineup card, or inside
+the no-greenlight card), the building card (→ one gold line, only
+when a chair is open or a posting is up; the mirror and the files
+stay on The building tab), the books (→ The record, above the
+runway), the calendar strip (→ The record, "Coming up", first), the
+radar card (→ the head of the Talent roster). The record reads top
+to bottom: Coming up, The books, The runway, Promises on the clock,
+Settled, Conversations. Industry loses the Fandom tab: the Feed
+carries a filter seg (Everyone | The barricade) and the barricade
+view is the old fandom page (the fandom names, the devoted, the
+home-crowd timeline) under the same trending storms. Content lists
+only the open topics; the locked ones fold into one line ("N topics
+locked · Why") that expands to each lock's reason — the law of the
+menu still says why, on request.
+
+*D14, the dossier.* The person keeps who she is (voice, mood, what
+she wants — now the one LIFE.AMBITIONS label, with the "wanted, and
+got" variant once the ambition landed; the inline AMBITION_WORDS
+table is gone), the facts, the chapters, up close lately, the arc,
+since debut, the ledger between you, her people. The file keeps the
+public stories, the home-regions note, the standing note, the
+evaluators' words and the staff observations — the fact note, the
+ambition note, the friends note and the discography margin were the
+same facts twice, deleted. Career gains "The pen" (the songwriting-
+credit count, from The file). The training controls leave the
+Profile: it shows this week's plan in one line and a button to the
+Training page (`go-tab`), which already carried the focus chips and
+the intensity for every trainee. New app verbs: go-tab,
+feed-filter, content-locked-toggle.
+
+Battery 107/107, soak 40 clean, longhaul 10x620, e2e 116,
+lockstep 0.10.41.
 
 
 ## §90 The trainee ecosystem (PHASES A–C SHIPPED v0.10.31–33 — one world of people)
@@ -11414,6 +11458,20 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 280 real people, measured; the harness prints both now). Suite_107
 > (48). Battery 107/107, soak
 > 40 clean, longhaul 10x620, e2e 114, lockstep 0.10.40. Rode to main.
+
+> **0.10.41 — the one desk.** §89 Phase 3 (D14–D15), owner: "Start
+> tackling the queue." Today strips to decisions and the inbox — one
+> rail for every answer owed (scenes, bookings, brand offers, casting
+> calls), the campaign desk, the door, the spotlight; the pitch moves
+> to Groups, the building to one line when a chair is open, the
+> books and the calendar to The record, the radar to the Talent
+> roster. Fandom becomes a Feed filter; Content folds its locked
+> topics into one line. The dossier de-duplicates: The person keeps
+> who she is, The file keeps the public stories and the staff's
+> words, Career takes the pen, the plan points at the Training page;
+> one ambition wording. UI only — no engine change, no rng shift.
+> Battery 107/107, soak 40 clean, longhaul 10x620, e2e 116,
+> lockstep 0.10.41. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
