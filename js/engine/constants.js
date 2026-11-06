@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.36',
+    VERSION: '0.10.37',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -914,9 +914,9 @@
       jitter: 12,              // hash-driven weekly wobble in scores
       encoreChance: 0.35,      // after a WIN: the encore is live, no track
       encoreVocalsMin: 65,     //   — a real voice makes it a moment
-      shakyEncoreChance: 0.2,  // after a win with a shaky room: a storm
-      shakyLiveMax: 42,
+      shakyEncoreChance: 0.2,  // after a win on a shaky or fumbled stage: a storm (the stage, v0.10.37)
       fairyChance: 0.12,       // weekly, per appearance: the ending fairy trends
+      fairyCarried: 20,        // the camera leans toward the voice that carried the week (v0.10.37)
       darlingAt: 7,            // wins on ONE show before it becomes a story (dynasty, not tenure)
     },
 
@@ -1802,6 +1802,58 @@
       hardEncoreBonus: 0.08,      // and the encore lottery watches closer
       lineWarChance: 0.20,        // per fault on the sheet (a quiet voice, one voice carrying
                                   // the record), the stopwatch thread organizes at release
+    },
+    // the stage, judged (v0.10.37, §91 Phase 4) — ONE rating per
+    // performance, `KP.stageRead`: each voice against her load on the
+    // sheet (the song's vocal demand scaled by her share), each body
+    // against the choreography, presence, live reliability, fatigue
+    // (steeper than the old read), morale (a low room goes through the
+    // motions), the formation (chemistry, the pairs, the rehearsal
+    // chair, the choreography against the room, the holes), and a hash
+    // wobble per (seed, stage, week) — television, not the stream.
+    STAGE: {
+      MIX: {   // the song's live demand by lane: voice, body, presence
+        performance: { vocals: 0.25, dance: 0.50, presence: 0.25 },
+        hiphop:      { vocals: 0.30, dance: 0.40, presence: 0.30 },
+        futuristic:  { vocals: 0.30, dance: 0.45, presence: 0.25 },
+        dark:        { vocals: 0.35, dance: 0.40, presence: 0.25 },
+        bright:      { vocals: 0.40, dance: 0.35, presence: 0.25 },
+        retro:       { vocals: 0.45, dance: 0.30, presence: 0.25 },
+        elegant:     { vocals: 0.50, dance: 0.25, presence: 0.25 },
+        dreamy:      { vocals: 0.55, dance: 0.20, presence: 0.25 },
+        fusion:      { vocals: 0.35, dance: 0.35, presence: 0.30 },
+      },
+      scale: 75,                  // × the mixed fit (voice, body, presence against their bars) — measured v0.10.37
+      presenceAt: 52,             // stage presence reads 1.0 here
+      fitCap: 1.05, presenceCap: 1.1,   // a voice over its bar stops paying early: a veteran room is carried on its good nights, not every night (measured v0.10.37)
+      loadBase: 0.7, loadPerShare: 1.5,   // her vocal bar = the song's demand × (base + share × per)
+      seatedDance: 0.5,           // the chair performs half the choreography
+      relPer: 0.25,               // (liveReliability − 50) × this
+      fatigueFrom: 60, fatiguePer: 0.35,  // steeper than the old −0.03 a point
+      moraleFrom: 50, moralePer: 0.15,    // a low room goes through the motions
+      chemPer: 0.12,              // (chemistry − 50) × this on the formation
+      closePair: 1, closeCap: 3,  // close pairs read as not acting
+      tensePair: 2, tenseCap: 6,  // tense pairs read cold in formation
+      gapPer: 0.2, gapCap: 12,    // the choreography's difficulty over the room's dance
+      easyAt: -15, easyBonus: 2,  // a room well over its choreography makes it look easy
+      absentPer: 3, absentCap: 9, // formation holes
+      rehearsalSpan: 30,          // (seatMult('perf') − 1) × this — the chair finally multiplies
+      formationApart: -8, formationLocked: 5,
+      wobble: 6,                  // ± per (seed, stage, week)
+      carriedAt: 75, cleanAt: 58, shakyAt: 44,   // bands: carried / clean / shaky / fumbled
+      carrierMin: 75, momentLead: 10,  // the one who carried: her score, and over the room
+      fumblerMax: 40, momentLag: 12,   // the one who lost it
+      intensity: 1, morale: 1,    // ± per carried / fumbled stage (ruling 5: teeth)
+      fancamChance: 0.10,         // a carried stage posts the clip
+      stormChance: 0.20,          // a lost stage wakes the clip storm
+      distanceChance: 0.25,       // a fumbled stage with a tense pair wakes the distance watch
+      repPer: 1,                  // reputation.performance ± on carried / fumbled (its first writer)
+      craftAlpha: 0.25,           // the act's rolling stage craft
+      awardsPer: 0.3,             // (stageCraft − 55) × this on the artist ballot
+      gigLight: true,             // the booking pile rates light: counts and craft, no teeth
+      badNightDemand: 0.9, goodNightDemand: 1.05,   // the tour: a bad night sells the next week softer
+      festMorale: { carried: 2, clean: 1, shaky: 0, fumbled: -1 },
+      gayoCarriedFandom: 1,       // on top of the gayo stage's own
     },
     // the sheet (v0.10.36, §91 Phase 3) — the line distribution over the
     // song's PARTS. Shares are running-time fractions the fandom times

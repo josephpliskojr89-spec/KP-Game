@@ -369,6 +369,10 @@ const BANDS = {
   clipCaught:        { lo: 0.20, hi: 1.00, label: 'orgs whose MV set leaked the free trailer' },
   sheetSet:          { lo: 0.90, hi: 1.00, label: 'orgs that set a sheet at the booth' },
   lineWarSeen:       { lo: 0.05, hi: 0.70, label: 'orgs litigated by the stopwatch thread' },   // §91 Phase 3: measured 26/40 at .30 a fault, 22/40 and 72/120 at .20 — hi .60→.70
+  // the stage, judged (v0.10.37, §91 Phase 4) — measure-first
+  stageCarried:      { lo: 0.50, hi: 1.00, label: 'orgs that carried a stage' },
+  stageFumbled:      { lo: 0.10, hi: 0.90, label: 'orgs that fumbled a stage' },
+  chemistryStaged:   { lo: 0.05, hi: 1.00, label: 'orgs whose formation read a pair (close or tense) on a stage' },
   // the song market (v0.10.5): ruled first soak — 40/40, 39/40, 39/40.
   // Hot hooks sit past windows constantly over long orgs (the bot
   // deliberates like everyone else); camps fire whenever a cold sheet
@@ -675,6 +679,7 @@ const tally = {
   clubOpened: 0, greetingsOut: 0, fanconHeld: 0, catalogPaying: 0, atmStorm: 0,
   soloEraRun: 0, soloCutOut: 0, frictionFlows: 0, frictionTeeth: 0,
   stationRun: 0, slipDecided: 0, clipCaught: 0, sheetSet: 0, lineWarSeen: 0,
+  stageCarried: 0, stageFumbled: 0, chemistryStaged: 0,
   medCase: 0, medChronic: 0, flareFelt: 0,
   demoLost: 0, campHeld: 0, bondWorking: 0,
   interviewHeld: 0, seatHired: 0, seatCalled: 0, staffVoice: 0, meshFelt: 0,
@@ -1896,6 +1901,10 @@ for (let s = 0; s < SEEDS; s++) {
   if ((ppl.postponed || 0) + (ppl.crunched || 0) >= 1) tally.slipDecided++;
   if ((ppl.clips || 0) >= 1) tally.clipCaught++;
   if ((ppl.sheets || 0) >= 1) tally.sheetSet++;   // the sheet (v0.10.36)
+  const stl = state.stageLedger || {};               // the stage (v0.10.37)
+  if ((stl.carried || 0) >= 1) tally.stageCarried++;
+  if ((stl.fumbled || 0) >= 1) tally.stageFumbled++;
+  if ((stl.pairsRead || 0) >= 1) tally.chemistryStaged++;
   if ((ppl.lineWars || 0) >= 1) tally.lineWarSeen++;
   const mdl = state.medLedger || {};
   if ((mdl.cases || 0) >= 1) tally.medCase++;

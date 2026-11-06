@@ -91,9 +91,13 @@
         if (!g.debuted || (g.gayoYear || 0) !== year) return;
         const members = g.members.map(id => state.people[id]).filter(Boolean);
         members.forEach(m => { m.morale = KP.clamp(m.morale + S.gayoMorale, 0, 100); });
-        KP.fandomGain(g, 2);
-        inbox.push({ kind: 'public', ind: 'gayoStage', priority: 'high', groupId: g.id,
-          text: g.name + ' closed the year on the gayo stage — the remix nobody asked for and everybody screenshotted, the outfit change, the year in ninety seconds. The fancams will outlive us all.' });
+        // the stage, judged (v0.10.37): December is rated like any night
+        const read = KP.stageRead(state, g, { kind: 'gayo', id: year });
+        KP.settleStage(state, rng, g, read, { where: 'the gayo stage' }).forEach(n => inbox.push(n));
+        KP.fandomGain(g, 2 + (read.band === 'carried' ? KP.C.STAGE.gayoCarriedFandom : 0));
+        inbox.push({ kind: 'public', ind: 'gayoStage', priority: 'high', groupId: g.id, band: read.band,
+          text: g.name + ' closed the year on the gayo stage — the remix nobody asked for and everybody screenshotted, the outfit change, the year in ninety seconds. ' +
+            KP.stageLine(state, g, read, 'the gayo stage') + ' The fancams will outlive us all.' });
         // the special stage: a waiting-room friendship becomes television
         const withFriend = members.find(m => (KP.friendsOf(state, m.id) || []).length);
         if (withFriend && rng.chance(S.gayoCollabChance)) {

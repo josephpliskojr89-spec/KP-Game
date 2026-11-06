@@ -7141,7 +7141,7 @@ checks: the strip is on the person tab and opens with where she is
 from), lockstep 0.10.33.
 
 
-## §91 The comeback (PHASES 1–3 SHIPPED v0.10.34–36 — the song made, the chart earned, the stage judged)
+## §91 The comeback (PHASES 1–4 SHIPPED v0.10.34–37 — the song made, the chart earned, the stage judged)
 
 Owner, thinking out loud: "something that really defines kpop and
 it's the comeback. The anticipation, the promotion, the stages, and
@@ -7797,6 +7797,125 @@ pattern.
 
 Battery 103/103, soak 40 clean, longhaul 10x620, e2e 113,
 lockstep 0.10.36.
+
+**As built — Phase 4, v0.10.37 "the stage".** Owner: "Go ahead with
+stage 4." stage.js is the module (loaded after sheet.js); shows.js,
+bookings.js, festivals.js, tour.js, year.js, circuit.js, awards.js,
+debut.js, discourse.js, the dossier, the group page and the harness
+learned the one read. Suite_104_stage (60 checks); suite_029's encore
+fixture re-pinned to a room that carries; suite_042's two knock
+fixtures let another member's knock pass and keep the tired one on
+fumes through the knock phase (the stream moved). No migration: a release
+without `liveDemand` sings the house standard (55 / 50), an act
+without nights has no craft yet.
+
+*The one read.* `KP.stageRead(state, g, {kind, id})` → {score, band,
+perMember, moments, formation, pairs, present}. The era's record is
+the last release: its lane picks the MIX (STAGE.MIX — a performance
+record lives on the body, dreamy and elegant on the voice, hip-hop
+and fusion on presence as much as either), its `liveDemand` (vocals,
+dance, rap — archived at release from the demo) sets the bars, its
+choreography's difficulty is the body's bar, its sheet's shares are
+the LOAD. Each present voice (not on a break): her vocals against the
+song's demand × (.7 + share × 1.5) — the voice carrying half the
+record sings a harder night than the one with eight seconds; her
+dance against the difficulty (the seated arrangement performs half
+of it), each capped at 1.05 (a voice over its bar stops paying
+early); stage presence against 52, capped 1.1; × 75 through the
+mix, plus
+(liveReliability − 50) × .25 (reps, professionalism, resilience,
+the slump's damp, the veteran's stage IQ), minus fatigue over 60 at
+.35 a point (steeper than the old read), minus morale under 50 at
+.15 (a low room goes through the motions). The FORMATION: the room's
+chemistry (chem − 50) × .12; close pairs +1 each (cap 3: not acting),
+tense and conflict pairs −2 each (cap 6: cold in formation); the
+choreography over the room's average dance −.2 a point (cap 12), a
+room fifteen over its choreography +2 (it looks easy); every hole −3
+(cap 9); the rehearsal chair (seatMult('perf') − 1) × 30 — the
+performance director finally multiplies something weekly. A hash
+wobble ±6 per (seed, stage, week): television, not the stream. Bands
+carried ≥75 / clean ≥58 / shaky ≥44 / fumbled. The MOMENTS: the voice
+≥75 and ten over the room carried it (the load law makes this hard
+for the lead voice — she sings the hardest bar); the voice ≤40 and
+twelve under lost it; the formation at −8 came apart, at +5 locked;
+the chair; the holes. Measured on 160 fresh rooms one promo week in
+(fatigue 64–71, the crunch): p10/50/90 45/55/68 against the old live
+average's 45/50/54 — same centre, the spread now belongs to the
+room; bands shaky 52%, clean 38%, fumbled 8%, carried 2%; a named
+carrier on 16% of stages, a named loss on 18%, the formation apart
+on 10%. The established legacy room: 78/83/87 rested, 73/78/82 at
+fatigue 70 against the old average's 64/66/69 — carried on its good
+nights, clean on the tired ones; with the caps at 1.15/1.3 every
+veteran night read carried, which is why they came down. The first
+cut (scale 62, fatigue from 55) read 56% of fresh stages fumbled —
+too harsh for a rookie's first week; the knee moved to 60 and the
+scale up.
+
+*Paid once per rated stage* (`KP.settleStage`): every present voice
++1 played, the carrier +1 carried, the loss +1 fumbled (`m.stages`);
+the act's rolling craft `g.stageCraft` (α .25); a carried stage
+writes the performance house (+1 on `reputation.performance` — its
+first writer; the `performanceHouse` narrative forms at 68 as it
+always did), warms the fandom (+1 intensity) and the room (+1
+morale); a fumbled one takes each back (ruling 5: teeth). The
+lotteries, rng: the carrier's clip (fancamChance .10 — a `fancam`
+discourse and a viral with provenance, "the Prime Stage fancam"),
+the storm around the one who lost it (stormChance .20 — the `encore`
+discourse, now headlined "losing the second chorus on a live stage"
+when it came from a stage; the slump's engine reads it), the
+distance watch on a fumbled stage with a tense pair in the formation
+(.25 — `didntStand`, alive without a named rivalry). The booking
+pile and the circuit rate LIGHT (counts and craft, no teeth).
+
+*The words.* `KP.stageLine`: "Minji carried Prime Stage; the
+formation came apart behind her." / "… while Sora lost her footing
+in it — the fancams will tell two stories." / "The act played The
+Countdown clean — nothing to clip, nothing to explain." / "… fumbled
+Pop Wave — the sync went, the ad-libs went, and the wide shot kept
+rolling." Names, never numbers (pinned). The shows post the read AT
+MOST ONCE A WEEK per act (`KP.stageNote`, the week's most notable
+stage, 'high' when carried or fumbled); the festival, the tour's leg
+letter, the gayo note and the circuit note carry the line inside
+their own letters. The dossier reads `m.stages` in words ("She has
+carried a stage. The staff noticed; so did the fancams." / "There
+have been nights the room covered for her. The wide shot keeps a
+list."); the group page's room report reads the act's craft ("On
+stage this room carries its nights" / "… keeps getting exposed").
+
+*The consumers.* The three shows' live term IS the read (`livePerf`
+retired, §91 E; the slump shield's cost rides along); the encore
+moment needs a CARRIED, winning stage and a voice ≥65 — the carrier's
+when she can sing it; a shaky or fumbled stage with the trophy in
+hand is the shaky-encore storm on the one who lost it (the old
+liveReliability thresholds gone); the ending fairy leans toward the
+voice that carried the week (+20 pull). Festivals: the set is rated,
+morale by band (+2/+1/0/−1), the line in the letter, and a carried
+set books next year's call outright (`g.festCarried`,
+`KP.festivalCertain`) the way an icon's does. The tour: each week of
+the home circuit and each leg is one read, settled with teeth, the
+night's words in the leg letter, and `tour.lastNight` sells the next
+week's rooms (fumbled ×.9, carried ×1.05). The gayo stage is rated
+(a carried December +1 intensity on top). The circuit's convention
+stage warms the market ×.7 when fumbled. The awards' artist ballot
+adds (stageCraft − 55) × .3. `performance` on the release report
+stays the first-stage read until B5 names the comeback stage.
+
+*The bot and the bands.* The bot books the default rollout as
+before; the stage reads whatever it fields. Bands (measure-first):
+stageCarried [.50–1.0], stageFumbled [.10–.90], chemistryStaged
+[.05–1.0] (a formation that read a close or tense pair). Measured,
+40 orgs: carried a stage 40/40, fumbled one 25/40, a pair read in the
+formation 40/40; the darling narrative 19/40 (11/40 on the first
+cut, 15/40 the build before — a paired run of the two builds on the
+same 40 seeds put the player's trophies at 180 → 191, so the stage
+made the shows friendlier to a strong room, not harder; the 11 was
+the stream); the stopwatch 18/40, the critics' darling 19/40, the
+panned hit 20/40, viral provenance 40/40; debut reception median 54
+(min 27, max 71), strong+ 6/40, quiet/miss 14/40, end budget median
+3056. Longhaul saves 615–948 KB.
+
+Battery 104/104, soak 40 clean, longhaul 10x620, e2e 113,
+lockstep 0.10.37.
 
 ## §18 Watch items
 
@@ -11002,6 +11121,23 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > the panned hit 14/40, debut median 54; the sensation floor → 0 with
 > its history (5/120 on this build). Suite_103 (64). Battery 103/103, soak 40 clean,
 > longhaul 10x620, e2e 113, lockstep 0.10.36. Rode to main.
+
+> **0.10.37 — the stage.** §91 Phase 4, owner: "Go ahead with stage
+> 4." ONE rating per performance: each voice against her load on the
+> sheet, each body against the choreography, presence, reliability,
+> fatigue with teeth, morale, the formation (chemistry, the pairs,
+> the rehearsal chair, the gap, the holes), a hash wobble; bands
+> carried / clean / shaky / fumbled and the moments (who carried, who
+> lost it, the formation). The shows' live term is the read, the
+> encore belongs to a carried win, the storms wake on bad nights, the
+> festival's carried set books next year, the tour's bad night sells
+> the next week soft, the gayo stage is rated, the artist ballot has
+> a performance term, the performance house gets its first writer;
+> the words post once a week, names never numbers; the dossier and
+> the group page read the record. Measured: carried 40/40, fumbled
+> 25/40, a pair read 40/40, the darling narrative 19/40, trophies
+> 180 → 191 on the same seeds. Suite_104 (60). Battery 104/104, soak 40 clean, longhaul 10x620,
+> e2e 113, lockstep 0.10.37. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

@@ -112,7 +112,17 @@ function rideToKnock(state, maxWeeks) {
   her.fatigue = 75;
   // folded into the extra hour's drained ask (v0.10.30, §89 D1)
   let sc = null, guardB = 0;
-  while (!sc && guardB++ < 20) { her.fatigue = 75; KP.advanceWeek(state); sc = doorScene(state); }
+  while (!sc && guardB++ < 24) {
+    // on fumes AT the door: the week's recovery runs before the knock
+    // phase, and a rest week takes fifteen off (the stream moved, v0.10.37)
+    her.fatigue = 95; KP.advanceWeek(state); sc = doorScene(state);
+    // one door a week across every source — another member's knock (the
+    // stream moved with v0.10.37) is not hers; let it pass and keep riding
+    if (sc && !(sc.kind === 'frictionExtraHour' && sc.variant === 'drained' && sc.personId === her.id)) {
+      state.scenes = state.scenes.filter(x => x.id !== sc.id);
+      sc = null;
+    }
+  }
   t.ok(sc && sc.kind === 'frictionExtraHour' && sc.variant === 'drained' && sc.personId === her.id, 'the tired one asks for the lighter week');
   const fatigueAt = her.fatigue;
   const r = KP.resolveScene(state, sc.id, 'lighten');

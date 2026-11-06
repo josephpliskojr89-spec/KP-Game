@@ -144,9 +144,14 @@
       const kr = tour.kr;
       const played = [];
       let revenue = 0, weekSold = 0, weekSoft = 0;
+      // the stage, judged (v0.10.37): the week's nights are one read, and
+      // last week's night sells this week's rooms (a bad night runs soft)
+      const firstCity = T.KR_CITIES.find(c => c.id === kr.route[kr.idx]);
+      const night = KP.stageRead(state, g, { kind: 'tour', id: 'kr:' + kr.idx });
+      const nightMult = KP.nightDemandMult(tour);
       for (let d = 0; d < T.datesPerWeek && kr.idx < kr.route.length; d++) {
         const city = T.KR_CITIES.find(c => c.id === kr.route[kr.idx]);
-        const demand = (g.popularity || 0) * city.w;
+        const demand = (g.popularity || 0) * city.w * nightMult;
         const ratio = demand / scale.sweetSpot;
         const soldOut = ratio >= T.soldOutAt;
         const soft = ratio < T.softBelow;
@@ -198,9 +203,13 @@
         members.forEach(m => { m.morale = KP.clamp(m.morale + setlist.moralePerLeg, 0, 100); });
         KP.fandomGain(g, KP.C.FANDOM.gainFanServiceLeg);
       }
+      KP.settleStage(state, rng, g, night, { where: 'the ' + (firstCity ? firstCity.label : 'home') + ' night' }).forEach(n => notes.push(n));
+      tour.lastNight = night.band;
+      if (night.band === 'fumbled') KP.stageLedger(state).badNights++;
       notes.push({ kind: 'debut', ind: 'tourLeg', groupId: g.id, region: 'kr',
         soldOut: weekSold > 0, soft: weekSoft > 0, urgent: false,
-        text: g.name + ' — home circuit: ' + played.join('. ') + '. Revenue +' + revenue + '.' });
+        text: g.name + ' — home circuit: ' + played.join('. ') + '. Revenue +' + revenue + '. ' +
+          KP.stageLine(state, g, night, 'the ' + (firstCity ? firstCity.label : 'home') + ' night') });
 
       if (kr.idx < kr.route.length) return notes;   // more cities next week
 
@@ -230,7 +239,10 @@
     // ---- the leg closes: the honest report ----
     const regionId = tour.legs[tour.legIdx];
     const where = regionId === 'kr' ? 'Korea' : KP.regionLabel(regionId);
-    const demand = legDemand(state, g, regionId);
+    // the stage, judged (v0.10.37): the leg's nights are one read; the
+    // last night of the previous leg sells this one
+    const night = KP.stageRead(state, g, { kind: 'tour', id: regionId });
+    const demand = legDemand(state, g, regionId) * KP.nightDemandMult(tour);
     const ratio = demand / scale.sweetSpot;
     const soldOut = ratio >= T.soldOutAt;
     const soft = ratio < T.softBelow;
@@ -324,13 +336,19 @@
       notes.push({ kind: 'company', groupId: g.id,
         text: 'Tour manager’s note from ' + where + ': small frictions are going unmanaged — nobody in the room settles things. This is what the leader role is FOR, and the room does not have one running it.' });
     }
+    // the stage, judged (v0.10.37): the leg's nights settle once, and
+    // the last night sells the next leg
+    KP.settleStage(state, rng, g, night, { where: 'the ' + where + ' nights' }).forEach(n => notes.push(n));
+    tour.lastNight = night.band;
+    if (night.band === 'fumbled') KP.stageLedger(state).badNights++;
     notes.push({ kind: 'debut', ind: 'tourLeg', groupId: g.id, region: regionId,
       soldOut, soft, urgent: false,
-      text: soldOut
+      text: (soldOut
         ? g.name + ' — ' + where + ' leg: SOLD OUT in minutes. Resale prices are a scandal, the venue asks about a second night we cannot book, and the fandom is unbearable online. Revenue +' + revenue + '. We under-booked. Wonderful problem.'
         : soft
           ? g.name + ' — ' + where + ' leg: soft. The upper sections were curtained off and everyone pretended not to notice. Revenue +' + revenue + '. The promoter was polite about it, which was worse.'
-          : g.name + ' — ' + where + ' leg: sold well. Full floor, warm room, clean stages. Revenue +' + revenue + '. This is what the road is supposed to feel like.' });
+          : g.name + ' — ' + where + ' leg: sold well. Full floor, warm room. Revenue +' + revenue + '. This is what the road is supposed to feel like.') +
+        ' ' + KP.stageLine(state, g, night, 'the ' + where + ' nights') });
 
     // next leg or home
     tour.legIdx++;

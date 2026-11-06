@@ -57,8 +57,9 @@
         if (playedThisYear >= F.maxPerYear) return;
         if ((state.scenes || []).some(sc => sc.kind === 'festivalInvite' && sc.groupId === g.id)) return;
         const icon = !!KP.getNarrative(state, 'festivalIcons', 'group', g.id);
-        // icons always get the call; everyone else gets it most years
-        if (!icon && !rng.chance(0.75)) return;
+        // icons always get the call — and so does a room that carried
+        // last year's set (the stage, v0.10.37); everyone else most years
+        if (!KP.festivalCertain(state, g, year) && !rng.chance(0.75)) return;
         led.invites++;
         KP.openScene(state, { kind: 'festivalInvite', groupId: g.id,
           festivalId: f.id, headline: icon && f.tier >= 2, expiresWeek: state.week + 2 });
@@ -94,17 +95,24 @@
       g.festivalsPlayed = (g.festivalsPlayed || 0) + 1;   // the icons arc counts (v0.9.18)
       const pay = Math.round(f.pay * (due.headline ? F.headlineMult : 1));
       state.budget += pay;
+      // the stage, judged (v0.10.37): the set is rated, and a carried
+      // set books next year's call
+      const read = KP.stageRead(state, g, { kind: 'festival', id: f.id });
+      KP.settleStage(state, rng, g, read, { where: f.name }).forEach(n => inbox.push(n));
+      if (read.band === 'carried') { KP.stageLedger(state).festCarried++; g.festCarried = yearOf(state); }
+      const setMorale = KP.C.STAGE.festMorale[read.band] != null ? KP.C.STAGE.festMorale[read.band] : 1;
       const members = g.members.map(id => state.people[id]).filter(Boolean)
         .filter(m => !(m.flags && m.flags.military));   // he is not on this stage (v0.9.23)
       members.forEach(m => {
         m.liveExp += KP.C.SEASON.festLiveExp;
         m.fatigue = KP.clamp(m.fatigue + f.fatigue, 0, 100);
-        m.morale = KP.clamp(m.morale + 1, 0, 100);
+        m.morale = KP.clamp(m.morale + setMorale, 0, 100);
       });
-      inbox.push({ kind: 'company', ind: 'festival', priority: 'high', groupId: g.id,
+      inbox.push({ kind: 'company', ind: 'festival', priority: 'high', groupId: g.id, band: read.band,
         text: (due.headline
           ? g.name + ' HEADLINED ' + f.name + ' — top of the poster, last light of the night, ' + f.blurb + '. Fee +' + pay + ', and a closing-set clip the archive will keep forever.'
-          : g.name + ' played ' + f.name + ' — ' + f.blurb + '. Fee +' + pay + ', and the kind of live reps no practice room sells.') });
+          : g.name + ' played ' + f.name + ' — ' + f.blurb + '. Fee +' + pay + ', and the kind of live reps no practice room sells.') +
+          ' ' + KP.stageLine(state, g, read, 'the ' + f.name + ' set') });
     });
   });
 

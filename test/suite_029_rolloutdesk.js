@@ -92,7 +92,9 @@ function rideToDebut(state, g) {
   let encoreSeen = false, challengeSeen = false;
   for (let s = 0; s < 30 && !(encoreSeen && challengeSeen); s++) {
     const { state, g } = ready('rd-special-' + s);
-    g.members.forEach(id => { state.people[id].talents.vocals.cur = 80; });
+    // the encore belongs to a CARRIED stage now (v0.10.37): field a room
+    // that carries — voice, body, presence and reps, not just the vocal
+    g.members.forEach(id => { const p = state.people[id]; p.talents.vocals.cur = 80; p.talents.dance.cur = 80; p.talents.charisma.cur = 80; p.liveExp = 30; });
     planWith(state, g, [['countdown', 'challenge'], ['countdown', 'challenge'],
       ['countdown', 'challenge'], ['countdown', 'challenge']]);
     rideToDebut(state, g);

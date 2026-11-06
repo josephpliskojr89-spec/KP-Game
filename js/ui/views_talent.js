@@ -539,7 +539,7 @@
           '<span class="n-who">— Scout Im, off the record</span></div>');
       }
       if (isTrainee) {
-        const notes = derivedNotes(p);
+        const notes = derivedNotes(p).concat(KP.stageRecordLines ? KP.stageRecordLines(state, p) : []);   // the stage (v0.10.37)
         if (p.status === 'trainee' && (p.hype || 0) >= 35) {
           notes.unshift((p.hype >= KP.C.HYPE.directiveThreshold
             ? '{Pos} clip counts read like a mid-tier idol’s and {she} has not debuted. The building is not the only one that noticed.'

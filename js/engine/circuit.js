@@ -59,7 +59,11 @@
       led.played++;
       const voice = KP.voiceAbroad ? KP.voiceAbroad(state, g, sc.regionId) : null;
       const regions = KP.regionsOf(g);
-      const gain = voice ? C.warmthGain : Math.round(C.warmthGain * C.tongueDamp);
+      // the stage, judged (v0.10.37): the convention stage is rated light
+      // — a fumbled set warms the market less, whatever the tongue did
+      const read = KP.stageRead(state, g, { kind: 'circuit', id: sc.con });
+      KP.settleStage(state, null, g, read, { light: true });
+      const gain = Math.round((voice ? C.warmthGain : Math.round(C.warmthGain * C.tongueDamp)) * (read.band === 'fumbled' ? 0.7 : 1));
       regions[sc.regionId] = KP.clamp((regions[sc.regionId] || 0) + gain, 0, 100);
       g.members.map(id => state.people[id]).filter(Boolean).forEach(m => {
         if (!KP.onBreak(m)) m.fatigue = KP.clamp(m.fatigue + C.fatigue, 0, 100);
@@ -67,9 +71,10 @@
       if (!voice) led.tongueFlops++;
       KP.note(state, { kind: 'public', ind: voice ? 'circuitStage' : 'circuitFlop',
         priority: 'high', groupId: g.id,
-        text: voice
+        text: (voice
           ? g.name + ' played ' + sc.con + ' — ' + KP.displayName(voice) + ' ran the talk segments in the room’s own language and the convention hall sang the fanchant back on the first try. ' + KP.regionLabel(sc.regionId) + ' is a little less far away this week. The next tour’s routing meeting just got a new pin.'
-          : g.name + ' played ' + sc.con + ' — the stage landed, the interview did not: every answer through an interpreter, the pauses long enough to clip, and the clip is circulating with subtitles nobody at the company approved. ' + KP.regionLabel(sc.regionId) + ' warmed anyway. Half as much as it should have.' });
+          : g.name + ' played ' + sc.con + ' — the interview did not land: every answer through an interpreter, the pauses long enough to clip, and the clip is circulating with subtitles nobody at the company approved. ' + KP.regionLabel(sc.regionId) + ' warmed anyway. Half as much as it should have.') +
+          ' ' + KP.stageLine(state, g, read, 'the ' + sc.con + ' stage') });
       return { toast: voice ? 'The weekend paid in a market. That is the whole circuit.' : 'The stage landed; the interviews limped. The tongue is a line item now.' };
     },
     expire: (state, sc) => { ledger(state).declined++; return null; },

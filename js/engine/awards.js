@@ -75,7 +75,8 @@
         const trophies = g.trophiesYear || 0;
         if ((g.releases || []).some(r => r.week >= from)) {
           list.push({ name: g.name, company: state.company.short, isPlayer: true,
-            groupId: g.id, score: (g.popularity || 0) + trophies * 3 + KP.fandomIntensity(g) * 0.2 + jitter(g.id) });
+            groupId: g.id, score: (g.popularity || 0) + trophies * 3 + KP.fandomIntensity(g) * 0.2 +
+              KP.stageAwardsTerm(g) + jitter(g.id) });   // the stage, judged (v0.10.37): the year's nights
         }
       });
       (state.rivals || []).forEach(rv => (rv.acts || []).forEach(a => {

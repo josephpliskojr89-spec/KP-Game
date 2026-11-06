@@ -287,6 +287,9 @@
 
     html.push('<div class="kicker">Room report</div>');
     KP.chemistryNotes(state, members).forEach(n => html.push('<div class="note">' + UI.esc(n) + '</div>'));
+    // the stage, judged (v0.10.37): the act's rolling stage craft, in words
+    const stageLine = KP.stageCraftLine ? KP.stageCraftLine(state, g) : null;
+    if (stageLine) html.push('<div class="note">' + UI.esc(stageLine) + '</div>');
     KP.frictionPairs(state, g.members).forEach(f => html.push(UI.frictionCard(state, f)));
 
     // status / next step

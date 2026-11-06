@@ -1155,6 +1155,8 @@
       // (v0.10.36): whose lines they were, to the second
       choreo: g.prep.choreo || null,
       sheet: KP.sheetArchive(sheet),
+      // the stage (v0.10.37): the song's live demand rides every night of the era
+      liveDemand: { vocals: demo.vocalDemand || 55, dance: demo.choreoPotential || 50, rap: demo.rapDemand || 30 },
     });
     // the return run lands (v0.9.25): the alum stood in her old spot
     if (g.prep.returnRun) {

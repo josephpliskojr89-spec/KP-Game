@@ -21,18 +21,15 @@
   };
 
   function fresh(weeksSince) { return KP.clamp(100 - weeksSince * 18, 0, 100); }
-  function livePerf(state, g) {
-    // the N-1 stage (v0.9.20): a member on a personal break is not on
-    // it — and neither is a member in service (v0.9.23)
-    const ms = g.members.map(id => state.people[id]).filter(Boolean)
-      .filter(m => !m.flags.personalHiatus && !m.flags.military);
-    if (!ms.length) return 0;
-    // a shielded member is off the front of the stage — the shield's cost
+  // the stage, judged (v0.10.37, §91 Phase 4): the live term IS the one
+  // stage read — the old livePerf average retired (§91 E). The shield's
+  // cost rides along: a shielded member is off the front of the stage.
+  function liveRead(state, g, showId) {
+    const read = KP.stageRead(state, g, { kind: 'show', id: showId });
     const shielded = g.slumpShield && state.week <= g.slumpShield.until ?
       KP.C.SLUMP.shieldPerformance : 0;
-    return shielded + ms.reduce((s, m) =>
-      s + 0.5 * KP.derived(m).liveReliability +
-      0.5 * Math.max(m.talents.vocals.cur, m.talents.dance.cur), 0) / ms.length;
+    read.live = Math.max(0, read.score + shielded);
+    return read;
   }
   function planFor(state, g) {
     const idx = KP.clamp(state.week - (g.lastReleaseWeek || 0) - 1, 0, KP.C.ROLLOUT.weeks - 1);
@@ -43,16 +40,19 @@
       state.week > (g.lastReleaseWeek || 0);
   }
 
-  // Everyone on stages this week, per show.
-  function contenders(state, showId) {
+  // Everyone on stages this week, per show. `reads` collects the stage
+  // read per (group, show) so the post-air pass settles the same stage.
+  function contenders(state, showId, reads) {
     const S = KP.C.SHOWS[showId];
     const W = KP.C.SHOWWIN;
     const list = [];
     KP.groups(state).forEach(g => {
       if (!promoting(state, g) || !planFor(state, g).includes(showId)) return;
+      const read = liveRead(state, g, showId);
+      if (reads) { reads[g.id] = reads[g.id] || {}; reads[g.id][showId] = read; }
       const comp = {
         base: (g.popularity || 0) * S.fandomW,
-        live: livePerf(state, g) * S.liveW,
+        live: read.live * S.liveW,
         dig: fresh(state.week - (g.lastReleaseWeek || 0)) * S.freshW,
         vote: KP.fandomIntensity(g) * KP.C.FANDOM.showVoteFactor,   // an organized fandom votes (v0.7.0)
       };
@@ -61,7 +61,7 @@
         ? KP.C.POINTS.nudgeBoost : 0;
       const score = comp.base + comp.live + comp.dig + comp.vote + nudge +
         KP.hash01([state.seed, showId, state.week, g.id].join('|')) * W.jitter;
-      list.push({ type: 'player', g, score, comp });
+      list.push({ type: 'player', g, score, comp, read });
     });
     (state.rivals || []).forEach(r => (r.acts || []).forEach(a => {
       if (a.retired) return;
@@ -92,8 +92,9 @@
     const keep = n => { if (n) notes.push(n); };
 
     const playerLosses = [];   // the rituals (v0.10.7): the point desk reads
+    const reads = {};          // the stage, judged (v0.10.37): one read per (act, show)
     Object.keys(KP.C.SHOWS).forEach(showId => {
-      const field = contenders(state, showId);
+      const field = contenders(state, showId, reads);
       const top = field[0];
       const winner = top && top.score >= KP.C.SHOWS[showId].floor ? top : null;
       const label = KP.showLabel(showId);
@@ -142,19 +143,26 @@
         if (g.trophies[showId] >= W.darlingAt) {
           keep(KP.recordEvidence(state, 'showDarling', 'group', g.id, { show: showId }));
         }
-        // the encore: live vocals, no track — where the Gaya moment lives
-        const voice = members.slice().sort((a, b) => b.talents.vocals.cur - a.talents.vocals.cur)[0];
-        if (voice && voice.talents.vocals.cur >= W.encoreVocalsMin && rng.chance(W.encoreChance)) {
+        // the encore: live vocals, no track — where the Gaya moment lives.
+        // Keyed to the stage (v0.10.37): a CARRIED stage and a real voice
+        // make the moment — the voice that carried it, when she can sing
+        // it; a shaky or fumbled stage with the trophy in hand is ALSO a
+        // story, and the storm lands on the one who lost it
+        const read = winner.read;
+        const carrier = read.moments.carried ? state.people[read.moments.carried] : null;
+        const voice = carrier && carrier.talents.vocals.cur >= W.encoreVocalsMin ? carrier
+          : members.slice().sort((a, b) => b.talents.vocals.cur - a.talents.vocals.cur)[0];
+        if (read.band === 'carried' && voice && voice.talents.vocals.cur >= W.encoreVocalsMin && rng.chance(W.encoreChance)) {
+          KP.stageLedger(state).encores++;
           KP.socialSpike(state, voice, KP.C.SOCIAL.viralSpike, 'encore');
           keep({ kind: 'public', ind: 'encoreMoment', personId: voice.id, groupId: g.id,
             text: KP.displayName(voice) + ' took the winning encore without a backing track and casually murdered the vocal. The clip is everywhere by morning — this is what the music-show grind is FOR.' });
           keep(KP.recordViral(state, voice, { kind: 'encore', label: 'the ' + label + ' encore' }));
           keep(KP.igniteDiscourse(state, rng, 'fancam', 'idol', voice.id, g.id));
-        } else if (livePerf(state, g) < W.shakyLiveMax * 1.4 &&
-            members.reduce((s, m) => s + KP.derived(m).liveReliability, 0) / members.length < W.shakyLiveMax &&
-            rng.chance(W.shakyEncoreChance)) {
+        } else if ((read.band === 'shaky' || read.band === 'fumbled') && rng.chance(W.shakyEncoreChance)) {
           // winning on fandom votes and wobbling the encore is ALSO a story
-          const shaky = members.slice().sort((a, b) => KP.derived(a).liveReliability - KP.derived(b).liveReliability)[0];
+          const shaky = read.moments.fumbled ? state.people[read.moments.fumbled]
+            : members.slice().sort((a, b) => KP.derived(a).liveReliability - KP.derived(b).liveReliability)[0];
           keep(KP.igniteDiscourse(state, rng, 'encore', 'idol', shaky.id, g.id));
         }
       } else if (winner && winner.type === 'rival') {
@@ -215,6 +223,27 @@
                 : '. The gap was honest this week; the spreadsheet crowd has already assigned next week’s homework.') });
     }
 
+    // the stage, judged (v0.10.37): every booked stage is rated once —
+    // the lotteries fire per stage, the words post once a week per act,
+    // on the week's most notable stage
+    const weekCarried = {};
+    KP.groups(state).forEach(g => {
+      if (!promoting(state, g) || !reads[g.id]) return;
+      let notable = null;
+      planFor(state, g).filter(KP.isShowActivity).forEach(showId => {
+        const read = reads[g.id][showId];
+        if (!read) return;
+        KP.settleStage(state, rng, g, read, { where: KP.showLabel(showId) }).forEach(keep);
+        const edge = Math.abs(read.score - KP.C.STAGE.cleanAt) +
+          (read.band === 'carried' || read.band === 'fumbled' ? 100 : 0);
+        if (!notable || edge > notable.edge) notable = { read, showId, edge };
+      });
+      if (notable) {
+        keep(KP.stageNote(state, g, notable.read, KP.showLabel(notable.showId)));
+        weekCarried[g.id] = notable.read.moments.carried || null;
+      }
+    });
+
     // the ending fairy: every show appearance ends on one face (v0.6.5)
     KP.groups(state).forEach(g => {
       if (!promoting(state, g)) return;
@@ -223,8 +252,10 @@
       const members = g.members.map(id => state.people[id]).filter(Boolean);
       if (!members.length) return;
       // the camera picks: visuals and pull, with a weekly wobble so the
-      // fairy rotates — sometimes onto the one nobody expected
-      const fairy = members.slice().sort((a, b) => fairyPull(state, g, b) - fairyPull(state, g, a))[0];
+      // fairy rotates — sometimes onto the one nobody expected; the
+      // voice that carried the week pulls the lens (v0.10.37)
+      const lean = m => m.id === weekCarried[g.id] ? KP.C.SHOWWIN.fairyCarried : 0;
+      const fairy = members.slice().sort((a, b) => (fairyPull(state, g, b) + lean(b)) - (fairyPull(state, g, a) + lean(a)))[0];
       if (rng.chance(KP.C.SHOWWIN.fairyChance)) {
         KP.socialSpike(state, fairy, KP.C.SOCIAL.viralSpike * 0.5, 'fairy');
         keep({ kind: 'public', ind: 'endingFairy', personId: fairy.id, groupId: g.id,

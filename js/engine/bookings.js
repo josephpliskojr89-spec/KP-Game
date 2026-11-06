@@ -146,12 +146,13 @@
     return { ok: true, offer: o };
   };
 
-  function stageRead(state, g) {
-    const ms = g.members.map(id => state.people[id]).filter(Boolean)
-      .filter(m => !m.flags.personalHiatus && !m.flags.military && !KP.onBreak(m));
-    if (!ms.length) return 0;
-    return ms.reduce((s, m) => s + 0.5 * KP.derived(m).liveReliability +
-      0.5 * Math.max(m.talents.vocals.cur, m.talents.dance.cur), 0) / ms.length;
+  // the one stage read (v0.10.37, §91 E): the booking pile rates LIGHT —
+  // counts and the act's craft, no teeth; a university field is not
+  // national television
+  function stageRead(state, g, o) {
+    const read = KP.stageRead(state, g, { kind: 'gig', id: o.kindId });
+    KP.settleStage(state, null, g, read, { light: true });
+    return read.score;
   }
 
   function playGig(state, rng, inbox, o) {
@@ -162,7 +163,7 @@
     const led = ledger(state);
     if (!g || g.retiredWeek || !g.members.length) return;
     const members = g.members.map(id => state.people[id]).filter(Boolean);
-    const stage = stageRead(state, g);
+    const stage = stageRead(state, g, o);
     const q = KP.clamp((stage - 30) / 50, 0.25, 1.3) * (o.flyered ? B.flyerBoost : 1);
     if (o.fee > 0) { state.budget += o.fee; if (KP.ledgerFlow) KP.ledgerFlow(state, 'appearances', o.fee); }
     const fans = Math.round((K.fans[0] + rng.next() * (K.fans[1] - K.fans[0])) * q);

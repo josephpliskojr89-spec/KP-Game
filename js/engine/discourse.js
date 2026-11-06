@@ -46,7 +46,9 @@
       case 'exhausted': return 'Fans are worried: “' + who + ' looks exhausted.” Clips of tired stages are being compared side by side.';
       case 'dating': return 'A tabloid ran blurry café photos and invented a story about ' + who + '. It is false. It is also everywhere.';
       case 'styling': return 'The styling discourse found ' + who + ' — the outfits are being roasted, the stylist is being subpoenaed by the group chat.';
-      case 'encore': return 'A shaky encore clip of ' + who + ' is making the rounds. The tone is split between concern and cruelty.';
+      case 'encore': return d.from === 'stage'
+        ? 'A clip of ' + who + ' losing the second chorus on a live stage is making the rounds. The tone is split between concern and cruelty.'
+        : 'A shaky encore clip of ' + who + ' is making the rounds. The tone is split between concern and cruelty.';
       case 'benched': return who + ' being pulled from the schedule set off a wave of health-worry posts aimed at the company.';
       case 'fancam': return KP.fillPro('A ' + who + ' fancam is having a MOMENT. The algorithm has chosen {her}, and the window is open.', p);
       // 0.9.8.2: pre-debut virality has no stages to film — the clip is
@@ -89,7 +91,7 @@
   };
 
   // ---- ignition ---------------------------------------------------------
-  KP.igniteDiscourse = function (state, rng, kind, subjectType, subjectId, groupId) {
+  KP.igniteDiscourse = function (state, rng, kind, subjectType, subjectId, groupId, extra) {
     const D = KP.C.DISCOURSE;
     const spec = D.KINDS[kind];
     if (!spec) return null;
@@ -101,6 +103,7 @@
       week: state.week, heat: rng.int(spec.start[0], spec.start[1]),
       negative: !!spec.negative, status: 'live', responded: false,
     };
+    if (extra) Object.assign(d, extra);   // the stage (v0.10.37): where the clip came from
     list(state).push(d);
     // history stays bounded: resolved storms beyond a dozen are forgotten
     const dead = list(state).filter(x => x.status !== 'live');
