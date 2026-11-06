@@ -273,7 +273,8 @@ const BANDS = {
   seasonCastWorld:   { lo: 0.50, hi: 1.00, label: 'worlds whose season drew 8+ contestants from 3+ sources (cast from the world, v0.10.32)' },
   seasonInvited:     { lo: 0.30, hi: 1.00, label: 'orgs the season producers invited (a free trainee of the season’s gender)' },
   seasonSent:        { lo: 0.10, hi: 1.00, label: 'orgs that sent somebody to a season' },
-  seasonOursLineup:  { lo: 0.00, hi: 0.60, label: 'orgs whose trainee made a finale lineup (held, or kept)' },
+  // measured 23/40 at v0.10.32, 25/40 at v0.10.35 (two stream shifts) — hi .60→.70
+  seasonOursLineup:  { lo: 0.00, hi: 0.70, label: 'orgs whose trainee made a finale lineup (held, or kept)' },
   seasonPermanent:   { lo: 0.02, hi: 0.90, label: 'worlds where a season’s roll came up permanent' },
   // v0.10.33 — the one market: a collapse's signing class is on the open
   // board and the bot buys a career when flush. Measure-first: collapses
@@ -283,6 +284,13 @@ const BANDS = {
   // the critics' darling and the panned hit must both be live outcomes;
   // the trades name the year's sound every January. Measure-first floors.
   criticsDarling:    { lo: 0.02, hi: 0.90, label: 'orgs with a critics’ darling (craft high, chart low)' },
+  // v0.10.35 — the studio. The bot briefs a record whenever the room is
+  // free and the account can carry the fees; the chairs fill when the
+  // market sends a candidate. Measure-first floors on the chairs.
+  commissioned:      { lo: 0.60, hi: 1.00, label: 'orgs that commissioned a record' },
+  offLaneRecord:     { lo: 0.05, hi: 1.00, label: 'orgs that released a producer out of his lane' },
+  houseChair:        { lo: 0.00, hi: 1.00, label: 'orgs that filled a house producer or writer chair' },
+  themeNamed:        { lo: 0.00, hi: 0.90, label: 'orgs whose critics named a theme that fought the room' },
   pannedHit:         { lo: 0.00, hi: 0.80, label: 'orgs with a hit the critics panned' },
   criticsSplit:      { lo: 0.05, hi: 1.00, label: 'orgs that drew a split review' },
   trendNamed:        { lo: 0.95, hi: 1.00, label: 'worlds where the trades named the year’s sound' },
@@ -652,6 +660,7 @@ const tally = {
   seasonCastWorld: 0, seasonInvited: 0, seasonSent: 0, seasonOursLineup: 0, seasonPermanent: 0,
   careerSigned: 0,
   criticsDarling: 0, pannedHit: 0, criticsSplit: 0, trendNamed: 0,
+  commissioned: 0, offLaneRecord: 0, houseChair: 0, themeNamed: 0,
   castoffSeen: 0, reentrySeen: 0, rivalDoorBorn: 0,
   expectSet: 0, snubSeen: 0, verdictSeen: 0, compared: 0,
   gigPlayed: 0, campaignRun: 0, gigViralSeen: 0, wallTouched: 0, breakSeen: 0,
@@ -915,6 +924,34 @@ for (let s = 0; s < SEEDS; s++) {
       if (Math.max.apply(null, g.demos.map(d => d.hook)) >= 60) return;
       if (state.budget < KP.C.MARKET.campCost + 150) return;
       KP.holdSongCamp(state, g.id);
+    });
+    // the studio (v0.10.35): a flush boss briefs a record for an open
+    // calendar — the brief's lane, a theme natural to it, the house chair
+    // or the best-fitting name that takes the call, the house writer or a
+    // writer who owns the theme
+    if (KP.commissionRecord) state.groups.forEach(g => {
+      if (g.retiredWeek || g.prep || g.tour || g.hiatus || g.commission || !g.members.length) return;
+      if (g.debuted && state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) return;
+      if (state.budget < 450) return;   // the ground game and the shows come first (soak: the darling band starved at 200)
+      const lastRel = (g.releases || [])[(g.releases || []).length - 1];
+      const lane = g.concept || (lastRel && lastRel.conceptId) || 'bright';
+      const roomNow = g.members.map(id => state.people[id]).filter(Boolean);
+      const themesAll = KP.themesForLane(lane);
+      const themes = themesAll.filter(th => !KP.themeRoomMiss(state, roomNow, th));   // a player reads the warning on the sheet
+      const pickFrom = themes.length ? themes : themesAll;
+      const theme = pickFrom.length ? pickFrom[Math.floor(KP.hash01([seed, g.id, 'botTheme', (g.releases || []).length].join('|')) * pickFrom.length)].id : 'longing';
+      const heatRank = { 'in demand': 4, reliable: 3, workmanlike: 2, unproven: 1, 'cold streak': 0 };
+      const prs = [KP.houseProducer(state)].filter(Boolean).concat(KP.producersOf(state))
+        .filter(pr => KP.producerAccess(state, g, pr).ok)
+        .sort((a, b) => (KP.laneFitMult(KP.producerLanes(b), lane) - KP.laneFitMult(KP.producerLanes(a), lane)) ||
+          ((heatRank[KP.producerHeat(b)] || 0) - (heatRank[KP.producerHeat(a)] || 0)));
+      const pr = prs[0];
+      if (!pr) return;
+      const ws = [KP.houseWriter(state)].filter(Boolean).concat(KP.writersOf(state));
+      const w = ws.find(x => x.themes.includes(theme)) || ws[0];
+      const fee = KP.producerFee(pr) + KP.writerFee(w);
+      if (state.budget < fee + 450) return;
+      KP.commissionRecord(state, g.id, { lane, theme, producerId: pr.id, writerId: w.id });
     });
     // the album promise gets kept (v0.9.25): produce her record when
     // the claim is open and the till can carry it
@@ -1799,6 +1836,13 @@ for (let s = 0; s < SEEDS; s++) {
   if ((sel.oursLineup || 0) >= 1) tally.seasonOursLineup++;
   if ((sel.permanent || 0) >= 1) tally.seasonPermanent++;
   if (((state.riseFallLedger || {}).faSigned || 0) >= 1) tally.careerSigned++;   // the one market (v0.10.33)
+  {   // the studio (v0.10.35)
+    const sl = state.studioLedger || {};
+    if ((sl.commissions || 0) >= 1) tally.commissioned++;
+    if ((sl.roomMiss || 0) >= 1) tally.themeNamed++;
+    if ((state.seats || {}).producer || (state.seats || {}).writer) tally.houseChair++;
+    if (state.groups.some(g => (g.releases || []).some(r => r.fitMult != null && r.fitMult < KP.C.STUDIO.fit.home))) tally.offLaneRecord++;
+  }
   {   // the two verdicts (v0.10.34)
     const vl = state.verdictLedger || {};
     if ((vl.darlings || 0) >= 1) tally.criticsDarling++;

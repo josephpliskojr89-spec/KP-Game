@@ -188,8 +188,8 @@ function debuted(seed, n) {
   const stale = state.prospects[0];
   state.people[stale].age = KP.C.SCOUT.prospectAgeOut;
   KP.advanceWeek(state);
-  t.ok(!state.prospects.includes(stale) && !state.people[stale],
-    'the market moved on — no ghost file left behind');
+  t.ok(!state.prospects.includes(stale) && (!state.people[stale] || state.people[stale].status !== 'prospect'),
+    'the market moved on — no ghost file left behind (a real signing elsewhere, or home — v0.10.31)');
 }
 
 // ---- B1 + B3: the books push back ----

@@ -42,19 +42,25 @@
       // paid in access, not money
       const bonded = !!(group && pr.works &&
         pr.works.filter(w => w.groupId === group.id).length >= MK.bondAt);
+      // the studio (v0.10.35): the composition IS the producer's craft
+      // through the fit law — a pitch out of his lanes is weaker for it
+      const ST = KP.C.STUDIO;
+      const fit = KP.laneFitMult(KP.producerLanes(pr), concept.id);
+      const pw = KP.pickWriter(state, rng, concept.id, group && group.members ? group.members.map(id => state.people[id]).filter(Boolean) : null);
       demos.push({
         id: 'song' + (i + 1),
         title,
         producer: pr.name,
         producerId: pr.id,
+        writerId: pw.writer.id, writer: pw.writer.name, theme: pw.theme,
         conceptId: concept.id,
         toBrief,
         bonded,
         // the staff (v0.10.6): the A&R seat moves what the producers
         // even bother pitching this room
-        hook: KP.clamp(q(rng) + (toBrief ? D.briefHookBonus : 0) - (snubbed ? P.snubHookMalus : 0) + (bonded ? MK.bondHookBonus : 0) + (camp ? MK.campHookShift : 0) + (KP.seatMult ? Math.round((KP.seatMult(state, 'anr') - 1) * 30) : 0), 10, 95),
+        hook: KP.clamp(Math.round(rng.normal(pr.craft * fit * ST.hookFromCraft + ST.hookBase, ST.hookSd)) + (toBrief ? D.briefHookBonus : 0) - (snubbed ? P.snubHookMalus : 0) + (bonded ? MK.bondHookBonus : 0) + (camp ? MK.campHookShift : 0) + (KP.seatMult ? Math.round((KP.seatMult(state, 'anr') - 1) * 30) : 0), 10, 95),
         vocalDemand: q(rng), rapDemand: KP.clamp(q(rng) - 15, 5, 95),
-        choreoPotential: q(rng),
+        choreoPotential: q(rng), fitMult: fit,
       });
     }
     // ---- the advocates (v0.9.17): the meeting has politics --------------
@@ -74,11 +80,13 @@
         state.pitchLedger.memberDemos++;
         const w = writers[rng.int(0, writers.length - 1)];
         const concept = direction || rng.pick(KP.C.CONCEPTS);
+        const penThemes = KP.penThemes(w);
         demos.push({
           id: 'song' + (demos.length + 1),
           title: KP.genSongTitle(rng, usedTitles),
           producer: KP.displayName(w), producerId: null,
-          writtenBy: w.id,
+          writtenBy: w.id, writerId: w.id, writer: KP.displayName(w),
+          theme: penThemes[rng.int(0, penThemes.length - 1)],   // the pen writes what she owns (v0.10.35)
           conceptId: concept.id,
           toBrief: !!(direction && concept.id === direction.id),
           hook: KP.clamp(Math.round(rng.normal(S.qualityMean + P.memberHookShift, P.memberHookSd)), 10, 95),
@@ -133,7 +141,10 @@
     g.concept = conceptId || null;
     if (before === g.concept) return { ok: true, note: null };
     g.conceptRun = 0;   // a new lane starts a new streak — identity is earned per lane
-    g.demos = null;     // the producers re-tool: fresh pitches next time
+    // the producers re-tool: fresh pitches next time — a commissioned
+    // record is yours and stays on the desk (v0.10.35)
+    const kept = (g.demos || []).filter(d => d.commissioned);
+    g.demos = kept.length ? kept : null;
     const note = g.concept
       ? 'Creative direction set: ' + KP.conceptById(g.concept).label + ' for ' + g.name +
         '. The producers have the brief' + (before ? ' — and the re-tooling starts tonight' : '') + '. The next pitch meeting will sound like it.'
@@ -223,6 +234,13 @@
       const fits = members.map(m => KP.conceptFit(m, concept));
       const spread = Math.max.apply(null, fits) - Math.min.apply(null, fits);
       if (spread > 30) lines.push('This concept fits some of these members far better than others.');
+    }
+    // the studio (v0.10.35): the fit law and the theme, in words
+    if (demo.fitMult != null && demo.fitMult < KP.C.STUDIO.fit.neighbour) lines.push('A producer out of his lane: every part is professional and none of it is his. The chorus knows.');
+    else if (demo.fitMult != null && demo.fitMult < KP.C.STUDIO.fit.home) lines.push('A stretch for the producer — one lane over, and it mostly holds.');
+    if (demo.theme && members && members.length && KP.themeRoomMiss) {
+      const miss = KP.themeRoomMiss(state, members, KP.themeById(demo.theme));
+      if (miss) lines.push('The lyric is a problem: ' + miss + '.');
     }
     // the two verdicts (v0.10.34): the catch and the year's sound, in words
     if (KP.demoVerdictLines) KP.demoVerdictLines(state, demo).forEach(l => lines.push(l));

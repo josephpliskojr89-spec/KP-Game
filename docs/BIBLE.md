@@ -7139,7 +7139,7 @@ checks: the strip is on the person tab and opens with where she is
 from), lockstep 0.10.33.
 
 
-## §91 The comeback (PHASE 1 SHIPPED v0.10.34 — the song made, the chart earned, the stage judged)
+## §91 The comeback (PHASES 1–2 SHIPPED v0.10.34–35 — the song made, the chart earned, the stage judged)
 
 Owner, thinking out loud: "something that really defines kpop and
 it's the comeback. The anticipation, the promotion, the stages, and
@@ -7578,6 +7578,97 @@ season's forgotten count, the truck's cooling margin).
 
 Battery 101/101, soak 40 clean, longhaul 10x620, e2e 113, lockstep
 0.10.34.
+
+**As built — Phase 2, v0.10.35 "the studio".** Owner: "Go ahead with
+phase 2." studio.js is the module (loaded after credits.js); songs.js
+pitches through it; credits.js, hires.js, debut.js, verdict.js and
+save.js learned the people. Suite_102_studio (102 checks).
+
+*Producers are people.* Every producer in the world's pool carries a
+hidden `craft` and `catch` (STUDIO.craftSpread 34–86, catchSpread
+30–85, by hash — backfilled on old pools, never printed) and, forty
+percent of the time, a `lane2` next door to the home lane (a
+versatile producer). THE FIT LAW: `KP.laneFitMult(lanes, lane)` is
+home 1.0 / next door .85 / far .65 over the producer's best lane,
+and the composition IS the craft through it — hook = N(craft × fit ×
+.9 + 6, 9) plus the sheet's old modifiers (the brief, the bond, the
+snub, the camp, the A&R chair). A 90 far from his lane lands near 58;
+a 70 at home beats him (suite-pinned): the owner's hip-hop producer
+on the ethereal song, as ruled — a cap, not a slope. The catch reads
+the producer's commercial sense (hook × .45 + catch × .4 + 8 ± 12,
+hash). The pitch stays: four demos a cycle, the producer mostly in
+his lane (laneStickiness .6), and an off-lane pitch is weaker for it
+and says so on the sheet ("a producer out of his lane: every part is
+professional and none of it is his").
+
+*Writers and themes.* Ten THEMES (longing, first love, defiance,
+summer, the night drive, grief, swagger, nostalgia, escape,
+devotion), each with the lanes it sits in naturally, an age band, a
+breadth (appeal) and, for most, a trait the room must read as true.
+A world pool of six writers (`KP.writersOf`: a name, two or three
+themes, a hidden craft, a works ledger) and the pen: a member who
+writes owns themes from who she is (`KP.penThemes`: warmth →
+devotion, confidence → swagger, creativity → the night drive and
+escape, low resilience → grief, under 21 → first love and summer,
+past 23 → nostalgia) with a craft from her creativity. Every pitched
+demo names its lyric and its theme (a writer natural to the lane,
+three times in four). THE LYRIC is a craft row: the writer's craft ×
+theme fit (home 1.0, off her themes .75) × VERDICT.craftLyric .08
+(craftHook .42 → .38 to make room); the theme's breadth is an appeal
+row; devotion feeds the fandom. A theme that fights the room — the
+lineup's age outside the band, or the trait under its floor — costs
+craft (−6), the sheet warns before the lock, and every critic names
+the same problem in the verdict letter ("a lyric about grief sung by
+a room too young to have lived it").
+
+*The commission.* `KP.commissionRecord(state, groupId, {lane, theme,
+producerId, writerId})`: the fee is the producer's by heat (unproven
+6, cold streak 5, workmanlike 12, reliable 22, in demand 40 — the
+house chair free) plus the writer's (a pool writer 8; the pen and
+the house free), booked to production; the writing room takes two or
+three weeks (hash) and the demo lands on the desk BESIDE the pitch
+(`g.demos`; if the drawer is empty the pitch is written the same
+week), the same shape as every demo with `commissioned`, the brief,
+price 0 and the fit it was written at. One room per group at a time.
+The commissioned record stays on the desk through a direction change
+(the pitch re-tools around it) and is never a ghost (it is paid for).
+ACCESS, the holdout way: unproven, workmanlike and cold-streak names
+take any call; reliable wants fame ≥ .30; in demand wants fame ≥ .55
+— or two records together with this room. The fresh label books the
+unproven and writes in its lane; the names do not pick up.
+
+*The house chairs.* Two studio seats join hires.js — `producer`
+(house producer) and `writer` (house writer): hired at theInterview
+like any chair (fame-gated tiers, the fee by tier, severance, the
+poach call), their lanes / themes on the file as public knowledge,
+their craft the hidden aptitude (STUDIO.houseCraftBase 30 + apt ×
+60: a name is reliably decent, an unknown might be the gem). No fee,
+bonded from day one, exclusive — and their lane is their lane: the
+house hip-hop chair and a dreamy brief send you to the market anyway.
+Old truths did not move: the best-seat draw runs over the six core
+chairs, and a studio chair's truth is its own craft (no off-seat
+damp). The building card reads eight chairs and the lanes / themes
+/ records for this house. One chair each this phase (§91 B2 said
+two) — the second chair when the first proves out.
+
+*The bot and the bands.* The harness briefs a record whenever a
+room's calendar is open and the account carries the fees plus 200:
+the brief's lane, a theme natural to it (hash), the house chair or
+the best-fitting name that takes the call (fit first, then heat),
+the house writer or one who owns the theme; interviews for the
+studio chairs are answered like any chair's. Bands: commissioned
+[.60–1.0], offLaneRecord [.05–1.0], houseChair [0–1.0], themeNamed
+[0–.90] (measure-first). Measured, 40 orgs: {{SOAK}}.
+
+*The migration (0.10.35)* backfills every demo on a desk with a
+writer, a theme and the fit it was written at (by hash, natural to
+the lane; the pen's own demo keeps her), mints the writers' room and
+the pool's hidden numbers on first read. Stream shift: the hook's
+draw changed shape and each pitch draws a writer — repairs by
+pattern.
+
+Battery {{BATTERY}}, soak 40 clean, longhaul 10x620, e2e {{E2E}},
+lockstep 0.10.35.
 
 ## §18 Watch items
 

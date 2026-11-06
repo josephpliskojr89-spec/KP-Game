@@ -116,18 +116,44 @@
     const HR = KP.C.HIRES;
     const name = FAM[Math.floor(h(state, sid, 'f') * FAM.length)] + ' ' +
       GIV[Math.floor(h(state, sid, 'g') * GIV.length)];
+    const core = HR.SEATS.filter(x => !x.studio);
     const knownFor = h(state, sid, 'kfm') < HR.knownForMatch
       ? null   // null = the tag matches the true best seat (resolved in truth)
-      : HR.SEATS[Math.floor(h(state, sid, 'kf') * HR.SEATS.length)].id;
+      : core[Math.floor(h(state, sid, 'kf') * core.length)].id;
     const years = 2 + Math.floor(h(state, sid, 'yr') * 12);
     const resume = [
       years + ' years in, most recently at ' + HOUSES[Math.floor(h(state, sid, 'h1') * HOUSES.length)],
       'was in the room for ' + ERAS[Math.floor(h(state, sid, 'e1') * ERAS.length)],
     ];
-    return { id: sid, name, seatId, tier, knownForTag: knownFor, resume,
+    const cand = { id: sid, name, seatId, tier, knownForTag: knownFor, resume,
       style: STYLES[Math.floor(h(state, sid, 'st') * STYLES.length)],
       warmth: Math.round(h(state, sid, 'pw') * 100),
       candor: Math.round(h(state, sid, 'pc') * 100) };
+    // the studio (v0.10.35): a producer's lanes and a writer's themes are
+    // public knowledge — the craft behind them is the fog
+    const seatDef = HR.SEATS.find(x => x.id === seatId);
+    if (seatDef && seatDef.studio) {
+      cand.knownForTag = null;
+      if (seatId === 'producer') {
+        const lanes = KP.C.CONCEPTS.filter(c => c.id !== 'fusion');
+        cand.lane = lanes[Math.floor(h(state, sid, 'lane') * lanes.length)].id;
+        cand.lane2 = null;
+        if (h(state, sid, 'lane2') < KP.C.STUDIO.secondLaneChance) {
+          const N = KP.C.TREND.NEIGHBOURS[cand.lane] || [];
+          if (N.length) cand.lane2 = N[Math.floor(h(state, sid, 'lane2pick') * N.length)];
+        }
+      } else {
+        const all = KP.C.THEMES.map(t => t.id);
+        const n = 2 + Math.floor(h(state, sid, 'thn') * 2);
+        cand.themes = [];
+        for (let i = 0; i < n; i++) {
+          const left = all.filter(t => !cand.themes.includes(t));
+          cand.themes.push(left[Math.floor(h(state, sid, 'th' + i) * left.length)]);
+        }
+      }
+      cand.works = [];
+    }
+    return cand;
   }
 
   // ---- the truth: computed, never stored, never printed ----------------
@@ -135,10 +161,14 @@
     const HR = KP.C.HIRES;
     const base = h(state, st.id, 'apt');
     const gem = st.tier === 'unknown' && h(state, st.id, 'gem') < HR.gemChance;
-    const bestSeat = HR.SEATS[Math.floor(h(state, st.id, 'best') * HR.SEATS.length)].id;
+    // the best seat is drawn over the six core chairs (the studio chairs
+    // joined in v0.10.35 — old truths must not move under them)
+    const core = HR.SEATS.filter(x => !x.studio);
+    const bestSeat = core[Math.floor(h(state, st.id, 'best') * core.length)].id;
     let apt = gem ? 0.72 + base * 0.28
       : KP.clamp(HR.tierFloor[st.tier] + base * HR.tierSpan, 0, 1);
-    if (st.seatId !== bestSeat) apt *= HR.offSeatDamp;
+    const def = HR.SEATS.find(x => x.id === st.seatId);
+    if (!(def && def.studio) && st.seatId !== bestSeat) apt *= HR.offSeatDamp;   // a studio chair's truth is its own craft
     return { apt, bestSeat };
   };
   function meshOf(state, st) {
@@ -198,11 +228,15 @@
       const HR = KP.C.HIRES;
       const c = sc.cand;
       const seat = HR.SEATS.find(x => x.id === c.seatId);
+      // the studio (v0.10.35): the lanes and the themes are on the file — the craft is not
+      const studioLine = c.lane
+        ? ' Known lanes: ' + KP.producerLanes(c).map(l => (KP.conceptById(l) || { label: l }).label.toLowerCase()).join(' and ') + '.'
+        : c.themes ? ' Themes they write: ' + c.themes.map(t => (KP.themeById(t) || { label: t }).label.toLowerCase()).join(', ') + '.' : '';
       return 'The ' + seat.label + ' chair needs filling and ' + c.name + ' took the meeting. ' +
         'The read across the table: ' + (c.warmth >= 50 ? 'warm, easy in the room' : 'reserved, hard to warm') +
         ', ' + (c.candor >= 50 ? 'answers straight even when it costs' : 'answers carefully, edges sanded') +
         ' — and by every account, ' + STYLE_WORD[c.style] + '. ' +
-        'The résumé: ' + c.resume.join('; ') + '. ' +
+        'The résumé: ' + c.resume.join('; ') + '.' + studioLine + ' ' +
         'The industry file: ' + c.tier + (c.knownForTag ? ', known for ' +
           (HR.SEATS.find(x => x.id === c.knownForTag) || seat).label + ' work' : '') +
         '. The fee is ' + HR.hireCost[c.tier] + '. The résumé says where they were. It does not say what they did there.';

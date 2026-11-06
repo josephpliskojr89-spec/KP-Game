@@ -91,6 +91,7 @@ function debuted(seed) {
   [a, b].forEach(s => {
     const sg = s.groups[0];
     sg.demos = KP.generateDemos(s, KP.rngFor(s));
+    s.budget = Math.max(s.budget, 400);   // the studio (v0.10.35): a hotter sheet asks more — the fork is about memory, not the bill
     KP.planDebut(s, { groupId: sg.id, songId: sg.demos[0].id, promo: 'modest',
       week: s.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
     sg.prep.progress = 6; s.week = sg.prep.scheduledWeek;

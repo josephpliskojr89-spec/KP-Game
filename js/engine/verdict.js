@@ -116,6 +116,12 @@
     if (demo.catch != null) return demo.catch;
     const V = KP.C.VERDICT;
     const h = KP.hash01([state.seed, demo.id, demo.title, 'catch'].join('|'));
+    // the studio (v0.10.35): a producer's commercial sense is in the catch
+    const pr = demo.producerId && KP.producerOf ? KP.producerOf(state, demo.producerId) : null;
+    if (pr && pr.catch != null) {
+      const S = KP.C.STUDIO;
+      return KP.clamp(Math.round(demo.hook * S.catchFromHook + pr.catch * S.catchFromProducer + S.catchBase + (h * 2 - 1) * S.catchWobble), 10, 95);
+    }
     return KP.clamp(Math.round(demo.hook * V.catchFromHook + V.catchBase + (h * 2 - 1) * V.catchSpread), 10, 95);
   };
 
@@ -186,7 +192,8 @@
     const pool = QUOTES[pick.band] || QUOTES.mixed;
     const q = pool[Math.floor(KP.hash01([state.seed, 'quote', title, pick.id].join('|')) * pool.length) % pool.length];
     return 'The critics on “' + title + '” — ' + parts.join(' · ') + '. ' + pick.name + ': “' + q + '.”' +
-      (cv.split ? ' A split verdict; the arguments will outlast the promotion.' : '');
+      (cv.split ? ' A split verdict; the arguments will outlast the promotion.' : '') +
+      (cv.roomMiss ? ' Every outlet named the same problem: ' + cv.roomMiss + '.' : '');
   };
 
   // ---- the divergences and the critics' expectation -------------------------
@@ -203,7 +210,7 @@
     const loud = rel.critics.split || ['acclaimed', 'panned'].includes(rel.critics.consensus);
     notes.push({ kind: 'public', ind: 'criticsVerdict', priority: loud ? 'high' : 'normal', groupId: g.id,
       consensus: rel.critics.consensus, split: rel.critics.split,
-      text: KP.criticsLine(state, rel.critics, rel.title) });
+      text: KP.criticsLine(state, Object.assign({}, rel.critics, { roomMiss: rel.roomMiss || null }), rel.title) });
     if (rel.craft >= V.darlingCraft && rel.reception < V.darlingBelow) {
       led.darlings++;
       KP.fandomGain(g, V.prideFandom);

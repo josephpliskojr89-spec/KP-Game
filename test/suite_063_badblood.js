@@ -153,7 +153,7 @@ function forceConflict(state, a, b) {
   let guard = 0;
   while (!g.prep.masterFunded && g.prep && guard++ < 6) KP.advanceWeek(state);
   t.ok(g.prep && g.prep.masterFunded, 'the master funds the era');
-  t.ok(state.inbox.some(n => /subway station/.test(n.text)), 'faster than the marketing budget');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(n => /subway station/.test(n.text)), 'faster than the marketing budget');
   // the turn: a betrayal trigger flips the account
   KP.recordDirected(state, p.id, 'heldToPaper');
   const F = KP.C.FANSITE;

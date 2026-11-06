@@ -35,7 +35,24 @@
         state.producerPool.push({ id: 'pr' + i, name, lane, works: [] });
       }
     }
+    // the studio (v0.10.35): the hidden numbers and the second lane — by
+    // hash, backfilled on old pools, never printed
+    state.producerPool.forEach((pr, i) => KP.producerBackfill(state, pr, i));
     return state.producerPool;
+  };
+  KP.producerBackfill = function (state, pr, i) {
+    const S = KP.C.STUDIO;
+    const key = pr.id || ('pr' + i);
+    if (pr.craft == null) pr.craft = Math.round(S.craftSpread[0] + h(state, key + 'craft') * (S.craftSpread[1] - S.craftSpread[0]));
+    if (pr.catch == null) pr.catch = Math.round(S.catchSpread[0] + h(state, key + 'catch') * (S.catchSpread[1] - S.catchSpread[0]));
+    if (pr.lane2 === undefined) {
+      pr.lane2 = null;
+      if (h(state, key + 'lane2') < S.secondLaneChance) {
+        const N = KP.C.TREND.NEIGHBOURS[pr.lane] || [];
+        if (N.length) pr.lane2 = N[Math.floor(h(state, key + 'lane2pick') * N.length)];
+      }
+    }
+    return pr;
   };
   // the pitch pick: producers mostly work their home lane
   KP.pickProducer = function (state, rng, conceptId) {
@@ -72,7 +89,7 @@
       // a real hook gets shopped around — producers gonna produce
       if (g.prep && !g.prep.ghostHarvested) {
         g.prep.ghostHarvested = 1;
-        const left = (g.demos || []).filter(d => d.id !== g.prep.songId &&
+        const left = (g.demos || []).filter(d => d.id !== g.prep.songId && !d.commissioned &&
           d.hook >= C.ghostHookMin).sort((a, b) => b.hook - a.hook)[0];
         if (left) {
           g.prep.ghostTitle = left.title;   // the repackage drawer skips it (v0.9.17)
@@ -96,6 +113,14 @@
           if (together >= C.signatureAt) {
             const nar = KP.recordEvidence(state, 'signatureSound', 'group', g.id, { producer: pr.name });
             if (nar) inbox.push(nar);
+          }
+        }
+        // the studio (v0.10.35): the writer's name is made by the record too
+        if (rel.writerId && KP.writerById) {
+          const w = KP.writerById(state, rel.writerId);
+          if (w && w.works && !w.pen) {
+            w.works.push({ week: state.week, title: rel.songTitle, craft: rel.craft != null ? rel.craft : rel.reception, groupId: g.id });
+            if (w.works.length > C.worksCap) w.works.shift();
           }
         }
         // the booklet: members who wrote get their names read out loud

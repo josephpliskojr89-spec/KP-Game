@@ -103,7 +103,7 @@ function release(state, g) {
   lock(state, g, 'mini');
   KP.assignTrack(state, g.id, 3, { type: 'unit', memberIds: [a.id, b.id] });
   release(state, g);
-  const note = state.inbox.find(n => n.ind === 'unitTrack');
+  const note = state.inbox.concat(KP.lastTickNotes || []).find(n => n.ind === 'unitTrack');   // the week's wire (the trim decides the landing)
   t.ok(note && note.close, 'a close pair’s unit reads as chemistry');
   t.ok(/own frequency/.test(note.text), 'and the note says so');
   t.ok(a.history.some(h => /Unit track with/.test(h.text)), 'both files remember');

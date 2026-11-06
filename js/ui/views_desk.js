@@ -314,6 +314,8 @@
     scout: 'decides how far the company’s name reaches when it looks for people',
     anr: 'sits over the demo sheet — what lands on it, and how it is heard',
     marketing: 'decides what a campaign push actually buys',
+    producer: 'writes the company’s own records — no fee, nobody else’s ghost, and their lane is their lane',
+    writer: 'writes the company’s own lyrics — the themes they own, free, for every room in the building',
   };
   // ---- the content desk (v0.10.18): the company account ----------------
   // The law of the menu: only what is actually happening can be filmed —
@@ -389,7 +391,7 @@
     const searchBusy = !!state.staffSearch ||
       (state.scenes || []).some(sc => sc.kind === 'theInterview');
     html.push('<div class="pad" style="font-size:.74rem;color:var(--ink-dim);margin-top:4px">' +
-      'Six chairs. The file on each shows who they are, where they were, and what the industry says — never what they are worth. That part costs a year, and it never prints.</div>');
+      'Eight chairs. The file on each shows who they are, where they were, and what the industry says — never what they are worth. That part costs a year, and it never prints.</div>');
     if (state.staffSearch) {
       const seat = HR.SEATS.find(x => x.id === state.staffSearch.seatId);
       html.push('<div class="card" style="border-color:var(--gold)"><div style="font-size:.78rem;color:var(--gold)">A posting is up for the ' +
@@ -427,6 +429,9 @@
         '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">' +
         '<span class="chip">' + UI.esc(st.tier) + '</span>' +
         (knownFor ? '<span class="chip">known for ' + UI.esc(knownFor) + ' work</span>' : '') +
+        (st.lane ? '<span class="chip cool">lanes: ' + UI.esc(KP.producerLanes(st).map(l => (KP.conceptById(l) || { label: l }).label.toLowerCase()).join(' / ')) + '</span>' : '') +
+        (st.themes ? '<span class="chip cool">themes: ' + UI.esc(st.themes.map(t => (KP.themeById(t) || { label: t }).label.toLowerCase()).join(', ')) + '</span>' : '') +
+        ((st.works || []).length ? '<span class="chip">' + st.works.length + ' record' + (st.works.length > 1 ? 's' : '') + ' for this house</span>' : '') +
         '<span class="chip">' + (weeks < 2 ? 'just arrived' : weeks + ' weeks in the chair') + '</span>' +
         '</div>' +
         (read ? '<div style="font-size:.76rem;line-height:1.5;margin-top:7px">The read across the table: ' +

@@ -432,6 +432,20 @@
         App.render();
         break;
       }
+      // the studio (v0.10.35): brief a record
+      case 'comm-lane': { (App.commDraft = App.commDraft || {}).lane = t.dataset.id; App.render(); break; }
+      case 'comm-theme': { (App.commDraft = App.commDraft || {}).theme = t.dataset.id; App.render(); break; }
+      case 'comm-producer': { (App.commDraft = App.commDraft || {}).producerId = t.dataset.id; App.render(); break; }
+      case 'comm-writer': { (App.commDraft = App.commDraft || {}).writerId = t.dataset.id; App.render(); break; }
+      case 'commission': {
+        const cd = App.commDraft || {};
+        const r = KP.commissionRecord(s, t.dataset.id, { lane: cd.lane, theme: cd.theme, producerId: cd.producerId, writerId: cd.writerId });
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast('Commissioned — the writing room has ' + r.weeks + ' weeks.' + (r.fee ? ' Fees ' + r.fee + '.' : ''));
+        App.render();
+        break;
+      }
       case 'song-camp': {
         const r = KP.holdSongCamp(s, t.dataset.id);
         if (!r.ok) { UI.toast(r.reason, true); break; }

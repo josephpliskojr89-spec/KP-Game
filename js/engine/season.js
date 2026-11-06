@@ -310,7 +310,7 @@
         x.c.rank = i + 1;
         touch(state, p, 'lineup');
         memberIds.push(p.id);
-        const stillOurs = x.c.source === 'player' && p.status === 'trainee' && (state.roster || []).includes(p.id);
+        const stillOurs = p.status === 'trainee' && (state.roster || []).includes(p.id);   // whoever is on this roster tonight — a board kid signed mid-season included (v0.10.35)
         if (stillOurs) {
           led.oursLineup++;
           if (permanent) {

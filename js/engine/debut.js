@@ -702,8 +702,19 @@
     const craftLuck = rng.normal(0, V.craftLuckSd);
     const catchQ = KP.catchOf(state, demo);
     const trendFit = KP.trendFit(state, concept.id);
+    // the studio (v0.10.35): the lyric — the writer's craft through her
+    // themes; a theme that fights the room is a sentence the critics use
+    const ST = KP.C.STUDIO;
+    const writer = KP.writerById ? KP.writerById(state, demo.writerId) : null;
+    const theme = KP.themeById ? KP.themeById(demo.theme) : null;
+    const lyric = writer && theme ? writer.craft * ((writer.themes || []).includes(theme.id) ? ST.themeFit.home : ST.themeFit.far) : 0;
+    const roomMiss = theme && KP.themeRoomMiss ? KP.themeRoomMiss(state, members, theme) : null;
+    if (roomMiss) KP.studioLedger(state).roomMiss++;
+    if (demo.producerId === 'seat:producer') KP.studioLedger(state).houseRecords++;
     // craft: the record
     L.add('craft', 'the hook', demo.hook * V.craftHook);
+    L.add('craft', 'the lyric', lyric * V.craftLyric);
+    if (roomMiss) L.add('craft', 'the theme fights the room', -ST.roomMissCraft);
     L.add('craft', 'the recording', performance * V.craftRecording);
     L.add('craft', 'concept fit', groupFit * V.craftFit);
     L.add('craft', 'the room', (chem - 50) * V.craftChem);
@@ -715,6 +726,7 @@
     L.add('appeal', 'the performance', performance * V.appealRecording);   // the public hears a record performed well
     L.add('appeal', 'the year’s sound', trendFit * V.appealTrend);
     L.add('appeal', 'breadth', concept.breadth || 0);
+    if (theme) L.add('appeal', 'the theme', theme.breadth || 0);
     L.add('appeal', 'the moment', soloEdge + spark);
     L.add('appeal', 'the video', mvMod);
     if (season.mod > 0) L.add('appeal', 'the season', season.mod);
@@ -923,6 +935,7 @@
     if (avg('vocals') >= 62) rep.vocal = KP.clamp((rep.vocal || 60) + 4, 0, 100);
     if (craft >= V.vocalRepCraft) rep.vocal = KP.clamp((rep.vocal || 60) + V.vocalRepBump, 0, 100);   // the vocal house is built on records (v0.10.34)
     if (craft >= V.prideCraft) KP.fandomGain(g, V.prideFandom);   // the fandom's pride in a great record, chart or no chart
+    if (theme && theme.id === 'devotion') KP.fandomGain(g, ST.devotionFandom);   // the fan song (v0.10.35)
     if (breakout && reception >= 64) rep.starMaker = KP.clamp((rep.starMaker || 35) + (isDebut ? 8 : 4), 0, 100);
 
     // the two publics (v0.10.0, §80): the lump becomes streams. The
@@ -1120,6 +1133,9 @@
       craft, appeal, critics: { consensus: critics.consensus, split: critics.split,
         verdicts: critics.verdicts.map(v => ({ id: v.id, band: v.band })) },
       producerId: demo.producerId || null, producer: demo.producer,
+      // the studio (v0.10.35): the lyric's name and its theme, the fit it was written at
+      writerId: demo.writerId || null, writer: demo.writer || null, theme: demo.theme || null,
+      fitMult: demo.fitMult != null ? demo.fitMult : null, commissioned: !!demo.commissioned,
       mv: mvTier, writtenBy: demo.writtenBy || null,
       repackageOf: repack ? repack.of : null,
       // the making (v0.10.4): who built the stage, and whose lines it was
@@ -1243,7 +1259,7 @@
     if (war.battle) g.results.battle = war.battle;
     // the critics speak (v0.10.34): the verdict, the darling, the panned
     // hit, and the critics' own bar — the house's last record
-    KP.verdictNotes(state, g, { title: demo.title, craft, reception, critics, conceptId: concept.id }, prevCraft).forEach(push);
+    KP.verdictNotes(state, g, { title: demo.title, craft, reception, critics, conceptId: concept.id, roomMiss }, prevCraft).forEach(push);
     // the release exports (v0.6.6): concept resonance decides where
     KP.regionsOnRelease(state, g, reception, concept.id).forEach(push);
     // the era's leftovers (v0.9.17): the demos the meeting passed on stay

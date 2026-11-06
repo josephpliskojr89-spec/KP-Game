@@ -976,6 +976,42 @@
     (state.producerPool || []).forEach(pr => (pr.works || []).forEach(w => { if (w.craft == null) w.craft = w.reception; }));
   } });
 
+  // the studio (v0.10.35, §91 Phase 2): every demo on a desk gets a
+  // writer, a theme and the fit it was written at (by hash — the pitch
+  // never drew them); the producer pool's hidden numbers and the writer
+  // pool mint lazily on first read
+  MIGRATIONS.push({ v: '0.10.35', fn: function (state) {
+    const pool = KP.producersOf(state);
+    const writers = KP.writersOf(state);
+    const fix = (d, key) => {
+      if (!d) return;
+      if (d.fitMult == null) {
+        const pr = d.producerId ? pool.find(p => p.id === d.producerId) : null;
+        d.fitMult = pr ? KP.laneFitMult(KP.producerLanes(pr), d.conceptId) : 1;
+      }
+      if (!d.writerId) {
+        if (d.writtenBy && state.people[d.writtenBy]) {
+          const p = state.people[d.writtenBy];
+          d.writerId = p.id; d.writer = KP.displayName(p);
+          const th = KP.penThemes(p); d.theme = d.theme || th[Math.floor(KP.hash01([state.seed, key, 'pth'].join('|')) * th.length)];
+        } else {
+          const natural = writers.filter(w => w.themes.some(t => (KP.themeById(t) || { lanes: [] }).lanes.includes(d.conceptId)));
+          const list = natural.length ? natural : writers;
+          const w = list[Math.floor(KP.hash01([state.seed, key, 'wr'].join('|')) * list.length)];
+          d.writerId = w.id; d.writer = w.name;
+          const th = w.themes.filter(t => (KP.themeById(t) || { lanes: [] }).lanes.includes(d.conceptId));
+          const pick = th.length ? th : w.themes;
+          d.theme = d.theme || pick[Math.floor(KP.hash01([state.seed, key, 'th'].join('|')) * pick.length)];
+        }
+      }
+    };
+    KP.groups(state).forEach(g => {
+      (g.demos || []).forEach(d => fix(d, g.id + '|' + d.id + '|' + d.title));
+      (g.eraLeftovers || []).forEach(d => fix(d, g.id + '|left|' + d.id + '|' + d.title));
+    });
+    (state.demos || []).forEach(d => fix(d, 'state|' + d.id + '|' + d.title));
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.34',
+    VERSION: '0.10.35',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -419,7 +419,8 @@
     // `reception` keeps its name and means the commercial result.
     VERDICT: {
       // craft terms (weights on 0–100 inputs)
-      craftHook: 0.42, craftRecording: 0.30, craftFit: 0.14, craftChem: 0.10,
+      craftHook: 0.38, craftRecording: 0.30, craftFit: 0.14, craftChem: 0.10,
+      craftLyric: 0.08,                    // the studio (v0.10.35): the writer's craft × theme fit
       craftIdentity: 2, craftLuckSd: 6,
       // appeal terms
       appealBase: 2, appealCatch: 0.55, appealRecording: 0.15, appealTrend: 0.13,
@@ -461,6 +462,44 @@
       vocalRepCraft: 68, vocalRepBump: 3,  // the vocal house is built on records
       longevityCraft: 60,                  // a well-made record stays in the catalog's lottery
     },
+    // ---- The studio (v0.10.35, §91 Phase 2) ---------------------------------
+    // The song is MADE by named people. A producer has lanes (public) and
+    // a hidden craft and catch (the second fog: read through the works);
+    // the fit law caps a composition by lane distance — "a hip-hop
+    // producer on an ethereal song" tops out whatever the skill. Writers
+    // own themes the same way. The commission is the player's verb.
+    STUDIO: {
+      fit: { home: 1.0, neighbour: 0.85, far: 0.65 },      // the fit law (owner: a cap, not a slope)
+      craftSpread: [34, 86], catchSpread: [30, 85],         // a producer's hidden numbers, by hash
+      secondLaneChance: 0.4,                               // a versatile producer owns a second lane
+      hookFromCraft: 0.9, hookBase: 6, hookSd: 9,          // hook = N(craft × fit × .9 + 8, 9) + the sheet's modifiers
+      catchFromHook: 0.45, catchFromProducer: 0.4, catchBase: 8, catchWobble: 12,   // the catch reads the commercial sense
+      writerCount: 6, writerCraftSpread: [34, 86], writerThemes: [2, 3],
+      themeFit: { home: 1.0, far: 0.75 },                   // the lyric's cap off a writer's themes
+      roomMissCraft: 6,                                     // a theme that fights the room (age band, trait)
+      pen: { base: 20, perCreativity: 0.6 },               // a member writer's craft, from creativity
+      houseCraftBase: 30, houseCraftSpan: 60,               // a house chair's craft from its hidden aptitude
+      houseBond: 5,                                         // the house chair is bonded from day one
+      devotionFandom: 1,                                    // the fan song feeds the fandom
+      COMMISSION: {
+        writeWeeks: [2, 3],                                 // the writing room's clock
+        writerFee: 8,                                       // a pool writer's fee (the pen and the house write free)
+        fees: { unproven: 6, 'cold streak': 5, workmanlike: 12, reliable: 22, 'in demand': 40 },
+        access: { reliable: 0.30, 'in demand': 0.55 },      // fame to get the call — or a bond with this room
+      },
+    },
+    THEMES: [
+      { id: 'longing',    label: 'Longing',        ages: [17, 30], lanes: ['dreamy', 'elegant', 'retro'],       breadth: 0,  trait: { key: 'warmth', min: 35 } },
+      { id: 'firstLove',  label: 'First love',     ages: [15, 21], lanes: ['bright', 'dreamy'],                 breadth: 3,  trait: { key: 'warmth', min: 45 } },
+      { id: 'defiance',   label: 'Defiance',       ages: [17, 30], lanes: ['dark', 'hiphop', 'performance'],    breadth: 1,  trait: { key: 'confidence', min: 48 } },
+      { id: 'summer',     label: 'Summer',         ages: [15, 26], lanes: ['bright', 'retro'],                  breadth: 4,  trait: null },
+      { id: 'nightDrive', label: 'The night drive', ages: [18, 32], lanes: ['retro', 'futuristic', 'elegant'],  breadth: 0,  trait: null },
+      { id: 'grief',      label: 'Grief',          ages: [21, 40], lanes: ['dreamy', 'elegant'],                breadth: -3, trait: { key: 'resilience', min: 40 } },
+      { id: 'confidence', label: 'Swagger',        ages: [17, 30], lanes: ['hiphop', 'dark', 'performance'],    breadth: 2,  trait: { key: 'confidence', min: 55 } },
+      { id: 'nostalgia',  label: 'Nostalgia',      ages: [20, 40], lanes: ['retro', 'dreamy'],                  breadth: 0,  trait: null },
+      { id: 'escape',     label: 'Escape',         ages: [16, 28], lanes: ['futuristic', 'performance', 'bright'], breadth: 1, trait: { key: 'adaptability', min: 40 } },
+      { id: 'devotion',   label: 'Devotion',       ages: [15, 40], lanes: ['bright', 'elegant'],                breadth: 2,  trait: { key: 'warmth', min: 40 } },
+    ],
     // the sound of the year (v0.10.34): a lane the trades name every
     // January — hash per year with persistence, moved for real by a
     // fusion shift. trendFit on a demo was a random draw with no world
@@ -1702,6 +1741,9 @@
         { id: 'scout', label: 'head scout' },
         { id: 'anr', label: 'A&R lead' },
         { id: 'marketing', label: 'marketing lead' },
+        // the studio (v0.10.35): two chairs whose truth is a craft, not a multiplier
+        { id: 'producer', label: 'house producer', studio: true },
+        { id: 'writer', label: 'house writer', studio: true },
       ],
       REP_TIERS: ['unknown', 'working', 'known', 'a name'],
       hireCost: { 'unknown': 8, 'working': 18, 'known': 40, 'a name': 80 },

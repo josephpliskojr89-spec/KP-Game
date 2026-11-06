@@ -180,6 +180,7 @@
   KP.signProspect = function (state, personId, opts) {
     const p = state.people[personId];
     if (!p || p.status !== 'prospect') return { ok: false, reason: 'No longer available.' };
+    if (p.flags && p.flags.onSeason) return { ok: false, reason: KP.fillPro('{She} is on television until the finale. The producers hold the paper; the board holds the file.', p) };
     // the castoff who is done (v0.10.13) — owner: "you might just make
     // an offer and they turn it down as they're leaving the industry."
     // Public availability was always only theoretical for some of them.
@@ -356,6 +357,7 @@
         return;
       }
       if (KP.groupOf(state, p.id)) return;   // a formed lineup: the clock holds its breath
+      if (KP.onBreak(p)) return;   // away — on television, on a project run, on the bench: nobody walks out of a studio (v0.10.35 soak)
       if (state.week === p.clause.byWeek - T.warnAt) {
         inbox.push({ kind: 'talent', ind: 'clauseClock', priority: 'high', personId: p.id,
           text: KP.fillPro('The paperwork desk flags it in red: ' + KP.displayName(p) + '’s debut-by clause comes due week ' + p.clause.byWeek + ' — ' + T.warnAt + ' weeks out. No lineup, no stage, and {she} has a copy of the contract too.', p) });

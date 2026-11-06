@@ -217,6 +217,8 @@
     // the song camp (v0.10.5): the spend verb that summons a hotter sheet
     const campReady = state.week - (g.lastCampWeek || -999) >= KP.C.MARKET.campCooldown &&
       state.budget >= KP.C.MARKET.campCost;
+    // the studio (v0.10.35): commission a record — the brief, the people, the fee
+    html.push(commissionCard(state, g, KP.App.commDraft || (KP.App.commDraft = { lane: null, theme: null, producerId: null, writerId: null })));
     html.push('<div class="kicker">Demos on the desk</div>');
     if (campReady) {
       html.push('<div class="pad" style="padding-top:0"><button class="btn small" data-action="song-camp" data-id="' + g.id + '">Hold a song camp · ' + KP.C.MARKET.campCost + '</button>' +
@@ -240,6 +242,10 @@
         const w = state.people[demo.writtenBy];
         advocates.push('<span class="chip hot">written by ' + UI.esc(w ? KP.publicGiven(w) : 'a member') + '</span>');
       }
+      // the studio (v0.10.35): the brief's record, the theme, the lyric's name
+      if (demo.commissioned) advocates.push('<span class="chip gold">commissioned</span>');
+      if (demo.theme && KP.themeById(demo.theme)) advocates.push('<span class="chip">about ' + UI.esc(KP.themeById(demo.theme).label.toLowerCase()) + '</span>');
+      if (demo.writer && !demo.writtenBy) advocates.push('<span class="chip">lyric · ' + UI.esc(demo.writer) + '</span>');
       // the sound of the year (v0.10.34): the lane against the year, in a chip
       if (KP.trendWord) {
         const tw = KP.trendWord(state, demo.conceptId);
@@ -535,6 +541,64 @@
 
     return html.join('');
   };
+
+  // ---- the commission card (v0.10.35): brief a record -------------------
+  function commissionCard(state, g, cd) {
+    const S = KP.C.STUDIO;
+    const html = [];
+    html.push('<div class="kicker">Commission a record</div>');
+    if (g.commission) {
+      const c = g.commission;
+      const lane = KP.conceptById(c.lane), theme = KP.themeById(c.theme);
+      html.push('<div class="card" style="border-color:var(--gold)"><div style="font-weight:800">The writing room is working</div>' +
+        '<div style="font-size:.78rem;color:var(--ink-dim);margin-top:4px">' + UI.esc(c.producer) + ' and ' + UI.esc(c.writer) + ' — ' +
+        UI.esc(lane ? lane.label.toLowerCase() : c.lane) + ', about ' + UI.esc(theme ? theme.label.toLowerCase() : c.theme) +
+        '. On the desk ' + UI.esc(KP.weekLabel(c.due).text) + '.</div></div>');
+      return html.join('');
+    }
+    if (!cd.lane && g.concept) cd.lane = g.concept;
+    const lane = cd.lane ? KP.conceptById(cd.lane) : null;
+    const theme = cd.theme ? KP.themeById(cd.theme) : null;
+    const members = g.members.map(id => state.people[id]).filter(Boolean);
+    const producers = [KP.houseProducer(state)].filter(Boolean).concat(KP.producersOf(state));
+    const writers = [KP.houseWriter(state)].filter(Boolean).concat(KP.writersOf(state))
+      .concat(members.filter(KP.canWrite).map(p => KP.penWriter(state, p)));
+    const read = cd.lane && cd.theme && cd.producerId && cd.writerId
+      ? KP.commissionRead(state, g.id, { lane: cd.lane, theme: cd.theme, producerId: cd.producerId, writerId: cd.writerId }) : null;
+    html.push('<div class="card">' +
+      '<div style="font-size:.74rem;color:var(--ink-dim);margin-bottom:8px">Brief a record instead of taking what gets pitched: a lane, a theme, a producer, a writer. The producer’s lanes and the writer’s themes are public. What they are worth is not.</div>' +
+      '<div class="concept-scroll">' + KP.C.CONCEPTS.map(c => '<button class="chip concept-pill ' + (cd.lane === c.id ? 'on' : '') + '" data-action="comm-lane" data-id="' + c.id + '">' + UI.esc(c.label) + '</button>').join('') + '</div>' +
+      '<div style="display:flex;gap:5px;flex-wrap:wrap;margin:8px 0">' + KP.C.THEMES.map(t => {
+        const natural = !lane || t.lanes.includes(lane.id);
+        return '<button class="chip' + (cd.theme === t.id ? ' hot' : '') + '" data-action="comm-theme" data-id="' + t.id + '"' + (natural ? '' : ' style="opacity:.55"') + '>' + UI.esc(t.label) + '</button>';
+      }).join('') + '</div>' +
+      (theme ? '<div style="font-size:.7rem;color:var(--ink-dim);margin-bottom:8px">' + UI.esc(theme.label) + ': natural to ' + theme.lanes.map(l => UI.esc((KP.conceptById(l) || { label: l }).label.toLowerCase())).join(', ') +
+        ' · a room of ' + theme.ages[0] + '–' + theme.ages[1] + (KP.themeRoomMiss(state, members, theme) ? ' · <span style="color:var(--magenta)">' + UI.esc(KP.themeRoomMiss(state, members, theme)) + '</span>' : '') + '</div>' : '') +
+      '<div style="font-size:.72rem;font-weight:800;margin-top:4px">The producer</div>' +
+      producers.map(pr => {
+        const acc = KP.producerAccess(state, g, pr);
+        const on = cd.producerId === pr.id;
+        return '<div class="chip-row" style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)' + (acc.ok ? '' : ';opacity:.6') + '">' +
+          '<button class="chip' + (on ? ' hot' : '') + '" data-action="comm-producer" data-id="' + pr.id + '"' + (acc.ok ? '' : ' disabled') + '>' + UI.esc(pr.name) + (pr.house ? ' · house' : '') + '</button>' +
+          '<span style="font-size:.68rem;color:var(--ink-dim);flex:1">' + KP.producerLanes(pr).map(l => UI.esc((KP.conceptById(l) || { label: l }).label.toLowerCase())).join(' / ') +
+          ' · ' + UI.esc(KP.producerHeat(pr)) + (lane ? ' · ' + UI.esc(KP.laneFitWord(KP.producerLanes(pr), lane.id)) : '') + (acc.ok ? '' : ' · <span style="color:var(--magenta)">won’t take the call</span>') + '</span>' +
+          '<span style="font-size:.7rem">' + (KP.producerFee(pr) ? KP.producerFee(pr) : 'no fee') + '</span></div>';
+      }).join('') +
+      '<div style="font-size:.72rem;font-weight:800;margin-top:8px">The writer</div>' +
+      writers.map(w => {
+        const on = cd.writerId === w.id;
+        return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)">' +
+          '<button class="chip' + (on ? ' hot' : '') + '" data-action="comm-writer" data-id="' + w.id + '">' + UI.esc(w.name) + (w.house ? ' · house' : w.pen ? ' · the pen' : '') + '</button>' +
+          '<span style="font-size:.68rem;color:var(--ink-dim);flex:1">' + w.themes.map(t => UI.esc((KP.themeById(t) || { label: t }).label.toLowerCase())).join(', ') +
+          (theme ? ' · ' + (w.themes.includes(theme.id) ? 'a theme ' + (w.pen ? 'she' : 'they') + ' own' : 'off their themes') : '') + '</span>' +
+          '<span style="font-size:.7rem">' + (KP.writerFee(w) ? KP.writerFee(w) : 'no fee') + '</span></div>';
+      }).join('') +
+      '<div style="margin-top:10px"><button class="btn primary" style="width:100%" data-action="commission" data-id="' + g.id + '"' + (read && read.ok && state.budget >= read.fee ? '' : ' disabled') + '>Commission · ' + (read && read.ok ? read.fee : '—') + '</button>' +
+      (read && !read.ok ? '<div style="font-size:.7rem;color:var(--magenta);margin-top:6px">' + UI.esc(read.reason) + '</div>' : '') +
+      (read && read.ok ? '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:6px">' + UI.esc(read.fitWord) + ' · ' + UI.esc(read.themeWord) + '. The record lands in ' + S.COMMISSION.writeWeeks[0] + '–' + S.COMMISSION.writeWeeks[1] + ' weeks, beside the pitch.</div>' : '') +
+      '</div></div>');
+    return html.join('');
+  }
 
   function perfWord(v) { return v >= 75 ? 'commanding' : v >= 58 ? 'sharp' : v >= 42 ? 'uneven' : 'shaky'; }
   function chemWord(v) { return v >= 66 ? 'together' : v >= 40 ? 'workable' : 'cold'; }
