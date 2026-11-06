@@ -320,7 +320,7 @@
   // resolves narratives that this release answers (dormancy).
   KP.memoryReadsRelease = function (state, g, isDebut, avgVocals) {
     const M = KP.C.MEMORY;
-    const out = { mod: 0, notes: [] };
+    const out = { mod: 0, craft: 0, notes: [] };   // mod = reach, craft = the record (v0.10.34)
 
     // the long-awaited return: dormancy resolved, warmth earned
     const dorm = KP.getNarrative(state, 'dormant', 'group', g.id);
@@ -334,10 +334,10 @@
     const vh = KP.getNarrative(state, 'vocalHouse', 'company', 'player');
     if (isDebut && vh && vh.strength >= M.minShowStrength) {
       if (avgVocals >= 62) {
-        out.mod += M.pedigreeMeet;
+        out.craft += M.pedigreeMeet;
         out.notes.push('“' + state.company.short + ' debut? Okay, who’s the vocalist” — the pedigree question answered itself by the first chorus.');
       } else if (avgVocals < 50) {
-        out.mod += M.pedigreeMiss;
+        out.craft += M.pedigreeMiss;
         out.notes.push('The pedigree cut the other way: a ' + state.company.short + ' debut without a standout vocal reads as a broken promise, and the write-ups said so.');
       }
       // the in-house comparison is houseCompare's (publiceye) — one voice

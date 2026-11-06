@@ -7139,7 +7139,7 @@ checks: the strip is on the person tab and opens with where she is
 from), lockstep 0.10.33.
 
 
-## §91 The comeback (PLANNED — the song made, the chart earned, the stage judged)
+## §91 The comeback (RULED — the song made, the chart earned, the stage judged)
 
 Owner, thinking out loud: "something that really defines kpop and
 it's the comeback. The anticipation, the promotion, the stages, and
@@ -7425,7 +7425,8 @@ stage, not what she scored.
 Phases 3 and 4 can swap; 2 cannot precede 1 (the seeds need the
 registry). The owner reorders.
 
-**D. Rulings needed (recommendations marked).**
+**D. Rulings (owner: "I like your recommendation on all 7" — every
+recommendation below is the ruling).**
 1. Producers and writers: in-house chairs AND the bookable world
    pools (recommended — the fresh label books, the established
    label hires exclusives), or one of the two?

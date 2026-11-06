@@ -260,6 +260,7 @@
     // expectations, prints the ace who made it — and the known trainee
     // it skipped becomes the story the owner asked for
     if (!g.debuted && KP.publicAnnouncement) KP.publicAnnouncement(state, g);
+    else if (g.debuted && KP.comebackExpectation) KP.comebackExpectation(state, g);   // the one bar (v0.10.34)
     // chapter two (v0.9.25): the first era after the star's graduation
     // announces itself as a NEW CHAPTER, not a diminished one
     if (g.newEra && state.week - g.newEra.week <= KP.C.STAR.launchNewEraWeeks && g.debuted) {
@@ -675,46 +676,66 @@
       KP.sceneRivalryWith(state, g.id, g.prep.clash.actId);
     const badBloodMod = (ownCrowd ? -BB.cannibalReception : 0) +
       (namedClash ? BB.stakesReception : 0);
-    let reception = KP.clamp(Math.round(
-      demo.hook * 0.3 + demo.trendFit * 0.13 + performance * 0.3 +
-      groupFit * 0.14 + (chem - 50) * 0.12 + D.promoBoost[g.prep.promo] +
-      popLift + hypeLift + soloEdge + spark + luck - crowd + memRead.mod + tourLift + season.mod + hiaRead.mod + mvMod + anticipation + badBloodMod +
-      (g.prep.returnRun ? KP.C.STAR.returnRunReception : 0)), 1, 100);
-    // the top is heavy (v0.10.23, the hostile audit: major autopilot
-    // landed 85% hits with zero effort): repeating the same concept
-    // wears the formula — the market has heard this song — and a
-    // giant fanbase raises the bar the public grades against.
-    {
-      const F2 = KP.C.FAME;
-      let sameRun = 0;
-      for (let i = (g.releases || []).length - 1; i >= 0; i--) {
-        if (g.releases[i].week > 0 && g.releases[i].conceptId === concept.id) sameRun++;
-        else break;
-      }
-      if (sameRun > 0) {
-        reception -= Math.min(F2.conceptFatigueCap, F2.conceptFatiguePer * sameRun);
-      }
-      if ((g.popularity || 0) > F2.expectationDragFrom) {
-        reception -= Math.round(((g.popularity || 0) - F2.expectationDragFrom) * F2.expectationDragPer);
-      }
-      reception = Math.max(1, reception);
+    // ---- THE TWO VERDICTS (v0.10.34, §91 Phase 1) ---------------------
+    // Every modifier is tagged ONCE: CRAFT is the record as the critics
+    // hear it (never popularity, hype, spend or the week), APPEAL is
+    // what the public wants, REACH is who hears it. The chart runs on
+    // commercial = appeal through reach plus the reach lifts — and
+    // `reception` keeps its name for every reader that means "how it
+    // did". Craft readers (heat, the sleeper, the critics' prize, the
+    // vocal house) read the record.
+    const V = KP.C.VERDICT;
+    const L = KP.readLedger();
+    const identity = !!(g.concept && concept.id === g.concept && (g.conceptRun || 0) >= 1);
+    let sameRun = 0;
+    for (let i = (g.releases || []).length - 1; i >= 0; i--) {
+      if (g.releases[i].week > 0 && g.releases[i].conceptId === concept.id) sameRun++;
+      else break;
     }
-    // the obscurity wall (v0.9.37, §76): paid reach converts through
-    // fame, earned reach converts through work — and under the wall
-    // the ceiling is real until a valve lifts it. Applied before the
-    // mash roll: "changed the industry" pierces any wall by definition.
-    const wall = KP.applyWall ? KP.applyWall(state, g, reception,
-      { paid: D.promoBoost[g.prep.promo] + Math.max(0, mvMod), spark: spark > 0 }) : null;
-    if (wall) reception = wall.reception;
-    // the repackage rides the era's heat (v0.9.17)
-    const repack = g.prep.repackage || null;
-    if (repack && repack.reception >= KP.C.REPACKAGE.carryFrom) {
-      reception = KP.clamp(reception +
-        Math.round((repack.reception - 50) * KP.C.REPACKAGE.carryFactor), 1, 100);
-    }
+    // the top is heavy (v0.10.23): repeating the same concept wears the
+    // public (appeal), and a giant fanbase raises the bar it grades
+    // against (reach) — while the record itself deepens (craft)
+    const F2 = KP.C.FAME;
+    const conceptFatigue = sameRun > 0 ? Math.min(F2.conceptFatigueCap, F2.conceptFatiguePer * sameRun) : 0;
+    const expectationDrag = (g.popularity || 0) > F2.expectationDragFrom
+      ? Math.round(((g.popularity || 0) - F2.expectationDragFrom) * F2.expectationDragPer) : 0;
+    const craftLuck = rng.normal(0, V.craftLuckSd);
+    const catchQ = KP.catchOf(state, demo);
+    const trendFit = KP.trendFit(state, concept.id);
+    // craft: the record
+    L.add('craft', 'the hook', demo.hook * V.craftHook);
+    L.add('craft', 'the recording', performance * V.craftRecording);
+    L.add('craft', 'concept fit', groupFit * V.craftFit);
+    L.add('craft', 'the room', (chem - 50) * V.craftChem);
+    L.add('craft', 'pedigree', memRead.craft || 0);
+    if (identity) L.add('craft', 'identity', V.craftIdentity);
+    L.add('craft', 'luck', craftLuck);
+    // appeal: what the public wants
+    L.add('appeal', 'the catch', catchQ * V.appealCatch);
+    L.add('appeal', 'the performance', performance * V.appealRecording);   // the public hears a record performed well
+    L.add('appeal', 'the year’s sound', trendFit * V.appealTrend);
+    L.add('appeal', 'breadth', concept.breadth || 0);
+    L.add('appeal', 'the moment', soloEdge + spark);
+    L.add('appeal', 'the video', mvMod);
+    if (season.mod > 0) L.add('appeal', 'the season', season.mod);
+    if (identity) L.add('appeal', 'identity', V.appealIdentity);
+    L.add('appeal', 'sameness', -conceptFatigue);
+    L.add('appeal', 'luck', luck);
+    // reach: who hears it
+    L.add('reach', 'popularity', popLift);
+    L.add('reach', 'hype', hypeLift);
+    L.add('reach', 'anticipation', anticipation);
+    L.add('reach', 'the promo buy', D.promoBoost[g.prep.promo]);
+    L.add('reach', 'the tour', tourLift);
+    L.add('reach', 'the return', memRead.mod + hiaRead.mod + (g.prep.returnRun ? KP.C.STAR.returnRunReception : 0));
+    if (season.mod < 0) L.add('reach', 'the season', season.mod);
+    L.add('reach', 'the crowd', -crowd);
+    L.add('reach', 'bad blood', badBloodMod);
+    L.add('reach', 'the bar', -expectationDrag);
     // the mash (v0.9.6): a genre-bending release rolls the whole table —
-    // flop / worked / acclaimed-but-unpopular / changed-the-industry.
-    // Creative rooms tilt the odds; nobody escapes the variance.
+    // flop / worked / acclaimed-but-unpopular / changed-the-industry —
+    // and every outcome is a move on BOTH numbers (v0.10.34). Creative
+    // rooms tilt the odds; nobody escapes the variance.
     const mash = g.prep.mash || null;
     let fusionOutcome = null;
     if (mash) {
@@ -724,20 +745,32 @@
       const pAcclaim = FU.acclaimBase + FU.acclaimPerCreativity * cre;
       const pFlop = Math.max(0.08, FU.flopBase - FU.flopLessPerCreativity * cre);
       const roll = rng.next();
-      if (roll < pShift) {
-        fusionOutcome = 'shift';
-        reception = Math.max(reception, FU.shiftReceptionMin + Math.round(rng.next() * 8));
-      } else if (roll < pShift + pAcclaim) {
-        fusionOutcome = 'acclaim';
-        reception = Math.min(reception, FU.acclaimReceptionCap);
-      } else if (roll < pShift + pAcclaim + pFlop) {
-        fusionOutcome = 'flop';
-        reception = Math.min(reception, FU.flopReceptionCap);
-      } else {
-        fusionOutcome = 'worked';
-        reception = KP.clamp(reception + FU.workedLift, 1, 100);
-      }
+      fusionOutcome = roll < pShift ? 'shift' : roll < pShift + pAcclaim ? 'acclaim'
+        : roll < pShift + pAcclaim + pFlop ? 'flop' : 'worked';
+      const mv = V.FUSION_MOVES[fusionOutcome];
+      L.add('craft', 'the mash', mv.craft);
+      L.add('appeal', 'the mash', mv.appeal);
+      if (fusionOutcome === 'shift') KP.shiftTrend(state, concept.id);   // the year's sound moves for real
     }
+    const craft = KP.clamp(Math.round(L.sum('craft')), 1, 100);
+    const appeal = KP.clamp(Math.round(V.appealBase + L.sum('appeal')), 1, 100);
+    const reachIndex = KP.chartReach ? KP.chartReach(state, g, { spark: spark > 0 }) : 1;
+    let reception = Math.max(1, Math.round(appeal * (V.reachBase + V.reachSpan * reachIndex) + L.sum('reach')));
+    // the obscurity wall (v0.9.37, §76): paid reach converts through
+    // fame, earned reach converts through work — and under the wall
+    // the ceiling is real until a valve lifts it. "Changed the
+    // industry" pierces any wall by definition.
+    const wall = KP.applyWall ? KP.applyWall(state, g, reception,
+      { paid: D.promoBoost[g.prep.promo] + Math.max(0, mvMod), spark: spark > 0, pierce: fusionOutcome === 'shift' }) : null;
+    if (wall) reception = wall.reception;
+    // the repackage rides the era's heat (v0.9.17)
+    const repack = g.prep.repackage || null;
+    if (repack && repack.reception >= KP.C.REPACKAGE.carryFrom) {
+      reception = reception + Math.round((repack.reception - 50) * KP.C.REPACKAGE.carryFactor);
+    }
+    reception = KP.clamp(reception, 1, 100);
+    // the critics' circle reads the record — three outlets, their tastes, words
+    const critics = KP.criticsVerdict(state, g.id + '|' + state.week, craft, concept.id);
     const band = D.receptionBands.find(b => reception >= b.min);
     // a group can reach its release with NO center (a scandal release
     // deletes the role without reassigning — latent since v0.10.2,
@@ -888,6 +921,8 @@
     const rep = state.company.reputation;
     if (reception >= 64) rep.girlGroup = KP.clamp((rep.girlGroup || 40) + (isDebut ? 12 : 6), 0, 100);
     if (avg('vocals') >= 62) rep.vocal = KP.clamp((rep.vocal || 60) + 4, 0, 100);
+    if (craft >= V.vocalRepCraft) rep.vocal = KP.clamp((rep.vocal || 60) + V.vocalRepBump, 0, 100);   // the vocal house is built on records (v0.10.34)
+    if (craft >= V.prideCraft) KP.fandomGain(g, V.prideFandom);   // the fandom's pride in a great record, chart or no chart
     if (breakout && reception >= 64) rep.starMaker = KP.clamp((rep.starMaker || 35) + (isDebut ? 8 : 4), 0, 100);
 
     // the two publics (v0.10.0, §80): the lump becomes streams. The
@@ -980,7 +1015,7 @@
       s + wk.filter(a => a === 'fanSign').length * KP.C.ROLLOUT.ACTIVITIES.fanSign.gracePerWeek, 0);
     // the tracklist becomes consequences (v0.7.5): solos touch
     // ambitions, units read chemistry, one b-side may outgrow the record
-    const tl = KP.tracklistResolve(state, g, rng, reception);
+    const tl = KP.tracklistResolve(state, g, rng, reception, craft);
     tl.notes.forEach(push);
 
     const label = isDebut ? band.label : KP.C.COMEBACK.bandLabels[band.key];
@@ -992,6 +1027,9 @@
       format: format.id,
       performance: Math.round(performance),
       reception, receptionBand: band.key, receptionLabel: label,
+      // the two verdicts (v0.10.34): the record and the want, the reach it
+      // travelled through, the critics' words, and the ledger itself
+      craft, appeal, reach: Math.round(reachIndex * 100), critics, ledger: L.rows(),
       breakoutId: breakout.id,
       tracklist: tl.tracks, sleeperTitle: tl.sleeperTitle || null,
       centerOvershadowed,
@@ -1002,7 +1040,7 @@
       crowd: Math.round(crowd),
       benched: benched.map(m => m.id),
       execLine: execDebutLine(band.key, centerOvershadowed, state),
-      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut, crowd, benched, fatigueAvg, natPeak)
+      publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut, crowd, benched, fatigueAvg, natPeak, critics)
         .concat(memRead.notes)
         .concat(hiaRead.note ? [hiaRead.note] : []),
       mash, fusionOutcome,
@@ -1021,9 +1059,16 @@
     // landing gets measured against the house and the week
     if (KP.settleExpectations) {
       const eyeNotes = [];
-      KP.settleExpectations(state, g, reception, eyeNotes);
+      KP.settleExpectations(state, g, reception, eyeNotes, isDebut);
       KP.publicCompare(state, g, reception, eyeNotes, rng);
       eyeNotes.forEach(push);
+    }
+    // the critics speak (v0.10.34): the verdict, the darling, the panned
+    // hit, and the critics' own bar — the house's last record
+    {
+      const prevRel = (g.releases || [])[(g.releases || []).length - 1];
+      const prevCraft = prevRel && prevRel.craft != null ? prevRel.craft : null;
+      KP.verdictNotes(state, g, { title: demo.title, craft, reception, critics, conceptId: concept.id }, prevCraft).forEach(push);
     }
     // the bad blood (v0.9.21): a unit track shared by named rivals is a
     // dispute the booklet cannot hide — once per era, both pay
@@ -1072,7 +1117,11 @@
       // the first time anything edits a released tracklist)
       tracklist: (tl.tracks || []).map(t => Object.assign({}, t)),
       sleeperTitle: tl.sleeperTitle || null,
-      mash, fusionOutcome, acclaim: fusionOutcome === 'acclaim',
+      mash, fusionOutcome,
+      // the two verdicts (v0.10.34): the record's own numbers, and the
+      // critics' consensus — words, forever
+      craft, appeal, critics: { consensus: critics.consensus, split: critics.split,
+        verdicts: critics.verdicts.map(v => ({ id: v.id, band: v.band })) },
       producerId: demo.producerId || null, producer: demo.producer,
       mv: mvTier, writtenBy: demo.writtenBy || null,
       repackageOf: repack ? repack.of : null,
@@ -1219,7 +1268,10 @@
     }
   }
 
-  function publicNotes(state, bandKey, breakout, overshadowed, demo, rng, sparked, isDebut, crowd, benched, fatigueAvg, natPeak) {
+  function publicNotes(state, bandKey, breakout, overshadowed, demo, rng, sparked, isDebut, crowd, benched, fatigueAvg, natPeak, critics) {
+    // the two verdicts (v0.10.34): the reviews are the critics' word, one truth
+    const cw = critics ? critics.consensus : 'mixed';
+    const reviews = ['acclaimed', 'warm'].includes(cw) ? 'Reviews are kind' : cw === 'mixed' ? 'Reviews are mixed' : 'Reviews are cool';
     const notes = [];
     const bn = KP.displayName(breakout);
     if (natPeak != null && natPeak <= 10) notes.push('“' + demo.title + '” opened inside the national top ten — the big board, the one with the titans on it. Frame this week.');
@@ -1229,7 +1281,7 @@
     if ((fatigueAvg || 0) >= 75 && !(benched || []).length) notes.push('The stages looked tired by the second week — clean, professional, and running on will. The cameras noticed.');
     if (bandKey === 'sensation') notes.push('One performance clip is everywhere. Marketing would like to know what we’re doing next while everyone is still paying attention.');
     if (bandKey === 'strong') notes.push('“' + demo.title + '” is holding on the charts past week one — the good sign.');
-    if (bandKey === 'solid') notes.push(isDebut ? 'Reviews are kind; numbers are cautious. The second single will decide the story.' : 'Reviews are kind; numbers are steady. The fanbase showed up — growth is the open question.');
+    if (bandKey === 'solid') notes.push(isDebut ? reviews + '; numbers are cautious. The second single will decide the story.' : reviews + '; numbers are steady. The fanbase showed up — growth is the open question.');
     if (bandKey === 'quiet') notes.push(isDebut ? 'The showcase was clean; the internet shrugged. Staff believe the material, not the members, is the question.' : 'The comeback stage was clean; the wider internet moved on quickly. The core fans stayed.');
     if (bandKey === 'miss') notes.push(isDebut ? 'The debut came and went. What survives from it is up to us now.' : 'The comeback came and went. Momentum took the hit; the group did not — yet.');
     notes.push(bn + ' dominated teaser engagement and post-stage searches.');

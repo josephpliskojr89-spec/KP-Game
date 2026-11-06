@@ -54,7 +54,7 @@ function boilOn(state, g, p) {
   const p = state.people[g.members[0]];
   boilOn(state, g, p);
   let sc = null;
-  for (let w = 0; w < KP.C.SCAR.weeks + 2 && !sc; w++) {
+  for (let w = 0; w < KP.C.SCAR.weeks + 6 && !sc; w++) {
     KP.advanceWeek(state);
     sc = (state.scenes || []).find(x => x.kind === 'scarRecovery');
   }
@@ -75,7 +75,7 @@ function boilOn(state, g, p) {
   const p = state.people[g.members[1]];
   boilOn(state, g, p);
   let sc = null;
-  for (let w = 0; w < KP.C.SCAR.weeks + 2 && !sc; w++) {
+  for (let w = 0; w < KP.C.SCAR.weeks + 6 && !sc; w++) {
     KP.advanceWeek(state);
     sc = (state.scenes || []).find(x => x.kind === 'scarRecovery');
   }
@@ -87,7 +87,7 @@ function boilOn(state, g, p) {
   const p2 = s2.people[g2.members[0]];
   boilOn(s2, g2, p2);
   let sc2 = null;
-  for (let w = 0; w < KP.C.SCAR.weeks + 2 && !sc2; w++) {
+  for (let w = 0; w < KP.C.SCAR.weeks + 6 && !sc2; w++) {
     KP.advanceWeek(s2);
     sc2 = (s2.scenes || []).find(x => x.kind === 'scarRecovery');
   }

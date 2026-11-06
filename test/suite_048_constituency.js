@@ -87,16 +87,18 @@ function openCal(state, g) {
   }
   const shift = runWith('shift', 'fu-shift');
   t.eq(shift.g.results.fusionOutcome, 'shift', 'pinned: the industry shifts');
-  t.ok(shift.g.results.reception >= KP.C.FUSION.shiftReceptionMin, 'a shift lands like a landmark');
+  const mashRow = (res, kind) => (res.ledger[kind] || []).find(r => r.src === 'the mash');
+  t.ok(mashRow(shift.g.results, 'appeal') && mashRow(shift.g.results, 'appeal').mod === KP.C.VERDICT.FUSION_MOVES.shift.appeal, 'a shift lands like a landmark — a move on appeal (v0.10.34)');
+  t.eq(KP.trendLane(shift.state), 'fusion', 'and the year’s sound moved for real');
   t.ok(KP.getNarrative(shift.state, 'genreShift', 'group', shift.g.id), 'and enters the world’s memory');
   t.ok(shift.state.inbox.some(n => /INDUSTRY SHIFT/.test(n.text)), 'the trades use the big letters');
   const acc = runWith('acclaim', 'fu-acc');
   t.eq(acc.g.results.fusionOutcome, 'acclaim', 'pinned: the critics’ shrine');
-  t.ok(acc.g.results.reception <= KP.C.FUSION.acclaimReceptionCap, 'acclaimed AND unpopular — the charts shrug');
-  t.ok(acc.g.releases[acc.g.releases.length - 1].acclaim, 'the discography keeps the asterisk');
+  t.ok(mashRow(acc.g.results, 'craft').mod > 0 && mashRow(acc.g.results, 'appeal').mod < 0, 'acclaimed AND unpopular — craft up, appeal down (v0.10.34)');
+  t.ok(acc.g.releases[acc.g.releases.length - 1].critics && acc.g.releases[acc.g.releases.length - 1].acclaim === undefined, 'the discography keeps the critics’ word, not an asterisk');
   const flop = runWith('flop', 'fu-flop');
   t.eq(flop.g.results.fusionOutcome, 'flop', 'pinned: the mash eats itself');
-  t.ok(flop.g.results.reception <= KP.C.FUSION.flopReceptionCap, 'the floor is real');
+  t.ok(mashRow(flop.g.results, 'craft').mod < 0 && mashRow(flop.g.results, 'appeal').mod < 0, 'the floor is real — both numbers fall (v0.10.34)');
   FU.shiftBase = saved.s; FU.shiftPerCreativity = saved.sp;
   FU.acclaimBase = saved.a; FU.acclaimPerCreativity = saved.ap; FU.flopBase = saved.f;
   FU.flopLessPerCreativity = saved.fl;

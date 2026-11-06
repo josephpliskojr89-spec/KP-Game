@@ -407,6 +407,7 @@
           (r.producer ? ' · prod. ' + UI.esc(r.producer) : '') +
           '<span class="m-week">' + (r.isDebut ? 'debut · ' : '') + 'peaked #' + r.chartPeak +
           (r.nationalPeak != null ? ' · national #' + r.nationalPeak : '') +
+          (r.critics ? ' · critics: ' + UI.esc(KP.verdictWord(r.critics.consensus)) + (r.critics.split ? ' (split)' : '') : '') +
           (r.chartWeeks ? ' · ' + r.chartWeeks + ' weeks charting' : ' · missed the charts') +
           (creditBits.length ? '<br>' + creditBits.join(' · ') : '') + '</span></div></div>');
       });

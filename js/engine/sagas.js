@@ -134,7 +134,8 @@
     const reception = Math.round(KP.clamp(
       act.quality * 0.85 + rng.normal(0, I.releaseNoiseSd) - (drag || 0), 1, 100));
     act.popularity = KP.clamp(Math.round(10 + reception * 0.7), 0, 100);
-    act.releases.push({ week: state.week, title, reception, isDebut: true });
+    act.releases.push({ week: state.week, title, reception, isDebut: true,
+      craft: KP.clamp(Math.round(act.quality * 0.9 + (KP.hash01([state.seed, act.id, state.week, 'craft'].join('|')) * 2 - 1) * 10), 1, 100) });   // the two verdicts (v0.10.34)
     const score = reception + act.popularity * 0.2;
     KP.chartEnter(state, { title, act: act.name, company: rival.short,
       isPlayer: false, score, entered: state.week });

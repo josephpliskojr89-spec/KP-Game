@@ -279,6 +279,13 @@ const BANDS = {
   // board and the bot buys a career when flush. Measure-first: collapses
   // are rare inside 140 weeks, so the floor is 0 until a census says more.
   careerSigned:      { lo: 0.00, hi: 1.00, label: 'orgs that signed a career off the open market (a collapse’s class)' },
+  // v0.10.34 — the two verdicts. "Plenty of great songs never chart high":
+  // the critics' darling and the panned hit must both be live outcomes;
+  // the trades name the year's sound every January. Measure-first floors.
+  criticsDarling:    { lo: 0.02, hi: 0.90, label: 'orgs with a critics’ darling (craft high, chart low)' },
+  pannedHit:         { lo: 0.00, hi: 0.80, label: 'orgs with a hit the critics panned' },
+  criticsSplit:      { lo: 0.05, hi: 1.00, label: 'orgs that drew a split review' },
+  trendNamed:        { lo: 0.95, hi: 1.00, label: 'worlds where the trades named the year’s sound' },
   callHeld:          { lo: 0.00, hi: 1.00, label: 'orgs that held an open call or walked the districts' },
   // the public eye (v0.9.36): every announcement mints an expectation
   // and every debut settles against it, so these are FLOORS — if they
@@ -644,6 +651,7 @@ const tally = {
   networkApps: 0, networkRefs: 0, washoutReturned: 0, seasonAired: 0, callHeld: 0,
   seasonCastWorld: 0, seasonInvited: 0, seasonSent: 0, seasonOursLineup: 0, seasonPermanent: 0,
   careerSigned: 0,
+  criticsDarling: 0, pannedHit: 0, criticsSplit: 0, trendNamed: 0,
   castoffSeen: 0, reentrySeen: 0, rivalDoorBorn: 0,
   expectSet: 0, snubSeen: 0, verdictSeen: 0, compared: 0,
   gigPlayed: 0, campaignRun: 0, gigViralSeen: 0, wallTouched: 0, breakSeen: 0,
@@ -1791,6 +1799,13 @@ for (let s = 0; s < SEEDS; s++) {
   if ((sel.oursLineup || 0) >= 1) tally.seasonOursLineup++;
   if ((sel.permanent || 0) >= 1) tally.seasonPermanent++;
   if (((state.riseFallLedger || {}).faSigned || 0) >= 1) tally.careerSigned++;   // the one market (v0.10.33)
+  {   // the two verdicts (v0.10.34)
+    const vl = state.verdictLedger || {};
+    if ((vl.darlings || 0) >= 1) tally.criticsDarling++;
+    if ((vl.pannedHits || 0) >= 1) tally.pannedHit++;
+    if ((vl.splits || 0) >= 1) tally.criticsSplit++;
+    if ((vl.trendNamed || 0) >= 1) tally.trendNamed++;
+  }
   if ((nl.calls || 0) + (nl.streets || 0) >= 1) tally.callHeld++;
   // the product (v0.10.0): the releases archive their own numbers
   {

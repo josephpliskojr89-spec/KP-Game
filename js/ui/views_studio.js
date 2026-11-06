@@ -240,6 +240,12 @@
         const w = state.people[demo.writtenBy];
         advocates.push('<span class="chip hot">written by ' + UI.esc(w ? KP.publicGiven(w) : 'a member') + '</span>');
       }
+      // the sound of the year (v0.10.34): the lane against the year, in a chip
+      if (KP.trendWord) {
+        const tw = KP.trendWord(state, demo.conceptId);
+        if (tw === 'the year’s sound') advocates.push('<span class="chip cool">the year’s sound</span>');
+        else if (tw === 'against the year’s sound') advocates.push('<span class="chip">against the year’s sound</span>');
+      }
       html.push('<div class="card demo-card ' + (on ? 'on' : '') + '" data-action="studio-song" data-id="' + demo.id + '">' +
         '<div class="s-eq"><i></i><i></i><i></i></div>' +
         '<div class="s-title">“' + UI.esc(demo.title) + '”</div>' +
@@ -492,7 +498,11 @@
         (r.fusionOutcome === 'shift' ? 'CHANGED THE INDUSTRY'
           : r.fusionOutcome === 'acclaim' ? 'critics’ shrine, public shrug'
           : r.fusionOutcome === 'flop' ? 'ate itself' : 'it worked') + '</span></div>' : '') +
+      // the two verdicts (v0.10.34): the critics' consensus, in a word
+      (r.critics ? '<div style="margin-top:6px;font-size:.78rem;color:var(--ink-dim)">' +
+        UI.esc(KP.criticsLine(state, r.critics, r.songTitle)) + '</div>' : '') +
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px">' +
+      (r.critics ? '<span class="chip ' + (['acclaimed', 'warm'].includes(r.critics.consensus) ? 'cool' : r.critics.consensus === 'mixed' ? '' : 'clash') + '">critics: ' + UI.esc(KP.verdictWord(r.critics.consensus)) + '</span>' : '') +
       '<span class="chip">stage: ' + perfWord(r.performance) + '</span>' +
       '<span class="chip">room: ' + chemWord(r.chem) + '</span>' +
       (r.chartPeak != null ? '<span class="chip cool">scene #' + r.chartPeak + '</span>' : '') +

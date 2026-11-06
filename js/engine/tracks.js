@@ -109,9 +109,10 @@
   // Called from resolveDebut with the release rng. Effects stay small
   // and personal — the tracklist is where individual careers start,
   // not a second reception formula.
-  KP.tracklistResolve = function (state, g, rng, reception) {
+  KP.tracklistResolve = function (state, g, rng, reception, craft) {
     const T = KP.C.TRACKS;
     const notes = [];
+    const record = craft != null ? craft : reception;   // the two verdicts (v0.10.34): the b-sides are judged as a record
     const tracks = (g.prep && g.prep.tracks) || null;
     if (!tracks) return { notes, tracks: null };
 
@@ -130,7 +131,7 @@
         notes.push({ kind: 'public', ind: 'soloTrack', priority: 'high',
           personId: p.id, groupId: g.id, trackTitle: tr.title,
           text: KP.fillPro('Track ' + tr.n + ', “' + tr.title + '”, is ' + KP.displayName(p) + ' alone — {pos} first solo on record. ' +
-            (reception >= 60
+            (record >= 60
               ? 'The song is getting its own paragraphs in the album reviews, which is exactly what a first solo is for.'
               : 'The record around it is quieter than it deserves, but the people who found it are not letting it go.'), p) });
       }
@@ -168,7 +169,7 @@
     // the sleeper: after a record people actually played, the fandom
     // digs one b-side out and refuses to put it back
     let sleeper = null;
-    if (reception >= T.sleeperReceptionMin && rng.chance(T.sleeperChance)) {
+    if (record >= T.sleeperReceptionMin && rng.chance(T.sleeperChance)) {
       sleeper = tracks.filter(tr => tr.kind === 'bside')
         .sort((a, b) => b.hook - a.hook)[0] || null;
       if (sleeper) {

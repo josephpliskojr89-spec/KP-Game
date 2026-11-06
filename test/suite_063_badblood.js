@@ -119,6 +119,7 @@ function forceConflict(state, a, b) {
   g.lastReleaseWeek = state.week + 1;
   const oldWar = B.fanWarChance;
   B.fanWarChance = 1;
+  state.discourses = (state.discourses || []).filter(d => d.status !== 'live');   // a free slot (v0.10.34 stream shift)
   KP.advanceWeek(state);
   B.fanWarChance = oldWar;
   t.ok(riv.heat > heat0, 'the clash heats the rivalry (' + riv.heat + ' from ' + heat0 + ')');

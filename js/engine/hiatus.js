@@ -60,7 +60,7 @@
           g.hiatus.coolNoted = true;
           // one-shot milestone: the stamp burns whether or not the note
           // survives the weekly budget, so the note must survive it
-          inbox.push({ kind: 'company', ind: 'hiatusCooling', priority: 'high', groupId: g.id,
+          inbox.push({ kind: 'company', ind: 'hiatusCooling', priority: 'critical', groupId: g.id,   // one-shot: must survive any week (§89 B)
             text: 'The weekly numbers for ' + g.name + ' have started their slow walk down — the announcement bought ' + H.graceWeeks +
               ' weeks of patience and the patience is spent. Rest is still working. So is forgetting. Both compound.' });
         }

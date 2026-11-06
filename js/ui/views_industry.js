@@ -72,6 +72,13 @@
   // ---- Scene -----------------------------------------------------------
   function renderScene(state) {
     const html = [];
+    // the sound of the year (v0.10.34): what the trades named in January
+    if (KP.trendOf) {
+      const t = KP.trendOf(state);
+      html.push('<div class="card" style="padding:10px 14px;font-size:.8rem"><b>The sound of the year:</b> ' + UI.esc(t.label) +
+        '<span style="color:var(--ink-dim)"> · ' + (t.years > 1 ? t.years + ' years running' : 'named this January') +
+        ' · a record in the lane rides the wind; a record against it has to be the argument</span></div>');
+    }
     html.push('<div class="kicker">Your company</div>');
     html.push('<div class="card rival-card">' +
       '<div class="rv-name">' + UI.esc(state.company.name) + '</div>' +

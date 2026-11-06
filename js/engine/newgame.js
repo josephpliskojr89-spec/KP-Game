@@ -193,10 +193,10 @@
         [[debutWeek, 72, 2, 8, 'single', true],
          [-70, 68, 2, 9, 'mini', false],
          [-14, 70, 1, 6, 'mini', false]].forEach(([wk, rec, peak, natPeak, fmt, isDebut]) => {
-          g.releases.push({ week: wk, songTitle: KP.genSongTitle(rng, {}),
+          g.releases.push(KP.deriveVerdict(state, { week: wk, songTitle: KP.genSongTitle(rng, {}),
             conceptId: g.concept, reception: rec, receptionBand: 'strong',
             chartPeak: peak, chartWeeks: 8, nationalPeak: natPeak, nationalWeeks: 8,
-            isDebut, format: fmt, tracks: fmt === 'single' ? 1 : 5, tracklist: [] });
+            isDebut, format: fmt, tracks: fmt === 'single' ? 1 : 5, tracklist: [] }, g.id + '|' + wk, g.concept));   // the two verdicts (v0.10.34)
         });
         g.fandom = { name: KP.fandomNameOptions(state, g)[0],
           color: gender === 'f' ? 'pearl rose' : 'cobalt', since: debutWeek + 20, intensity: 58 };
@@ -279,10 +279,10 @@
       [[LG.debutWeek, 74, 1, 6, 'single', true],
        [-160, 67, 2, 12, 'mini', false],
        [-60, 58, 5, 22, 'mini', false]].forEach(([wk, rec, peak, natPeak, fmt, isDebut]) => {
-        g.releases.push({ week: wk, songTitle: KP.genSongTitle(rng, {}),
+        g.releases.push(KP.deriveVerdict(state, { week: wk, songTitle: KP.genSongTitle(rng, {}),
           conceptId: 'elegant', reception: rec, receptionBand: rec >= 64 ? 'strong' : 'solid',
           chartPeak: peak, chartWeeks: 8, nationalPeak: natPeak, nationalWeeks: 8,
-          isDebut, format: fmt, tracks: fmt === 'single' ? 1 : 5, tracklist: [] });
+          isDebut, format: fmt, tracks: fmt === 'single' ? 1 : 5, tracklist: [] }, g.id + '|' + wk, 'elegant'));   // the two verdicts (v0.10.34)
       });
       g.fandom = { name: KP.fandomNameOptions(state, g)[0], color: 'pearl ivory',
         since: -200, intensity: 42 };

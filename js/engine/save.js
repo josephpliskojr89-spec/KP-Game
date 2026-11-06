@@ -953,6 +953,29 @@
     delete state.freeAgents;
   } });
 
+  // the two verdicts (v0.10.34, §91 Phase 1): every release carries craft,
+  // appeal and the critics' consensus — derived once from the reception
+  // it was stamped with (the record's own numbers were never kept);
+  // demos lose the random trendFit and gain the catch; the trades name
+  // the year's sound on the next tick
+  MIGRATIONS.push({ v: '0.10.34', fn: function (state) {
+    const h = key => KP.hash01([state.seed, 'verdict-mig', key].join('|'));
+    const derive = (rel, key, conceptId) => KP.deriveVerdict(state, rel, key, conceptId);
+    KP.groups(state).forEach(g => {
+      (g.releases || []).forEach((r, i) => derive(r, g.id + '|' + (r.week || i), r.conceptId));
+      if (g.results && g.results.craft == null && g.results.reception != null) {
+        derive(g.results, g.id + '|res', g.results.conceptId);
+      }
+      (g.demos || []).forEach(d => { delete d.trendFit; if (d.catch == null) d.catch = KP.catchOf(state, d); });
+      (g.eraLeftovers || []).forEach(d => { delete d.trendFit; if (d.catch == null) d.catch = KP.catchOf(state, d); });
+    });
+    (state.demos || []).forEach(d => { delete d.trendFit; if (d.catch == null) d.catch = KP.catchOf(state, d); });
+    (state.rivals || []).forEach(rv => (rv.acts || []).forEach(a => (a.releases || []).forEach((r, i) => {
+      if (r.craft == null) r.craft = KP.clamp(Math.round((r.reception || 50) + (h(a.id + '|' + (r.week || i)) * 2 - 1) * 8), 1, 100);
+    })));
+    (state.producerPool || []).forEach(pr => (pr.works || []).forEach(w => { if (w.craft == null) w.craft = w.reception; }));
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

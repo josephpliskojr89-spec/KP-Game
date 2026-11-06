@@ -51,9 +51,12 @@
     return KP.producersOf(state).find(p => p.id === id) || null;
   };
   // words, never a meter: how the desk describes a track record
+  // the two verdicts (v0.10.34): a producer's name is made by the
+  // RECORD — the works carry craft, and heat reads it (old works fall
+  // back to the reception they were stamped with)
   KP.producerHeat = function (pr) {
     if (!pr.works.length) return 'unproven';
-    const avg = pr.works.reduce((s, w) => s + w.reception, 0) / pr.works.length;
+    const avg = pr.works.reduce((s, w) => s + (w.craft != null ? w.craft : w.reception), 0) / pr.works.length;
     if (avg >= 66) return 'in demand';
     if (avg >= 55) return 'reliable';
     if (avg >= 45) return 'workmanlike';
@@ -86,7 +89,8 @@
         const rel = g.releases[g.releases.length - 1];
         const pr = rel.producerId && KP.producerById(state, rel.producerId);
         if (pr) {
-          pr.works.push({ week: state.week, title: rel.songTitle, reception: rel.reception, groupId: g.id });
+          pr.works.push({ week: state.week, title: rel.songTitle, reception: rel.reception,
+            craft: rel.craft != null ? rel.craft : rel.reception, groupId: g.id });
           if (pr.works.length > C.worksCap) pr.works.shift();
           const together = pr.works.filter(w => w.groupId === g.id).length;
           if (together >= C.signatureAt) {

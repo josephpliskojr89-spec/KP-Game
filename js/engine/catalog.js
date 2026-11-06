@@ -19,7 +19,8 @@
     const C = KP.C.CATALOG;
     return (g.releases || []).filter(r =>
       state.week - r.week >= C.minAgeWeeks && !r.revivedWeek &&
-      (r.reception >= C.minReception || r.sleeperTitle));
+      (r.reception >= C.minReception || r.sleeperTitle ||
+        (r.craft || 0) >= KP.C.VERDICT.longevityCraft));   // the two verdicts (v0.10.34): craft keeps paying
   }
 
   KP.registerWeekly('catalog', 565, function (state, rng, inbox) {
@@ -65,8 +66,8 @@
         state.week - led.lastClip.week <= C.clipBoostWindow;
       if (!rng.chance(C.revivalChance + (clipHot ? C.revivalClipBoost : 0))) return;
       // the best-loved eligible record catches — sleepers get the nod
-      const r = cands.slice().sort((a, b) =>
-        (b.sleeperTitle ? 20 : 0) + b.reception - ((a.sleeperTitle ? 20 : 0) + a.reception))[0];
+      const keyOf = x => (x.sleeperTitle ? 20 : 0) + x.reception + ((x.craft != null ? x.craft : x.reception) - 50) * 0.5;
+      const r = cands.slice().sort((a, b) => keyOf(b) - keyOf(a))[0];
       const title = r.sleeperTitle || r.songTitle;
       r.revivedWeek = state.week;
       led.revivals++;

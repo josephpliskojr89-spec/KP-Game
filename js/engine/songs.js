@@ -54,17 +54,13 @@
         // even bother pitching this room
         hook: KP.clamp(q(rng) + (toBrief ? D.briefHookBonus : 0) - (snubbed ? P.snubHookMalus : 0) + (bonded ? MK.bondHookBonus : 0) + (camp ? MK.campHookShift : 0) + (KP.seatMult ? Math.round((KP.seatMult(state, 'anr') - 1) * 30) : 0), 10, 95),
         vocalDemand: q(rng), rapDemand: KP.clamp(q(rng) - 15, 5, 95),
-        choreoPotential: q(rng), trendFit: q(rng),
+        choreoPotential: q(rng),
       });
     }
     // ---- the advocates (v0.9.17): the meeting has politics --------------
     // ONE producer campaigns hard this meeting — his own best hook
     const pushIdx = demos.reduce((bi, d, i) => d.hook > demos[bi].hook ? i : bi, 0);
     demos[pushIdx].pushed = true;
-    // the exec's known taste marks its own — deterministic, everyone
-    // in the building knows what she likes
-    const taste = KP.execTaste(state);
-    demos.forEach(d => { if (d.conceptId === taste) d.execFavored = true; });
     // and sometimes a member who writes puts her OWN demo on the table,
     // against the professionals' — wilder odds, realer stakes
     if (group && group.members) {
@@ -87,10 +83,19 @@
           toBrief: !!(direction && concept.id === direction.id),
           hook: KP.clamp(Math.round(rng.normal(S.qualityMean + P.memberHookShift, P.memberHookSd)), 10, 95),
           vocalDemand: q(rng), rapDemand: KP.clamp(q(rng) - 15, 5, 95),
-          choreoPotential: q(rng), trendFit: q(rng),
+          choreoPotential: q(rng),
         });
       }
     }
+    // the exec's known taste marks its own — deterministic, everyone
+    // in the building knows what she likes (the member's demo too —
+    // latent since v0.9.17, found by the v0.10.34 stream shift)
+    const taste = KP.execTaste(state);
+    demos.forEach(d => { if (d.conceptId === taste) d.execFavored = true; });
+    // the two verdicts (v0.10.34): every demo carries a CATCH beside its
+    // hook — hash-derived, so the sheet can diverge without a new draw;
+    // the year's sound is read at resolve (KP.trendFit), never stored
+    demos.forEach(d => { d.catch = KP.catchOf(state, d); });
     // the song market (v0.10.5): the sheet gets prices and clocks.
     // A member's own demo is hers (price 0); everyone else's asking
     // price scales with the hook and the producer's heat, and a hook
@@ -219,8 +224,8 @@
       const spread = Math.max.apply(null, fits) - Math.min.apply(null, fits);
       if (spread > 30) lines.push('This concept fits some of these members far better than others.');
     }
-    if (demo.trendFit >= 70) lines.push('Right sound, right year. The market is already leaning this way.');
-    else if (demo.trendFit <= 35) lines.push('Nobody is asking for this sound right now. That is either a problem or a statement.');
+    // the two verdicts (v0.10.34): the catch and the year's sound, in words
+    if (KP.demoVerdictLines) KP.demoVerdictLines(state, demo).forEach(l => lines.push(l));
     if (!lines.length) lines.push('A professional record. Whether it becomes more depends on who stands in front of it.');
     return lines;
   };

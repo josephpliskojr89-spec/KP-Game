@@ -286,8 +286,13 @@ function debuted(seed) {
 // ---- the resignation letter: all three answers ----
 {
   const { state } = debuted('pr-quit');
+  if (!state.roster.some(id => state.people[id].status === 'trainee')) {   // stream shift (v0.10.34): sign one to the room
+    state.budget = 900; state.signingsAllowed = 9;
+    KP.signProspect(state, state.prospects[0], { answer: 'accept' });
+  }
   const p = state.people[state.roster.find(id => state.people[id].status === 'trainee')];
   t.ok(p, 'fixture: one trainee stayed behind');
+  delete p.flags.burnout;   // the quit rail skips the bench (v0.10.32); the letter is what is under test
   p.morale = 20;
   p.signedWeek = state.week - 100;
   // stream shift (v0.10.17): an unrelated scene on her blocks the letter
@@ -295,9 +300,13 @@ function debuted(seed) {
   const P = KP.C.PRACTICE;
   const oldChance = P.quitBaseChance;
   P.quitBaseChance = 1;
-  KP.advanceWeek(state);
+  let sc = null;
+  for (let w = 0; w < 4 && !sc; w++) {   // the one door picks once a week (v0.10.34 stream shift)
+    state.scenes = (state.scenes || []).filter(x => x.personId !== p.id);
+    KP.advanceWeek(state);
+    sc = (state.scenes || []).find(x => x.kind === 'traineeQuit');
+  }
   P.quitBaseChance = oldChance;
-  const sc = (state.scenes || []).find(x => x.kind === 'traineeQuit');
   t.ok(sc, 'the letter reached the desk');
   t.eq(state.practiceLedger.quitsAsked, 1, 'ledgered');
   // fork A: accept — she leaves on her own terms

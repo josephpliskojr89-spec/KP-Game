@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.10.33',
+    VERSION: '0.10.34',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -398,19 +398,84 @@
       qualityMean: 55, qualitySd: 14,
     },
     CONCEPTS: [
-      { id: 'bright',      label: 'Bright / Youthful',   weights: { vocals: 0.9, dance: 1.0, charisma: 1.15, visuals: 1.05, rap: 0.7 }, personality: { confidence: 0.6, warmth: 1.0 } },
-      { id: 'elegant',     label: 'Elegant / Luxury',    weights: { vocals: 1.2, dance: 0.85, charisma: 1.0, visuals: 1.25, rap: 0.5 }, personality: { professionalism: 1.0, confidence: 0.6 } },
-      { id: 'futuristic',  label: 'Futuristic / Experimental', weights: { vocals: 0.8, dance: 1.25, charisma: 1.1, visuals: 1.0, rap: 1.0 }, personality: { creativity: 1.2, adaptability: 0.8 } },
-      { id: 'dark',        label: 'Dark / Dramatic',     weights: { vocals: 1.0, dance: 1.15, charisma: 1.25, visuals: 0.95, rap: 0.9 }, personality: { confidence: 1.1, competitiveness: 0.7 } },
-      { id: 'performance', label: 'Performance-Heavy',   weights: { vocals: 0.8, dance: 1.45, charisma: 1.1, visuals: 0.8, rap: 0.9 }, personality: { workEthic: 1.0, resilience: 0.8 } },
-      { id: 'hiphop',      label: 'Hip-hop / Swagger',   weights: { vocals: 0.7, dance: 1.0, charisma: 1.2, visuals: 0.85, rap: 1.5 }, personality: { confidence: 1.3, competitiveness: 0.9 } },
-      { id: 'retro',       label: 'Retro',               weights: { vocals: 1.15, dance: 1.0, charisma: 1.15, visuals: 1.0, rap: 0.6 }, personality: { creativity: 0.9, warmth: 0.8 } },
-      { id: 'dreamy',      label: 'Dreamy / Ethereal',   weights: { vocals: 1.25, dance: 0.8, charisma: 1.0, visuals: 1.2, rap: 0.4 }, personality: { creativity: 1.0, warmth: 0.9 } },
+      { id: 'bright',      label: 'Bright / Youthful',   weights: { vocals: 0.9, dance: 1.0, charisma: 1.15, visuals: 1.05, rap: 0.7 }, personality: { confidence: 0.6, warmth: 1.0 }, breadth: 4 },
+      { id: 'elegant',     label: 'Elegant / Luxury',    weights: { vocals: 1.2, dance: 0.85, charisma: 1.0, visuals: 1.25, rap: 0.5 }, personality: { professionalism: 1.0, confidence: 0.6 }, breadth: 0 },
+      { id: 'futuristic',  label: 'Futuristic / Experimental', weights: { vocals: 0.8, dance: 1.25, charisma: 1.1, visuals: 1.0, rap: 1.0 }, personality: { creativity: 1.2, adaptability: 0.8 }, breadth: -3 },
+      { id: 'dark',        label: 'Dark / Dramatic',     weights: { vocals: 1.0, dance: 1.15, charisma: 1.25, visuals: 0.95, rap: 0.9 }, personality: { confidence: 1.1, competitiveness: 0.7 }, breadth: 2 },
+      { id: 'performance', label: 'Performance-Heavy',   weights: { vocals: 0.8, dance: 1.45, charisma: 1.1, visuals: 0.8, rap: 0.9 }, personality: { workEthic: 1.0, resilience: 0.8 }, breadth: 3 },
+      { id: 'hiphop',      label: 'Hip-hop / Swagger',   weights: { vocals: 0.7, dance: 1.0, charisma: 1.2, visuals: 0.85, rap: 1.5 }, personality: { confidence: 1.3, competitiveness: 0.9 }, breadth: 1 },
+      { id: 'retro',       label: 'Retro',               weights: { vocals: 1.15, dance: 1.0, charisma: 1.15, visuals: 1.0, rap: 0.6 }, personality: { creativity: 0.9, warmth: 0.8 }, breadth: 1 },
+      { id: 'dreamy',      label: 'Dreamy / Ethereal',   weights: { vocals: 1.25, dance: 0.8, charisma: 1.0, visuals: 1.2, rap: 0.4 }, personality: { creativity: 1.0, warmth: 0.9 }, breadth: -3 },
       // genre-bending (v0.9.6, owner's request): the concept that mashes.
       // Locking a release under this brief opens a second option — pick
       // the two genres to collide. Extremely high risk, high reward.
-      { id: 'fusion',      label: 'Genre-Bending',       weights: { vocals: 1.0, dance: 1.0, charisma: 1.2, visuals: 0.9, rap: 1.0 }, personality: { creativity: 1.5, confidence: 0.8 } },
+      { id: 'fusion',      label: 'Genre-Bending',       weights: { vocals: 1.0, dance: 1.0, charisma: 1.2, visuals: 0.9, rap: 1.0 }, personality: { creativity: 1.5, confidence: 0.8 }, breadth: -2 },
     ],
+
+    // ---- The two verdicts (v0.10.34, §91 Phase 1) ------------------------
+    // A record is judged twice: CRAFT is what the critics hear (the
+    // record itself — never popularity, hype, spend or the week), APPEAL
+    // is what the public wants. The chart hears appeal through reach;
+    // `reception` keeps its name and means the commercial result.
+    VERDICT: {
+      // craft terms (weights on 0–100 inputs)
+      craftHook: 0.42, craftRecording: 0.30, craftFit: 0.14, craftChem: 0.10,
+      craftIdentity: 2, craftLuckSd: 6,
+      // appeal terms
+      appealBase: 2, appealCatch: 0.55, appealRecording: 0.15, appealTrend: 0.13,
+      appealIdentity: 2, appealLuckSd: 9,
+      // commercial = appeal × (reachBase + reachSpan × chartReach) + the reach lifts
+      reachBase: 0.8, reachSpan: 0.2,
+      // the catch: a second seed on every demo — hash-derived from the hook,
+      // so the two can diverge (a grower, a cheap thrill)
+      catchFromHook: 0.5, catchBase: 27.5, catchSpread: 18,
+      // the fusion lane's four outcomes as moves on the two numbers
+      FUSION_MOVES: { shift: { craft: 8, appeal: 16 }, acclaim: { craft: 14, appeal: -12 },
+        flop: { craft: -12, appeal: -14 }, worked: { craft: 3, appeal: 4 } },
+      // the critics: three invented outlets with tastes that disagree
+      OUTLETS: [
+        { id: 'needle', name: 'The Needle', favours: ['elegant', 'dreamy', 'retro'], dislikes: ['bright'], severity: -3,
+          voice: 'the broadsheet that wants to be bored by anything it can hum' },
+        { id: 'mixdown', name: 'Mixdown Monthly', favours: ['performance', 'dark', 'futuristic'], dislikes: ['retro'], severity: 0,
+          voice: 'the producers’ magazine: it listens to the low end first' },
+        { id: 'chorus', name: 'Chorus & Co.', favours: ['bright', 'hiphop', 'fusion'], dislikes: ['futuristic'], severity: 3,
+          voice: 'the pop site that grades on whether the song is fun' },
+      ],
+      tasteLift: 4, outletJitter: 8,       // ± a lane the outlet loves/hates; the hash wobble per review
+      splitSteps: 2,                       // verdicts this many bands apart = a split review (a story)
+      // measured v0.10.34 (12 worlds × 100 weeks, craft mean 63): the
+      // bands sit so 'acclaimed' is rare and 'warm' is earned
+      BANDS: [
+        { min: 76, key: 'acclaimed', word: 'acclaimed' },
+        { min: 64, key: 'warm', word: 'warm' },
+        { min: 52, key: 'mixed', word: 'mixed' },
+        { min: 40, key: 'cold', word: 'cold' },
+        { min: -101, key: 'panned', word: 'panned' },
+      ],
+      // the divergences the owner asked for, measured-first
+      darlingCraft: 70, darlingBelow: 50,  // the critics' darling: loved, not bought
+      pannedHitAt: 64, pannedCraftBelow: 48, // the hit the critics panned
+      slumpDrop: 12, growerRise: 12,       // the critics' expectation: the house's last craft
+      // what craft moves that reception does not
+      prideCraft: 70, prideFandom: 2,      // the fandom's pride in a great record, chart or no chart
+      vocalRepCraft: 68, vocalRepBump: 3,  // the vocal house is built on records
+      longevityCraft: 60,                  // a well-made record stays in the catalog's lottery
+    },
+    // the sound of the year (v0.10.34): a lane the trades name every
+    // January — hash per year with persistence, moved for real by a
+    // fusion shift. trendFit on a demo was a random draw with no world
+    // behind it; now it is a read of the lane against the year.
+    TREND: {
+      keepChance: 0.55,                    // a year keeps last year's sound this often
+      inLane: 70, neighbour: 58, far: 45,  // trendFit by lane distance
+      NEIGHBOURS: {
+        bright: ['retro', 'elegant'], elegant: ['bright', 'dreamy', 'retro'],
+        futuristic: ['dark', 'performance', 'hiphop'], dark: ['performance', 'hiphop', 'futuristic'],
+        performance: ['dark', 'hiphop', 'futuristic'], hiphop: ['dark', 'performance', 'futuristic'],
+        retro: ['bright', 'elegant', 'dreamy'], dreamy: ['elegant', 'retro'],
+        fusion: ['bright', 'elegant', 'futuristic', 'dark', 'performance', 'hiphop', 'retro', 'dreamy'],
+      },
+    },
 
     // ---- Regional popularity (v0.6.6): the map opens --------------------
     // KR stays g.popularity — the number the charts, shows and war
@@ -2227,9 +2292,11 @@
       // the ladder (v0.9.5): the categories are bonsangs — several, and
       // genuinely attainable. Above them sits ONE daesang, and it is
       // brutal: the whole year, weighed once.
-      categories: ['rookie', 'song', 'artist'],
-      LABELS: { rookie: 'Rookie of the Year', song: 'Song of the Year', artist: 'Artist of the Year',
-        daesang: 'DAESANG — Grand Prize of the Year' },
+      // the two verdicts (v0.10.34): the critics' circle gives its own
+      // prize — Record of the Year is judged on craft, Song on the public
+      categories: ['rookie', 'song', 'record', 'artist'],
+      LABELS: { rookie: 'Rookie of the Year', song: 'Song of the Year', record: 'Record of the Year (critics’ circle)',
+        artist: 'Artist of the Year', daesang: 'DAESANG — Grand Prize of the Year' },
       daesangTrust: 5, daesangPop: 5, daesangFandom: 6,
       snubAgainMult: 2,         // "a bonsang, again" — the radicalizer, doubled
       // v0.9.8: a debut-year act must be UNDENIABLE to take the grand
@@ -2269,10 +2336,9 @@
       acclaimBase: 0.18, acclaimPerCreativity: 0.10, // critics' darling, public shrug
       flopBase: 0.30, flopLessPerCreativity: 0.12,   // the mash ate itself
       // "worked" takes the remainder — the gamble pays modestly
-      shiftReceptionMin: 84,     // an industry-shift lands at least here
-      acclaimReceptionCap: 45,   // acclaimed-but-unpopular caps the charts
-      flopReceptionCap: 26,
-      workedLift: 6,
+      // the floors and caps (shiftReceptionMin / acclaimReceptionCap /
+      // flopReceptionCap / workedLift) moved to VERDICT.FUSION_MOVES
+      // (v0.10.34): every outcome is a move on craft AND appeal
       acclaimFandomGain: 6,      // the devoted love being right early
       acclaimTrust: 2,
       shiftPop: 8, shiftFandomGain: 8,

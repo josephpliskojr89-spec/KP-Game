@@ -25,12 +25,15 @@
   };
 
   // ---- the expectation read: what the announcement promises -------------
-  KP.expectationRead = function (state, g) {
+  KP.expectationRead = function (state, g, opts) {
     const E = KP.C.PUBLIC.EXPECT;
     const rep = Math.max.apply(null, Object.values(state.company.reputation || { a: 25 }));
     const me = KP.powerRankingNow(state).find(r => r.isPlayer);
     let pts = rep / 4 +
       (me && me.rank <= 3 && me.score >= 85 ? 12 : me && me.rank <= 5 && me.score >= 60 ? 5 : 0);
+    // the one bar (v0.10.34, §89 D11): a comeback is graded against the
+    // act's own standing — the fanbase it already has is the promise
+    if (opts && opts.comeback) pts += Math.max(0, (g.popularity || 0) - 40) * 0.5;
     g.members.map(id => state.people[id]).filter(Boolean).forEach(m => {
       if (KP.publicEye(state, m)) {
         pts += Math.min(12, (m.hype || 0) / 4 + KP.socialOf(state, m) / 30000);
@@ -97,12 +100,25 @@
     state.rngState = rng.state();
   };
 
-  // ---- the settlement: the debut lands on the bar the world set ---------
+  // ---- the comeback's bar (v0.10.34): minted quietly at lock ------------
+  KP.comebackExpectation = function (state, g) {
+    const ex = KP.expectationRead(state, g, { comeback: true });
+    g.prep.expectation = ex;
+    ledger(state).expectSet++;
+    if (ex.level >= 2) {
+      KP.note(state, { kind: 'public', ind: 'expectSet', groupId: g.id, priority: 'normal', level: ex.level, comeback: true,
+        text: g.name + '’s comeback date went up and the bar went up with it: ' + ex.word + '. ' +
+          (ex.level >= 3 ? 'An act this size does not get a quiet landing — only a clear or a miss.' : 'The trades filed it under “expected to deliver,” which is the industry’s least comfortable compliment.') });
+    }
+  };
+
+  // ---- the settlement: the record lands on the bar the world set --------
   // Called from resolveDebut with the reception, BEFORE prep clears.
-  KP.settleExpectations = function (state, g, reception, notes) {
+  KP.settleExpectations = function (state, g, reception, notes, isDebut) {
     const E = KP.C.PUBLIC.EXPECT;
     const ex = g.prep && g.prep.expectation;
     if (!ex) return;
+    const what = isDebut === false ? 'comeback' : 'debut';
     const led = ledger(state);
     let level = ex.level;
     // a deep countdown raises the bar — the company kept talking
@@ -115,8 +131,8 @@
       if (nar) notes.push(nar);
       notes.push({ kind: 'public', ind: 'overDelivered', priority: 'high', groupId: g.id, level,
         text: level === 0
-          ? 'Nobody was watching ' + g.name + ' debut. Everybody is watching now. A launch with zero expectations just outran half the announcements that had them — the write-ups are all using the word “ambush,” affectionately. The best story in this industry is the one nobody saw coming.'
-          : g.name + ' was handed ' + ex.word + ' and CLEARED it — the debut landed above the bar the announcement set, which almost never happens, which is why every trade piece today sounds surprised. Expectations met are forgotten by Friday. Expectations beaten get remembered.' });
+          ? 'Nobody was watching ' + g.name + ' ' + what + '. Everybody is watching now. A launch with zero expectations just outran half the announcements that had them — the write-ups are all using the word “ambush,” affectionately. The best story in this industry is the one nobody saw coming.'
+          : g.name + ' was handed ' + ex.word + ' and CLEARED it — the ' + what + ' landed above the bar the announcement set, which almost never happens, which is why every trade piece today sounds surprised. Expectations met are forgotten by Friday. Expectations beaten get remembered.' });
     } else if (level >= 1 && reception < bar - E.missMargin) {
       led.underDelivered++;
       g.members.map(id => state.people[id]).filter(Boolean).forEach(m => {
@@ -125,7 +141,7 @@
       const nar = KP.recordEvidence(state, 'underDelivered', 'group', g.id);
       if (nar) notes.push(nar);
       notes.push({ kind: 'public', ind: 'underDelivered', priority: 'high', groupId: g.id, level,
-        text: 'The ' + g.name + ' debut everyone watched — landed short of the watching. The announcement promised ' + ex.word + '; the reception did not clear the bar the company itself raised. The write-ups are gentle and the quote-posts are not. Members read everything, whatever anyone tells them to do.' });
+        text: 'The ' + g.name + ' ' + what + ' everyone watched — landed short of the watching. The announcement promised ' + ex.word + '; the reception did not clear the bar the company itself raised. The write-ups are gentle and the quote-posts are not. Members read everything, whatever anyone tells them to do.' });
     } else if (level >= 1) {
       led.met++;   // "the industry nods and moves on" — so does the inbox (§89 C)
     }

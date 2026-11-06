@@ -462,7 +462,11 @@
       rng.int(I.cycleWeeks[0], I.cycleWeeks[1]) * (focused ? RM.focusCycleFactor : 1)));
     act.announcedWeek = null;   // the announced date was kept — or moved (v0.6.4)
     act.releases = act.releases || [];
-    act.releases.push({ week: state.week, title, reception, isDebut: !!isDebut });
+    // the two verdicts (v0.10.34): the critics hear the rival's record too —
+    // craft from the act's quality, wobbled by hash, judged beside ours
+    const craft = KP.clamp(Math.round(act.quality * 0.9 +
+      (KP.hash01([state.seed, act.id, state.week, 'craft'].join('|')) * 2 - 1) * 10), 1, 100);
+    act.releases.push({ week: state.week, title, reception, craft, isDebut: !!isDebut });
     // their members' numbers move too (v0.6.1)
     (act.members || []).forEach(id => {
       const p = state.people[id];
@@ -974,7 +978,8 @@
           const title = KP.genSongTitle(rng, usedTitles(state));
           const reception = Math.round(KP.clamp(act.quality * 0.85 + act.popularity * 0.15 +
             rng.normal(0, I.releaseNoiseSd) - 6, 1, 100));
-          act.releases.push({ week: lastRel, title, reception, isDebut: false });
+          act.releases.push({ week: lastRel, title, reception, isDebut: false,
+            craft: KP.clamp(Math.round(act.quality * 0.9 + (KP.hash01([state.seed, act.id, lastRel, 'craft'].join('|')) * 2 - 1) * 10), 1, 100) });   // the two verdicts (v0.10.34)
           r.acts.push(act);
           // their last single is still cooling on the chart
           const weeksAgo = state.week - lastRel;

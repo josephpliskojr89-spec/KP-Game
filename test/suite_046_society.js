@@ -97,6 +97,16 @@ function openCalendar(state, g) {
     if (!g.prep && !(g.demos || []).length) {
       const rng = KP.rngFor(state); g.demos = KP.generateDemos(state, rng, g); state.rngState = rng.state();
     }
+    // the waiting room needs a rival act of her gender working the shows
+    // this month (stream shift v0.10.34: the scene's acts had moved on)
+    {
+      const ours0 = state.people[g.members[0]];
+      const same = [];
+      state.rivals.forEach(r => (r.acts || []).forEach(a => {
+        if (!a.retired && (a.members || []).some(id => state.people[id] && state.people[id].gender === ours0.gender)) same.push(a);
+      }));
+      if (same.length) same[0].lastReleaseWeek = state.week;
+    }
     if (!g.prep && state.week > (g.promoUntil || 0) &&
         state.week > (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks && g.demos && g.demos.length &&
         state.week > (g.tourRestUntil || 0)) {
@@ -125,6 +135,7 @@ function openCalendar(state, g) {
 {
   const { state, g } = debuted('soc-stan');
   const S = KP.C.SOCIETY;
+  g.seniorStanWeek = null;   // the debut ride may already have drawn it (stream shift v0.10.34) — the mechanism is under test, not the luck
   const old = S.seniorStanChance;
   S.seniorStanChance = 1;
   KP.advanceWeek(state);

@@ -56,7 +56,7 @@
 
     const line = execObjectiveLine(state, prev, rng, g);
     return {
-      kind: 'executive', urgent: true,
+      kind: 'executive', urgent: true, priority: 'critical',   // the directive and its grant (v0.10.34: the critics' letters share the week)
       text: state.executive.name + ': ' + line +
         ' The division books show a ' + grant + ' reinvestment.' +
         (capJustLifted

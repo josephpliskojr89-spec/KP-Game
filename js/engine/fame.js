@@ -112,7 +112,8 @@
     const cap = Math.round(F.capBase + fame * F.capSlope +
       mom * F.MOM.capLiftPer +
       ((g.prep && g.prep.viralLift) || 0) +
-      (opts && opts.spark ? F.sparkCapLift : 0));
+      (opts && opts.spark ? F.sparkCapLift : 0) +
+      (opts && opts.pierce ? F.sparkCapLift * 3 : 0));   // "changed the industry" (v0.10.34)
     const under = fame < F.wallBelow;
     const walled = under && r > cap;
     if (walled) r = cap + Math.round((r - cap) * F.overCapKeep);

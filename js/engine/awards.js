@@ -49,6 +49,24 @@
             isPlayer: false, score: r.reception + (a.popularity || 0) * 0.15 + jitter(r.title) });
         });
       }));
+    } else if (category === 'record') {
+      // the two verdicts (v0.10.34): the critics' circle judges the RECORD —
+      // craft, never the chart, never the fandom
+      const craftOf = r => (r.craft != null ? r.craft : r.reception);
+      KP.groups(state).forEach(g => {
+        (g.releases || []).forEach(r => {
+          if (r.week < from) return;
+          list.push({ name: '“' + r.songTitle + '” — ' + g.name, company: state.company.short,
+            isPlayer: true, groupId: g.id, score: craftOf(r) + jitter('rec' + r.songTitle) });
+        });
+      });
+      (state.rivals || []).forEach(rv => (rv.acts || []).forEach(a => {
+        (a.releases || []).forEach(r => {
+          if (r.week < from || a.retired) return;
+          list.push({ name: '“' + r.title + '” — ' + a.name, company: rv.short,
+            isPlayer: false, score: craftOf(r) + jitter('rec' + r.title) });
+        });
+      }));
     } else {  // artist
       KP.groups(state).forEach(g => {
         if (!g.debuted) return;

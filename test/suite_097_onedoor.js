@@ -222,7 +222,7 @@ function clearOthers(state, keep) {
   const d = KP.liveDiscourses(state).find(x => x.kind === 'benched');
   t.ok(d, 'the benched story lit');
   t.eq(state.grievances.filter(x => x.kind === 'overwork').length, 0, 'and the fandom has NOT organized yet');
-  d.heat = D.truckAt;
+  d.heat = D.truckAt + 10;   // the week cools first (stream shift v0.10.34 found the margin)
   KP.discourseWeek(state, rng);
   t.eq(state.grievances.filter(x => x.kind === 'overwork').length, 1, 'the hot stage hands the fandom its receipts');
   d.heat = Math.max(d.heat, D.truckAt);
