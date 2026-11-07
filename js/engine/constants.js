@@ -2919,6 +2919,16 @@
       termsCostPerFame: 12,      // leverage: her fame prices her signature
       holdLeaveChance: 0.5,      // holding the line on the strained is a coin
       changeMindChance: 0.25,    // the gone rarely turn back — standing helps
+      // the solo door at the cold table (v0.11.5, §96 wiring): a star who
+      // is leaving anyway can be kept in the building as a solo act — out
+      // of the lineup, her own name on the marquee. graduateToSolo had no
+      // caller since v0.9.25 and the return-run scene behind it was
+      // unreachable. Offered only when she reads 'first among equals' or
+      // above, or sits at rung 2+; the bot never takes it (measure-first)
+      graduateCost: 40,          // the solo signing bonus, gated on the account
+      graduateRungMin: 2,        // KP.starRung at or above this opens the door
+      graduateMorale: 4,         // hers: the door she did not have to push
+      graduateRoomMorale: 2,     // the room's: losing the star to the marquee (subtracted)
       departPopHitWarm: 4,       // a warm goodbye still costs the room
       departPopHitCold: 9,       // a cold one costs more
       departMoraleWarm: 4,

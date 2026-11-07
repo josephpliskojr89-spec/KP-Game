@@ -202,7 +202,9 @@
       if (!p) return '';
       const read = KP.renewalRead(state, p);
       return KP.fillPro(BODIES[read.band], p) +
-        (read.fame >= 2 ? KP.fillPro(' (And {pos} name alone sells tickets now — the table knows it.)', p) : '');
+        (read.fame >= 2 ? KP.fillPro(' (And {pos} name alone sells tickets now — the table knows it.)', p) : '') +
+        (read.band === 'gone' && KP.graduateOpen(state, p)
+          ? KP.fillPro(' There is one door left that keeps {her} in the building: {pos} own name on the marquee, out of the lineup, on a solo paper.', p) : '');
     },
     options: (state, sc) => {
       const p = state.people[sc.personId];
@@ -229,7 +231,11 @@
       return [
         { id: 'farewell', label: 'Write the ending right' },
         { id: 'plead', label: 'Try to change the arithmetic' },
-      ];
+        // the solo door (v0.11.5, §96 wiring): the company's last card at
+        // the table where she holds them — never the bot's default
+        KP.graduateOpen(state, p) && state.budget >= C.graduateCost
+          ? { id: 'graduate', label: 'Offer the solo door — out of the lineup, in the family · ' + C.graduateCost } : null,
+      ].filter(Boolean);
     },
     resolve: (state, sc, optionId, rng) => {
       const p = state.people[sc.personId];
@@ -297,6 +303,24 @@
         p.contract.leaving = true;
         p.contract.leaveMode = 'warm';
         return { toast: KP.fillPro('{She} heard you out — all of it — and then said, gently, that some decisions are finished before the meeting. The seventh year will be {pos} last. {She} asked to spend it well, which is the kindest available version of this.', p) };
+      }
+      if (optionId === 'graduate') {
+        if (!KP.graduateOpen(state, p) || state.budget < C.graduateCost) return { ok: false, reason: 'The solo door is not on this table.' };
+        const g = KP.groupOf(state, p.id);
+        state.budget -= C.graduateCost;
+        if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -C.graduateCost);
+        renew();   // a fresh seven on a solo paper
+        const r = KP.graduateToSolo(state, p.id);
+        if (!r.ok) return { ok: false, reason: r.reason };
+        KP.recordDirected(state, p.id, 'openedTheDoor');
+        p.morale = KP.clamp(p.morale + C.graduateMorale, 0, 100);
+        (g ? g.members : []).forEach(id => {
+          const m = state.people[id];
+          if (m) m.morale = KP.clamp(m.morale - C.graduateRoomMorale, 0, 100);
+        });
+        return { toast: KP.fillPro('{She} read the solo paper twice and the lineup page once. "Same building," {she} said, and signed. The room will miss {her} on stage and see {her} at lunch.', p),
+          note: { kind: 'public', ind: 'graduatedSolo', priority: 'high', personId: p.id, groupId: g ? g.id : null,
+            text: KP.fillPro(KP.displayName(p) + ' leaves ' + (g ? g.name + '’s' : 'the') + ' lineup — and stays in the building: a solo contract, {pos} own calendar, {pos} own name on the marquee. The fandom is reading the statement for the word “forever” and finding it twice.', p) } };
       }
       if (optionId === 'farewell') {
         p.contract.leaving = true;
@@ -492,7 +516,18 @@
   };
 
   // ---- graduation: she stays in the family, as a solo --------------------
-  // (offered by the renewal flow in a later pass; the door exists now)
+  // offered by the renewal table's cold band (v0.11.5, §96 wiring) when
+  // she is a star — the one door that keeps her in the building, and the
+  // door the return-run scene (gravity.js) swings back through
+  KP.graduateOpen = function (state, p) {
+    if (!p || p.status !== 'idol' || !p.contract) return false;
+    const g = KP.groupOf(state, p.id);
+    if (!g || g.type === 'solo' || (g.members || []).length < 2 || !g.debuted) return false;
+    const C = KP.C.CONTRACT;
+    const word = KP.gravityWord ? KP.gravityWord(KP.transcendRead(state, g, p)) : 'one of the room';
+    const rung = KP.starRung ? KP.starRung(state, g, p) : 1;
+    return rung >= C.graduateRungMin || word === 'first among equals' || word === 'bigger than the group?';
+  };
   KP.graduateToSolo = function (state, personId) {
     const p = state.people[personId];
     if (!p || p.status !== 'idol') return { ok: false, reason: 'Only an active artist graduates.' };
@@ -537,6 +572,16 @@
     return rng.pick([
       { persona: 'fan', text: KP.fillPro('RE-SIGNED. SEVEN MORE YEARS. deleting my worry drafts, un-lighting my candle, returning the tissues. ' + KP.displayName(p) + ' chose US', p) },
       { persona: 'stan', text: KP.fillPro('the ' + KP.displayName(p) + ' renewal announcement dropped at 9am sharp and the fandom moved from panic to euphoria in eleven seconds. new record', p) },
+    ]);
+  });
+  // the solo door (v0.11.5, §96 wiring): the timeline reads the statement twice
+  KP.onFeedEvent('graduatedSolo', (state, n, rng) => {
+    const p = state.people[n.personId];
+    if (!p) return null;
+    return rng.pick([
+      { persona: 'fan', text: KP.fillPro(KP.displayName(p) + ' SOLO. same company. same building. {she} is not leaving us {she} is getting a bigger room. i have read the statement nine times and i am choosing to be happy', p) },
+      { persona: 'stan', text: KP.fillPro('the ' + KP.displayName(p) + ' solo contract is the rare case where "out of the lineup" and "not going anywhere" are both true. the group chat is holding a wake and a launch party in the same thread', p) },
+      { persona: 'industry', text: KP.fillPro('A star leaves a lineup and stays on the letterhead: the company kept ' + KP.displayName(p) + ' by giving {her} {pos} own name on the marquee. The cheaper outcome was the one where {she} walked.', p) },
     ]);
   });
   KP.onFeedEvent('contractEnd', (state, n, rng) => {
