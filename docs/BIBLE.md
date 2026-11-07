@@ -13226,6 +13226,23 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Suite_115 (179). Battery 115/115, soak 40 clean, longhaul 11x620,
 > e2e 134, lockstep 0.11.5. Rode to main.
 
+> **0.11.6 — the offers tab.** Owner, with a screenshot: "This, here
+> with all of the offers, it's taking up the whole feed on the desk. I
+> want an offers tab where all of the stages, endorsement
+> opportunities, etc goes and shows a number each week for the number
+> of offers to check." §97: the line between a decision (a person at
+> the door, a table with the company's name on it — stays on Today)
+> and an offer (the market's ask — the pile, the brands and second
+> jobs, the festival bills, the broadcasters' invitations, the brand
+> that wants the face alone — moves). KP.offersRead, pure, soonest
+> answer first, the fresh ones marked; the Offers sub-tab with the
+> count badge; Today's one-line pointer with the count and the new
+> arrivals; three kickers with their counts; the cards and their
+> buttons unmoved; the e2e walk taps the tab first. No engine
+> behaviour changed. Suite_116 (22) over the DOM stub. Battery
+> 116/116, soak 40 clean, longhaul 11x620, e2e 135, lockstep 0.11.6.
+> Rode to main.
+
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
 > rating resulting from your choices… hire producers for our
