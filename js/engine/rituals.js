@@ -136,12 +136,17 @@
       }
     });
     const names = ranked.slice(0, 3).map((r, i) => (i + 1) + '. ' + KP.displayName(r.p));
-    // the ladder (v0.11.5, §96 wiring): critical the month a trainee takes
-    // #1 for the first time or the talk is held; high on a real move either
-    // way or a new ace; normal when the sheet moved at all; flavor only when
-    // nothing did. One clause names the movement that set it.
-    const priority = (firstTop || talked) ? 'critical'
-      : (maxMove >= E.sheetHighMove || aceChanged) ? 'high'
+    // the ladder (v0.11.5, §96 wiring): critical the month the talk is held
+    // or the FIRST #1 in the building's history is taken; high on a trainee's
+    // own first #1, a real move either way or a new ace; normal when the
+    // sheet moved at all; flavor only when nothing did. One clause names the
+    // movement that set it. (A churning room must not shout monthly: the
+    // first cut made every personal first #1 critical — 7 criticals in 90
+    // weeks of a small room.)
+    const roomsFirst = !!firstTop && !Object.values(state.people).some(q =>
+      q !== firstTop && q.flags && q.flags.firstEvalTopWeek && q.flags.firstEvalTopWeek < state.week);
+    const priority = (talked || roomsFirst) ? 'critical'
+      : (firstTop || maxMove >= E.sheetHighMove || aceChanged) ? 'high'
       : maxMove > 0 ? 'normal' : 'flavor';
     const story = firstTop ? KP.displayName(firstTop) + ' took the top of the sheet for the first time'
       : talked ? 'the after-eval talk, held with ' + KP.displayName(talked)

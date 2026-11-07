@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.4',
+    VERSION: '0.11.5',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1658,6 +1658,7 @@
       overpressAt: 1.6,        // run past demand x this = the warehouse memo
       overpressDoubleAt: 2, overpressTripleAt: 3,   // the memo's words — "twice" / "three times" what the fandom bought (v0.11.5, §96 wiring — measure-first)
       restockShare: 0.6,       // the second run catches this much of what the late reorder left (v0.11.5, §96 wiring — measure-first)
+      scarceIntensity: 2,       // the answered call that keeps it scarce feeds the fandom the story; silence gets nothing (v0.11.5, §96 wiring — measure-first)
       restockFuseWeeks: 2,     // the distributor's restock call waits this long on the Desk (v0.11.5, §96 wiring — measure-first)
       restockMinUnits: 200,    // under this the leftover is an envelope, not a run — no call (v0.11.5, §96 wiring — measure-first)
       repackDemand: 0.55,      // reprints sell real, not full (era heat carries)

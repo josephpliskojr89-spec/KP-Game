@@ -227,6 +227,7 @@
     if (KP.outsideJobs) KP.outsideJobs(state);
     if (KP.outsideOffersList) KP.outsideOffersList(state);
     if (KP.sponsorLedgerOf) KP.sponsorLedgerOf(state);
+    if (KP.productLedger) KP.productLedger(state);   // the restock ledger (v0.11.5, §96 wiring)
     state.deadShorts = state.deadShorts || [];   // the registry exists from week one, so a fork never creates it in a different order
     return state;
   };

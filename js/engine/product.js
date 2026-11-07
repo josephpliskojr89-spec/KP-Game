@@ -174,7 +174,9 @@
         : sheet.run >= demand * P.overpressTripleAt ? 'three times what the fandom bought'
         : sheet.run >= demand * P.overpressDoubleAt ? 'twice what the fandom bought'
         : 'nearly twice what the fandom bought';   // the memo's floor is overpressAt (1.6x)
-      notes.push({ kind: 'company', ind: 'warehouseMemo', priority: 'normal', groupId: g.id,
+      // high, like the sold-out story it mirrors: at normal the memo never
+      // survived a release week's dozen letters (0/40 in the first soak)
+      notes.push({ kind: 'company', ind: 'warehouseMemo', priority: 'high', groupId: g.id,
         text: KP.lineFor(state, 'warehouse|' + g.id, [
           'The warehouse wrote the memo: boxes of the ' + g.name + ' record are stacked in the hallway outside the practice rooms — ' + KP.fmtCount(sheet.run) + ' pressed, ' + KP.fmtCount(demand) + ' bought, ' + times + '. The memo is one line long and signed by nobody.',
           'The second pressing nobody ordered: the ' + g.name + ' run came to ' + times + ' — ' + KP.fmtCount(sheet.run) + ' pressed against ' + KP.fmtCount(demand) + ' sold — and the warehouse would like to know where the rest is going to live.',
@@ -256,7 +258,11 @@
       const g = KP.groupById(state, sc.groupId);
       if (!g) return { toast: 'The record is out of print, one way or another.' };
       if (optionId !== 'press') {
-        return { toast: 'The shelves stay empty. The sold-out story runs — the sweetest lost money in the business.' };
+        // the scarcity is the marketing (v0.11.5): the answered call feeds
+        // the fandom what the second run would have sold — the expiry
+        // (silence) gets neither the money nor the story
+        if (g.fandom && KP.fandomGain) KP.fandomGain(g, KP.C.PRODUCT.scarceIntensity);
+        return { toast: 'The shelves stay empty. The sold-out story runs — the sweetest lost money in the business, and the fandom wears it like a badge.' };
       }
       const P = KP.C.PRODUCT;
       const wanted = restockUnits(sc);

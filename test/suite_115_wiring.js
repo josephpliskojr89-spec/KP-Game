@@ -462,4 +462,288 @@ function expireAll(s, kind) { (s.scenes || []).forEach(sc => { if (sc.kind === k
   t.eq(KP.jpCut(s2), J.partnerCut, 'an old save’s partnership reads the constant');
 }
 
+
+// ---- the record’s moments (§96 agreements 1, 7 and 9): the landing critical and first, the
+// debut stage, the repackage’s letter and mark, the warehouse memo, the restock door, the
+// evaluation ladder, the greetings, the reveal slips, the allocation’s shape
+{
+  const ok = (c, m) => t.ok(c, m);
+
+// ---- 1. the landing letter: critical, ind landed, first in its week, signpost ----
+{
+  const s = KP.newGame('wire-landed', null, { legacy: false });
+  s.budget = 900;
+  const ids = s.roster.slice(0, 5);
+  KP.proposeGroup(s, 'WIRELINE', ids, KP.roleHints(s, ids.map(i => s.people[i])));
+  const g = s.groups[0]; g.demos = KP.generateDemos(s, KP.rngFor(s), g);
+  KP.planDebut(s, { groupId: g.id, songId: g.demos[0].id, promo: 'modest', week: s.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
+  let kept = [], guard = 0;
+  while (!g.debuted && guard++ < 12) kept = KP.advanceWeek(s);
+  const landed = kept.find(n => n.ind === 'landed');
+  ok(landed && landed.priority === 'critical' && !landed.urgent, 'landed is critical (no urgent flag)');
+  ok(kept[0] && kept[0].ind === 'landed', 'and first in the kept week');
+  ok(s.inbox[0].ind === 'landed', 'and first in the inbox');
+  ok(/group’s page/.test(landed.text) && !/Studio/.test(landed.text), 'signpost says the group’s page: ' + landed.text.slice(-45));
+  ok(KP.lastTickNotes.length > KP.C.EVENTS.maxInboxPerWeek, '(a release week is loud: ' + KP.lastTickNotes.length + ' emitted)');
+  const rest = kept.filter(n => n.ind !== 'landed');
+  const trimmed = KP.trimWeekNotes(KP.lastTickNotes, KP.C.EVENTS.maxInboxPerWeek).filter(n => n.ind !== 'landed');
+  ok(rest.map(n => n.text).join('|') === trimmed.map(n => n.text).join('|'), 'the rest keep their trim order');
+  // 2. the debut stage
+  KP.advanceWeek(s);
+  const cb = (KP.lastTickNotes || []).find(n => n.ind === 'comebackStage');
+  ok(cb && /^THE DEBUT STAGE, on /.test(cb.text), 'the first stage of a debut is THE DEBUT STAGE');
+  ok(!KP.feedReactionFor('landed'), '(no feed reaction registered for landed — none added)');
+  // 9. the countdown clause
+  ok(KP.allocLean({ vocals: 25, dance: 25, rap: 25, media: 25 }) === null, 'flat alloc has no lean');
+  ok(KP.allocLean({ vocals: 45, dance: 25, rap: 15, media: 15 }) === 'vocal-heavy', 'vocal-heavy');
+  ok(KP.allocLean({ vocals: 40, dance: 40, rap: 10, media: 10 }) === 'vocal-and-dance-heavy', 'a tie names both');
+  ok(KP.allocLean({ vocals: 35, dance: 25, rap: 20, media: 20 }) === 'vocal-heavy' && KP.allocLean({ vocals: 30, dance: 25, rap: 25, media: 20 }) === null, 'the gap is DEBUT.allocLeanGap (' + KP.C.DEBUT.allocLeanGap + ')');
+  ok(KP.allocLean({ vocals: 20, dance: 20, rap: 20, media: 40 }) === 'camera-heavy', 'media reads as camera');
+  ok(KP.allocLean(null) === null && KP.allocLean({}) === null, 'guarded');
+}
+
+// ---- 3. the repackage's letter and the discography mark ----
+{
+  const s = KP.newGame('wire-repack', null, { legacy: false });
+  s.budget = 900;
+  const ids = s.roster.slice(0, 5);
+  KP.proposeGroup(s, 'REPACK', ids, KP.roleHints(s, ids.map(i => s.people[i])));
+  const g = s.groups[0]; g.demos = KP.generateDemos(s, KP.rngFor(s), g);
+  KP.planDebut(s, { groupId: g.id, songId: g.demos[0].id, promo: 'modest', format: 'mini', week: s.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
+  let guard = 0;
+  while (!g.debuted && guard++ < 12) KP.advanceWeek(s);
+  while (s.week <= g.promoUntil) KP.advanceWeek(s);
+  s.budget = 900;
+  const n0 = s.inbox.length;
+  const r = KP.planRepackage(s, { groupId: g.id, songId: g.eraLeftovers[0].id });
+  const note = s.inbox.find(n => n.ind === 'repackageSet');
+  ok(r.ok && note && note.priority === 'high' && note.kind === 'company' && note.groupId === g.id && note.text === r.note, 'planRepackage writes repackageSet high, and returns its text');
+  ok(s.inbox.length === n0 + 1 && s.inbox[0] === note, 'one letter, at the top');
+  ok(/era extends: “.+” repackages with “.+” as the new title track\.$/.test(r.note.split(' — ')[0] + '.'), 'the toast clause: ' + r.note.split(' — ')[0] + '.');
+  guard = 0;
+  while (g.prep && guard++ < 8) KP.advanceWeek(s);
+  const last = g.releases[g.releases.length - 1];
+  ok(last.repackageOf === g.releases[0].songTitle, 'repackageOf is the first record’s title (the discography renders it as extends “…”)');
+}
+
+// ---- 4 + 5. the memo and the restock door ----
+function era(seed, run) {
+  const s = KP.newGame(seed, null, { legacy: false });
+  s.budget = 900;
+  const ids = s.roster.slice(0, 5);
+  KP.proposeGroup(s, 'PRESSLINE', ids, KP.roleHints(s, ids.map(i => s.people[i])));
+  const g = s.groups[0]; g.demos = KP.generateDemos(s, KP.rngFor(s), g);
+  KP.planDebut(s, { groupId: g.id, songId: g.demos[0].id, promo: 'modest', week: s.week + 6, alloc: { vocals: 25, dance: 25, rap: 25, media: 25 },
+    pressing: { versions: 2, pob: 'standard', preset: 'suggested', signRounds: 0 } });
+  if (run) g.prep.pressing.run = run;
+  let guard = 0;
+  while (!(g.results && g.results.product) && guard++ < 15) KP.advanceWeek(s);
+  return { s, g };
+}
+{
+  const { s, g } = era('wire-memo', 900000);
+  const memo = (KP.lastTickNotes || []).find(n => n.ind === 'warehouseMemo');
+  ok(g.results.product.overpress && memo && memo.priority === 'high' && memo.kind === 'company' && memo.groupId === g.id, 'overpress writes warehouseMemo, high, company');
+  ok(/three times what the fandom bought/.test(memo.text) && !/\d\.\d+x|×/.test(memo.text), 'the run against the demand in words: ' + memo.text.slice(0, 110));
+  const rel = g.releases[g.releases.length - 1];
+  ok(rel.pressing.overpress === true && rel.pressing.soldOut === false && rel.pressing.demand === g.results.product.chodong, 'the release archives the verdict (demand, soldOut, overpress)');
+  ok(!(s.scenes || []).some(x => x.kind === 'restockCall'), 'no restock call on an overpress');
+  // the lowest band's words
+  const { g: g2 } = era('wire-memo-2', 1);   // run fixed below after the read
+  void g2;
+}
+{
+  const { s, g } = era('wire-restock', 300);
+  const pr = g.results.product;
+  const rel = g.releases[g.releases.length - 1];
+  const P = KP.C.PRODUCT;
+  const demand = rel.pressing.demand;
+  const reorder = Math.round((demand - 300) * P.reorderShare);
+  const unmet = demand - 300 - reorder;
+  const sc = (s.scenes || []).find(x => x.kind === 'restockCall');
+  ok(pr.soldOut && pr.chodong === 300 + reorder, 'fixture: sold out, chodong = run + the late reorder');
+  ok(sc && sc.groupId === g.id && sc.releaseWeek === g.results.week && sc.remaining === unmet && sc.run === 300 && sc.demand === demand && sc.pob === 'standard' &&
+    sc.expiresWeek === g.results.week + P.restockFuseWeeks,
+    'a sell-out with ' + unmet + ' unmet opens restockCall with a ' + P.restockFuseWeeks + '-week fuse, the remainder/run/demand/pob on the scene');
+  const def = KP.sceneDef('restockCall');
+  const opts = def.options(s, sc);
+  ok(opts[0].id === 'scarce' && opts[1].id === 'press', 'options: scarce (default), press');
+  ok(/pressing is gone/.test(def.body(s, sc)) && /restock call/.test(def.title(s, sc)), 'body and title compose');
+  const twin = KP.deserialize(KP.serialize(s));
+  const b0 = s.budget;
+  const gS = KP.groupById(s, sc.groupId);
+  const i0 = (gS.fandom || {}).intensity || 0;
+  const r0 = KP.resolveScene(s, sc.id, 'scarce');
+  ok(r0.ok && s.budget === b0 && !s.scenes.some(x => x.kind === 'restockCall') && s.productLedger.restocks === 0 && !s.inbox.some(n => n.ind === 'restockPressed') &&
+    (!gS.fandom || gS.fandom.intensity === Math.min(100, i0 + KP.C.PRODUCT.scarceIntensity)),
+    'scarce keeps the money and feeds the fandom the story (the lead’s ruling): ' + r0.toast.slice(0, 40));
+  // press: make the remainder big enough to show money (the scene carries the number)
+  const tsc = twin.scenes.find(x => x.kind === 'restockCall');
+  tsc.remaining = 40000;
+  const tg = twin.groups[0];
+  const units = Math.round(40000 * P.restockShare);
+  const bill = Math.round((units / 1000) * P.unitCostPerK);
+  const b1 = twin.budget, alb0 = (twin.books && twin.books.cur.albums) || 0, prod0 = (twin.books && twin.books.cur.production) || 0;
+  const debt0 = tg.recoup ? tg.recoup.debt : null;
+  ok(tsc.overseasMult >= 1, 'the scene carries the landing’s overseas read (' + tsc.overseasMult + ')');
+  const r1 = KP.resolveScene(twin, tsc.id, 'press');
+  const rev = Math.round((units / 1000) * P.marginPerK * P.pobMargin.standard * tsc.overseasMult * KP.distCut(twin));
+  ok(r1.ok && bill > 0 && rev > 0 && twin.budget === b1 - bill + rev, 'press bills ' + bill + ' and earns ' + rev + ' (units ' + units + ' = ' + P.restockShare + ' of 40000)');
+  ok(((twin.books && twin.books.cur.albums) || 0) === alb0 + rev && ((twin.books && twin.books.cur.production) || 0) === prod0 - bill, 'the bill rides production, the revenue the albums stream');
+  ok(debt0 == null || tg.recoup.debt === debt0 - Math.round(rev * KP.C.SETTLE.groupShare) || tg.recoup.debt <= 0, 'and the group’s share through settleShare');
+  ok(twin.productLedger && twin.productLedger.restocks === 1, 'productLedger.restocks counts it (NEW top-level field)');
+  const trel = tg.releases[tg.releases.length - 1];
+  ok(trel.restock && trel.restock.units === units && trel.restock.revenue === rev && trel.restock.week === twin.week, 'the release remembers its restock');
+  const letter = twin.inbox.find(n => n.ind === 'restockPressed');
+  ok(letter && letter.priority === 'high' && letter.groupId === tg.id && letter.text.includes(KP.fmtCount(units)) && letter.text.includes(bill + ' to the plant, ' + rev + ' back'), 'restockPressed high, the units counted, the money public: ' + letter.text.slice(0, 100));
+  ok(KP.validateState(twin).length === 0, 'validator clean after the door');
+  // the clamp: a short account presses what it can pay for; an empty one cannot
+  const three = KP.deserialize(KP.serialize(s));
+  void three;
+  const { s: s4, g: g4 } = era('wire-restock-broke', 300);
+  const sc4 = s4.scenes.find(x => x.kind === 'restockCall');
+  sc4.remaining = 40000;
+  s4.budget = 0;
+  const r4 = KP.resolveScene(s4, sc4.id, 'press');
+  ok(r4.ok === false && s4.scenes.some(x => x.id === sc4.id), 'an empty account cannot press; the call stays on the table: ' + r4.reason);
+  s4.budget = Math.ceil(bill / 2);
+  const r5 = KP.resolveScene(s4, sc4.id, 'press');
+  const rel4 = g4.releases[g4.releases.length - 1];
+  ok(r5.ok && rel4.restock && rel4.restock.units === Math.round(units * Math.ceil(bill / 2) / bill) && s4.budget >= 0, 'a short account presses the share it can pay (' + rel4.restock.units + ' of ' + units + ')');
+  // expiry = scarce, silent
+  const { s: s3 } = era('wire-restock-expire', 300);
+  const sc3 = s3.scenes.find(x => x.kind === 'restockCall');
+  const b3 = s3.budget;
+  let w = 0; while (s3.scenes.some(x => x.id === sc3.id) && w++ < 5) { KP.advanceWeek(s3); s3.budget = b3; }
+  ok(!s3.scenes.some(x => x.id === sc3.id) && w === KP.C.PRODUCT.restockFuseWeeks + 1 && !(KP.lastTickNotes || []).some(n => n.ind === 'restockPressed'), 'the fuse burns ' + (w - 1) + ' weeks after the landing week, silently');
+  ok(s3.productLedger && s3.productLedger.restocks === 0, 'the silence leaves the restock ledger at zero (it exists from week one)');
+  // the floor: below restockMinUnits no call opens
+  const { s: s5, g: g5 } = era('wire-restock-floor', null);
+  const r5p = g5.releases[g5.releases.length - 1].pressing;
+  const un5 = r5p.soldOut ? r5p.demand - r5p.run - Math.round((r5p.demand - r5p.run) * P.reorderShare) : 0;
+  ok((un5 >= P.restockMinUnits) === s5.scenes.some(x => x.kind === 'restockCall'), 'the floor (restockMinUnits ' + P.restockMinUnits + ') decides the call (unmet ' + un5 + ')');
+}
+
+// ---- 6. the evaluation ladder ----
+{
+  const E = KP.C.EVAL;
+  const phase = s => Math.floor(KP.hash01([s.seed, 'evalphase'].join('|')) * E.every);
+  const toEval = s => { let guard = 0; do { KP.advanceWeek(s); } while (s.week % E.every !== phase(s) && guard++ < 8); };
+  const sheet = () => (KP.lastTickNotes || []).find(n => n.ind === 'evalSheet');
+  // first #1 → critical, the story names her
+  const s = KP.newGame('wire-eval', null, { legacy: false, door: 'fresh' });
+  s.budget = 900;
+  toEval(s);
+  let sh = sheet();
+  const top = s.people[s.lastEvalTopId];
+  ok(sh && sh.priority === 'critical' && sh.text.includes(KP.displayName(top) + ' took the top of the sheet for the first time'), 'the first sheet is a first #1: critical, named');
+  ok(top.flags.firstEvalTopWeek === s.week, 'firstEvalTopWeek stamped on her flags');
+  // a pinned room: wide gaps, frozen ceilings, every first-#1 already on file
+  const s2 = KP.newGame('wire-ladder', null, { legacy: false, door: 'fresh' });
+  s2.budget = 900; KP.advanceWeek(s2);
+  // a room of three with gaps wider than any fog, so the order holds across sheets
+  s2.roster = s2.roster.filter(id => s2.people[id].status === 'trainee').slice(0, 3);
+  const tr = s2.roster.map(id => s2.people[id]);
+  tr.forEach((p, i) => {
+    KP.C.TALENTS.forEach(d => { p.talents[d].cur = [95, 50, 5][i]; p.flags['ceil_' + d] = p.talents[d].cur; });
+    p.flags.firstEvalTopWeek = 1; p.evalBottomStreak = -100; p.evalHistory = [];   // no first #1, no talk, in this window
+  });
+  s2.lastEvalTopId = null;
+  // a month, with the three kept off the bench (a benched trainee sits the sheet out)
+  const month = s => { for (let i = 0; i < E.every; i++) { tr.forEach(p => { p.flags.burnout = 0; p.fatigue = 0; }); KP.advanceWeek(s); } };
+  toEval(s2);
+  sh = sheet();
+  ok(sh && sh.priority === 'flavor' && /Nobody moved|Nothing moved|nothing had moved/.test(sh.text), 'no history, nothing moved: flavor, says so (' + (sh && sh.priority) + ')');
+  const ace = s2.people[s2.lastEvalTopId];
+  const of = tr.length;
+  // the ace "was" at the bottom last month → a climb of sheetHighMove+ → high
+  ace.evalHistory[ace.evalHistory.length - 1].rank = of;
+  month(s2);
+  sh = sheet();
+  ok(sh && sh.priority === 'high' && sh.text.includes(KP.displayName(ace) + ', up ' + Math.min(of - 1, E.swingCap)), 'a climb of ' + E.sheetHighMove + '+ posts high and names the climber: ' + (sh && sh.text.slice(0, 40)) + '… ' + (sh && sh.priority));
+  // a one-place swap at the top → normal
+  const second = tr.map(p => p).filter(p => p.id !== ace.id).sort((a, b) => KP.evalRankOf(a) - KP.evalRankOf(b))[0];
+  ace.evalHistory[ace.evalHistory.length - 1].rank = 2;
+  second.evalHistory[second.evalHistory.length - 1].rank = 1;
+  month(s2);
+  sh = sheet();
+  ok(sh && sh.priority === 'normal' && sh.text.includes(KP.displayName(ace) + ', up 1'), 'a one-place move posts normal: ' + (sh && sh.priority));
+  // the top changing hands → high, "took the top from"
+  s2.lastEvalTopId = second.id;
+  month(s2);
+  sh = sheet();
+  ok(sh && sh.priority === 'high' && sh.text.includes(KP.displayName(ace) + ', who took the top from ' + KP.displayName(second)), 'a new ace posts high and names the handover: ' + (sh && sh.priority));
+  // her first #1 → critical
+  ace.flags.firstEvalTopWeek = null; ace.evalHistory = ace.evalHistory.filter(e => e.rank !== 1);
+  month(s2);
+  sh = sheet();
+  // her own first #1 is high (the room has had a #1 before); only the building’s first-ever #1 and the talk are critical (the lead’s ruling)
+  ok(sh && sh.priority === 'high' && sh.text.includes(KP.displayName(ace) + ' took the top of the sheet for the first time') && ace.flags.firstEvalTopWeek === s2.week, 'a personal first #1 posts high: ' + (sh && sh.priority));
+  // the talk month → critical, the talk itself high
+  const s3 = KP.newGame('wire-talk', null, { legacy: false, door: 'fresh' });
+  s3.budget = 900; KP.advanceWeek(s3);
+  const tr3 = s3.roster.map(id => s3.people[id]).filter(p => p.status === 'trainee');
+  const lo = tr3[0];
+  KP.C.TALENTS.forEach(d => { lo.talents[d].cur = 10; });
+  lo.evalBottomStreak = E.bottomTalkAfter - 1;
+  toEval(s3);
+  const talk = (KP.lastTickNotes || []).find(n => n.ind === 'evalTalk');
+  const sh3 = sheet();
+  ok(talk && talk.priority === 'high', 'the talk’s own letter is high');
+  ok(sh3 && sh3.priority === 'critical' && (sh3.text.includes('after-eval talk, held with ' + KP.displayName(lo)) || /took the top of the sheet for the first time/.test(sh3.text)), 'the talk month posts the sheet critical (a first #1 outranks it in the clause): ' + sh3.text.slice(0, 60));
+  // an old save: a #1 already on the file does not re-fire
+  const s4 = KP.newGame('wire-oldsave', null, { legacy: false, door: 'fresh' });
+  s4.budget = 900; KP.advanceWeek(s4);
+  const tr4 = s4.roster.map(id => s4.people[id]).filter(p => p.status === 'trainee');
+  const ace4 = tr4[0];
+  KP.C.TALENTS.forEach(d => { ace4.talents[d].cur = 95; ace4.flags['ceil_' + d] = 99; });
+  ace4.evalHistory = [{ week: 1, rank: 1, of: tr4.length }];
+  tr4.slice(1).forEach(p => { p.evalHistory = [{ week: 1, rank: 2, of: tr4.length }]; });
+  s4.lastEvalTopId = ace4.id;
+  toEval(s4);
+  const sh4 = sheet();
+  ok(s4.lastEvalTopId === ace4.id && ace4.flags.firstEvalTopWeek === 1 && sh4 && sh4.priority !== 'critical', 'an old save’s standing #1 backfills the flag quietly (' + sh4.priority + ')');
+  ok(KP.C.EVAL.sheetHighMove === 2, 'EVAL.sheetHighMove is 2');
+}
+
+// ---- 7 + 8. the greetings' priority and the reveal slips ----
+{
+  const fs = require('fs');
+  const src = fs.readFileSync('/home/user/KP-Game/js/engine/commerce.js', 'utf8');
+  ok(/ind: 'greetingsShipped', priority: 'normal'/.test(src), 'greetingsShipped is normal');
+  ok(KP.receptionWord(70).toLowerCase() === 'a strong comeback' && KP.receptionWord(70, true) === 'A strong debut', 'receptionWord bands');
+  const d = fs.readFileSync('/home/user/KP-Game/js/engine/debut.js', 'utf8');
+  ok(!/\(' \+ top\.score \+ '\)|\(' \+ low\.score \+ '\)/.test(d), 'the solo project’s cut numbers print no digits');
+  ['gravity.js', 'group.js', 'outside.js'].forEach(f => {
+    const t = fs.readFileSync('/home/user/KP-Game/js/engine/' + f, 'utf8');
+    ok(!/Reception ' \+ (reception|rec) \+/.test(t) && /receptionWord\((reception|rec)\)/.test(t), f + ' prints the reception as a word');
+  });
+}
+
+// ---- determinism: the fork, with the new rails live ----
+{
+  const a = KP.newGame('wire-fork', null, { legacy: true });
+  a.budget = 900;
+  const b = KP.deserialize(KP.serialize(a));
+  let calls = 0;
+  for (let w = 0; w < 60; w++) {
+    [a, b].forEach(s => {
+      s.budget = Math.max(s.budget, 900);
+      KP.advanceWeek(s);
+      calls += s === a ? (KP.lastTickNotes || []).filter(n => n.ind === 'warehouseMemo').length : 0;
+      const g = s.groups[0];
+      if (!g.prep && !g.tour && !g.jpAway && g.demos && g.demos.length && s.week > (g.promoUntil || 0)) {
+        const r = KP.planDebut(s, { groupId: g.id, songId: g.demos[0].id, promo: 'modest', format: 'mini', week: s.week + 6,
+          alloc: { vocals: 45, dance: 25, rap: 15, media: 15 }, pressing: { versions: 2, pob: 'standard', preset: 'cautious', signRounds: 0 } });
+        if (r.ok) g.prep.pressing.run = Math.max(200, Math.round(g.prep.pressing.run * 0.3));
+      }
+    });
+  }
+  const scA = a.convoLog.filter(c => c.kind === 'restockCall').length;
+  ok(a.budget === b.budget && a.week === b.week && a.inbox.map(n => n.text).join() === b.inbox.map(n => n.text).join() &&
+    JSON.stringify(a.convoLog) === JSON.stringify(b.convoLog), 'fork twins agree after 60 weeks of sell-outs, memos and sheets (' + scA + ' restock calls expired, ' + calls + ' memos)');
+  ok(KP.validateState(a).length === 0, 'validator clean');
+}
+}
+
 t.finish();

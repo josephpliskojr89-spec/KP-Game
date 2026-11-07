@@ -1133,6 +1133,13 @@
     state.deadShorts = state.deadShorts || [];
   } });
 
+  // 0.11.5 (the wiring, §96): the restock ledger exists from week one like
+  // every other ledger; everything else the release added lives on a rival,
+  // a group, a person or a scene and is created lazily where it is written
+  MIGRATIONS.push({ v: '0.11.5', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {
