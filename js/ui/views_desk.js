@@ -5,20 +5,103 @@
   const KP = root.KP = root.KP || {};
   const UI = KP.UI;
 
+  // the stage door (v0.8.0): EVERY held scene renders through this one card
+  function sceneCard(state, sc) {
+    const def = KP.sceneDef(sc.kind);
+    if (!def) return '';
+    return '<div class="war-card held"><div class="w-flag">' + UI.esc(def.title(state, sc)) + '</div>' +
+      '<div class="w-text">' + UI.esc(def.body(state, sc)) + '</div>' +
+      '<div class="w-actions" style="flex-wrap:wrap">' +
+      def.options(state, sc).map(o => '<button class="btn" data-action="scene-opt" data-scene="' + sc.id + '" data-opt="' + UI.esc(o.id) + '">' + UI.esc(o.label) + '</button>').join('') +
+      '</div></div>';
+  }
+
+  // the offers tab (v0.11.6, §97): the stages, the endorsements and the
+  // second jobs, the festival bills and the broadcasters' invitations —
+  // every ask the market makes of the label, with its answer-by date,
+  // soonest first. The buttons are the ones the Desk rail carried.
+  function renderOffers(state, read) {
+    const html = [];
+    const bookableGs = KP.groups(state).filter(g => !g.retiredWeek && !g.hiatus && !g.tour &&
+      g.members.length && (g.debuted || g.prep));
+    const stages = read.stages || [];
+    const outside = read.outside || [];
+    const scenes = read.scenes || [];
+    if (!read.count) {
+      html.push('<div class="kicker">Offers</div>' +
+        '<div class="card" style="font-size:.84rem;color:var(--ink-dim)">Nothing on the table this week. The pile deals while the label is small; the brands and the bills call when somebody is worth calling about. The count on the tab says when to look.</div>');
+      return html.join('');
+    }
+    html.push('<div class="pad" style="font-size:.76rem;color:var(--ink-dim);margin-top:6px">' + read.count + ' offer' + (read.count === 1 ? '' : 's') + ' waiting' +
+      (read.fresh ? ' · ' + read.fresh + ' new this week' : '') + ' · soonest answer first</div>');
+    if (stages.length) {
+      html.push('<div class="kicker">Stages · ' + stages.length + '</div>');
+      if (!bookableGs.length) html.push('<div class="pad" style="font-size:.76rem;color:var(--ink-dim)">Nobody in the building can take a stage this week.</div>');
+      stages.forEach(o => {
+        const K = KP.C.BOOK.KINDS[o.kindId] || {};
+        html.push('<div class="war-card held"><div class="w-flag">Booking · ' + UI.esc(o.label) +
+          ' · ' + UI.esc(KP.weekLabel(o.week).text) + ' · ' + (o.fee < 0 ? 'costs ' + (-o.fee) : 'fee ' + o.fee) +
+          (o.fresh ? ' · <span class="chip hot">new</span>' : '') + '</div>' +
+          '<div class="w-text">Answer by ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '.' +
+          (K.flyerable ? ' A flyer week beforehand fills the room — and earns it twice.' : '') + '</div>' +
+          '<div class="w-actions">' +
+          bookableGs.map(g =>
+            '<button class="btn small primary" data-action="take-booking" data-offer="' + o.id +
+            '" data-group="' + g.id + '">Send ' + UI.esc(g.name) + '</button>' +
+            (K.flyerable && o.week > state.week
+              ? '<button class="btn small" data-action="take-booking" data-offer="' + o.id +
+                '" data-group="' + g.id + '" data-flyer="1">+ flyer week</button>' : '')
+          ).join('') +
+          '</div></div>');
+      });
+    }
+    if (scenes.length) {
+      html.push('<div class="kicker">Bills and broadcasters · ' + scenes.length + '</div>');
+      scenes.forEach(sc => html.push(sceneCard(state, sc)));
+    }
+    if (outside.length) {
+      html.push('<div class="kicker">Endorsements and second jobs · ' + outside.length + '</div>');
+      outside.forEach(o => {
+        const p = state.people[o.personId];
+        const who = p ? UI.esc(KP.displayName(p)) : 'She';
+        const text = o.kind === 'brand'
+          ? UI.esc(o.label) + ' wants ' + who + ': ' + o.lump + ' up front, ' + o.weekly + '/week for ' + o.weeks + ' weeks. The shoots cost energy; the billboard pays in more than money.'
+          : who + ' is wanted for ' + (o.kind === 'panel' ? 'a fixed panel seat on ' : o.kind === 'mc' ? 'the MC mic at ' : 'the OST for ') + UI.esc(o.label) + ': ' +
+            (o.kind === 'ost' ? o.lump + ' on delivery, three weeks of recording' : o.weekly + '/week for ' + o.weeks + ' weeks, taping weekly') +
+            '. A second job pays the person — and claims the weeks.';
+        html.push('<div class="war-card held"><div class="w-flag">' + KP.outsideKindLabel(o.kind) + ' · expires ' + UI.esc(KP.weekLabel(o.expiresWeek).text) +
+          (o.fresh ? ' · <span class="chip hot">new</span>' : '') + '</div>' +
+          '<div class="w-text">' + text + '</div>' +
+          '<div class="w-actions">' +
+          '<button class="btn primary" data-action="outside-accept" data-id="' + o.id + '">' + (o.kind === 'brand' ? 'Sign it' : 'Book it') + '</button>' +
+          '<button class="btn" data-action="outside-decline" data-id="' + o.id + '">Pass</button>' +
+          '</div></div>');
+      });
+    }
+    return html.join('');
+  }
+
   UI.renderDesk = function (state, sub) {
     sub = sub || 'today';
     const wl = KP.weekLabel(state.week);
     const monthsLeft = KP.monthsUntil(state.week, state.objective.deadlineWeek);
     const html = [];
+    // the offers tab (v0.11.6, §97): the market's asks — the pile, the
+    // brands, the bills, the broadcasters — wait on their own tab with the
+    // count on it; Today keeps the decisions
+    const offersRead = KP.offersRead ? KP.offersRead(state) : { count: 0, fresh: 0 };
     html.push('<div class="pad" style="margin-top:2px"><div class="seg">' +
       '<button class="' + (sub === 'today' ? 'on' : '') + '" data-action="desk-sub" data-sub="today">Today</button>' +
-      '<button class="' + (sub === 'building' ? 'on' : '') + '" data-action="desk-sub" data-sub="building">The building</button>' +
+      '<button class="' + (sub === 'offers' ? 'on' : '') + '" data-action="desk-sub" data-sub="offers">Offers' +
+        (offersRead.count ? '<span class="badge">' + offersRead.count + '</span>' : '') + '</button>' +
+      '<button class="' + (sub === 'building' ? 'on' : '') + '" data-action="desk-sub" data-sub="building">Building</button>' +
       '<button class="' + (sub === 'content' ? 'on' : '') + '" data-action="desk-sub" data-sub="content">Content</button>' +
-      '<button class="' + (sub === 'record' ? 'on' : '') + '" data-action="desk-sub" data-sub="record">The record</button>' +
+      '<button class="' + (sub === 'record' ? 'on' : '') + '" data-action="desk-sub" data-sub="record">Record</button>' +
       '</div></div>');
     if (sub === 'record') return html.join('') + renderRecord(state);
     if (sub === 'building') return html.join('') + renderBuilding(state);
     if (sub === 'content') return html.join('') + renderContent(state);
+    if (sub === 'offers') return html.join('') + renderOffers(state, offersRead);
 
     // objective banner
     html.push('<div class="objective">' +
@@ -109,59 +192,23 @@
     // the one desk (v0.10.41, §89 D15): the offers wait on the same rail —
     // the booking pile, the brand offers and the casting calls are answers
     // owed too. One kicker, one list, decisions first.
+    // the offers tab (v0.11.6, §97): the market's asks — the pile, the
+    // brands, the bills and the broadcasters' invitations — moved to their
+    // own tab; Today keeps the decisions (the people, the tables, the money)
+    // and says in one line how many offers wait
     const rail = [];
     (state.scenes || []).forEach(sc => {
-      const def = KP.sceneDef(sc.kind);
-      if (!def) return;
-      rail.push('<div class="war-card held"><div class="w-flag">' + UI.esc(def.title(state, sc)) + '</div>' +
-        '<div class="w-text">' + UI.esc(def.body(state, sc)) + '</div>' +
-        '<div class="w-actions" style="flex-wrap:wrap">' +
-        def.options(state, sc).map(o => '<button class="btn" data-action="scene-opt" data-scene="' + sc.id + '" data-opt="' + UI.esc(o.id) + '">' + UI.esc(o.label) + '</button>').join('') +
-        '</div></div>');
-    });
-    // the grind (v0.9.37, §76 D): the booking pile — the pile deals
-    // more than a group can take; choosing is the game
-    const offers = KP.openBookings ? KP.openBookings(state) : [];
-    const bookableGs = KP.groups(state).filter(g => !g.retiredWeek && !g.hiatus && !g.tour &&
-      g.members.length && (g.debuted || g.prep));
-    if (offers.length && bookableGs.length) {
-      offers.forEach(o => {
-        const K = KP.C.BOOK.KINDS[o.kindId] || {};
-        rail.push('<div class="war-card held"><div class="w-flag">Booking · ' + UI.esc(o.label) +
-          ' · ' + UI.esc(KP.weekLabel(o.week).text) + ' · ' + (o.fee < 0 ? 'costs ' + (-o.fee) : 'fee ' + o.fee) + '</div>' +
-          '<div class="w-text">Answer by ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '.' +
-          (K.flyerable ? ' A flyer week beforehand fills the room — and earns it twice.' : '') + '</div>' +
-          '<div class="w-actions">' +
-          bookableGs.map(g =>
-            '<button class="btn small primary" data-action="take-booking" data-offer="' + o.id +
-            '" data-group="' + g.id + '">Send ' + UI.esc(g.name) + '</button>' +
-            (K.flyerable && o.week > state.week
-              ? '<button class="btn small" data-action="take-booking" data-offer="' + o.id +
-                '" data-group="' + g.id + '" data-flyer="1">+ flyer week</button>' : '')
-          ).join('') +
-          '</div></div>');
-      });
-    }
-    // the outside work (brand deals v0.7.0 + the second job v0.9.11; one
-    // list since v0.10.42, §89 D6): the calls wait for an answer, briefly
-    KP.openOutsideOffers(state).forEach(o => {
-      const p = state.people[o.personId];
-      const who = p ? UI.esc(KP.displayName(p)) : 'She';
-      const text = o.kind === 'brand'
-        ? UI.esc(o.label) + ' wants ' + who + ': ' + o.lump + ' up front, ' + o.weekly + '/week for ' + o.weeks + ' weeks. The shoots cost energy; the billboard pays in more than money.'
-        : who + ' is wanted for ' + (o.kind === 'panel' ? 'a fixed panel seat on ' : o.kind === 'mc' ? 'the MC mic at ' : 'the OST for ') + UI.esc(o.label) + ': ' +
-          (o.kind === 'ost' ? o.lump + ' on delivery, three weeks of recording' : o.weekly + '/week for ' + o.weeks + ' weeks, taping weekly') +
-          '. A second job pays the person — and claims the weeks.';
-      rail.push('<div class="war-card held"><div class="w-flag">' + KP.outsideKindLabel(o.kind) + ' · expires ' + UI.esc(KP.weekLabel(o.expiresWeek).text) + '</div>' +
-        '<div class="w-text">' + text + '</div>' +
-        '<div class="w-actions">' +
-        '<button class="btn primary" data-action="outside-accept" data-id="' + o.id + '">' + (o.kind === 'brand' ? 'Sign it' : 'Book it') + '</button>' +
-        '<button class="btn" data-action="outside-decline" data-id="' + o.id + '">Pass</button>' +
-        '</div></div>');
+      if (KP.offerSceneKinds && KP.offerSceneKinds.includes(sc.kind)) return;
+      rail.push(sceneCard(state, sc));
     });
     if (rail.length) {
       html.push('<div class="kicker">Waiting on your answer</div>');
       html.push(rail.join(''));
+    }
+    if (offersRead.count) {
+      html.push('<div class="pad" style="font-size:.76rem;color:var(--gold);margin-top:10px;cursor:pointer" data-action="desk-sub" data-sub="offers">' +
+        offersRead.count + ' offer' + (offersRead.count === 1 ? '' : 's') + ' on the table' +
+        (offersRead.fresh ? ' — ' + offersRead.fresh + ' new this week' : '') + ' — the Offers tab.</div>');
     }
     // sponsorships and second jobs running → her file's Career tab (§89 C);
     // booked stages → the calendar strip and the books → The record (D15)

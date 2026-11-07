@@ -659,4 +659,29 @@
     }
     return items.filter(i => i.week >= state.week).sort((a, b) => a.week - b.week).slice(0, 5);
   };
+
+  // ---- the offers tab (v0.11.6, §97) --------------------------------------
+  // Owner: "I want an offers tab where all of the stages, endorsement
+  // opportunities, etc goes and shows a number each week for the number
+  // of offers to check." One pure read of every ask the MARKET makes of
+  // the label — the booking pile, the brands and the second jobs, the
+  // festival bills and the broadcasters' invitations, the brand that
+  // wants the face alone — soonest answer first, with the count and how
+  // many arrived this week. The people's asks and the company's tables
+  // (the renewal, the diagnosis, the term sheet, the courting call) are
+  // decisions, not offers: they stay on Today. Never writes state.
+  KP.offerSceneKinds = ['festivalInvite', 'promoOffer', 'sponsorSolo'];
+  KP.offersRead = function (state) {
+    const B = KP.C.BOOK, O = KP.C.OUTSIDE;
+    const byDue = (a, b) => (a.expiresWeek || 0) - (b.expiresWeek || 0);
+    const stages = (KP.openBookings ? KP.openBookings(state) : []).slice().sort(byDue)
+      .map(o => Object.assign({}, o, { fresh: o.expiresWeek - B.expireWeeks === state.week }));
+    const outside = (KP.openOutsideOffers ? KP.openOutsideOffers(state) : []).slice().sort(byDue)
+      .map(o => Object.assign({}, o, { fresh: o.expiresWeek - O.expiresWeeks === state.week }));
+    const scenes = (state.scenes || []).filter(sc => KP.offerSceneKinds.includes(sc.kind) &&
+      !(sc.expiresWeek != null && state.week > sc.expiresWeek)).slice().sort(byDue);
+    const fresh = stages.filter(o => o.fresh).length + outside.filter(o => o.fresh).length +
+      scenes.filter(sc => sc.week === state.week).length;
+    return { stages, outside, scenes, count: stages.length + outside.length + scenes.length, fresh };
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

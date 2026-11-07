@@ -326,8 +326,12 @@ async function main() {
     KP.App.save(); KP.App.render();
     return { a: a.id, b: b.id, g: g.id };
   });
+  // the offers tab (v0.11.6, §97): the market's asks wait on their own tab, Today points at it with the count
+  const offersPointerText = await page.textContent('#screen');
+  ok(/offers? on the table/.test(offersPointerText), 'Today points at the offers tab with the count');
+  await tap('[data-action=desk-sub][data-sub=offers]');
   await page.waitForSelector('[data-action=outside-accept]');
-  ok(await page.$$eval('[data-action=outside-accept]', els => els.length) >= 2, 'the brand call and the casting call wait on one rail');
+  ok(await page.$$eval('[data-action=outside-accept]', els => els.length) >= 2, 'the brand call and the casting call wait on the offers tab');
   const railText = await page.textContent('#screen');
   ok(/Brand offer/.test(railText) && /Variety offer/.test(railText), 'each card says what kind of call it is');
   await tap('[data-action=outside-accept][data-id="e2e-brand"]');

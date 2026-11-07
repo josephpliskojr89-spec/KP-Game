@@ -9715,6 +9715,47 @@ Suite_115 (179) over test/dom_stub.js. Battery 115/115, soak 40
 clean (twice), longhaul 11 × 620 clean, e2e 134, lockstep 0.11.5.
 Migration 0.11.5 (ensureLedgers).
 
+## §97 The offers tab (SHIPPED v0.11.6)
+
+Owner, with a screenshot of a Desk whose rail held four booking cards
+and nothing else above the fold: *"This, here with all of the offers,
+it's taking up the whole feed on the desk. I want an offers tab where
+all of the stages, endorsement opportunities, etc goes and shows a
+number each week for the number of offers to check."*
+
+**The ruling.** The one desk (§89 D15) put every answer owed on one
+rail — decisions first, then the market's asks. The pile (§76 D)
+deals faster than a small label can read, so the asks buried the
+decisions. The line drawn: a DECISION is a person at the door or a
+table with the company's name on it — the renewal, the diagnosis, the
+term sheet, the courting call, the partner's letter, the last
+statement; an OFFER is something the market asks the label to take or
+pass — a stage from the pile, a brand or a second job, a festival
+bill, a broadcaster's invitation, a brand that wants the face alone.
+Decisions stay on Today. Offers move to their own tab with the count
+on it, and Today says in one line how many wait.
+
+**As built.** `KP.offersRead(state)` (sim.js) — pure, never writes:
+the open bookings, the open outside offers and the scenes of
+`KP.offerSceneKinds` (festivalInvite, promoOffer, sponsorSolo), each
+list sorted by answer-by, soonest first, each stage and call a COPY
+marked `fresh` when it arrived this week (bookings: expiresWeek −
+BOOK.expireWeeks; calls: expiresWeek − OUTSIDE.expiresWeeks; scenes:
+their own week), with `count` and `fresh`. The Desk's sub-tab row
+reads Today · Offers · Building · Content · Record, the Offers button
+wearing a magenta badge with the count. Today's rail renders only the
+decision scenes through the one scene card and, where the pile used to
+be, one gold line — "N offers on the table — M new this week — the
+Offers tab." — that switches the tab. The tab leads with the count and
+then three kickers with theirs: Stages (the pile's cards with Send and
++ flyer week, and a line when nobody in the building can take a
+stage), Bills and broadcasters (the scene cards), Endorsements and
+second jobs (Sign it / Book it / Pass); fresh asks wear a "new" chip;
+an empty tab says so. Every button is the one the rail carried, so no
+handler moved. The e2e's outside-offer walk taps the tab first.
+Suite_116 (22) over the DOM stub, including the law that a render
+writes nothing. No engine behaviour changed; the soak is unmoved.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
