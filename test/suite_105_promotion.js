@@ -74,7 +74,7 @@ const offerOf = (s, g) => (s.scenes || []).find(sc => sc.kind === 'promoOffer' &
   t.ok(rel.comebackStage && rel.comebackStage.showId === 'popWave' && ['carried', 'clean', 'shaky', 'fumbled'].includes(rel.comebackStage.band),
     'the first stage of the era is the comeback stage, rated (' + rel.comebackStage.band + ')');
   const note = notes.find(n => n.ind === 'comebackStage');
-  t.ok(note && /THE COMEBACK STAGE/.test(note.text) && /critics/.test(note.text), 'and it posts as the named special, with the critics in the front row');
+  t.ok(note && /THE DEBUT STAGE/.test(note.text) && /critics/.test(note.text), 'and it posts as the named special — a debut’s first stage is the debut stage (v0.11.5) — with the critics in the front row');
   t.ok(!notes.some(n => n.ind === 'stageRead' && n.groupId === g.id), 'the week’s one stage line IS the comeback stage');
   t.ok(g.results.comebackStage && g.results.comebackStage.band === rel.comebackStage.band, 'the report carries it');
   t.eq(s.promoLedger.comebackStages, 1, 'ledgered');

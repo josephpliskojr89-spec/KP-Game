@@ -146,13 +146,23 @@
       return { ok: false, reason: 'One notice at a time. The last one is still pinned.' };
     }
     g.cafeNoticeQuiet = state.week + 6;
-    // a notice cools the freshest grievance — named, it loses its heat
+    // a notice cools the freshest grievance — named, it loses its heat; a
+    // notice with nothing to say cools the cafés instead (v0.11.5, §96
+    // wiring): the free verb has a reading now
     const fresh = (state.grievances || []).find(gr => gr.groupId === g.id && !gr.trucked);
-    if (fresh) fresh.trucked = true;
+    if (fresh) {
+      fresh.trucked = true;
+      KP.fandomGain(g, C.cafeNoticeIntensity);
+      KP.note(state, { kind: 'public',
+        ind: 'cafeNotice', groupId: g.id, answered: true,
+        text: 'An official notice went up on ' + g.name + '’s fan café — plain language, actual information, posted before the rumor cycle instead of after. The fandom’s translation accounts had it in nine languages within the hour. Talking first is a strategy; it even works — the cafés read it as an answer, which it was.' });
+      return { ok: true, answered: true };
+    }
+    KP.fandomGain(g, -C.cafeNoticeEmptyIntensity);
     KP.note(state, { kind: 'public',
-      ind: 'cafeNotice', groupId: g.id,
-      text: 'An official notice went up on ' + g.name + '’s fan café — plain language, actual information, posted before the rumor cycle instead of after. The fandom’s translation accounts had it in nine languages within the hour. Talking first is a strategy; it even works.' });
-    return { ok: true };
+      ind: 'cafeNotice', groupId: g.id, answered: false,
+      text: 'An official notice went up on ' + g.name + '’s fan café — and the cafés read it twice looking for the information in it. There was none: a notice with nothing to say, posted on schedule. The translation accounts translated the silence into nine languages, and the thread under it is one word, repeated: “and?”' });
+    return { ok: true, answered: false };
   };
 
   // the fan meeting lives in commerce.js as the fan event's free format (v0.10.42, §89 D10)
@@ -165,16 +175,22 @@
     if (g.lightstickWeek) return { ok: false, reason: 'The lightstick exists. Version 2 is a conversation for another era.' };
     if ((g.popularity || 0) < C.lightstickPopAt) return { ok: false, reason: 'The market team says the fanbase is not there yet. Lightsticks sell to devotion, not curiosity.' };
     if (state.budget < C.lightstickCost) return { ok: false, reason: 'Design, molds, LEDs, an app pairing nobody asked for — ' + C.lightstickCost + '.' };
+    // the run sells to the fandom that exists (v0.11.5, §96 wiring): a
+    // flagship clears the full number, a rookie-size launch leaves boxes
+    const revenue = Math.min(C.lightstickRevenue, Math.round(KP.fanbaseRead(state, g) * C.lightstickPerFan));
+    const net = revenue - C.lightstickCost;
     state.budget -= C.lightstickCost;
-    state.budget += C.lightstickRevenue;
-    if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', C.lightstickRevenue - C.lightstickCost);   // §89 E
+    state.budget += revenue;
+    if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', net);   // §89 E
     g.lightstickWeek = state.week;
     KP.fandomGain(g, C.lightstickFandomGain);
     if (KP.merchPushMark) KP.merchPushMark(state, g);   // the wallet noticed (v0.10.23)
     KP.note(state, { kind: 'public',
-      ind: 'lightstick', priority: 'high', groupId: g.id,
-      text: 'The official ' + g.name + ' lightstick launched — and sold out, because that is what lightsticks do. The design survived the fandom’s 48-hour critique gauntlet with honors. Concert crowds will be a single organism now: one color, one name (' + (g.fandom.name) + '), several thousand batteries. Net +' + (C.lightstickRevenue - C.lightstickCost) + '.' });
-    return { ok: true };
+      ind: 'lightstick', priority: 'high', groupId: g.id, soldOut: revenue >= C.lightstickRevenue,
+      text: revenue < C.lightstickCost
+        ? 'The official ' + g.name + ' lightstick launched — and did not sell out. The design survived the fandom’s 48-hour critique gauntlet with honors; the order did not survive the size of the fandom, and there are boxes in the hallway. One color, one name (' + (g.fandom.name) + '), fewer batteries than the molds were priced for. Net ' + net + '. The boxes will sell, slowly, to a fandom that has not been born yet.'
+        : 'The official ' + g.name + ' lightstick launched — and sold out, because that is what lightsticks do. The design survived the fandom’s 48-hour critique gauntlet with honors. Concert crowds will be a single organism now: one color, one name (' + (g.fandom.name) + '), several thousand batteries. Net ' + (net >= 0 ? '+' : '') + net + '.' });
+    return { ok: true, revenue, net };
   };
 
   // ---- the timeline answers ---------------------------------------------

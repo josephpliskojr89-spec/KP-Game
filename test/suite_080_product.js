@@ -85,7 +85,7 @@ function firstEra(s, pressing) {
   let guard = 0;
   while (!(g.results && g.results.product) && guard++ < 15) KP.advanceWeek(s);
   t.ok(g.results.product.overpress, 'the delusion is a warehouse');
-  t.ok(!s.inbox.some(n => n.ind === 'warehouseMemo'), 'and the memo nobody framed is no longer sent (§89 C) — the profile carries the overpress');
+  t.ok((KP.lastTickNotes || []).some(n => n.ind === 'warehouseMemo' && n.priority === 'normal'), 'and the warehouse writes the memo again (v0.11.5, §96 wiring) — normal, trimmable, pre-trim visible');
 }
 
 // ---- the fan-sign inversion -------------------------------------------

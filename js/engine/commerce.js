@@ -192,7 +192,8 @@
       atmRisk(state, rng, inbox2, g);
       state.rngState = rng.state();
       inbox2.forEach(n => KP.note(state, n));
-      KP.note(state, { kind: 'public', ind: 'greetingsShipped', priority: 'flavor', groupId: g.id,
+      // once a year is an event, not flavor (v0.11.5, §96 wiring)
+      KP.note(state, { kind: 'public', ind: 'greetingsShipped', priority: 'normal', groupId: g.id,
         text: 'The ' + g.name + ' Season’s Greetings shipped' + (lavish ? ' — lavish edition, unboxing videos incoming' : '') +
           ': ' + revenue + ' through the till and a calendar on ' + KP.fmtCount(Math.round(fanbase * 0.3)) + ' desks all year. The quietest good business in the industry.' });
       return { toast: lavish ? 'The lavish edition ships. December is handled.' : 'Shipped. The fandom’s year now has the group in it, monthly.' };

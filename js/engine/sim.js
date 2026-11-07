@@ -157,11 +157,14 @@
       let dueGroup;
       while ((dueGroup = KP.debutDue(state))) {
         const res = KP.resolveDebut(state, rng, dueGroup);
-        inbox.push({ kind: 'debut', urgent: true, groupId: dueGroup.id,
+        // the landing is the week's climax (v0.11.5, §96 wiring): critical,
+        // so a loud week never trims it, and first in its week (advanceWeek
+        // sorts it up); the report button lives on the group's page
+        inbox.push({ kind: 'debut', ind: 'landed', priority: 'critical', groupId: dueGroup.id,
           text: KP.lineFor(state, 'landed|' + dueGroup.id, [
-            dueGroup.name + (res.isDebut ? ' debuted with “' : ' came back with “') + res.songTitle + '”. ' + res.receptionLabel + '. Full report in the Studio.',
-            '“' + res.songTitle + '” is out — ' + dueGroup.name + (res.isDebut ? '’s debut' : '’s comeback') + ' landed this week. ' + res.receptionLabel + '. The full report is in the Studio.',
-            (res.isDebut ? 'Debut week: ' : 'Comeback week: ') + dueGroup.name + ', “' + res.songTitle + '”. ' + res.receptionLabel + '. The numbers, the critics and the stage are in the Studio.',
+            dueGroup.name + (res.isDebut ? ' debuted with “' : ' came back with “') + res.songTitle + '”. ' + res.receptionLabel + '. Full report on the group’s page.',
+            '“' + res.songTitle + '” is out — ' + dueGroup.name + (res.isDebut ? '’s debut' : '’s comeback') + ' landed this week. ' + res.receptionLabel + '. The full report is on the group’s page.',
+            (res.isDebut ? 'Debut week: ' : 'Comeback week: ') + dueGroup.name + ', “' + res.songTitle + '”. ' + res.receptionLabel + '. The numbers, the critics and the stage are on the group’s page.',
           ]) });
         // narratives born at the release (v0.6.0) reach the desk too
         (res.narrativeNotes || []).forEach(n => inbox.push(n));
@@ -361,7 +364,10 @@
     // pre-trim array is kept on the engine (not the save) so tests and
     // tools can see what the week EMITTED under the inbox law (§89 B)
     KP.lastTickNotes = inbox;
-    const kept = KP.trimWeekNotes(inbox, KP.C.EVENTS.maxInboxPerWeek);
+    const kept = KP.trimWeekNotes(inbox, KP.C.EVENTS.maxInboxPerWeek)
+      // the landing leads its week (v0.11.5, §96 wiring): a stable sort —
+      // the 'landed' letters first, everything else in the order it came
+      .sort((a, b) => (b.ind === 'landed' ? 1 : 0) - (a.ind === 'landed' ? 1 : 0));
     kept.forEach(n => { n.week = state.week; n.read = false; n.id = 'm' + (state.nextMsgId++); });
     state.inbox = kept.concat(state.inbox).slice(0, 60);
 
@@ -633,6 +639,15 @@
     (KP.takenBookings ? KP.takenBookings(state) : []).forEach(o => {
       const g = KP.groups(state).find(x => x.id === o.taken);
       if (g) items.push({ week: o.week, label: g.name + ' — ' + o.label + (o.flyered ? ' (flyered)' : ''), hot: true });
+    });
+    // the festival slots (v0.11.5, §96 wiring): a booked bill is a date on
+    // the one calendar from the day the ink dries, not only the week it plays
+    KP.groups(state).forEach(g => {
+      if (g.retiredWeek) return;
+      (g.festivalBookings || []).forEach(b => {
+        const f = (KP.C.FESTS.LIST || []).find(x => x.id === b.festivalId);
+        if (f) items.push({ week: b.week, label: f.name + ' · ' + g.name + (b.headline ? ' (headline)' : ''), hot: true });
+      });
     });
     if (state.objective.status === 'open') {
       items.push({ week: state.objective.deadlineWeek, label: 'Executive deadline', hot: true });

@@ -30,6 +30,15 @@
       { max: 81, key: 'strong',      label: 'Strong' },       // 61–80
       { max: 101, key: 'exceptional', label: 'Exceptional' }, // 81–100
     ],
+    // the growth bands (v0.11.5, §96 wiring): "Since debut" printed the
+    // hidden scale's raw deltas (§96 slip 9 — "Vocals +7"); the file now
+    // says a step / a rung / a flight, up or down, never the digits. Edges
+    // are |Δ| on the 0–100 talent scale (v0.11.5, §96 wiring — measure-first)
+    GROWTH_BANDS: [
+      { max: 2, word: 'a step' },       // |Δ| 1–2
+      { max: 5, word: 'a rung' },       // |Δ| 3–5
+      { max: 100, word: 'a flight' },   // |Δ| 6+
+    ],
 
     // ---- Generation -----------------------------------------------------
     GEN: {
@@ -581,6 +590,7 @@
       // runway stops being a fatigue trap — resting first now works.
       crunchWeeks: 3,        // full rehearsal load only this close to the date
       prepFatigueEase: 0.35, // load multiplier before the crunch
+      allocLeanGap: 15,      // rehearsal shares: top minus bottom past this names a lean on the countdown letter (v0.11.5, §96 wiring — measure-first)
       // release formats (v0.2.1): bigger records cost more, need more
       // runway, and pay more when they land
       FORMATS: [
@@ -1064,6 +1074,10 @@
       datesPerWeek: 2,           // two stages a week is a schedule, not a stunt
       maxKrDates: 9,             // routed dates + earned encores, capped
       encoreRevMult: 0.85,       // the second night sells a shade under the first
+      // the tour record (v0.11.5, §96 wiring): the wrap archives every tour
+      // on the group and the page reads the road back — toursDone had no
+      // reader; eight is a career's shelf (v0.11.5, §96 wiring — measure-first)
+      historyCap: 8,
     },
 
     // ---- The society (v0.9.4): the industry has waiting rooms -----------
@@ -1123,6 +1137,8 @@
       stormDefenseAt: 60,       // an intense fandom cools storms…
       stormDefenseCool: 2,      // …by this much extra per week
       snubGain: 6,              // nothing radicalizes like a snub
+      nameBackedIntensity: 2,   // naming day: the company backed the name the cafés wanted (v0.11.5, §96 wiring — measure-first)
+      nameOverruledIntensity: 2, // …or backed another over it — ratified, and remembered (v0.11.5, §96 wiring — measure-first)
       COLORS: ['pearl violet', 'coral rose', 'midnight teal', 'champagne gold',
         'arctic mint', 'garnet red', 'moonstone grey', 'electric periwinkle'],
     },
@@ -1285,6 +1301,8 @@
     // surgery read out loud, travel with a bill, and a slot
     FESTS: {
       inviteLead: 4,           // the organizer calls this many weeks out
+      inviteChance: 0.75,      // most years the call comes — the invite rail's old literal (v0.11.5, §96 wiring — measure-first)
+      inviteAfterRegrets: 0.45, // the year after regrets the organizers call less surely — same single draw (v0.11.5, §96 wiring — measure-first)
       maxPerYear: 3,           // a group plays at most this many a year
       missFandom: 2,           // pulling out of a booked slot costs the room
       headlineMult: 1.6,       // icons headline for icon money (one truth w/ ARCS)
@@ -1419,6 +1437,8 @@
       professionalism: 4,        // the spine of steel comes home with him
       returnBuildup: 26,         // a comeback locked inside the window banks this
       returnWindowWeeks: 24,     // how long the discharge moment stays convertible
+      planSilenceMorale: -2,     // the plan folder left to the scheduling office: each man reads the default off the wall (v0.11.5, §96 wiring — measure-first)
+      papersSilenceMorale: -3,   // his papers left in the drawer unanswered: left waiting, and the room noticed (v0.11.5, §96 wiring — measure-first)
     },
     // the rise and fall (v0.9.24, §55.10 + §55.12 + being poached, map
     // slot 9) — rival eras made legible, the trades' annual power
@@ -1636,6 +1656,10 @@
       reorderShare: 0.25,      // a sold-out week reorders late, catches this much
       chodongNoise: 0.15,      // the market is not a formula
       overpressAt: 1.6,        // run past demand x this = the warehouse memo
+      overpressDoubleAt: 2, overpressTripleAt: 3,   // the memo's words — "twice" / "three times" what the fandom bought (v0.11.5, §96 wiring — measure-first)
+      restockShare: 0.6,       // the second run catches this much of what the late reorder left (v0.11.5, §96 wiring — measure-first)
+      restockFuseWeeks: 2,     // the distributor's restock call waits this long on the Desk (v0.11.5, §96 wiring — measure-first)
+      restockMinUnits: 200,    // under this the leftover is an envelope, not a run — no call (v0.11.5, §96 wiring — measure-first)
       repackDemand: 0.55,      // reprints sell real, not full (era heat carries)
       signRoundCost: 3, signRoundBoost: 0.11, signRoundsMax: 3, signFatigue: 4,
       dumpRiskAt: 2, dumpChance: 0.30,  // heavy rounds roll the album-dump story
@@ -1724,7 +1748,9 @@
     // (content law): the Nichion weekly, not the real one.
     JAPAN: {
       partnerAt: 35,            // jp warmth that draws the partner call
-      partnerCut: 0.25,         // the partner label's share, forever
+      partnerCut: 0.25,         // the partner label's share, forever — the FIRST letter's number
+      notYetCutStep: 0.03,      // every "not yet" (and every letter left to expire) makes the next offer this much steeper… (v0.11.5, §96 wiring — measure-first)
+      cutMax: 0.34,             // …up to here; the partner's letters never go past it (v0.11.5, §96 wiring — measure-first)
       LANES: {
         version: { cost: 25, weeks: 3, mult: 0.62,
           word: 'a JP-version single — the hit re-cut, quick and warm' },
@@ -1757,6 +1783,7 @@
       bottomTalkAfter: 2,     // consecutive bottom-third rankings
       bottomMorale: 2,
       historyCap: 12,
+      sheetHighMove: 2,       // a move this big, either way, or a new ace posts the sheet 'high' (v0.11.5, §96 wiring — measure-first)
     },
     POINTS: {
       nearMissGap: 8,         // close enough to hurt out loud
@@ -1811,6 +1838,8 @@
       searchCost: 12, searchCooldown: 8,
       severanceMult: 0.5, severanceMin: 4,
       fireTrustTierMin: 2,     // letting a KNOWN name go costs boardroom trust
+      passMemoryCap: 6,        // the market remembers this many names the desk passed on (v0.11.5, §96 wiring — measure-first)
+      passReturnWeeks: 20,     // …and about a season later one of them takes a chair across the street (v0.11.5, §96 wiring — measure-first)
     },
     // the song market (v0.10.5, §80 finding 11) — demos cost money and
     // have other suitors. The LAW: passing on a hot hook is a bet with
@@ -1871,6 +1900,8 @@
       rivalryGrowth: 1.1,         // the edge: both train harder
       rivalryLiveExp: 0.5,        // and rehearse like it is a final
       rivalrySourDrag: 2.0,       // sour: the rivalry's drag on the room doubles
+      unpairSoonWeeks: 8,         // a writing pair dissolved inside this many weeks was just getting somewhere… (v0.11.5, §96 wiring — measure-first)
+      unpairSoonMorale: -1,       // …and both notebooks notice (v0.11.5, §96 wiring — measure-first)
     },
     // the mirror (v0.10.40, §88 E) — the manager's shadow: the directed
     // ledger aggregated across the roster and said out loud, in words.
@@ -1927,6 +1958,8 @@
         varietySkillAt: 60, varietyMediaAt: 6,
         perEra: 2,                // the desk fields at most this many invitations an era — a choice, not a task list
         trustMin: -1,             // a broadcaster at/under this does not call
+        declineCoolAt: 2,         // a desk told no this many times without a yes between… (v0.11.5, §96 wiring — measure-first)
+        declinedOfferMult: 0.5,   // …calls at this fraction of its chance — the same draw, a lower bar (v0.11.5, §96 wiring — measure-first)
       },
       trustFloor: -3, trustHealWeeks: 12,   // the booking desks forgive, slowly
       EXT: {
@@ -2163,6 +2196,7 @@
       quarterWeeks: 12,          // 48-week year, four statements
       redErasAt: 3,              // loss-making eras in a row = the hard talk
       tightBeltCut: 0.85,        // the cost-cut option trims the next era's bills
+      redInkSilenceMorale: -2,   // the red-ink meeting left unheld: the room reads the silence, every member (v0.11.5, §96 wiring — measure-first)
     },
     DIST: {
       TIERS: [
@@ -2172,6 +2206,7 @@
       ],
       advance: 60, advanceVig: 1.15, advanceRepayShare: 0.5,
       fameTier: [0.30, 0.60],    // lazy init: fame below/between/above → tier
+      recourtWeeks: 52,          // "stay" is remembered: the courting call waits about a year before it comes again (v0.11.5, §96 wiring — measure-first)
     },
     // the table (v0.9.38, §76 A) — "feels a little too easy to just
     // click the sign button as a brand new label competing against
@@ -2683,6 +2718,14 @@
       lightstickCost: 35,
       lightstickRevenue: 60,     // it sells out — that is what lightsticks do
       lightstickFandomGain: 6,
+      // the lightstick sells to the fandom that exists: revenue = min(lightstickRevenue, fanbaseRead × this).
+      // Measured on the 8-seed bot soak: the launch-week fandom (the bot launches the week the market
+      // clears it) reads 5–10k buyers, a flagship 20–50k, a mid-tier act 13–17k. At 0.003 the break-even
+      // sits near 11.7k — a rookie-size launch loses 15–20 and leaves boxes in the hallway, a flagship
+      // still clears the full 60 (v0.11.5, §96 wiring — measure-first)
+      lightstickPerFan: 0.003,
+      cafeNoticeIntensity: 1,    // a notice that answers a fresh grievance warms the cafés (v0.11.5, §96 wiring — measure-first)
+      cafeNoticeEmptyIntensity: 1, // a notice with nothing in it cools them — the cafés noticed (v0.11.5, §96 wiring — measure-first)
     },
 
     // ---- The inner life (v0.7.1) ----------------------------------------
@@ -2941,6 +2984,8 @@
       boardWeek: 46,             // the year answers for itself
       petAfterWeek: 60,          // the pet project waits for a real company
       petChance: 0.06,           // weekly, once eligible — once per career
+      boardArtistsMorale: 1,     // board season's third answer: the room heard it — every idol (v0.11.5, §96 wiring — measure-first)
+      boardArtistsTrust: -1,     // …and the board wanted a slide (v0.11.5, §96 wiring — measure-first)
     },
     // ---- The office door (v0.8.2) — idols initiate ----------------------
     // ---- the season (v0.10.32, §90 Phase B) --------------------------------

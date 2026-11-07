@@ -356,6 +356,16 @@
     return endTourIfDone(state, g, tour, setlist, notes);
   };
 
+  // the road record, read (v0.11.5, §96 wiring): pure — the count (toursDone
+  // outranks a record that began on this build), the last tour, the last
+  // three newest first. Counts are public; the page prints them as counts.
+  KP.tourRecordRead = function (g) {
+    const hist = (g && g.tourHistory) || [];
+    return { count: Math.max((g && g.toursDone) || 0, hist.length),
+      last: hist.length ? hist[hist.length - 1] : null,
+      recent: hist.slice(-3).reverse() };
+  };
+
   // the wrap: shared by the overseas legs and the home circuit
   function endTourIfDone(state, g, tour, setlist, notes) {
     const T = KP.C.TOUR;
@@ -366,6 +376,10 @@
     g.tourRestUntil = state.week + T.restWeeks;
     g.toursDone = (g.toursDone || 0) + 1;
     const stops = tour.legs.length + (tour.kr ? tour.kr.route.length - 1 + tour.kr.encores : 0);
+    // the tour record (v0.11.5, §96 wiring): what the wrap already counts,
+    // kept on the group so the page can read the road back — capped
+    g.tourHistory = (g.tourHistory || []).concat([{ week: state.week, scale: tour.scale,
+      legs: tour.legs.slice(), stops, soldOut: tour.soldOut, soft: tour.soft }]).slice(-T.historyCap);
     const line = tour.soldOut >= 2 ? 'The books are healthy, the map is warmer, and the members slept the whole flight home.'
       : tour.soft >= 2 ? 'The books survived. The routing did not flatter us — book smaller or build hotter next time.'
       : 'The books are fine and the stages were real. The road gives back what the map put in.';

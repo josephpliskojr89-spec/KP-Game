@@ -592,7 +592,7 @@
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px">' +
       (r.critics ? '<span class="chip ' + (['acclaimed', 'warm'].includes(r.critics.consensus) ? 'cool' : r.critics.consensus === 'mixed' ? '' : 'clash') + '">critics: ' + UI.esc(KP.verdictWord(r.critics.consensus)) + '</span>' : '') +
       // the comeback stage (v0.10.38): the era's first stage, by band
-      (r.comebackStage ? '<span class="chip ' + (r.comebackStage.band === 'carried' ? 'gold' : r.comebackStage.band === 'fumbled' ? 'clash' : '') + '">comeback stage: ' + UI.esc(r.comebackStage.band) + '</span>'
+      (r.comebackStage ? '<span class="chip ' + (r.comebackStage.band === 'carried' ? 'gold' : r.comebackStage.band === 'fumbled' ? 'clash' : '') + '">' + (r.isDebut === false ? 'comeback' : 'debut') + ' stage: ' + UI.esc(r.comebackStage.band) + '</span>'
         : '<span class="chip">stage: ' + perfWord(r.performance) + '</span>') +
       '<span class="chip">room: ' + chemWord(r.chem) + '</span>' +
       (r.chartPeak != null ? '<span class="chip cool">scene #' + r.chartPeak + '</span>' : '') +
@@ -601,7 +601,7 @@
         (r.battle.won ? 'took the week vs ' : 'lost the week to ') + UI.esc(r.battle.actName) + '</span>' : '') +
       (r.product && r.product.chodong != null
         ? '<span class="chip hot">chodong ' + KP.fmtCount(r.product.chodong) +
-          (r.product.soldOut ? ' · SOLD OUT' : '') + '</span>' : '') +
+          (r.product.soldOut ? ' · SOLD OUT' : r.product.overpress ? ' · overpressed' : '') + '</span>' : '') +   // the warehouse's verdict (v0.11.5, §96 wiring)
       '<span class="chip gold">revenue +' + r.revenue +
       (r.product ? ' (streams ' + r.product.digital + ' · albums ' + r.product.physRev + ')' : '') + '</span>' +
       '</div></div>');

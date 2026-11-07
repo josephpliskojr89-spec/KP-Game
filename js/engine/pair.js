@@ -18,7 +18,9 @@
 
   function ledger(state) {
     state.pairLedger = state.pairLedger ||
-      { mentorships: 0, mentorEnded: 0, writingPairs: 0, coWritten: 0, seatings: 0, framed: 0, soured: 0, edged: 0 };
+      { mentorships: 0, mentorEnded: 0, writingPairs: 0, coWritten: 0, seatings: 0, framed: 0, soured: 0, edged: 0, unpaired: 0, defused: 0 };
+    // the undoings counted (v0.11.5, §96 wiring) — healed lazily
+    if (state.pairLedger.unpaired == null) { state.pairLedger.unpaired = 0; state.pairLedger.defused = 0; }
     return state.pairLedger;
   }
   KP.pairLedger = ledger;
@@ -123,10 +125,26 @@
     return { ok: true, note: KP.publicGiven(a) + ' and ' + KP.publicGiven(b) + ' share a writing room now. The next song either of them pens carries both names.' };
   };
   KP.unpairWriters = function (state, groupId) {
+    const C = P();
     const g = KP.groupById(state, groupId);
     if (!g || !g.writingPair) return { ok: false, reason: 'No writing pair stands.' };
+    const wp = g.writingPair;
+    const a = state.people[wp.a], b = state.people[wp.b];
+    // the undoing is on both files (v0.11.5, §96 wiring) — and a pair
+    // dissolved early was just getting somewhere
+    const weeks = state.week - (wp.since || state.week);
+    const soon = weeks < C.unpairSoonWeeks;
+    [[a, b], [b, a]].forEach(([p, other]) => {
+      if (!p) return;
+      if (soon) p.morale = KP.clamp(p.morale + C.unpairSoonMorale, 0, 100);
+      p.history.push({ week: state.week, text: 'The writing room with ' + (other ? KP.publicGiven(other) : 'the other pen') + ' was dissolved' +
+        (soon ? ' after ' + weeks + ' week' + (weeks === 1 ? '' : 's') + ' — they were just getting somewhere.' : '. Two notebooks go back to being two notebooks.') });
+    });
     delete g.writingPair;
-    return { ok: true };
+    ledger(state).unpaired++;
+    return { ok: true, soon,
+      note: (a && b ? KP.publicGiven(a) + ' and ' + KP.publicGiven(b) : 'The pair') + ' stop sharing a writing room' +
+        (soon ? ' — ' + weeks + ' weeks in, which the room reads as a verdict on the songs that were not finished yet.' : '.') };
   };
   // the pen's partner: songs.js asks when a member writes a demo
   KP.coWriterFor = function (state, g, writerId) {
@@ -195,6 +213,10 @@
     delete rel.rivalry.sharpened;
     delete rel.rivalry.soured;
     a.flags.edged = false; b.flags.edged = false;
+    // the defusing is on both files (v0.11.5, §96 wiring)
+    a.history.push({ week: state.week, text: 'The competition framing with ' + KP.publicGiven(b) + ' came down. What is left is the rivalry, and the sit-down.' });
+    b.history.push({ week: state.week, text: 'The competition framing with ' + KP.publicGiven(a) + ' came down. What is left is the rivalry, and the sit-down.' });
+    ledger(state).defused++;
     return { ok: true, note: 'The competition framing comes down. What is left is the rivalry, and the sit-down.' };
   };
 

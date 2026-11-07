@@ -166,8 +166,10 @@
     if (!state.founded && (state.trust || 0) >= RF.offerTrust &&
         state.week - (state.offerAskedWeek || -999) >= RF.offerCooldownWeeks &&
         !(state.scenes || []).some(sc => sc.kind === 'theOffer')) {
+      // a house whose letter was read aloud in your boardroom never sends
+      // twice (v0.11.5, §96 wiring): leverage is remembered on the rival
       const suitor = (state.rivals || []).find(r =>
-        (r.prestige || 0) >= RF.offerPrestige && KP.rivalEra(state, r) === 'imperial');
+        (r.prestige || 0) >= RF.offerPrestige && KP.rivalEra(state, r) === 'imperial' && !r.offerLeveraged);
       if (suitor && rng.chance(0.25)) {
         state.offerAskedWeek = state.week;
         led.offers++;
@@ -335,12 +337,16 @@
     ],
     resolve: (state, sc, optionId) => {
       const RF = KP.C.RISEFALL;
+      // the answer is recorded on the house that asked (v0.11.5, §96 wiring)
+      const r = (state.rivals || []).find(x => x.short === sc.company);
       if (optionId === 'leverage') {
         ledger(state).leveraged++;
+        if (r) r.offerLeveraged = state.week;
         state.budget += RF.leverageBudget;
         state.trust = KP.clamp((state.trust || 0) + RF.leverageTrust, 0, 100);
-        return { toast: 'The board read the letterhead, went quiet, and found ' + RF.leverageBudget + ' of “previously committed” development budget within the hour. ' + state.executive.name + ': “I am glad we agree on your value. I will remember that we agreed under these circumstances.” Trust +' + RF.leverageTrust + ', and a line item nobody will ever explain to accounting.' };
+        return { toast: 'The board read the letterhead, went quiet, and found ' + RF.leverageBudget + ' of “previously committed” development budget within the hour. ' + state.executive.name + ': “I am glad we agree on your value. I will remember that we agreed under these circumstances.” Trust +' + RF.leverageTrust + ', and a line item nobody will ever explain to accounting. ' + sc.company + ' heard by Friday what their letter was used for. Houses like that do not send a second envelope — ever.' };
       }
+      if (r) r.offerDeclined = state.week;
       state.trust = KP.clamp((state.trust || 0) + 2, 0, 100);
       return { toast: 'Declined, with the good stationery. ' + sc.company + '’s courier took the answer back before lunch. By evening the whole industry knew both halves of the story: that they asked, and that you stayed. Both halves are worth something.' };
     },

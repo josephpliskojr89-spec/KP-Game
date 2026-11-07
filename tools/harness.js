@@ -293,6 +293,22 @@ const BANDS = {
   seasonCoached:     { lo: 0.10, hi: 0.90, label: 'orgs that flew a coach to the set' },
   seasonEdited:      { lo: 0.05, hi: 0.80, label: 'orgs whose contestant was cut an edit' },
   seasonEpisodes:    { lo: 0.10, hi: 1.00, label: 'orgs that read an episode letter with their kid in it' },
+  // the wiring (v0.11.5, §96 recommendation 1): measure-first — provisional
+  // [0,1] until the first 40-org soak rules them
+  wirePassedChair:    { lo: 0.00, hi: 1.00, label: 'orgs told a passed candidate took a rival’s chair' },
+  wireRedInkSilence:  { lo: 0.00, hi: 1.00, label: 'orgs that let the red-ink talk expire (the room read the silence)' },
+  wireMandateMet:     { lo: 0.00, hi: 1.00, label: 'orgs whose exec acknowledged a kept greenlight' },
+  wireWarehouseMemo:  { lo: 0.00, hi: 1.00, label: 'orgs that got the warehouse memo (overpressed)' },
+  wireRestockPressed: { lo: 0.00, hi: 1.00, label: 'orgs that pressed a second run (bot never)' },
+  wireRepackageSet:   { lo: 0.00, hi: 1.00, label: 'orgs whose repackage was announced by letter' },
+  wireLandedCritical: { lo: 0.00, hi: 1.00, label: 'orgs whose landing letter arrived critical' },
+  wireEvalCritical:   { lo: 0.00, hi: 1.00, label: 'orgs whose evaluation sheet went critical (a first #1 or the talk)' },
+  wireEvalHigh:       { lo: 0.00, hi: 1.00, label: 'orgs whose evaluation sheet went high (a climber or a new ace)' },
+  wireGraduatedSolo:  { lo: 0.00, hi: 0.10, label: 'orgs that opened the solo door at the table (bot never — suite-held)' },
+  wireOfferLeveraged: { lo: 0.00, hi: 1.00, label: 'orgs whose leveraged offer is remembered by the house' },
+  wireFestRegrets:    { lo: 0.00, hi: 1.00, label: 'orgs that sent regrets an organizer remembers' },
+  wireDeskCooled:     { lo: 0.00, hi: 1.00, label: 'orgs with a broadcaster desk cooled by declines' },
+  wireTourRecord:     { lo: 0.00, hi: 1.00, label: 'orgs whose group page keeps a tour record' },
   // v0.10.33 — the one market: a collapse's signing class is on the open
   // board and the bot buys a career when flush. Measure-first: collapses
   // are rare inside 140 weeks, so the floor is 0 until a census says more.
@@ -713,6 +729,9 @@ const tally = {
   networkApps: 0, networkRefs: 0, washoutReturned: 0, seasonAired: 0, callHeld: 0,
   seasonCastWorld: 0, seasonInvited: 0, seasonSent: 0, seasonOursLineup: 0, seasonPermanent: 0,
   seasonPushed: 0, seasonCoached: 0, seasonEdited: 0, seasonEpisodes: 0,
+  wirePassedChair: 0, wireRedInkSilence: 0, wireMandateMet: 0, wireWarehouseMemo: 0, wireRestockPressed: 0,
+  wireRepackageSet: 0, wireLandedCritical: 0, wireEvalCritical: 0, wireEvalHigh: 0, wireGraduatedSolo: 0,
+  wireOfferLeveraged: 0, wireFestRegrets: 0, wireDeskCooled: 0, wireTourRecord: 0,
   careerSigned: 0,
   criticsDarling: 0, pannedHit: 0, criticsSplit: 0, trendNamed: 0,
   commissioned: 0, offLaneRecord: 0, houseChair: 0, themeNamed: 0,
@@ -818,6 +837,9 @@ for (let s = 0; s < SEEDS; s++) {
   let personMomentWeeks = 0, quietWeekSeen = false;
   let doorKnockSeen = false, momentChoiceWasSeen = false, doorWaitSeen = false;
   let seasonEpisodeSeen = false;
+  // the wiring (v0.11.5, §96): the letters that did not exist, seen per org
+  const wire = { passedChair: false, redInkSilence: false, mandateMet: false, warehouseMemo: false, restockPressed: false,
+    repackageSet: false, landedCritical: false, evalCritical: false, evalHigh: false, graduatedSolo: false };
   let annivSeen = false, scarSeen = false;
   let tourSoldOutSeen = false, tourSoftSeen = false, awardSnubSeen = false;
   let circuitSeen = false, encoreSeen = false, truckSeen = false,
@@ -1485,12 +1507,14 @@ for (let s = 0; s < SEEDS; s++) {
       if (def) KP.resolveScene(state, sc.id, def.options(state, sc)[0].id);
     });
 
-    // the company's voice (v0.9.6): launch the lightstick the moment the
-    // market team clears it; hold a fan meeting when flush — the engine
-    // gates cooldowns and calendars
+    // the company's voice (v0.9.6): launch the lightstick once the fandom
+    // that exists can pay for the run (v0.11.5: the run is sized by
+    // KP.fanbaseRead — a launch-week fandom leaves boxes in the hallway);
+    // hold a fan meeting when flush — the engine gates cooldowns and calendars
     state.groups.forEach(g => {
       if (!g.debuted || !g.fandom || !g.fandom.name) return;
-      if (!g.lightstickWeek) KP.launchLightstick(state, g.id);
+      const CT = KP.C.CONSTITUENCY;
+      if (!g.lightstickWeek && KP.fanbaseRead(state, g) * CT.lightstickPerFan >= CT.lightstickCost) KP.launchLightstick(state, g.id);
       if (state.budget > 150) KP.holdFancon(state, g.id, 'free');   // the free format (v0.10.42)
     });
 
@@ -1689,6 +1713,21 @@ for (let s = 0; s < SEEDS; s++) {
     if ((state.spotlight || []).some(m => m.week === state.week && m.choice)) momentChoiceWasSeen = true;
     if (notes.some(n => /stopped waiting|stopped asking for that minute/.test(n.text))) doorWaitSeen = true;
     if (notes.some(n => n.ind === 'seasonEpisode' && n.kind === 'company')) seasonEpisodeSeen = true;
+    // the wiring (v0.11.5): the new letters and the promoted priorities, pre-trim
+    notes.forEach(n => {
+      if (n.ind === 'passedTookChair') wire.passedChair = true;
+      if (n.ind === 'redInkSilence') wire.redInkSilence = true;
+      if (n.ind === 'mandateMet') wire.mandateMet = true;
+      if (n.ind === 'warehouseMemo') wire.warehouseMemo = true;
+      if (n.ind === 'restockPressed') wire.restockPressed = true;
+      if (n.ind === 'repackageSet') wire.repackageSet = true;
+      if (n.ind === 'graduatedSolo') wire.graduatedSolo = true;
+      if (n.ind === 'landed' && n.priority === 'critical') wire.landedCritical = true;
+      if (n.ind === 'evalSheet' && n.priority === 'critical') wire.evalCritical = true;
+      if (n.ind === 'evalSheet' && n.priority === 'high') wire.evalHigh = true;
+    });
+    if (state.inbox.some(n => n.ind === 'repackageSet')) wire.repackageSet = true;   // a verb's letter lands on the inbox, not the stream
+    if (state.inbox.some(n => n.ind === 'graduatedSolo')) wire.graduatedSolo = true;
     if (notes.some(n => n.ind === 'anniversary')) annivSeen = true;
     if (state.roster.some(id => (state.people[id].flags || {}).scar > 0)) scarSeen = true;
     if (!regionStorySeen && (state.memory || []).some(n => n.key === 'regionStronghold')) regionStorySeen = true;
@@ -2195,6 +2234,21 @@ for (let s = 0; s < SEEDS; s++) {
   if ((state.claims || []).some(c => c.type === 'ambitionPromise' && c.resolved === 'met')) tally.askPromiseKept++;
   if (momentChoiceWasSeen) tally.momentChoiceSeen++;
   if (seasonEpisodeSeen) tally.seasonEpisodes++;
+  // the wiring census (v0.11.5, §96 recommendation 1): measure-first
+  if (wire.passedChair) tally.wirePassedChair++;
+  if (wire.redInkSilence) tally.wireRedInkSilence++;
+  if (wire.mandateMet) tally.wireMandateMet++;
+  if (wire.warehouseMemo) tally.wireWarehouseMemo++;
+  if (wire.restockPressed) tally.wireRestockPressed++;
+  if (wire.repackageSet) tally.wireRepackageSet++;
+  if (wire.landedCritical) tally.wireLandedCritical++;
+  if (wire.evalCritical) tally.wireEvalCritical++;
+  if (wire.evalHigh) tally.wireEvalHigh++;
+  if (wire.graduatedSolo) tally.wireGraduatedSolo++;
+  if ((state.rivals || []).some(r => r.offerLeveraged)) tally.wireOfferLeveraged++;
+  if (state.groups.some(g => g.festRegrets && Object.keys(g.festRegrets).length)) tally.wireFestRegrets++;
+  if (Object.values(((state.promoLedger || {}).declines) || {}).some(n => n >= KP.C.PROMO.OFFERS.declineCoolAt)) tally.wireDeskCooled++;
+  if (state.groups.some(g => (g.tourHistory || []).length)) tally.wireTourRecord++;
   if (doorWaitSeen) tally.doorLeftWaiting++;
   if (annivSeen) tally.annivFelt++;
   if (scarSeen) tally.scarCarried++;

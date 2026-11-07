@@ -43,6 +43,27 @@
     return { score: s, band, fame };
   };
 
+  // the forecast (v0.11.5, §96 wiring): the band the table would read,
+  // surfaced on the file from the renewal year on — words only, the score
+  // never leaves the engine. Null where the answer is already written
+  // (leaving), paused (service) or not yet asked (before the window).
+  KP.renewalForecast = function (state, p) {
+    if (!p || p.status !== 'idol' || !p.contract || p.contract.leaving) return null;
+    if (p.flags && p.flags.military) return null;
+    const year = KP.contractYear(state, p);
+    if (year == null || year < KP.C.CONTRACT.renewalAtYears) return null;
+    return KP.renewalRead(state, p).band;
+  };
+  // the trainee paper (v0.11.5, §96 wiring): term and end as the clock
+  // computes them, and whether the renewal letter's notice window is open
+  KP.traineePaperRead = function (state, p) {
+    const tc = p && p.traineeContract;
+    if (!tc || p.status !== 'trainee') return null;
+    const TC = KP.C.TRAINEE_CONTRACT;
+    const end = tc.start + TC.years * KP.C.WEEKS_PER_YEAR;
+    return { term: tc.term || 1, end, notice: state.week >= end - TC.noticeWeeks };
+  };
+
   // ---- the weekly clock (order 785.5 → use 784) ---------------------------
   KP.registerWeekly('contracts', 784, function (state, rng, inbox, roster, groups) {
     const C = KP.C.CONTRACT;

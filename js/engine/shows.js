@@ -265,12 +265,15 @@
           keep(KP.recordViral(state, carrier, { kind: 'fancam', label: 'the comeback-stage fancam' }));
           keep(KP.igniteDiscourse(state, rng, 'fancam', 'idol', carrier.id, g.id));
         }
-        const line = KP.stageLine(state, g, read, 'the comeback stage');
+        // a debut's first stage is a debut stage (v0.11.5, §96 wiring): the
+        // release archive knows which it was
+        const special = rel.isDebut ? 'debut stage' : 'comeback stage';
+        const line = KP.stageLine(state, g, read, 'the ' + special);
         g.stageNoteWeek = state.week; g.lastStageBand = read.band;
         KP.stageLedger(state).lines++;
         keep({ kind: 'public', ind: 'comebackStage', priority: 'high', groupId: g.id, band: read.band,
           personId: carrier ? carrier.id : null,
-          text: 'THE COMEBACK STAGE, on ' + KP.showLabel(comebackId) + ': ' + line +
+          text: 'THE ' + special.toUpperCase() + ', on ' + KP.showLabel(comebackId) + ': ' + line +
             (rel.critics && rel.critics.consensus ? ' The critics, who called the record ' + KP.verdictWord(rel.critics.consensus) + ', watched from the front row.' : '') });
         weekCarried[g.id] = carrier ? carrier.id : null;
       } else if (notable) {

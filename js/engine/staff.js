@@ -125,7 +125,14 @@
         state.trust = KP.clamp(state.trust + 1, 0, 100);
         return { toast: '“We are building careers, not quarters.” One director wrote it down. Another checked his watch. The executive, notably, nodded.' };
       }
-      return { toast: 'You pointed at the artists — their work, their growth, their rooms full of trophies-to-be. It is not a strategy slide. It was also the only sentence in the meeting anyone believed completely.' };
+      // the third answer has a meaning (v0.11.5, §96 wiring): the room
+      // heard it; the board wanted a slide
+      const B = KP.C.BUILDING;
+      (state.roster || []).map(id => state.people[id]).filter(p => p && p.status === 'idol').forEach(p => {
+        p.morale = KP.clamp(p.morale + B.boardArtistsMorale, 0, 100);
+      });
+      state.trust = KP.clamp(state.trust + B.boardArtistsTrust, 0, 100);
+      return { toast: 'You pointed at the artists — their work, their growth, their rooms full of trophies-to-be. It is not a strategy slide, and the board wanted a slide: ' + state.executive.name + ' wrote “no plan” in the margin, which costs a little trust upstairs. But the sentence travelled. By evening every idol in the building had heard that the company’s year was summarized as THEM, and the room walked a little taller for it. That is the trade.' };
     },
     expire: (state) => {
       state.trust = KP.clamp(state.trust - 1, 0, 100);

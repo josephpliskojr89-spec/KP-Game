@@ -32,27 +32,42 @@
     return g.debuted && !g.fandom && (g.popularity || 0) >= KP.C.FANDOM.nameAt;
   };
 
+  // the cafés' favorite (v0.11.5, §96 wiring): the 'fanvote' hash was always
+  // the open vote's winner — now it is the FAVORITE the company backs or
+  // overrules, exposed so the UI can mark it
+  KP.fandomFavoriteIdx = function (state, g) {
+    const opts = KP.fandomNameOptions(state, g);
+    return Math.floor(KP.hash01([state.seed, g.id, 'fanvote'].join('|')) * opts.length);
+  };
+
   KP.nameFandom = function (state, groupId, choiceIdx) {
+    const F = KP.C.FANDOM;
     const g = KP.groupById(state, groupId);
     if (!g) return { ok: false, reason: 'No such group.' };
     if (g.fandom) return { ok: false, reason: 'The fandom already has a name. Renaming one is how riots start.' };
     if (!KP.fandomEligible(state, g)) return { ok: false, reason: 'The fan cafés are not big enough to hold a vote yet.' };
     const opts = KP.fandomNameOptions(state, g);
     // choiceIdx 0..n-1 picks; anything else = "let the fans decide"
-    const idx = (choiceIdx >= 0 && choiceIdx < opts.length)
-      ? choiceIdx
-      : Math.floor(KP.hash01([state.seed, g.id, 'fanvote'].join('|')) * opts.length);
+    const backed = choiceIdx >= 0 && choiceIdx < opts.length;
+    const fav = KP.fandomFavoriteIdx(state, g);
+    const idx = backed ? choiceIdx : fav;
     const name = opts[idx];
     const color = KP.fandomColor(state, g);
     g.fandom = { name, color, since: state.week, intensity: 20 };
+    // backing the cafés' own favorite warms them; backing another over it
+    // is ratified, and remembered; letting them decide is neutral
+    if (backed) KP.fandomGain(g, idx === fav ? F.nameBackedIntensity : -F.nameOverruledIntensity);
     const note = KP.note(state, {
       kind: 'public', ind: 'fandomNamed', groupId: g.id, priority: 'high',
       text: 'It is official: ' + g.name + '’s fandom has a name — ' + name + ' — and a color: ' +
-        color + '. The fan cafés ratified it ' + (choiceIdx >= 0 && choiceIdx < opts.length
-          ? 'after the company backed the option.' : 'by open vote, which they will bring up forever.') +
+        color + '. The fan cafés ratified it ' + (backed
+          ? (idx === fav
+            ? 'after the company backed the option — the one the cafés already wanted, which the cafés noticed.'
+            : 'after the company backed the option over the one the cafés wanted (' + opts[fav] + ') — ratified, and remembered.')
+          : 'by open vote, which they will bring up forever.') +
         ' Lightstick mockups appeared within the hour. Membership means something now.',
     });
-    return { ok: true, name, color, note };
+    return { ok: true, name, color, note, favorite: opts[fav] };
   };
 
   // one door for every act of care — call sites feed devotion

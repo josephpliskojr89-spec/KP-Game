@@ -189,7 +189,10 @@
     },
     resolve: (state, sc, optionId) => {
       if (optionId === 'stay') {
-        return { toast: 'You stayed. The small desk sent a fruit basket. The big desk will call again if the numbers keep talking.' };
+        // the refusal is remembered (v0.11.5, §96 wiring): the courting
+        // call waits a year before it comes again
+        KP.distributorOf(state).stayedWeek = state.week;
+        return { toast: 'You stayed. The small desk sent a fruit basket. The big desk wrote the refusal down and will call again next year, if the numbers keep talking.' };
       }
       const r = KP.acceptDistributor(state, optionId === 'advance');
       if (!r.ok) return { toast: r.reason };
@@ -237,7 +240,9 @@
     KP.groups(state).forEach(g => { if ((g.lastChodong || 0) > d.bestChodong) d.bestChodong = g.lastChodong; });
     const D = KP.C.DIST;
     const next = D.TIERS[d.tier + 1];
-    if (next && d.bestChodong >= next.bar &&
+    // "stay" is remembered (v0.11.5, §96 wiring): no re-courting inside the year
+    const stayed = d.stayedWeek != null && state.week < d.stayedWeek + D.recourtWeeks;
+    if (next && !stayed && d.bestChodong >= next.bar &&
         !(state.scenes || []).some(sc => sc.kind === 'distributorCall')) {
       KP.openScene(state, { kind: 'distributorCall', expiresWeek: state.week + 3 });
       inbox.push({ kind: 'company', ind: 'distCourted', priority: 'high',
@@ -313,8 +318,15 @@
     },
     expire: (state, sc) => {
       const g = KP.groupById(state, sc.groupId);
-      if (g) g.redTalkDone = true;
-      return null;
+      if (!g) return null;
+      g.redTalkDone = true;
+      // silence is not free where both answers cost (v0.11.5, §96 wiring):
+      // the meeting never happened, and the room read that
+      (g.members || []).map(id => state.people[id]).filter(Boolean).forEach(m => {
+        m.morale = KP.clamp(m.morale + KP.C.BOOKS.redInkSilenceMorale, 0, 100);
+      });
+      return { kind: 'company', ind: 'redInkSilence', priority: 'normal', groupId: g.id,
+        text: 'The hard conversation about ' + g.name + '’s red ledger never happened — the folder sat on the Desk until the quarter closed over it. The room read the silence the way rooms do: nobody was backed, nobody was told to tighten, and every member noticed that the books came up and the company did not.' };
     },
   });
 

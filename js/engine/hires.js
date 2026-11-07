@@ -27,9 +27,20 @@
       state.staffLedger2.searches = 0;
       state.staffLedger2.fired = 0;
     }
+    // the market remembers (v0.11.5, §96 wiring) — healed lazily
+    if (!state.staffLedger2.passed) state.staffLedger2.passed = [];
     return state.staffLedger2;
   }
   KP.hiresLedger = ledger;
+  // a name the desk passed on stays in the market's memory for a season,
+  // capped; the weekly reads it back when one of them takes a chair
+  function rememberPass(state, cand) {
+    const HR = KP.C.HIRES;
+    const led = ledger(state);
+    if (!cand || !cand.name) return;
+    led.passed.push({ name: cand.name, seatId: cand.seatId, week: state.week });
+    if (led.passed.length > HR.passMemoryCap) led.passed = led.passed.slice(-HR.passMemoryCap);
+  }
 
   // ---- the second chair (v0.10.39, §91 B2): a second studio chair opens
   // only when the first has records to show — a building earns depth
@@ -302,13 +313,14 @@
       const led = ledger(state);
       if (optionId !== 'hire') {
         led.passes++;
-        return { toast: 'Passed. The chair stays as it was; the meeting stays a meeting.' };
+        rememberPass(state, sc.cand);   // the market remembers (v0.11.5, §96 wiring)
+        return { toast: 'Passed. The chair stays as it was; the meeting stays a meeting. The market keeps the name.' };
       }
       const prev = seats(state)[sc.cand.seatId];
       const sev = prev ? Math.max(HR.severanceMin,
         Math.round((HR.hireCost[prev.tier] || HR.hireCost.working) * HR.severanceMult)) : 0;
       const cost = HR.hireCost[sc.cand.tier] + sev;
-      if (state.budget < cost) { led.passes++; return { toast: 'The fee' + (sev ? ' — and the severance a replacement owes —' : '') + ' outran the account. The candidate’s agent stopped returning calls.' }; }
+      if (state.budget < cost) { led.passes++; rememberPass(state, sc.cand); return { toast: 'The fee' + (sev ? ' — and the severance a replacement owes —' : '') + ' outran the account. The candidate’s agent stopped returning calls.' }; }
       state.budget -= cost;
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -cost);
       if (prev) {
@@ -326,7 +338,7 @@
           '. What the hire actually is, only the months will say: the results arrive tangled with everything else, which is the whole job of judging them.' });
       return { toast: 'Hired. Now comes the only interview that counts: the next year.' };
     },
-    expire: (state, sc) => { ledger(state).passes++; return null; },
+    expire: (state, sc) => { ledger(state).passes++; rememberPass(state, sc.cand); return null; },
   });
 
   // ---- the poach: your results made them famous -------------------------
@@ -426,6 +438,22 @@
     const HR = KP.C.HIRES;
     const led = ledger(state);
     const S = seats(state);
+    // the market remembers (v0.11.5, §96 wiring): about a season after a
+    // pass, the name takes a chair across the street — one letter, the
+    // house hash-picked (no draw), the entry dropped
+    const passedDue = (led.passed || []).find(e => state.week >= e.week + HR.passReturnWeeks);
+    if (passedDue) {
+      led.passed = led.passed.filter(e => e !== passedDue);
+      const houses = KP.signingHouses(state);
+      const house = houses.length
+        ? houses[Math.floor(KP.hash01([state.seed, 'passedChair', passedDue.name, passedDue.week].join('|')) * houses.length)]
+        : null;
+      const seatDef = HR.SEATS.find(x => x.id === passedDue.seatId) || { label: passedDue.seatId };
+      inbox.push({ kind: 'company', ind: 'passedTookChair', priority: 'normal',
+        text: passedDue.name + ' took the ' + seatDef.label + ' chair at ' + (house ? house.name : 'a house across the street') +
+          ' this week — the candidate this desk passed on ' + KP.weekLabel(passedDue.week).text +
+          '. The trades printed the hire in one line. The building read it twice, and nobody will ever know which chair it should have been.' });
+    }
     // a candidate takes the meeting — rep gated by the fame read. A
     // posted search (v0.10.11) guarantees the meeting; otherwise the
     // market knocks on its own clock

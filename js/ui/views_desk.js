@@ -451,6 +451,16 @@
   function booksCard(state) {
     const stmt = KP.lastStatement ? KP.lastStatement(state) : null;
     if (!stmt) return '';
+    // the distributor, the fanclubs and the running quarter (v0.11.5, §96
+    // wiring): read-only — KP.distributorOf mints on first call, so the card
+    // reads the field (the regionsRead law); the quarter sums the streams
+    const dist = state.distributor || null;
+    const distTier = dist ? (KP.C.DIST.TIERS[dist.tier] || null) : null;
+    const clubs = KP.groups(state).filter(g => g.debuted && !g.retiredWeek && g.fanclub);
+    const CLUB_WORDS = { gentle: 'warm-priced', standard: 'market-rate', steep: 'steep-priced' };
+    const cur = (state.books || {}).cur || {};
+    const running = Math.round(Object.keys(cur).reduce((s, k) => s + (Number(cur[k]) || 0), 0));
+    const wpy = KP.C.WEEKS_PER_YEAR;
     return '<div class="kicker">The books · Q' + stmt.quarter + ', year ' + stmt.year + '</div>' +
       '<div class="card" style="font-size:.78rem;line-height:1.6">' +
       stmt.lines.map(l => '<div>' + UI.esc(l) + '</div>').join('') +
@@ -462,6 +472,18 @@
         (g.recoup.settledWeek != null
           ? 'settled · paid out ' + g.recoup.paid + ' to date'
           : 'unrecouped · ' + Math.max(0, Math.round(g.recoup.debt)) + ' on the ledger') + '</div>').join('') +
+      (distTier
+        ? '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:6px">Distribution: ' + UI.esc(distTier.label) +
+          (dist.advanceOwed > 0 ? ' · advance outstanding ' + Math.round(dist.advanceOwed) : '') + '</div>' : '') +
+      clubs.map(g => {
+        const since = g.fanclub.since || 1;
+        const next = state.week > since ? since + wpy * Math.ceil((state.week - since) / wpy) : since + wpy;
+        return '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:4px">' + UI.esc(g.name) + ': ' +
+          UI.esc(CLUB_WORDS[g.fanclub.tier] || g.fanclub.tier || 'standard') + ' club since ' + UI.esc(KP.weekLabel(since).text) +
+          ' · dues renew ' + UI.esc(KP.weekLabel(next).text) + '</div>';
+      }).join('') +
+      '<div style="font-size:.72rem;margin-top:6px;color:' + (running >= 0 ? 'var(--gold)' : 'var(--magenta)') + '">This quarter so far: ' +
+      (running > 0 ? '+' : '') + running + '</div>' +
       '</div>';
   }
   // the calendar strip (on The record since v0.10.41, §89 D15): the

@@ -96,18 +96,37 @@
         ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:8px">The board: ' +
           state.board.seats.map(s => UI.esc(s.name) + ' <span style="opacity:.7">(' + UI.esc(s.role) + ')</span>').join(' · ') + '</div>'
         : '') +
+      // the company's own history (v0.11.5, §96 wiring): the chair's tenure,
+      // the first trophy, the chapters and the labels before this one —
+      // fields the engine kept and no page read
+      '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:8px">' + UI.esc(state.executive.name) + ', in the chair since ' +
+      UI.esc(KP.weekLabel(state.executive.since || 1).text) +
+      (state.firstShowWinWeek
+        ? ' · first trophy ' + UI.esc(KP.weekLabel(state.firstShowWinWeek).text) + (state.firstShowWinWeek < 1 ? ' — the inherited act’s' : '')
+        : '') + '</div>' +
+      ((state.career || []).length
+        ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:6px">The chapters:' + state.career.map(ch =>
+            '<div>' + UI.esc(KP.weekLabel(ch.week).text) + ' — ' + UI.esc(ch.from || 'the last label') + ' closed · ' +
+            UI.esc(((CHAPTER_DOORS[ch.door] || {}).title || ch.door || 'a door').toLowerCase()) + ' · ' + UI.esc(ch.to || state.company.short) + '</div>').join('') + '</div>'
+        : '') +
+      (((state.estate || {}).folded || []).length
+        ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:6px">Labels before this one: ' +
+          state.estate.folded.map(f => UI.esc(f.name || f.short || '')).join(', ') + '</div>'
+        : '') +
       '</div>');
 
     // the power ranking + the generation (v0.9.24): the scene, scored
     if (state.powerRanking && state.powerRanking.entries) {
       const pr = state.powerRanking;
+      // the reveal law (v0.11.5, §96 wiring): the score column went — rank
+      // and the arrows carry the read; the number was a hidden truth in digits
       const rows = pr.entries.map(e =>
         '<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:3px 0' +
         (e.isPlayer ? ';color:var(--gold);font-weight:600' : '') + '">' +
         '<span>#' + e.rank + ' ' + UI.esc(e.short) +
         (e.delta > 0 ? ' <span style="color:var(--cyan)">▲' + e.delta + '</span>'
           : e.delta < 0 ? ' <span style="color:var(--magenta)">▼' + Math.abs(e.delta) + '</span>' : '') +
-        '</span><span>' + e.score + '</span></div>').join('');
+        '</span></div>').join('');
       html.push('<div class="kicker">The power ranking · Yr ' + pr.year +
         (state.gen ? ' · the ' + state.gen.n + (state.gen.n === 3 ? 'rd' : 'th') + ' generation' : '') + '</div>');
       html.push('<div class="card">' + rows + '</div>');
@@ -211,6 +230,14 @@
           ? ' · <span style="color:var(--gold)">the money is real</span>' : '') + '</div>' +
         '<div class="rv-blurb">' + UI.esc(r.blurb || '') + '</div>' +
         (rNars.length ? UI.narrativeLines(state, rNars.slice(0, 2)) : '') +
+        // what they remember of you (v0.11.5, §96 wiring): the offer's two
+        // answers, recorded on the rival by the offer scene, read here
+        (r.offerLeveraged || r.offerDeclined
+          ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:6px">' +
+            (r.offerLeveraged ? 'Remembers the letter you put on the board’s table.' : '') +
+            (r.offerLeveraged && r.offerDeclined ? ' ' : '') +
+            (r.offerDeclined ? 'Sent an offer once; you declined with the good stationery.' : '') + '</div>'
+          : '') +
         (actLines ? '<div class="rv-acts">' + actLines + '</div>'
           : '<div class="rv-acts"><div class="rv-act"><span class="rv-act-note">No active act — the trainee floor is all they have.</span></div></div>') +
         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">' +

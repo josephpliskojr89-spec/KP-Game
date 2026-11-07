@@ -259,7 +259,7 @@
         state.budget += job.lump || 0;
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'outside', job.lump || 0);
         p.flags.ostDrops = (p.flags.ostDrops || 0) + 1;
-        p.history.push({ week: state.week, text: 'Sang the ' + job.label + ' OST. Reception ' + rec + '.' });
+        p.history.push({ week: state.week, text: 'Sang the ' + job.label + ' OST. Reception: ' + KP.receptionWord(rec).toLowerCase() + '.' });   // a word, never the number (v0.11.5, §96 wiring)
         const hit = rec >= G.ostHitAt;
         if (hit) KP.socialSpike(state, p, G.followerDrip * 3, 'ost-' + job.id);
         inbox.push({ kind: 'public', ind: 'ostDrop', priority: 'high', personId: p.id, hit,

@@ -155,8 +155,33 @@
             '. The warehouse is proud, the fans are furious, the reorder is late. Press braver, or exactly this brave for the headline.',
         ]) });
     }
-    // the warehouse memo and the cut line were 100% / 87% trimmed (§89 A):
-    // the overpress shows on the product profile, the rounds on the sheet
+    // the restock door (v0.11.5, §96 wiring): the late reorder catches a
+    // share of the overflow; what it leaves was a question nobody asked.
+    // The distributor asks it on the Desk — opened here, answered as an
+    // action; the default and the expiry are scarce, today's behaviour
+    const unmet = soldOut ? demand - sheet.run - reorder : 0;
+    if (unmet >= P.restockMinUnits) {
+      KP.openScene(state, { kind: 'restockCall', groupId: g.id, releaseWeek: state.week,
+        remaining: unmet, run: sheet.run, demand, pob: sheet.pob,
+        overseasMult: (opts && opts.overseasMult) || 1,
+        expiresWeek: state.week + P.restockFuseWeeks });
+    }
+    // the warehouse memo, returned (v0.11.5, §96 wiring — trimmed in §89 A
+    // while the pressing card kept promising it): normal priority, the run
+    // against the demand in words, the counts public, never a ratio
+    if (overpress) {
+      const times = demand <= 0 ? 'pressed for a fandom that did not come'
+        : sheet.run >= demand * P.overpressTripleAt ? 'three times what the fandom bought'
+        : sheet.run >= demand * P.overpressDoubleAt ? 'twice what the fandom bought'
+        : 'nearly twice what the fandom bought';   // the memo's floor is overpressAt (1.6x)
+      notes.push({ kind: 'company', ind: 'warehouseMemo', priority: 'normal', groupId: g.id,
+        text: KP.lineFor(state, 'warehouse|' + g.id, [
+          'The warehouse wrote the memo: boxes of the ' + g.name + ' record are stacked in the hallway outside the practice rooms — ' + KP.fmtCount(sheet.run) + ' pressed, ' + KP.fmtCount(demand) + ' bought, ' + times + '. The memo is one line long and signed by nobody.',
+          'The second pressing nobody ordered: the ' + g.name + ' run came to ' + times + ' — ' + KP.fmtCount(sheet.run) + ' pressed against ' + KP.fmtCount(demand) + ' sold — and the warehouse would like to know where the rest is going to live.',
+          'The warehouse’s invoice came with a note stapled to it: the ' + g.name + ' pressing ran to ' + times + ', ' + KP.fmtCount(sheet.run) + ' for ' + KP.fmtCount(demand) + ' sold, and storage bills monthly. The forecast was optimism. The shelving is real.',
+        ]) });
+    }
+    // the cut line was 87% trimmed (§89 A): the rounds show on the sheet
     if (sheet.signRounds > 0) {
       if (sheet.signRounds >= P.dumpRiskAt && rng.chance(P.dumpChance)) {
         const d = KP.igniteDiscourse && KP.igniteDiscourse(state, rng, 'albumDump', 'group', g.id, g.id);
@@ -183,6 +208,93 @@
     return null;
   };
 
+  // ---- the product ledger (v0.11.5, §96 wiring) --------------------------
+  // created by the restock resolve (an action), never by a render
+  KP.productLedger = function (state) {
+    state.productLedger = state.productLedger || { restocks: 0 };
+    return state.productLedger;
+  };
+
+  // ---- the restock door (v0.11.5, §96 wiring) ----------------------------
+  // A sell-out's late reorder catches a share of the overflow; the rest
+  // used to be the sweetest lost money in the business, unasked. The
+  // distributor asks now: a second run at the sheet's own unit cost,
+  // landing late, catching restockShare of what is left — or the shelves
+  // stay empty and the sold-out story keeps doing the marketing. The
+  // default (options[0]) and the expiry are scarce: exactly the old
+  // behaviour, so the bot's soak does not move.
+  function restockUnits(sc) {
+    return Math.round((sc.remaining || 0) * KP.C.PRODUCT.restockShare);
+  }
+  function restockBill(units) {
+    return Math.round((units / 1000) * KP.C.PRODUCT.unitCostPerK);
+  }
+  KP.registerScene('restockCall', {
+    title: (state, sc) => {
+      const g = KP.groupById(state, sc.groupId);
+      return (g ? g.name : 'The record') + ' · the restock call';
+    },
+    body: (state, sc) => {
+      const g = KP.groupById(state, sc.groupId);
+      const rel = g ? (g.releases || []).find(r => r.week === sc.releaseWeek) : null;
+      const units = restockUnits(sc);
+      const bill = restockBill(units);
+      return 'The ' + (rel ? '“' + rel.songTitle + '” ' : '') + 'pressing is gone — ' + KP.fmtCount(sc.run || 0) +
+        ' copies against demand of ' + KP.fmtCount(sc.demand || 0) + ', and the late reorder caught the diehards. About ' +
+        KP.fmtCount(sc.remaining || 0) + ' wallets are still open. The distributor can press again: a second run of ' +
+        KP.fmtCount(units) + ', landing late, ' + (bill > 0 ? 'at the sheet’s own unit cost (' + bill + ')' : 'at a unit cost the books will barely notice') +
+        '. Or the shelves stay empty and the sold-out story keeps doing the marketing.';
+    },
+    options: (state, sc) => {
+      const bill = restockBill(restockUnits(sc));
+      return [
+        { id: 'scarce', label: 'Let it stay scarce' },
+        { id: 'press', label: 'Press a second run' + (bill > 0 ? ' · ' + bill : '') },
+      ];
+    },
+    resolve: (state, sc, optionId) => {
+      const g = KP.groupById(state, sc.groupId);
+      if (!g) return { toast: 'The record is out of print, one way or another.' };
+      if (optionId !== 'press') {
+        return { toast: 'The shelves stay empty. The sold-out story runs — the sweetest lost money in the business.' };
+      }
+      const P = KP.C.PRODUCT;
+      const wanted = restockUnits(sc);
+      const bill = restockBill(wanted);
+      // debits clamp to what exists: the plant presses what the account covers
+      const paid = Math.min(bill, Math.max(0, state.budget));
+      if (wanted <= 0 || (bill > 0 && paid <= 0)) {
+        return { ok: false, reason: 'The account cannot cover a second run. The shelves wait.' };
+      }
+      const units = bill > 0 ? Math.round(wanted * paid / bill) : wanted;
+      state.budget -= paid;
+      if (KP.ledgerFlow) KP.ledgerFlow(state, 'production', -paid);
+      // the money rides the chodong's own path: the unit margin, the gifts'
+      // margin, the overseas read, the distributor's cut — then the physical
+      // stream and the group's share
+      const revenue = Math.round((units / 1000) * P.marginPerK * (P.pobMargin[sc.pob] || 1) *
+        (sc.overseasMult || 1) * (KP.distCut ? KP.distCut(state) : 1));
+      state.budget += revenue;
+      if (KP.ledgerFlow) KP.ledgerFlow(state, 'albums', revenue);
+      if (KP.settleShare) KP.settleShare(state, g, revenue);
+      KP.productLedger(state).restocks++;
+      const rel = (g.releases || []).find(r => r.week === sc.releaseWeek);
+      if (rel) rel.restock = { week: state.week, units, revenue };
+      // the money is public; a run too small to round into the books says so
+      const money = revenue > 0 || paid > 0
+        ? paid + ' to the plant, ' + revenue + ' back through the till'
+        : 'a bill and a return too small for the books to notice';
+      return { toast: 'Pressed again: ' + KP.fmtCount(units) + ' more copies, landing late.',
+        note: { kind: 'company', ind: 'restockPressed', priority: 'high', groupId: g.id,
+          text: KP.lineFor(state, 'restock|' + g.id, [
+            'The second run of the ' + g.name + ' record is pressed — ' + KP.fmtCount(units) + ' copies, landing late; ' + money + '. The fans who missed the first week got their copies; the ones who got the first week are explaining why theirs are rarer.',
+            'RESTOCKED: ' + KP.fmtCount(units) + ' more copies of the ' + g.name + ' record, late and wanted — ' + money + '. The sold-out headline ends here, which the fandom minds less than you would think. They wanted the album.',
+            'The distributor shipped the second ' + g.name + ' run: ' + KP.fmtCount(units) + ' copies, ' + money + '. The shelves are full again and the “restock WHEN” accounts have gone quiet in the specific way of people holding a parcel.',
+          ]) } };
+    },
+    expire: () => null,   // silence is scarce — the old behaviour, unmarked
+  });
+
   // ---- the timeline reads the numbers ----------------------------------
   KP.onFeedEvent('chodong', (state, n, rng) => rng.pick([
     { persona: 'stan', text: 'chodong day. spreadsheet open, calculator out, comparison charts loading. we do not gatekeep the number, we FRAME it' },
@@ -199,6 +311,12 @@
     { persona: 'casual', text: 'the gap between a label’s pressing order and its actual fandom size is the most honest number in this industry and it lives in a warehouse' },
     { persona: 'critic', text: 'Overpressing is optimism with a storage bill. The record was fine. The forecast was fan fiction.' },
   ]) : null);
+  // the second run (v0.11.5, §96 wiring): the restock accounts get their parcel
+  KP.onFeedEvent('restockPressed', (state, n, rng) => rng.pick([
+    { persona: 'fan', text: 'RESTOCK. it is HERE. the “restock WHEN” era is over and I have never been so happy to delete a pinned post' },
+    { persona: 'casual', text: 'label sells out, prints more, sells those too. the rarest business model in this industry: having the thing people want to buy' },
+    { persona: 'press', text: 'A second pressing after a sell-out week is the quiet admission every label eventually makes: the forecast was fear, and the fandom was bigger than the forecast.' },
+  ]));
   KP.onFeedEvent('cutLine', (state, n, rng) => rng.pick([
     { persona: 'fan', text: 'the cut line is out and I am NOT saying how many copies I bought. I am saying I have a favorite delivery driver now and he has a favorite idol' },
     { persona: 'casual', text: 'fan-sign cut lines are the stock ticker of parasocial devotion and honestly more transparent than most actual markets' },

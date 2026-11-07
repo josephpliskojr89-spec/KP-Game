@@ -16,10 +16,33 @@
   function ledger(state) {
     state.jpLedger = state.jpLedger ||
       { offers: 0, signed: 0, releases: 0, originals: 0, topTens: 0,
-        numberOnes: 0, rungs: 0, domes: 0 };
+        numberOnes: 0, rungs: 0, domes: 0, notYets: 0 };
+    // the "not yet"s counted (v0.11.5, §96 wiring) — healed lazily
+    if (state.jpLedger.notYets == null) state.jpLedger.notYets = 0;
     return state.jpLedger;
   }
   KP.jpLedger = ledger;
+  // the partner's cut: the signed deal's number (stored on the partnership
+  // at signing), or the first letter's constant for a deal signed before
+  // the cut could move (v0.11.5, §96 wiring)
+  KP.jpCut = function (state) {
+    const J = KP.C.JAPAN;
+    return state.jpPartner && state.jpPartner.cut != null ? state.jpPartner.cut : J.partnerCut;
+  };
+  // the NEXT letter's cut: every "not yet" (and every letter left to
+  // expire) makes it steeper, up to the partner's ceiling
+  KP.jpOfferCut = function (state) {
+    const J = KP.C.JAPAN;
+    return Math.min(J.cutMax, J.partnerCut + ((state.jpLedger || {}).notYets || 0) * J.notYetCutStep);   // a read, never a create
+  };
+  function cutWord(state, cut) {
+    const J = KP.C.JAPAN;
+    const steps = Math.round((cut - J.partnerCut) / J.notYetCutStep);
+    return steps <= 0 ? null
+      : cut >= J.cutMax ? 'as steep as the partner’s letters get'
+      : steps === 1 ? 'a few points steeper than the last letter'
+      : 'steeper again than the last letter';
+  }
 
   const PARTNERS = ['Aozora Records', 'Hoshiboshi', 'Kagayaki Tokyo', 'Umineko Label'];
 
@@ -34,9 +57,14 @@
   KP.registerScene('partnerDeal', {
     title: (state, sc) => sc.partner + ' · the licensing table',
     body: (state, sc) => {
+      const J = KP.C.JAPAN;
+      const cut = sc.cut != null ? sc.cut : J.partnerCut;   // the letter keeps its own number (v0.11.5)
+      const word = cutWord(state, cut);
       return sc.partner + ' flew in for this meeting: a licensing partnership for the Japanese market. ' +
         'They handle distribution, broadcast bookings, the in-country machine — and take ' +
-        Math.round(KP.C.JAPAN.partnerCut * 100) + '% of everything Japan, forever. In exchange, the second ' +
+        Math.round(cut * 100) + '% of everything Japan, forever' +
+        (word ? ' — ' + word + ', because the partner remembers every “not yet”' : '') +
+        '. In exchange, the second ' +
         'discography opens: JP releases on their calendar, the Nichion chart, the hall-arena-dome ladder every ' +
         'touring act measures itself against. Nobody runs Japan alone. The question is whether you run it with them.';
     },
@@ -45,17 +73,23 @@
       { id: 'decline', label: 'Not yet' },
     ],
     resolve: (state, sc, optionId) => {
+      const J = KP.C.JAPAN;
       if (optionId !== 'sign') {
         state.jpDeclinedWeek = state.week;
-        return { toast: 'Declined, politely. The market stays across the water; the phone number keeps.' };
+        // "not yet" is not free (v0.11.5, §96 wiring): the next letter asks for more
+        ledger(state).notYets++;
+        const next = KP.jpOfferCut(state);
+        return { toast: 'Declined, politely. The market stays across the water; the phone number keeps — and the next letter, if it comes, ' +
+          (next > (sc.cut != null ? sc.cut : J.partnerCut) ? 'asks for a little more of everything Japan. Partners price patience.' : 'asks for the same cut; their letters do not go steeper than this one.') };
       }
-      state.jpPartner = { name: sc.partner, since: state.week };
+      state.jpPartner = { name: sc.partner, since: state.week, cut: sc.cut != null ? sc.cut : J.partnerCut };
       ledger(state).signed++;
       KP.note(state, { kind: 'company', ind: 'jpSigned', priority: 'high',
-        text: 'Signed: the ' + sc.partner + ' partnership. The press release runs in two languages, the second discography officially exists, and somewhere in the building somebody pins a map of dome venues to a corkboard. The ladder starts at the bottom like every ladder.' });
+        text: 'Signed: the ' + sc.partner + ' partnership' + (cutWord(state, state.jpPartner.cut) ? ', at a cut ' + cutWord(state, state.jpPartner.cut) : '') + '. The press release runs in two languages, the second discography officially exists, and somewhere in the building somebody pins a map of dome venues to a corkboard. The ladder starts at the bottom like every ladder.' });
       return { toast: 'The second discography opens. Japan runs on its own calendar now.' };
     },
-    expire: (state, sc) => { state.jpDeclinedWeek = state.week; return null; },
+    // a letter left to expire is a "not yet" the partner heard the same way (v0.11.5)
+    expire: (state, sc) => { state.jpDeclinedWeek = state.week; ledger(state).notYets++; return null; },
   });
 
   // ---- the lane: the verb ------------------------------------------------
@@ -101,9 +135,13 @@
       if (warm && rng.chance(0.25)) {
         led.offers++;
         const partner = PARTNERS[Math.floor(KP.hash01([state.seed, 'jppartner'].join('|')) * PARTNERS.length)];
-        KP.openScene(state, { kind: 'partnerDeal', partner, expiresWeek: state.week + 3 });
+        const cut = KP.jpOfferCut(state);   // the letter keeps its own number (v0.11.5, §96 wiring)
+        const word = cutWord(state, cut);
+        KP.openScene(state, { kind: 'partnerDeal', partner, cut, expiresWeek: state.week + 3 });
         inbox.push({ kind: 'industry', ind: 'jpOffer', priority: 'high',
-          text: partner + ' has been watching the Japanese numbers and wants the meeting — a licensing partnership, the real kind, with the second discography behind it. The table is on the Desk. The market across the water does not knock twice quickly.' });
+          text: word
+            ? partner + ' has been watching the Japanese numbers and wants the meeting again — the same partnership, the second discography behind it, and a cut ' + word + '. The “not yet” was heard; it was priced. The table is on the Desk.'
+            : partner + ' has been watching the Japanese numbers and wants the meeting — a licensing partnership, the real kind, with the second discography behind it. The table is on the Desk. The market across the water does not knock twice quickly.' });
       }
     }
     // the away weeks resolve
@@ -134,7 +172,7 @@
       const rank = board.findIndex(r => r.mine) + 1;
       if (rank <= 10) led.topTens++;
       if (rank === 1) led.numberOnes++;
-      const revenue = Math.round(score * J.revPerScore * (1 - J.partnerCut));
+      const revenue = Math.round(score * J.revPerScore * (1 - KP.jpCut(state)));   // the signed cut (v0.11.5)
       state.budget += revenue;
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'japan', revenue);
       if (KP.settleShare) KP.settleShare(state, g, revenue);
@@ -153,7 +191,7 @@
       if (rungIdx > (g.jpRung != null ? g.jpRung : -1)) {
         g.jpRung = rungIdx;
         led.rungs++;
-        const rrev = Math.round(rung.rev * (1 - J.partnerCut));
+        const rrev = Math.round(rung.rev * (1 - KP.jpCut(state)));
         state.budget += rrev;
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'japan', rrev);
         if (KP.settleShare) KP.settleShare(state, g, rrev);

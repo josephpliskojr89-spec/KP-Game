@@ -435,7 +435,7 @@
       isPlayer: true, score: reception, entered: state.week });
     const note = KP.note(state, { kind: 'public', ind: 'unitEra', priority: 'high', groupId: g.id,
       text: unit.name + ' — ' + members.map(m => KP.publicGiven(m)).join(' and ') + ' of ' + g.name +
-        ' — dropped "' + title + '" between group eras. Reception ' + reception + ', fee +' + revenue +
+        ' — dropped "' + title + '" between group eras. Reception: ' + KP.receptionWord(reception).toLowerCase() + ', fee +' + revenue +   // a word, never the number (v0.11.5, §96 wiring)
         '. The fandom gets fed, the members get room, and the group name rests without cooling. This is what a portfolio sounds like breathing.' });
     return { ok: true, reception, title, unitName: unit.name, note: note.text };
   };

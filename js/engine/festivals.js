@@ -67,19 +67,23 @@
             !(sc.expiresWeek != null && state.week > sc.expiresWeek))) return;
         const icon = !f.region && !!KP.getNarrative(state, 'festivalIcons', 'group', g.id);
         // icons always get the call — and so does a room that carried
-        // last year's set (the stage, v0.10.37); everyone else most years
-        if (!KP.festivalCertain(state, g, year) && !rng.chance(0.75)) return;
+        // last year's set (the stage, v0.10.37); everyone else most years —
+        // and the year after regrets, less surely: the organizers remember
+        // who answered (v0.11.5, §96 wiring; the same single draw)
+        const regrets = (g.festRegrets || {})[f.id] === year - 1;
+        if (!KP.festivalCertain(state, g, year) && !rng.chance(regrets ? F.inviteAfterRegrets : F.inviteChance)) return;
         led.invites++;
         KP.openScene(state, { kind: 'festivalInvite', groupId: g.id,
           festivalId: f.id, headline: icon && f.tier >= 2, expiresWeek: state.week + 2 });
         // the scene on the Desk is the truth; this line competes (v0.10.29)
         inbox.push({ kind: 'company', ind: 'festivalInvite', groupId: g.id,
-          text: f.region
+          text: (f.region
             ? 'An invite from ' + f.name + ': a ' + KP.regionLabel(f.region) + ' convention slot for ' + g.name + ', ' +
               KP.weekLabel(festWeek(state, f)).text + '. The far markets open one weekend at a time, and the weekends have dates on them. The table is on the Desk.'
             : 'The ' + f.name + ' organizers reached out about ' + g.name +
               (icon && f.tier >= 2 ? ' — a HEADLINE slot, by name. The icons get the first call.' : ' — a confirmed slot on this year’s bill.') +
-              ' The date is ' + KP.weekLabel(festWeek(state, f)).text + ', the answer is due in two weeks, and the invitation is on the Desk with the schedule laid beside it.' });
+              ' The date is ' + KP.weekLabel(festWeek(state, f)).text + ', the answer is due in two weeks, and the invitation is on the Desk with the schedule laid beside it.') +
+            (regrets ? ' After last year’s regrets the organizers called anyway — once. They remember who answered.' : '') });
       });
     });
 
@@ -163,11 +167,14 @@
       const conflicts = KP.festivalConflicts(state, g, week);
       // the far market (v0.10.43): the tongue is read out loud with the schedule
       const voice = f.region && KP.voiceAbroad ? KP.voiceAbroad(state, g, f.region) : null;
+      // the organizers remember last year's regrets (v0.11.5, §96 wiring)
+      const regrets = (g.festRegrets || {})[f.id] === yearOf(state) - 1;
       return (f.region ? f.name + ' wants ' + g.name + ' on the ' + KP.regionLabel(f.region) + ' stage — a convention slot, a weekend of flights, ' + f.blurb
           : 'The ' + f.name + ' bill wants ' + g.name + (sc.headline ? ' at the TOP of the poster' : '') + ' — ' + f.blurb) +
         '. The slot is ' + KP.weekLabel(week).text + '; the fee runs ' +
         Math.round(f.pay * (sc.headline ? KP.C.FESTS.headlineMult : 1)) +
         ' and travel bills ' + f.travel + '.' +
+        (regrets ? ' After last year’s regrets the organizers called anyway; they remember who answered, and this is the call after the regrets.' : '') +
         (f.region ? (voice ? ' ' + KP.displayName(voice) + ' can run the interviews in the room’s own language.' : ' Nobody on the lineup speaks the room’s language — the interviews will limp, and the warmth with them.') : '') +
         (conflicts.length
           ? ' The schedule, read out loud: ' + conflicts.join('; ') + '. Saying yes means carrying that.'
@@ -194,7 +201,11 @@
           '. Travel −' + f.travel + '. The vans are arranged, the set list argument begins tonight.' };
       }
       led.declined++;
-      return { toast: 'Regrets, sent with a fruit basket. The organizers filled the slot within the hour — festival season waits for nobody, which is exactly why the invitations matter.' };
+      // the regrets are remembered by the organizer, by edition year
+      // (v0.11.5, §96 wiring): next year's call comes less surely
+      g.festRegrets = g.festRegrets || {};
+      g.festRegrets[f.id] = yearOf(state);
+      return { toast: 'Regrets, sent with a fruit basket. The organizers filled the slot within the hour — festival season waits for nobody, which is exactly why the invitations matter. They wrote the regrets down; next year’s call, if it comes, is the one after them.' };
     },
     // an unanswered invitation answers itself — the slot goes elsewhere
     expire: (state, sc) => {
@@ -202,6 +213,8 @@
       const g = KP.groupById(state, sc.groupId);
       ledger(state).declined++;
       if (!f || !g) return null;
+      g.festRegrets = g.festRegrets || {};   // silence is regrets too (v0.11.5, §96 wiring)
+      g.festRegrets[f.id] = yearOf(state);
       return { kind: 'company', groupId: g.id,
         text: 'The ' + f.name + ' deadline passed with the invitation still on the Desk. The slot went to someone who answered. The organizers keep notes about who answers.' };
     },

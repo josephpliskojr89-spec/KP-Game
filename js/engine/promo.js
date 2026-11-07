@@ -19,10 +19,22 @@
 
   function ledger(state) {
     state.promoLedger = state.promoLedger ||
-      { offers: 0, taken: 0, declined: 0, cancelled: 0, extended: 0, comebackStages: 0, fitHome: 0, fitOff: 0 };
+      { offers: 0, taken: 0, declined: 0, cancelled: 0, extended: 0, comebackStages: 0, fitHome: 0, fitOff: 0, declines: {} };
+    // the desks remember a no (v0.11.5, §96 wiring) — per activity, healed lazily
+    if (!state.promoLedger.declines) state.promoLedger.declines = {};
     return state.promoLedger;
   }
   KP.promoLedger = ledger;
+  // the booking desk's count of invitations declined (or left to expire)
+  // since the last one taken — the memory the decline toast promised
+  // (a read: never creates the ledger, so a render leaves the save untouched)
+  KP.deskDeclines = function (state, activity) { return (((state.promoLedger || {}).declines) || {})[activity] || 0; };
+  function deskDeclined(state, activity) {
+    const d = ledger(state).declines;
+    d[activity] = (d[activity] || 0) + 1;
+    return d[activity];
+  }
+  function deskCooled(state, activity) { return KP.deskDeclines(state, activity) >= P().OFFERS.declineCoolAt; }
 
   // ---- marketing fit ----------------------------------------------------
   KP.promoFit = function (laneId, actId) {
@@ -67,9 +79,17 @@
   };
   KP.broadcasterLines = function (state) {
     const b = broadcasters(state);
-    return Object.keys(b).filter(k => b[k] < 0).map(k =>
-      KP.showLabel(k) + '’s booking desk remembers ' + (b[k] <= -2 ? 'the cancellations' : 'a cancellation') +
-      (b[k] <= P().OFFERS.trustMin ? ' — they are not calling.' : '.'));
+    const d = ((state.promoLedger || {}).declines) || {};   // the desks remember a no too (v0.11.5, §96 wiring) — a read, never a create
+    const keys = Object.keys(b).filter(k => b[k] < 0);
+    Object.keys(d).forEach(k => { if (d[k] >= 1 && !keys.includes(k)) keys.push(k); });
+    return keys.map(k => {
+      const parts = [];
+      if ((b[k] || 0) < 0) parts.push(b[k] <= -2 ? 'the cancellations' : 'a cancellation');
+      if ((d[k] || 0) >= 1) parts.push(d[k] >= P().OFFERS.declineCoolAt ? 'the invitations declined' : 'an invitation declined');
+      return KP.showLabel(k) + '’s booking desk remembers ' + parts.join(' and ') +
+        ((b[k] || 0) <= P().OFFERS.trustMin ? ' — they are not calling.'
+          : (d[k] || 0) >= P().OFFERS.declineCoolAt ? ' — they call half as often.' : '.');
+    });
   };
 
   // ---- still climbing --------------------------------------------------------
@@ -168,10 +188,15 @@
       if (climb.climbing || carried || (rel && (rel.reception || 0) >= C.OFFERS.showOfferReception)) {
         const shows = Object.keys(KP.C.SHOWS).filter(id => !next.includes(id) &&
           KP.broadcasterTrust(state, id) > C.OFFERS.trustMin);
-        if (shows.length && rng.chance(C.OFFERS.showChance)) {
+        if (shows.length) {
+          // the desk is picked by hash before the draw (no stream cost), so
+          // a desk told no twice can call at half its chance on the SAME
+          // draw (v0.11.5, §96 wiring)
           const pick = shows[Math.floor(KP.hash01([state.seed, 'offer', g.id, state.week].join('|')) * shows.length)];
-          offer = { kind: 'show', activity: pick,
-            why: climb.climbing ? climb.why : carried ? 'the stage' : 'the numbers' };
+          if (rng.chance(C.OFFERS.showChance * (deskCooled(state, pick) ? C.OFFERS.declinedOfferMult : 1))) {
+            offer = { kind: 'show', activity: pick,
+              why: climb.climbing ? climb.why : carried ? 'the stage' : 'the numbers' };
+          }
         }
       }
       // variety invites a face with media reps
@@ -179,7 +204,8 @@
         const face = g.members.map(id => state.people[id]).filter(m => m && !KP.onBreak(m))
           .sort((a, b) => KP.derived(b).varietySkill - KP.derived(a).varietySkill)[0];
         if (face && KP.derived(face).varietySkill >= C.OFFERS.varietySkillAt &&
-            (face.mediaExp || 0) >= C.OFFERS.varietyMediaAt && rng.chance(C.OFFERS.varietyChance)) {
+            (face.mediaExp || 0) >= C.OFFERS.varietyMediaAt &&
+            rng.chance(C.OFFERS.varietyChance * (deskCooled(state, 'variety') ? C.OFFERS.declinedOfferMult : 1))) {
           offer = { kind: 'variety', activity: 'variety', personId: face.id, why: 'the face' };
         }
       }
@@ -240,17 +266,25 @@
       const g = KP.groupById(state, sc.groupId);
       const led = ledger(state);
       if (!g || !g.rollout || !g.rollout[sc.slotWeek]) return { toast: 'The week moved on without the invitation.' };
+      const A = KP.C.ROLLOUT.ACTIVITIES;
+      const deskLabel = (A[sc.activity] || { label: 'The booking' }).label;
       if (optionId !== 'take') {
         led.declined++;
-        return { toast: 'The plan stands. The booking desk said they understood, in the voice that means they wrote it down.' };
+        // what the desk actually wrote down (v0.11.5, §96 wiring)
+        const n = deskDeclined(state, sc.activity);
+        return { toast: 'The plan stands. ' + deskLabel + '’s booking desk said they understood, in the voice that means they wrote it down' +
+          (n >= P().OFFERS.declineCoolAt
+            ? ': that is ' + n + ' invitations declined with no yes between, and their desk calls half as often until one is taken.'
+            : ': one invitation declined, on their file. A second one and they call less.') };
       }
-      const A = KP.C.ROLLOUT.ACTIVITIES;
       const wk = g.rollout[sc.slotWeek];
       const delta = (A[sc.activity] ? A[sc.activity].cost : 0) - (sc.replace && A[sc.replace] ? A[sc.replace].cost : 0);
       if (delta > 0 && state.budget < delta) {
         led.declined++;
-        return { toast: 'The swap bills ' + delta + ' more than the plan did. The account says no; the plan stands.' };
+        deskDeclined(state, sc.activity);   // the desk only sees the no
+        return { toast: 'The swap bills ' + delta + ' more than the plan did. The account says no; the plan stands, and ' + deskLabel + '’s desk wrote down a no.' };
       }
+      delete ledger(state).declines[sc.activity];   // a yes clears the desk's count
       if (sc.replace && wk.includes(sc.replace)) {
         wk.splice(wk.indexOf(sc.replace), 1);
         if (A[sc.replace] && A[sc.replace].show) { KP.broadcasterCancel(state, sc.replace); led.cancelled++; }
@@ -261,7 +295,8 @@
       return { toast: A[sc.activity].label + ' is on next week’s plan' +
         (sc.replace ? ' and ' + A[sc.replace].label + ' is off it' + (A[sc.replace].show ? ' — their desk wrote it down' : '') : '') + '.' };
     },
-    expire: (state, sc) => { ledger(state).declined++; return null; },
+    // silence is a no, and the desk writes it down the same way (v0.11.5, §96 wiring)
+    expire: (state, sc) => { ledger(state).declined++; deskDeclined(state, sc.activity); return null; },
   });
 
   // ---- the timeline reacts -----------------------------------------------

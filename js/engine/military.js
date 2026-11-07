@@ -230,8 +230,13 @@
       if (!g || g.servicePlan) return null;
       g.servicePlan = 'stagger';
       ledger(state).stagger++;
+      // the default has a price (v0.11.5, §96 wiring): each man read it
+      // off the wall before anyone told him
+      g.members.map(id => state.people[id]).filter(m => m && m.gender === 'm').forEach(m => {
+        m.morale = KP.clamp(m.morale + KP.C.MIL.planSilenceMorale, 0, 100);
+      });
       return { kind: 'company', groupId: g.id,
-        text: 'The service-plan folder for ' + g.name + ' sat unanswered until the scheduling office filed the default: staggered, each man as his window closes. Some plans are made by making no plan. The office notes this is the worse way to arrive at the same place.' };
+        text: 'The service-plan folder for ' + g.name + ' sat unanswered until the scheduling office filed the default: staggered, each man as his window closes. Some plans are made by making no plan. The office notes this is the worse way to arrive at the same place — and the room noticed: the men read the map off the wall before anyone from the desk said a word to them.' };
     },
   });
 
@@ -266,8 +271,12 @@
     expire: (state, sc) => {
       const p = state.people[sc.personId];
       if (!p) return null;
+      // left waiting on the one question everyone his age has already done
+      // the math on (v0.11.5, §96 wiring): the ledger and the morale both keep it
+      KP.recordDirected(state, p.id, 'leftWaiting');
+      p.morale = KP.clamp(p.morale + KP.C.MIL.papersSilenceMorale, 0, 100);
       return { kind: 'company', personId: p.id,
-        text: KP.fillPro('The enlistment papers for ' + KP.displayName(p) + ' sat unanswered — which is an answer: {she} works until the wall. The law keeps better calendars than desks do.', p) };
+        text: KP.fillPro('The enlistment papers for ' + KP.displayName(p) + ' sat unanswered — which is an answer: {she} works until the wall. The law keeps better calendars than desks do. {She} noticed the drawer never opened again; so did the room, which watched {her} wait for a word that did not come.', p) };
     },
   });
 

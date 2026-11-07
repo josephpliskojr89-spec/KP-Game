@@ -212,6 +212,21 @@
       }
     }
     const M = KP.C.MANDATE;
+    // the met mandate, announced (v0.11.5, §96 wiring): the debut consumes
+    // it inside the release tick (debut.js → consumeMandate, phase 600),
+    // before this rail runs (735) and with no inbox in reach — so the
+    // mandate record itself is the stash (metWeek, groupId), and the letter
+    // rides THIS week's inbox through the trim. A debut resolved outside
+    // the tick would land it the following week; never through KP.note.
+    (state.mandates || []).forEach(m => {
+      if (m.status !== 'met' || m.metNoted || m.metWeek == null || m.metWeek < state.week - 1) return;
+      m.metNoted = true;
+      const g = KP.groupById(state, m.groupId);
+      if (!g) return;
+      inbox.push({ kind: 'executive', ind: 'mandateMet', priority: 'high', groupId: g.id,
+        text: state.executive.name + ': “' + g.name + ' debuted inside the window. The greenlight came from ' + m.source +
+          ' — ' + KP.weekLabel(m.issuedWeek).text + ' — and it was kept, on time, with a stage in it. I notice when a window closes with a stage in it. I notice the other thing too, so enjoy this one.”' });
+    });
     // greenlights left dark lapse, and the board remembers who asked
     (state.mandates || []).forEach(m => {
       if (m.status !== 'open' || state.week <= m.window) return;

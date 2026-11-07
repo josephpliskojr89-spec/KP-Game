@@ -182,10 +182,14 @@ function openCal(state, g) {
   t.ok(!KP.holdFancon(state, g.id, 'free').ok, 'and it needs to breathe before the next one');
   t.ok(!KP.holdFancon(state, g.id, 'ticketed').ok, 'the ticketed room waits on the same clock');
   const b0 = state.budget;
+  // the run sells to the fandom that exists (v0.11.5, §96 wiring): a fresh
+  // fandom's launch leaves boxes in the hallway; a flagship's still sells out
+  const sized = Math.min(KP.C.CONSTITUENCY.lightstickRevenue,
+    Math.round(KP.fanbaseRead(state, g) * KP.C.CONSTITUENCY.lightstickPerFan));
   const r3 = KP.launchLightstick(state, g.id);
   t.ok(r3.ok, 'the lightstick launches');
-  t.eq(state.budget - b0, KP.C.CONSTITUENCY.lightstickRevenue - KP.C.CONSTITUENCY.lightstickCost,
-    'and sells out, because that is what lightsticks do');
+  t.eq(state.budget - b0, sized - KP.C.CONSTITUENCY.lightstickCost,
+    'and sells what the fanbase buys (boxes in the hallway for a fresh fandom)');
   t.ok(!KP.launchLightstick(state, g.id).ok, 'version 2 is a conversation for another era');
   const { state: s2, g: g2 } = debuted('ct-voice2');
   t.ok(!KP.launchLightstick(s2, g2.id).ok, 'a lightstick without a fandom is a lamp');

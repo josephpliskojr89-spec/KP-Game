@@ -146,7 +146,16 @@
       (p.seasonRecord && !(p.flags && (p.flags.onSeason || p.flags.onProject))
         ? '<span class="chip">' + UI.esc(p.seasonRecord.show) + ' ' + ({ eliminated: 'contestant', finalist: 'finalist', lineup: 'lineup' }[p.seasonRecord.result] || '') + '</span>' : '') +
       (p.status === 'trainee' && p.evalHistory && p.evalHistory.length
-        ? '<span class="chip">eval ' + p.evalHistory[p.evalHistory.length - 1].rank + '/' + p.evalHistory[p.evalHistory.length - 1].of + '</span>' : '') +
+        ? (function () {   // the trajectory (v0.11.5, §96 wiring): the move and the word ride the chip
+            const tr = evalTrend(p);
+            return '<span class="chip">eval ' + tr.rank + '/' + tr.of + evalMoveHtml(tr) + (tr.word ? ' · ' + tr.word : '') + '</span>';
+          })() : '') +
+      // the trainee paper (v0.11.5, §96 wiring): the notice window the
+      // renewal letter already uses, on the row
+      (function () {
+        const paper = p.status === 'trainee' && KP.traineePaperRead ? KP.traineePaperRead(state, p) : null;
+        return paper && paper.notice ? '<span class="chip hot">paper runs out ' + UI.esc(KP.weekLabel(paper.end).text) + '</span>' : '';
+      })() +
       '</div></div>' +
       '<div class="t-side"><span class="chip">' + idolOrFocusChip(state, p, focus) + '</span></div>' +
       '</div>';
@@ -231,12 +240,17 @@
         '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:2px">Posted ' + UI.esc(KP.weekLabel(evalWeek).text) +
         ' · next board ' + UI.esc(KP.weekLabel(next).text) + '. The trainees read it before you do.</div>' +
         '<div style="margin-top:8px">' +
-        ranked.map(p => '<div style="display:flex;gap:8px;align-items:baseline;padding:2px 0">' +
+        ranked.map(p => {
+          const tr = evalTrend(p);   // the trajectory (v0.11.5, §96 wiring): the move and the word for the last three
+          return '<div style="display:flex;gap:8px;align-items:baseline;padding:2px 0;flex-wrap:wrap">' +
           '<span style="font-weight:800;width:1.4em">' + KP.evalRankOf(p) + '</span>' +
           '<span data-action="open-dossier" data-id="' + p.id + '">' + UI.esc(KP.displayName(p)) + '</span>' +
+          evalMoveHtml(tr) +
+          (tr && tr.word ? '<span class="chip">' + tr.word + '</span>' : '') +
           ((p.flags.evalStreak || 0) >= KP.C.EVAL.aceStreakAt ? '<span class="chip gold">the ace</span>' : '') +
           (p.flags.agingOut ? '<span class="chip">the clock</span>' : '') +
-          '</div>').join('') +
+          '</div>';
+        }).join('') +
         '</div></div>');
     }
     trainees.forEach(p => {
@@ -278,6 +292,28 @@
   }
   function bandRank(b) { return KP.C.BANDS.findIndex(x => x.key === b); }
 
+  // the trajectory (v0.11.5, §96 wiring): ranks are public — the sheet is
+  // posted on the wall — so the movement against the last sheet and the
+  // word for the last three (climbing / parked / sliding) are the board's
+  // to show. Pure, from evalHistory alone.
+  function evalTrend(p) {
+    const h = (p && p.evalHistory) || [];
+    if (!h.length) return null;
+    const cur = h[h.length - 1], prev = h.length > 1 ? h[h.length - 2] : null;
+    let word = null;
+    if (h.length >= 3) {
+      const a = h[h.length - 3].rank;
+      word = cur.rank < a ? 'climbing' : cur.rank > a ? 'sliding' : 'parked';
+    }
+    return { rank: cur.rank, of: cur.of, delta: prev ? prev.rank - cur.rank : 0, prev: !!prev, word };
+  }
+  function evalMoveHtml(tr) {
+    if (!tr || !tr.prev) return '';
+    return tr.delta > 0 ? ' <span style="color:var(--cyan)">▲' + tr.delta + '</span>'
+      : tr.delta < 0 ? ' <span style="color:var(--magenta)">▼' + Math.abs(tr.delta) + '</span>'
+      : ' <span style="color:var(--ink-dim)">—</span>';
+  }
+
   // ---- dossier ---------------------------------------------------------
   // ---- dossier (tabbed, owner request: "so it's not so much scrolling")
   // Profile = the working card (attributes, plan, actions). The file =
@@ -292,6 +328,9 @@
 
     html.push('<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>');
     const inLineup = !!KP.groupOf(state, p.id);
+    // the forecast and the trainee paper (v0.11.5, §96 wiring): pure reads, null when they do not apply
+    const forecast = KP.renewalForecast ? KP.renewalForecast(state, p) : null;
+    const paper = KP.traineePaperRead ? KP.traineePaperRead(state, p) : null;
     const nameHtml = p.name.stage
       ? UI.esc(p.name.stage)
       : UI.esc(p.name.family) + '<br>' + UI.esc(p.name.given);
@@ -311,10 +350,17 @@
       '</div>' +
       (p.contract && p.status === 'idol'
         ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:5px">Exclusive contract · year ' +
-          KP.contractYear(state, p) + ' of ' + p.contract.years +
+          KP.contractYear(state, p) + ' of ' + (p.contract.years || KP.C.CONTRACT.years) +
           (p.contract.term > 1 ? ' · term ' + p.contract.term : '') +
           (p.contract.leaving ? ' · <span style="color:var(--magenta)">final term</span>' : '') +
-          (p.flags.military ? ' · <span style="color:var(--magenta)">in service — back ' + UI.esc(KP.weekLabel(p.flags.military.until).text) + '</span>' : p.serviceDone ? ' · service completed' : '') + '</div>'
+          (p.flags.military ? ' · <span style="color:var(--magenta)">in service — back ' + UI.esc(KP.weekLabel(p.flags.military.until).text) + '</span>' : p.serviceDone ? ' · service completed' : '') +
+          // the forecast (v0.11.5, §96 wiring): the band the table would read, from the renewal year on — a word, never the score
+          (forecast ? ' · the table would read: <span style="color:' + ({ devoted: 'var(--gold)', gone: 'var(--magenta)' }[forecast] || 'var(--ink)') + '">' + UI.esc(forecast) + '</span>' : '') + '</div>'
+        : '') +
+      // the trainee paper (v0.11.5, §96 wiring): three years, a term, an end date — on the head of the file
+      (paper
+        ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:5px">Trainee contract · term ' + paper.term + ' · ends ' + UI.esc(KP.weekLabel(paper.end).text) +
+          (paper.notice ? ' · <span style="color:var(--magenta)">the paper is running out</span>' : '') + '</div>'
         : '') +
       (p.status === 'departed'
         ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:5px">Departed ' + UI.esc(KP.weekLabel(p.flags.departedWeek || 1).text) + ' · the file stays open forever</div>'
@@ -339,6 +385,18 @@
       // her working record: everything with her name on it
       const credits = KP.trackCreditsOf(state, p.id);
       const solos = p.soloDisc || [];
+      // the transcendence read (v0.11.5, §96 wiring): the word the engine
+      // always had for her pull on the room, on the file at last
+      const grav = KP.gravityRead ? KP.gravityRead(state, p) : null;
+      if (grav) {
+        html.push('<div class="card"><b>In the room:</b> ' + UI.esc(grav.word) +
+          (grav.live ? ' · <span style="color:var(--magenta)">the clamor is on</span>' : '') +
+          '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:6px">' + UI.esc(KP.fillPro(
+            grav.floor ? 'One voice in ' + grav.group.name + ' — nobody is pulling away, and the trades have no feature to write.'
+              : grav.word === 'the face' ? 'The cameras find {her} first. The clamor starts further up this ladder.'
+              : grav.word === 'first among equals' ? '{Pos} name leads every paragraph about ' + grav.group.name + '. One more season like this and the feature writes itself.'
+              : 'The feature is written, or about to be: the question the building is not asking out loud is whether {she} is bigger than ' + grav.group.name + '.', p)) + '</div></div>');
+      }
       if (p.dualCareer) {
         html.push('<div class="card"><b>The solo career — in-house</b> since ' +
           UI.esc(KP.weekLabel(p.dualCareer.since).text) + '. Her own calendar runs beside the group’s; the cooldowns are hers.</div>');
@@ -381,7 +439,7 @@
         html.push('<div class="card">Broadcasting since ' + UI.esc(KP.weekLabel(p.broadcast.since).text) +
           ' · ' + (p.broadcast.uploads || 0) + ' uploads. The archive is hers; the ad checks are the company’s (§85 would like a word).</div>');
       }
-      if (!solos.length && !credits.length && !work.length && !p.broadcast && !p.dualCareer && !(p.flags.writerCredits || 0)) {
+      if (!solos.length && !credits.length && !work.length && !p.broadcast && !p.dualCareer && !(p.flags.writerCredits || 0) && !grav) {
         html.push('<div class="card" style="color:var(--ink-dim);font-style:italic">' +
           KP.fillPro('The career page is blank so far — every name on it will be earned.', p) + '</div>');
       }
@@ -426,12 +484,20 @@
       if (p.debutSnap) {
         const growth = KP.C.TALENTS
           .map(dm => ({ dm, d: Math.round(p.talents[dm].cur) - p.debutSnap[dm] }))
-          .filter(x => x.d !== 0);
+          .filter(x => Number.isFinite(x.d) && x.d !== 0);
         if (growth.length) {
+          // the reveal law (v0.11.5, §96 wiring, slip 9): the hidden scale
+          // moves in words — a step, a rung, a flight — up or down, never digits
+          const bands = KP.C.GROWTH_BANDS || [];
+          const bandWord = d => {
+            const a = Math.abs(d);
+            const b = bands.find(x => a <= x.max) || bands[bands.length - 1] || { word: 'a step' };
+            return b.word + (d > 0 ? ' up' : ' down');
+          };
           html.push('<div class="kicker">Since debut</div>');
           html.push('<div class="card">' + growth.map(x =>
-            UI.esc(KP.C.TALENT_LABELS[x.dm] || x.dm) + ' ' + (x.d > 0 ? '+' : '') + x.d).join(' · ') +
-            '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:6px">Measured against the night of the debut — the work, in numbers.</div></div>');
+            UI.esc(KP.C.TALENT_LABELS[x.dm] || x.dm) + ': ' + UI.esc(bandWord(x.d))).join(' · ') +
+            '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:6px">Measured against the night of the debut — the work, in words.</div></div>');
         }
       }
       // the ledger between you, in words

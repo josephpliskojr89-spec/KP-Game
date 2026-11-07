@@ -84,6 +84,20 @@
     return html.join('');
   }
 
+  // the tenure in words (v0.11.5, §96 wiring): weeks are public, so the
+  // count shows — phrased off the calendar's own units, no new numbers
+  function tenureWords(weeks) {
+    const C = KP.C;
+    if (!(weeks >= 0)) return '';
+    if (weeks < C.WEEKS_PER_MONTH) return 'just took the van keys';
+    if (weeks < C.WEEKS_PER_YEAR) {
+      const m = Math.floor(weeks / C.WEEKS_PER_MONTH);
+      return m + ' month' + (m === 1 ? '' : 's') + ' on the road';
+    }
+    const y = Math.floor(weeks / C.WEEKS_PER_YEAR);
+    return y + ' year' + (y === 1 ? '' : 's') + ' on the road';
+  }
+
   function groupCard(state, g) {
     const promoting = g.debuted && state.week <= (g.promoUntil || 0);
     const status = g.debuted
@@ -187,7 +201,14 @@
         }
         return '';
       })() +
-      '</div></div>');
+      '</div>' +
+      // the road manager (v0.11.5, §96 wiring): the name only letters
+      // carried, on the header — with the tenure in words
+      (g.manager && g.manager.name
+        ? '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:8px">Road manager: ' + UI.esc(g.manager.name) +
+          (g.manager.since != null ? ' · ' + UI.esc(tenureWords(state.week - g.manager.since)) : '') + '</div>'
+        : '') +
+      '</div>');
 
     html.push('<div class="member-strip">');
     members.forEach(m => {
@@ -205,10 +226,15 @@
       if (g.roles.mainDancer === m.id) roles.push('Main Dancer');
       if (g.roles.mainRapper === m.id) roles.push('Main Rapper');
       if (g.maknae === m.id) roles.push('Maknae');
+      // the gravity word (v0.11.5, §96 wiring): a member pulling away from
+      // the room wears the read on the strip — above the floor word only
+      const grav = g.debuted && KP.gravityRead ? KP.gravityRead(state, m) : null;
       html.push('<div class="member-cell" data-action="open-dossier" data-id="' + m.id + '">' +
         UI.portrait(m, 'md') +
         '<div class="mc-name">' + UI.esc(m.name.stage || m.name.given) + '</div>' +
-        '<div class="mc-role">' + UI.esc(roles.join(' · ') || 'Member') + '</div></div>');
+        '<div class="mc-role">' + UI.esc(roles.join(' · ') || 'Member') + '</div>' +
+        (grav && !grav.floor ? '<span class="chip hot" style="font-size:.5rem;padding:1px 5px;margin-top:4px;display:inline-block;white-space:normal;line-height:1.2">' + UI.esc(grav.word) + '</span>' : '') +
+        '</div>');
     });
     html.push('</div>');
 
@@ -292,6 +318,64 @@
       });
       html.push('<div class="kicker">The map</div>');
       html.push('<div class="pad" style="display:flex;gap:7px;flex-wrap:wrap">' + rows.join('') + '</div>');
+    }
+
+    // the road record (v0.11.5, §96 wiring): toursDone and the wrap's own
+    // numbers, read back — counts are public
+    if (g.debuted && KP.tourRecordRead) {
+      const road = KP.tourRecordRead(g);
+      if (road.count) {
+        const scaleLabel = t => ((KP.C.TOUR.SCALES[t.scale] || {}).label || t.scale || 'a tour').toLowerCase();
+        const legsLabel = legs => (legs || []).map(id => id === 'kr' ? 'Korea' : KP.regionLabel(id)).join(' / ');
+        html.push('<div class="kicker">The road</div>');
+        html.push('<div class="card" style="font-size:.8rem;line-height:1.55">The road: ' + road.count + ' tour' + (road.count === 1 ? '' : 's') +
+          (road.last ? ' · last: ' + UI.esc(scaleLabel(road.last)) + ', ' + road.last.stops + ' stops, ' + road.last.soldOut + ' sold out' : '') +
+          (road.recent.length
+            ? '<div style="margin-top:6px;color:var(--ink-dim)">' + road.recent.map(t =>
+                '<div>' + UI.esc(KP.weekLabel(t.week).text) + ' — ' + UI.esc(scaleLabel(t)) + ' · ' + UI.esc(legsLabel(t.legs)) +
+                ' · ' + t.stops + ' stops · ' + t.soldOut + ' sold out · ' + t.soft + ' soft</div>').join('') + '</div>'
+            : '<div style="margin-top:6px;color:var(--ink-dim)">The tours before this build left no record — the road remembers from here.</div>') +
+          '</div>');
+      }
+    }
+
+    // festival season (v0.11.5, §96 wiring): a booked bill stays on the page
+    // until it plays — and the regrets the organizer keeps, if the ledger has them
+    if (g.debuted) {
+      const pending = (g.festivalBookings || []).filter(b => b.week >= state.week).slice().sort((a, b) => a.week - b.week);
+      const yr = Math.floor((state.week - 1) / KP.C.WEEKS_PER_YEAR) + 1;
+      const regrets = Object.keys(g.festRegrets || {}).filter(id => g.festRegrets[id] === yr);
+      const festName = id => ((KP.C.FESTS.LIST || []).find(f => f.id === id) || { name: id }).name;
+      if (pending.length || regrets.length) {
+        html.push('<div class="kicker">Festival season</div>');
+        html.push('<div class="card" style="font-size:.8rem;line-height:1.55">' +
+          pending.map(b => '<div>Booked: ' + UI.esc(festName(b.festivalId)) + ', ' + UI.esc(KP.weekLabel(b.week).text) +
+            (b.headline ? ' · <span style="color:var(--gold)">the headline slot</span>' : '') + '</div>').join('') +
+          (regrets.length ? '<div style="color:var(--ink-dim)">Regrets sent to ' + regrets.map(id => UI.esc(festName(id))).join(', ') + ' this year — the organizers keep notes.</div>' : '') +
+          '</div>');
+      }
+    }
+
+    // the Japan ladder (v0.11.5, §96 wiring): the partner, the rung and the
+    // next one, the JP fanbase as a band — the page the cycle never had
+    if (g.debuted && (state.jpPartner || g.jpRung != null || g.jpFans)) {
+      const L = KP.C.JAPAN.LADDER || [];
+      const rung = g.jpRung != null ? L[g.jpRung] || null : null;
+      const next = L[(g.jpRung != null ? g.jpRung : -1) + 1] || null;
+      const fans = g.jpFans || 0;
+      const band = L.filter(r => fans >= r.at).length;
+      const fansWord = !fans ? 'nobody on the books yet'
+        : ['a club’s worth', 'a hall’s worth', 'an arena’s worth', 'a dome’s worth'][Math.min(3, band)];
+      html.push('<div class="kicker">Japan</div>');
+      html.push('<div class="card" style="font-size:.8rem;line-height:1.55">' +
+        (state.jpPartner
+          ? '<div><b>' + UI.esc(state.jpPartner.name) + '</b> runs the second discography' +
+            (state.jpPartner.since != null ? ' · since ' + UI.esc(KP.weekLabel(state.jpPartner.since).text) : '') + '</div>'
+          : '<div>No partner label yet — nobody runs Japan alone.</div>') +
+        '<div>The ladder: ' + (rung ? UI.esc(rung.word) + ' booked' : 'no stage yet') +
+        (next ? ' · next rung: ' + UI.esc(next.word) : ' · the top of the ladder') + '</div>' +
+        '<div style="color:var(--ink-dim)">The JP fanbase: ' + fansWord + (fans ? ' (' + UI.esc(KP.fmtCount(fans)) + ')' : '') + '</div>' +
+        '</div>');
     }
 
     // the trophy case (v0.6.5): music-show wins, counted forever
@@ -499,7 +583,8 @@
           '<div><b>“' + UI.esc(r.songTitle) + '”</b> · ' + UI.esc(KP.conceptById(r.conceptId).label) +
           (fmt ? ' · ' + UI.esc(fmt.label.toLowerCase()) : '') +
           (r.producer ? ' · prod. ' + UI.esc(r.producer) : '') +
-          '<span class="m-week">' + (r.isDebut ? 'debut · ' : '') + 'peaked #' + r.chartPeak +
+          // the reissue names its era (v0.11.5, §96 wiring): repackageOf is the first record's title
+          '<span class="m-week">' + (r.isDebut ? 'debut · ' : r.repackageOf ? 'extends “' + UI.esc(r.repackageOf) + '” · ' : '') + 'peaked #' + r.chartPeak +
           (r.nationalPeak != null ? ' · national #' + r.nationalPeak : '') +
           (r.critics ? ' · critics: ' + UI.esc(KP.verdictWord(r.critics.consensus)) + (r.critics.split ? ' (split)' : '') : '') +
           (r.chartWeeks ? ' · ' + r.chartWeeks + ' weeks charting' : ' · missed the charts') +

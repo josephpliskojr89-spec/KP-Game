@@ -834,8 +834,11 @@
       }
       case 'launch-solo': {
         const p = s.people[t.dataset.id];
-        UI.modal('Launch ' + p.name.display + '’s solo career?',
-          '<div class="pad" style="font-size:.88rem;line-height:1.5;color:var(--ink-dim)">' + KP.fillPro('{She} leaves the lineup warmly — same company, {pos} own calendar. The group opens a new chapter, and the door stays oiled for return runs. This is the move stars remember forever.', p) + '</div>',
+        // the copy matches the engine (v0.11.5, §96 wiring): the career opens
+        // IN-HOUSE — her seat stays, her own calendar runs beside the group's
+        const gSolo = KP.groupOf(s, p.id);
+        UI.modal('Open ' + p.name.display + '’s solo career — in-house?',
+          '<div class="pad" style="font-size:.88rem;line-height:1.5;color:var(--ink-dim)">' + KP.fillPro('{She} keeps {pos} seat in ' + (gSolo ? gSolo.name : 'the lineup') + ' — nobody leaves. The career opens inside the company: {pos} own calendar beside the group’s, {pos} own records on the solo studio, announced together and photographed as a family. The door opens because the company opened it, and {she} never forgets which kind of company does that.', p) + '</div>',
           '<button class="btn" data-action="close-modal" style="flex:1">Not yet</button>' +
           '<button class="btn primary" data-action="launch-solo-confirm" data-id="' + p.id + '" style="flex:1">Launch</button>');
         break;
@@ -1160,7 +1163,8 @@
         const r = KP.planRepackage(s, { groupId: t.dataset.id, songId: t.dataset.song,
           mv: App.studioDraft.mv || 'standard' });
         if (!r.ok) { UI.toast(r.reason, true); break; }
-        App.save(); UI.toast('The era extends. The fandom is already budgeting for photocards.'); App.render();
+        // the engine wrote the letter (v0.11.5, §96 wiring); the toast is its first clause
+        App.save(); UI.toast(r.note ? r.note.split(' — ')[0] + '.' : 'The era extends.'); App.render();
         break;
       }
       case 'found-label': {

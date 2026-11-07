@@ -13,7 +13,9 @@
 
   function ledger(state) {
     state.medLedger = state.medLedger ||
-      { cases: 0, rested: 0, seated: 0, pushed: 0, chronics: 0, flares: 0 };
+      { cases: 0, rested: 0, seated: 0, pushed: 0, chronics: 0, flares: 0, restedBySilence: 0 };
+    // the silence counted (v0.11.5, §96 wiring) — a field added post-ship, healed lazily
+    if (state.medLedger.restedBySilence == null) state.medLedger.restedBySilence = 0;
     return state.medLedger;
   }
   KP.medLedger = ledger;
@@ -109,9 +111,15 @@
       const p = state.people[sc.personId];
       if (p) {
         const rng = rng0 || KP.rngFor(state);   // the phase's stream when the week expires it
-        ledger(state).rested++;
+        const led = ledger(state);
+        led.rested++;
+        led.restedBySilence++;
         p.flags.burnout = rng.int(KP.C.MEDICAL.restMin, KP.C.MEDICAL.restMax);
         if (!rng0) state.rngState = rng.state();
+        // the protective door, chosen by the clinic — with a mark on her
+        // file (v0.11.5, §96 wiring): she was left waiting for the desk
+        KP.recordDirected(state, p.id, 'leftWaiting');
+        p.history.push({ week: state.week, text: 'Pulled from the schedule for ' + sc.site + ' — the clinic decided; nobody from the desk called. The rest is real. So is the silence it came wrapped in.' });
       }
       return null;
     },

@@ -36,6 +36,18 @@
       : read >= G.transcendAt * 0.3 ? 'the face' : 'one of the room';
   };
 
+  // the read on the file (v0.11.5, §96 wiring): the transcendence word for
+  // a debuted member of a real room, pure — null where the read means
+  // nothing (a trainee, a soloist, a one-member act, a closed chapter)
+  KP.gravityRead = function (state, p) {
+    if (!p || p.status !== 'idol') return null;
+    const g = KP.groupOf(state, p.id);
+    if (!g || !g.debuted || g.retiredWeek || g.type === 'solo' || (g.members || []).length < 2) return null;
+    const word = KP.gravityWord(KP.transcendRead(state, g, p));
+    return { word, floor: word === KP.gravityWord(0), group: g,
+      live: !!(g.gravity && !g.gravity.settled && g.gravity.personId === p.id) };
+  };
+
   function ledger(state) {
     return state.gravityLedger = state.gravityLedger ||
       { clamors: 0, settled: 0, held: 0, knocks: 0, slumps: 0, footings: 0 };
@@ -485,10 +497,11 @@
       priority: format === 'mini' ? 'critical' : 'high',
       personId: p.id, groupId: g.id,
       text: format === 'mini'
-        ? KP.fillPro(KP.displayName(p) + '’s solo album “' + title + '” is OUT — full record, {pos} name on the spine, ' + g.name + ' thanked in the first line of the credits. The campaign accounts that spent a year asking for this are somewhere between triumphant and unemployed. Reception ' + reception + ', fee +' + revenue + '.', p)
+        // the reception is a word, never the number (v0.11.5, §96 wiring — the reveal law); the fee is money, public
+        ? KP.fillPro(KP.displayName(p) + '’s solo album “' + title + '” is OUT — full record, {pos} name on the spine, ' + g.name + ' thanked in the first line of the credits. The campaign accounts that spent a year asking for this are somewhere between triumphant and unemployed. Reception: ' + KP.receptionWord(reception).toLowerCase() + ', fee +' + revenue + '.', p)
         : KP.fillPro(KP.displayName(p) + '’s solo single “' + title + '” dropped — IN the group, {pos} own stage, ' + g.name + '’s lightsticks in the front row anyway. ' +
           (direction === 'hers' ? 'The credits say the direction was {hers}, and the sound says so louder. ' : direction === 'cowrite' ? 'Co-written — {pos} pen, the house polish. ' : '') +
-          'Reception ' + reception + ', fee +' + revenue + '.', p) });
+          'Reception: ' + KP.receptionWord(reception).toLowerCase() + ', fee +' + revenue + '.', p) });
     return { ok: true, reception, title, revenue, note: note.text };
   }
 

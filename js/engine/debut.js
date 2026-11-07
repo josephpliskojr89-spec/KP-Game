@@ -390,8 +390,12 @@
         Object.assign({}, format, { tracks: RP.tracks }));
       state.rngState = trng.state();
     }
-    return { ok: true, note: g.name + '’s era extends: “' + last.songTitle + '” repackages with “' +
-      demo.title + '” as the new title track — the demo the meeting passed on, back from the table. The fandom knows exactly what a repackage means, and is already budgeting for the new photocards.' };
+    // the engine writes the announcement (v0.11.5, §96 wiring): the bot's
+    // path and the desk's get the same letter; the toast keeps its clause
+    const note = KP.note(state, { kind: 'company', ind: 'repackageSet', priority: 'high', groupId: g.id,
+      text: g.name + '’s era extends: “' + last.songTitle + '” repackages with “' +
+        demo.title + '” as the new title track — the demo the meeting passed on, back from the table. The fandom knows exactly what a repackage means, and is already budgeting for the new photocards.' });
+    return { ok: true, note: note.text };
   };
 
   // ---- the solo project (v0.10.24, §87 E): the group-name mini, one ----
@@ -441,6 +445,19 @@
     return Object.assign({ project: true }, r);
   };
 
+  // the rehearsal allocation's shape, in words (v0.11.5, §96 wiring): the
+  // sliders had no echo anywhere. Null when the room rehearsed flat.
+  KP.allocLean = function (alloc) {
+    const a = alloc || {};
+    const keys = ['vocals', 'dance', 'rap', 'media'];
+    const WORD = { vocals: 'vocal', dance: 'dance', rap: 'rap', media: 'camera' };
+    const shares = keys.map(k => a[k] || 0);
+    const hi = Math.max.apply(null, shares), lo = Math.min.apply(null, shares);
+    if (hi - lo < KP.C.DEBUT.allocLeanGap) return null;
+    const tops = keys.filter(k => (a[k] || 0) === hi).map(k => WORD[k]);
+    return tops.join('-and-') + '-heavy';
+  };
+
   // Weekly release-prep for one group: rehearsal replaces training.
   // Benched members (overwork, v0.4.2) sit rehearsal out and recover.
   KP.prepWeek = function (state, rng, g) {
@@ -480,13 +497,16 @@
     });
     g.prep.progress++;
     const weeksLeft = g.prep.scheduledWeek - state.week;
+    // the allocation's shape rides the countdown (v0.11.5, §96 wiring): one
+    // clause, words only, nothing when the room rehearsed flat
+    const lean = KP.allocLean ? KP.allocLean(g.prep.alloc) : null;
     if (weeksLeft === 2) notes.push({ kind: 'debut', text: KP.lineFor(state, 'countdown|' + g.id, [
       g.name + ': two weeks out. Teasers are cut, the stage is booked, and everyone is sleeping badly.',
       g.name + ': two weeks out. The choreography is locked, the stylists have opinions, and the van has started running on coffee and dread.',
       g.name + ': two weeks out. The guide vocal is final, the MV is in color grading, and the members have started counting sleeps like children.',
       g.name + ': two weeks out. Somebody printed the schedule and taped it to the practice-room door, and somebody else has already annotated it.',
       g.name + ': two weeks out. The building is quiet in the specific way it gets before a release — everyone busy, nobody talking about it.',
-    ]) });
+    ]) + (lean ? ' The room rehearsed ' + lean + '.' : '') });
     return notes;
   };
 
@@ -1173,7 +1193,9 @@
       returnRun: g.prep.returnRun || null,   // the alum on the sleeve (v0.9.25)
       // the product (v0.10.0): the fandom's number, archived beside the public's
       chodong: product ? product.chodong : null,
-      pressing: product ? { run: product.run, versions: product.versions, pob: product.pob } : null,
+      pressing: product ? { run: product.run, versions: product.versions, pob: product.pob,
+        // the week's verdict on the run, archived (v0.11.5, §96 wiring): the memo and the restock read it later
+        demand: product.demand, soldOut: !!product.soldOut, overpress: !!product.overpress } : null,
       // the release archives its OWN copy (0.9.13 audit L4: results and
       // releases shared one live array — identical today, a fork hazard
       // the first time anything edits a released tracklist)
@@ -1255,7 +1277,8 @@
         if (pt && pl) {
           pl.morale = KP.clamp(pl.morale - 2, 0, 100);
           push({ kind: 'public', priority: 'high', personId: pl.id, groupId: g.id,
-            text: 'The project’s cut numbers went public the way numbers do: ' + KP.publicGiven(pt) + '’s single is the runaway (' + top.score + '), and the columns sorting every member by first-day streams all end on ' + KP.publicGiven(pl) + '’s row (' + low.score + '). The format promised everyone a spotlight. It never promised the spotlights would match.' });
+            // the spread is names, never the composite as digits (v0.11.5, §96 wiring — the reveal law)
+            text: 'The project’s cut numbers went public the way numbers do: ' + KP.publicGiven(pt) + '’s single is the runaway, and the columns sorting every member by first-day streams all end on ' + KP.publicGiven(pl) + '’s row at the bottom. The format promised everyone a spotlight. It never promised the spotlights would match.' });
         }
       }
     }

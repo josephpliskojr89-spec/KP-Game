@@ -71,6 +71,11 @@
     led.sheets++;
     const of = ranked.length;
     let climber = null, climberDelta = 0;
+    // the ladder's witnesses (v0.11.5, §96 wiring): a first #1, the talk,
+    // the biggest move either way, and whether the top changed hands
+    let firstTop = null, talked = null, slider = null, sliderDelta = 0, maxMove = 0;
+    const prevTop = state.lastEvalTopId || null;
+    const aceChanged = !!prevTop && prevTop !== ranked[0].p.id && ranked.some(r => r.p.id === prevTop);
     // the room knows who is first (group.js's passed-over ace reads this)
     state.lastEvalTopId = ranked[0].p.id;
     ranked.forEach((row, i) => {
@@ -78,6 +83,13 @@
       const rank = i + 1;
       p.evalHistory = p.evalHistory || [];
       const prev = p.evalHistory.length ? p.evalHistory[p.evalHistory.length - 1] : null;
+      // her first #1 (v0.11.5): the flag remembers past the twelve-month
+      // window; an old save with a #1 already on the file backfills quietly
+      if (rank === 1 && !p.flags.firstEvalTopWeek) {
+        const before = p.evalHistory.find(e => e.rank === 1);
+        p.flags.firstEvalTopWeek = before ? before.week : state.week;
+        if (!before) firstTop = firstTop || p;
+      }
       p.evalHistory.push({ week: state.week, rank, of });
       if (p.evalHistory.length > E.historyCap) p.evalHistory.shift();
       // the ace (from practice.js, v0.10.30 §89 D4): three straight months
@@ -95,6 +107,8 @@
         const delta = KP.clamp(prev.rank - rank, -E.swingCap, E.swingCap);
         if (delta !== 0) p.morale = KP.clamp(p.morale + delta, 0, 100);
         if (delta > climberDelta) { climber = p; climberDelta = delta; }
+        if (delta < sliderDelta) { slider = p; sliderDelta = delta; }
+        if (Math.abs(delta) > maxMove) maxMove = Math.abs(delta);
         if (delta > 0) led.climbs++;
         if (delta < 0) led.slides++;
         if (delta >= 2) {
@@ -109,7 +123,8 @@
           led.talks++;
           p.morale = KP.clamp(p.morale - E.bottomMorale, 0, 100);
           p.history.push({ week: state.week, text: 'The after-eval talk — the one held with the door open just enough that everyone knows it is happening. Rank ' + rank + ' of ' + of + ' again. The room gets smaller every month the sheet says the same thing.' });
-          inbox.push({ kind: 'company', ind: 'evalTalk', priority: 'flavor', personId: p.id,
+          talked = talked || p;   // the month of the talk posts the sheet critical (v0.11.5)
+          inbox.push({ kind: 'company', ind: 'evalTalk', priority: 'high', personId: p.id,
             text: KP.fillPro(KP.lineFor(state, 'evalTalk|' + p.id, [
               KP.displayName(p) + ' got the after-eval talk — bottom of the sheet twice running. {She} nodded through it and stayed two extra hours in practice room 3, which is either the answer or the beginning of a different conversation.',
               KP.displayName(p) + ' got the after-eval talk — the door open just enough. Bottom of the sheet twice running. {She} said “yes” eleven times and nothing else, and was in practice room 3 before the coaches had left the building.',
@@ -121,16 +136,29 @@
       }
     });
     const names = ranked.slice(0, 3).map((r, i) => (i + 1) + '. ' + KP.displayName(r.p));
-    inbox.push({ kind: 'company', ind: 'evalSheet', priority: 'flavor',
+    // the ladder (v0.11.5, §96 wiring): critical the month a trainee takes
+    // #1 for the first time or the talk is held; high on a real move either
+    // way or a new ace; normal when the sheet moved at all; flavor only when
+    // nothing did. One clause names the movement that set it.
+    const priority = (firstTop || talked) ? 'critical'
+      : (maxMove >= E.sheetHighMove || aceChanged) ? 'high'
+      : maxMove > 0 ? 'normal' : 'flavor';
+    const story = firstTop ? KP.displayName(firstTop) + ' took the top of the sheet for the first time'
+      : talked ? 'the after-eval talk, held with ' + KP.displayName(talked)
+      : aceChanged ? KP.displayName(ranked[0].p) + ', who took the top from ' + KP.displayName(state.people[prevTop])
+      : climber ? KP.displayName(climber) + ', up ' + climberDelta
+      : slider ? KP.displayName(slider) + ', down ' + (-sliderDelta)
+      : null;
+    inbox.push({ kind: 'company', ind: 'evalSheet', priority,
       text: KP.lineFor(state, 'evalSheet', [
         'Monthly evaluation day: showcase run twice, coaches at the long table, and the ranked sheet on the wall by six — ' + names.join(' · ') + ' of ' + of +
-          (climber ? '. The room’s story is ' + KP.displayName(climber) + ', up ' + climberDelta + ' — everyone recalibrated who to practice next to.' : '.') +
+          (story ? '. The room’s story is ' + story + ' — everyone recalibrated who to practice next to.' : '. Nobody moved — the sheet read like last month’s.') +
           ' The sheet ranks what the coaches can SEE. Everyone in the building knows those are not always the same thing.',
         'Evaluation day. The showcase ran twice, the coaches sat the long table, and by six the sheet was on the wall: ' + names.join(' · ') + ' of ' + of +
-          (climber ? '. ' + KP.displayName(climber) + ' is the story — up ' + climberDelta + ', and the room re-sorted itself by dinner.' : '.') +
+          (story ? '. The story is ' + story + ', and the room re-sorted itself by dinner.' : '. Nothing moved; the room ate dinner in the usual order.') +
           ' The sheet is what the coaches saw. The building keeps its own sheet.',
         'The monthly sheet went up at six: ' + names.join(' · ') + ' of ' + of +
-          (climber ? '. Everyone read down to ' + KP.displayName(climber) + ' first — up ' + climberDelta + ' — and then back up to see who had been passed.' : '.') +
+          (story ? '. Everyone read it for one thing first — ' + story + ' — and then back up to see who had been passed.' : '. Everyone read it once and went back to practice; nothing had moved.') +
           ' Rank is what a showcase can measure. The rest gets argued in the hallway.',
       ]) });
   });
