@@ -293,22 +293,28 @@ const BANDS = {
   seasonCoached:     { lo: 0.10, hi: 0.90, label: 'orgs that flew a coach to the set' },
   seasonEdited:      { lo: 0.05, hi: 0.80, label: 'orgs whose contestant was cut an edit' },
   seasonEpisodes:    { lo: 0.10, hi: 1.00, label: 'orgs that read an episode letter with their kid in it' },
-  // the wiring (v0.11.5, §96 recommendation 1): measure-first — provisional
-  // [0,1] until the first 40-org soak rules them
-  wirePassedChair:    { lo: 0.00, hi: 1.00, label: 'orgs told a passed candidate took a rival’s chair' },
-  wireRedInkSilence:  { lo: 0.00, hi: 1.00, label: 'orgs that let the red-ink talk expire (the room read the silence)' },
-  wireMandateMet:     { lo: 0.00, hi: 1.00, label: 'orgs whose exec acknowledged a kept greenlight' },
-  wireWarehouseMemo:  { lo: 0.00, hi: 1.00, label: 'orgs that got the warehouse memo (overpressed)' },
-  wireRestockPressed: { lo: 0.00, hi: 1.00, label: 'orgs that pressed a second run (bot never)' },
-  wireRepackageSet:   { lo: 0.00, hi: 1.00, label: 'orgs whose repackage was announced by letter' },
-  wireLandedCritical: { lo: 0.00, hi: 1.00, label: 'orgs whose landing letter arrived critical' },
-  wireEvalCritical:   { lo: 0.00, hi: 1.00, label: 'orgs whose evaluation sheet went critical (a first #1 or the talk)' },
-  wireEvalHigh:       { lo: 0.00, hi: 1.00, label: 'orgs whose evaluation sheet went high (a climber or a new ace)' },
+  // the wiring (v0.11.5, §96 recommendation 1): ruled from the second
+  // 40-org soak on the final code — passed chair 36, red-ink silence 0
+  // (the bot answers every scene), greenlight 4, warehouse memo 25 (at
+  // normal it was 0: trimmed every release week), second run 0 (bot
+  // never), repackage announced 28, landing critical 40, sheet critical
+  // 40 / high 40, solo door 0 (bot never), leveraged offer 0 (the bot
+  // leverages only when broke; the offer itself came 16), regrets 40,
+  // desk cooled 0, tour record 40
+  wirePassedChair:    { lo: 0.40, hi: 1.00, label: 'orgs told a passed candidate took a rival’s chair' },
+  wireRedInkSilence:  { lo: 0.00, hi: 0.20, label: 'orgs that let the red-ink talk expire (the room read the silence)' },
+  wireMandateMet:     { lo: 0.00, hi: 0.60, label: 'orgs whose exec acknowledged a kept greenlight' },
+  wireWarehouseMemo:  { lo: 0.20, hi: 0.95, label: 'orgs that got the warehouse memo (overpressed)' },
+  wireRestockPressed: { lo: 0.00, hi: 0.10, label: 'orgs that pressed a second run (bot never)' },
+  wireRepackageSet:   { lo: 0.30, hi: 1.00, label: 'orgs whose repackage was announced by letter' },
+  wireLandedCritical: { lo: 0.90, hi: 1.00, label: 'orgs whose landing letter arrived critical' },
+  wireEvalCritical:   { lo: 0.60, hi: 1.00, label: 'orgs whose evaluation sheet went critical (the talk or the building’s first #1)' },
+  wireEvalHigh:       { lo: 0.60, hi: 1.00, label: 'orgs whose evaluation sheet went high (a first #1, a climber or a new ace)' },
   wireGraduatedSolo:  { lo: 0.00, hi: 0.10, label: 'orgs that opened the solo door at the table (bot never — suite-held)' },
-  wireOfferLeveraged: { lo: 0.00, hi: 1.00, label: 'orgs whose leveraged offer is remembered by the house' },
-  wireFestRegrets:    { lo: 0.00, hi: 1.00, label: 'orgs that sent regrets an organizer remembers' },
-  wireDeskCooled:     { lo: 0.00, hi: 1.00, label: 'orgs with a broadcaster desk cooled by declines' },
-  wireTourRecord:     { lo: 0.00, hi: 1.00, label: 'orgs whose group page keeps a tour record' },
+  wireOfferLeveraged: { lo: 0.00, hi: 0.40, label: 'orgs whose leveraged offer is remembered by the house' },
+  wireFestRegrets:    { lo: 0.50, hi: 1.00, label: 'orgs that sent regrets an organizer remembers' },
+  wireDeskCooled:     { lo: 0.00, hi: 0.40, label: 'orgs with a broadcaster desk cooled by declines' },
+  wireTourRecord:     { lo: 0.60, hi: 1.00, label: 'orgs whose group page keeps a tour record' },
   // v0.10.33 — the one market: a collapse's signing class is on the open
   // board and the bot buys a career when flush. Measure-first: collapses
   // are rare inside 140 weeks, so the floor is 0 until a census says more.

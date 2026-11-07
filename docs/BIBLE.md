@@ -9089,7 +9089,7 @@ Suite_114 (41). Measured in the first soak (40 orgs): vote pushes
 every org that sent — and the bands ruled from these. Battery
 114/114, soak 40 clean, longhaul 11 × 620, e2e 134, lockstep 0.11.4.
 
-## §96 Where we stand — the depth survey (post-0.11.4)
+## §96 Where we stand — the depth survey (post-0.11.4; recommendation 1 SHIPPED v0.11.5)
 
 Owner, after the televised season shipped: *"Where does this leave
 us? Can you take a look at what needs more depth and give me a
@@ -9406,7 +9406,7 @@ better once the existing depth is reachable. Each is a full-ritual
 release; shapes only, numbers measure-first; the bot learns every
 verb; the owner reorders at will.
 
-**1. The wiring (depth hygiene — one release, like the audit).** Make
+**1. The wiring (depth hygiene — one release, like the audit; SHIPPED v0.11.5, as-built below).** Make
 what exists reachable and honest: render gravityWord, the renewal
 forecast in words, evaluation trajectory, the trainee paper, the tour
 record and `toursDone`, festival bookings on the strip and the group
@@ -9557,6 +9557,163 @@ a human already plays many times a career. The §39 honest
 constraints stand — content is the budget (families × voices), and
 the one queue is the ceiling on person-decisions until the owner
 moves it.
+
+**As built (v0.11.5 — the wiring).** Owner: *"Yeah start with the
+wiring."* Recommendation 1 shipped whole, in four hands on one tree
+(three slices by file ownership plus the door below), every number a
+constant with its history comment, every new letter through the
+rails and the trim, no rng draw added or removed inside a tick (the
+two threshold changes — the festival invite and the promo offer —
+keep their single draw and move only the bar), no top-level state
+field added, every reader guarded so old saves load.
+
+*The door.* graduateToSolo had no caller since v0.9.25 and the
+return-run scene behind it was unreachable for anyone. The cold
+renewal table now carries a third answer when she is a star
+(`KP.graduateOpen`: rung 2+ or the word 'first among equals' or
+above, a real lineup, the account covering the bonus): the solo
+door — out of the lineup, in the family, a fresh seven on a solo
+paper. It bills CONTRACT.graduateCost, deposits `openedTheDoor`,
+lifts her and costs the room (graduateMorale 4 / graduateRoomMorale
+2), writes the `graduatedSolo` letter and a feed family of three,
+and the week her old group locks its next era, `returnRun` opens.
+Never the bot's default; the ruling it leans on is §87 F read at the
+table where she holds the cards — the company's last card is the
+marquee, not the door. The soak band asserts the bot's silence.
+
+*Render what exists.* Pure helpers, never a mint: `KP.gravityRead`
+(the transcendence word on the dossier's Career tab, "In the room:",
+and a chip on the member strip above the floor word),
+`KP.renewalForecast` (the table's band on the contract line from
+contract year five — a year before the folder — in the band's own
+word), `KP.traineePaperRead` (the three-year paper and its notice
+window on the dossier head and the roster row), `KP.tourRecordRead`
+over a new `g.tourHistory` the wrap archives (TOUR.historyCap 8 —
+"The road: N tours · last: club halls, 5 stops, 2 sold out"), the
+booked festival slot on the calendar strip through KP.upcoming and
+on the group page ("Booked: …", with the regrets clause), the Japan
+ladder as a page (the partner, the rung in words, the next rung, the
+JP fanbase as a band word), the books card reading the distributor's
+tier, each club's tier and renewal, and the running quarter, the
+company card reading the exec's tenure, the first trophy, the
+chapters and the labels before this one, the rival card remembering
+the offer either way, the road manager named with tenure in words,
+the evaluation board and the roster chip carrying ▲/▼ and
+climbing/parked/sliding from `p.evalHistory`. The power ranking's
+score column is gone; "Since debut" reads in words (GROWTH_BANDS: a
+step / a rung / a flight, up or down); the launch-solo modal says
+what the engine does (she keeps her seat). A DOM stub joined the
+test folder (`test/dom_stub.js`) so suites can pin rendered strings.
+
+*The free answers, given their cost.* The offer: leverage and decline
+are stamped on the house (`r.offerLeveraged` / `r.offerDeclined`)
+and a leveraged house never sends a second envelope. The festival:
+regrets and expiries are written on the group (`g.festRegrets`) and
+next year's call for that festival comes through FESTS.
+inviteAfterRegrets .45 instead of inviteChance .75 (the old literal,
+now a constant), the invite and the body saying so. The distributor:
+"stay" is remembered for DIST.recourtWeeks 52. Red ink: the expiry
+costs each member BOOKS.redInkSilenceMorale and the room reads the
+silence (`redInkSilence`). The clinic: the protective default still
+benches her, and now writes the history line and `leftWaiting`
+(`medLedger.restedBySilence`). The service: the plan's default costs
+each man MIL.planSilenceMorale, the papers' default costs him
+papersSilenceMorale and `leftWaiting`, both texts saying the room
+noticed. Board season's third answer: every idol +1, trust −1, the
+toast naming the trade. The interview's pass: remembered on the
+hires ledger (cap HIRES.passMemoryCap 6) and twenty weeks later a
+hash-picked house gives the candidate the chair in one normal letter
+(`passedTookChair`). The promo desk: declines counted per desk, a
+take clears them, two unanswered declines halve that desk's offer
+chance on the same draw, the toast and the booking-desk lines
+reading it. The lightstick: revenue sized by `KP.fanbaseRead` ×
+CONSTITUENCY.lightstickPerFan .003 (break-even ~11.7k buyers; a
+launch-week fandom leaves "boxes in the hallway", a flagship still
+clears the run) — and the soak bot now waits until the fandom can
+pay for it. The café notice reads: +1 intensity when it answers a
+fresh grievance, −1 when it had nothing to say. The fandom's name:
+the cafés' favorite (`KP.fandomFavoriteIdx`, the existing vote hash)
++2 when backed, −2 when overruled with the wanted name in the
+letter, neutral when they decide. Unpairing writers and defusing a
+rivalry write both files and the pair ledger; unpairing inside
+PAIR.unpairSoonWeeks costs both a point. The met mandate: the exec
+acknowledges a kept greenlight in a high letter (`mandateMet`) from
+the mandates rail, the record itself the stash. The partner's "not
+yet": each one (and each expiry) steps the next offer's cut by
+JAPAN.notYetCutStep .03 to cutMax .34, the body and the letters
+naming it in words, `KP.jpCut` reading the signed cut everywhere the
+revenue splits. The new chair's two answers stay as they were, by
+choice — a roleplay fork, not a free lunch.
+
+*The record's moments.* The landing letter carries `ind: 'landed'`
+at critical and the week's kept notes are stable-sorted so it leads;
+its three lines point at the group's page, where the report button
+has always lived. A debut's first stage is THE DEBUT STAGE (the
+release archive's own `isDebut`), on the letter and the report chip.
+The repackage's sentence is sent by the engine (`repackageSet`,
+high) instead of discarded by the page, and the discography row
+reads "extends “<title>”". The warehouse memo is back as a family of
+three on the landing (`warehouseMemo`, high like the sold-out story
+it mirrors — at normal it never survived a release week's dozen
+letters, 0/40 in the first soak against 15/40 orgs that overpressed;
+"nearly twice", "twice", "three times what the fandom bought";
+PRODUCT.overpressDoubleAt 2 / overpressTripleAt 3), the release archives
+demand / soldOut / overpress, and the report chip says
+"overpressed". The restock door: a sold-out landing with
+restockMinUnits (200) of demand still open after the late reorder
+opens `restockCall` for restockFuseWeeks (2) — options[0] "let it
+stay scarce" keeps every number the bot's soak had AND feeds the
+fandom PRODUCT.scarceIntensity (2), the story the second run would
+have sold; "press a second run" captures restockShare .6 of what is
+left at the sheet's unit cost, the bill clamped to the account and
+the units scaled to what was paid, the money through the chodong's
+own path (margin, gifts, overseas, the distributor's cut, the
+group's share), a high letter and `rel.restock`; the expiry is
+silence and gets neither (the lead's ruling on the record agent's
+note that the press dominated on money alone). The evaluation
+sheet's priority ladder (EVAL.sheetHighMove 2): critical the month
+the after-eval talk is held or the FIRST #1 in the building's
+history is taken; high on a trainee's own first #1
+(`flags.firstEvalTopWeek`, backfilled quietly on old files), a move
+of two places either way, or the top changing hands; normal on a
+smaller move; flavor only when nothing moved — one clause names the
+story, and the talk's own letter is high. (The first cut made every
+personal first #1 critical: seven criticals in ninety weeks of a
+churning small room; the ruling above is the correction.) Season's
+Greetings ship at normal. The reveal slips: the solo project's
+spread reads without digits, and the solo drop, the unit era and the
+OST line say "Reception: <word>". The allocation finally speaks:
+`KP.allocLean` (DEBUT.allocLeanGap 15) names a vocal-heavy /
+dance-heavy / camera-heavy room in the two-weeks-out countdown.
+
+*The tools.* `test/dom_stub.js` — the audit's DOM stub, moved into
+the test folder so a suite can pin rendered strings; suite_115
+renders the dossier, the roster, the board, the group page, the
+record and the company card and checks them for leaked tokens and
+for state written at render (none). Fourteen measure-first counters
+in the soak census for the new letters and stamps. The 0.11.5
+migration only calls `KP.ensureLedgers` (the restock ledger exists
+from week one).
+
+*Measured (40 orgs, the second soak on the final code).* A passed
+candidate's chair 36/40; the red-ink silence 0 (the bot answers every
+scene); the kept greenlight 4; the warehouse memo 25 (15 whose last
+release overpressed — at normal priority the letter reached 0, which
+is how the §96 item 7 law was caught in its own release); the second
+run 0 (bot never); the repackage announced 28; the landing critical
+40; the sheet critical 40 and high 40; the solo door 0 (bot never);
+the leveraged offer remembered 0 (the offer itself came to 16; the
+bot leverages only when broke); regrets remembered 40; a desk cooled
+0; the tour record 40; the lightstick 40 under the bot's new policy.
+Bands ruled from these. Two owner-facing rulings worth their eye: the
+restock door's default feeds the fandom (+2 intensity on every
+answered sold-out call the bot takes — a small, deterministic move of
+the soak's fandom numbers, kept because a free "scarce" would have
+been the §96 agreement 4 bug reborn), and the evaluation sheet's
+critical is reserved for the talk and the building's first #1.
+Suite_115 (179) over test/dom_stub.js. Battery 115/115, soak 40
+clean (twice), longhaul 11 × 620 clean, e2e 134, lockstep 0.11.5.
+Migration 0.11.5 (ensureLedgers).
 
 ## §18 Watch items
 
@@ -13002,6 +13159,31 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > the wiring, the stages lived, the era closed, the long goodbye,
 > the practice room attended, the other side of the wall, the people
 > upstairs, the writing room. No code.
+
+> **0.11.5 — the wiring.** Owner: "Yeah start with the wiring."
+> §96 recommendation 1 shipped whole, in four hands on one tree. The
+> solo door at the cold renewal table (graduateToSolo's first caller;
+> the return run reachable at last). The reads rendered: the
+> transcendence word, the renewal forecast, the eval trajectory, the
+> trainee paper, the tour record, festival bookings on the strip, the
+> Japan ladder, the books card's distributor, club and running
+> quarter, the company card's tenure, chapters and first trophy, the
+> rival's memory of the offer, the road manager, since-debut in
+> words, the ranking's score column gone, the launch-solo modal
+> truthful. The free answers given their cost: the offer, festival
+> regrets, the distributor's stay, red ink, the clinic, the service
+> doors, board season, the interview's pass, the promo desks, the
+> lightstick sized by the fandom, the café notice, the fandom's name,
+> the writing pair, the met mandate, the partner's not-yet. The
+> record's moments: the landing critical and first, the debut stage,
+> the repackage's letter and mark, the warehouse memo back (at high —
+> at normal it was trimmed 40/40), the restock door with the scarce
+> story fed to the fandom, the evaluation ladder ruled to the talk and
+> the building's first #1, the greetings at normal, the reveal slips
+> banded, the allocation named. test/dom_stub.js joins the test
+> folder; fourteen census counters ruled from the second soak.
+> Suite_115 (179). Battery 115/115, soak 40 clean, longhaul 11x620,
+> e2e 134, lockstep 0.11.5. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
