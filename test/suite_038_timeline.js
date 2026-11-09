@@ -82,7 +82,7 @@ function debuted(seed) {
   }
   t.ok(hit, 'a birthday week arrives inside a year');
   t.ok(state.feed.some(x => /BIRTHDAY|birthday/.test(x.text)), 'and the timeline shows up for it');
-  t.ok(/turns \d+/.test(hit.text), 'and the note says the number of the year');
+  t.ok(/turns \d+|is \d+ now/.test(hit.text), 'and the note says the number of the year');   // a three-line family: two say "turns N", one says "is N now" (§99)
 }
 
 // ---- time passes (v0.9.1): birthdays add a year, for everyone ----

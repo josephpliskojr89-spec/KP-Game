@@ -323,6 +323,8 @@ function debuted(seed) {
   t.ok(claim, 'the promise is on the record');
   t.ok(b.people[p.id].status === 'trainee', 'and she stayed to see it kept');
   claim.byWeek = b.week - 1;   // the window closes with no lineup
+  b.people[p.id].fatigue = 0;   // a worn trainee can hit the wall in the same tick (development.js) and the letter waits for her to be back in the room — the claim is the expiry
+  b.scenes = (b.scenes || []).filter(x => x.personId !== p.id);
   KP.advanceWeek(b);
   t.eq(b.people[p.id].status, 'released', 'the expired promise is a resignation nobody had to write twice');
   // fork C: the week off buys a quiet season

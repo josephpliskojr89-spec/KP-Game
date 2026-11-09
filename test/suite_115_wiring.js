@@ -700,6 +700,7 @@ function era(seed, run) {
   ace4.evalHistory = [{ week: 1, rank: 1, of: tr4.length }];
   tr4.slice(1).forEach(p => { p.evalHistory = [{ week: 1, rank: 2, of: tr4.length }]; });
   s4.lastEvalTopId = ace4.id;
+  tr4.forEach(p => { p.evalBottomStreak = 0; });   // the first advance may itself have been a sheet (the phase is the seed's): a second bottom would hold the talk, and the talk posts critical
   toEval(s4);
   const sh4 = sheet();
   ok(s4.lastEvalTopId === ace4.id && ace4.flags.firstEvalTopWeek === 1 && sh4 && sh4.priority !== 'critical', 'an old save’s standing #1 backfills the flag quietly (' + sh4.priority + ')');

@@ -59,7 +59,7 @@ function debuted(seed) {
   t.ok(KP.rivalFloor(state, rival).length < rosterBefore, 'the debut consumed trainees — real ones');
   t.ok(rival.nextDebutWeek > state.week + KP.C.INDUSTRY.debutInterval[0] - 1, 'the next debut is rescheduled out');
   t.ok(state.chart.entries.some(e => e.act === act.name), 'the debut single entered the scene chart');
-  t.ok(state.inbox.some(m => m.ind === 'rivalDebut' && m.actName === act.name), 'the debut made the wire');
+  t.ok(state.inbox.concat(KP.lastTickNotes || []).some(m => m.ind === 'rivalDebut' && m.actName === act.name), 'the debut made the wire');   // the week's wire, pre-trim (the inbox law keeps five)
   t.ok((state.rivalReleasesThisWeek || 0) >= 1, 'the release counted toward the crowded-week tally');
 }
 

@@ -83,7 +83,10 @@ function debuted(seed) {
   const p2 = s2.people[g2.members[0]];
   let guard = 0;
   while ((g2.prep || s2.week <= (g2.promoUntil || 0)) && guard++ < 20) KP.advanceWeek(s2);
-  KP.launchSoloCareer(s2, p2.id);
+  // the ride can hand her a storm and a hiatus (the launch waits for her) — the claim is the drift, so clear her calendar
+  delete p2.flags.personalHiatus; delete p2.flags.scandalBreakUntil; p2.flags.burnout = 0;
+  const opened = KP.launchSoloCareer(s2, p2.id);
+  t.ok(opened.ok, 'the door opens (' + (opened.reason || 'ok') + ')');
   t.ok(p2.arc.some(a => a.why === 'the opened door' && a.delta > 0), 'the opened door lifts confidence');
 }
 

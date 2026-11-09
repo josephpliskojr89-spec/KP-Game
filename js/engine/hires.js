@@ -145,6 +145,20 @@
 
   function h(state, sid, key) { return KP.hash01([state.seed, 'hires', sid, key].join('|')); }
 
+  // the truth, minted once (v0.11.8, §99): the hidden aptitude used to be
+  // derived from the hash every time it was read; when the hash gained its
+  // avalanche the derivation would have re-rolled every chair in every save,
+  // so a truth is stamped at the interview (and at the founding, and by the
+  // 0.11.8 migration with the legacy hash) and read from the file after
+  function truthFor(state, st, hashFn) {
+    const HR = KP.C.HIRES;
+    const hh = key => (hashFn || KP.hash01)([state.seed, 'hires', st.id, key].join('|'));
+    const core = HR.SEATS.filter(x => !x.studio);
+    return { base: hh('apt'), gem: st.tier === 'unknown' && hh('gem') < HR.gemChance,
+      bestSeat: core[Math.floor(hh('best') * core.length)].id };
+  }
+  KP.staffTruthMint = function (state, st, legacy) { return truthFor(state, st, legacy ? KP.hash01Legacy : KP.hash01); };
+
   function mintCandidate(state, seatId, tier, salt) {
     const sid = 'sf' + state.week + '_' + salt;
     const HR = KP.C.HIRES;
@@ -187,18 +201,21 @@
       }
       cand.works = [];
     }
+    cand.truth = truthFor(state, cand);   // minted once (v0.11.8, §99)
     return cand;
   }
 
   // ---- the truth: computed, never stored, never printed ----------------
   KP.staffTruth = function (state, st) {
     const HR = KP.C.HIRES;
-    const base = h(state, st.id, 'apt');
-    const gem = st.tier === 'unknown' && h(state, st.id, 'gem') < HR.gemChance;
+    // the stamped truth (v0.11.8, §99) — the derivation is the fallback for
+    // a chair no migration has touched, never a write
+    const t = st.truth || truthFor(state, st);
+    const base = t.base;
+    const gem = !!t.gem;
     // the best seat is drawn over the six core chairs (the studio chairs
     // joined in v0.10.35 — old truths must not move under them)
-    const core = HR.SEATS.filter(x => !x.studio);
-    const bestSeat = core[Math.floor(h(state, st.id, 'best') * core.length)].id;
+    const bestSeat = t.bestSeat;
     let apt = gem ? 0.72 + base * 0.28
       : KP.clamp(HR.tierFloor[st.tier] + base * HR.tierSpan, 0, 1);
     const def = HR.SEATS.find(x => x.id === st.seatId);
@@ -249,6 +266,7 @@
           warmth: Math.round(h(state, sid, 'pw') * 100),
           candor: Math.round(h(state, sid, 'pc') * 100),
           resume: ['here since the beginning — the résumé is this company'] };
+        state.seats[seatId].truth = truthFor(state, state.seats[seatId]);   // minted once (v0.11.8, §99)
       };
       mk('vocal', KP.staffName ? KP.staffName(state.seed + '|coach') : 'Coach Baek');   // the legacy coach IS the vocal seat (v0.10.43)
       mk('dance', 'Coach ' + FAM[Math.floor(h(state, 'seed-dance', 'f') * FAM.length)]);

@@ -98,17 +98,23 @@ function planFor(state, g) {
         // practice-room medical path is a different door with its own
         // suite; keep searching seeds until this one fires (v0.10.21
         // stream shift found the other door first)
+        // the clinic's door (medical.js) writes "Pulled from the schedule
+        // for <site>" since v0.10.32 — the schedule bench says "by medical
+        // staff"; the seed search must not stop at the other door
         if (p.flags.burnout > 0 &&
-            p.history.some(h => /Pulled from the schedule/.test(h.text))) incidents++;
+            p.history.some(h => /Pulled from the schedule by medical staff/.test(h.text))) incidents++;
       });
     }
     if (incidents) {
-      t.ok(state.inbox.some(m => m.urgent && /pulled from/i.test(m.text)),
+      // the bench letter is a four-line family (debut.js); under the legacy
+      // hash the family sat on the one line that said "pulled from" (§99) —
+      // the claim is the urgent health letter, read pre-trim (the inbox law)
+      t.ok(state.inbox.concat(KP.lastTickNotes || []).some(m => m.urgent && m.kind === 'health' && /pulled|did not finish|benched/i.test(m.text)),
         'the incident lands urgent in the inbox');
       // the schedule-path benched member specifically (the 0.10.17 rule,
       // reapplied 0.10.27: burnout has more sources than the schedule now)
       const benched = g.members.map(id => state.people[id]).find(p => p.flags.burnout > 0 &&
-        p.history.some(h => /Pulled from the schedule/.test(h.text)));
+        p.history.some(h => /Pulled from the schedule by medical staff/.test(h.text)));
       const before = benched.talents.vocals.cur;
       const fatBefore = benched.fatigue;
       KP.advanceWeek(state);

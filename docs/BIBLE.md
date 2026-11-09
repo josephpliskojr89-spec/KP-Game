@@ -9937,6 +9937,134 @@ Battery 117/117, soak 40 clean, longhaul 11 × 620 clean, e2e 135,
 lockstep 0.11.7. Migration 0.11.7 (ensureLedgers: tourLedger,
 festBills).
 
+## §99 The hash (SHIPPED v0.11.8 — a kernel law, found by two hands at once)
+
+**The finding.** Building §98, the tour slice and the festival slice
+reported the same thing within an hour of each other: `KP.hash01`
+barely moved when the only varying part of a key sat at its END.
+`KP.hashStr` is FNV-1a — xor the byte, multiply by the prime, byte
+by byte — with no final mix, so the last characters of a key reach
+only the low bits of the word, and `hash01` divides the whole word by
+2³², which is to say it reads the HIGH bits. A key shaped
+`seed|salt|week` therefore gave 0.41, 0.42, 0.41, 0.42, 0.44, 0.44,
+0.43, 0.43 across eight consecutive weeks in the lead's own probe,
+while the same parts with the week first gave 0.91, 1.00, 0.94, 0.86,
+0.89, 0.95, 0.17, 0.47. The kernel's `KP.lineFor` keys
+`[seed, salt, week]` — week last. Every flavor family keyed by one
+salt was picking the same line week after week unless its caller
+carried a memory (the spotlight's `spotMem`, the season's
+`lastMomentKind`); the §93 expansion's census counted repeats across
+an org-year and could not see a family stuck on one line for one
+salt. The same shape sat under mechanics: the season's weekly noise
+(`[seed, contestant, tag, week]`), so a contestant's ranking noise
+stood still from week to week; the mother-fund's yearly window
+(`[seed, 'motherfund', year]`), so a career's window was open every
+year or closed every year; the chart rotation jitter per act per
+week; the fan pick's flip; the Monday question's branch; the show
+desk an offer came from; the fund letterhead a pitch drew; the
+regular's handle; the titans' pulse; the knock queue's tie-break;
+the weekly social-growth noise per person, a fixed bias per file.
+
+**The law.** `KP.hash01` applies a final avalanche (murmur3's fmix32)
+to the FNV word before dividing. A key's parts may sit in any order.
+`KP.hashStr` is untouched — the rng seeds derive from it and the
+world's rng streams do not move. `KP.hash01Legacy` keeps the old
+value for the one migration that needs it.
+
+**What a hash change touches.** Everything hashed changes value at
+the version boundary. Almost everything hashed is either stamped
+into state at its birth (the schools' tempers, the pre-known flags,
+the season's show and cast, the bills, the fandom's name once
+chosen) or is flavor that may change its mind (which line, which
+moment, which word). The one hidden TRUTH derived from the hash at
+read time was the staff's aptitude (`KP.staffTruth`: the base, the
+gem, the best seat, off the seat's id) — under a new hash every
+chair in every save would have re-rolled. So the truth is minted
+once now: `truthFor` stamps `st.truth` at the interview, at the
+founding, and — by the 0.11.8 migration, with the legacy hash — on
+every chair and every waiting candidate in an existing save, and
+`KP.staffTruth` reads the file (the derivation remains the fallback
+for a chair no migration touched; it never writes). An existing
+save will see three honest one-time moves on load: the chart's
+rotation jitter re-rolls this week, a season in progress re-rolls
+its remaining weekly noise and edit timing, and the mother-fund
+window may read differently from the January letter for the rest of
+the year. None of them is a stored fact contradicted; all are the
+hash finally doing what it was for.
+
+**What the fixtures taught.** Twenty-two assertions in seventeen
+suites broke under the new hash — seventeen as failures, five as
+crashes on a `find` that came back empty — and not one of them was
+the hash's fault: every one had been pinned to the line, the offset or
+the gate the stuck hash happened to give its seed. The bench letter is a four-line family and the test matched
+the first line's words — and the clinic's door, added since, writes
+"Pulled from the schedule for" on the same file where the schedule
+bench writes "by medical staff", so the seed search had stopped at the
+wrong door. The birthday family's third line says "is N now", not
+"turns N". The sleeper fixture set the chance to 1 and the cap priced
+the roll at .60 — luck, not law. The catalog push's "never paid out"
+forgot that a resurfaced clip prices the roll on its own. The board's
+age-out fixture rode a year on no income, the label folded, and a
+dissolved company's tick is a no-op until the chapter is answered —
+the assertion was reading a board that had stopped moving. A stage
+fixture's sheet changed under it, because the sheet's shares and the
+song's demand are the record's own and the load law makes a bigger
+share a harder bar (the moment fixtures pin an even sheet now; the
+load law keeps its own block). A trainee hit the wall in the same tick
+her promise expired, and the letter waited for her to be back in the
+room. A storm handed the solo-launch fixture a hiatus. A first-advance
+eval left a bottom streak that made the next sheet's talk critical. A
+cut rival trainee came back through the released door because the
+board was full. The spotlight's rota starts at a weekly hash, and the
+sting fixture rode four weeks at the one offset the first hash gave
+its seed; the bubble's 7% weekly gate had been held open for the scar
+fixture's idol every week; the quiet-week family has three lines and
+the test matched one; the anniversary letter is high, and a loud week
+outranks high. And one that was not a fixture's fault: an eliminated
+contestant from the open board went home and was forgotten, because
+the known-file test (`KP.hasChapter`) read the desk's flags and never
+the television — a televised run is public knowledge now, and the
+season's cast is kept as "gone", never deleted. Two readings are law: a test reads the week's wire
+pre-trim (`KP.lastTickNotes`), and a fixture forces the mechanism it
+claims — every gate of it — never a roll it happens to win.
+
+**What the census found.** Three things the soak could only say once
+the hash moved. (1) Twenty of forty orgs "pulled out" of festival
+slots, every one from Japan. The lane has refused to fly over a
+booking since the v0.11.3 audit, but an open invitation is not yet a
+booking — the act flew, then the desk said yes to a slot inside the
+trip. The signing reads the calendar now: `KP.festivalHardClash`
+(Japan to the lane's end, the road to the booking desk's estimate of
+its weeks, an official hiatus) refuses accept, deep cut and collab
+with the reason, and the invitation stays open to lapse or to regret;
+`KP.planTour` gained the lane's guard (a booking inside the planned
+span refuses the road); the miss's cause is ledgered
+(`festivalLedger.missedWhy`) and the census prints it; the bot sends
+regrets on a clash. Measured after: 0/40 pulled out (the band stays
+0–50%: a hiatus announced over a booking is still a miss, and still
+costs the room). (2) The passed-over ace fell from 8–10/40 to 5/40:
+the perceived read's key ended in the domain and the observation
+count, so under the old hash a person's five talents carried one
+error that never shrank with watching, and the sheet's #1 disagreed
+with the lineup more often than the fog deserved. The band's floor
+moves to .05 with the history on it — a story, not a rate. (3) A
+rival merger moved its trainees between letterheads without a line on
+their files ("Signed to Lantern" … "Cut at Dawnhak's evaluation"):
+the file says what happened now (§90 D).
+
+*Measured.* The repeat census counts a template's repeats across an
+org-year and moved only within noise (notes top 2.3 → 2.1 per
+org-year, feed 6.8 → 7.0, spotlight 3.4 → 3.6): it never could see a
+family stuck on one line for one salt, which is what suite_118 pins
+directly — a three-line family uses all three lines inside twelve
+weeks; the mother-fund window opens some years and closes others; ten
+consecutive tail-varying keys spread more than .5 where the legacy
+hash drifted less than .1. Suite_118 (20). Battery 118/118, soak 40
+clean, longhaul 11 × 620 clean, e2e 134 (one conditional
+branch fewer than 0.11.7's 135), lockstep 0.11.8. Migration 0.11.8
+(ensureLedgers; `st.truth` stamped on every chair and every waiting
+candidate with the legacy hash).
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -13446,6 +13574,25 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > (0.63 per org-year). Both slices found the kernel's hash drifts on
 > week-last keys — §99 next. Suite_117 (134). Battery 117/117, soak
 > 40 clean, longhaul 11x620, e2e 135, lockstep 0.11.7. Rode to main.
+
+> **0.11.8 — the hash.** Own judgment, under "write it up and I'll
+> trust your judgement on when to implement": both §98 slices found the
+> kernel's hash01 barely moved for a key whose varying part sat last —
+> a family stuck on one line, the season's noise standing still, the
+> mother-fund window never turning. §99: fmix32 avalanche on hash01;
+> hashStr untouched (the rng seeds); hash01Legacy for the one
+> migration — the staff truths, the only hash derived at read time,
+> minted once and stamped (0.11.8 migration, legacy value). Twenty-two
+> assertions in seventeen suites re-pinned: each had been pinned to the
+> line, offset or gate the stuck hash gave its seed; one engine law
+> found under them (a televised run is a known file — hasChapter reads
+> seasonRecord). The census, once it could move, found twenty of forty orgs
+> saying yes to a festival from Japan: the signing reads the calendar
+> (festivalHardClash; planTour's booking guard; the miss's cause
+> ledgered), the passed-over band re-ruled from the measurement, a
+> merger's silent move written onto the file. Suite_118 (20). Battery
+> 118/118, soak 40 clean, longhaul 11x620, e2e 134, lockstep 0.11.8.
+> Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

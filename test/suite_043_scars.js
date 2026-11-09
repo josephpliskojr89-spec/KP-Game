@@ -37,13 +37,17 @@ function boilOn(state, g, p) {
   boilOn(state, g, p);
   t.eq(p.flags.scar, KP.C.SCAR.weeks, 'the boil marks her for ' + KP.C.SCAR.weeks + ' weeks');
   t.eq(KP.moodOf(p), 'carrying it', 'and the mood word says so');
-  // the bubble goes quiet
+  // the bubble goes quiet — the weekly gate is 7% per idol (a real roll
+  // since §99; the first hash held it open for this seed), so the
+  // mechanism is forced and the claim is the words
+  const oldBubble = KP.C.LIFE.bubbleChance; KP.C.LIFE.bubbleChance = 1;
   let post = null;
   for (let w = 0; w < 15 && !post; w++) {
     post = KP.bubblePosts(state).find(x => /photo of the sky/.test(x.text));
     state.week++;
   }
   state.week -= 15;
+  KP.C.LIFE.bubbleChance = oldBubble;
   t.ok(post, 'her bubble is two messages and a photo of the sky');
   t.ok(/take your time/.test(post.text), 'and the fans reply the only right thing');
 }
@@ -163,7 +167,7 @@ function boilOn(state, g, p) {
   const m0 = state.people[g.members[0]];
   const moraleAt = m0.morale;
   KP.advanceWeek(state);
-  const note = state.inbox.find(n => n.ind === 'anniversary');
+  const note = state.inbox.concat(KP.lastTickNotes || []).find(n => n.ind === 'anniversary');   // the week's wire, pre-trim (a loud week can outrank a high letter)
   t.ok(note && note.years === 2, 'the 2-year week arrives on schedule');
   t.ok(/café banner changed at midnight/.test(note.text), 'the café banner changed at midnight');
   t.ok(m0.morale >= moraleAt, 'the anniversary does everyone good');

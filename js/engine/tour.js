@@ -49,6 +49,7 @@
     });
     return left;
   }
+  KP.tourWeeksLeft = g => (g && g.tour) ? weeksLeftOf(g.tour) : 0;   // the booking desk's estimate (festivals.js reads it at the signing, v0.11.8)
 
   // demand a leg can draw: home legs run on the domestic fanbase,
   // overseas legs on the region's warmth
@@ -137,6 +138,16 @@
     }
     // the home circuit prices by the week it runs, not a flat leg fee
     const krRoute = legs.includes('kr') ? KP.krRoute(state, g, plan.scale) : [];
+    // a booked festival inside the road is a signed contract (v0.11.8): the
+    // Japan lane has refused this since the v0.11.3 audit; the road did not,
+    // and once the invites spread across the calendar (§99) the soak had 22
+    // of 40 orgs pulling out of a slot the desk had booked
+    {
+      const span = (krRoute.length ? krWeeksFor(krRoute) : 0) + legs.filter(id => id !== 'kr').length * T.legWeeks;
+      if ((g.festivalBookings || []).some(b => b.week >= state.week && b.week <= state.week + span)) {
+        return { ok: false, reason: 'A festival slot is booked inside those weeks. Play it, or decline it first.' };
+      }
+    }
     const costUnits = legs.filter(id => id !== 'kr').length +
       (krRoute.length ? krWeeksFor(krRoute) : 0);
     const cost = Math.round(scale.costPerLeg * costUnits * pacing.costMult);

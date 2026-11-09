@@ -525,7 +525,12 @@ const BANDS = {
   wallTouched:       { lo: 0.00, hi: 0.50, label: 'orgs whose release felt the obscurity wall' },
   breakSeen:         { lo: 0.00, hi: 0.30, label: 'orgs that broke through the wall (the story)' },
   expectSet:         { lo: 0.90, hi: 1.00, label: 'orgs whose announcement minted public expectations' },
-  snubSeen:          { lo: 0.20, hi: 0.95, label: 'orgs where a known trainee was passed over (the story)' },
+  // the passed-over ace (v0.9.16): 8–10/40 under the first hash, whose fog
+  // read a person's five talents with one offset that never shrank (§99);
+  // 5/40 at v0.11.8 once the reads became per-talent and the sheet's #1
+  // and the bot's lineup started agreeing. A story, not a rate — the
+  // floor is the extinction guard
+  snubSeen:          { lo: 0.05, hi: 0.95, label: 'orgs where a known trainee was passed over (the story)' },
   verdictSeen:       { lo: 0.90, hi: 1.00, label: 'orgs whose debut settled against its own announcement' },
   compared:          { lo: 0.75, hi: 1.00, label: 'orgs the write-ups compared in-house or across the week' },
   // the holdout (v0.9.33): first soak — provisional. Holdouts need the
@@ -753,7 +758,7 @@ const tally = {
   mandateGranted: 0, mandateBoard: 0, mandateLapsed: 0,
   walkoutCalled: 0, sceneRivalry: 0, fanWarSeen: 0, inGroupRivalry: 0,
   cannibalSeen: 0, masterMinted: 0, masterTurned: 0,
-  festInvited: 0, festHeadlined: 0, festMissed: 0, nightPlanned: 0, speechGiven: 0,
+  festInvited: 0, festHeadlined: 0, festMissed: 0, festMissedWhy: {}, nightPlanned: 0, speechGiven: 0,
   svcPapersSeen: 0, svcEnlisted: 0,
   rfRankings: 0, rfTopSeatMoved: 0, rfClassSeen: 0, rfOfferSeen: 0,
   rfGenTurned: 0, rfTorchSeen: 0, rfRivalService: 0,
@@ -1416,7 +1421,10 @@ for (let s = 0; s < SEEDS; s++) {
           (g2.members.length || 1) : 100;
         const fOpts = KP.sceneDef('festivalInvite').options(state, sc).map(o => o.id);
         const loud = !!(g2 && g2.fandom && (g2.fandom.intensity || 0) >= 50);
-        const fPick = !(avgF < 62 && state.budget > 40) ? 'decline'
+        // a yes the act cannot land is refused at the signing (v0.11.8): the
+        // bot reads the calendar first and sends regrets instead of lapsing
+        const clash = !!(g2 && KP.festivalHardClash && KP.festivalHardClash(state, g2, KP.festivalSlotWeek(state, sc.festivalId)));
+        const fPick = (clash || !(avgF < 62 && state.budget > 40)) ? 'decline'
           : fOpts.includes('collab') ? 'collab'
           : (loud && fOpts.includes('deep')) ? 'deep' : 'accept';
         KP.resolveScene(state, sc.id, fPick);
@@ -2055,6 +2063,7 @@ for (let s = 0; s < SEEDS; s++) {
   if ((fl.invites || 0) >= 1) tally.festInvited++;
   if ((fl.headlines || 0) >= 1) tally.festHeadlined++;
   if ((fl.missed || 0) >= 1) tally.festMissed++;
+  Object.entries(fl.missedWhy || {}).forEach(([k, v]) => { tally.festMissedWhy[k] = (tally.festMissedWhy[k] || 0) + v; });
   if (Object.values(state.people).some(p => (p.history || []).some(h =>
       /acceptance speech on year-end television/.test(h.text)))) tally.speechGiven++;
   if (Object.values(state.people).some(p => (p.directed || []).some(d => d.kind === 'gaveTheSpeech')) ||
@@ -2471,6 +2480,8 @@ console.log('debut reception: median ' + med +
 console.log('releases per org: ' + (totalReleases / SEEDS).toFixed(1) + ' average; groups per org: ' + (totalGroups / SEEDS).toFixed(1));
 console.log('medical throughput: ' + Object.keys(medSum).map(k => k + ' ' + medSum[k]).join(', ') + ' across ' + SEEDS + ' orgs (the flare chain; v0.11.2)');
 console.log('reverse runs per org-year: ' + (totalRevivals / (SEEDS * 140 / 52)).toFixed(2) + ' (the lottery ticket stays a ticket under ~1; v0.11.1)');
+console.log('festival slots missed, by cause: ' + (Object.entries(tally.festMissedWhy).map(([k, v]) => k + ' ' + v).join(' · ') || 'none') +
+  ' across ' + SEEDS + ' orgs (a booked slot is a signed contract; v0.11.8)');
 console.log('date ambushes per career: ' + (totalAmbushes / SEEDS).toFixed(1) + ' average (pettiness stays memorable, not constant)');
 console.log('best overseas region at career end: ' + bestRegions.map(v => Math.round(v)).sort((a, b) => a - b).join(','));
 console.log('save size after 140 weeks: ' + Math.round(totalSaveKB / SEEDS) + ' KB average, widest ' + maxSaveKB + ' KB (' + maxSaveSeed + '); most real people in one world ' + maxPeople + ' (quota ~5 MB)');

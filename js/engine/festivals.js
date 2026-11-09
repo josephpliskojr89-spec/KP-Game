@@ -51,6 +51,21 @@
     if (worn) out.push(worn + ' member' + (worn === 1 ? ' is' : 's are') + ' already running on fumes');
     return out;
   };
+  // the hard clashes (v0.11.8): a yes the act cannot land is not a booking.
+  // The soak read twenty of forty orgs "pulling out" of slots they had said
+  // yes to from Japan — an open invitation is not yet a booking, so the
+  // lane's guard (v0.11.3) could not see it. The signing reads the calendar
+  // the way the lane and the road do.
+  KP.festivalHardClash = function (state, g, week) {
+    if (g.jpAway && week <= g.jpAway.until) return 'they are in Japan that week';
+    if (g.tour && KP.tourWeeksLeft && week <= state.week + KP.tourWeeksLeft(g)) return 'the road has that week';
+    if (g.hiatus && (g.hiatus.until == null || week <= g.hiatus.until)) return 'the group is on official hiatus';
+    return null;
+  };
+  KP.festivalSlotWeek = function (state, festivalId) {
+    const f = festById(festivalId);
+    return f ? festWeek(state, f) : null;
+  };
 
   // ---- the bill (v0.11.7, §98) -------------------------------------------
   // posted ONCE per edition when the organizers call: the rival acts live
@@ -332,10 +347,14 @@
       g.festivalBookings = bookings.filter(b => b !== due);
       const f = festById(due.festivalId);
       if (!f) return;
-      // the schedule moved after the ink dried: a booked slot missed
-      if (g.tour || g.jpAway || g.hiatus || g.retiredWeek || !g.members.length ||
-          g.members.every(id => { const m = state.people[id]; return !m || (m.flags && m.flags.military); })) {
+      // the schedule moved after the ink dried: a booked slot missed — the
+      // cause is ledgered (v0.11.8) so the census can read it
+      const why = g.tour ? 'road' : g.jpAway ? 'japan' : g.hiatus ? 'hiatus' : (g.retiredWeek || !g.members.length) ? 'folded'
+        : g.members.every(id => { const m = state.people[id]; return !m || (m.flags && m.flags.military); }) ? 'service' : null;
+      if (why) {
         led.missed++;
+        led.missedWhy = led.missedWhy || {};
+        led.missedWhy[why] = (led.missedWhy[why] || 0) + 1;
         if (g.fandom) KP.fandomGain(g, -F.missFandom);
         inbox.push({ kind: 'public', priority: 'high', groupId: g.id,
           text: g.name + ' pulled out of ' + f.name + ' — the calendar ate the booking. The organizers reprinted the lineup poster politely. The fans who bought train tickets were less polite, and they are right to be.' });
@@ -455,6 +474,8 @@
       if (!f || !g) return {};
       const led = ledger(state);
       if (optionId === 'accept' || optionId === 'deep' || optionId === 'collab') {
+        const clash = KP.festivalHardClash(state, g, festWeek(state, f));
+        if (clash) return { ok: false, toast: 'The organizers need a yes that can land — ' + clash + '. Send regrets, or let the invitation lapse.' };
         if (state.budget < f.travel) return { ok: false, toast: 'Travel bills ' + f.travel + ' up front. The budget says regrets.' };
         state.budget -= f.travel;
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'appearances', -f.travel);   // the bill against the fee (§89 D10)

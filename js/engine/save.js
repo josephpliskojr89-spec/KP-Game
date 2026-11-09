@@ -1147,6 +1147,20 @@
     if (KP.ensureLedgers) KP.ensureLedgers(state);
   } });
 
+  // 0.11.8 (the hash, §99): hash01 gained a final avalanche. The staff's
+  // hidden truths were the one thing derived from the hash at READ time, so
+  // every chair hired before this build — and a candidate waiting at the
+  // interview — is stamped with the value it had under the legacy hash and
+  // reads it from the file from here on. Everything else hashed is either
+  // stamped into state at its birth or is flavor that may change its mind.
+  MIGRATIONS.push({ v: '0.11.8', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+    if (KP.staffTruthMint) {
+      Object.values(state.seats || {}).forEach(st => { if (st && !st.truth) st.truth = KP.staffTruthMint(state, st, true); });
+      (state.scenes || []).forEach(sc => { if (sc.kind === 'theInterview' && sc.cand && !sc.cand.truth) sc.cand.truth = KP.staffTruthMint(state, sc.cand, true); });
+    }
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

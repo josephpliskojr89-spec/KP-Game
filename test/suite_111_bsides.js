@@ -209,9 +209,12 @@ function debuted(seed, opts) {
   const r = KP.pushCatalog(s, g.id, read.candidates[0].title, 'challenge');
   t.ok(r.ok && s.budget === b0 - C.PUSH.KINDS.challenge.cost && (s.books.cur.marketing || 0) <= -C.PUSH.KINDS.challenge.cost, 'billed on marketing’s line');
   t.ok(g.catalogPushQuiet === s.week + C.PUSH.KINDS.challenge.weeks + C.PUSH.cooldown, 'the cooldown is set from the window’s end');
-  const oldC = C.revivalChance; C.revivalChance = 0;
+  // "never paid out" is forced: the base chance AND the resurfaced-clip
+  // boost (a clip inside the window prices the roll on its own — it did, once)
+  const oldC = C.revivalChance, oldR = C.resurfaceChance, oldB = C.revivalClipBoost;
+  C.revivalChance = 0; C.resurfaceChance = 0; C.revivalClipBoost = 0;
   for (let w = 0; w < C.PUSH.KINDS.challenge.weeks + 1; w++) KP.advanceWeek(s);
-  C.revivalChance = oldC;
+  C.revivalChance = oldC; C.resurfaceChance = oldR; C.revivalClipBoost = oldB;
   t.ok(!g.catalogPush && (KP.lastTickNotes || []).some(n => n.ind === 'catalogPushDone'), 'a push that never paid out winds down, on the record');
   t.ok(!KP.catalogPushRead(s, g).ok && /campaign/.test(KP.catalogPushRead(s, g).reason), 'and the next one waits for the cooldown');
 }

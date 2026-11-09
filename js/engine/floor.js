@@ -272,7 +272,9 @@
 
   // ---- memory: a chapter with the player is never forgotten -------------
   KP.hasChapter = function (state, p) {
-    return !!(p.flags && (p.flags.wasOurs || p.flags.readByUs || p.flags.lostToRival)) ||
+    // a televised run is public knowledge (v0.11.8): the season's cast is
+    // never forgotten, whichever board she came from
+    return !!(p.flags && (p.flags.wasOurs || p.flags.readByUs || p.flags.lostToRival)) || !!p.seasonRecord ||
       ((p.directed || []).length > 0) || p.status === 'idol' || p.status === 'trainee' ||
       (state.roster || []).includes(p.id) ||
       (state.groups || []).some(g => (g.members || []).includes(p.id));

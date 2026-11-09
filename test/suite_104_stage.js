@@ -38,6 +38,16 @@ function boost(s, g, level) {
     p.personality.confidence = 60; p.liveExp = 30; p.fatigue = 30; p.morale = 70;
   });
 }
+// the sheet's shares and the song's live demand are the record's own (the
+// sheet keys them); a moment fixture pins them so the claim is the voice,
+// not the week's sheet (§99 — the first hash left every fixture on one sheet)
+function pinSheet(g) {
+  const rel = g.releases[g.releases.length - 1];
+  rel.liveDemand = { vocals: 70, dance: 70, rap: 30 };
+  rel.choreo = { id: 'pin', name: 'Pinned', style: 'minimal', difficulty: 70 };   // the body's bar is the choreography when there is one (eraOf)
+  rel.sheet = rel.sheet || {};
+  rel.sheet.shares = {}; g.members.forEach(id => { rel.sheet.shares[id] = 1 / g.members.length; });
+}
 function clearStages(s) {
   (s.rivals || []).forEach(r => {
     r.nextDebutWeek = s.week + 60;
@@ -117,6 +127,7 @@ const read = (s, g, id) => KP.stageRead(s, g, { kind: 'show', id: id || 'countdo
   const { s, g, ids } = debuted('st-moments', 5, 55);
   const ace = s.people[ids[0]];
   ace.talents.vocals.cur = 92; ace.talents.dance.cur = 92; ace.talents.charisma.cur = 90; ace.liveExp = 40;
+  pinSheet(g);   // the load law is the 'st-load' block's claim; here the sheet is even
   const r = read(s, g);
   t.eq(r.moments.carried, ace.id, 'the voice that stands out carried the stage');
   const line = KP.stageLine(s, g, r, 'The Countdown');
@@ -168,6 +179,7 @@ const read = (s, g, id) => KP.stageRead(s, g, { kind: 'show', id: id || 'countdo
   const { s, g, ids } = debuted('st-lottery', 5, 45);
   const ace = s.people[ids[0]];
   ace.talents.vocals.cur = 92; ace.talents.dance.cur = 92; ace.talents.charisma.cur = 90; ace.liveExp = 40;
+  pinSheet(g);
   const r = read(s, g);
   const rng = KP.rngFor(s);
   const notes = KP.settleStage(s, rng, g, r, { where: 'The Countdown' });

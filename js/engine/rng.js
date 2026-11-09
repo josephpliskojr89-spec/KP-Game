@@ -62,8 +62,21 @@
     }
   };
 
-  // Deterministic 0..1 from a key — the perceived-truth channel.
-  KP.hash01 = function (key) { return hashStr(String(key)) / 4294967296; };
+  // Deterministic 0..1 from a key — the perceived-truth channel. FNV-1a
+  // with a final avalanche (murmur3's fmix32) since v0.11.8 (§99): without
+  // the mix, a key whose varying part sat at the END — '…|week' — moved
+  // only the low bits, so the fraction barely changed from one week to the
+  // next: every lineFor family picked the same line for weeks, the season's
+  // weekly noise stood still, the mother-fund's yearly window never turned.
+  // A key's parts may now sit in any order. The legacy value stays for the
+  // one migration that needs it (the staff truths minted before the change).
+  function fmix32(h) {
+    h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b);
+    h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35);
+    h ^= h >>> 16; return h >>> 0;
+  }
+  KP.hash01 = function (key) { return fmix32(hashStr(String(key))) / 4294967296; };
+  KP.hash01Legacy = function (key) { return hashStr(String(key)) / 4294967296; };
   KP.hashStr = hashStr;
 
   KP.clamp = function (v, lo, hi) { return Math.max(lo, Math.min(hi, v)); };

@@ -196,7 +196,10 @@ function fillFloor(state, rival, n, opts) {
   t.ok(floorKid.history.some(h => /Cut at .* seasonal evaluation/.test(h.text)),
     'the named signee below the bar was not exempt (' + floorKid.status + ')');
   if (floorKid.status === 'prospect') {
-    t.eq(floorKid.channel, 'castoff', 'and her file is back on the open board — she IS the castoff (v0.10.31)');
+    // the cut lands her on the board as the castoff when there is room; a
+    // full board holds her on the market and the re-entry clock brings her
+    // back through the released door (floor.js) — either way it is her file
+    t.ok(['castoff', 'released'].includes(floorKid.channel), 'and her file is back on the open board — she IS the castoff (v0.10.31; via ' + floorKid.channel + ')');
   } else {
     t.ok(true, '(a rival took her off the open board — the market working)');
   }

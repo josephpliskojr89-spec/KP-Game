@@ -98,7 +98,7 @@ function runSpotlight(state) {
   t.eq(notes.length, 1, 'one flag per week, not a chorus of nagging');
   t.eq(notes[0].personId, worst.id, 'and it names the one doing worst');
   t.eq(notes[0].priority, 'high', 'a warning survives the trim — "before it becomes a number"');
-  t.ok(/quieter than usual/.test(notes[0].text), 'the staff say it carefully');
+  t.ok(/quieter than usual|one word this week|The van is quiet/.test(notes[0].text), 'the staff say it carefully');   // a three-line family (§99: the first hash held this seed on line one)
   // the cooldown: concern, not nagging
   state.week++;
   const again = runSpotlight(state).filter(n => n.moment === 'quietWeek');
@@ -146,10 +146,15 @@ function freshSpots(state) {
   g.lastReleaseWeek = state.week;
   let sting = null;
   const before = {};
-  g.members.forEach(id => { before[id] = state.people[id].morale; });
-  for (let w = 0; w < 4 && !sting; w++) {
+  // the rota starts at a weekly hash (a real spread since §99, not the one
+  // offset the first hash gave this seed): keep the loss inside its
+  // four-week window and ride until the sting's turn comes; the morale
+  // snapshot is taken each week so the claim reads that week's cost
+  for (let w = 0; w < 60 && !sting; w++) {
     state.week++;
+    g.lastReleaseWeek = state.week - 1;
     freshSpots(state);
+    g.members.forEach(id => { before[id] = state.people[id].morale; });
     sting = runSpotlight(state).find(n => n.moment === 'competitiveSting');
   }
   t.ok(sting, 'losing the shared week gets rewatched');

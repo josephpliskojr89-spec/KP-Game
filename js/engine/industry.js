@@ -937,6 +937,8 @@
       // the people go where the company goes (v0.4.3)
       Object.values(state.people).forEach(p => {
         if (p.status === 'rival' && (p.company === a.short || p.company === b.short)) {
+          // the file says what happened (§90 D): her house folded into another
+          p.history.push({ week: state.week, text: p.company + ' merged into ' + merged.short + ' — same practice room, new letterhead. The file moved with the building.' });
           p.company = merged.short;
         }
       });

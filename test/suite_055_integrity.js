@@ -178,14 +178,18 @@ function debuted(seed, n) {
   const three = state.roster.slice(0, 3).map(id => state.people[id]);
   three.forEach(p => { p.age = 19; delete p.flags.gradNoted; });
   let guard = 0;
-  while (((state.week - 1) % KP.C.WEEKS_PER_YEAR) + 1 !== 5 && guard++ < 60) KP.advanceWeek(state);
+  // a year's ride on no income folds the label (the red weeks, §86), and a
+  // dissolved company's tick is a no-op until the chapter is answered — the
+  // fixture is the board, not the books: keep the account above water
+  const fund = () => { state.budget = Math.max(state.budget, 600); };
+  while (((state.week - 1) % KP.C.WEEKS_PER_YEAR) + 1 !== 5 && guard++ < 60) { fund(); KP.advanceWeek(state); }
   three.forEach(p => { p.age = 19; delete p.flags.gradNoted; });   // re-pin after the ride
-  KP.advanceWeek(state);
+  fund(); KP.advanceWeek(state);
   t.ok(three.every(p => p.flags.gradNoted), 'all three nineteen-year-olds graduated — the cap trims coverage, never the diploma');
   // the board prunes: an aged-out lead vanishes, file and all
   const stale = state.prospects[0];
   state.people[stale].age = KP.C.SCOUT.prospectAgeOut;
-  KP.advanceWeek(state);
+  fund(); KP.advanceWeek(state);
   t.ok(!state.prospects.includes(stale) && (!state.people[stale] || state.people[stale].status !== 'prospect'),
     'the market moved on — no ghost file left behind (a real signing elsewhere, or home — v0.10.31)');
 }

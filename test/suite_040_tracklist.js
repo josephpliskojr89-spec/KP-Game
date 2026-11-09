@@ -124,13 +124,13 @@ function release(state, g) {
 // ---- the sleeper: a good record gets dug into ----
 {
   const T = KP.C.TRACKS;
-  const oldChance = T.sleeperChance, oldMin = T.sleeperReceptionMin;
-  T.sleeperChance = 1; T.sleeperReceptionMin = 1;   // mechanism test
+  const oldChance = T.sleeperChance, oldMin = T.sleeperReceptionMin, oldCap = T.sleeperChanceCap;
+  T.sleeperChance = 1; T.sleeperReceptionMin = 1; T.sleeperChanceCap = 1;   // mechanism test (the cap would price the roll at .60 — luck, not law)
   const { state, g } = ready('tk-sleeper');
   lock(state, g, 'mini');
   const popBefore = 0;
   release(state, g);
-  T.sleeperChance = oldChance; T.sleeperReceptionMin = oldMin;
+  T.sleeperChance = oldChance; T.sleeperReceptionMin = oldMin; T.sleeperChanceCap = oldCap;
   t.ok(g.releases[0].sleeperTitle, 'a b-side gets pulled out of the record');
   const bsides = g.releases[0].tracklist.filter(x => x.kind === 'bside');
   t.eq(g.releases[0].sleeperTitle, bsides.slice().sort((x, y) => y.hook - x.hook)[0].title,
