@@ -344,22 +344,31 @@ const BANDS = {
   festMoments:          { lo: 0.80, hi: 1.00, label: 'orgs whose festival night named a moment' },
   festHeadlineCeremony: { lo: 0.00, hi: 0.30, label: 'orgs that headlined a top-tier bill (the ceremony letter)' },
   jpAwayMoments:        { lo: 0.60, hi: 1.00, label: 'orgs whose Japan weeks wrote a moment' },
-  // the era, closed (v0.11.9, §100): measure-first — open bands until the
-  // first 40-org soak rules them
-  eraClosedLetter:   { lo: 0.00, hi: 1.00, label: 'orgs that read an era’s close as a ceremony' },
-  eraReissueOffered: { lo: 0.00, hi: 1.00, label: 'orgs offered the reissue door at a close' },
-  eraReissueAnr:     { lo: 0.00, hi: 1.00, label: 'orgs that reissued with the chair’s pick' },
-  eraReissueFans:    { lo: 0.00, hi: 1.00, label: 'orgs that reissued with the fans’ pick' },
-  eraReissueDesk:    { lo: 0.00, hi: 1.00, label: 'orgs that set a reissue from the Studio (bot never)' },
-  eraRested:         { lo: 0.00, hi: 1.00, label: 'orgs that let an era rest' },
-  eraLapsed:         { lo: 0.00, hi: 1.00, label: 'orgs whose reissue door lapsed unanswered' },
-  eraSuperseded:     { lo: 0.00, hi: 1.00, label: 'orgs whose reissue door a new lock closed' },
-  eraPreorderRead:   { lo: 0.00, hi: 1.00, label: 'orgs that got the pre-order week’s read' },
-  eraPreorderAhead:  { lo: 0.00, hi: 1.00, label: 'orgs whose pre-orders ran ahead of a pressing' },
-  eraPreorderSoft:   { lo: 0.00, hi: 1.00, label: 'orgs whose pre-orders read soft against a pressing' },
-  eraExtOffered:     { lo: 0.00, hi: 1.00, label: 'orgs offered the second wind (a climbing record in a last week)' },
-  eraExtTired:       { lo: 0.00, hi: 1.00, label: 'orgs that signed the second wind through the staff’s flag' },
-  eraClosedExtended: { lo: 0.00, hi: 1.00, label: 'orgs whose file marks a closed era as extended' },
+  // the era, closed (v0.11.9, §100): measured open, then ruled from two
+  // soaks on the release's code. 40 seeds / 120 seeds: close letter 40 /
+  // 120; reissue offered 40 / 119; chair's pick 32 / 86; fans' pick 4 / 14
+  // (the boss takes it only for a cold fandom); Studio build 0 / 0 (bot
+  // never); rested 40 / 119; lapsed 1 / 7 (the boss waits on the account
+  // and the fuse runs out); superseded 0 / 0 (the boss does not lock under
+  // an open door); pre-order read 40 / 120; ahead 38 / 115; soft 39 / 116.
+  // The second wind's three rows were measured once, at 40 seeds, with the
+  // boss signing through the flag under 75: offered 36, through the flag
+  // 7, closed-and-marked 10. Floors of .02 mean "at least one org in
+  // forty": at the measured rates they false-alarm under 1% of re-samplings.
+  eraClosedLetter:   { lo: 0.95, hi: 1.00, label: 'orgs that read an era’s close as a ceremony' },
+  eraReissueOffered: { lo: 0.85, hi: 1.00, label: 'orgs offered the reissue door at a close' },
+  eraReissueAnr:     { lo: 0.40, hi: 1.00, label: 'orgs that reissued with the chair’s pick' },
+  eraReissueFans:    { lo: 0.02, hi: 0.50, label: 'orgs that reissued with the fans’ pick' },
+  eraReissueDesk:    { lo: 0.00, hi: 0.10, label: 'orgs that set a reissue from the Studio (bot never)' },
+  eraRested:         { lo: 0.85, hi: 1.00, label: 'orgs that let an era rest' },
+  eraLapsed:         { lo: 0.00, hi: 0.40, label: 'orgs whose reissue door lapsed unanswered' },
+  eraSuperseded:     { lo: 0.00, hi: 0.20, label: 'orgs whose reissue door a new lock closed' },
+  eraPreorderRead:   { lo: 0.95, hi: 1.00, label: 'orgs that got the pre-order week’s read' },
+  eraPreorderAhead:  { lo: 0.60, hi: 1.00, label: 'orgs whose pre-orders ran ahead of a pressing' },
+  eraPreorderSoft:   { lo: 0.60, hi: 1.00, label: 'orgs whose pre-orders read soft against a pressing' },
+  eraExtOffered:     { lo: 0.60, hi: 1.00, label: 'orgs offered the second wind (a climbing record in a last week)' },
+  eraExtTired:       { lo: 0.02, hi: 0.80, label: 'orgs that signed the second wind through the staff’s flag' },
+  eraClosedExtended: { lo: 0.05, hi: 0.90, label: 'orgs whose file marks a closed era as extended' },
   // v0.10.33 — the one market: a collapse's signing class is on the open
   // board and the bot buys a career when flush. Measure-first: collapses
   // are rare inside 140 weeks, so the floor is 0 until a census says more.
@@ -458,6 +467,13 @@ const BANDS = {
   chemistryStaged:   { lo: 0.05, hi: 1.00, label: 'orgs whose formation read a pair (close or tense) on a stage' },
   // the promotion (v0.10.38, §91 Phase 5) — measure-first
   offerTaken:        { lo: 0.30, hi: 1.00, label: 'orgs that took a promo invitation (a swap on the plan)' },
+  // the band holds; the history is the boss's, not the verb's. Under the
+  // boss that signed only an unflagged room the row read 7, 8, 5, 4, 7, 4,
+  // 3 of 40 across the saved soaks and 11 of 120 (9%, under the floor):
+  // the room's median in a last promotion week is 83 against the staff's
+  // flag at 70, so nearly every climbing last week arrived flagged. Since
+  // v0.11.9 (§100) the boss signs through the flag under 75 and the row
+  // reads 10/40, the probe's counterfactual to the org.
   eraExtended:       { lo: 0.10, hi: 0.90, label: 'orgs that extended an era on a climbing record' },
   comebackStaged:    { lo: 0.90, hi: 1.00, label: 'orgs whose era opened on a named comeback stage' },
   // the second chair (v0.10.39) — measure-first: the first chair must prove out first
@@ -518,14 +534,25 @@ const BANDS = {
   medChronic:        { lo: 0.05, hi: 0.80, label: 'orgs carrying a chronic file' },
   flareFelt:         { lo: 0.02, hi: 0.80, label: 'orgs whose veteran worked around the file' },
   chodongMinted:     { lo: 0.90, hi: 1.00, label: 'orgs whose releases printed a first-week number' },
-  // ruled first soak: 25/40 and 36/40 across ~6 eras per world — the
-  // gamble's two tails. Dead at 0 (the pressing choice stopped
-  // mattering), wallpaper at 1.0 for sellouts (press braver, always)
-  pressSoldOut:      { lo: 0.20, hi: 0.90, label: 'orgs that sold out a pressing (the sweet lost money)' },
+  // ruled first soak: 25/40 and 36/40 — the gamble's two tails. Dead at 0
+  // (the pressing choice stopped mattering), wallpaper at 1.0 for sellouts
+  // (press braver, always). WHAT THESE TWO ROWS SAMPLE: each group's LAST
+  // landing only (`g.results.product`), not the archive. An earlier note
+  // here said "across ~6 eras per world"; that was never true of the code.
+  // The career-long count of memos is `wireWarehouseMemo` above.
+  // v0.11.9: sold out 32/40, 31/40 and 90/120 once the boss learned the
+  // pressing ladder (cautious under deep fiscal pressure, bold after a
+  // sellout). The ceiling holds.
+  pressSoldOut:      { lo: 0.20, hi: 0.90, label: 'orgs whose last pressing sold out (the sweet lost money)' },
   // floor .30 → .20 (v0.10.38): measured 14/40, 22/40, 11/40 across
-  // v0.10.36–38 — the stage's intensity and the promotion's offers and
-  // extension sell more pressings through; the tail is alive, not dead
-  pressWarehouse:    { lo: 0.20, hi: 1.00, label: 'orgs that ate a warehouse memo' },
+  // v0.10.36–38, when every landing rode the suggested sheet. Floor .20 →
+  // .05 (v0.11.9, §100): 8/40, 7/40 and 27/120 with the ladder. The
+  // suggested sheet almost never overpresses (1 of 393 landings in the
+  // probe); the memo now belongs to the bold run after a sellout (59 of
+  // 142), so at career end it sits on about one org in five. A floor at
+  // the measured rate fails a third of re-samplings; .05 fails about one
+  // in six hundred and still says the tail exists.
+  pressWarehouse:    { lo: 0.05, hi: 1.00, label: 'orgs whose last pressing left boxes in the warehouse' },
   // the table (v0.9.38): counters need fame under 0.45 AND a file
   // worth arguing over — legacy soak orgs sit at 0.64, so this is a
   // CEILING like the wall bands (gates broken if famous orgs get
@@ -714,9 +741,17 @@ const BANDS = {
   // (v0.9.33): the holdout taught the bot to walk down the board, so it
   // signs deeper and fields more second groups — 23/40 → 27/40 measured.
   // The claim guarded stays: the mash is a gamble, never the default.
+  // Acclaim ceiling 0.60→0.75 (v0.11.9, §100): this row counts orgs that
+  // EVER saw the outcome, and an org with a fusion group mashes every
+  // comeback, so it meets the outcome sooner or later (26 of the 28 orgs
+  // that tried). The row follows `fusionTried` and its ceiling cannot sit
+  // under that row's. Series at 40 seeds since v0.11.6: tried 22, 22, 26,
+  // 26, 26, 26, 28, 28; acclaim 19, 21, 20, 19, 23, 22, 26, 26. At 120
+  // seeds: tried 72 (60%), acclaim 63 (52.5%). Nothing in v0.11.9 touches
+  // the mash's roll; the ritual's own forty seeds run high on it.
   fusionTried:       { lo: 0.10, hi: 0.75, label: 'orgs that released a genre mash' },
   fusionShift:       { lo: 0.00, hi: 0.40, label: 'orgs whose mash changed the industry (the textbook entry stays rare)' },
-  fusionAcclaim:     { lo: 0.00, hi: 0.60, label: 'orgs with a critics-loved, public-shrugged mash' },
+  fusionAcclaim:     { lo: 0.00, hi: 0.75, label: 'orgs with a critics-loved, public-shrugged mash' },
   fusionFlop:        { lo: 0.00, hi: 0.70, label: 'orgs whose mash ate itself' },
   // floor 0 by ruling: trucks need an organized fandom AND a grievance —
   // the competent bot rarely supplies the grievance (same physics as
