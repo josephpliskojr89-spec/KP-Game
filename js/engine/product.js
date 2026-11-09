@@ -88,10 +88,14 @@
   // Called from resolveDebut with the final reception. Returns
   // { physRev, chodong, ...facts, notes } — notes flow into the
   // resolution's narrative pipeline.
-  KP.settleProduct = function (state, g, reception, rng, opts) {
+  // The week's demand before the record and the luck are known (v0.11.9,
+  // §100): the settle's own arithmetic up to the reception, lifted out so
+  // the pre-order week reads the SAME sum the landing will finish. One
+  // truth: the settle multiplies this by the reception, the noise and the
+  // reissue's share, in that order (the order is the old expression's, so
+  // every chodong lands on the same unit it always did).
+  KP.demandRead = function (state, g, sheet) {
     const P = KP.C.PRODUCT;
-    const notes = [];
-    const sheet = (g.prep && g.prep.pressing) || KP.normalizePressing(state, g, null);
     const intensity = g.fandom ? (g.fandom.intensity || 0) : 0;
     const signMult = 1 + sheet.signRounds * P.signRoundBoost * (0.5 + intensity / 100);
     // a debut's demand is anchored between what the pre-orders showed
@@ -101,10 +105,17 @@
       ? sheet.lockRead / (P.versionDemand[sheet.versions - 1] * P.pobDemand[sheet.pob])
       : settleBase;
     const base = g.debuted ? settleBase : (settleBase + lockBase) / 2;
-    let demand = base *
+    return base *
       P.versionDemand[sheet.versions - 1] *
       P.pobDemand[sheet.pob] *
-      signMult *
+      signMult;
+  };
+
+  KP.settleProduct = function (state, g, reception, rng, opts) {
+    const P = KP.C.PRODUCT;
+    const notes = [];
+    const sheet = (g.prep && g.prep.pressing) || KP.normalizePressing(state, g, null);
+    let demand = KP.demandRead(state, g, sheet) *
       (1 + (reception - 50) / 200) *
       (1 + (rng.next() * 2 - 1) * P.chodongNoise) *
       (opts && opts.repack ? P.repackDemand : 1);
@@ -194,7 +205,8 @@
       }
     }
     return { physRev, chodong: units, run: sheet.run, versions: sheet.versions,
-      pob: sheet.pob, signRounds: sheet.signRounds, demand, soldOut, overpress, notes };
+      pob: sheet.pob, signRounds: sheet.signRounds, preset: sheet.preset || 'suggested',
+      demand, soldOut, overpress, notes };
   };
 
   // the two publics: the identity between the axes, on the record

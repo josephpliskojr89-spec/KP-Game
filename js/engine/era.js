@@ -88,9 +88,15 @@
       if (pr.soldOut) s += ', the pressing sold through';
       else if (pr.overpress) s += ', boxes left in the warehouse';
       if (pr.preorder) {
+        // the read against the landing, on one scale: sold through, sized, boxes left.
+        // The read was an ordinary week's; the gap between the two is the record itself.
         const w = pr.preorder.word;
-        const called = w === 'ahead' ? !!pr.soldOut : w === 'soft' ? !!pr.overpress : !pr.soldOut && !pr.overpress;
-        s += called ? ' (the pre-order week called it)' : ' (the pre-order week read it wrong)';
+        const exp = w === 'ahead' ? 1 : w === 'soft' ? -1 : 0;
+        const out = pr.soldOut ? 1 : pr.overpress ? -1 : 0;
+        s += out === exp ? ' (the pre-order week called it)'
+          : Math.abs(out - exp) === 2 ? ' (the pre-order week read it wrong)'
+          : out > exp ? ' (the record outran its pre-orders)'
+          : ' (the record fell short of its pre-orders)';
       }
       bits.push(s);
     }
@@ -258,20 +264,41 @@
   });
 
   // ---- the pre-order week, as a read ---------------------------------------
-  // order 591: the T-1 teaser (590) is in the buildup. The read is the same
-  // arithmetic the pressing was sized by, a week before the record lands.
-  KP.preorderWord = function (state, g) {
-    const E = KP.C.ERA, P = KP.C.PRODUCT;
+  // order 591: the T-1 teaser (590) is in the buildup. The run was fixed at
+  // lock against the fandom of that day; the read is the fandom of THIS
+  // day, through the settle's own sum (KP.demandRead), a week before the
+  // record and the luck finish it.
+  //
+  // The word is the settle's verdict on an ordinary week: a middling record
+  // with no luck either way. 'ahead' is that week selling the run out;
+  // 'soft' is that week leaving the warehouse memo (the settle's own
+  // overpressAt); 'tracking' is everything between. No thresholds of its
+  // own: the first build carried two (preorderAheadAt 1.0, preorderSoftAt
+  // 0.7) against a different sum (KP.preorderRead's campaign factor, which
+  // the settle never reads), and the soak measured the word as wallpaper,
+  // 569 of 665 landings 'ahead' and none 'soft', calling the week no
+  // better than the base rate (v0.11.9, §100 — measure-first).
+  KP.preorderExpect = function (state, g) {
+    const P = KP.C.PRODUCT;
     const sheet = g.prep && g.prep.pressing;
     if (!sheet) return null;
-    const read = (KP.preorderRead(state, g) / P.FANBASE.preorderShare) * P.versionDemand[sheet.versions - 1] *
-      P.pobDemand[sheet.pob] * (g.prep.repackage ? P.repackDemand : 1);
-    const ratio = read / Math.max(1, sheet.run);
-    return ratio >= E.preorderAheadAt ? 'ahead' : ratio >= E.preorderSoftAt ? 'tracking' : 'soft';
+    return KP.demandRead(state, g, sheet) * (g.prep.repackage ? P.repackDemand : 1);
+  };
+  // the count the distributor reports: the share of that week already paid for
+  KP.preorderCount = function (state, g) {
+    const x = KP.preorderExpect(state, g);
+    return x == null ? null : Math.round(x * KP.C.PRODUCT.FANBASE.preorderShare);
+  };
+  KP.preorderWord = function (state, g) {
+    const P = KP.C.PRODUCT;
+    const x = KP.preorderExpect(state, g);
+    if (x == null) return null;
+    const run = g.prep.pressing.run;
+    return x > run ? 'ahead' : run > x * P.overpressAt ? 'soft' : 'tracking';
   };
   const PRE = {
-    ahead: 'the read is ahead of the run. If the record lands, the first week sells through and the plant gets a phone call.',
-    tracking: 'the read is tracking the run. The pressing looks sized to the fandom that exists.',
+    ahead: 'the read is ahead of the run. An ordinary week sells this pressing through, and the plant gets a phone call.',
+    tracking: 'the read is tracking the run. The pressing is sized to the fandom that exists, and the record decides the rest.',
     soft: 'the read is soft against the run. Unless the record lands well, the warehouse is about to learn how many boxes that is.',
   };
   KP.registerWeekly('preorderWeek', 591, function (state, rng, inbox, roster, groups) {
@@ -287,7 +314,8 @@
       const demo = (g.demos || []).find(d => d.id === g.prep.songId);
       inbox.push({ kind: 'company', ind: 'preorderWeek', priority: 'normal', groupId: g.id, word,
         text: 'Pre-orders for ' + g.name + (demo ? '’s “' + demo.title + '”' : '’s record') + ' close the week at ' +
-          KP.fmtCount(KP.preorderRead(state, g)) + ' against a pressing of ' + KP.fmtCount(g.prep.pressing.run) + ': ' + PRE[word] });
+          KP.fmtCount(KP.preorderCount(state, g)) + ' against a pressing of ' + KP.fmtCount(g.prep.pressing.run) +
+          '. Pre-orders run a little over half of a first week, and by that arithmetic ' + PRE[word] });
     });
   });
 

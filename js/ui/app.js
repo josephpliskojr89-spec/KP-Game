@@ -31,6 +31,7 @@
     App.studioDraft = { songId: null, conceptId: null, promo: 'standard', week: null,
       format: 'single', rollout: null, alloc: { vocals: 30, dance: 30, rap: 10, media: 30 } };
     App.studioGroupId = null;
+    App.reissueDraft = null;
     App.commDraft = null;
     App.tourDraft = null;
     App._catalogPick = {};
@@ -1159,10 +1160,25 @@
       }
       case 'studio-week': App.studioDraft.week = parseInt(t.dataset.week, 10); App.render(); break;
       case 'studio-mv': App.studioDraft.mv = t.dataset.mv; App.render(); break;
+      // the reissue's own sheet (v0.11.9, §100): one draft per group, the desk's build underneath
+      case 'reissue-mv': {
+        if (!App.reissueDraft || App.reissueDraft.groupId !== t.dataset.id) App.reissueDraft = { groupId: t.dataset.id };
+        App.reissueDraft.mv = t.dataset.mv; App.render();
+        break;
+      }
+      case 'reissue-signs': {
+        if (!App.reissueDraft || App.reissueDraft.groupId !== t.dataset.id) App.reissueDraft = { groupId: t.dataset.id };
+        App.reissueDraft.signRounds = parseInt(t.dataset.r, 10); App.render();
+        break;
+      }
       case 'studio-repackage': {
-        const r = KP.planRepackage(s, { groupId: t.dataset.id, songId: t.dataset.song,
-          mv: App.studioDraft.mv || 'standard' });
+        const rg = KP.groupById(s, t.dataset.id);
+        if (!rg) break;
+        const build = UI.reissueBuildFor(s, rg);
+        const r = KP.planRepackage(s, { groupId: rg.id, songId: t.dataset.song,
+          mv: build.mv, signRounds: build.signRounds, by: 'desk' });
         if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.reissueDraft = null;
         // the engine wrote the letter (v0.11.5, §96 wiring); the toast is its first clause
         App.save(); UI.toast(r.note ? r.note.split(' — ')[0] + '.' : 'The era extends.'); App.render();
         break;

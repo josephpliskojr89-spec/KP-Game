@@ -16,6 +16,14 @@
       groups.slice().sort((a, b) => (a.lastReleaseWeek || 0) - (b.lastReleaseWeek || 0))[0];
   };
 
+  // the reissue's sheet (v0.11.9, §100): the desk's build until the boss changes it
+  UI.reissueBuildFor = function (state, g) {
+    const base = KP.reissueBuild(state, g);
+    const rd = KP.App && KP.App.reissueDraft && KP.App.reissueDraft.groupId === g.id ? KP.App.reissueDraft : null;
+    return { mv: rd && KP.C.MV.TIERS[rd.mv] ? rd.mv : base.mv,
+      signRounds: rd && rd.signRounds != null ? rd.signRounds : base.signRounds };
+  };
+
   UI.renderStudio = function (state, draft) {
     const groups = KP.groups(state);
     const g = UI.studioGroup(state);
@@ -209,19 +217,39 @@
         const RP = KP.C.REPACKAGE;
         const last = (g.releases || [])[(g.releases || []).length - 1];
         const repackOpen = !promoting && last && (last.format || 'single') !== 'single' &&
-          !last.repackageOf && state.week <= (g.promoUntil || 0) + RP.windowWeeks &&
+          !last.repackageOf && !last.reissueRested && state.week <= (g.promoUntil || 0) + RP.windowWeeks &&
           (g.eraLeftovers || []).length;
         let repackHtml = '';
         if (repackOpen) {
-          const repackBill = Math.round(KP.recordBill(g, 'standard', last.format) * RP.costMult) +
-            Math.round(KP.C.MV.TIERS.standard.cost * KP.statureCostMult(g));
+          // the reissue's own sheet (v0.11.9, §100): the video and the rounds
+          // are chosen here — the desk's build by default — not inherited
+          // from whatever the last lock form's draft happened to hold
+          const MV = KP.C.MV;
+          const build = UI.reissueBuildFor(state, g);
+          const repackBill = KP.reissueBill(state, g, build);
+          const mult = KP.statureCostMult(g);
+          const door = (state.scenes || []).find(sc => sc.kind === 'theReissue' && sc.groupId === g.id);
+          const tag = d => door && (d.id === door.anrId || d.id === door.fansId)
+            ? ' · <span style="color:var(--gold)">' + (d.id === door.anrId && d.id === door.fansId ? 'the chair’s pick and the fans’'
+              : d.id === door.anrId ? 'the chair’s pick' : 'the fans’ pick') + '</span>' : '';
           repackHtml = '<div class="kicker" style="margin-top:16px">The era can extend</div>' +
             '<div class="pad" style="font-size:.76rem;color:var(--ink-dim);margin-bottom:4px">“' + UI.esc(last.songTitle) +
-            '” is still warm. A repackage re-releases it with a new title track — from the era’s own drawer of passed demos — for ' + repackBill +
-            ', on a shorter cycle. The window closes ' + UI.esc(KP.weekLabel((g.promoUntil || 0) + RP.windowWeeks).text) + '.</div>' +
+            '” is still warm. A repackage re-releases it with a new title track — from the era’s own drawer of passed demos — on a shorter cycle. The window closes ' +
+            UI.esc(KP.weekLabel((g.promoUntil || 0) + RP.windowWeeks).text) + '.' +
+            (door ? ' The same call is waiting on the Desk with the desk’s build; this sheet is where you change it.' : '') + '</div>' +
+            '<div class="pad" style="padding-top:0"><div style="font-size:.7rem;color:var(--ink-dim);margin-bottom:4px">The video</div>' +
+            '<div class="seg" style="margin-bottom:8px">' + Object.keys(MV.TIERS).map(tid =>
+              '<button class="' + (build.mv === tid ? 'on' : '') + '" data-action="reissue-mv" data-id="' + g.id + '" data-mv="' + tid + '">' +
+              UI.esc(MV.TIERS[tid].label) + ' · ' + Math.round(MV.TIERS[tid].cost * mult) + '</button>').join('') + '</div>' +
+            '<div style="font-size:.7rem;color:var(--ink-dim);margin-bottom:4px">Fan-sign rounds — they sell the reprint and spend the members</div>' +
+            '<div class="seg">' + [0, 1, 2, 3].map(sr =>
+              '<button class="' + (build.signRounds === sr ? 'on' : '') + '" data-action="reissue-signs" data-id="' + g.id + '" data-r="' + sr + '">' + sr + '</button>').join('') + '</div>' +
+            '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">The reissue as built: a ' + UI.esc(MV.TIERS[build.mv].label) + ', ' +
+            UI.esc(KP.roundsWord(build.signRounds)) + ', a pressing of ' + KP.fmtCount(KP.reissuePressing(state, g, build.signRounds).run) +
+            '. The bill is ' + repackBill + ', video, pressing and rounds included.</div></div>' +
             (g.eraLeftovers || []).map(d => '<div class="card" style="padding:10px 12px;display:flex;align-items:center;gap:10px">' +
               '<div style="flex:1;min-width:0"><div style="font-weight:800">“' + UI.esc(d.title) + '”</div>' +
-              '<div style="font-size:.72rem;color:var(--ink-dim)">' + UI.esc(d.producer) + ' · leans ' + UI.esc((KP.conceptById(d.conceptId) || {}).label || '') + '</div></div>' +
+              '<div style="font-size:.72rem;color:var(--ink-dim)">' + UI.esc(d.producer) + ' · leans ' + UI.esc((KP.conceptById(d.conceptId) || {}).label || '') + tag(d) + '</div></div>' +
               '<button class="btn small primary" data-action="studio-repackage" data-id="' + g.id + '" data-song="' + d.id + '"' +
               (state.budget < repackBill ? ' disabled' : '') + '>Repackage</button></div>').join('');
         }

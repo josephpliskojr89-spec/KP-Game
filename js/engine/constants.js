@@ -216,8 +216,11 @@
       roomTiredAt: 45,           // ...or merely tired; below, fresh
       restRelief: 8,             // "let it rest": fatigue handed back to the room
       fansPickFandom: 2,         // the cafés were heard (fandom intensity)
-      preorderAheadAt: 1.0,      // the T-1 read ÷ the run: ahead of the pressing...
-      preorderSoftAt: 0.7,       // ...tracking it; below, soft
+      // The pre-order word has NO thresholds here, on purpose: it is the
+      // settle's own verdict on an ordinary week (sold out, or the
+      // warehouse at PRODUCT.overpressAt). The first build carried two
+      // (preorderAheadAt 1.0, preorderSoftAt 0.7) on a different sum, and
+      // the soak read 569 of 665 landings 'ahead' and none 'soft'.
     },
 
     // ---- The regional schools (v0.9.16): the pipeline has addresses ----

@@ -344,6 +344,19 @@ const BANDS = {
   festMoments:          { lo: 0.80, hi: 1.00, label: 'orgs whose festival night named a moment' },
   festHeadlineCeremony: { lo: 0.00, hi: 0.30, label: 'orgs that headlined a top-tier bill (the ceremony letter)' },
   jpAwayMoments:        { lo: 0.60, hi: 1.00, label: 'orgs whose Japan weeks wrote a moment' },
+  // the era, closed (v0.11.9, §100): measure-first — open bands until the
+  // first 40-org soak rules them
+  eraClosedLetter:   { lo: 0.00, hi: 1.00, label: 'orgs that read an era’s close as a ceremony' },
+  eraReissueOffered: { lo: 0.00, hi: 1.00, label: 'orgs offered the reissue door at a close' },
+  eraReissueAnr:     { lo: 0.00, hi: 1.00, label: 'orgs that reissued with the chair’s pick' },
+  eraReissueFans:    { lo: 0.00, hi: 1.00, label: 'orgs that reissued with the fans’ pick' },
+  eraReissueDesk:    { lo: 0.00, hi: 1.00, label: 'orgs that set a reissue from the Studio (bot never)' },
+  eraRested:         { lo: 0.00, hi: 1.00, label: 'orgs that let an era rest' },
+  eraLapsed:         { lo: 0.00, hi: 1.00, label: 'orgs whose reissue door lapsed unanswered' },
+  eraSuperseded:     { lo: 0.00, hi: 1.00, label: 'orgs whose reissue door a new lock closed' },
+  eraPreorderRead:   { lo: 0.00, hi: 1.00, label: 'orgs that got the pre-order week’s read' },
+  eraPreorderAhead:  { lo: 0.00, hi: 1.00, label: 'orgs whose pre-orders ran ahead of a pressing' },
+  eraPreorderSoft:   { lo: 0.00, hi: 1.00, label: 'orgs whose pre-orders read soft against a pressing' },
   // v0.10.33 — the one market: a collapse's signing class is on the open
   // board and the bot buys a career when flush. Measure-first: collapses
   // are rare inside 140 weeks, so the floor is 0 until a census says more.
@@ -775,6 +788,8 @@ const tally = {
   roadEncoreOffered: 0, roadEncoreHandedBack: 0, roadPresserOffered: 0, roadStatement: 0, roadSwapOffered: 0, roadSwapped: 0,
   roadMoments: 0, roadCeremony: 0, roadCardSeen: 0, festBillPosted: 0, festDeepSet: 0, festCollab: 0, festMoments: 0,
   festHeadlineCeremony: 0, jpAwayMoments: 0,
+  eraClosedLetter: 0, eraReissueOffered: 0, eraReissueAnr: 0, eraReissueFans: 0, eraReissueDesk: 0,
+  eraRested: 0, eraLapsed: 0, eraSuperseded: 0, eraPreorderRead: 0, eraPreorderAhead: 0, eraPreorderSoft: 0,
   careerSigned: 0,
   criticsDarling: 0, pannedHit: 0, criticsSplit: 0, trendNamed: 0,
   commissioned: 0, offLaneRecord: 0, houseChair: 0, themeNamed: 0,
@@ -885,6 +900,8 @@ for (let s = 0; s < SEEDS; s++) {
     repackageSet: false, landedCritical: false, evalCritical: false, evalHigh: false, graduatedSolo: false };
   // the stages, lived (v0.11.7, §98): the letters seen per org
   const stages = { headline: false, jpAway: false, roadCard: false };
+  // the era, closed (v0.11.9, §100): the two new letters, seen pre-trim
+  const era = { closeLetter: false, preorderLetter: false };
   let annivSeen = false, scarSeen = false;
   let tourSoldOutSeen = false, tourSoftSeen = false, awardSnubSeen = false;
   let circuitSeen = false, encoreSeen = false, truckSeen = false,
@@ -1578,6 +1595,28 @@ for (let s = 0; s < SEEDS; s++) {
         KP.resolveScene(state, sc.id, pick);
         return;
       }
+      if (sc.kind === 'theReissue') {
+        // the era extends (v0.9.17; a door since v0.11.9, §100): a boss with
+        // a hot record and no fiscal pressure reissues — the chair's pick by
+        // default, the cafés' when the fandom is the thing that needs
+        // feeding — a lukewarm era rests, and a boss who cannot cover the
+        // bill this week leaves the door open (it may lapse: that is counted)
+        const g3 = KP.groupById(state, sc.groupId);
+        const last3 = g3 ? (g3.releases || [])[(g3.releases || []).length - 1] : null;
+        if (!g3 || !last3 || (state.fiscal || {}).pressure > 0 || (last3.reception || 0) < 62) {
+          KP.resolveScene(state, sc.id, 'rest');
+          return;
+        }
+        const opts3 = KP.sceneDef(sc.kind).options(state, sc);
+        if (opts3[0].id === 'rest') { KP.resolveScene(state, sc.id, 'rest'); return; }
+        // the bill is the real one now (pressing and rounds included): the
+        // boss wants it covered half again before signing it
+        const bill3 = KP.reissueBill(state, g3, KP.reissueBuild(state, g3));
+        if (state.budget < Math.max(200, Math.round(bill3 * 1.5))) return;
+        const cold = ((g3.fandom || {}).intensity || 0) < 45;
+        KP.resolveScene(state, sc.id, cold && opts3.some(o => o.id === 'fans') ? 'fans' : opts3[0].id);
+        return;
+      }
       const def = KP.sceneDef(sc.kind);
       if (def) KP.resolveScene(state, sc.id, def.options(state, sc)[0].id);
     });
@@ -1636,19 +1675,9 @@ for (let s = 0; s < SEEDS; s++) {
       KP.planTour(state, { groupId: g.id, scale, legs, pacing: 'humane', setlist: 'hits' });
     });
 
-    // the era extends (v0.9.17): a boss with a hot record and a stocked
-    // drawer repackages inside the window — the fandom budgets for it
-    state.groups.forEach(g => {
-      if (g.prep || g.tour || !g.debuted) return;
-      if ((state.fiscal || {}).pressure > 0) return;
-      const last = (g.releases || [])[(g.releases || []).length - 1];
-      if (!last || (last.format || 'single') === 'single' || last.repackageOf) return;
-      if ((last.reception || 0) < 62) return;
-      if (state.week <= (g.promoUntil || 0) || state.week > (g.promoUntil || 0) + KP.C.REPACKAGE.windowWeeks) return;
-      const drawer = (g.eraLeftovers || []).slice().sort((a, b) => b.hook - a.hook);
-      if (!drawer.length || state.budget < 200) return;
-      KP.planRepackage(state, { groupId: g.id, songId: drawer[0].id });
-    });
+    // the era extends (v0.9.17): since v0.11.9 (§100) the reissue is a door
+    // — `theReissue`, answered at the scenes desk above — not a verb the
+    // boss reaches for unprompted
 
     // the promotion (v0.10.38): a record still climbing in its last week
     // gets the second wind when the room can carry it
@@ -1724,13 +1753,38 @@ for (let s = 0; s < SEEDS; s++) {
       // red quarter ships the performance cut; everyone else stays standard
       const mvTier = (state.fiscal || {}).pressure > 0 ? 'plain'
         : (state.budget > 420 && (g.popularity || 0) >= 60) ? 'cinema' : 'standard';
-      KP.planDebut(state, {
+      // the pressing (v0.11.9, §100): the bot reads its own last landing
+      // the way a player reads the two letters. The sold-out story says
+      // "press braver next time" and the warehouse memo says the opposite,
+      // so the run walks a ladder (cautious, the desk's sheet, bold) one
+      // rung at a time from wherever the last record stood: up on a
+      // sellout, down on a memo, unmoved on a week that fit. A red quarter
+      // presses lean, like the MV above it. Before this the bot never
+      // touched the run: every sheet in the census was the suggestion, and
+      // the only overpress it ever ate was the old reissue's mis-sized
+      // one. The reissue's own run is the desk's, so the lesson is read
+      // from the last record the bot sized itself.
+      const PRESETS = ['cautious', 'suggested', 'bold'];
+      const ownLast = (g.releases || []).slice().reverse().find(r => !r.repackageOf && r.pressing);
+      let rung = 1;
+      if (ownLast) {
+        const at = PRESETS.indexOf(ownLast.pressing.preset || 'suggested');
+        rung = at < 0 ? 1 : at;
+        if (ownLast.pressing.soldOut) rung = Math.min(2, rung + 1);
+        else if (ownLast.pressing.overpress) rung = Math.max(0, rung - 1);
+      }
+      if ((state.fiscal || {}).pressure > 0) rung = 0;
+      const learned = rung === 1 ? null : { preset: PRESETS[rung] };
+      const lockPlan = {
         groupId: g.id, songId: demo.id, conceptId: g.concept === 'fusion' ? 'fusion' : demo.conceptId, promo: promoAffordable,
         week: targetWeek, rollout, format: fmt.id,
         alloc: { vocals: 30, dance: 30, rap: 10, media: 30 },
         mv: mvTier,
         mash,
-      });
+      };
+      const lockRes = KP.planDebut(state, learned ? Object.assign({ pressing: learned }, lockPlan) : lockPlan);
+      // a brave run the till cannot cover falls back to the desk's sheet
+      if (learned && lockRes && lockRes.ok === false) KP.planDebut(state, lockPlan);
       // the A&R pass (v0.7.5): the internet's favorite gets the solo slot,
       // the next two most-followed get the unit — public numbers only
       if (g.prep && g.prep.tracks) {
@@ -1795,7 +1849,9 @@ for (let s = 0; s < SEEDS; s++) {
       if (n.ind === 'mandateMet') wire.mandateMet = true;
       if (n.ind === 'warehouseMemo') wire.warehouseMemo = true;
       if (n.ind === 'restockPressed') wire.restockPressed = true;
-      if (n.ind === 'repackageSet') wire.repackageSet = true;
+      if (n.ind === 'eraAnnounced' && n.reissue) wire.repackageSet = true;
+      if (n.ind === 'eraClosed') era.closeLetter = true;
+      if (n.ind === 'preorderWeek') era.preorderLetter = true;
       if (n.ind === 'graduatedSolo') wire.graduatedSolo = true;
       if (n.ind === 'landed' && n.priority === 'critical') wire.landedCritical = true;
       if (n.ind === 'evalSheet' && n.priority === 'critical') wire.evalCritical = true;
@@ -1804,7 +1860,7 @@ for (let s = 0; s < SEEDS; s++) {
       if (n.ind === 'jpAwayWeek') stages.jpAway = true;
     });
     if (KP.tourRoadRead && state.groups.some(g => g.tour && KP.tourRoadRead(state, g))) stages.roadCard = true;
-    if (state.inbox.some(n => n.ind === 'repackageSet')) wire.repackageSet = true;   // a verb's letter lands on the inbox, not the stream
+    if (state.inbox.some(n => n.ind === 'eraAnnounced' && n.reissue)) wire.repackageSet = true;   // a verb's letter lands on the inbox, not the stream
     if (state.inbox.some(n => n.ind === 'graduatedSolo')) wire.graduatedSolo = true;
     if (notes.some(n => n.ind === 'anniversary')) annivSeen = true;
     if (state.roster.some(id => (state.people[id].flags || {}).scar > 0)) scarSeen = true;
@@ -2346,6 +2402,21 @@ for (let s = 0; s < SEEDS; s++) {
     if ((FL.moments || 0) >= 1) tally.festMoments++;
     if (stages.headline) tally.festHeadlineCeremony++;
     if ((JL.awayMoments || 0) >= 1 || stages.jpAway) tally.jpAwayMoments++;
+  }
+  // the era, closed (v0.11.9, §100): measure-first, from the ledger and the letters
+  {
+    const EL = state.eraLedger || {};
+    if (era.closeLetter && (EL.closed || 0) >= 1) tally.eraClosedLetter++;
+    if ((EL.reissueOffered || 0) >= 1) tally.eraReissueOffered++;
+    if ((EL.anr || 0) >= 1) tally.eraReissueAnr++;
+    if ((EL.fans || 0) >= 1) tally.eraReissueFans++;
+    if ((EL.desk || 0) >= 1) tally.eraReissueDesk++;
+    if ((EL.rested || 0) >= 1) tally.eraRested++;
+    if ((EL.lapsed || 0) >= 1) tally.eraLapsed++;
+    if ((EL.superseded || 0) >= 1) tally.eraSuperseded++;
+    if (era.preorderLetter && (EL.preorderReads || 0) >= 1) tally.eraPreorderRead++;
+    if ((EL.preorderAhead || 0) >= 1) tally.eraPreorderAhead++;
+    if ((EL.preorderSoft || 0) >= 1) tally.eraPreorderSoft++;
   }
   if (doorWaitSeen) tally.doorLeftWaiting++;
   if (annivSeen) tally.annivFelt++;

@@ -78,7 +78,13 @@
     // the rollout plan (v0.6.3): 4 promo weeks, 2 slots each, every slot
     // a real choice with a real bill
     const R = KP.C.ROLLOUT;
-    const rollout = plan.rollout || R.DEFAULT.map(w => w.slice());
+    // the lock works on its own copy (v0.11.9, §100): the show-to-radio
+    // swap below used to edit the caller's plan before the till could
+    // refuse it, so a refused lock retried with the same plan never told
+    // the closed door (the swap had already happened, silently)
+    const rollout = Array.isArray(plan.rollout)
+      ? plan.rollout.map(w => Array.isArray(w) ? w.slice() : w)
+      : (plan.rollout || R.DEFAULT.map(w => w.slice()));
     if (!Array.isArray(rollout) || rollout.length !== R.weeks) {
       return { ok: false, reason: 'The rollout covers ' + R.weeks + ' promotion weeks. Plan all of them.' };
     }
@@ -1232,6 +1238,8 @@
       // the product (v0.10.0): the fandom's number, archived beside the public's
       chodong: product ? product.chodong : null,
       pressing: product ? { run: product.run, versions: product.versions, pob: product.pob,
+        // how brave the run was (v0.11.9, §100): the company's own call, on its own file
+        preset: product.preset || 'suggested',
         // the week's verdict on the run, archived (v0.11.5, §96 wiring): the memo and the restock read it later
         demand: product.demand, soldOut: !!product.soldOut, overpress: !!product.overpress,
         // the pre-order week's read (v0.11.9, §100): the close says whether it called the week
