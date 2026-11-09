@@ -230,6 +230,7 @@
     if (KP.productLedger) KP.productLedger(state);   // the restock ledger (v0.11.5, §96 wiring)
     if (KP.tourLedger) KP.tourLedger(state);         // the road's doors and moments (v0.11.7, §98)
     if (KP.festBills) KP.festBills(state);           // the festival bills, by edition (v0.11.7, §98)
+    if (KP.eraLedger) KP.eraLedger(state);           // the era's close and the reissue door (v0.11.9, §100)
     state.deadShorts = state.deadShorts || [];   // the registry exists from week one, so a fork never creates it in a different order
     return state;
   };

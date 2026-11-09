@@ -115,6 +115,11 @@
         g.trophies[showId] = (g.trophies[showId] || 0) + 1;
         g.trophiesYear = (g.trophiesYear || 0) + 1;   // the award year's tally (0.9.13 audit B2)
         g.lastShowWinWeek = state.week;   // the slump reads this (v0.9.18)
+        // the era's own shelf (v0.11.9, §100): the close reads it back
+        if ((g.releases || []).length) {
+          const eraRel = g.releases[g.releases.length - 1];
+          eraRel.trophies = (eraRel.trophies || 0) + 1;
+        }
         g.popularity = KP.clamp((g.popularity || 0) + W.winPop, 0, 100);
         const members = g.members.map(id => state.people[id]).filter(Boolean);
         members.forEach(m => {
@@ -250,6 +255,11 @@
           (read.band === 'carried' || read.band === 'fumbled' ? 100 : 0) + (showId === comebackId ? 1000 : 0);
         if (!notable || edge > notable.edge) notable = { read, showId, edge };
       });
+      // the era's last stage is whichever week's stage came last (v0.11.9, §100):
+      // overwritten each promotion week, so an extension's stage is the true one
+      if (notable && rel) {
+        rel.lastStage = { week: state.week, showId: notable.showId, band: notable.read.band, carried: notable.read.moments.carried || null };
+      }
       if (notable && notable.showId === comebackId) {
         const CB = KP.C.PROMO.CB;
         const read = notable.read;

@@ -154,6 +154,8 @@
     }
 
     g.eraLeftovers = null;   // a new era starts a new drawer
+    // ...and the reissue door on the old one closes unanswered (v0.11.9, §100)
+    if (KP.eraDropReissue && KP.eraDropReissue(state, g)) KP.eraLedger(state).superseded++;
     g.prep = {
       songId: demo.id,
       conceptId: plan.conceptId || demo.conceptId,
@@ -353,16 +355,25 @@
     if (state.week > (g.promoUntil || 0) + RP.windowWeeks) {
       return { ok: false, reason: 'The era has cooled. A repackage rides heat that is still there — this one is gone.' };
     }
+    // the desk let it rest (v0.11.9, §100): that answer is final for the era
+    if (last.reissueRested) return { ok: false, reason: 'The desk let this era rest. The drawer is closed.' };
     const demo = (g.eraLeftovers || []).find(d => d.id === plan.songId);
     if (!demo) return { ok: false, reason: 'The repackage title comes from the era’s own drawer — the demos the meeting passed on.' };
     const format = D.FORMATS.find(f => f.id === last.format) || D.FORMATS[0];
     const MV = KP.C.MV;
     const mvTier = plan.mv || 'standard';
     if (!MV.TIERS[mvTier]) return { ok: false, reason: 'The video comes in three budgets: plain, standard, or cinema.' };
-    const mvCost = Math.round(MV.TIERS[mvTier].cost * KP.statureCostMult(g));
-    const cost = Math.round(KP.recordBill(g, plan.promo || 'standard', format.id) * RP.costMult) + mvCost;
+    // the reissue's own sheet (v0.11.9, §100): the pressing is sized to the
+    // reprint's share of demand and BILLED, the home discount applies, and
+    // the era's ledger carries the cost — one bill, the same one the door shows
+    const pressing = KP.reissuePressing(state, g, plan.signRounds);
+    const cost = KP.reissueBill(state, g, { mv: mvTier, signRounds: pressing.signRounds, promo: plan.promo });
     if (state.budget < cost) return { ok: false, reason: 'Even the cheaper reprint needs money we do not have.' };
     state.budget -= cost;
+    if (KP.accrueDebt) {
+      KP.accrueDebt(state, g, cost);
+      KP.ledgerFlow(state, 'production', -cost);
+    }
     // the return (audit v0.11.3): a reissue locked during a declared hiatus
     // is the announcement, the same as a lock
     if (g.hiatus && KP.hiatusReturnLock) KP.hiatusReturnLock(state, g);
@@ -377,24 +388,39 @@
       progress: 0,
       mash: null,
       mv: mvTier,
-      repackage: { of: last.songTitle, reception: last.reception || 0 },
+      pressing,
+      // the first act's standing rides along (v0.11.9, §100): the landing
+      // reads the second act against it
+      repackage: { of: last.songTitle, reception: last.reception || 0,
+        band: last.receptionBand || null, chartPeak: last.chartPeak || null },
     };
     // the chosen leftover takes the desk so the release resolution (and
     // the studio hero card) can find it; the drawer is spent — one
     // repackage per era
     g.demos = [demo];
     g.eraLeftovers = null;
+    // the door is answered wherever the answer came from (v0.11.9, §100)
+    if (KP.eraDropReissue) {
+      KP.eraDropReissue(state, g);
+      KP.eraLedger(state)[plan.by === 'anr' || plan.by === 'fans' ? plan.by : 'desk']++;
+    }
     {
-      const trng = KP.rngFor(state);
+      // a scene's resolve hands its own rng down: resolveScene writes the
+      // stream back itself, so a second generator here would be rewound
+      const trng = plan.rng || KP.rngFor(state);
       g.prep.tracks = KP.buildTracklist(state, trng, g, demo,
         Object.assign({}, format, { tracks: RP.tracks }));
-      state.rngState = trng.state();
+      if (!plan.rng) state.rngState = trng.state();
     }
     // the engine writes the announcement (v0.11.5, §96 wiring): the bot's
-    // path and the desk's get the same letter; the toast keeps its clause
-    const note = KP.note(state, { kind: 'company', ind: 'repackageSet', priority: 'high', groupId: g.id,
+    // path and the desk's get the same letter; the toast keeps its clause.
+    // v0.11.9 (§100): it is an era announced, in that family, and it says
+    // what the reissue is made of instead of inheriting it silently
+    const note = KP.note(state, { kind: 'public', ind: 'eraAnnounced', priority: 'high', groupId: g.id, reissue: true,
       text: g.name + '’s era extends: “' + last.songTitle + '” repackages with “' +
-        demo.title + '” as the new title track — the demo the meeting passed on, back from the table. The fandom knows exactly what a repackage means, and is already budgeting for the new photocards.' });
+        demo.title + '” as the new title track — the demo the meeting passed on, back from the table, with a ' +
+        MV.TIERS[mvTier].label + ' and ' + KP.roundsWord(pressing.signRounds) + ' on the sheet. It lands ' +
+        KP.weekLabel(g.prep.scheduledWeek).text + '. The fandom knows exactly what a repackage means, and is already budgeting for the new photocards.' });
     return { ok: true, note: note.text };
   };
 
@@ -1047,9 +1073,21 @@
       KP.settleShare(state, g, revenue);   // the settlement letter rides the bus from inside (audit v0.11.3)
       push(KP.repayAdvance(state, product));
       // the red ledger: a loss-making era is counted, a profitable one clears
-      g.lastEraNet = revenue - (g.eraSpend || 0);
-      if (g.lastEraNet < 0) g.redEras = (g.redEras || 0) + 1;
-      else { g.redEras = 0; g.redTalkDone = false; }
+      if (repack) {
+        // one era, two acts (v0.11.9, §100): the reissue now carries its own
+        // bill, so its net joins the first act's instead of standing as a
+        // second era — it can pull a red era into the black, or tip a thin
+        // one under, but it never counts the same era twice
+        const first = g.lastEraNet || 0;
+        const combined = first + revenue - (g.eraSpend || 0);
+        if (first < 0 && combined >= 0) { g.redEras = 0; g.redTalkDone = false; }
+        else if (first >= 0 && combined < 0) g.redEras = (g.redEras || 0) + 1;
+        g.lastEraNet = combined;
+      } else {
+        g.lastEraNet = revenue - (g.eraSpend || 0);
+        if (g.lastEraNet < 0) g.redEras = (g.redEras || 0) + 1;
+        else { g.redEras = 0; g.redTalkDone = false; }
+      }
       g.eraSpend = 0;
     }
 
@@ -1195,7 +1233,9 @@
       chodong: product ? product.chodong : null,
       pressing: product ? { run: product.run, versions: product.versions, pob: product.pob,
         // the week's verdict on the run, archived (v0.11.5, §96 wiring): the memo and the restock read it later
-        demand: product.demand, soldOut: !!product.soldOut, overpress: !!product.overpress } : null,
+        demand: product.demand, soldOut: !!product.soldOut, overpress: !!product.overpress,
+        // the pre-order week's read (v0.11.9, §100): the close says whether it called the week
+        preorder: g.prep.preorder ? { word: g.prep.preorder.word } : null } : null,
       // the release archives its OWN copy (0.9.13 audit L4: results and
       // releases shared one live array — identical today, a fork hazard
       // the first time anything edits a released tracklist)
@@ -1221,6 +1261,11 @@
       // the stage (v0.10.37): the song's live demand rides every night of the era
       liveDemand: { vocals: demo.vocalDemand || 55, dance: demo.choreoPotential || 50, rap: demo.rapDemand || 30 },
     });
+    // the first act's file names its second (v0.11.9, §100)
+    if (repack) {
+      const firstAct = g.releases.slice(0, -1).reverse().find(r => r.songTitle === repack.of);
+      if (firstAct) firstAct.reissuedAs = demo.title;
+    }
     // the return run lands (v0.9.25): the alum stood in her old spot
     if (g.prep.returnRun) {
       const alum = state.people[g.prep.returnRun];
@@ -1284,9 +1329,22 @@
     }
     // the era extends (v0.9.17): the repackage is its own story beat
     if (repack) {
+      // the landing reads the second act against the first (v0.11.9, §100):
+      // the reception words and the chart peaks are public facts, so they print
+      const WORD = { sensation: 'a sensation', strong: 'strong', solid: 'solid', quiet: 'quiet', miss: 'a miss' };
+      const ORDER = ['miss', 'quiet', 'solid', 'strong', 'sensation'];
+      const a = ORDER.indexOf(repack.band), b = ORDER.indexOf(band.key);
+      const against = a < 0 || b < 0 ? ''
+        : b > a ? 'The first act landed ' + WORD[repack.band] + '; the second lands ' + WORD[band.key] + ', which is the rarer direction for a reprint to travel. '
+        : b === a ? 'The first act landed ' + WORD[repack.band] + ', and the second matches it, which is all a reprint is ever asked to do. '
+        : 'The first act landed ' + WORD[repack.band] + '; the second lands ' + WORD[band.key] + '. ';
+      const charts = !(repack.chartPeak && peak) ? ''
+        : peak < repack.chartPeak ? 'It opens at #' + peak + ', above the #' + repack.chartPeak + ' the first act reached. '
+        : peak === repack.chartPeak ? 'It opens at #' + peak + ', exactly where the first act peaked. '
+        : 'It opens at #' + peak + ', under the first act’s #' + repack.chartPeak + '. ';
       push({ kind: 'public', ind: 'eraExtended', priority: 'high', groupId: g.id,
         text: 'The “' + repack.of + '” era EXTENDS: ' + g.name + ' repackaged with “' + demo.title +
-          '” as the new title track, and the rollout machine barely had to restart. ' +
+          '” as the new title track, and the rollout machine barely had to restart. ' + against + charts +
           (reception >= 60 ? 'The second wind is real — the era gets more weeks, the fandom gets more photocards, and the charts get the same name twice.'
             : 'The second wind wheezed a little — reprints ride the era’s heat, and this era had less left than the desk hoped.') });
     }
@@ -1452,6 +1510,16 @@
   KP.onFeedEvent('eraAnnounced', (state, n, rng) => {
     const g = KP.groupById(state, n.groupId);
     if (!g) return null;
+    // the reissue's announcement (v0.11.9, §100): its own voices, picked by
+    // hash so the old repackageSet path (which had no echo) costs no draw
+    if (n.reissue) {
+      const posts = [
+        { persona: 'fan', text: g.name + ' REPACKAGE CONFIRMED. I said I was done buying this era. I was lying to myself and to my bank' },
+        { persona: 'casual', text: 'so ' + g.name + ' are putting the same album out again with one new song and people are thrilled? this industry is a magic trick and I respect it' },
+        { persona: 'fan', text: 'the ' + g.name + ' reissue has a NEW title track. the era is not over. cancel the mourning, restart the streaming shifts' },
+      ];
+      return posts[Math.floor(KP.hash01([state.seed, 'reissueEcho', g.id, state.week].join('|')) * posts.length)];
+    }
     return rng.pick([
       { persona: 'fan', text: g.name + ' DATE ANNOUNCED. clearing the week. clearing the month, honestly. the group chat has already assigned streaming shifts' },
       { persona: 'casual', text: 'the ' + g.name + ' announcement post hit my feed from four different directions in an hour. okay, industry, I am paying attention' },

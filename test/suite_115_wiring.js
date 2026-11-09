@@ -516,8 +516,10 @@ function expireAll(s, kind) { (s.scenes || []).forEach(sc => { if (sc.kind === k
   s.budget = 900;
   const n0 = s.inbox.length;
   const r = KP.planRepackage(s, { groupId: g.id, songId: g.eraLeftovers[0].id });
-  const note = s.inbox.find(n => n.ind === 'repackageSet');
-  ok(r.ok && note && note.priority === 'high' && note.kind === 'company' && note.groupId === g.id && note.text === r.note, 'planRepackage writes repackageSet high, and returns its text');
+  // v0.11.9 (§100): the reissue announces through eraAnnounced's family, marked `reissue`
+  const note = s.inbox.find(n => n.ind === 'eraAnnounced' && n.reissue);
+  ok(r.ok && note && note.priority === 'high' && note.kind === 'public' && note.groupId === g.id && note.text === r.note, 'planRepackage writes the reissue’s eraAnnounced high, and returns its text');
+  ok(!s.inbox.some(n => n.ind === 'repackageSet'), 'the old repackageSet ind is retired');
   ok(s.inbox.length === n0 + 1 && s.inbox[0] === note, 'one letter, at the top');
   ok(/era extends: “.+” repackages with “.+” as the new title track\.$/.test(r.note.split(' — ')[0] + '.'), 'the toast clause: ' + r.note.split(' — ')[0] + '.');
   guard = 0;

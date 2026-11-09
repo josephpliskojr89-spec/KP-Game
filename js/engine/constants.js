@@ -207,6 +207,19 @@
       tracks: 3,                 // new title + two new b-sides on the reissue
     },
 
+    // The era, closed (v0.11.9, §100 — measure-first). The week promotion
+    // ends the desk reads the era back, and the reissue becomes a door.
+    ERA: {
+      closeMoraleUp: 3,          // a crowned era lifts the room (v0.11.9, §100 — measure-first)
+      closeMoraleDown: 2,        // a missed one sits on it
+      roomSpentAt: 70,           // average fatigue at the close: the room is spent...
+      roomTiredAt: 45,           // ...or merely tired; below, fresh
+      restRelief: 8,             // "let it rest": fatigue handed back to the room
+      fansPickFandom: 2,         // the cafés were heard (fandom intensity)
+      preorderAheadAt: 1.0,      // the T-1 read ÷ the run: ahead of the pressing...
+      preorderSoftAt: 0.7,       // ...tracking it; below, soft
+    },
+
     // ---- The regional schools (v0.9.16): the pipeline has addresses ----
     // Persistent named academies in the home circuit's cities. Each has a
     // specialty lane, an alumni ledger, and a reputation that moves with

@@ -1160,6 +1160,13 @@
       (state.scenes || []).forEach(sc => { if (sc.kind === 'theInterview' && sc.cand && !sc.cand.truth) sc.cand.truth = KP.staffTruthMint(state, sc.cand, true); });
     }
   } });
+  // 0.11.9 (the era, closed, §100): the era ledger exists from week one. An
+  // era already past its last promotion week is never closed after the fact:
+  // the close fires on the exact week, so an old file simply starts closing
+  // at its next comeback.
+  MIGRATIONS.push({ v: '0.11.9', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+  } });
 
   KP.migrate = function (state) {
     const applied = [];
