@@ -315,6 +315,23 @@ const BANDS = {
   wireFestRegrets:    { lo: 0.50, hi: 1.00, label: 'orgs that sent regrets an organizer remembers' },
   wireDeskCooled:     { lo: 0.00, hi: 0.40, label: 'orgs with a broadcaster desk cooled by declines' },
   wireTourRecord:     { lo: 0.60, hi: 1.00, label: 'orgs whose group page keeps a tour record' },
+  // the stages, lived (v0.11.7, §98): measure-first — provisional [0,1]
+  // until the first 40-org soak rules them
+  roadEncoreOffered:    { lo: 0.00, hi: 1.00, label: 'orgs offered the encore night door' },
+  roadEncoreHandedBack: { lo: 0.00, hi: 1.00, label: 'orgs that handed a second night back (worn room)' },
+  roadPresserOffered:   { lo: 0.00, hi: 1.00, label: 'orgs offered the road presser after a fumbled night' },
+  roadStatement:        { lo: 0.00, hi: 1.00, label: 'orgs that put out a road statement' },
+  roadSwapOffered:      { lo: 0.00, hi: 1.00, label: 'orgs offered the setlist swap (a loud fan pick)' },
+  roadSwapped:          { lo: 0.00, hi: 1.00, label: 'orgs that sang the pick on the road' },
+  roadMoments:          { lo: 0.00, hi: 1.00, label: 'orgs whose leg letters named a moment' },
+  roadCeremony:         { lo: 0.00, hi: 1.00, label: 'orgs that read a tour wrap as a ceremony' },
+  roadCardSeen:         { lo: 0.00, hi: 1.00, label: 'orgs with the road card on Today during a tour' },
+  festBillPosted:       { lo: 0.00, hi: 1.00, label: 'orgs in a world that posted a festival bill' },
+  festDeepSet:          { lo: 0.00, hi: 1.00, label: 'orgs that took a festival slot with the deep cut' },
+  festCollab:           { lo: 0.00, hi: 1.00, label: 'orgs that played a festival collab with a friend’s act' },
+  festMoments:          { lo: 0.00, hi: 1.00, label: 'orgs whose festival night named a moment' },
+  festHeadlineCeremony: { lo: 0.00, hi: 1.00, label: 'orgs that headlined a top-tier bill (the ceremony letter)' },
+  jpAwayMoments:        { lo: 0.00, hi: 1.00, label: 'orgs whose Japan weeks wrote a moment' },
   // v0.10.33 — the one market: a collapse's signing class is on the open
   // board and the bot buys a career when flush. Measure-first: collapses
   // are rare inside 140 weeks, so the floor is 0 until a census says more.
@@ -738,6 +755,9 @@ const tally = {
   wirePassedChair: 0, wireRedInkSilence: 0, wireMandateMet: 0, wireWarehouseMemo: 0, wireRestockPressed: 0,
   wireRepackageSet: 0, wireLandedCritical: 0, wireEvalCritical: 0, wireEvalHigh: 0, wireGraduatedSolo: 0,
   wireOfferLeveraged: 0, wireFestRegrets: 0, wireDeskCooled: 0, wireTourRecord: 0,
+  roadEncoreOffered: 0, roadEncoreHandedBack: 0, roadPresserOffered: 0, roadStatement: 0, roadSwapOffered: 0, roadSwapped: 0,
+  roadMoments: 0, roadCeremony: 0, roadCardSeen: 0, festBillPosted: 0, festDeepSet: 0, festCollab: 0, festMoments: 0,
+  festHeadlineCeremony: 0, jpAwayMoments: 0,
   careerSigned: 0,
   criticsDarling: 0, pannedHit: 0, criticsSplit: 0, trendNamed: 0,
   commissioned: 0, offLaneRecord: 0, houseChair: 0, themeNamed: 0,
@@ -846,6 +866,8 @@ for (let s = 0; s < SEEDS; s++) {
   // the wiring (v0.11.5, §96): the letters that did not exist, seen per org
   const wire = { passedChair: false, redInkSilence: false, mandateMet: false, warehouseMemo: false, restockPressed: false,
     repackageSet: false, landedCritical: false, evalCritical: false, evalHigh: false, graduatedSolo: false };
+  // the stages, lived (v0.11.7, §98): the letters seen per org
+  const stages = { headline: false, jpAway: false, roadCard: false };
   let annivSeen = false, scarSeen = false;
   let tourSoldOutSeen = false, tourSoftSeen = false, awardSnubSeen = false;
   let circuitSeen = false, encoreSeen = false, truckSeen = false,
@@ -1374,11 +1396,38 @@ for (let s = 0; s < SEEDS; s++) {
         return;
       }
       if (sc.kind === 'festivalInvite') {
-        // take the stage unless the room is running on fumes
+        // take the stage unless the room is running on fumes; the stages,
+        // lived (v0.11.7, §98): the collab when a friend is on the bill,
+        // the deep cut when the fandom is loud — else the hits, as before
         const g2 = KP.groupById(state, sc.groupId);
         const avgF = g2 ? g2.members.reduce((s2, id) => s2 + (state.people[id] ? state.people[id].fatigue : 0), 0) /
           (g2.members.length || 1) : 100;
-        KP.resolveScene(state, sc.id, avgF < 62 && state.budget > 40 ? 'accept' : 'decline');
+        const fOpts = KP.sceneDef('festivalInvite').options(state, sc).map(o => o.id);
+        const loud = !!(g2 && g2.fandom && (g2.fandom.intensity || 0) >= 50);
+        const fPick = !(avgF < 62 && state.budget > 40) ? 'decline'
+          : fOpts.includes('collab') ? 'collab'
+          : (loud && fOpts.includes('deep')) ? 'deep' : 'accept';
+        KP.resolveScene(state, sc.id, fPick);
+        return;
+      }
+      // the road's doors (v0.11.7, §98): a cautious hand — hand the second
+      // night back when the room is worn, a statement when flush, the pick
+      // when the fandom is loud; otherwise the house default
+      if (sc.kind === 'encoreNight') {
+        const g2 = KP.groupById(state, sc.groupId);
+        const avgF = g2 ? g2.members.reduce((s2, id) => s2 + (state.people[id] ? state.people[id].fatigue : 0), 0) /
+          (g2.members.length || 1) : 0;
+        KP.resolveScene(state, sc.id, avgF >= 75 ? 'handBack' : 'play');
+        return;
+      }
+      if (sc.kind === 'roadPresser') {
+        const pOpts = KP.sceneDef('roadPresser').options(state, sc).map(o => o.id);
+        KP.resolveScene(state, sc.id, state.budget >= 300 && pOpts.includes('statement') ? 'statement' : 'ride');
+        return;
+      }
+      if (sc.kind === 'setlistSwap') {
+        const g2 = KP.groupById(state, sc.groupId);
+        KP.resolveScene(state, sc.id, g2 && g2.fandom && (g2.fandom.intensity || 0) >= 50 ? 'swap' : 'keep');
         return;
       }
       if (sc.kind === 'awardNight') {
@@ -1731,7 +1780,10 @@ for (let s = 0; s < SEEDS; s++) {
       if (n.ind === 'landed' && n.priority === 'critical') wire.landedCritical = true;
       if (n.ind === 'evalSheet' && n.priority === 'critical') wire.evalCritical = true;
       if (n.ind === 'evalSheet' && n.priority === 'high') wire.evalHigh = true;
+      if (n.ind === 'festHeadline') stages.headline = true;
+      if (n.ind === 'jpAwayWeek') stages.jpAway = true;
     });
+    if (KP.tourRoadRead && state.groups.some(g => g.tour && KP.tourRoadRead(state, g))) stages.roadCard = true;
     if (state.inbox.some(n => n.ind === 'repackageSet')) wire.repackageSet = true;   // a verb's letter lands on the inbox, not the stream
     if (state.inbox.some(n => n.ind === 'graduatedSolo')) wire.graduatedSolo = true;
     if (notes.some(n => n.ind === 'anniversary')) annivSeen = true;
@@ -2255,6 +2307,25 @@ for (let s = 0; s < SEEDS; s++) {
   if (state.groups.some(g => g.festRegrets && Object.keys(g.festRegrets).length)) tally.wireFestRegrets++;
   if (Object.values(((state.promoLedger || {}).declines) || {}).some(n => n >= KP.C.PROMO.OFFERS.declineCoolAt)) tally.wireDeskCooled++;
   if (state.groups.some(g => (g.tourHistory || []).length)) tally.wireTourRecord++;
+  // the stages, lived (v0.11.7, §98): measure-first, from the ledgers and the letters
+  {
+    const TL = state.tourLedger || {}, FL = state.festivalLedger || {}, JL = state.jpLedger || {};
+    if ((TL.encoresOffered || 0) >= 1) tally.roadEncoreOffered++;
+    if ((TL.encoresHandedBack || 0) >= 1) tally.roadEncoreHandedBack++;
+    if ((TL.pressersOffered || 0) >= 1) tally.roadPresserOffered++;
+    if ((TL.statements || 0) >= 1) tally.roadStatement++;
+    if ((TL.swapsOffered || 0) >= 1) tally.roadSwapOffered++;
+    if ((TL.swapped || 0) >= 1) tally.roadSwapped++;
+    if ((TL.moments || 0) >= 1) tally.roadMoments++;
+    if ((TL.ceremonies || 0) >= 1) tally.roadCeremony++;
+    if (stages.roadCard) tally.roadCardSeen++;
+    if ((FL.billsPosted || 0) >= 1) tally.festBillPosted++;
+    if ((FL.deepSets || 0) >= 1) tally.festDeepSet++;
+    if ((FL.collabs || 0) >= 1) tally.festCollab++;
+    if ((FL.moments || 0) >= 1) tally.festMoments++;
+    if (stages.headline) tally.festHeadlineCeremony++;
+    if ((JL.awayMoments || 0) >= 1 || stages.jpAway) tally.jpAwayMoments++;
+  }
   if (doorWaitSeen) tally.doorLeftWaiting++;
   if (annivSeen) tally.annivFelt++;
   if (scarSeen) tally.scarCarried++;
