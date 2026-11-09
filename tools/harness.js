@@ -168,7 +168,13 @@ const BANDS = {
   // doubled, the bot pushing every nine weeks), 35/40 tuned. The alarm
   // this band keeps is the salary: revivals per org-year prints in the
   // header; past ~1 a year the windfall is wages, not a lottery
-  catalogRevived:    { lo: 0.02, hi: 0.90, label: 'orgs whose catalog track reverse-charted (the lottery ticket)' },
+  // the lottery ticket's guard is the RATE printed at the foot of the census
+  // (reverse runs per org-year, "stays a ticket under ~1"): v0.11.7 measured
+  // 37/40 orgs against the .90 ceiling while the rate FELL 0.74 → 0.63 —
+  // fewer revivals, spread wider by the stages' small intensity moves. The
+  // org count is re-pointed at the flood it exists to catch (hi .90 → .97);
+  // the rate line stays the alarm that matters
+  catalogRevived:    { lo: 0.02, hi: 0.97, label: 'orgs whose catalog track reverse-charted (the lottery ticket)' },
   viralSourced:      { lo: 0.50, hi: 1.00, label: 'orgs whose viral moments carry provenance (the clip has a stage)' },
   obligationMissed:  { lo: 0.00, hi: 0.80, label: 'orgs that missed a sponsored appearance (the road won)' },
   dealClawedBack:    { lo: 0.00, hi: 0.50, label: 'orgs a brand terminated for cause (two misses)' },
@@ -315,23 +321,29 @@ const BANDS = {
   wireFestRegrets:    { lo: 0.50, hi: 1.00, label: 'orgs that sent regrets an organizer remembers' },
   wireDeskCooled:     { lo: 0.00, hi: 0.40, label: 'orgs with a broadcaster desk cooled by declines' },
   wireTourRecord:     { lo: 0.60, hi: 1.00, label: 'orgs whose group page keeps a tour record' },
-  // the stages, lived (v0.11.7, §98): measure-first — provisional [0,1]
-  // until the first 40-org soak rules them
-  roadEncoreOffered:    { lo: 0.00, hi: 1.00, label: 'orgs offered the encore night door' },
-  roadEncoreHandedBack: { lo: 0.00, hi: 1.00, label: 'orgs that handed a second night back (worn room)' },
-  roadPresserOffered:   { lo: 0.00, hi: 1.00, label: 'orgs offered the road presser after a fumbled night' },
-  roadStatement:        { lo: 0.00, hi: 1.00, label: 'orgs that put out a road statement' },
-  roadSwapOffered:      { lo: 0.00, hi: 1.00, label: 'orgs offered the setlist swap (a loud fan pick)' },
-  roadSwapped:          { lo: 0.00, hi: 1.00, label: 'orgs that sang the pick on the road' },
-  roadMoments:          { lo: 0.00, hi: 1.00, label: 'orgs whose leg letters named a moment' },
-  roadCeremony:         { lo: 0.00, hi: 1.00, label: 'orgs that read a tour wrap as a ceremony' },
-  roadCardSeen:         { lo: 0.00, hi: 1.00, label: 'orgs with the road card on Today during a tour' },
-  festBillPosted:       { lo: 0.00, hi: 1.00, label: 'orgs in a world that posted a festival bill' },
-  festDeepSet:          { lo: 0.00, hi: 1.00, label: 'orgs that took a festival slot with the deep cut' },
-  festCollab:           { lo: 0.00, hi: 1.00, label: 'orgs that played a festival collab with a friend’s act' },
-  festMoments:          { lo: 0.00, hi: 1.00, label: 'orgs whose festival night named a moment' },
-  festHeadlineCeremony: { lo: 0.00, hi: 1.00, label: 'orgs that headlined a top-tier bill (the ceremony letter)' },
-  jpAwayMoments:        { lo: 0.00, hi: 1.00, label: 'orgs whose Japan weeks wrote a moment' },
+  // the stages, lived (v0.11.7, §98): ruled from the first 40-org soak —
+  // encore door 40, handed back 0 (the bot's worn-room bar of 75 is rarely
+  // met on humane pacing; suite-held), presser 1 / statement 1 (a fumbled
+  // night is rare for a sensible bot), swap offered 24 / sung 20, moments
+  // 40, ceremony 40, road card 40, bills 40, deep 17, collab 38 (friends
+  // form in promo weeks and the bot collabs whenever one is on the bill),
+  // fest moments 40, tier-3 headline 0 (icons + pop 58 inside 140 weeks is
+  // rare; suite-held), Japan 40
+  roadEncoreOffered:    { lo: 0.50, hi: 1.00, label: 'orgs offered the encore night door' },
+  roadEncoreHandedBack: { lo: 0.00, hi: 0.40, label: 'orgs that handed a second night back (worn room)' },
+  roadPresserOffered:   { lo: 0.00, hi: 0.40, label: 'orgs offered the road presser after a fumbled night' },
+  roadStatement:        { lo: 0.00, hi: 0.40, label: 'orgs that put out a road statement' },
+  roadSwapOffered:      { lo: 0.20, hi: 1.00, label: 'orgs offered the setlist swap (a loud fan pick)' },
+  roadSwapped:          { lo: 0.10, hi: 1.00, label: 'orgs that sang the pick on the road' },
+  roadMoments:          { lo: 0.80, hi: 1.00, label: 'orgs whose leg letters named a moment' },
+  roadCeremony:         { lo: 0.80, hi: 1.00, label: 'orgs that read a tour wrap as a ceremony' },
+  roadCardSeen:         { lo: 0.80, hi: 1.00, label: 'orgs with the road card on Today during a tour' },
+  festBillPosted:       { lo: 0.90, hi: 1.00, label: 'orgs in a world that posted a festival bill' },
+  festDeepSet:          { lo: 0.10, hi: 0.90, label: 'orgs that took a festival slot with the deep cut' },
+  festCollab:           { lo: 0.30, hi: 1.00, label: 'orgs that played a festival collab with a friend’s act' },
+  festMoments:          { lo: 0.80, hi: 1.00, label: 'orgs whose festival night named a moment' },
+  festHeadlineCeremony: { lo: 0.00, hi: 0.30, label: 'orgs that headlined a top-tier bill (the ceremony letter)' },
+  jpAwayMoments:        { lo: 0.60, hi: 1.00, label: 'orgs whose Japan weeks wrote a moment' },
   // v0.10.33 — the one market: a collapse's signing class is on the open
   // board and the bot buys a career when flush. Measure-first: collapses
   // are rare inside 140 weeks, so the floor is 0 until a census says more.

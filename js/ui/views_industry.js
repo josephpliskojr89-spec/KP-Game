@@ -172,6 +172,33 @@
         '</div>');
     }
 
+    // festival season (v0.11.7, §98): the bills the organizers post four
+    // weeks out — the headliner named, the first names on the poster, and
+    // our standing in words; our booked act is placed on the poster at
+    // read time, never stored
+    if (KP.festivalSeasonRead) {
+      const eds = KP.festivalSeasonRead(state);
+      if (eds.length) {
+        html.push('<div class="kicker">Festival season</div>');
+        html.push('<div class="card" style="font-size:.8rem;line-height:1.55">' + eds.map(e => {
+          const ours = e.ours === 'booked' && e.group
+            ? { name: e.group.name, company: state.company.short, pop: e.group.popularity || 0, headline: e.headline } : null;
+          const poster = e.bill ? KP.festivalPoster(e.bill, ours) : [];
+          const names = poster.slice(0, 3).map(a => (a.ours ? '<span style="color:var(--gold)">' + UI.esc(a.name) + '</span>' : UI.esc(a.name)) +
+            ' <span style="color:var(--ink-dim)">(' + UI.esc(a.company) + ')</span>');
+          const gName = e.group ? UI.esc(e.group.name) : '';
+          const status = e.ours === 'booked' ? (e.headline ? gName + ' headlines' : gName + ' is on the bill')
+            : e.ours === 'invited' ? 'the invitation for ' + gName + ' is on the Desk'
+            : e.ours === 'regrets' ? 'regrets sent' + (gName ? ' for ' + gName : '')
+            : e.bill ? 'not on the bill' : 'the organizers post the bill ' + KP.C.FESTS.inviteLead + ' weeks out';
+          return '<div style="margin-bottom:6px"><b>' + UI.esc(e.fest.name) + '</b> · ' + UI.esc(KP.weekLabel(e.week).text) +
+            (e.fest.region ? ' · ' + UI.esc(KP.regionLabel(e.fest.region)) : '') +
+            (names.length ? '<div style="color:var(--ink-dim)">Headliner ' + names[0] + (names.length > 1 ? ' · then ' + names.slice(1).join(' · ') : '') + (poster.length > 3 ? ' · …' : '') + '</div>' : '') +
+            '<div style="color:' + (e.ours === 'booked' ? 'var(--gold)' : 'var(--ink-dim)') + '">' + status + '</div></div>';
+        }).join('') + '</div>');
+      }
+    }
+
     // the open market lane folded into the scouting board (v0.10.33, §89 D7):
     // a collapse's careers are files on the board like every castoff
 

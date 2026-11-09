@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.6',
+    VERSION: '0.11.7',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1078,6 +1078,17 @@
       // on the group and the page reads the road back — toursDone had no
       // reader; eight is a career's shelf (v0.11.5, §96 wiring — measure-first)
       historyCap: 8,
+      // the stages, lived (v0.11.7, §98): the road gets the season's shape —
+      // a card, three doors, a moment a week, a ceremony. Every default is
+      // today's behaviour; who sells out and what a night is worth did not move.
+      doorFuseWeeks: 1,          // a road door waits a week, then today's law answers it — the edit's fuse (v0.11.7, §98 — measure-first)
+      encoreRestFatigue: 6,      // the second night handed back: the night off, in fatigue, for every present member (v0.11.7, §98 — measure-first)
+      presserCost: 4,            // the road statement's bill — the edit statement's price (v0.11.7, §98 — measure-first)
+      presserHype: 1,            // and what it costs every member in hype: a little, not the edit's three (v0.11.7, §98 — measure-first)
+      swapPickHeat: 62,          // the fandom is LOUD about a b-side at the truthers' bar (TRACKS.sleeperHeatAt), inside the 'warm' word (v0.11.7, §98 — measure-first)
+      swapIntensity: 3,          // singing the pick pays the fandom in intensity (v0.11.7, §98 — measure-first)
+      rainChance: 0.25,          // the rain set is rare: hash-gated per home-circuit week (v0.11.7, §98 — measure-first)
+      FATIGUE_WORDS: [[70, 'running on fumes'], [45, 'tired'], [0, 'fresh']],   // the room's fatigue in words — the rest card's own bands (v0.11.7, §98 — measure-first)
     },
 
     // ---- The society (v0.9.4): the industry has waiting rooms -----------
@@ -1332,6 +1343,17 @@
           popMin: 30, warmthMin: 12, pay: 10, travel: 20, fatigue: 6, warmth: 6, blurb: 'an expo hall, a continent of fans on one train network, the interview booth right by the stage' },
       ],
       maxAbroadPerYear: 2,     // the far markets, two weekends a year at most
+      // the stages, lived (v0.11.7, §98): the bill posted when the organizers
+      // call, the set as a door inside the invite, the night as a moment
+      billSize: 6,             // acts on a posted bill, cast from the rival acts by popularity (v0.11.7, §98 — measure-first)
+      seasonCardCount: 3,      // editions the Industry tab's season card lists ahead (v0.11.7, §98 — measure-first)
+      deepPickHeat: 58,        // the fan pick's public heat (the 'warm' word's floor) before the deep-cut door opens (v0.11.7, §98 — measure-first)
+      deepIntensity: 2,        // the fandom's b-side sung to a field: intensity (v0.11.7, §98 — measure-first)
+      rainChance: 0.2,         // the rain set, hash-gated per edition and act (v0.11.7, §98 — measure-first)
+      wrongBannerChance: 0.15, // the crowd's banner with the wrong name under the right face, hash-gated (v0.11.7, §98 — measure-first)
+      oceanIntensity: 55,      // fandom intensity at which the lightstick ocean is a moment (v0.11.7, §98 — measure-first)
+      collabViralChance: 0.35, // the collab clip travels, hash-gated per edition and act (v0.11.7, §98 — measure-first)
+      collabClipSpike: 0.6,    // × SOCIAL.viralSpike on the leader when it does — the tour-stop clip's fraction (v0.11.7, §98 — measure-first)
     },
     AWARD_NIGHT: {
       speakerMorale: 6,        // the mic is a gift to whoever holds it

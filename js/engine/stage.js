@@ -264,6 +264,9 @@
   KP.nightDemandMult = function (tour) {
     const C = S();
     if (!tour || !tour.lastNight) return 1;
+    // the road presser (v0.11.7, §98): a statement after the fumbled night
+    // steadies the next room — it sells on its own, not on the clip
+    if (tour.lastNight === 'fumbled' && tour.pressered) return 1;
     return tour.lastNight === 'fumbled' ? C.badNightDemand : tour.lastNight === 'carried' ? C.goodNightDemand : 1;
   };
   // the festivals (v0.10.37): a carried set books next year's call

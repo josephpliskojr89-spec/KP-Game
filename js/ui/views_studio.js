@@ -174,6 +174,10 @@
         '<span class="chip cool">' + UI.esc(T.SETLISTS[tour.setlist].label.toLowerCase()) + ' setlist</span>' +
         (tour.soldOut ? '<span class="chip gold">' + tour.soldOut + ' sold out</span>' : '') +
         '</div>' +
+        // the next stop, named before it plays (v0.11.7, §98) — the Today card's own read
+        (() => { const rd = KP.tourRoadRead ? KP.tourRoadRead(state, g) : null;
+          return rd && rd.nextStop ? '<div style="font-size:.84rem;margin-top:10px">Next: ' + UI.esc(rd.nextStop) + ', ' + UI.esc(KP.weekLabel(rd.nextWeek).text) +
+            (rd.demandWord ? ' — ' + UI.esc(rd.demandWord) : '') + '</div>' : ''; })() +
         '<div style="color:var(--ink-dim);font-size:.84rem;margin-top:12px;line-height:1.5">Every leg reports honestly when it closes. Advance the weeks — the leg letters land on the Desk.</div></div>';
     }
 

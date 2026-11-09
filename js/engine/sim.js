@@ -649,6 +649,14 @@
         if (f) items.push({ week: b.week, label: f.name + ' · ' + g.name + (b.headline ? ' (headline)' : ''), hot: true });
       });
     });
+    // the road (v0.11.7, §98): the last night of every tour is a date on the
+    // strip — the booking desk's estimate, the same one the Today card reads
+    if (KP.tourRoadRead) {
+      KP.groups(state).forEach(g => {
+        const rd = g.tour ? KP.tourRoadRead(state, g) : null;
+        if (rd) items.push({ week: rd.endWeek, label: g.name + ' — last night of the tour', hot: true });
+      });
+    }
     if (state.objective.status === 'open') {
       items.push({ week: state.objective.deadlineWeek, label: 'Executive deadline', hot: true });
     }

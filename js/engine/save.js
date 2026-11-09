@@ -1140,6 +1140,13 @@
     if (KP.ensureLedgers) KP.ensureLedgers(state);
   } });
 
+  // 0.11.7 (the stages, lived, §98): the road's ledger and the festival
+  // bills exist from week one; a tour already on the road when the save
+  // loads starts its record from here (tour.dates is created lazily)
+  MIGRATIONS.push({ v: '0.11.7', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     MIGRATIONS.forEach(m => {

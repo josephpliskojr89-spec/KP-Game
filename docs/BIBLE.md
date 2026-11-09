@@ -9423,7 +9423,7 @@ answer with a meaning, the interview's pass with a memory); the three
 reveal slips banded; graduateToSolo given a door or returnRun
 retired. Measured by the same soak; nothing about outcomes moves.
 
-**2. The stages, lived (the tour and festival season).** The season's
+**2. The stages, lived (the tour and festival season; SHIPPED v0.11.7, §98).** The season's
 shape on its nearest cousin. An "On the road" Today card like "On the
 air": the next city named before it plays, the room against demand in
 words, last night's band. Doors during the road: the encore offer at
@@ -9755,6 +9755,187 @@ an empty tab says so. Every button is the one the rail carried, so no
 handler moved. The e2e's outside-offer walk taps the tab first.
 Suite_116 (22) over the DOM stub, including the law that a render
 writes nothing. No engine behaviour changed; the soak is unmoved.
+
+## §98 The stages, lived (SHIPPED v0.11.7 — §96 recommendation 2)
+
+Owner: *"Go ahead with release 2."* The §96 survey graded the tour a
+10 and festival season a 9: the road is the televised season's
+nearest cousin — a plan, silent weeks of near-identical letters, a
+one-line count — and the engine already rated every night without
+one of them reaching a door, a card or the calendar; a festival was
+one invite body, one sentence per night, and declining was free
+(the wiring priced the regrets). This release gives both the
+season's shape on the same mechanisms: a card you read every week,
+a letter that names a moment, doors during the run, and a ceremony
+at the end. Who sells out, who runs soft and what a night is worth
+did not move; every default is today's behaviour, every new number
+is hashed, and the soak forks byte-identical for an unchanged choice.
+
+**The plan.**
+
+*The road.* (1) Every night on the record: `tour.dates[]` keeps the
+city or region, the week, the band and whether it sold out, ran
+soft or earned the encore. (2) "On the road" on Today, like "On the
+air": the scale and leg, the next stop named before it plays, the
+room against demand in words, last night's band, the sold-outs and
+encores so far, the last night of the tour on the calendar strip.
+(3) Three doors during the road, none of them the bot's: the ENCORE
+NIGHT (the second night the promoter booked — play it, or hand it
+back so the room sleeps: the fee goes back, the fatigue comes off);
+the ROAD PRESSER after a fumbled night (ride it — the next room
+sells a shade softer, today's law — or put out a statement that
+costs a little money and a little hype and steadies the next room);
+the SETLIST SWAP when the fandom's b-side pick is loud (keep the
+hits, or sing the pick — the fandom pays in intensity). (4) A
+moment family on every leg letter, never the same kind two weeks
+running: the crowd sang her lines, the ment that went long, the
+sign in two languages, the rain set, the first-timer's sign, the
+hometown stop, the encore chant, the curtained upper tier, the van
+asleep. The leg letter rides at high. (5) The wrap as a ceremony: a
+critical letter reading the route date by date, the night that went
+wrong and the one that went right named, the encores and the
+moments counted — and the tour record on the group page keeps the
+best and worst night.
+
+*Festival season.* (6) The bill, posted when the organizers call
+four weeks out: the edition's lineup cast from the rival acts by
+popularity, the headliner named, our act on it once booked; the
+invite body reads the bill, and an Industry card lists the season's
+upcoming bills with our status. (7) The set as a door inside the
+invite: take the slot with the hits (the default), the deep cut the
+fandom asked for, or the collab with the society friend's act on the
+same bill — or regrets. (8) The night as a moment: the play letter
+names a hash-picked moment (the golden-hour fancam, the rain set,
+the b-side singalong, the ment that went long, the wrong banner, the
+lightstick ocean, the collab) and who played before and after us.
+(9) Headlining a top-tier bill is a critical ceremony letter reading
+the poster top to bottom with our slot last.
+
+*Japan.* (10) The in-country weeks stop being silent: one letter a
+week from a moment family (the billboard, the radio spot in slow
+Japanese, the fan letter in katakana, the soundcheck, the
+convenience-store photo), and an "In Japan" card on Today beside the
+road card.
+
+*The census.* tourLedger (encores offered / handed back, pressers
+offered / statements, swaps offered / taken, moments, ceremonies),
+festivalLedger (bills posted, deep sets, collabs, ceremonies,
+moments), jpLedger (away moments); bands measure-first, the bot
+learning the new doors with a cautious hand (hand back the encore at
+a worn room, a statement when flush, the swap and the deep set when
+the fandom is loud, the collab when a friend is on the bill).
+
+**As built (v0.11.7).** Everything above shipped, in two hands on one
+tree (the road; festival season and Japan), the bot's path
+byte-identical to v0.11.6 on every default — the tour half proved it
+against the pre-release engine week by week — every new number a
+TOUR or FESTS constant with its history, no rng draw added or
+removed inside a tick, the new randomness hashed.
+
+*The road.* `tour.dates[]` keeps every night (the city or region,
+the week, the band, sold out / soft / the earned encore, the week's
+moment). `KP.tourRoadRead` is the pure read behind "On the road ·
+<group>" on Today — the scale and leg, the next stop named before it
+plays, the room in words (a room they will fill twice / a full room
+/ a warm room / a room with curtains ready), last night's band, the
+sold-outs and second nights, the home date — and behind the Studio
+hero's "Next:" line and the strip's "last night of the tour". Three
+doors open inside the tour's week with a one-week fuse, one at a
+time, never on the tour's last week: ENCORE NIGHT the week a city
+earns the second night (the encore is still booked and paid in the
+tick; play it, or hand it back — the deposit returns, clamped, the
+counts step down, every present member rests TOUR.encoreRestFatigue
+6, a letter says the room slept); ROAD PRESSER after a fumbled night,
+once per leg (ride it — the next room sells at the stage's bad-night
+law — or a statement for presserCost 4 and presserHype 1 that steadies
+the next room: `KP.nightDemandMult` returns 1 once while
+`tour.pressered`); SETLIST SWAP on the first week of a hits tour when
+the latest record's fan pick is loud (swapPickHeat 62 or the sleeper):
+keep the hits, or sing the pick for swapIntensity 3 and the singalong
+moment. `KP.tourMomentOf` picks one of ten kinds a week by hash, never
+the same kind twice running (she sang the lines, the ment went long,
+the sign in two languages, the rain set at rainChance .25, the
+first-timer, the hometown stop from `born.city`, the encore chant,
+the curtained upper tier, the van asleep, the singalong), two or three
+lines each, appended to both leg letters, which now ride at high. The
+wrap is critical and reads the route date by date, names the night
+that went right and the one that went wrong, counts the encores and
+the moments; the tour record on the group page keeps best and worst.
+`state.tourLedger` (encores offered / handed back, pressers offered /
+statements, swaps offered / taken, moments, ceremonies), in
+ensureLedgers.
+
+*Festival season.* The bill is composed once per edition the week
+the organizers call (`state.festBills`, in ensureLedgers): the rival
+acts that are live and clear the bar, by popularity with a hash
+tie-break, FESTS.billSize 6, the headliner named; `KP.festivalBillRead`,
+`KP.festivalPoster` (our act spliced by popularity, or on top when we
+headline) and `KP.festivalSeasonRead` (the next seasonCardCount 3
+editions with our status) are pure. The invite body reads the bill;
+the Industry tab's "Festival season" card lists the editions with the
+headliner, three poster names (ours in gold) and our status in words.
+The invite's options read accept · deep · collab · decline: the deep
+cut when the latest record's hottest b-side is warm (deepPickHeat
+58), the collab when a society friend's act is on this bill; both book
+exactly like accept and store the set on the booking. The night names
+its neighbours ("on after X, before Y") and a hash-picked moment from
+seven kinds (golden hour on a tier-2 bill, the rain set at .2, the
+singalong on a deep set, the ment that went long, the wrong banner at
+.15, the lightstick ocean at intensity 55, the collab), never the same
+kind twice; the deep set feeds the fandom deepIntensity 2; the collab
+is remembered on the friendship and, at collabViralChance .35 by hash,
+spikes the leader's following and writes the clip's letter. A tier-3
+headline is one critical ceremony letter reading the poster bottom to
+top with our act last, the band word, the moment and the fee.
+festivalLedger gains billsPosted, deepSets, collabs, ceremonies,
+moments.
+
+*Japan.* Every in-country week after the landing writes one normal
+letter — "In Japan, week N of M" — from six kinds by hash (the
+billboard on an invented crossing, the radio spot in slow Japanese
+with the voice abroad or the interpreter, the fan letter in katakana,
+the soundcheck in the hall the rung booked, the convenience-store
+photo, the train platform), never the same kind twice; `g.jpAway`
+keeps the week's moment, `KP.japanAwayRead` is the pure read behind
+"In Japan · <group>" on Today beside the road card; jpLedger.awayMoments.
+
+*The hand the bot learned.* Hand the second night back when the room
+averages 75 fatigue, a statement when the account holds 300, the pick
+and the deep cut when the fandom's intensity is 50, the collab whenever
+a friend is on the bill; otherwise the house default.
+
+*A finding for the next release.* Both agents found, independently,
+that `KP.hashStr` (FNV-1a without a final mix) barely moves when only
+the tail of a key changes: a key ending in the week gives near-constant
+values week after week (0.41 … 0.44 across eight consecutive weeks in
+the lead's own probe, against a full spread when the week leads). The
+kernel's `KP.lineFor` keys `[seed, salt, week]` with the week LAST, so
+a family keyed by one salt tends to pick the same line every week
+unless a caller passes its own memory — part of the repetition the
+owner reported in §93 survived the expansion for that reason. This
+release keyed its own picks safely (the week mid-key, or the key
+pre-hashed) and left the kernel alone, because fixing hash01 moves
+every hash read — including the season's judged weeks — and belongs in
+its own measured release (§99).
+
+*Measured (40 orgs).* The encore door offered 40/40, handed back 0
+(the bot's worn-room bar is rarely met on humane pacing; suite-held);
+the road presser 1, the statement 1; the setlist swap offered 24,
+sung 20; a moment on the leg letters 40; the wrap as a ceremony 40;
+the road card 40; bills posted 40; the deep cut 17; the collab 38
+(friends form in promo weeks and the bot collabs whenever one is on
+the bill); a festival moment 40; the tier-3 headline ceremony 0
+(icons plus the bar inside 140 weeks is rare; suite-held); Japan's
+weeks 40. Bands ruled from these. One older band re-pointed: the
+lottery ticket's org count read 37/40 against its .90 ceiling while
+the rate the census prints fell 0.74 → 0.63 revivals per org-year —
+fewer revivals, spread wider by the stages' small intensity moves;
+the rate is the flood guard, the ceiling moves to .97 with the
+history on it. Suite_117 (134) folded from the two slices'
+verification scripts, the DOM stub rendering the Industry card.
+Battery 117/117, soak 40 clean, longhaul 11 × 620 clean, e2e 135,
+lockstep 0.11.7. Migration 0.11.7 (ensureLedgers: tourLedger,
+festBills).
 
 ## §18 Watch items
 
@@ -13242,6 +13423,29 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > behaviour changed. Suite_116 (22) over the DOM stub. Battery
 > 116/116, soak 40 clean, longhaul 11x620, e2e 135, lockstep 0.11.6.
 > Rode to main.
+
+> **0.11.7 — the stages, lived.** Owner: "Go ahead with release 2."
+> §98: the tour and festival season given the season's shape. The
+> road: every night on the record, "On the road" on Today with the
+> next stop named and the room in words, the last night on the strip,
+> three doors during the road (the encore night to play or hand back,
+> the road presser after a fumbled night, the setlist swap when the
+> pick is loud), a moment family on every leg letter at high, the
+> wrap as a critical ceremony read date by date with the best and
+> worst night. Festival season: the bill composed once per edition
+> and read on the invite and an Industry card, the set as a door
+> (the hits, the deep cut, the collab with a friend's act), the night
+> naming its neighbours and a moment, the tier-3 headline as a
+> critical ceremony. Japan: one letter a week from the country and an
+> "In Japan" card. The bot learned the doors with a cautious hand.
+> Nothing moved on the default path — the tour slice proved
+> byte-identity against the pre-release engine. Measured: encore
+> door 40, swap 24/20, moments 40, ceremony 40, bills 40, deep 17,
+> collab 38, Japan 40; the presser 1 and the top-tier headline 0 are
+> suite-held. The lottery ticket's org band re-pointed at the rate
+> (0.63 per org-year). Both slices found the kernel's hash drifts on
+> week-last keys — §99 next. Suite_117 (134). Battery 117/117, soak
+> 40 clean, longhaul 11x620, e2e 135, lockstep 0.11.7. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

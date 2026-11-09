@@ -9,6 +9,47 @@
   'use strict';
   const KP = root.KP = root.KP || {};
 
+  // the census (v0.11.7, §98): the doors offered and taken, the moments,
+  // the ceremonies — created lazily, counted by the rails
+  function ledger(state) {
+    return state.tourLedger = state.tourLedger ||
+      { encoresOffered: 0, encoresHandedBack: 0, pressersOffered: 0, statements: 0,
+        swapsOffered: 0, swapped: 0, moments: 0, ceremonies: 0 };
+  }
+  KP.tourLedger = ledger;
+  const ROAD_DOORS = ['encoreNight', 'roadPresser', 'setlistSwap'];
+  const cityLabel = id => ((KP.C.TOUR.KR_CITIES.find(c => c.id === id) || {}).label || id);
+  const stopLabel = d => d.city ? cityLabel(d.city) : KP.regionLabel(d.region);
+  // the room against demand, in words — never the ratio
+  function roomWord(ratio, encoreOpen) {
+    const T = KP.C.TOUR;
+    if (ratio >= T.soldOutAt) return encoreOpen ? 'a room they will fill twice' : 'a full room';
+    if (ratio >= T.softBelow) return 'a warm room';
+    return 'a room with curtains ready';
+  }
+  // the room's fatigue, banded (the rest card's own words)
+  function fatigueWord(members) {
+    const present = members.filter(m => !KP.onBreak(m));
+    const avg = present.length ? present.reduce((s, m) => s + m.fatigue, 0) / present.length : 0;
+    const row = KP.C.TOUR.FATIGUE_WORDS.find(([at]) => avg >= at);
+    return row ? row[1] : 'fresh';
+  }
+  // weeks the road still has, as the booking desk would estimate it: the
+  // home circuit's remaining dates by the week, every other leg at legWeeks
+  function weeksLeftOf(tour) {
+    const T = KP.C.TOUR;
+    let left = 0;
+    tour.legs.forEach((id, i) => {
+      if (i < tour.legIdx) return;
+      if (id === 'kr' && tour.kr) {
+        left += Math.max(1, Math.ceil((tour.kr.route.length - (i === tour.legIdx ? tour.kr.idx : 0)) / T.datesPerWeek));
+      } else {
+        left += i === tour.legIdx ? Math.max(1, T.legWeeks - (tour.weekInLeg || 0)) : T.legWeeks;
+      }
+    });
+    return left;
+  }
+
   // demand a leg can draw: home legs run on the domestic fanbase,
   // overseas legs on the region's warmth
   function legDemand(state, g, regionId) {
@@ -137,6 +178,12 @@
       }
     });
 
+    // the stages, lived (v0.11.7, §98): every night goes on the record, a
+    // door may open (one at a time, never on the last week), a moment rides
+    // the leg letter. The setlist swap asks once, before the first night.
+    const legNow = tour.legIdx;
+    tour.dates = tour.dates || [];
+    if (!tour.swapAsked && legNow === 0 && tour.weekInLeg === 0 && weeksLeftOf(tour) >= 2) swapDoor(state, g, tour);
     tour.weekInLeg++;
 
     // ---- the home circuit (v0.9.4): city dates, honest per stop --------
@@ -149,6 +196,9 @@
       const firstCity = T.KR_CITIES.find(c => c.id === kr.route[kr.idx]);
       const night = KP.stageRead(state, g, { kind: 'tour', id: 'kr:' + kr.idx });
       const nightMult = KP.nightDemandMult(tour);
+      if (tour.pressered) tour.pressered = false;   // the statement steadied THIS room; the next sells on its own night (v0.11.7, §98)
+      let weekEncore = 0, encoreStash = null;
+      const playedIds = [];
       for (let d = 0; d < T.datesPerWeek && kr.idx < kr.route.length; d++) {
         const city = T.KR_CITIES.find(c => c.id === kr.route[kr.idx]);
         const demand = (g.popularity || 0) * city.w * nightMult;
@@ -165,6 +215,7 @@
         if (soft) rev *= T.softRevMult;
         revenue += rev;
         let line;
+        let encore = false;
         if (soldOut) {
           tour.soldOut++; weekSold++; kr.sold = (kr.sold || 0) + 1;
           // the earned second night — the wonderful problem finally has
@@ -172,6 +223,10 @@
           if (kr.route.length + kr.encores < T.maxKrDates) {
             kr.encores++; tour.soldOut++;
             revenue += rev * T.encoreRevMult;
+            // booked and paid in the tick, as always; the door (v0.11.7, §98)
+            // only lets the desk hand the first one of the week back
+            encore = true; weekEncore++;
+            if (!encoreStash) encoreStash = { city: city.id, encoreRev: Math.round(rev * T.encoreRevMult) };
             line = city.label + ' SOLD OUT — the venue asked for a second night and got it; both gone in minutes';
           } else {
             line = city.label + ' SOLD OUT in minutes';
@@ -183,6 +238,8 @@
           line = city.label + ' sold well — full floor, warm room';
         }
         played.push(line);
+        playedIds.push(city.id);
+        tour.dates.push({ week: state.week, city: city.id, band: night.band, soldOut, soft, encore });
         kr.idx++;
       }
       revenue = Math.round(revenue);
@@ -206,12 +263,18 @@
       KP.settleStage(state, rng, g, night, { where: 'the ' + (firstCity ? firstCity.label : 'home') + ' night' }).forEach(n => notes.push(n));
       tour.lastNight = night.band;
       if (night.band === 'fumbled') KP.stageLedger(state).badNights++;
+      // the moment (v0.11.7, §98): one sentence the leg letter keeps, and the letter rides at high
+      const moment = KP.tourMomentOf(state, g, tour, { cities: playedIds, encore: weekEncore > 0, soft: weekSoft > 0 });
       notes.push({ kind: 'debut', ind: 'tourLeg', groupId: g.id, region: 'kr',
-        soldOut: weekSold > 0, soft: weekSoft > 0, urgent: false,
+        soldOut: weekSold > 0, soft: weekSoft > 0, urgent: false, priority: 'high',
         text: g.name + ' — home circuit: ' + played.join('. ') + '. Revenue +' + revenue + '. ' +
-          KP.stageLine(state, g, night, 'the ' + (firstCity ? firstCity.label : 'home') + ' night') });
+          KP.stageLine(state, g, night, 'the ' + (firstCity ? firstCity.label : 'home') + ' night') + (moment ? ' ' + moment : '') });
+      const doorCtx = { encore: encoreStash, where: (firstCity ? firstCity.label : 'home'), fumbled: night.band === 'fumbled' };
 
-      if (kr.idx < kr.route.length) return notes;   // more cities next week
+      if (kr.idx < kr.route.length) {   // more cities next week
+        roadDoors(state, g, tour, legNow, doorCtx);
+        return notes;
+      }
 
       // the circuit wraps — the country was toured, not visited
       const dates = kr.route.length + kr.encores;
@@ -231,7 +294,9 @@
             : 'Clean stages, warm rooms, a country properly toured.') });
       tour.legIdx++;
       tour.weekInLeg = 0;
-      return endTourIfDone(state, g, tour, setlist, notes);
+      endTourIfDone(state, g, tour, setlist, notes);
+      if (g.tour) roadDoors(state, g, tour, legNow, doorCtx);   // the road goes on: the week's door may still open
+      return notes;
     }
 
     if (tour.weekInLeg < T.legWeeks) return notes;
@@ -243,6 +308,7 @@
     // last night of the previous leg sells this one
     const night = KP.stageRead(state, g, { kind: 'tour', id: regionId });
     const demand = legDemand(state, g, regionId) * KP.nightDemandMult(tour);
+    if (tour.pressered) tour.pressered = false;   // the statement steadied THIS leg's rooms (v0.11.7, §98)
     const ratio = demand / scale.sweetSpot;
     const soldOut = ratio >= T.soldOutAt;
     const soft = ratio < T.softBelow;
@@ -341,19 +407,262 @@
     KP.settleStage(state, rng, g, night, { where: 'the ' + where + ' nights' }).forEach(n => notes.push(n));
     tour.lastNight = night.band;
     if (night.band === 'fumbled') KP.stageLedger(state).badNights++;
+    // the record and the moment (v0.11.7, §98): one entry per leg, one sentence on the letter, the letter at high
+    tour.dates.push({ week: state.week, region: regionId, band: night.band, soldOut, soft });
+    const moment = KP.tourMomentOf(state, g, tour, { overseas: regionId !== 'kr', regionId, cities: [], encore: false, soft });
     notes.push({ kind: 'debut', ind: 'tourLeg', groupId: g.id, region: regionId,
-      soldOut, soft, urgent: false,
+      soldOut, soft, urgent: false, priority: 'high',
       text: (soldOut
         ? g.name + ' — ' + where + ' leg: SOLD OUT in minutes. Resale prices are a scandal, the venue asks about a second night we cannot book, and the fandom is unbearable online. Revenue +' + revenue + '. We under-booked. Wonderful problem.'
         : soft
           ? g.name + ' — ' + where + ' leg: soft. The upper sections were curtained off and everyone pretended not to notice. Revenue +' + revenue + '. The promoter was polite about it, which was worse.'
           : g.name + ' — ' + where + ' leg: sold well. Full floor, warm room. Revenue +' + revenue + '. This is what the road is supposed to feel like.') +
-        ' ' + KP.stageLine(state, g, night, 'the ' + where + ' nights') });
+        ' ' + KP.stageLine(state, g, night, 'the ' + where + ' nights') + (moment ? ' ' + moment : '') });
 
     // next leg or home
     tour.legIdx++;
     tour.weekInLeg = 0;
-    return endTourIfDone(state, g, tour, setlist, notes);
+    endTourIfDone(state, g, tour, setlist, notes);
+    if (g.tour) roadDoors(state, g, tour, legNow, { encore: null, where, fumbled: night.band === 'fumbled' });
+    return notes;
+  };
+
+  // ---- the doors during the road (v0.11.7, §98) -----------------------------
+  // None of them is the bot's: the first option of each is today's law, the
+  // fuse is one week, and silence answers the way the engine always did.
+  // One door waits per tour at a time; none opens on the week the road ends.
+  function doorOpen(state, g) {
+    return (state.scenes || []).some(sc => ROAD_DOORS.includes(sc.kind) && sc.groupId === g.id);
+  }
+  // the setlist swap: once a tour, before the first night, when the hits are
+  // the setlist and the fandom's b-side pick is loud (its heat, never its hook)
+  function swapDoor(state, g, tour) {
+    const T = KP.C.TOUR;
+    tour.swapAsked = true;
+    if (tour.setlist !== 'hits') return;
+    const rel = (g.releases || []).length ? g.releases[g.releases.length - 1] : null;
+    const pick = rel && rel.fanPick ? (rel.bsides || []).find(b => b.title === rel.fanPick) : null;
+    if (!pick || !(pick.sleeper || (pick.heat || 0) >= T.swapPickHeat)) return;
+    if (doorOpen(state, g)) return;
+    ledger(state).swapsOffered++;
+    KP.openScene(state, { kind: 'setlistSwap', groupId: g.id, title: pick.title, expiresWeek: state.week + T.doorFuseWeeks });
+  }
+  // the week's door, if any: the presser after a fumbled night first (the
+  // rarer story, once per tour per leg), then the encore night — a sold-out
+  // city comes round again; a fumbled one had better not
+  function roadDoors(state, g, tour, legIdx, ctx) {
+    const T = KP.C.TOUR;
+    if (doorOpen(state, g)) return;
+    if (ctx.fumbled && !(tour.presserAsked || {})[legIdx]) {
+      tour.presserAsked = tour.presserAsked || {};
+      tour.presserAsked[legIdx] = true;
+      ledger(state).pressersOffered++;
+      KP.openScene(state, { kind: 'roadPresser', groupId: g.id, where: ctx.where, expiresWeek: state.week + T.doorFuseWeeks });
+      return;
+    }
+    if (ctx.encore) {
+      ledger(state).encoresOffered++;
+      KP.openScene(state, { kind: 'encoreNight', groupId: g.id, cityId: ctx.encore.city, city: cityLabel(ctx.encore.city),
+        encoreRev: ctx.encore.encoreRev, expiresWeek: state.week + T.doorFuseWeeks });
+    }
+  }
+  const tourOf = (state, sc) => { const g = KP.groupById(state, sc.groupId); return g && g.tour ? { g, tour: g.tour } : null; };
+
+  KP.registerScene('encoreNight', {
+    title: (state, sc) => { const g = KP.groupById(state, sc.groupId); return (g ? g.name : 'The road') + ' · the second night'; },
+    body: (state, sc) => {
+      const g = KP.groupById(state, sc.groupId);
+      const members = g ? g.members.map(id => state.people[id]).filter(Boolean) : [];
+      return 'The ' + sc.city + ' room sold out in minutes and the promoter booked the second night on the spot — both gone, the deposit (' + sc.encoreRev + ') already in the account. ' +
+        'The room is ' + fatigueWord(members) + '. Play it, and the books keep the night. Hand it back, and the promoter keeps the deposit while the room sleeps a night it was not going to get.';
+    },
+    options: () => [
+      { id: 'play', label: 'Play the second night' },
+      { id: 'handBack', label: 'Hand the second night back' },
+    ],
+    resolve: (state, sc, optionId) => {
+      const T = KP.C.TOUR;
+      const r = tourOf(state, sc);
+      if (optionId !== 'handBack') return { toast: 'The second night plays. The room is tired and loud and nobody would trade it.' };
+      if (!r) return { toast: 'The road has moved on; the second night was played.' };
+      const { g, tour } = r;
+      const give = Math.max(0, Math.min(sc.encoreRev || 0, state.budget));
+      state.budget -= give;
+      if (KP.ledgerFlow) KP.ledgerFlow(state, 'tours', -give);
+      tour.soldOut = Math.max(0, (tour.soldOut || 0) - 1);
+      if (tour.kr) tour.kr.encores = Math.max(0, (tour.kr.encores || 0) - 1);
+      const date = (tour.dates || []).find(d => d.week === sc.week && d.city === sc.cityId && d.encore);
+      if (date) { date.encore = false; date.handedBack = true; }
+      g.members.map(id => state.people[id]).filter(m => m && !KP.onBreak(m)).forEach(m => {
+        m.fatigue = KP.clamp(m.fatigue - T.encoreRestFatigue, 0, 100);
+      });
+      ledger(state).encoresHandedBack++;
+      return { toast: 'The second night goes back to the promoter. The room sleeps.',
+        note: { kind: 'company', ind: 'encoreHandedBack', priority: 'normal', groupId: g.id,
+          text: g.name + ' handed the ' + sc.city + ' second night back — the promoter kept the deposit (' + give + ' returned), the venue went dark, and the room slept. The fans who had tickets were refunded and furious in the specific way of people who will be back.' } };
+    },
+    expire: () => null,   // silence plays the night, as the road always did
+  });
+
+  KP.registerScene('roadPresser', {
+    title: (state, sc) => { const g = KP.groupById(state, sc.groupId); return (g ? g.name : 'The road') + ' · the road presser'; },
+    body: (state, sc) => {
+      const g = KP.groupById(state, sc.groupId);
+      const rd = g ? KP.tourRoadRead(state, g) : null;
+      return (g ? g.name : 'The act') + ' fumbled the ' + sc.where + ' night and the clip is doing the rounds — the sync going, the ad-libs going, the wide shot not cutting away. ' +
+        'The next room' + (rd && rd.nextStop ? ' (' + rd.nextStop + ')' : '') + ' sells on it. Ride it out and the next room runs a shade softer, the way bad nights always have; ' +
+        'put out a statement (' + KP.C.TOUR.presserCost + ') and the room steadies, at the price of a little money and a little of everyone’s shine.';
+    },
+    options: (state) => [
+      { id: 'ride', label: 'Ride it out' },
+      ...(state.budget >= KP.C.TOUR.presserCost ? [{ id: 'statement', label: 'Put out a statement · ' + KP.C.TOUR.presserCost }] : []),
+    ],
+    resolve: (state, sc, optionId) => {
+      const T = KP.C.TOUR;
+      const r = tourOf(state, sc);
+      if (optionId !== 'statement') return { toast: 'No statement. The next room sells on the clip, and the clip fades the way clips do.' };
+      if (!r) return { toast: 'The road has moved on; the clip faded on its own.' };
+      if (state.budget < T.presserCost) return { ok: false, reason: 'A statement bills ' + T.presserCost + '. The account says no.' };
+      const { g, tour } = r;
+      state.budget -= T.presserCost;
+      if (KP.ledgerFlow) KP.ledgerFlow(state, 'marketing', -T.presserCost);
+      tour.pressered = true;
+      g.members.map(id => state.people[id]).filter(Boolean).forEach(m => {
+        if (m.hype != null) m.hype = KP.clamp((m.hype || 0) - T.presserHype, 0, 100);
+      });
+      ledger(state).statements++;
+      return { toast: 'The statement ran: a tired room, a hard schedule, a promise about the next night. The next room steadies.',
+        note: { kind: 'company', ind: 'roadStatement', priority: 'normal', groupId: g.id,
+          text: g.name + '’s desk put out a statement on the ' + sc.where + ' night — the schedule, the room, the promise. The comments did what comments do; the next room sold the way it was going to before the clip. Everybody in the lineup looks a shade less shiny for having needed it.' } };
+    },
+    expire: () => null,   // silence rides it out: STAGE.badNightDemand, today's law
+  });
+
+  KP.registerScene('setlistSwap', {
+    title: (state, sc) => { const g = KP.groupById(state, sc.groupId); return (g ? g.name : 'The road') + ' · the setlist'; },
+    body: (state, sc) => 'The fandom is loud about “' + sc.title + '” — the b-side they picked off the last record, and the one the hits setlist does not have. ' +
+      'Keep the hits and the room gets what it paid for. Sing the pick and the fandom pays in intensity; the singalong writes its own clip.',
+    options: () => [
+      { id: 'keep', label: 'Keep the hits' },
+      { id: 'swap', label: 'Sing the pick' },
+    ],
+    resolve: (state, sc, optionId) => {
+      const T = KP.C.TOUR;
+      const r = tourOf(state, sc);
+      if (optionId !== 'swap') return { toast: 'The hits stay. The fandom will survive; the fandom always says it will not.' };
+      if (!r) return { toast: 'The road has moved on; the setlist stayed the hits.' };
+      const { g, tour } = r;
+      tour.pickSwapped = true;
+      tour.pickTitle = sc.title;
+      KP.fandomGain(g, T.swapIntensity);
+      ledger(state).swapped++;
+      return { toast: '“' + sc.title + '” goes into the setlist. The fandom found out within the hour.',
+        note: { kind: 'public', ind: 'setlistSwapped', priority: 'normal', groupId: g.id,
+          text: g.name + ' put “' + sc.title + '” into the tour setlist — the fandom’s pick, the b-side the truthers have been loud about since the record dropped. The fan cafés treated it as a personal letter. The intensity in the room went up a notch and stayed there.' } };
+    },
+    expire: () => null,   // silence keeps the hits
+  });
+
+  // ---- the moment family (v0.11.7, §98) ---------------------------------------
+  // One sentence a week on the leg letter, picked by hash among what the
+  // week offers, never the same kind two weeks running. Pure but for the
+  // bookkeeping (lastMomentKind, the record's `moment`, the ledger).
+  KP.tourMomentOf = function (state, g, tour, ctx) {
+    const T = KP.C.TOUR;
+    ctx = ctx || {};
+    const members = g.members.map(id => state.people[id]).filter(Boolean);
+    const present = members.filter(m => !KP.onBreak(m));
+    // the week sits mid-key: hashStr drifts slowly when only the trailing
+    // digits change, and a week-last key picks the same corner of the pool
+    // for weeks running (measured at the build: .946 .950 .954 …)
+    const h = tag => KP.hash01([state.seed, tag, state.week, g.id].join('|'));
+    const say = (kind, lines) => KP.lineFor(state, 'tourMoment|' + kind + '|' + g.id, lines);
+    const N = p => KP.displayName(p);
+    const kinds = [];
+    const who = present.length ? present[Math.floor(h('tourMomentWho') * present.length)] : null;
+    if (who) kinds.push({ kind: 'sangHerLines', text: () => KP.fillPro(say('sangHerLines', [
+      'The room sang ' + N(who) + '’s lines for {her} and {she} stopped singing to listen.',
+      N(who) + ' held the mic out on {pos} verse and the crowd took it; the clip was everywhere by the encore.',
+      'On ' + N(who) + '’s lines the room was louder than the PA, and {she} let it be.',
+    ]), who) });
+    const leader = g.roles && g.roles.leader ? present.find(m => m.id === g.roles.leader) : null;
+    if (leader) kinds.push({ kind: 'mentLong', text: () => KP.fillPro(say('mentLong', [
+      N(leader) + '’s ment went long — a story about the van, a thank-you that turned into three, and nobody in the room checked the time.',
+      N(leader) + ' talked between songs until the stage manager gave up signalling; the room would have stayed all night.',
+    ]), leader) });
+    if (ctx.overseas) kinds.push({ kind: 'twoLanguages', text: () => say('twoLanguages', [
+      'A sign in the front row was written in two languages, and both halves were spelled right.',
+      'The fan project was a banner in two languages; the members read both aloud and got the second one wrong, lovingly.',
+      'Somebody at the barrier had written the fanchant out phonetically for the row behind; by the second chorus the row had it.',
+    ]) });
+    if (!ctx.overseas && h('tourRain') < T.rainChance) kinds.push({ kind: 'rainSet', text: () => say('rainSet', [
+      'It rained on the outdoor set and nobody left; the ponchos came out and the choreography did not slow down.',
+      'The rain set — wet stage, wet crowd, the stage manager pacing — is the night every fan there will tell for years.',
+    ]) });
+    kinds.push({ kind: 'firstTimer', text: () => say('firstTimer', [
+      'A sign at the barrier read MY FIRST CONCERT; the members pointed at it, and the whole room cheered for a stranger.',
+      'Somebody in the pit was at their first show ever and the people around them made sure the members knew; the last ment was for them.',
+      'The first-timer’s sign made it onto the screens and the kid holding it forgot how to stand up.',
+    ]) });
+    const homeCity = (ctx.cities || []).find(cid => present.some(m => m.born && m.born.city === cid));
+    const local = homeCity ? present.find(m => m.born && m.born.city === homeCity) : null;
+    if (local) kinds.push({ kind: 'hometownStop', text: () => KP.fillPro(say('hometownStop', [
+      cityLabel(homeCity) + ' was ' + N(local) + '’s hometown stop — the childhood dance teacher was in row three and the camera found them both.',
+      N(local) + ' played {pos} hometown: the ment slipped into the local accent, and the room knew exactly what that meant.',
+      'The ' + cityLabel(homeCity) + ' night was ' + N(local) + '’s homecoming — the family was in the stands, {she} did not look up once, and everybody saw {her} not looking.',
+    ]), local) });
+    if (ctx.encore) kinds.push({ kind: 'encoreChant', text: () => say('encoreChant', [
+      'The encore chant started before the lights were down and did not stop until they came back up.',
+      'Nobody left after the last song; the chant for the second night outlasted the house lights.',
+    ]) });
+    if (ctx.soft) kinds.push({ kind: 'curtainedUpper', text: () => say('curtainedUpper', [
+      'The upper tier was curtained off; the floor pretended not to notice and sang loud enough to fill it anyway.',
+      'The curtained upper tier made the room smaller and warmer — the promoter’s word for it was “intimate”.',
+    ]) });
+    if (tour.pacing === 'punishing') kinds.push({ kind: 'vanAsleep', text: () => say('vanAsleep', [
+      'The van photo after the show: everybody asleep sitting up, one awake to take it.',
+      'The whole lineup was asleep before the van left the venue car park; the road manager drove with the radio off.',
+    ]) });
+    if (tour.pickSwapped && tour.pickTitle) kinds.push({ kind: 'singalong', text: () => say('singalong', [
+      'They sang “' + tour.pickTitle + '” — the fandom’s pick — and the room took the second verse without being asked.',
+      '“' + tour.pickTitle + '” was in the setlist and the singalong on the b-side was louder than the one on the title track.',
+    ]) });
+    const pool = kinds.filter(k => k.kind !== tour.lastMomentKind);
+    const pick = pool[Math.floor(h('tourMoment') * pool.length)] || kinds[0];
+    if (!pick) return '';
+    tour.lastMomentKind = pick.kind;
+    tour.moments = (tour.moments || 0) + 1;
+    (tour.dates || []).forEach(d => { if (d.week === state.week) d.moment = pick.kind; });
+    ledger(state).moments++;
+    return pick.text();
+  };
+
+  // ---- the road, read (v0.11.7, §98): pure — the Today card, the hero, the strip
+  KP.tourRoadRead = function (state, g) {
+    const T = KP.C.TOUR;
+    const tour = g && g.tour;
+    if (!tour) return null;
+    const scale = T.SCALES[tour.scale] || { label: tour.scale, sweetSpot: 1 };
+    const legId = tour.legs[tour.legIdx];
+    const kr = legId === 'kr' && tour.kr ? tour.kr : null;
+    const legLabel = legId == null ? null : legId === 'kr' ? 'Korea' : KP.regionLabel(legId);
+    let nextStop = null, demandWord = null;
+    const mult = KP.nightDemandMult(tour);
+    if (kr) {
+      const city = T.KR_CITIES.find(c => c.id === kr.route[kr.idx]);
+      if (city) {
+        nextStop = city.label;
+        demandWord = roomWord((g.popularity || 0) * city.w * mult / scale.sweetSpot, kr.route.length + kr.encores < T.maxKrDates);
+      }
+    } else if (legId) {
+      nextStop = legLabel;
+      demandWord = roomWord(legDemand(state, g, legId) * mult / scale.sweetSpot, false);
+    }
+    const weeksLeft = weeksLeftOf(tour);
+    return { scale: scale.label, legIdx: tour.legIdx, legs: tour.legs.slice(), legLabel, nextStop,
+      nextWeek: state.week + 1, demandWord, lastNight: tour.lastNight || null,
+      soldOut: tour.soldOut || 0, soft: tour.soft || 0, encores: tour.kr ? (tour.kr.encores || 0) : 0,
+      weeksLeft, endWeek: state.week + weeksLeft, pickSwapped: !!tour.pickSwapped };
   };
 
   // the road record, read (v0.11.5, §96 wiring): pure — the count (toursDone
@@ -376,16 +685,33 @@
     g.tourRestUntil = state.week + T.restWeeks;
     g.toursDone = (g.toursDone || 0) + 1;
     const stops = tour.legs.length + (tour.kr ? tour.kr.route.length - 1 + tour.kr.encores : 0);
+    // the ceremony (v0.11.7, §98): the route read date by date, the night
+    // that went right and the one that went wrong named, the counts
+    const dates = tour.dates || [];
+    const readOut = dates.map(d => stopLabel(d) + ' (' + (d.soldOut
+      ? 'sold out' + (d.encore ? ', the second night too' : d.handedBack ? ', the second night handed back' : '')
+      : d.soft ? 'soft' : 'full') + ')').join(' · ');
+    const bestD = dates.find(d => d.band === 'carried') || dates.find(d => d.soldOut && d.band !== 'fumbled') || null;
+    const worstD = dates.find(d => d !== bestD && d.band === 'fumbled') || dates.find(d => d !== bestD && d.soft && d.band !== 'carried') || null;
+    const best = bestD ? stopLabel(bestD) : null, worst = worstD ? stopLabel(worstD) : null;
+    const verdict = best && worst ? ' The night that went right was ' + best + '; the one that went wrong was ' + worst + '.'
+      : best ? ' The night that went right was ' + best + '; nothing went wrong enough to name.'
+      : worst ? ' The night that went wrong was ' + worst + '; nothing went right enough to name.' : '';
+    const encores = tour.kr ? (tour.kr.encores || 0) : 0;
+    const moments = tour.moments || 0;
     // the tour record (v0.11.5, §96 wiring): what the wrap already counts,
     // kept on the group so the page can read the road back — capped
     g.tourHistory = (g.tourHistory || []).concat([{ week: state.week, scale: tour.scale,
-      legs: tour.legs.slice(), stops, soldOut: tour.soldOut, soft: tour.soft }]).slice(-T.historyCap);
+      legs: tour.legs.slice(), stops, soldOut: tour.soldOut, soft: tour.soft, best, worst, moments }]).slice(-T.historyCap);
     const line = tour.soldOut >= 2 ? 'The books are healthy, the map is warmer, and the members slept the whole flight home.'
       : tour.soft >= 2 ? 'The books survived. The routing did not flatter us — book smaller or build hotter next time.'
       : 'The books are fine and the stages were real. The road gives back what the map put in.';
-    notes.push({ kind: 'company', ind: 'tourEnd', groupId: g.id, urgent: true,
+    ledger(state).ceremonies++;
+    notes.push({ kind: 'company', ind: 'tourEnd', groupId: g.id, urgent: true, priority: 'critical', best, worst,
       text: g.name + '’s tour wraps: ' + stops + ' stops, ' + tour.soldOut + ' sold out, ' +
-        tour.soft + ' soft. ' + line + ' Contractual rest through ' + KP.weekLabel(g.tourRestUntil).text + '.' });
+        tour.soft + ' soft. ' + line + (readOut ? ' The route, date by date: ' + readOut + '.' : '') + verdict +
+        ' ' + encores + ' second night' + (encores === 1 ? '' : 's') + ' earned, ' + moments + ' moment' + (moments === 1 ? '' : 's') + ' the road keeps.' +
+        ' Contractual rest through ' + KP.weekLabel(g.tourRestUntil).text + '.' });
     g.tour = null;
     return notes;
   }

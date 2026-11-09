@@ -333,7 +333,9 @@
           (road.recent.length
             ? '<div style="margin-top:6px;color:var(--ink-dim)">' + road.recent.map(t =>
                 '<div>' + UI.esc(KP.weekLabel(t.week).text) + ' — ' + UI.esc(scaleLabel(t)) + ' · ' + UI.esc(legsLabel(t.legs)) +
-                ' · ' + t.stops + ' stops · ' + t.soldOut + ' sold out · ' + t.soft + ' soft</div>').join('') + '</div>'
+                ' · ' + t.stops + ' stops · ' + t.soldOut + ' sold out · ' + t.soft + ' soft' +
+                // the ceremony's verdict, kept (v0.11.7, §98): the best and worst night by name
+                (t.best ? ' · best: ' + UI.esc(t.best) : '') + (t.worst ? ' · worst: ' + UI.esc(t.worst) : '') + '</div>').join('') + '</div>'
             : '<div style="margin-top:6px;color:var(--ink-dim)">The tours before this build left no record — the road remembers from here.</div>') +
           '</div>');
       }

@@ -157,6 +157,36 @@
       }
     }
 
+    // the road (v0.11.7, §98): one card per touring group, the season's shape —
+    // the scale and leg, the next stop before it plays, the room in words,
+    // last night's band, the counts, the night the road ends
+    if (KP.tourRoadRead) {
+      KP.groups(state).forEach(g => {
+        const rd = g.tour ? KP.tourRoadRead(state, g) : null;
+        if (!rd) return;
+        html.push('<div class="objective" style="margin-top:10px;border-color:color-mix(in srgb,var(--gold) 50%,var(--line))">' +
+          '<div class="o-from" style="color:var(--gold)">On the road · ' + UI.esc(g.name) + '</div>' +
+          '<div class="o-text">' + UI.esc(rd.scale) + ' · leg ' + (rd.legIdx + 1) + '/' + rd.legs.length + (rd.legLabel ? ' · ' + UI.esc(rd.legLabel) : '') +
+          (rd.nextStop ? ' · next: ' + UI.esc(rd.nextStop) + ', ' + UI.esc(KP.weekLabel(rd.nextWeek).text) + ' · ' + UI.esc(rd.demandWord) : ' · the leg just closed') +
+          (rd.lastNight ? ' · last night: ' + UI.esc(rd.lastNight) : '') + '</div>' +
+          '<div class="o-meta"><span class="chip gold">' + rd.soldOut + ' sold out · ' + rd.encores + ' second night' + (rd.encores === 1 ? '' : 's') + '</span>' +
+          (rd.soft ? '<span class="chip hot">' + rd.soft + ' soft</span>' : '') +
+          (rd.pickSwapped ? '<span class="chip">the fandom’s pick is in the setlist</span>' : '') +
+          '<span class="chip">home ' + UI.esc(KP.weekLabel(rd.endWeek).text) + '</span></div></div>');
+      });
+    }
+    // Japan (v0.11.7, §98): the in-country weeks, read beside the road
+    if (KP.japanAwayRead) {
+      KP.groups(state).forEach(g => {
+        const jr = g.jpAway ? KP.japanAwayRead(state, g) : null;
+        if (!jr) return;
+        html.push('<div class="objective" style="margin-top:10px;border-color:color-mix(in srgb,var(--gold) 50%,var(--line))">' +
+          '<div class="o-from" style="color:var(--gold)">In Japan · ' + UI.esc(g.name) + '</div>' +
+          '<div class="o-text">' + jr.weeksLeft + ' of ' + jr.weeksTotal + ' week' + (jr.weeksTotal === 1 ? '' : 's') + ' left · ' + UI.esc(jr.lane) +
+          (jr.partner ? ' · with ' + UI.esc(jr.partner) : '') + (jr.moment ? '. ' + UI.esc(jr.moment) : '') + '</div></div>');
+      });
+    }
+
     // the hype directive: a second clock, and it is not yours (v0.2.6)
     if (state.hypeDirective && state.hypeDirective.status === 'open') {
       const hd = state.hypeDirective;

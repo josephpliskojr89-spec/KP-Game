@@ -19,6 +19,7 @@
         numberOnes: 0, rungs: 0, domes: 0, notYets: 0 };
     // the "not yet"s counted (v0.11.5, §96 wiring) — healed lazily
     if (state.jpLedger.notYets == null) state.jpLedger.notYets = 0;
+    if (state.jpLedger.awayMoments == null) state.jpLedger.awayMoments = 0;   // the in-country weeks (v0.11.7, §98)
     return state.jpLedger;
   }
   KP.jpLedger = ledger;
@@ -123,6 +124,83 @@
     return { ok: true };
   };
 
+  // ---- the in-country week (v0.11.7, §98) ---------------------------------
+  // the away weeks stop being silent: one letter a week from a moment family
+  // — the billboard, the radio spot in slow Japanese, the fan letter in
+  // katakana, the hall's soundcheck, the convenience-store photo, the train
+  // platform — hash-picked, never the same kind two weeks running, and the
+  // sentence kept on the trip for the Today card. The districts are invented
+  // (content law); the voice abroad is named when the room has one.
+  const DISTRICTS = ['Hoshigawa crossing', 'Kagerou-dōri', 'Yumemachi station square', 'Tsukikawa crossing', 'Hinodebashi'];
+  function jpMoment(state, g) {
+    const members = g.members.map(id => state.people[id]).filter(Boolean).filter(m => !KP.onBreak(m) && !(m.flags && m.flags.military));
+    if (!members.length) return null;
+    // the key is pre-hashed (KP.hashStr) before hash01: FNV-1a barely moves
+    // its top bits for a change in the key's last characters, and the week
+    // is what changes; the line salt leads with the week for the same reason
+    const h = tag => KP.hash01(KP.hashStr([state.seed, tag, g.id, state.week].join('|')));
+    const pickM = tag => members[Math.floor(h(tag) * members.length)];
+    const line = (kind, lines) => KP.lineFor(state, state.week + ':jpMoment:' + kind + ':' + g.id, lines, null);
+    const N = m => KP.displayName(m);
+    const partner = state.jpPartner ? state.jpPartner.name : 'the partner';
+    const voice = KP.voiceAbroad ? KP.voiceAbroad(state, g, 'jp') : null;
+    const district = DISTRICTS[Math.floor(h('jpDistrict') * DISTRICTS.length)];
+    const hall = g.jpRung === 2 ? 'the dome' : g.jpRung === 1 ? 'the arena' : g.jpRung === 0 ? 'the hall' : 'the showcase room ' + partner + ' booked';
+    const kinds = [
+      { kind: 'billboard', text: () => line('billboard', [
+        'The ' + district + ' billboard went up this week — ' + g.name + ' four storeys tall over a crossing that does not stop moving, and the fans who found it filmed the whole light cycle.',
+        g.name + ' is on the big screen at ' + district + ' now, between a phone and a canned coffee; ' + partner + ' sent a photo at six in the morning with no caption, which is how a partner celebrates.',
+        'A billboard at ' + district + ': the group looking down on a crossing of ten thousand people an hour. Somebody on the staff stood under it for the whole loop. Twice.',
+      ]) },
+      { kind: 'radioSlow', text: () => voice
+        ? KP.fillPro(line('radioSlowVoice', [
+            'The radio spot aired — ' + N(voice) + ' carried it in slow, careful Japanese, and the host slowed down to meet {her}. The clip is circulating with hearts drawn on it.',
+            N(voice) + ' did the radio interview in the market’s own language, a pause here and there and every one of them forgiven on air; ' + partner + ' played it back on the office speakers.',
+            'Morning radio: ' + N(voice) + ' answered in Japanese slow enough to be a lesson, and the listeners wrote in to say they were taking notes.',
+          ]), voice)
+        : line('radioSlowInterp', [
+            'The radio spot aired through the interpreter — the pauses were long, the host was kind, and the clip is making the rounds with subtitles the company did not write.',
+            'Morning radio, the interpreter in the booth: every answer landed a beat late. The fans say it was charming. ' + partner + ' said nothing, which was its own note.',
+            'The radio interview ran in slow Japanese on the host’s side and in Korean on ours, an interpreter in between; the market noticed who was not speaking to it.',
+          ]) },
+      { kind: 'fanLetter', text: () => { const m = pickM('jpLetter'); return KP.fillPro(line('fanLetter', [
+        'A fan letter reached the hotel desk with ' + N(m) + '’s name written in katakana, each stroke practised; {she} read it twice and keeps it in the passport pocket.',
+        N(m) + ' got a letter in katakana this week — three pages, a pressed flower, a phonetic fanchant guide written by hand. {She} has not stopped showing people.',
+        'The first fan letter of the trip: ' + N(m) + '’s name in katakana on the envelope and a drawing of the whole group inside, one member slightly too tall. {She} says it is accurate.',
+      ]), m); } },
+      { kind: 'soundcheck', text: () => line('soundcheck', [
+        'Soundcheck at ' + hall + ': an empty room, a clean mix, and the staff in the back row filming the moment the first chorus hit the ceiling.',
+        'The ' + hall + ' soundcheck ran long and nobody minded — the monitors were right for once, and the group did the fanchant themselves to hear how the room would answer.',
+        'An afternoon of soundcheck in ' + hall + ': the empty seats, the lights tested one color at a time, and a photo of the group sitting on the lip of the stage that the fans will frame.',
+      ]) },
+      { kind: 'konbini', text: () => { const m = pickM('jpKonbini'); return KP.fillPro(line('konbini', [
+        'A convenience-store photo trended: ' + N(m) + ' at one in the morning with an onigiri and the face of someone who has found the meaning of life. The store sold out of that onigiri.',
+        'The konbini photo — ' + N(m) + ', fluorescent light, a basket of things nobody needs at midnight — went around the market faster than the single did. {She} wants royalties.',
+        N(m) + '’s convenience-store selfie trended for a day: a steamed bun, a hood up, a caption in three languages. The staff found {her} there again the next night.',
+      ]), m); } },
+      { kind: 'trainPlatform', text: () => line('trainPlatform', [
+        'The whole group on a train platform at rush hour, masks up, in a line like everyone else; a fan recognised them by the shoes and said nothing until the doors closed. The post has a million views.',
+        'A platform photo: ' + g.name + ' waiting for the last train with the commuters, a vending-machine coffee each. The market likes a group that takes the train; ' + partner + ' likes that the market likes it.',
+        'The train-platform clip — ' + g.name + ' bowing to a station attendant who bowed back — is the week’s quiet hit. Nobody staged it, which is why it worked.',
+      ]) },
+    ];
+    const pool = kinds.filter(k => k.kind !== g.jpLastMomentKind);
+    const pick = pool[Math.floor(h('jpMoment') * pool.length)] || kinds[0];
+    g.jpLastMomentKind = pick.kind;
+    return pick.text();
+  }
+  // the pure read the Today card renders (the "In Japan" card): null when
+  // the group is not away; the moment is this week's sentence or null
+  KP.japanAwayRead = function (state, g) {
+    if (!g || !g.jpAway) return null;
+    const lane = KP.C.JAPAN.LANES[g.jpAway.lane] || { weeks: 0 };
+    const m = g.jpAway.moment;
+    return { weeksLeft: Math.max(0, g.jpAway.until - state.week), weeksTotal: lane.weeks,
+      lane: g.jpAway.lane === 'original' ? 'JP-original' : 'JP-version', laneId: g.jpAway.lane,
+      partner: state.jpPartner ? state.jpPartner.name : null,
+      moment: m && m.week === state.week ? m.text : null };
+  };
+
   // ---- the week ----------------------------------------------------------
   KP.registerWeekly('japan', 762, function (state, rng, inbox) {
     const J = KP.C.JAPAN;
@@ -152,6 +230,18 @@
         g.members.map(id => state.people[id]).filter(Boolean).forEach(m => {
           if (!KP.onBreak(m)) m.fatigue = KP.clamp(m.fatigue + 3, 0, 100);
         });
+        // the in-country week (v0.11.7, §98): a moment a week, the landing
+        // week excepted — the lane-open letter already told that one
+        if (state.week !== (g.lastJpWeek || 0)) {
+          const text = jpMoment(state, g);
+          if (text) {
+            const lane = J.LANES[g.jpAway.lane] || { weeks: 0 };
+            led.awayMoments++;
+            g.jpAway.moment = { week: state.week, kind: g.jpLastMomentKind, text };
+            inbox.push({ kind: 'company', ind: 'jpAwayWeek', priority: 'normal', groupId: g.id,
+              text: 'In Japan, week ' + Math.max(1, lane.weeks - (g.jpAway.until - state.week)) + ' of ' + lane.weeks + ': ' + text });
+          }
+        }
         return;
       }
       // release week: the record posts to the Nichion weekly
