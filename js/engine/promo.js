@@ -115,10 +115,18 @@
     return g.debuted && !g.prep && !g.retiredWeek &&
       state.week <= (g.promoUntil || 0) && state.week > (g.lastReleaseWeek || 0);
   }
+  // the stamp belongs to the promotion that set it (v0.11.9, §100): it was
+  // written on the group and never cleared, so one extension shut the door
+  // for the rest of a career and every later promotion wore "· extended".
+  // A stamp older than the last landing is another era's. Read, not
+  // cleared: an old save carries a stale stamp and needs no migration.
+  KP.eraExtended = function (g) {
+    return !!(g && g.eraExtendedWeek) && g.eraExtendedWeek > (g.lastReleaseWeek || 0);
+  };
   KP.extensionRead = function (state, g) {
     const E = P().EXT;
     if (!promoting(state, g)) return { ok: false, reason: 'No promotion is running.' };
-    if (g.eraExtendedWeek) return { ok: false, reason: 'The era already took its second wind.' };
+    if (KP.eraExtended(g)) return { ok: false, reason: 'The era already took its second wind.' };
     if (state.week < (g.promoUntil || 0)) return { ok: false, reason: 'The question comes in the last week of promotion.' };
     const climb = KP.recordClimbing(state, g);
     if (!climb.climbing) return { ok: false, reason: 'The record is not climbing. An extension sells a story the chart is not telling.' };

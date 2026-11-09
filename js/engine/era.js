@@ -121,6 +121,9 @@
     const open = KP.lineFor(state, 'eraClosed|' + g.id, lines, g.lastCloseLine);
     g.lastCloseLine = lines.indexOf(open);
     const parts = [open, stageSentence(state, rel), tallySentence(state, g, rel)];
+    // the second wind: an era that took its extra weeks says so, and the file keeps it
+    const extended = !!(KP.eraExtended && KP.eraExtended(g));
+    if (extended) parts.splice(2, 0, 'It ran past its plan on a second wind: the record was still climbing when the last week came.');
     const room = KP.eraRoomWord(state, g);
     if (ROOM[room]) parts.push(ROOM[room]);
     if (rel.repackageOf) {
@@ -139,6 +142,7 @@
     const d = verdict === 'crowned' ? E.closeMoraleUp : verdict === 'cold' ? -E.closeMoraleDown : 0;
     if (d) present(state, g).forEach(m => { m.morale = KP.clamp((m.morale || 0) + d, 0, 100); });
     rel.closed = { week: state.week, trophies: rel.trophies || 0, lastStage: rel.lastStage ? rel.lastStage.band : null, verdict, room };
+    if (extended) rel.closed.extended = true;
     KP.eraLedger(state).closed++;
     if (door) KP.openReissue(state, g, rel);
     return { kind: 'company', ind: 'eraClosed', priority: 'high', groupId: g.id, verdict, text: parts.join(' ') };

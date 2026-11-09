@@ -266,7 +266,7 @@
             '<span style="font-size:.72rem;color:var(--ink-dim);min-width:46px">Wk ' + (i + 1) + (i === idx ? ' · now' : '') + '</span>' +
             '<span style="font-size:.8rem">' + (wk.length ? wk.map(a => UI.esc((A[a] || { label: a }).label)).join(' · ') : 'a breather') + '</span></div>').join('');
           const desks = KP.broadcasterLines ? KP.broadcasterLines(state) : [];
-          promoHtml = '<div class="kicker" style="margin-top:16px">The promotion' + (g.eraExtendedWeek ? ' · extended' : '') + '</div>' +
+          promoHtml = '<div class="kicker" style="margin-top:16px">The promotion' + (KP.eraExtended(g) ? ' · extended' : '') + '</div>' +
             '<div class="card">' + weeks +
             '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:8px;line-height:1.5">' +
             (climb.climbing ? 'The record is climbing — ' + UI.esc(climb.why) + ' says so. ' : 'The record is holding, not climbing. ') +
@@ -275,7 +275,7 @@
             (ext.ok
               ? '<div style="margin-top:10px"><button class="btn primary" style="width:100%" data-action="era-extend" data-id="' + g.id + '">Extend the era · ' + ext.weeks + ' weeks · bookings ' + ext.bill + '</button>' +
                 '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:6px">On the strength of ' + UI.esc(ext.why) + '. The members pay in hours' + (ext.tired ? ' — and the staff say the room is already tired' : '') + '.</div></div>'
-              : (state.week === (g.promoUntil || 0) && !g.eraExtendedWeek ? '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">The last week. ' + UI.esc(ext.reason || '') + '</div>' : '')) +
+              : (state.week === (g.promoUntil || 0) && !KP.eraExtended(g) ? '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">The last week. ' + UI.esc(ext.reason || '') + '</div>' : '')) +
             '</div>';
         }
         return switcher + '<div class="group-hero"><div class="g-status">' +

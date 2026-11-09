@@ -357,6 +357,9 @@ const BANDS = {
   eraPreorderRead:   { lo: 0.00, hi: 1.00, label: 'orgs that got the pre-order week’s read' },
   eraPreorderAhead:  { lo: 0.00, hi: 1.00, label: 'orgs whose pre-orders ran ahead of a pressing' },
   eraPreorderSoft:   { lo: 0.00, hi: 1.00, label: 'orgs whose pre-orders read soft against a pressing' },
+  eraExtOffered:     { lo: 0.00, hi: 1.00, label: 'orgs offered the second wind (a climbing record in a last week)' },
+  eraExtTired:       { lo: 0.00, hi: 1.00, label: 'orgs that signed the second wind through the staff’s flag' },
+  eraClosedExtended: { lo: 0.00, hi: 1.00, label: 'orgs whose file marks a closed era as extended' },
   // v0.10.33 — the one market: a collapse's signing class is on the open
   // board and the bot buys a career when flush. Measure-first: collapses
   // are rare inside 140 weeks, so the floor is 0 until a census says more.
@@ -790,6 +793,7 @@ const tally = {
   festHeadlineCeremony: 0, jpAwayMoments: 0,
   eraClosedLetter: 0, eraReissueOffered: 0, eraReissueAnr: 0, eraReissueFans: 0, eraReissueDesk: 0,
   eraRested: 0, eraLapsed: 0, eraSuperseded: 0, eraPreorderRead: 0, eraPreorderAhead: 0, eraPreorderSoft: 0,
+  eraExtOffered: 0, eraExtTired: 0, eraClosedExtended: 0,
   careerSigned: 0,
   criticsDarling: 0, pannedHit: 0, criticsSplit: 0, trendNamed: 0,
   commissioned: 0, offLaneRecord: 0, houseChair: 0, themeNamed: 0,
@@ -901,7 +905,7 @@ for (let s = 0; s < SEEDS; s++) {
   // the stages, lived (v0.11.7, §98): the letters seen per org
   const stages = { headline: false, jpAway: false, roadCard: false };
   // the era, closed (v0.11.9, §100): the two new letters, seen pre-trim
-  const era = { closeLetter: false, preorderLetter: false };
+  const era = { closeLetter: false, preorderLetter: false, extOffered: false, extTired: false };
   let annivSeen = false, scarSeen = false;
   let tourSoldOutSeen = false, tourSoftSeen = false, awardSnubSeen = false;
   let circuitSeen = false, encoreSeen = false, truckSeen = false,
@@ -1680,11 +1684,24 @@ for (let s = 0; s < SEEDS; s++) {
     // boss reaches for unprompted
 
     // the promotion (v0.10.38): a record still climbing in its last week
-    // gets the second wind when the room can carry it
+    // gets the second wind when the room can carry it. Until v0.11.9 the
+    // boss signed only a room the staff had not flagged, and a probe over
+    // 40 seeds showed what that meant: 657 last promotion weeks, 95 with a
+    // record still climbing, 92 of those flagged tired (the room's median
+    // in a last week is 83 against a flag at 70). The boss took 3 doors in
+    // twelve years, the tired letter never ran under the soak, and the
+    // census row measured the boss's caution instead of the verb. Since
+    // v0.11.9 (§100) the boss signs through the flag while the room is
+    // under the line the encore already uses (`encoreNight`: hand the
+    // night back at 75): a tired room gives one more, a spent one does not.
     state.groups.forEach(g => {
       if (!KP.extensionRead) return;
       const r = KP.extensionRead(state, g);
-      if (r.ok && !r.tired) KP.extendEra(state, g.id);
+      if (!r.ok) return;
+      era.extOffered = true;
+      const avgF = g.members.reduce((s2, id) => s2 + (state.people[id] ? state.people[id].fatigue : 0), 0) / (g.members.length || 1);
+      if (r.tired && avgF >= 75) return;
+      if (KP.extendEra(state, g.id).ok && r.tired) era.extTired = true;
     });
 
     // plan the next release for whichever group needs one — debuts and
@@ -1758,12 +1775,17 @@ for (let s = 0; s < SEEDS; s++) {
       // "press braver next time" and the warehouse memo says the opposite,
       // so the run walks a ladder (cautious, the desk's sheet, bold) one
       // rung at a time from wherever the last record stood: up on a
-      // sellout, down on a memo, unmoved on a week that fit. A red quarter
-      // presses lean, like the MV above it. Before this the bot never
-      // touched the run: every sheet in the census was the suggestion, and
-      // the only overpress it ever ate was the old reissue's mis-sized
-      // one. The reissue's own run is the desk's, so the lesson is read
-      // from the last record the bot sized itself.
+      // sellout, down on a memo, unmoved on a week that fit. Two red
+      // quarters running press lean: that is the till talking, not the
+      // arithmetic (a lean run saves a little at lock and loses more at
+      // the landing), so one red quarter is not enough to do it. The
+      // first cut pressed lean on ANY pressure: 348 of 678 locks went
+      // cautious, 346 of those sold out, sellouts flooded at 37/40 and
+      // the bold rung starved (37 locks, memos at 2/40). Before the
+      // ladder the bot never touched the run: every sheet in the census
+      // was the suggestion, and the only overpress it ever ate was the
+      // old reissue's mis-sized one. The reissue's own run is the desk's,
+      // so the lesson is read from the last record the bot sized itself.
       const PRESETS = ['cautious', 'suggested', 'bold'];
       const ownLast = (g.releases || []).slice().reverse().find(r => !r.repackageOf && r.pressing);
       let rung = 1;
@@ -1773,7 +1795,7 @@ for (let s = 0; s < SEEDS; s++) {
         if (ownLast.pressing.soldOut) rung = Math.min(2, rung + 1);
         else if (ownLast.pressing.overpress) rung = Math.max(0, rung - 1);
       }
-      if ((state.fiscal || {}).pressure > 0) rung = 0;
+      if ((state.fiscal || {}).pressure >= 2) rung = 0;
       const learned = rung === 1 ? null : { preset: PRESETS[rung] };
       const lockPlan = {
         groupId: g.id, songId: demo.id, conceptId: g.concept === 'fusion' ? 'fusion' : demo.conceptId, promo: promoAffordable,
@@ -2417,6 +2439,9 @@ for (let s = 0; s < SEEDS; s++) {
     if (era.preorderLetter && (EL.preorderReads || 0) >= 1) tally.eraPreorderRead++;
     if ((EL.preorderAhead || 0) >= 1) tally.eraPreorderAhead++;
     if ((EL.preorderSoft || 0) >= 1) tally.eraPreorderSoft++;
+    if (era.extOffered) tally.eraExtOffered++;
+    if (era.extTired) tally.eraExtTired++;
+    if (state.groups.some(g => (g.releases || []).some(r => r.closed && r.closed.extended))) tally.eraClosedExtended++;
   }
   if (doorWaitSeen) tally.doorLeftWaiting++;
   if (annivSeen) tally.annivFelt++;

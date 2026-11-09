@@ -581,6 +581,14 @@
           const p = state.people[tr.writtenBy];
           if (p) creditBits.push('“' + UI.esc(tr.title) + '” co-written by ' + UI.esc(KP.publicGiven(p)));
         });
+        // the era's last line (v0.11.9, §100): how it closed and what followed
+        // it — words and the public shelf only, read off the close's own mark
+        const closeBit = !r.closed ? '' : ' · closed ' + ({
+          crowned: r.closed.trophies >= 2 ? 'with ' + r.closed.trophies + ' trophies' : 'with a trophy',
+          warm: 'warm', quiet: 'quietly', cold: 'cold' }[r.closed.verdict] || 'quietly') +
+          (r.closed.extended ? ' after a second wind' : '');
+        const afterBit = r.reissuedAs ? ' · reissued as “' + UI.esc(r.reissuedAs) + '”'
+          : r.reissueRested ? ' · left to rest' : '';
         html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(r.week).text) + '</span>' +
           '<div><b>“' + UI.esc(r.songTitle) + '”</b> · ' + UI.esc(KP.conceptById(r.conceptId).label) +
           (fmt ? ' · ' + UI.esc(fmt.label.toLowerCase()) : '') +
@@ -590,6 +598,7 @@
           (r.nationalPeak != null ? ' · national #' + r.nationalPeak : '') +
           (r.critics ? ' · critics: ' + UI.esc(KP.verdictWord(r.critics.consensus)) + (r.critics.split ? ' (split)' : '') : '') +
           (r.chartWeeks ? ' · ' + r.chartWeeks + ' weeks charting' : ' · missed the charts') +
+          closeBit + afterBit +
           (creditBits.length ? '<br>' + creditBits.join(' · ') : '') + '</span></div></div>');
       });
       // the writers' room (v0.9.7): the producers behind the records,
