@@ -751,9 +751,20 @@
       text: KP.fillPro(KP.displayName(p) + ' is taking a break from activities for health and rest — ' + g.name + ' continues as ' + (g.members.length - 1) + ' for now. The fandom’s reply is unanimous for once: rest well, seat kept.', p) });
     return { ok: true, note: note.text };
   };
+  // the break a story forced runs to the statement's date (v0.11.20, §111). The
+  // response desk said "twelve weeks, minimum" and the file's button ended it the
+  // same week, which made a severity-three story cost one click. Null when the
+  // desk may end the break; the week it ends on when it may not.
+  KP.breakLock = function (state, p) {
+    const b = p && p.flags && p.flags.personalHiatus;
+    if (!b || !b.forced || p.flags.scandalBreakUntil == null || state.week >= p.flags.scandalBreakUntil) return null;
+    return p.flags.scandalBreakUntil;
+  };
   KP.endMemberBreak = function (state, personId) {
     const p = state.people[personId];
     if (!p || !p.flags.personalHiatus) return { ok: false, reason: 'No break to end.' };
+    const lock = KP.breakLock(state, p);
+    if (lock != null) return { ok: false, reason: KP.fillPro('The statement that sent {her} away runs until ' + KP.weekLabel(lock).text + '. The story chose that calendar, and the desk cannot shorten it.', p) };
     const weeks = state.week - p.flags.personalHiatus.since;
     delete p.flags.personalHiatus;
     p.morale = KP.clamp(p.morale + 3, 0, 100);
@@ -769,7 +780,11 @@
     roster.forEach(p => {
       if (!p.flags.personalHiatus) return;
       const MD = KP.C.MEMBER_DESK;
-      p.fatigue = KP.clamp(p.fatigue - MD.breakRecovery, 0, 100);
+      // a break rests at least as well as an idle week (v0.11.20, §111). The
+      // idol week stops for her, so the break's own relief was all she got:
+      // 2.5 a week, beside idle groupmates' 8 less their practice
+      const idle = KP.C.COMEBACK.idolRecovery * (KP.ageRecoveryMult ? KP.ageRecoveryMult(p) : 1);
+      p.fatigue = KP.clamp(p.fatigue - (idle + MD.breakRecovery), 0, 100);
       p.morale = KP.clamp(p.morale + MD.breakMorale, 0, 100);
     });
   });

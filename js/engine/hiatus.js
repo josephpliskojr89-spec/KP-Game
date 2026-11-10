@@ -63,9 +63,15 @@
           g.hiatus.coolNoted = true;
           // one-shot milestone: the stamp burns whether or not the note
           // survives the weekly budget, so the note must survive it
+          // the rest's half of the bet may already be in (v0.11.20, §111): this
+          // letter said "rest is still working" the week after the rest's own
+          // letter said it was done
+          const rested = KP.hiatusRead ? (KP.hiatusRead(state, g) || {}).rested : false;
           inbox.push({ kind: 'company', ind: 'hiatusCooling', priority: 'critical', groupId: g.id,   // one-shot: must survive any week (§89 B)
             text: 'The weekly numbers for ' + g.name + ' have started their slow walk down — the announcement bought ' + H.graceWeeks +
-              ' weeks of patience and the patience is spent. Rest is still working. So is forgetting. Both compound.' });
+              ' weeks of patience and the patience is spent. ' +
+              (rested ? 'The rest has done its work. The forgetting has only started, and it compounds.'
+                : 'Rest is still working. So is forgetting. Both compound.') });
         }
       }
     });
@@ -87,6 +93,14 @@
         ' weeks of quiet, ended by a date and a teaser photo of ' + sil + '. The countdown accounts have never been so employed.' });
   };
 
+  // ---- what the wait banks (v0.11.20, §111): one formula, read by the
+  // release below and by the card and the letters before it. Only the
+  // weeks past grace count — the ones that paid the toll.
+  KP.hiatusBank = function (weeks) {
+    const H = KP.C.HIATUS;
+    return Math.min(H.anticipationCap, Math.round(Math.max(0, weeks - H.graceWeeks) * H.anticipationPerWeek));
+  };
+
   // ---- the read: anticipation lands on the return release ------------
   // Same contract as seasonRead — one door supplies the number and the
   // words, resolveDebut adds them where every other mod lives.
@@ -101,7 +115,7 @@
     const earned = Math.max(0, weeks - H.graceWeeks);
     if (!earned) return out;
     g.hiatusReturns = (g.hiatusReturns || 0) + 1;     // durable: the return happened
-    out.mod = Math.min(H.anticipationCap, Math.round(earned * H.anticipationPerWeek));
+    out.mod = KP.hiatusBank(weeks);
     out.note = 'The return did what declared returns do: ' + weeks +
       ' weeks of absence converted into first-day numbers. The fans did not drift — they WAITED, and the receipts show the difference.';
     return out;

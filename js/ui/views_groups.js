@@ -660,7 +660,13 @@
           ? (g.hiatus.graceFrom
             ? (members.length === 1 ? UI.esc(KP.fillPro('{She} is home', members[0])) : 'Everybody is home') + ', and the gate renewed the fandom’s patience: ' + (graceLeft === 0 ? 'this is its last week' : graceLeft + ' week' + (graceLeft === 1 ? '' : 's') + ' of it left') + ' before the numbers start to cool.'
             : 'The announcement is holding: the fans are patient, the members are sleeping, the second jobs have room.')
-          : 'Past the grace window now — the rest is still working, and so is the forgetting. The return converts the wait into numbers; the wait converts the numbers into less.') +
+          : 'Past the grace window now — the forgetting is working. The return converts the wait into numbers; the wait converts the numbers into less.') +
+        // the bet, read (v0.11.20, §111): what a return would read today, when
+        // the bank is full, what the cooling has cost, whether the rest is in
+        (function () {
+          const hr = KP.hiatusRead ? KP.hiatusRead(state, g) : null;
+          return hr ? '<div style="margin-top:8px;font-size:.76rem;color:var(--ink-dim);line-height:1.5">' + UI.esc(KP.hiatusReadWords(state, g, hr)) + '</div>' : '';
+        })() +
         '<div style="margin-top:12px"><button class="btn primary" data-nav="studio">Announce the return</button></div></div>');
     } else {
       const unitReady = g.type !== 'solo' && members.length >= 3 &&

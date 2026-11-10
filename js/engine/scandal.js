@@ -98,6 +98,9 @@
       if (r.ok) {
         led.forcedBreaks++;
         p.flags.scandalBreakUntil = state.week + KP.C.SCANDAL.hiatusWeeks;
+        // the break knows the story forced it (v0.11.20, §111): the desk cannot end
+        // this one, and the clock ends this one and no break granted after it
+        p.flags.personalHiatus.forced = true;
         p.history.push({ week: state.week, text: 'The story forced the company’s hand: a hiatus nobody planned, announced in the flattest possible statement.' });
         return true;
       }
@@ -339,7 +342,7 @@
       // the forced break ends on its clock
       if (p.flags.scandalBreakUntil && state.week >= p.flags.scandalBreakUntil) {
         delete p.flags.scandalBreakUntil;
-        if (p.flags.personalHiatus) KP.endMemberBreak(state, p.id);
+        if (p.flags.personalHiatus && p.flags.personalHiatus.forced) KP.endMemberBreak(state, p.id);
         if (p.scandal && p.scandal.sev < 4) delete p.scandal;
       }
     });

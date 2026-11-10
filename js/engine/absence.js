@@ -1,4 +1,4 @@
-/* The absences, attended (v0.11.18, §109; v0.11.19, §110).
+/* The absences, attended (v0.11.18, §109; v0.11.19, §110; v0.11.20, §111).
    Part one: the return.
    §96: "The absences are the purest plan → wait → result loops left." The
    result end of a service was one generic sentence and a window nobody
@@ -10,7 +10,11 @@
    Part two: the wait. A service has three marks between the gates, read
    from the fandom's side: day 100, when its project gets a name and a
    count; the half, when he writes from the base; and D-100, when the
-   countdown turns and the return is said ahead of time. */
+   countdown turns and the return is said ahead of time.
+   Part three: the quiet. A declared hiatus is a bet with two halves, the
+   rest and the wait the return converts. Both are a read the card shows,
+   and each half says when it is done. A personal break says when she is
+   rested. */
 (function (root) {
   'use strict';
   const KP = root.KP = root.KP || {};
@@ -350,10 +354,140 @@
     });
   }
 
+  // ==== part three: the quiet (v0.11.20, §111) ========================================
+
+  function quietLedger(state) {
+    const led = state.quietLedger = state.quietLedger || {};
+    ['rested', 'full', 'breakRested'].forEach(k => { if (led[k] == null) led[k] = 0; });
+    return led;
+  }
+  KP.quietLedger = quietLedger;
+
+  // ---- a declared hiatus, read (pure) ----------------------------------------------
+  // What a return announced this week would read, when the bank is full,
+  // whether the patience has run out and what that has cost, and whether
+  // the rest has done its work. A service chapter is not a bet: it has its
+  // own card and its own letters (§109, §110).
+  KP.hiatusRead = function (state, g) {
+    const hi = g && g.hiatus;
+    if (!hi || hi.service) return null;
+    const H = KP.C.HIATUS;
+    const weeks = state.week - hi.since;
+    const graceLeft = H.graceWeeks - (state.week - (hi.graceFrom || hi.since));
+    const banked = KP.hiatusBank(weeks);
+    let fullAt = H.graceWeeks;
+    while (KP.hiatusBank(fullAt) < H.anticipationCap && fullAt < 520) fullAt++;
+    const ms = (g.members || []).map(id => state.people[id]).filter(Boolean);
+    const tired = ms.length ? ms.reduce((sum, m) => sum + m.fatigue, 0) / ms.length : 0;
+    return { weeks, graceLeft, cooling: graceLeft < 0, banked, cap: H.anticipationCap, full: banked >= H.anticipationCap,
+      fullWeek: hi.since + fullAt, toFull: Math.max(0, hi.since + fullAt - state.week),
+      tired, rested: tired <= H.restedAt,
+      cooled: hi.popAtCool != null ? Math.max(0, Math.round((hi.popAtCool - (g.popularity || 0)) * 10) / 10) : null };
+  };
+  // the bank, in the card's and the letters' words
+  KP.hiatusBankWords = function (state, r) {
+    return r.banked > 0
+      ? 'A return announced this week would read +' + r.banked + ' of a possible +' + r.cap + ' on the release sheet’s return row'
+      : 'A return announced this week would read nothing on the release sheet’s return row: only the weeks after the patience runs out are counted';
+  };
+  KP.hiatusReadWords = function (state, g, r) {
+    return KP.hiatusBankWords(state, r) + '. ' +
+      (r.full ? 'The bank is full: every week from here only costs.'
+        : 'The bank is full ' + when(r.fullWeek) + ', in ' + wk(r.toFull) + '.') +
+      (r.cooled != null && r.cooled > 0 ? ' Popularity is down ' + r.cooled + ' since the patience ran out.' : '') +
+      ' ' + (r.rested ? 'The rest has done its work.' : 'The rest is still working.');
+  };
+  KP.hiatusRestedText = function (state, g, r) {
+    const H = KP.C.HIATUS;
+    return 'The rest has done its work on ' + g.name + ': ' + wk(r.weeks) + ' in, ' +
+      (soloAct(g) ? 'the act is' : 'the members are') + ' as rested as a hiatus makes anybody. ' +
+      (r.cooling ? 'The patience ran out ' + wk(-r.graceLeft) + ' ago, and the numbers are cooling.'
+        : r.graceLeft === 0 ? 'This is the last week of the fandom’s patience.'
+          : 'The fandom’s patience holds ' + wk(r.graceLeft) + ' more.') +
+      ' What the hiatus buys from here is the wait alone. ' + KP.hiatusBankWords(state, r) +
+      (r.full ? ', and that is the most it can.' : ', and the bank is full ' + when(r.fullWeek) + '.');
+  };
+  KP.hiatusFullText = function (state, g, r) {
+    return g.name + '’s wait has banked all it can: +' + r.cap + ' on the release sheet’s return row, ' + wk(r.weeks) +
+      ' in. No week after this one adds to it. ' +
+      (r.cooled != null && r.cooled > 0 ? 'Popularity is down ' + r.cooled + ' since the patience ran out, and that goes on.' : 'The cooling goes on.') +
+      ' From here every week only costs.';
+  };
+
+  // ---- a personal break, read (pure) -----------------------------------------------
+  // `until` is the week a break a story forced ends on its own clock (scandal.js);
+  // a break the desk granted has none, and ends when the desk says
+  KP.breakRead = function (state, p) {
+    const b = p && p.flags && p.flags.personalHiatus;
+    if (!b) return null;
+    return { weeks: state.week - b.since, tired: p.fatigue, rested: p.fatigue <= KP.C.MEMBER_DESK.breakRestedAt,
+      until: b.forced && p.flags.scandalBreakUntil != null ? p.flags.scandalBreakUntil : null };
+  };
+  KP.breakRestedText = function (state, p, g, r) {
+    const n = g ? g.members.filter(id => id !== p.id).length : 0;
+    return KP.fillPro(nm(p) + ' is rested: ' + wk(r.weeks) + ' into the break, {she} is sleeping, and the trainers say it shows.' +
+      // a parked act has not gone on without anybody
+      (g && !g.hiatus ? ' ' + g.name + ' has gone on as ' + (NUM[n] || n) + ' without {her}.' : '') +
+      ' The seat is kept. ' +
+      // most breaks in a career are the ones a story forced, and those end on the statement's date
+      (r.until != null ? 'The statement that sent {her} away runs until ' + when(r.until) + ', and {she} is back that week. The story chose that calendar; the desk cannot shorten it.'
+        : '{She} comes back when the desk ends the break, from {pos} file.'), p);
+  };
+
+  // ---- the cost's stamp ------------------------------------------------------------------
+  // What the patience running out has cost is counted from the week it ran
+  // out, so the stamp is taken on the absence rail, before the hiatus rail
+  // takes that week's cooling.
+  function coolStampOfWeek(state, groups) {
+    groups.forEach(g => {
+      const r = KP.hiatusRead(state, g);
+      if (r && r.cooling && g.hiatus.popAtCool == null) g.hiatus.popAtCool = g.popularity || 0;
+    });
+  }
+
+  // ---- the quiet's letters: each half of the bet says when it is done -----------------
+  function quietOfWeek(state, inbox, roster, groups) {
+    const led = quietLedger(state);
+    groups.forEach(g => {
+      const r = KP.hiatusRead(state, g);
+      if (!r) return;   // an ended act holds no hiatus: the validator's law, not this rail's
+      const hi = g.hiatus;
+      // a hiatus left over from a service chapter was never this bet (§109): its ceremony said so
+      if (hi.graceFrom) return;
+      if (r.rested && !hi.restedNoted) {
+        hi.restedNoted = true;
+        led.rested++;
+        // one-shot: the stamp burns here, so the letter must land. As a high
+        // letter the week's budget cut one in five of them (measured, 40 careers)
+        inbox.push({ kind: 'company', ind: 'hiatusRested', priority: 'critical', groupId: g.id, text: KP.hiatusRestedText(state, g, r) });
+      }
+      if (r.full && !hi.fullNoted) {
+        hi.fullNoted = true;
+        led.full++;
+        // one-shot: the stamp burns here, so the letter must land
+        inbox.push({ kind: 'company', ind: 'hiatusFull', priority: 'critical', groupId: g.id, text: KP.hiatusFullText(state, g, r) });
+      }
+    });
+    roster.forEach(p => {
+      const b = p.flags && p.flags.personalHiatus;
+      if (!b || b.restedNoted) return;
+      const r = KP.breakRead(state, p);
+      if (!r || !r.rested) return;
+      b.restedNoted = true;
+      led.breakRested++;
+      const g = KP.groupOf(state, p.id);
+      // one-shot, like the rest's letter above: said once, so it must land
+      const n = { kind: 'company', ind: 'breakRested', priority: 'critical', personId: p.id, text: KP.breakRestedText(state, p, g, r) };
+      if (g) n.groupId = g.id;
+      inbox.push(n);
+    });
+  }
+
   // ---- the weekly: the chapter and the window -------------------------------------
   KP.registerWeekly('absence', 787, function (state, rng, inbox, roster, groups) {
     const M = KP.C.MIL, led = ledger(state);
     marksOfWeek(state, inbox, roster);
+    coolStampOfWeek(state, groups);
     groups.forEach(g => {
       KP.soloServiceChapter(state, g);
       const r = KP.returnRead(state, g);
@@ -374,6 +508,14 @@
           text: KP.returnClosingText(state, g, r) });
       }
     });
+  });
+
+  // The quiet's letters go out after the rails that do the resting (the member
+  // desk 788, the hiatus 789). On the absence rail they read the week before
+  // its rest, so each came a week after the card or the file already said
+  // rested, and the bank's letter gave a cost one week short of the card's.
+  KP.registerWeekly('quiet', 789.5, function (state, rng, inbox, roster, groups) {
+    quietOfWeek(state, inbox, roster, groups);
   });
 
   // ---- the timeline ----------------------------------------------------------------

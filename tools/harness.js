@@ -681,6 +681,12 @@ const BANDS = {
   // the year's first never: that door is suite-held)
   listPosted:        { lo: 0.90, hi: 1.00, label: 'orgs whose lineup went up as a letter for the room' },
   offListDoor:       { lo: 0.05, hi: 0.80, label: 'orgs where the one a list left off came to the desk' },
+  // the quiet (v0.11.20, §111): each half of a declared hiatus says when it
+  // is done. The bot parks a worn act and comes back at twelve weeks if it
+  // can, so the rest is nearly always said and the full bank only when the
+  // till kept the act parked. Floors by measurement.
+  quietRested:       { lo: 0.40, hi: 1.00, label: 'orgs told the rest had done its work (a declared hiatus)' },
+  quietFull:         { lo: 0.00, hi: 0.90, label: 'orgs told the wait had banked all it can (guarding a bot that parks forever)' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -834,6 +840,7 @@ const BANDS = {
 const missionSum = {};   // the mission (v0.11.13, §104): summed over the census
 const yearSum = { years: 0, climbs: 0, rows: 0, sheets: 0, max: 0 };   // the year's sheet (v0.11.16, §107)
 const postSum = {};   // the posting (v0.11.17, §108)
+const quietSum = {};  // the quiet (v0.11.20, §111)
 const tally = {
   sensation: 0, strongPlus: 0, missOrQuiet: 0, nonCenterBreakout: 0,
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
@@ -914,6 +921,7 @@ const tally = {
   evalHeld: 0, projectTalkSeen: 0, traineeQuitAsked: 0, traineeGone: 0,
   missionDrilled: 0, missionMoment: 0, talkQuestion: 0, slotGiven: 0, yearRead: 0, yearClimb: 0,
   listPosted: 0, offListDoor: 0,
+  quietRested: 0, quietFull: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -2448,6 +2456,19 @@ for (let s = 0; s < SEEDS; s++) {
   if ((postL.posted || 0) >= 1) tally.listPosted++;
   if ((postL.knocks || 0) >= 1) tally.offListDoor++;
   Object.keys(postL).forEach(k => { postSum[k] = (postSum[k] || 0) + (postL[k] || 0); });
+  // the quiet (v0.11.20, §111)
+  const quietL = state.quietLedger || {};
+  if ((quietL.rested || 0) >= 1) tally.quietRested++;
+  if ((quietL.full || 0) >= 1) tally.quietFull++;
+  Object.keys(quietL).forEach(k => { quietSum[k] = (quietSum[k] || 0) + (quietL[k] || 0); });
+  state.groups.forEach(g => {
+    const hr = KP.hiatusRead(state, g);
+    if (!hr || g.retiredWeek) return;
+    quietSum.parked = (quietSum.parked || 0) + 1;
+    // a stamp means what it says, and a full bank that is not a service chapter's leftover was said
+    guard(!g.hiatus.fullNoted || hr.full, seed + ' ' + g.name + ' is stamped as a full bank at ' + hr.banked + ' of ' + hr.cap);
+    guard(!hr.full || g.hiatus.fullNoted || g.hiatus.graceFrom, seed + ' ' + g.name + '’s bank is full (' + hr.weeks + ' weeks) and no letter said so');
+  });
   const doorOpen = (state.scenes || []).filter(sc => sc.kind === 'offTheList').length;
   const doorDone = (postL.why || 0) + (postL.next || 0) + (postL.nothing || 0) + (postL.unanswered || 0);
   // a door that was opened and whose trainee then left the room (debuted, released) closes with nothing counted
@@ -3131,6 +3152,8 @@ console.log('\nthe mission: showcases ' + (missionSum.missions || 0) + ' (sheets
 // the talk and the slot (v0.11.14, §105)
 console.log('the year’s sheet: read ' + yearSum.years + ' times · the year’s climb named ' + yearSum.climbs + ' · places on the sheets still on the wall ' + yearSum.rows +
   ' across ' + yearSum.sheets + ' (the longest ' + yearSum.max + ')');
+console.log('the quiet: told the rest was in ' + (quietSum.rested || 0) + ' · told the bank was full ' + (quietSum.full || 0) +
+  ' · a member on a break told she was rested ' + (quietSum.breakRested || 0) + ' · acts still parked at the end ' + (quietSum.parked || 0));
 console.log('the posting: lists ' + (postSum.posted || 0) + ' · the month’s first left off ' + (postSum.offMonth || 0) + ' · the year’s first left off ' + (postSum.offYear || 0) +
   ' · locked into the project and dropped ' + (postSum.dropped || 0) + ' · came to the desk about it ' + (postSum.knocks || 0) + ' (told why ' + (postSum.why || 0) +
   ', promised the next ' + (postSum.next || 0) + ', the list is the list ' + (postSum.nothing || 0) + ', left in the doorway ' + (postSum.unanswered || 0) + ')');

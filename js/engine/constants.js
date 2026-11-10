@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.19',
+    VERSION: '0.11.20',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1487,8 +1487,9 @@
     MEMBER_DESK: {
       removeMorale: 12,        // cut from the lineup, kept on the books
       removeMateMorale: 4,     // the room watches the seat empty
-      breakRecovery: 2.5,      // weekly fatigue relief on a personal break
+      breakRecovery: 2.5,      // weekly fatigue relief on a personal break, on top of an idle week's (v0.11.20, §111: it was all she got)
       breakMorale: 0.8,        // the rest is real here too
+      breakRestedAt: 20,       // fatigue at or under this: she is rested, and a letter says so (v0.11.20, §111)
       TERMINATE: {
         base: 40,              // the buyout's floor
         perYear: 30,           // × contract years remaining
@@ -1526,6 +1527,7 @@
       // bought with cooling, which is the whole bet.
       anticipationPerWeek: 0.75,
       anticipationCap: 10,       // hype has a ceiling; cooling does not
+      restedAt: 10,              // average fatigue at or under this: the rest has done its work (v0.11.20, §111)
     },
     // the service (v0.9.23, §55.7, map slot 8) — every male idol carries
     // an enlistment window with a hard deadline; the decision is the

@@ -9104,7 +9104,7 @@ Suite_114 (41). Measured in the first soak (40 orgs): vote pushes
 every org that sent — and the bands ruled from these. Battery
 114/114, soak 40 clean, longhaul 11 × 620, e2e 134, lockstep 0.11.4.
 
-## §96 Where we stand — the depth survey (post-0.11.4; recommendations 1–4 SHIPPED v0.11.5, v0.11.7, v0.11.9, and 4 in three parts v0.11.10–v0.11.12; 5 in parts from v0.11.13)
+## §96 Where we stand — the depth survey (post-0.11.4; recommendations 1–4 SHIPPED v0.11.5, v0.11.7, v0.11.9, and 4 in three parts v0.11.10–v0.11.12; 5 in seven parts v0.11.13–v0.11.20)
 
 Owner, after the televised season shipped: *"Where does this leave
 us? Can you take a look at what needs more depth and give me a
@@ -9486,7 +9486,7 @@ what each member does next. `finalLineup` written on every ending;
 an alumni strip so the open files are reachable; a departed idol who
 can be signed across the street and a letter when she debuts there.
 
-**5. The practice room, attended (the trainee years as episodes; part one, the mission, SHIPPED v0.11.13, §104; part two, the talk and the slot, SHIPPED v0.11.14, §105; part three, the year’s sheet, SHIPPED v0.11.16, §107; part four, the posting, SHIPPED v0.11.17, §108; the absences, part one, the return, SHIPPED v0.11.18, §109; part two, the wait, SHIPPED v0.11.19, §110).**
+**5. The practice room, attended (the trainee years as episodes; part one, the mission, SHIPPED v0.11.13, §104; part two, the talk and the slot, SHIPPED v0.11.14, §105; part three, the year’s sheet, SHIPPED v0.11.16, §107; part four, the posting, SHIPPED v0.11.17, §108; the absences, part one, the return, SHIPPED v0.11.18, §109; part two, the wait, SHIPPED v0.11.19, §110; part three, the quiet, SHIPPED v0.11.20, §111).**
 The evaluation sheet on a priority ladder (critical at a first #1,
 the line or the talk; high within one of the line; flavor only when
 nothing moved) naming the month's mission, her place and movement,
@@ -11620,6 +11620,163 @@ clean, census 200 clean, longhaul 11 × 620 clean, e2e 137, lockstep
 *Left for the next piece.* The quiet: the hiatus and the personal
 break. *Still the owner's to call* (§109): the fade between records
 through a service chapter, and the size of the window's bank.
+
+## §111 The quiet (SHIPPED v0.11.20 — §96 recommendation 5, the absences, part three)
+
+Owner: *"Break remaining work into smaller pieces"*. The last of
+the absences' three pieces: the two absences the desk chooses, the
+declared hiatus and the personal break. With it §96's
+recommendation 5 is closed.
+
+**The finding** (§96): "the absences are the purest plan → wait →
+result loops left". A declared hiatus is a bet with two halves. The
+members rest, and the wait banks anticipation the return converts.
+The card said how many weeks and whether the patience held, and
+gave no number. The bank's arithmetic was read once, by the release
+sheet, after the bet was over. Nothing said when the rest was in.
+Nothing said when the bank was full, the week from which every
+further week only costs. A personal break was ended by hand from
+her file, and the file had to be opened to learn whether she was
+rested.
+
+The weekly draws nothing.
+
+**The bank is one formula** (`KP.hiatusBank`). It is the release
+sheet's own arithmetic, lifted out so the card and the letters read
+the number the release will: nothing through the six weeks of
+patience, three quarters of a point a week after, the cap of 10 in
+week 19. No value changed.
+
+**The bet is a read** (`KP.hiatusRead`, pure): how long, how much
+patience is left, what a return announced this week would read, the
+week the bank is full, how tired the members are, and what the
+cooling has cost. The cost is measured, not estimated: the week the
+patience runs out stamps the act's popularity, before that week's
+cooling, and the read is the difference. A service chapter is not a
+bet and has no read; its card and its letters are §109 and §110.
+
+**The card carries it.** Under the hiatus card, twelve weeks in: "A
+return announced this week would read +5 of a possible +10 on the
+release sheet's return row. The bank is full May · Wk 4 · Y1, in 7
+weeks. Popularity is down 5.4 since the patience ran out. The rest
+has done its work." Past the patience the card used to say "the
+rest is still working, and so is the forgetting", which the read
+beside it could contradict. It says the forgetting is working. The
+walk-down letter (`hiatusCooling`) said the same sentence the week
+after the rest was in; it reads the bet now.
+
+**Each half says when it is done.** The rest (`hiatusRested`): the
+week the members' average fatigue reaches 10. It says where the
+patience stands and that what the hiatus buys from here is the wait
+alone. The bank (`hiatusFull`): the week the bank fills. "No week
+after this one adds to it. From here every week only costs." A
+hiatus a service chapter left behind gets neither: its weeks were
+counted from the chapter, and the gate's ceremony (§109) spoke for
+that wait.
+
+**A personal break rests** (a repair, measured before building). A
+member on a break recovered 2.5 fatigue a week. Her idle groupmates
+recovered about 5. The idol week stops for her, so the break's own
+relief was all she got, and the rest the statement promised was
+slower than doing nothing. From 80 she needed 24 weeks to reach 20.
+The break now takes off an idle week's recovery, scaled by her age
+like anyone's, and its own relief on top: 10.5 a week. From 80 she
+is at 17 in six weeks.
+
+**She says when she is rested** (`breakRested`): the week her
+fatigue reaches 20. How long, that the act went on as three without
+her (unless the act is parked too), that the seat is kept, and
+where the break ends. Her file's button says "rested" or "still
+resting", and stands out when she is.
+
+**The story's break is twelve weeks** (a second repair, found
+writing that last sentence). A severity-three story forces a break,
+and the response desk says of it: "Twelve weeks, minimum. The story
+chose the calendar." The file's button ended that break the same
+week, "back after 0 weeks", so the third severity cost one tap more
+than the second. The date an early return left on the file then
+ended whatever break the desk granted next. The break knows the
+story forced it now (`forced`). The desk's verb refuses it and
+gives the date (`KP.breakLock`). The file shows a line that cannot
+be pressed: how long, how rested, the week she is back. The clock
+ends that break and no other. Her rested letter names the date and
+offers the desk nothing. Every break the census sees is of this
+kind, because the bot grants none and never ended one, so no
+simulated career could move from the lock.
+
+**The letters come the week the screen says so** (a third repair,
+found by a probe after the suite was green). The first cut sent the
+letters from the absence rail, which runs before the two rails that
+do the resting. So the card and the file said rested a week before
+the letter did, and the bank's letter gave a cost one week short of
+the card's (11.4 against 12.0). The suite's check was "the read
+says rested when the letter comes", which was true a week late. The
+letters have their own rail now (`quiet`, after the member desk and
+the hiatus); the cost's stamp stays where it was, before the
+cooling. The suite pins all three: the card never says rested
+before the letter, the file never does, and the letter's cost is
+the card's.
+
+**The letters land** (a fourth repair, found by counting what
+reached the Desk). The rest's letter and the break's were `high`.
+The week keeps five letters below critical, in the order they were
+pushed, and these are pushed late. Over 40 careers the budget cut
+17 of the rest's 87 letters and 3 of the break's 8. Each one's
+stamp had already burned, so it was never said. All three of this
+piece's letters are critical now, the standing law for a one-shot
+(§89 B), and the same 40 careers cut none. The ledger had counted
+what the engine composed. *The same count on the wait's letters
+(§110)*, across the long haul's eleven scenarios: 9 of 11 day-100
+letters cut, 6 of 11 letters from the base, 8 of 10 turns. §110's
+"Measured" paragraph counted compositions, not deliveries. That
+repair is the next piece.
+
+**Old saves** (migration 0.11.20). A hiatus whose rest is already
+in, or whose bank is already full, is stamped, so neither letter
+arrives as late news; the card shows the read either way. A break
+already rested is stamped the same way. A forced break in flight is
+marked as one, by the week it began against the story's clock.
+
+**Read in a browser.** The locked line's return week broke after
+the month ("back Apr ·", then "Wk 2 · Y1"). A span around it kept
+it whole and split the button into two columns. Its own spaces do
+not break now, and the line is one run of text.
+
+**Measured.** Over 200 careers the rest was said 507 times, in 190
+of them; 62 members on a break were told they were rested; 54 acts
+were still parked at the end. No bank filled: the bot announces its
+return from week 12 and the bank fills in week 19, so that band's
+floor is zero by measurement. The long haul's eleven scenarios
+filled 14.
+
+The rows moved, and by one cause. At 40 careers 18 of 346 older
+rows moved, 17 by one career and one by two. At 200, 102 moved: 70
+by one career, 23 by two, 7 by three, 2 by four. None left its
+band, and two rows are new. Under the same 200 careers with the
+break's old rate and everything else in, none of the 346 moved. The
+break's rate is the whole cause: members came back rested where
+they came back tired. The lock, the letters' rail and their
+priority moved one number between them, the rest's count at 40
+careers (87 where it was 86).
+
+Suite_130 (177): the engine, the group page and the file rendered
+through the DOM stub. Mutation-checked against 127 broken lines,
+each caught by a named assertion. Four were not on the way: of the
+first 93, one survived a check that assumed its result, one broke a
+guard that guarded nothing, and one crashed the suite; of the
+lock's, one survived because the refusal was only read for a woman.
+Each got a check, a guard or a deletion. A real-browser pass that
+brings each letter to the Desk through the real weekly, reads the
+card and the file, and rides a forced break to its date (40 checks,
+no page errors). Battery 130/130, soak 40 clean, census 200 clean,
+longhaul 11 × 620 clean, e2e 137, lockstep 0.11.20.
+
+*Left for the next piece.* The letters that land: the wait's marks
+and the window's closing letter, with the checks counting what
+reaches the Desk. Then recommendation 6, the other side of the
+wall, in pieces. *Still the owner's to call* (§109): the fade
+between records through a service chapter, and the size of the
+window's bank.
 
 ## §18 Watch items
 
@@ -15441,6 +15598,31 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 129/129, soak 40 clean, census 200 clean, longhaul 11 × 620 clean,
 > e2e 137, a real-browser pass (29), lockstep 0.11.19. Rode to main.
 > Next piece: the quiet.
+
+> **0.11.20 — the quiet.** Own judgment, under "Approved to tackle as
+> much of the remaining queue as you see fit" and "Break remaining
+> work into smaller pieces": the last of the absences' three pieces,
+> and the end of §96's recommendation 5. §111: a declared hiatus is a
+> bet with two halves, and neither said when it was done. The bank is
+> one formula the release, the card and the letters read. The bet is a
+> read on the card: what a return would read today, when the bank is
+> full, what the cooling has cost. The rest says when it is in and the
+> bank when it is full. A personal break says when she is rested. Four
+> repairs, each found by measuring. A break rested slower than an idle
+> week (2.5 a week against about 5; 10.5 now). A break a story forced,
+> which the game calls "twelve weeks, minimum", could be ended from
+> the file the same week; it is locked to its date. The letters came a
+> week after the screen said rested; they have their own rail, after
+> the rest. And as high letters the week's budget cut one in five with
+> its stamp already burned; they are critical, and none is cut. The
+> same count shows the wait's letters (§110) cut far more often, and
+> §110 counted compositions: that is the next piece. The rows moved by
+> one cause, the break's rate: 18 of 346 at 40 careers and 102 at 200,
+> none out of its band; with the old rate under the same careers,
+> none. Suite_130 (177), 127 mutations caught by name. Battery
+> 130/130, soak 40 clean, census 200 clean, longhaul 11 × 620 clean,
+> e2e 137, a real-browser pass (40), lockstep 0.11.20. Rode to main.
+> Next piece: the letters that land.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

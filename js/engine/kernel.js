@@ -236,6 +236,7 @@
     if (KP.acrossLedger) KP.acrossLedger(state);     // a departed artist's next chapter (v0.11.12, §103)
     if (KP.postingLedger) KP.postingLedger(state);   // the list on the door (v0.11.17, §108)
     if (KP.returnLedger && state.serviceLedger) KP.returnLedger(state);   // the return's sums ride the service ledger (v0.11.18, §109)
+    if (KP.quietLedger) KP.quietLedger(state);       // the hiatus and the break say when the rest is in (v0.11.20, §111)
     state.deadShorts = state.deadShorts || [];   // the registry exists from week one, so a fork never creates it in a different order
     return state;
   };

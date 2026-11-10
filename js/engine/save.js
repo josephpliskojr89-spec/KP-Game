@@ -1305,6 +1305,28 @@
     if (KP.ensureLedgers) KP.ensureLedgers(state);
   } });
 
+  // v0.11.20 — the quiet. A hiatus or a break an old file is already in has
+  // passed its letters' weeks or it has not: one whose rest is in, or whose
+  // bank is full, is stamped so the letter is not sent as late news. The
+  // card shows the read either way.
+  MIGRATIONS.push({ v: '0.11.20', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+    (state.groups || []).forEach(g => {
+      const r = KP.hiatusRead ? KP.hiatusRead(state, g) : null;
+      if (!r) return;
+      if (r.rested) g.hiatus.restedNoted = true;
+      if (r.full) g.hiatus.fullNoted = true;
+    });
+    Object.values(state.people || {}).forEach(p => {
+      const brk = p.flags && p.flags.personalHiatus;
+      // a break in flight that a story forced is marked as one: it began the week
+      // the story's clock was set (a break granted after an early return did not)
+      if (brk && p.flags.scandalBreakUntil != null && brk.since <= p.flags.scandalBreakUntil - KP.C.SCANDAL.hiatusWeeks) brk.forced = true;
+      const r = brk && KP.breakRead ? KP.breakRead(state, p) : null;
+      if (r && r.rested) brk.restedNoted = true;
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

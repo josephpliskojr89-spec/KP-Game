@@ -820,7 +820,20 @@
         }
       }
       if (p.flags.personalHiatus) {
-        row.push('<button class="btn small" data-action="end-break" data-id="' + p.id + '">End the personal break · week ' + (state.week - p.flags.personalHiatus.since) + '</button>');
+        // rested or not, on the button that ends it (v0.11.20, §111): the file had to be polled
+        const br = KP.breakRead ? KP.breakRead(state, p) : null;
+        const lock = KP.breakLock ? KP.breakLock(state, p) : null;
+        const how = ' · week ' + (state.week - p.flags.personalHiatus.since) + (br ? (br.rested ? ' · rested' : ' · still resting') : '');
+        // a break a story forced runs to the statement's date, and the desk cannot end it
+        // (v0.11.20, §111): the button ended it the same week, and said nothing of the date
+        if (lock != null) {
+          row.push('<button class="btn small" disabled title="' + UI.esc('The story chose this calendar. The desk cannot shorten it.') + '">The story’s break' + how +
+            // the week she is back stays on one line (seen in a browser: it broke after the month,
+            // and a span around it made the button two columns), so its own spaces do not break
+            ' · back&nbsp;' + UI.esc(KP.weekLabel(lock).text).replace(/ /g, '&nbsp;') + '</button>');
+        } else {
+          row.push('<button class="btn small' + (br && br.rested ? ' primary' : '') + '" data-action="end-break" data-id="' + p.id + '">End the personal break' + how + '</button>');
+        }
       } else if (inRealGroup) {
         row.push('<button class="btn small" data-action="member-break" data-id="' + p.id + '">Grant a personal break</button>');
       }
