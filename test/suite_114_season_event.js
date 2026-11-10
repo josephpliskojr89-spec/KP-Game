@@ -24,6 +24,12 @@ function castWithOurs(seed) {
   const sc = state.scenes.find(x => x.kind === 'seasonInvite');
   if (sc) KP.resolveScene(state, sc.id, 'two');
   const ours = KP.seasonOurs(state).map(c => state.people[c.personId]);
+  // (re-pinned v0.11.14, §105) forced: the two we send are strong enough to
+  // stay on the show to its last week. Who the invite picks is the stream's
+  // business, and every check below reads what happens to them while they
+  // are on it: the old fixture relied on this seed's pair surviving, and a
+  // stream that moved sent a pair that was cut in its first month.
+  ours.forEach(p => KP.C.TALENTS.forEach(d => { p.talents[d].cur = 96; p.talents[d].ceilLo = 96; p.talents[d].ceilHi = 99; }));
   return { state, ours, s: state.season };
 }
 const tick = (state, n) => { for (let i = 0; i < n; i++) { state.budget = Math.max(state.budget, 9000); KP.advanceWeek(state); } };

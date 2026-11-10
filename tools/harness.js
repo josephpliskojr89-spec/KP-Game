@@ -653,6 +653,11 @@ const BANDS = {
   // trainee's two best reads, so a room is drilled whenever it is one of
   // them. Floors only: the room must be drilled somewhere and a moment
   // must be told somewhere, in most careers.
+  // the talk and the slot (v0.11.14, §105 — measure-first): the talk is a
+  // question wherever it is called; the bot gives the closing slot to a
+  // trainee one sheet from the talk.
+  talkQuestion:      { lo: 0.60, hi: 1.00, label: 'orgs asked how the after-eval talk gets said' },
+  slotGiven:         { lo: 0.30, hi: 1.00, label: 'orgs that gave the showcase’s closing slot to somebody' },
   missionDrilled:    { lo: 0.60, hi: 1.00, label: 'orgs where a trainee drilled a whole month’s room' },
   missionMoment:     { lo: 0.60, hi: 1.00, label: 'orgs where the sheet told one thing from the room' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
@@ -884,7 +889,7 @@ const tally = {
   contentPosted: 0, contentHit: 0,
   fundPitched: 0, fundFinanced: 0, fundPassed: 0,
   evalHeld: 0, projectTalkSeen: 0, traineeQuitAsked: 0, traineeGone: 0,
-  missionDrilled: 0, missionMoment: 0,
+  missionDrilled: 0, missionMoment: 0, talkQuestion: 0, slotGiven: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -1693,9 +1698,31 @@ for (let s = 0; s < SEEDS; s++) {
         KP.resolveScene(state, sc.id, cold && opts3.some(o => o.id === 'fans') ? 'fans' : opts3[0].id);
         return;
       }
+      // the after-eval talk (v0.11.14, §105): a trainee who is already low
+      // gets the month one on one when the books allow it; otherwise it is
+      // left with the coaches, as it always was. The bot never says it
+      // straight: that answer is suite-held.
+      if (sc.kind === 'afterEvalTalk') {
+        const tp = state.people[sc.personId];
+        const optsT = KP.sceneDef('afterEvalTalk').options(state, sc);
+        const room = tp && tp.morale < 55 && state.budget >= 150 && optsT.some(o => o.id === 'room');
+        KP.resolveScene(state, sc.id, room ? 'room' : 'coaches');
+        return;
+      }
       const def = KP.sceneDef(sc.kind);
       if (def) KP.resolveScene(state, sc.id, def.options(state, sc)[0].id);
     });
+
+    // the closing slot (v0.11.14, §105): a trainee one sheet from the talk
+    // is given the last slot of the showcase, if nobody has been yet
+    if (KP.showcaseSlotRead) {
+      const slot = KP.showcaseSlotRead(state);
+      if (slot && slot.byCoaches) {
+        const atRisk = state.roster.map(id => state.people[id]).find(tp => tp && tp.status === 'trainee' && !KP.onBreak(tp) &&
+          tp.evalBottomStreak === KP.C.EVAL.bottomTalkAfter - 1 && tp.id !== slot.aceId);
+        if (atRisk) KP.setShowcaseSlot(state, atRisk.id);
+      }
+    }
 
     // the company's voice (v0.9.6): launch the lightstick once the fandom
     // that exists can pay for the run (v0.11.5: the run is sized by
@@ -2350,7 +2377,12 @@ for (let s = 0; s < SEEDS; s++) {
   const evl = state.evalLedger || {};
   if ((evl.talks || 0) >= 1) tally.evalTalked++;
   // the mission (v0.11.13, §104): the census's own sums, printed below the bands
-  ['sheets', 'missions', 'drilledFull', 'drilledClimbs', 'moments', 'lineCross', 'talks'].forEach(k => { missionSum[k] = (missionSum[k] || 0) + (evl[k] || 0); });
+  ['sheets', 'missions', 'drilledFull', 'drilledClimbs', 'moments', 'lineCross', 'talks',
+    'talkAsked', 'talkCoaches', 'talkStraight', 'talkRoom', 'talkUnanswered', 'talkUnasked', 'coachClimbs', 'coachMisses', 'straightClimbs', 'slots', 'slotSnubs']
+    .forEach(k => { missionSum[k] = (missionSum[k] || 0) + (evl[k] || 0); });
+  // the talk and the slot (v0.11.14, §105)
+  if ((evl.talkAsked || 0) >= 1) tally.talkQuestion++;
+  if ((evl.slots || 0) >= 1) tally.slotGiven++;
   if ((evl.drilledFull || 0) >= 1) tally.missionDrilled++;
   if ((evl.moments || 0) >= 1) tally.missionMoment++;
   const ptl = state.pointLedger || {};
@@ -2920,6 +2952,11 @@ console.log('\n--- the last bow: three careers, one door each (3 seeds x 90 week
 console.log('\nthe mission: showcases ' + (missionSum.missions || 0) + ' (sheets ' + (missionSum.sheets || 0) + ') · trainee-months drilled whole ' + (missionSum.drilledFull || 0) +
   ' · sheets that named a climb for it ' + (missionSum.drilledClimbs || 0) + ' · moments told ' + (missionSum.moments || 0) + ' · months the line was crossed ' + (missionSum.lineCross || 0) +
   ' · after-eval talks ' + (missionSum.talks || 0));
+// the talk and the slot (v0.11.14, §105)
+console.log('the talk: called ' + (missionSum.talks || 0) + ' · asked ' + (missionSum.talkAsked || 0) + ' (left with the coaches ' + (missionSum.talkCoaches || 0) + ', said straight ' + (missionSum.talkStraight || 0) +
+  ', a month one on one ' + (missionSum.talkRoom || 0) + ', unanswered ' + (missionSum.talkUnanswered || 0) + ') · never asked, held by the coaches ' + (missionSum.talkUnasked || 0) +
+  ' · the month one on one: off the bottom ' + (missionSum.coachClimbs || 0) + ', still there ' + (missionSum.coachMisses || 0) +
+  ' · closing slots given ' + (missionSum.slots || 0) + ' (a custom holder passed over ' + (missionSum.slotSnubs || 0) + ')');
 
 // age census: 15-16 the norm, 14 a hard floor (owner's law, v0.3.1)
 const ageMean = allAges.reduce((a, b) => a + b, 0) / allAges.length;
