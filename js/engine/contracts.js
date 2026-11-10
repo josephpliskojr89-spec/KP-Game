@@ -422,6 +422,14 @@
       g.rooms = null;
       if (g.members.length) KP.assignRooms(state, g);
     }
+    // the alumni list (v0.11.10, §101): every door out of a lineup runs
+    // this sweep last, so it is the one place a group learns who it lost.
+    // A disband sweeps members still in the lineup: those are the final
+    // lineup, not alumni.
+    if (!g.members.includes(pid)) {
+      g.alumni = g.alumni || [];
+      if (!g.alumni.some(a => a.id === pid)) g.alumni.push({ id: pid, week: state.week });
+    }
   };
 
   KP.lineupSurgery = function (state, g, p, warm, push) {
@@ -487,6 +495,10 @@
         // scheduled dies with the act, and retiredWeek becomes a real
         // gate every desk checks — not a write-only stamp.
         g.retiredWeek = state.week;
+        // the record keeps who was standing at the end (v0.11.10, §101):
+        // only the disband verb wrote this, so an act that ended with its
+        // last contract read "0 members" in the archive
+        g.finalLineup = [p.id];
         g.prep = null; g.demos = null; g.tour = null;
         g.hiatus = null; delete g.returnFrom;
         g.promoUntil = 0; g.rollout = null; delete g.catalogPush;   // nobody promotes an empty act (audit v0.11.3)

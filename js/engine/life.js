@@ -270,6 +270,21 @@
       if (g.debuted && state.week > g.debutWeek &&
           (state.week - g.debutWeek) % KP.C.WEEKS_PER_YEAR === 0) {
         const years = (state.week - g.debutWeek) / KP.C.WEEKS_PER_YEAR;
+        // a concluded group has no anniversary live (v0.11.10, §101): the
+        // letter had the members streaming from the practice room for an
+        // act with nobody in it. The fandom keeps the date for a few
+        // years, quietly, and nobody's morale moves.
+        if (g.retiredWeek) {
+          if (g.fandom && state.week - g.retiredWeek <= KP.C.FAREWELL.memorialYears * KP.C.WEEKS_PER_YEAR) {
+            inbox.push({ kind: 'public', ind: 'anniversaryKept', priority: 'normal', groupId: g.id, years,
+              text: KP.lineFor(state, 'annivKept|' + g.id, [
+                'It would have been ' + g.name + '’s ' + years + '-year anniversary week. The café banner changed at midnight anyway: ' + g.fandom.name + ' keeps the archive, and the archive keeps the date.',
+                g.name + '’s debut date came around again, ' + years + ' year' + (years === 1 ? '' : 's') + ' on. Nobody streamed from the practice room this time. ' + g.fandom.name + ' posted the old stages frame by frame, on schedule.',
+                years + ' year' + (years === 1 ? '' : 's') + ' since ' + g.name + '’s debut stage. The group is concluded and the hashtag is not: it trended for an afternoon, mostly photographs.',
+              ]) });
+          }
+          return;
+        }
         g.members.forEach(id => {
           const m = state.people[id];
           if (m) { m.morale = KP.clamp(m.morale + KP.C.ANNIV.morale, 0, 100); KP.socialSpike(state, m, KP.C.ANNIV.spike, 'anniv'); }

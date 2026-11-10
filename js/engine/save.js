@@ -1172,6 +1172,31 @@
   MIGRATIONS.push({ v: '0.11.9', fn: function (state) {
     if (KP.ensureLedgers) KP.ensureLedgers(state);
   } });
+  // 0.11.10 (the long goodbye, §101): the farewell ledger exists from week
+  // one. A group's alumni are read back off the files that already say who
+  // left it (the departed and graduated chapters name the group), and an act
+  // that ended with its last contract gets the final lineup it never had:
+  // whoever left last. A lap in flight keeps its date (the clock's own) and
+  // gains nothing it cannot know: no week it began, so a company that was
+  // never asked the question is not charged for a sudden goodbye.
+  MIGRATIONS.push({ v: '0.11.10', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+    (state.groups || []).forEach(g => {
+      if (g.alumni) return;
+      const out = [];
+      Object.values(state.people || {}).forEach(p => {
+        if ((g.members || []).includes(p.id)) return;
+        const ch = (p.chapters || []).slice().reverse().find(c => (c.kind === 'departed' || c.kind === 'graduated') && c.group === g.name);
+        if (ch) out.push({ id: p.id, week: ch.week });
+      });
+      if (!out.length) return;
+      g.alumni = out.sort((a, b) => a.week - b.week || (a.id < b.id ? -1 : 1));
+      if (g.retiredWeek && !(g.finalLineup || []).length) {
+        const last = g.alumni[g.alumni.length - 1].week;
+        g.finalLineup = g.alumni.filter(a => a.week === last).map(a => a.id);
+      }
+    });
+  } });
 
   KP.migrate = function (state) {
     const applied = [];

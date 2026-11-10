@@ -243,6 +243,7 @@
       suddenGrudge: 1,           // ...and the fandom remembers who knew
       brokenRoomMorale: 3,       // a promised ending that never came: the room watched (subtracted)
       bowRoomMorale: 2,          // the bow gives the room some of its grief back
+      memorialYears: 3,          // a concluded group's fandom keeps the debut date this long
     },
 
     // ---- The regional schools (v0.9.16): the pipeline has addresses ----
