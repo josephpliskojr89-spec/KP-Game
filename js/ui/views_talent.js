@@ -58,15 +58,19 @@
   // ---- the alumni (v0.11.10, §101): every artist whose contract ended here.
   // The file "stays open forever" and no list reached it. Newest goodbye first.
   UI.alumniList = function (state) {
-    const list = Object.values(state.people).filter(p => p.status === 'departed')
-      .sort((a, b) => (b.flags.departedWeek || 0) - (a.flags.departedWeek || 0) || (a.id < b.id ? -1 : 1));
+    // (v0.11.12, §103) an alumna who signed across the street, debuted
+    // there, or built a life outside the industry is still on this list:
+    // the list is who was ours, and the line is where she is now
+    const list = KP.alumniOf ? KP.alumniOf(state) : Object.values(state.people).filter(p => p.status === 'departed');
     if (!list.length) return '';
     return '<div class="kicker">Alumni · ' + list.length + '</div>' +
       list.map(p => {
         const last = (p.chapters || [])[(p.chapters || []).length - 1];
+        const moved = !!(p.flags && (p.flags.across || p.flags.after)) || p.status !== 'departed';
+        const where = moved && KP.whereNow ? KP.whereNow(state, p).replace(/^./, c => c.toUpperCase()) : (last ? KP.chapterLine(state, last) : 'Left the company');
         return '<div class="talent-row" data-action="open-dossier" data-id="' + p.id + '" style="opacity:.8">' + UI.portrait(p, 'md') +
           '<div class="t-body"><div class="t-name">' + UI.esc(KP.displayName(p)) + '</div>' +
-          '<div class="t-sub">' + UI.esc(last ? KP.chapterLine(state, last) : 'Left the company') + ' · ' + UI.esc(KP.weekLabel(p.flags.departedWeek || 1).text) + '</div></div></div>';
+          '<div class="t-sub">' + UI.esc(where) + ' · ' + (moved ? 'left ' : '') + UI.esc(KP.weekLabel((p.flags || {}).departedWeek || 1).text) + '</div></div></div>';
       }).join('');
   };
 
@@ -355,7 +359,7 @@
       ? UI.esc(p.name.stage)
       : UI.esc(p.name.family) + '<br>' + UI.esc(p.name.given);
     html.push('<div class="dossier-head">' + UI.portrait(p, 'lg') +
-      '<div class="d-id"><div class="d-label">' + (p.status === 'prospect' ? 'Prospect file' : p.status === 'idol' ? 'Artist file' : p.status === 'departed' ? 'Alumni file' : 'Trainee file') + '</div>' +
+      '<div class="d-id"><div class="d-label">' + (p.status === 'prospect' ? 'Prospect file' : p.status === 'idol' ? 'Artist file' : (p.status === 'departed' || (KP.isAlum && KP.isAlum(state, p))) ? 'Alumni file' : 'Trainee file') + '</div>' +
       '<div class="bigname">' + nameHtml + '</div>' +
       '<div class="d-meta">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' +
       (p.gender === 'm' ? 'boy' : 'girl') + ' · ' + UI.esc(sourceLabel(state, p)) +
@@ -384,8 +388,10 @@
         ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:5px">Trainee contract · term ' + paper.term + ' · ends ' + UI.esc(KP.weekLabel(paper.end).text) +
           (paper.notice ? ' · <span style="color:var(--magenta)">the paper is running out</span>' : '') + '</div>'
         : '') +
-      (p.status === 'departed'
-        ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:5px">Departed ' + UI.esc(KP.weekLabel(p.flags.departedWeek || 1).text) + ' · the file stays open forever</div>'
+      ((p.status === 'departed' || (KP.isAlum && KP.isAlum(state, p)))
+        ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:5px">Departed ' + UI.esc(KP.weekLabel(p.flags.departedWeek || 1).text) + ' · the file stays open forever' +
+          // where she is now (v0.11.12, §103)
+          ((p.flags.across || p.flags.after || p.status !== 'departed') && KP.whereNow ? ' · <span style="color:var(--magenta)">now: ' + UI.esc(KP.whereNow(state, p)) + '</span>' : '') + '</div>'
         : '') +
       ((p.status === 'idol' || inLineup)
         ? '<div style="margin-top:8px"><button class="btn small ghost" data-action="open-stagename" data-id="' + p.id + '" style="border:1px solid var(--line)">' + (p.name.stage ? 'Change stage name' : 'Give a stage name') + '</button></div>'

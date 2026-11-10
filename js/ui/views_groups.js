@@ -220,6 +220,7 @@
   // off her own file.
   function nowWord(state, p) {
     if (p.status === 'idol') return KP.groupOf(state, p.id) ? KP.fillPro('on {pos} own calendar', p) : 'still with the company';
+    if (KP.whereNow) return KP.whereNow(state, p);   // across the street, or a life outside (v0.11.12, §103)
     const last = (p.chapters || [])[(p.chapters || []).length - 1];
     return last ? KP.chapterLine(state, last).replace(/^./, c => c.toLowerCase()) : 'gone from the company';
   }

@@ -202,7 +202,7 @@
     if (!gen.torch) {
       let rookieBest = (state.weekReleases || []).reduce((m, wr) => {
         const hit = KP.rivalActById(state, wr.actId);
-        if (!hit || (hit.act.gen || RF.GEN.start) < gen.n) return m;
+        if (!hit || hit.act.alumOf || (hit.act.gen || RF.GEN.start) < gen.n) return m;   // a veteran's solo carries no torch (v0.11.12, §103)
         if (state.week - hit.act.debutWeek > RF.GEN.rookieWeeks) return m;
         return wr.reception > (m ? m.reception : 0) ? { reception: wr.reception, name: wr.actName } : m;
       }, null);

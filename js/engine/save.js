@@ -1212,6 +1212,22 @@
     });
   } });
 
+  // 0.11.12 (§103): the across ledger. An artist who left long before her
+  // next chapter had a clock would have every chapter written in the week
+  // the file is opened; the ones already overdue are spread over the
+  // months ahead instead. Anyone whose date is still to come keeps it.
+  MIGRATIONS.push({ v: '0.11.12', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+    const A = KP.C.ACROSS;
+    Object.values(state.people || {}).forEach(p => {
+      if (p.status !== 'departed' || !p.flags || p.flags.nextAt != null || p.flags.across || p.flags.after) return;
+      const key = [state.seed, p.id, 'across'].join('|');
+      const due = (p.flags.departedWeek != null ? p.flags.departedWeek : state.week) + A.waitMin +
+        Math.floor(KP.hash01(key + '|wait') * (A.waitMax - A.waitMin + 1));
+      if (due <= state.week) p.flags.nextAt = state.week + 2 + Math.floor(KP.hash01(key + '|late') * 30);
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

@@ -233,6 +233,7 @@
     if (KP.eraLedger) KP.eraLedger(state);           // the era's close and the reissue door (v0.11.9, §100)
     if (KP.farewellLedger) KP.farewellLedger(state); // the lap, its door and its readers (v0.11.10, §101)
     if (KP.endingLedger) KP.endingLedger(state);     // how an act ends (v0.11.11, §102)
+    if (KP.acrossLedger) KP.acrossLedger(state);     // a departed artist's next chapter (v0.11.12, §103)
     state.deadShorts = state.deadShorts || [];   // the registry exists from week one, so a fork never creates it in a different order
     return state;
   };

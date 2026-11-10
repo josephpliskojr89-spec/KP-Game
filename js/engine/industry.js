@@ -437,7 +437,7 @@
     const concept = opts.concept ? KP.conceptById(opts.concept) : rng.pick(KP.C.CONCEPTS);
     const act = {
       id: newActId(state), gender: opts.gender || 'f',
-      gen: (state.gen && state.gen.n) || KP.C.RISEFALL.GEN.start,
+      gen: opts.gen || (state.gen && state.gen.n) || KP.C.RISEFALL.GEN.start,
       name: opts.name || KP.genGroupName(rng, usedActNames(state)), concept: concept.id,
       quality: actQualityFromMembers(state, members, rival.prestige, rng),
       members, popularity: opts.popularity || 0,
@@ -445,6 +445,9 @@
       cycleWeeks: rng.int(I.cycleWeeks[0], I.cycleWeeks[1]),
       releases: [], retired: false,
     };
+    // a veteran's solo (v0.11.12, §103): marked before the record lands, so
+    // nothing reads a seven-year artist as a rookie
+    if (opts.alumOf) { act.solo = true; act.alumOf = opts.alumOf; }
     rival.acts.push(act);
     const rel = rivalRelease(state, rival, act, rng, true);
     pushMove(rival, 'Debuted ' + act.name);
@@ -525,7 +528,7 @@
     const M = KP.C.MEMORY;
     const narNotes = [];
     const keep = n => { if (n) narNotes.push(n); };
-    if (isDebut && reception >= 75) keep(KP.recordEvidence(state, 'rivalMonsterRookies', 'rivalAct', act.id));
+    if (isDebut && reception >= 75 && !act.alumOf) keep(KP.recordEvidence(state, 'rivalMonsterRookies', 'rivalAct', act.id));
     if (reception >= 64) { act.hitStreak = (act.hitStreak || 0) + 1; act.flopStreak = 0; }
     else if (reception < 40) { act.flopStreak = (act.flopStreak || 0) + 1; act.hitStreak = 0; }
     else { act.hitStreak = 0; act.flopStreak = 0; }

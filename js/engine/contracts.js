@@ -561,6 +561,9 @@
     p.status = 'departed';
     p.flags.departedWeek = state.week;
     p.flags.departMode = mode;
+    // the shape of the goodbye stays on her file (v0.11.12, §103): what she
+    // says across the street is read off how she left
+    p.flags.departShape = bye ? bye.shape : (warm ? 'plain' : 'cold');
     const released = !!bye && bye.shape === 'released';
     KP.chapter(state, p, 'departed', Object.assign({ co: state.company.short, group: g ? g.name : null, mode: warm ? 'warm' : 'cold' },
       released ? { how: 'released' } : {}));   // the file (v0.10.33)

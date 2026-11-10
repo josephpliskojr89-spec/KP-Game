@@ -272,6 +272,27 @@
       glowRecord: 0.5,           // ...and after a last era
     },
 
+    // Across the street (v0.11.12, §103). A departed artist's file stayed
+    // open forever and nothing was ever written in it again. She has a next
+    // chapter now, on a clock of her own: another house signs her as a
+    // soloist and she debuts there, against the company she left, or she
+    // builds a life outside the industry and the file says which. How she
+    // left decides the tone, and the tone has one small consequence.
+    ACROSS: {
+      waitMin: 12, waitMax: 40,  // weeks after she leaves before the next chapter is written
+      signBase: 0.4,             // the chance another house signs her...
+      signPerFame: 0.12,         // ...per step of her own name (0-4, the renewal table's fame)...
+      coldBonus: 0.15,           // ...and likelier when leaving was not her idea
+      ageFrom: 27, agePerYear: 0.06,   // the market's clock, from this birthday on
+      starFame: 2,               // a name this big signs with the top half of the street
+      debutMin: 6, debutMax: 16, // weeks from the signing to her first record there
+      seedPop: 18, seedPerFame: 12,    // she does not debut as an unknown
+      trustBow: 1,               // she thanked the company by name: the board read it
+      trustCold: -2,             // the announcement did not mention the company: the board read that too
+      grudgeSudden: 1,           // the fandom of the act she left remembers how she had to go
+      friendMorale: 2,           // a close friend still in the building, on her debut day
+    },
+
     // ---- The regional schools (v0.9.16): the pipeline has addresses ----
     // Persistent named academies in the home circuit's cities. Each has a
     // specialty lane, an alumni ledger, and a reputation that moves with

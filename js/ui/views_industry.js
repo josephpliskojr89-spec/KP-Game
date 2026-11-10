@@ -237,7 +237,7 @@
         (a.servicePause ? ' <span style="font-size:.62rem;color:var(--magenta)">in service</span>'
           : a.serviceRotation ? ' <span style="font-size:.62rem;color:var(--magenta)">rotation</span>' : '') + '</span>' +
         '<span class="rv-act-note">' + KP.popularityWord(a.popularity) + ' fanbase · ' +
-        (a.members || []).length + ' members · ' +
+        (a.solo ? 'solo' + (a.alumOf ? ', formerly ours' : '') : (a.members || []).length + ' members') + ' · ' +
         (a.releases || []).length + ' release' + ((a.releases || []).length === 1 ? '' : 's') + ' ›</span></div>').join('');
       const moves = (r.recentMoves || []).slice(-2).reverse().map(m =>
         '<span class="chip">' + UI.esc(m) + '</span>').join('');
@@ -375,16 +375,25 @@
     if (members.length) {
       html.push('<div class="kicker">Members</div>');
       html.push('<div class="member-strip">');
+      // (v0.11.12, §103) an artist who was ours is not "a face on the
+      // board we lost": she is an alumna, and her cell opens her file
+      const isAlum = m => !!(KP.isAlum && KP.isAlum(state, m));
       members.forEach(m => {
-        const fromBoard = !m.flags.rivalNative;
-        html.push('<div class="member-cell">' +
+        const alum = isAlum(m);
+        const fromBoard = !alum && !m.flags.rivalNative;
+        html.push('<div class="member-cell"' + (alum ? ' data-action="open-dossier" data-id="' + m.id + '" style="cursor:pointer"' : '') + '>' +
           UI.portrait(m, 'md') +
           '<div class="mc-name">' + UI.esc(m.name.stage || m.name.given) + '</div>' +
           '<div class="mc-role">' + m.age + ' · ' + KP.fmtCount(KP.socialOf(state, m)) +
-          (fromBoard ? ' · was on your board' : '') + '</div></div>');
+          (alum ? ' · was ours' : fromBoard ? ' · was on your board' : '') + '</div></div>');
       });
       html.push('</div>');
-      const lost = members.filter(m => !m.flags.rivalNative);
+      members.filter(isAlum).forEach(m => {
+        html.push('<div class="note">' + UI.esc(KP.fillPro(KP.displayName(m) + ' was ours until ' + KP.weekLabel((m.flags || {}).departedWeek || 1).text +
+          '. {She} records for ' + r.short + ' now, on the same chart we release against. {Pos} file is still open on the Talent tab, with every chapter in it.', m)) +
+          '<span class="n-who">— the file room</span></div>');
+      });
+      const lost = members.filter(m => !m.flags.rivalNative && !isAlum(m));
       if (lost.length) {
         html.push('<div class="note">' + UI.esc(lost.map(m => KP.displayName(m)).join(' and ')) +
           (lost.length === 1 ? ' was' : ' were') + ' on our scouting board once. ' + UI.esc(r.short) +

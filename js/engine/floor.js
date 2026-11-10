@@ -81,13 +81,14 @@
       case 'enrolled': return 'Enrolled at ' + (ch.school || 'an academy');
       case 'signed': return 'Signed to ' + co + ({ board: ' off the open board', window: ' after the window closed', late: ', late',
         market: ' off the open market', back: ' — came back', season: ' off the season', inherited: ' (inherited)', opening: '',
-        hosted: ' through the host’s door' }[ch.how] || '');   // the protégé's door (v0.11.0)
+        hosted: ' through the host’s door', solo: ' as a soloist' }[ch.how] || '');   // the protégé's door (v0.11.0); across the street (v0.11.12)
       case 'cut': return 'Cut at ' + co + '’s evaluation';
       case 'released': return { quit: 'Left ' + co, farewell: 'Term ran out at ' + co, scandal: 'Released from ' + co + ' after the story',
         promise: 'Left ' + co + ' over a broken promise', silence: 'Left ' + co + ' unanswered',
         folded: 'Lost ' + co + ' when it folded' }[ch.how] || 'Released from ' + co;   // the last statement (v0.11.0)
       case 'reentry': return 'Back on the open board';
-      case 'debut': return 'Debuted with ' + (ch.group || 'the group');
+      case 'debut': return ch.solo ? 'Debuted solo at ' + co : 'Debuted with ' + (ch.group || 'the group');
+      case 'after': return ch.what || 'Left the industry';   // a life outside it (v0.11.12, §103)
       case 'seasonSent': return 'Sent to ' + ch.show;
       case 'seasonOut': return 'Out of ' + ch.show + (ch.weekNo ? ', week ' + ch.weekNo : '');
       case 'seasonFinalist': return ch.show + ' finalist';

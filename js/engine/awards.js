@@ -31,7 +31,7 @@
           groupId: g.id, score: r0.reception + (g.popularity || 0) * 0.2 + jitter(g.id) });
       });
       (state.rivals || []).forEach(rv => (rv.acts || []).forEach(a => {
-        if (a.retired || (a.debutWeek || 0) < from) return;
+        if (a.retired || (a.debutWeek || 0) < from || a.alumOf) return;   // a veteran's solo is nobody's rookie (v0.11.12, §103)
         const r0 = (a.releases || [])[0];
         if (r0) list.push({ name: a.name, company: rv.short, isPlayer: false,
           score: r0.reception + (a.popularity || 0) * 0.2 + jitter(a.id) });
