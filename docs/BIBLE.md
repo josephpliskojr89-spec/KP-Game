@@ -9486,7 +9486,7 @@ what each member does next. `finalLineup` written on every ending;
 an alumni strip so the open files are reachable; a departed idol who
 can be signed across the street and a letter when she debuts there.
 
-**5. The practice room, attended (the trainee years as episodes; part one, the mission, SHIPPED v0.11.13, §104; part two, the talk and the slot, SHIPPED v0.11.14, §105; part three, the year’s sheet, SHIPPED v0.11.16, §107; part four, the posting, SHIPPED v0.11.17, §108).**
+**5. The practice room, attended (the trainee years as episodes; part one, the mission, SHIPPED v0.11.13, §104; part two, the talk and the slot, SHIPPED v0.11.14, §105; part three, the year’s sheet, SHIPPED v0.11.16, §107; part four, the posting, SHIPPED v0.11.17, §108; the absences, part one, the return, SHIPPED v0.11.18, §109).**
 The evaluation sheet on a priority ladder (critical at a first #1,
 the line or the talk; high within one of the line; flavor only when
 nothing moved) naming the month's mission, her place and movement,
@@ -11366,6 +11366,140 @@ clean, census 200 clean, longhaul 11 × 620 clean, e2e 137, lockstep
 
 *Left for the next piece.* The absences' cadence: the last part of
 §96's fifth entry.
+
+## §109 The return (SHIPPED v0.11.18 — §96 recommendation 5, the absences, part one)
+
+Owner: *"Break remaining work into smaller pieces"*. The absences
+are the last part of the fifth entry, and they are three pieces: the
+return (this one), the wait, and the quiet.
+
+**The finding** (§96): "The absences are the purest plan → wait →
+result loops left: a two-year service chapter is a chip and a
+date."
+
+This piece is the result end. When the last man came home the desk
+got one `high` letter with one sentence in it for every act ("every
+member home, every clock running… The window is open."). The window
+was 24 weeks, stored as the week it opened, and no screen read it.
+Nothing said when it was closing and nothing said when it closed.
+
+The weekly draws nothing. The timeline reacts to the ceremony and
+to the lapse, one pick each, as it does to every letter it has a
+reaction for.
+
+**The chapter** (`g.wait`). The stretch an act is short is a
+record: the week the first one left, who that was, how many went.
+The service opens it as each man leaves and the ceremony closes it.
+Two men away at once are one chapter. A man who leaves after the
+act was whole again opens a new one.
+
+**The ceremony** (`KP.wholeAgain`, critical: the window opens
+whether or not the letter survives the week, so it must). It reads
+the chapter. One man of a stagger: he came through the gate this
+week, so many weeks after he went in. Together: all four, the same
+week, so many weeks after they went in together (two is "both").
+Two away at once: the last one home, counted from the first one
+out. Then the window's last week by name, and what a record locked
+inside it is worth.
+
+**In the release sheet's points, not the engine's.** The first
+wording said the return's "countdown opens at 26". Read in a
+browser, that number means nothing: no screen shows the build-up.
+What the 26 comes to where the player can see it is the release
+sheet's anticipation row, and there it is about a point
+(`KP.returnWorth`: the banked build-up over the sheet's rate). The
+letters, the card and the Studio say that.
+
+**The window is one read** (`KP.returnRead`, pure): its last week,
+the weeks left, whether it is open, whether it is closing. The
+group page shows a card and a chip from it. The Studio's button
+reads "Lock the return" while it is open, with a note that the lock
+is what counts and not the date. The lock itself reads the same
+read, and a window spent is counted.
+
+**Closing, and closed.** Four weeks out, a `high` letter. The week
+after its last week, the window is cleared and a critical letter
+says so: it stood open 24 weeks, no record was locked inside it,
+and the next record's build-up starts from nothing. An act that
+ended takes its window with it, quietly.
+
+**A soloist's service is the act's service chapter** (a repair,
+found by probe before anything was built). A group that enlists
+together goes on a service hiatus and the hiatus clock does not
+cool it. A soloist's act had none. So the desk could declare an
+ordinary hiatus over a man in service, and the forgetting ran for
+the whole of it: 40 popularity to 0 over the service, where the
+same act left alone came home at 19.5. The whole act away is now a
+service chapter once the calendar is clear, at the enlistment or
+the first clear week after it; a declared hiatus already running
+becomes the chapter from its own first week; and the desk is told
+why it cannot declare one. Pinned to the number: ten weeks of the
+chapter cost 3.5, the fade between records, where the declared
+hiatus cost 9.5.
+
+His letters are one person's. The ceremony said "is whole again —
+every member home" of a one-man act, and the gate letter had him
+met by "managers, members, and a coffee truck". He is home, the
+solo desk is open again, and his managers met him.
+
+**Three things the page said that the engine did not do.**
+The service card said "Nothing cools while the reason is the law".
+The hiatus clock stops; the fade between records does not, and it
+halves an act over a service. The card says which is which. The
+hiatus card counted the fandom's patience from the announcement, so
+the week everybody came home it read "Past the grace window" while
+the engine had restarted the clock at the gate; it counts from the
+gate. And the return's teaser was "four silhouettes" for every act;
+it is the act's own count.
+
+**Old saves** (migration 0.11.18). A window an old file carries
+gets its last week. One that closed before this version is cleared
+with no letter: the engine already read it as spent. An act that is
+short today gets its chapter. A soloist in service under a declared
+hiatus is read as a service chapter on the first week, and the
+forgetting stops there.
+
+**The long haul.** The soak cannot see any of this: no boy reaches
+notice age in 140 weeks, and the census rows say so. The 40-career
+soak is the same output as v0.11.17's, line for line, and at 200
+careers all 346 rows read as they did, line for line. The long
+haul's service scenario is where it is measured, and it gained a
+man who debuts alone. Seeded beside the boy group in week one, his
+debut emptied the till, the label dissolved in week 26, and the
+scenario measured nothing for 594 weeks while the audit printed
+CLEAN. He arrives in year four now, and a service scenario that
+goes quiet is a flag. Over its 620 weeks: 5 enlisted and 5 home, 2
+acts whole again, 2 windows spent, 0 lapsed, and 1 soloist's
+chapter. Across all eleven scenarios: 4 whole again, 4 spent, 0
+lapsed: the lean bot always locks in time, so the closing letter
+and the lapse are suite-held. Held every tenth week: a soloist in
+service with a clear calendar is in a service chapter; no window
+outlives its last week. Held at the end: every act that came home
+whole had a ceremony; windows spent, lapsed and open never
+outnumber the acts that came home; no window lapsed without a
+closing letter before it.
+
+Suite_128 (208): the engine, the group page and the Studio rendered
+through the DOM stub. Mutation-checked against 121 broken lines,
+each caught by a named assertion; on the first run five survived
+and five crashed the suite, and each got a check or a guard. A
+real-browser pass that brings a man home through the real weekly,
+locks the return through the app, and reads a soloist's chapter,
+the closing letter and the lapse (39 checks, no page errors).
+Battery 128/128, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, e2e 137, lockstep 0.11.18.
+
+*Seen and not changed here, because they are balance and the
+owner's to call.* The fade between records runs through a service
+chapter: an act that goes in at 40 comes home at 19.5.
+The window banks about a point, so a stagger's return is mostly a
+name. A stagger with every member away at once is not a service
+chapter; only a one-person act is.
+
+*Left for the next pieces.* The wait: the service map, the fandom's
+project at day 100, the letter from the base at the half, the
+countdown turning at D-100. The quiet: the hiatus and the personal
+break.
 
 ## §18 Watch items
 
@@ -15142,6 +15276,29 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 127/127, soak 40 clean, census 200 clean, longhaul 11 × 620 clean,
 > e2e 137, a real-browser pass (16), lockstep 0.11.17. Rode to main.
 > Next piece: the absences.
+
+> **0.11.18 — the return.** Own judgment, under "Approved to tackle as
+> much of the remaining queue as you see fit" and "Break remaining
+> work into smaller pieces": the absences are three pieces, and this
+> is the first. §109: the result end of a service was one generic
+> sentence and a 24-week window no screen read. The stretch an act is
+> short is a chapter now; "whole again" is a critical ceremony that
+> reads it and names the window's last week; the window is one read
+> the group page, the Studio and the lock share; a letter says when it
+> is closing and a letter says when it closed. A repair found by
+> probe: a soloist in service had no service chapter, so the desk
+> could declare an ordinary hiatus over him and cool the act to
+> nothing (40 to 0, measured); the whole act away is a service chapter
+> now, in one person's words. Three things the page said that the
+> engine did not do are corrected. The letters speak in the release
+> sheet's points: the first wording quoted a build-up number no screen
+> shows. The soak cannot reach a service and did not move: 346 of 346
+> rows as they were, at 40 careers and at 200. The long haul measures
+> it: 4 acts whole again, 4 windows spent, 1 soloist's chapter.
+> Suite_128 (208), 121 mutations caught by name. Battery 128/128, soak
+> 40 clean, census 200 clean, longhaul 11 × 620 clean, e2e 137, a
+> real-browser pass (39), lockstep 0.11.18. Rode to main. Next pieces:
+> the wait, the quiet.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

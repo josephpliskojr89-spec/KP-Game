@@ -257,9 +257,14 @@
     // the wait the fandom has been saving into a running countdown
     let returnStage = false;
     if (g.returnStage) {
-      returnStage = state.week - g.returnStage.week <= KP.C.MIL.returnWindowWeeks;
+      // one read of the window (v0.11.18, §109): the page, the letters and the lock agree
+      const win = KP.returnRead ? KP.returnRead(state, g) : null;
+      returnStage = win ? win.open : state.week - g.returnStage.week <= KP.C.MIL.returnWindowWeeks;
       delete g.returnStage;   // inside or out, the moment is spent at lock
-      if (returnStage) g.prep.buildup = KP.C.MIL.returnBuildup;
+      if (returnStage) {
+        g.prep.buildup = KP.C.MIL.returnBuildup;
+        if (KP.returnSpent) KP.returnSpent(state);
+      }
     }
     KP.note(state, { kind: 'public', ind: 'eraAnnounced', priority: 'high', groupId: g.id,
       text: returnStage

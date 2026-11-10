@@ -324,6 +324,12 @@
         }
         return '';
       })() +
+      // the return window (v0.11.18, §109): open, and counted
+      (function () {
+        const win = KP.returnRead ? KP.returnRead(state, g) : null;
+        return win && win.open
+          ? '<span class="chip hot">return window · ' + win.left + ' wk' + (win.left === 1 ? '' : 's') + '</span>' : '';
+      })() +
       '</div>' +
       // the road manager (v0.11.5, §96 wiring): the name only letters
       // carried, on the header — with the tenure in words
@@ -582,6 +588,10 @@
         '</div>');
     }
 
+    // the return window (v0.11.18, §109): the result end of a service was a
+    // window nobody could see. It has a last week, and the page says it.
+    html.push(UI.returnWindowCard(state, g));
+
     // status / next step
     html.push('<div class="kicker">Next step</div>');
     if (g.prep) {
@@ -620,7 +630,14 @@
       const back = g.members.map(id => state.people[id]).filter(Boolean)
         .filter(m => m.flags && m.flags.military)
         .reduce((w, m) => Math.max(w, m.flags.military.until), 0);
-      html.push('<div class="card"><b>The service chapter</b> — the group enlisted together and the fandom is running the wait like a project. Nothing cools while the reason is the law. Last discharge expected ' +
+      const one = members.length === 1 ? members[0] : null;   // a soloist's service is the act's chapter (v0.11.18, §109)
+      html.push('<div class="card"><b>The service chapter</b> — ' +
+        (one ? UI.esc(KP.fillPro(KP.displayName(one) + ' is in service and the act waits with {her}. The fandom is running the wait like a project.', one))
+          : 'the group enlisted together and the fandom is running the wait like a project.') +
+        // what the engine does (v0.11.18, §109): the hiatus clock stops, the fade
+        // between records does not — the card said nothing cools
+        ' The forgetting a declared hiatus brings does not run while the reason is the law; the slow fade between records still does. ' +
+        (one ? 'Discharge' : 'Last discharge') + ' expected ' +
         (back ? UI.esc(KP.weekLabel(back).text) : 'soon') + ' — and the next date after that is not a comeback, it is a return.</div>');
     } else if (g.jpAway) {
       // the Japan cycle (v0.10.8): in-country weeks, on the record
@@ -631,9 +648,15 @@
       // the disappearance (v0.9.12): parked on purpose, counted weekly
       const hw = state.week - g.hiatus.since;
       const H = KP.C.HIATUS;
+      // the clock the engine cools by (v0.11.18, §109): a service chapter
+      // restarts it at the gate, and the card said "past the grace window"
+      // the week everybody came home
+      const graceLeft = H.graceWeeks - (state.week - (g.hiatus.graceFrom || g.hiatus.since));
       html.push('<div class="card"><b>On official hiatus</b> — ' + hw + ' week' + (hw === 1 ? '' : 's') + ' and counting. ' +
-        (hw <= H.graceWeeks
-          ? 'The announcement is holding: the fans are patient, the members are sleeping, the second jobs have room.'
+        (graceLeft >= 0
+          ? (g.hiatus.graceFrom
+            ? (members.length === 1 ? UI.esc(KP.fillPro('{She} is home', members[0])) : 'Everybody is home') + ', and the gate renewed the fandom’s patience: ' + (graceLeft === 0 ? 'this is its last week' : graceLeft + ' week' + (graceLeft === 1 ? '' : 's') + ' of it left') + ' before the numbers start to cool.'
+            : 'The announcement is holding: the fans are patient, the members are sleeping, the second jobs have room.')
           : 'Past the grace window now — the rest is still working, and so is the forgetting. The return converts the wait into numbers; the wait converts the numbers into less.') +
         '<div style="margin-top:12px"><button class="btn primary" data-nav="studio">Announce the return</button></div></div>');
     } else {
@@ -703,6 +726,23 @@
   }
 
   // ---- builder ---------------------------------------------------------
+  // the return window (v0.11.18, §109) — one card, read from the one read
+  UI.returnWindowCard = function (state, g) {
+    const win = KP.returnRead ? KP.returnRead(state, g) : null;
+    if (!win || !win.open) return '';
+    return '<div class="kicker">The return window</div>' +
+      '<div class="card" style="border-color:var(--gold)">' +
+      '<b>Open until ' + UI.esc(KP.weekLabel(win.until).text) + '</b> — ' +
+      (win.left === 0 ? 'this is its last week.' : win.left + ' week' + (win.left === 1 ? '' : 's') + ' left.') +
+      ' A record locked inside it is THE RETURN: the wait the fandom saved up goes into its build-up, worth ' + UI.esc(KP.returnWorthWords()) + '. ' +
+      (g.prep ? 'The record in production was locked before the gate, so it is not the return.'
+        : 'After that week the next record is a comeback like any other.') +
+      (win.away != null ? '<div style="margin-top:6px;font-size:.72rem;color:var(--ink-dim)">The act was short for ' +
+        win.away + ' week' + (win.away === 1 ? '' : 's') + '. The fandom kept the banner the whole time.</div>' : '') +
+      (g.prep ? '' : '<div style="margin-top:10px"><button class="btn small primary" data-nav="studio">Plan the return</button></div>') +
+      '</div>';
+  };
+
   UI.renderBuilder = function (state, draft) {
     const html = [];
     const trainees = KP.freeTrainees(state).map(id => state.people[id]);

@@ -563,8 +563,17 @@
           '</div></div>');
       }
 
+      // the return window (v0.11.18, §109): the lock is what spends it, so the lock says so
+      const retWin = KP.returnRead ? KP.returnRead(state, g) : null;
+      const isReturn = !!(retWin && retWin.open && g.debuted);
+      if (isReturn) {
+        html.push('<div class="note" style="margin-top:20px">The return window is open until ' + UI.esc(KP.weekLabel(retWin.until).text) +
+          '. Locked this week, this record is THE RETURN whatever date it carries: the wait the fandom saved up goes into its build-up, worth ' +
+          UI.esc(KP.returnWorthWords()) + '.' +
+          '<span class="n-who">— the scheduling office</span></div>');
+      }
       html.push('<div class="pad" style="margin-top:20px">' +
-        '<button class="btn primary" style="width:100%" data-action="studio-lock"' + (draft.week ? '' : ' disabled') + '>Lock the ' + (g.debuted ? 'comeback' : 'debut') + '</button></div>');
+        '<button class="btn primary" style="width:100%" data-action="studio-lock"' + (draft.week ? '' : ' disabled') + '>Lock the ' + (isReturn ? 'return' : g.debuted ? 'comeback' : 'debut') + '</button></div>');
     }
 
     // --- the touring desk (v0.6.8): the other thing a calendar is for ---

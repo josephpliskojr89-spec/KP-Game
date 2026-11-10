@@ -33,6 +33,11 @@
     const g = KP.groupOf(state, p.id);
     p.flags.military = { since: state.week, until: state.week + M.serviceWeeks };
     delete p.flags.personalHiatus;   // the state supersedes the statement
+    // the absences, attended (v0.11.18, §109): the stretch the act is short
+    // is a chapter the return ceremony reads, and a soloist's service is
+    // the act's service chapter
+    if (g && KP.waitOut) KP.waitOut(state, g, p);
+    if (g && KP.soloServiceChapter) KP.soloServiceChapter(state, g);
     p.morale = KP.clamp(p.morale - M.soldierMorale, 0, 100);
     const led = ledger(state);
     led.enlisted++;
@@ -80,7 +85,8 @@
       ' weeks of service. Came back with a straighter spine, a phone full of two years of group chat, and the same job waiting — which is the whole point of the wait.' });
     const g = KP.groupOf(state, p.id);
     const n = { kind: 'public', ind: 'discharged', priority: 'high', personId: p.id,
-      text: KP.fillPro(KP.displayName(p) + ' is BACK — discharged on schedule, met at the gate by managers, members, and a fan-organized coffee truck that was definitely not sanctioned and definitely appreciated. The first photo is a salute and a grin. The quote is “I watched every stage from the base.” The wait is over.', p) };
+      text: KP.fillPro(KP.displayName(p) + ' is BACK — discharged on schedule, met at the gate by ' +
+        (KP.gateLine ? KP.gateLine(state, p, g) : 'managers, members, and a fan-organized coffee truck') + ' that was definitely not sanctioned and definitely appreciated. The first photo is a salute and a grin. The quote is “I watched every stage from the base.” The wait is over.', p) };
     if (g) n.groupId = g.id;
     KP.note(state, n);
     // the return stage: the last man back re-arms the whole machine —
@@ -95,7 +101,10 @@
         g.hiatus.service = false;
         g.hiatus.graceFrom = state.week;
       }
-      inbox.push({ kind: 'company', priority: 'high', groupId: g.id,
+      // the ceremony (v0.11.18, §109): who came home, how long the act was
+      // short, and the window's last week
+      if (KP.wholeAgain) KP.wholeAgain(state, g, p, inbox);
+      else inbox.push({ kind: 'company', priority: 'high', groupId: g.id,
         text: g.name + ' is whole again — every member home, every clock running. The next date this company announces is not a comeback, it is a RETURN, and the room that waited knows the difference. The window is open.' });
     }
   }

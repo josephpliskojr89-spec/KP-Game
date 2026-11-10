@@ -19,6 +19,8 @@
     const g = KP.groupById(state, groupId);
     if (!g || !g.debuted) return { ok: false, reason: 'Only a debuted group can disappear. Everyone else is just unknown.' };
     if (g.retiredWeek || !g.members.length) return { ok: false, reason: 'That chapter is closed. A hiatus needs somebody to come back.' };
+    // a service chapter is already the official wait (v0.11.18, §109)
+    if (g.hiatus && g.hiatus.service) return { ok: false, reason: 'The act is in its service chapter. That wait is already official, and the forgetting a declared hiatus brings does not run while the reason is the law.' };
     if (g.hiatus) return { ok: false, reason: 'They are already gone. Announcing it twice is a comeback in reverse.' };
     if (KP.endingOwed && KP.endingOwed(g)) return { ok: false, reason: 'They owe the fandom one last record. The rest comes after it.' };   // v0.11.11, §102
     if (g.prep) return { ok: false, reason: 'A release is in production. Finish the record or scrap it — not both.' };
@@ -76,9 +78,13 @@
     const weeks = state.week - g.hiatus.since;
     g.returnFrom = { weeks };
     g.hiatus = null;
+    // the teaser shows the act's own count (v0.11.18, §109): it said four for everybody
+    const n = (g.members || []).length;
+    const NUM = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+    const sil = n === 1 ? 'one silhouette' : (NUM[n] || n) + ' silhouettes';
     return KP.note(state, { kind: 'public', ind: 'returnAnnounced', priority: 'high', groupId: g.id,
       text: g.name + ' IS COMING BACK. The announcement post broke the fan cafés within the hour — ' + weeks +
-        ' weeks of quiet, ended by a date and a teaser photo of four silhouettes. The countdown accounts have never been so employed.' });
+        ' weeks of quiet, ended by a date and a teaser photo of ' + sil + '. The countdown accounts have never been so employed.' });
   };
 
   // ---- the read: anticipation lands on the return release ------------

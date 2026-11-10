@@ -89,6 +89,20 @@ function checkIntegrity(seed, week, state) {
       if (id && !g.members.includes(id)) flag(seed, week, g.name + ' role ' + r + ' held by non-member ' + id);
     });
     if (g.maknae && !g.members.includes(g.maknae)) flag(seed, week, g.name + ' maknae is a non-member');
+    // the return (v0.11.18, §109): a soloist in service is the act's
+    // service chapter once the calendar is clear — never a plain gap the
+    // desk could declare an ordinary, cooling hiatus over
+    if (g.debuted && !g.retiredWeek && g.members.length === 1) {
+      const only = person(g.members[0]);
+      if (only && only.flags && only.flags.military && !g.prep && !g.tour &&
+          state.week > (g.promoUntil || 0) && !(g.hiatus && g.hiatus.service)) {
+        flag(seed, week, g.name + ' is a soloist in service with no service chapter');
+      }
+    }
+    // and no return window outlives its last week
+    if (g.returnStage && (!num(g.returnStage.until) || state.week > g.returnStage.until)) {
+      flag(seed, week, g.name + ' holds a return window past its last week');
+    }
     if (g.rooms) {
       const housed = g.rooms.flat();
       if (housed.some(id => !g.members.includes(id))) flag(seed, week, g.name + ' rooms house a non-member');
@@ -373,6 +387,25 @@ function seedBoyGroup(state) {
   }
 }
 
+// one man who debuts alone (v0.11.18, §109): a soloist's service is the
+// whole act away, which no four-man line ever shows. He arrives in year
+// four, once the house is standing: seeded with the boy group in week one,
+// a second debut emptied the till and the label dissolved in week 26 —
+// which silenced the whole scenario, and nothing said so. The bot debuts
+// his lineup when the till allows, like any other.
+const SOLO_SEED_WEEK = 150;
+function seedSoloMan(state) {
+  const rng = KP.rngFor(state);
+  const solo = KP.generatePerson(rng, { status: 'trainee', gender: 'm' });
+  solo.signedWeek = state.week;
+  solo.age = 24;   // papers about two years after he arrives
+  state.people[solo.id] = solo; state.roster.push(solo.id);
+  state.rngState = rng.state();
+  state.nextPersonId = KP.peekNextId();
+  KP.openMandate(state, { kind: 'solo', gender: 'm', source: 'longhaul service fixture' });
+  KP.proposeGroup(state, 'HAULSOLO', [solo.id], KP.roleHints(state, [solo]));
+}
+
 // ---- scenarios ---------------------------------------------------------
 const SCENARIOS = [
   { seed: 'haul-standard-1', mode: 'standard' },
@@ -395,10 +428,15 @@ const SCENARIOS = [
                                                  // wall — gigs, pushes, the ladder
 ];
 
+// HAUL_ONLY=<seed> runs one scenario, for working on a fixture. The audit
+// is all of them, and a partial run says it is partial.
+const RUN = process.env.HAUL_ONLY ? SCENARIOS.filter(sc => sc.seed === process.env.HAUL_ONLY) : SCENARIOS;
+if (!RUN.length) { console.error('no scenario named ' + process.env.HAUL_ONLY); process.exit(2); }
+
 const sizes = {};
 const dissolvedWeeks = {};
 const careers = {};
-for (const sc of SCENARIOS) {
+for (const sc of RUN) {
   const state = KP.newGame(sc.seed, null,
     sc.mode === 'blank' ? { door: 'blank', companyName: 'Audit Blank House' }
       : sc.mode === 'major' ? { door: 'major' }
@@ -421,6 +459,7 @@ for (const sc of SCENARIOS) {
       const r = KP.nextChapter(state, 'blank', { companyName: 'Chapter' + ((state.career || []).length + 2) + ' House' });   // a distinct short per chapter — the obituaries keep their names
       if (!r.ok) flag(sc.seed, state.week, 'the blank page refused: ' + r.reason);
     }
+    if (sc.mode === 'service' && w === SOLO_SEED_WEEK && dissolvedAt == null) seedSoloMan(state);
     botWeek(state, sc.mode);
     if (process.env.HAUL_TRACE === sc.seed && state.week <= 60) {
       const g0 = state.groups.find(g => !g.legacy);
@@ -489,6 +528,30 @@ for (const sc of SCENARIOS) {
   if (menSeen && !((svl.notices || 0) + (svl.plans || 0) + (svl.enlisted || 0))) {
     flag(sc.seed, state.week, 'male idols aged past the notice window but the service system never spoke');
   }
+  // the service scenario exists to produce service traffic: if its house
+  // dissolves or its men never serve, the scenario is measuring nothing
+  if (sc.mode === 'service') {
+    if (!((svl.enlisted || 0) >= 4 && (svl.discharged || 0) >= 4)) {
+      flag(sc.seed, state.week, 'the service scenario went quiet: enlisted ' + (svl.enlisted || 0) + ', discharged ' + (svl.discharged || 0));
+    }
+    if (!((svl.returns || 0) >= 1)) flag(sc.seed, state.week, 'the service scenario never saw an act come home whole');
+    if (!((svl.soloChapters || 0) >= 1)) flag(sc.seed, state.week, 'the service scenario’s soloist never served a service chapter');
+  }
+  // the return (v0.11.18, §109): every time an act came home whole there
+  // was a ceremony, and every window it opened was spent, lapsed or is
+  // still open (an act that ended takes its window with it)
+  if ((svl.returns || 0) !== (svl.ceremonies || 0)) {
+    flag(sc.seed, state.week, 'acts came home whole ' + (svl.returns || 0) + ' times but the ceremony was held ' + (svl.ceremonies || 0));
+  }
+  const openWindows = state.groups.filter(g => g.returnStage).length;
+  if ((svl.spent || 0) + (svl.lapsed || 0) + openWindows > (svl.returns || 0)) {
+    flag(sc.seed, state.week, 'more return windows closed (' + (svl.spent || 0) + ' spent, ' + (svl.lapsed || 0) +
+      ' lapsed, ' + openWindows + ' open) than acts that came home (' + (svl.returns || 0) + ')');
+  }
+  // a letter says a window is closing before one says it closed
+  if ((svl.lapsed || 0) > (svl.closing || 0)) {
+    flag(sc.seed, state.week, 'a return window lapsed (' + svl.lapsed + ') with no closing letter before it (' + (svl.closing || 0) + ')');
+  }
   // the sagas (v0.9.31): the hash window [60,320] sits fully inside a
   // 620-week run — every world MUST have been invaded at least once,
   // and the deck never deals more than two
@@ -537,7 +600,7 @@ for (const sc of SCENARIOS) {
   console.log(sc.seed + ': wk ' + state.week + ', ' + Math.round(total / 1024) + ' KB, ' +
     Object.keys(state.people).length + ' files | top: ' +
     top.map(([k, v]) => k + ' ' + Math.round(v / 1024) + 'K').join(', ') +
-    ' | service: ' + ['plans', 'notices', 'enlisted', 'walls', 'discharged', 'returns']
+    ' | service: ' + ['plans', 'notices', 'enlisted', 'walls', 'discharged', 'returns', 'spent', 'closing', 'lapsed', 'soloChapters']
       .map(k => k + ' ' + (svl[k] || 0)).join(', ') +
     ' | risefall: ' + ['rankings', 'overtakes', 'playerNo1', 'classes', 'offers', 'genTurns', 'torchPasses', 'rivalServices']
       .map(k => k + ' ' + ((state.riseFallLedger || {})[k] || 0)).join(', ') +
@@ -558,7 +621,7 @@ for (const sc of SCENARIOS) {
     ', trained ' + ((state.tableLedger || {}).trained || 0));
 }
 
-console.log('dissolutions (the last statement, v0.11.0): ' + SCENARIOS.map(sc => sc.seed + ' ' + (dissolvedWeeks[sc.seed] == null ? '—' : 'wk ' + dissolvedWeeks[sc.seed] + (careers[sc.seed] ? ' then ' + careers[sc.seed] : ''))).join(' · '));
+console.log('dissolutions (the last statement, v0.11.0): ' + RUN.map(sc => sc.seed + ' ' + (dissolvedWeeks[sc.seed] == null ? '—' : 'wk ' + dissolvedWeeks[sc.seed] + (careers[sc.seed] ? ' then ' + careers[sc.seed] : ''))).join(' · '));
 report();
 function report() {
   if (problems.length) {
@@ -566,7 +629,8 @@ function report() {
     problems.forEach(p => console.error('  ' + p));
     process.exitCode = 1;
   } else {
-    console.log('\n=== LONGHAUL CLEAN: ' + SCENARIOS.length + ' scenarios × ' + WEEKS +
+    console.log('\n=== LONGHAUL ' + (RUN.length === SCENARIOS.length ? 'CLEAN' : 'PARTIAL, CLEAN SO FAR') + ': ' + RUN.length + ' scenario' +
+      (RUN.length === 1 ? '' : 's') + ' × ' + WEEKS +
       ' weeks — integrity, round-trips, forks, and numbers all hold ===');
   }
 }

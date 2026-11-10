@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.17',
+    VERSION: '0.11.18',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1545,6 +1545,7 @@
       professionalism: 4,        // the spine of steel comes home with him
       returnBuildup: 26,         // a comeback locked inside the window banks this
       returnWindowWeeks: 24,     // how long the discharge moment stays convertible
+      returnClosingWeeks: 4,     // the letter that says the window is closing (v0.11.18, §109)
       planSilenceMorale: -2,     // the plan folder left to the scheduling office: each man reads the default off the wall (v0.11.5, §96 wiring — measure-first)
       papersSilenceMorale: -3,   // his papers left in the drawer unanswered: left waiting, and the room noticed (v0.11.5, §96 wiring — measure-first)
     },

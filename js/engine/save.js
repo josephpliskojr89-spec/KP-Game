@@ -1274,6 +1274,29 @@
     if (KP.ensureLedgers) KP.ensureLedgers(state);
   } });
 
+  // v0.11.18 — the return. A window an old file carries gets its last week.
+  // One that closed before this version is cleared quietly: the engine
+  // already read it as spent, and a letter about it now would be late news.
+  // An act that is short today gets its chapter, so the ceremony can say
+  // how long. A soloist in service needs nothing here: the weekly reads
+  // the act as a service chapter on its next tick.
+  MIGRATIONS.push({ v: '0.11.18', fn: function (state) {
+    const M = KP.C.MIL;
+    (state.groups || []).forEach(g => {
+      if (g.returnStage) {
+        if (g.returnStage.until == null) g.returnStage.until = g.returnStage.week + M.returnWindowWeeks;
+        if (g.retiredWeek || state.week > g.returnStage.until) delete g.returnStage;
+      }
+      if (!g.wait && !g.retiredWeek) {
+        const away = (g.members || []).map(id => state.people[id])
+          .filter(m => m && m.flags && m.flags.military)
+          .sort((a, b) => a.flags.military.since - b.flags.military.since);
+        if (away.length) g.wait = { since: away[0].flags.military.since, first: away[0].id, out: away.length };
+      }
+    });
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,
