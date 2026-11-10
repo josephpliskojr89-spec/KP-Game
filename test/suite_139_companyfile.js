@@ -6,6 +6,10 @@
    chair. The file is read off them and never written, the manager's title is
    what the file proves under this desk, and the Desk has a page for it.
 
+   Since v0.11.30 (§122) each chair and this desk's first trophy are read
+   off the written record, which suite 140 holds; the checks on them here
+   write the mark by hand.
+
    Laws (§99): a fixture forces every gate and rolls nothing; a missing
    chapter fails by name. */
 'use strict';
@@ -88,14 +92,16 @@ const world = (seed, week) => { const s = KP.newGame(seed, null, {}); s.week = w
   t.eq(rows(s, 'trophy').join(' / '), s.firstShowWinWeek + ' before The first music-show trophy in the company’s history.', 'a trophy from before this desk is the company’s first');
   act(s).releases[0].trophies = 3;   // the inherited act's wall: not this desk's
   a.releases.push({ week: 50, songTitle: 'Winner', chartPeak: 3, trophies: 2 }, { week: 60, songTitle: 'Again', chartPeak: 3, trophies: 1 });
-  t.eq(rows(s, 'trophy')[1], '50 “Winner” by ALPHA came out, and won a music-show trophy: the first under this desk.', 'this desk’s first is dated by the record that won it, and only the first');
-  a.releases[0].trophies = 0;
-  t.eq(rows(s, 'trophy').length, 2, 'a record with no trophy is not it');
+  t.eq(rows(s, 'trophy').length, 1, 'a record with trophies on it is not a chapter by itself: the night is on the written record');
+  s.annals = [{ week: 52, kind: 'trophy', groupId: 'g-a', name: 'ALPHA', show: 'Pop Wave', title: 'Winner' }];
+  t.eq(rows(s, 'trophy')[1], '52 ALPHA won Pop Wave with “Winner”: the first under this desk.', 'this desk’s first is the night on the written record, after the company’s');
+  s.annals = [];
   s.firstShowWinWeek = 55;
   t.eq(rows(s, 'trophy').join(' / '), '55 The first music-show trophy in the company’s history.', 'when the company’s first is under this desk it is said once, the week it was won');
+  s.annals = [{ week: 55, kind: 'trophy', groupId: 'g-a', name: 'ALPHA', show: 'Pop Wave', title: 'Winner' }];
+  t.eq(rows(s, 'trophy').join(' / '), '55 ALPHA won Pop Wave with “Winner”: the first music-show trophy in the company’s history.', 'and when the record has the night, the record says it, once');
+  s.annals = [];
   s.firstShowWinWeek = 0;
-  t.eq(rows(s, 'trophy').join(' / '), '50 “Winner” by ALPHA came out, and won a music-show trophy: the first under this desk.', 'a house with no trophy on its wall before has no company first to tell');
-  a.releases.forEach(r => { delete r.trophies; });
   t.eq(rows(s, 'trophy').length, 0, 'and with none at all there is no chapter');
 }
 {
@@ -120,7 +126,10 @@ const world = (seed, week) => { const s = KP.newGame(seed, null, {}); s.week = w
   t.eq(rows(s, 'desk').join(), '1 You took the A&R desk at ' + s.company.name + '.', 'a salaried desk begins with taking it');
   t.eq(rows(s, 'chair').length, 0, 'the chair who was there when the desk began has no chapter');
   s.executive.since = 60;
-  t.eq(rows(s, 'chair').join(), '60 ' + s.executive.name + ' took the chair.', 'a chair who came later has one');
+  t.eq(rows(s, 'chair').length, 0, 'and a chair who came later has one only on the written record');
+  s.annals = [{ week: 60, kind: 'chair', name: s.executive.name }];
+  t.eq(rows(s, 'chair').join(), '60 ' + s.executive.name + ' took the chair.', 'which is where the file reads it');
+  s.annals = [];
   s.founded = { week: 80, from: 'HCG' };
   s.executive.since = 90;
   t.eq([rows(s, 'desk').join(), rows(s, 'chair').length].join(' | '), '80 ' + s.company.name + ' opened its doors, out of HCG. | 0', 'a founded label begins with its doors, and says where it came out of; its board has no succession to tell');
@@ -140,7 +149,7 @@ const world = (seed, week) => { const s = KP.newGame(seed, null, {}); s.week = w
   const s = world('file-order', 150);
   const a = debut(lineup(s, 'g-a', 'ALPHA'), 30, { chartPeak: 1, trophies: 1 });
   act(s).releases.forEach(r => { r.chartPeak = 5; });
-  s.firstShowWinWeek = 30; s.executive.since = 30;
+  s.firstShowWinWeek = 30; s.annals = [{ week: 30, kind: 'chair', name: s.executive.name }];
   a.honors = [{ year: 1, category: 'song' }, { year: 1, category: 'rookie' }];
   const f = file(s);
   t.ok(f.chapters.every((c, i) => i === 0 || c.week >= f.chapters[i - 1].week), 'the file is in order of the weeks');

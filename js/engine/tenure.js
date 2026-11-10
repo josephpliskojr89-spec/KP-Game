@@ -37,20 +37,78 @@
     return Math.min(S.stageIQCap, Math.max(0, (p.age || 0) - S.at) * S.stageIQPerYear);
   };
 
+  // ---- the written record (v0.11.30, §122) ------------------------------
+  // What no marker keeps: a chair before the last one, the red weeks, the
+  // breakthrough, the night of this desk's first trophy. The rail writes a
+  // mark as it fires, and the file below reads it. A mark is a week and
+  // words: it names what it is about and needs nothing still on the state.
+  // The record is the company's. A founding or a last statement closes it.
+  const MARK_KINDS = ['chair', 'trophy', 'breakthrough', 'red', 'redCleared'];
+  KP.fileMarkKinds = () => MARK_KINDS.slice();
+  KP.fileMarks = function (state) { return state.annals || []; };
+  KP.fileMark = function (state, kind, data) {
+    if (!MARK_KINDS.includes(kind)) throw new Error('tenure: fileMark of unknown kind "' + kind + '"');
+    state.annals = state.annals || [];
+    const mark = Object.assign({ week: state.week, kind }, data || {});
+    state.annals.push(mark);
+    return mark;
+  };
+
   // ---- the company's own file (v0.11.29, §121) ---------------------------
   // The company had no history of its own: every first was a letter, read
   // once and gone. Most of it is still on the state, in the markers the
   // rails leave behind: a debut week, the first trophy, a record's peak,
   // the honors, the settlement, the last bow, the founding, the fold, the
-  // chair. The file is READ off them. Nothing is written, so nothing can
-  // drift, and an old save has its file the day it opens. Weeks before
-  // this desk's own are the company's past.
+  // chair. The file is READ off them, and off the written record above for
+  // what no marker keeps. Reading it writes nothing. Weeks before this
+  // desk's own are the company's past.
   KP.deskSince = function (state) { return state.chapterSince || (state.founded && state.founded.week) || 1; };
-  const FILE_ORDER = ['fold', 'desk', 'chair', 'debut', 'numberOne', 'trophy', 'award', 'daesang', 'settlement', 'lastBow'];
+  const FILE_ORDER = ['fold', 'desk', 'chair', 'debut', 'breakthrough', 'numberOne', 'trophy', 'award', 'daesang', 'settlement', 'red', 'redCleared', 'lastBow'];
   const honorWeek = h => (h.year - 1) * KP.C.WEEKS_PER_YEAR + KP.C.AWARDS.ceremonyWeek;   // an honor is dated by its ceremony
   const records = (state, test) => KP.groups(state)
     .reduce((all, g) => all.concat((g.releases || []).filter(test).map(r => ({ r, g }))), [])
     .sort((a, b) => a.r.week - b.r.week || (a.g.id < b.g.id ? -1 : 1));
+  const RED_WORD = { 2: 'the staff meeting', 3: 'the creditors’ letters', 4: 'the final notice' };
+  // an old file (migration 0.11.30): the marks its markers can still prove.
+  // The chair of the day, when she sat down after the desk did; the
+  // breakthrough; and this desk's first trophy as the file dated it until
+  // now, by the record that won it.
+  KP.fileBackfill = function (state) {
+    const since = KP.deskSince(state);
+    const marks = [];
+    const mark = (week, kind, data) => marks.push(Object.assign({ week, kind }, data));
+    if (!state.founded && state.executive.since > since) mark(state.executive.since, 'chair', { name: state.executive.name });
+    const broke = KP.groups(state).filter(g => g.eraBreakthrough >= since)
+      .sort((a, b) => a.eraBreakthrough - b.eraBreakthrough || (a.id < b.id ? -1 : 1))[0];
+    if (broke) {
+      const rec = (broke.releases || []).find(r => r.week === broke.eraBreakthrough);
+      mark(broke.eraBreakthrough, 'breakthrough', { groupId: broke.id, name: broke.name, title: rec ? rec.songTitle : null });
+    }
+    if (state.firstShowWinWeek < since) {
+      const won = records(state, r => r.week >= since && r.trophies > 0)[0];
+      if (won) mark(won.r.week, 'trophy', { groupId: won.g.id, name: won.g.name, title: won.r.songTitle, fromRecord: true });
+    }
+    state.annals = marks.sort((a, b) => a.week - b.week);
+    return state.annals;
+  };
+  // a founding before v0.11.30 left the old house's firsts on the new
+  // label, so its own were never firsts (migration 0.11.30). An old file
+  // is put right as far as its markers go: the label's first trophy by the
+  // record that won it, its first daesang by the honor
+  KP.fileFoundedFirsts = function (state) {
+    if (!state.founded) return state;
+    const since = KP.deskSince(state);
+    if (state.firstShowWinWeek && state.firstShowWinWeek < since) {
+      const won = records(state, r => r.trophies > 0)[0];   // every record at a founded label is its own
+      state.firstShowWinWeek = won ? won.r.week : 0;
+    }
+    if (state.daesangWonYear && honorWeek({ year: state.daesangWonYear }) < since) {
+      const years = KP.groups(state).reduce((all, g) => all.concat((g.honors || []).filter(h => h.category === 'daesang').map(h => h.year)), [])
+        .sort((a, b) => a - b);
+      if (years.length) state.daesangWonYear = years[0]; else delete state.daesangWonYear;
+    }
+    return state;
+  };
   // what the manager is called: what the file proves under this desk
   KP.managerTitle = function (state) {
     if (state.founded) return 'Founder';
@@ -84,14 +142,25 @@
     if (ones.length) add(ones[0].r.week, 'numberOne', says(ones[0]) + 'the company’s first.');
     const mine = ones.find(x => x.r.week >= since);
     if (mine && mine !== ones[0]) add(mine.r.week, 'numberOne', says(mine) + 'the first under this desk.');
-    if (state.firstShowWinWeek) add(state.firstShowWinWeek, 'trophy', 'The first music-show trophy in the company’s history.');
-    if (state.firstShowWinWeek < since) {
-      // the company's first came before this desk; this desk's is dated by the record that won it
-      const won = records(state, r => r.week >= since && r.trophies > 0)[0];
-      if (won) add(won.r.week, 'trophy', '“' + won.r.songTitle + '” by ' + won.g.name + ' came out, and won a music-show trophy: the first under this desk.');
-    }
+    // the first trophy. The marker says when the company's was won; the mark
+    // says whose night this desk's was. When they are the same night it is
+    // said once, by the mark.
+    const marks = KP.fileMarks(state);
+    const won = marks.find(m => m.kind === 'trophy');
+    const first = state.firstShowWinWeek;
+    if (first && !(won && won.week === first)) add(first, 'trophy', 'The first music-show trophy in the company’s history.');
+    if (won) add(won.week, 'trophy', (won.fromRecord
+      ? '“' + won.title + '” by ' + won.name + ' came out, and won a music-show trophy: '
+      : won.name + ' won ' + won.show + (won.title ? ' with “' + won.title + '”' : '') + ': ') +
+      (first && first < won.week ? 'the first under this desk.' : 'the first music-show trophy in the company’s history.'));
     ((state.estate && state.estate.folded) || []).forEach(f => add(f.week, 'fold', f.name + ' was dissolved.'));
-    if (!state.founded && state.executive.since > since) add(state.executive.since, 'chair', state.executive.name + ' took the chair.');
+    // what only the written record keeps
+    marks.forEach(m => {
+      if (m.kind === 'chair') add(m.week, 'chair', m.name + ' took the chair.' + (m.after ? ' ' + m.after + ' had held it ' + m.years + ' years.' : ''));
+      if (m.kind === 'breakthrough') add(m.week, 'breakthrough', 'The breakthrough: ' + (m.title ? '“' + m.title + '” by ' : '') + m.name + ' charted from a label nobody had heard of.');
+      if (m.kind === 'red') add(m.week, 'red', 'The red weeks. The company fell far enough behind on what it owed that the staff held a meeting nobody called.');
+      if (m.kind === 'redCleared') add(m.week, 'redCleared', 'The arrears cleared. The red weeks had gone as far as ' + RED_WORD[m.rung] + '.');
+    });
     ch.sort((a, b) => a.week - b.week || FILE_ORDER.indexOf(a.kind) - FILE_ORDER.indexOf(b.kind) || (a.text < b.text ? -1 : 1));
     return { name: state.company.name, short: state.company.short, since,
       manager: { name: state.player.name, title: KP.managerTitle(state), weeks: state.week - since }, chapters: ch };
@@ -149,6 +218,9 @@
         delete state.petProjectDone;   // a new chair brings its own someday
         delete state.driftNoted;       // and its own bar
         led.successions++;
+        // the written record (v0.11.30, §122): each chair, not only the last
+        KP.fileMark(state, 'chair', { name: next.name, after: old.name,
+          years: Math.round((state.week - (old.since || 1)) / KP.C.WEEKS_PER_YEAR) });
         // a succession is once an era — it lands whatever else happened (v0.10.29)
         inbox.push({ kind: 'executive', priority: 'critical', ind: 'execFarewell',
           text: old.name + KP.fillPro(' announced it in the all-hands voice: after ' +

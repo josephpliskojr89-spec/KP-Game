@@ -586,6 +586,14 @@ for (const sc of RUN) {
       if (!cf.chapters.every((c, i) => i === 0 || c.week >= cf.chapters[i - 1].week)) flag(sc.seed, state.week, 'the company’s file is out of order');
       if (cf.chapters.filter(c => c.kind === 'desk' && c.week === since).length !== 1) flag(sc.seed, state.week, 'the company’s file has no one chapter for this desk');
       if (cf.chapters.some(c => c.week > state.week)) flag(sc.seed, state.week, 'a chapter of the company’s file is dated after today');
+      // the written record (v0.11.30, §122): of a known kind, inside this desk's weeks, a first once, the red weeks paired, every mark a chapter
+      const marks = KP.fileMarks(state);
+      const n = k => marks.filter(m => m.kind === k).length;
+      if (!marks.every(m => KP.fileMarkKinds().includes(m.kind) && m.week >= since && m.week <= state.week)) flag(sc.seed, state.week, 'a mark on the written record is of no known kind, or dated outside this desk’s weeks');
+      if (n('trophy') > 1 || n('breakthrough') > 1) flag(sc.seed, state.week, 'a first is on the written record twice');
+      if (n('redCleared') > n('red') || n('red') - n('redCleared') > 1) flag(sc.seed, state.week, 'the red weeks on the written record do not pair up: ' + n('red') + ' meetings, ' + n('redCleared') + ' cleared');
+      if (KP.groups(state).some(g => g.lastShowWinWeek >= since) && n('trophy') !== 1) flag(sc.seed, state.week, 'this desk has won a trophy and the written record has no night for it');
+      if (!marks.every(m => cf.chapters.some(c => c.week === m.week && c.kind === m.kind))) flag(sc.seed, state.week, 'a mark on the written record is not a chapter of the company’s file');
     }
     // the letterhead (v0.11.25, §116): the staff calls add up, and an answer needs a call
     if ((wl.callsBooks || 0) + (wl.callsTemper || 0) > (wl.calls || 0)) flag(sc.seed, state.week, 'the staff calls do not add up: ' + [wl.calls, wl.callsBooks, wl.callsTemper].join('/'));
@@ -694,6 +702,7 @@ for (const sc of RUN) {
     ' | upstairs: ' + (up => 'asked ' + up.asked + ', promised ' + up.promised + ', kept ' + up.met + ', broken ' + up.missed + ', set aside ' + up.void +
       ', reviews ' + up.reviews + ' (thin ' + up.bands.thin + ', gone ' + up.bands.gone + ')')(KP.upstairsLedger(state)) +
     ' | file: ' + (cf => cf.chapters.length + ' chapter' + (cf.chapters.length === 1 ? '' : 's') + ' (' + cf.chapters.filter(c => !c.before).length + ' under this desk), ' + cf.manager.title)(KP.companyFile(state)) +
+    ' | record: ' + (marks => marks.length + ' mark' + (marks.length === 1 ? '' : 's') + ' (chairs ' + marks.filter(m => m.kind === 'chair').length + ', red weeks ' + marks.filter(m => m.kind === 'red').length + ')')(KP.fileMarks(state)) +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +
     (sgl.heirStabilized ? ' heirStabilized' : '') + (sgl.heirBurst ? ' heirBurst' : '') +

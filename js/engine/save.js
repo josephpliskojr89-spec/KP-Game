@@ -1395,6 +1395,16 @@
     if (KP.ensureLedgers) KP.ensureLedgers(state);
   } });
 
+  // v0.11.30 — the written record. An old file gets the marks its markers
+  // can still prove: the chair of the day, the breakthrough, and this
+  // desk's first trophy as the file dated it until now. A chair before the
+  // last and a red episode already over left nothing to read. And a label
+  // founded before this version gives the old house back its firsts.
+  MIGRATIONS.push({ v: '0.11.30', fn: function (state) {
+    if (KP.fileFoundedFirsts) KP.fileFoundedFirsts(state);
+    if (KP.fileBackfill) KP.fileBackfill(state);
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

@@ -729,6 +729,11 @@ const BANDS = {
   reviewHeard:       { lo: 0.90, hi: 1.00, label: 'orgs the executive reviewed when the directors had gone' },
   reviewGone:        { lo: 0.00, hi: 0.40, label: 'orgs reviewed with trust gone' },
   fileFirst:         { lo: 0.50, hi: 1.00, label: 'orgs whose file holds a first number one or a first trophy under this desk' },
+  // the written record (v0.11.30, §122): what no marker keeps. Ruled from
+  // the census: the night of this desk's first trophy in 200 of 200
+  // careers, the staff meeting of the red weeks in 42
+  recordNight:       { lo: 0.90, hi: 1.00, label: 'orgs whose written record holds the night of this desk’s first trophy' },
+  recordRed:         { lo: 0.05, hi: 0.60, label: 'orgs whose written record holds the red weeks' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -886,6 +891,7 @@ const quietSum = {};  // the quiet (v0.11.20, §111)
 const wallSum = {};   // the head (v0.11.22, §113)
 const upSum = { types: {} };   // her own questions (v0.11.27, §119)
 const fileSum = {};            // the company's own file (v0.11.29, §121)
+const recSum = {};             // the written record (v0.11.30, §122)
 const tally = {
   sensation: 0, strongPlus: 0, missOrQuiet: 0, nonCenterBreakout: 0,
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
@@ -968,7 +974,7 @@ const tally = {
   listPosted: 0, offListDoor: 0,
   quietRested: 0, quietFull: 0,
   headQuoted: 0, houseBooks: 0, parkMoved: 0, callReason: 0, truceCalled: 0, truceTaken: 0, truceBroken: 0,
-  ownAsked: 0, ownKept: 0, ownBroken: 0, reviewHeard: 0, reviewGone: 0, fileFirst: 0,
+  ownAsked: 0, ownKept: 0, ownBroken: 0, reviewHeard: 0, reviewGone: 0, fileFirst: 0, recordNight: 0, recordRed: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -2621,6 +2627,25 @@ for (let s = 0; s < SEEDS; s++) {
       guard(cf.chapters.filter(c => c.kind === 'desk').length === 1 && cf.chapters.find(c => c.kind === 'desk').week === since, seed + ' the company’s file has no one chapter for this desk');
       guard(cf.chapters.every(c => c.week <= state.week && c.before === (c.week < since)), seed + ' a chapter of the company’s file is dated after today, or on the wrong side of this desk');
       guard(KP.groups(state).filter(g => g.debuted && g.debutWeek != null).every(g => cf.chapters.some(c => c.kind === 'debut' && c.week === g.debutWeek && c.text.startsWith(g.name + ' debuted'))), seed + ' an act that debuted is not on the company’s file');
+      // the written record (v0.11.30, §122): what no marker keeps. A mark is
+      // of a known kind and dated inside this desk's weeks; a first is
+      // written once; the red weeks pair up; a desk that has won has its
+      // night; a succession has its chair; and every mark is a chapter
+      const marks = KP.fileMarks(state);
+      const n = k => marks.filter(m => m.kind === k).length;
+      const moved = !!(state.founded || state.chapterSince || ((state.estate && state.estate.folded) || []).length);
+      const chairs = (state.timeLedger && state.timeLedger.successions) || 0;
+      recSum.marks = (recSum.marks || 0) + marks.length;
+      marks.forEach(m => { recSum['k_' + m.kind] = (recSum['k_' + m.kind] || 0) + 1; });
+      if (n('trophy') >= 1) tally.recordNight++;
+      if (n('red') >= 1) tally.recordRed++;
+      guard(marks.every(m => KP.fileMarkKinds().includes(m.kind) && m.week >= since && m.week <= state.week), seed + ' a mark on the written record is of no known kind, or dated outside this desk’s weeks');
+      guard(marks.every((m, i) => i === 0 || m.week >= marks[i - 1].week), seed + ' the written record is out of order');
+      guard(n('trophy') <= 1 && n('breakthrough') <= 1, seed + ' a first is on the written record twice');
+      guard(n('redCleared') <= n('red') && n('red') - n('redCleared') <= 1, seed + ' the red weeks on the written record do not pair up: ' + n('red') + ' meetings, ' + n('redCleared') + ' cleared');
+      guard(!KP.groups(state).some(g => g.lastShowWinWeek >= since) || n('trophy') === 1, seed + ' this desk has won a trophy and the written record has no night for it');
+      guard(moved ? n('chair') <= chairs : n('chair') === chairs, seed + ' ' + chairs + ' successions and ' + n('chair') + ' chairs on the written record');
+      guard(marks.every(m => cf.chapters.some(c => c.week === m.week && c.kind === m.kind)), seed + ' a mark on the written record is not a chapter of the company’s file');
     }
     // the letterhead (v0.11.25, §116): who called our staff, and what the
     // answers put on the books. An answer needs a call
@@ -3344,8 +3369,10 @@ console.log('  by question: ' + Object.keys(upSum.types).map(k => ({ execQuarter
   ' asked ' + upSum.types[k].asked + ' (kept ' + upSum.types[k].met + ', broken ' + upSum.types[k].missed + ')').join(' · '));
 console.log('the annual review: given ' + (upSum.reviews || 0) + ' times · ' + ['trusted', 'solid', 'watched', 'thin', 'gone'].map(k => k + ' ' + ((upSum.bands || {})[k] || 0)).join(' · '));
 console.log('the company’s file: chapters ' + (fileSum.chapters || 0) + ' · under this desk ' + (fileSum.mine || 0) + ' · ' +
-  ['debut', 'numberOne', 'trophy', 'award', 'daesang', 'settlement', 'lastBow', 'fold', 'chair'].map(k => k + ' ' + (fileSum['k_' + k] || 0)).join(' · '));
+  ['debut', 'numberOne', 'trophy', 'award', 'daesang', 'settlement', 'lastBow', 'fold', 'chair', 'breakthrough', 'red', 'redCleared'].map(k => k + ' ' + (fileSum['k_' + k] || 0)).join(' · '));
 console.log('  the manager’s title at the end: ' + ['A&R Manager', 'Senior A&R Manager', 'Head of A&R', 'Executive Producer', 'Founder'].map(k => k + ' ' + (fileSum['t_' + k] || 0)).join(' · '));
+console.log('the written record: marks ' + (recSum.marks || 0) + ' · the night of this desk’s first trophy ' + (recSum.k_trophy || 0) + ' · the red weeks ' + (recSum.k_red || 0) +
+  ' (cleared ' + (recSum.k_redCleared || 0) + ') · a new chair ' + (recSum.k_chair || 0) + ' · the breakthrough ' + (recSum.k_breakthrough || 0));
 console.log('the quiet: told the rest was in ' + (quietSum.rested || 0) + ' · told the bank was full ' + (quietSum.full || 0) +
   ' · a member on a break told she was rested ' + (quietSum.breakRested || 0) + ' · acts still parked at the end ' + (quietSum.parked || 0));
 console.log('the posting: lists ' + (postSum.posted || 0) + ' · the month’s first left off ' + (postSum.offMonth || 0) + ' · the year’s first left off ' + (postSum.offYear || 0) +

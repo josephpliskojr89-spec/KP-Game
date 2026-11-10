@@ -91,6 +91,9 @@
         if (red.weeks < at || red.rung >= idx) return;
         red.rung = idx;
         inbox.push(letter(state, idx, red));
+        // the written record (v0.11.30, §122): a short week is not history;
+        // the meeting the staff held without us is
+        if (idx === 2) KP.fileMark(state, 'red');
         if (idx === 2 || idx === 3) roster.forEach(p => { if (state.roster.includes(p.id)) KP.recordDirected(state, p.id, 'unpaid'); });
       });
       if (red.weeks >= R.meetingAt) {
@@ -105,6 +108,7 @@
     } else if (red.weeks > 0) {
       red.weeks = Math.max(0, red.weeks - R.decayPerCleanWeek);
       if (red.weeks === 0 && red.rung > 0) {
+        if (red.rung >= 2) KP.fileMark(state, 'redCleared', { rung: red.rung });   // and how far it had gone
         red.rung = 0;
         inbox.push({ kind: 'company', ind: 'redCleared', priority: 'high',
           text: 'The arrears cleared and the count ran back to zero. The accountant filed the red memos in a folder labeled, with no irony anyone could prove, “history.” The building breathes. It remembers.' });
@@ -237,6 +241,7 @@
       years: stmt.years, acts: shelfActs, runs: 0 });
     state.groups = [];
     state.roster = [];
+    state.annals = [];   // the written record was the dead label's (v0.11.30, §122)
 
     // ---- the staff: the chairs take the calls ------------------------------
     const houses = KP.signingHouses ? KP.signingHouses(state) : (state.rivals || []);

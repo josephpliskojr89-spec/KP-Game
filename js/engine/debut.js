@@ -941,7 +941,7 @@
     // is part of the record — and a landing this loud from a label this
     // unknown moves the wall for good
     if (wall && wall.under) {
-      if (KP.recordBreakthrough) push(KP.recordBreakthrough(state, g, reception, wall.fame));
+      if (KP.recordBreakthrough) push(KP.recordBreakthrough(state, g, reception, wall.fame, demo.title));
       if (wall.walled && !(g.eraBreakthrough === state.week)) {
         push({ kind: 'public', ind: 'wallFelt', priority: 'normal', groupId: g.id,
           text: 'The write-ups on “' + demo.title + '” are kinder than the numbers. ' +

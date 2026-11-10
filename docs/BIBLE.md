@@ -9522,7 +9522,8 @@ feature the player can sit for or refuse.
 **7. The people upstairs and down the hall (the exec, the staff, the
 company's file; part one, her own questions, SHIPPED v0.11.27,
 §119; part two, the annual review, SHIPPED v0.11.28, §120; part
-three, the company's own file, SHIPPED v0.11.29, §121).** The
+three, the company's own file, SHIPPED v0.11.29, §121; part four,
+the written record, SHIPPED v0.11.30, §122).** The
 exec's `personality` finally read: a question
 family per type (the profit hunter asks about the quarter, the
 traditionalist about the vocal room, the micromanager about a trainee
@@ -13109,6 +13110,179 @@ Battery 139/139, soak 40 clean, census 200 clean, longhaul 11 ×
 *Left for the next pieces.* The chapters that need a written
 record; the company anniversary; the year-end letter at week 48.
 *Still the owner's to call*: from §120, the shape of probation;
+from §119, whether a pass should cost anything, and whether next
+door to the sound should count; the Desk's tie-break (§112); and
+from §109, the fade between records through a service chapter and
+the size of the window's bank.
+
+## §122 The written record (SHIPPED v0.11.30 — §96 recommendation 7, the people upstairs and down the hall, part four)
+
+Owner: *"Break remaining work into smaller pieces"*. The fourth of
+recommendation 7's pieces: the chapters §121 could not read.
+
+**The finding** (§121's own list): "Not on the file yet, because no
+rail leaves a marker: the week of a succession before the last one,
+a red episode, the fame breakthrough, and the week this desk won
+its first trophy."
+
+**Counted first** (§118's lesson), over 200 careers of three years
+and the tool's side worlds, 203 worlds in all:
+
+| the rail | fires | in worlds |
+|---|---|---|
+| the accountant’s memo | 200 | 124 |
+| the staff meeting | 44 | 42 |
+| the creditors’ letters | 4 | 4 |
+| the final notice | 2 | 2 |
+| a succession | 3 | 3 |
+| the breakthrough | 2 | 2 |
+| this desk’s first trophy | 203 | 203 |
+
+Three things followed from the count.
+
+- Of 200 red episodes, 92 lasted one week. A short week is not
+  history. The bar is the staff meeting, four weeks behind, where
+  every file on the roster takes the month the company could not
+  pay.
+- A chair's era runs five to seven years, so three years never see
+  a succession: the three counted were in the tool's long side
+  worlds. A long career sees several, and the file kept only the
+  last.
+- In all 203 worlds the file dated this desk's first trophy by the
+  record that won it: one to three weeks before the night.
+
+**The record** (`state.annals`). A mark is a week, a kind, and the
+words it needs. It names what it is about and reads nothing else
+off the state, so it outlives the act it names. The rail writes it
+as it fires (`KP.fileMark`), and the file reads it. Five kinds:
+
+- *chair*, at every succession: who sat down, after whom, and how
+  long the chair had been held. "CEO Seo Hae-won took the chair.
+  CEO Kang Min-ho had held it 8 years."
+- *trophy*, the night of this desk's first trophy: the act, the
+  stage, and the record it was promoting. "VINITE won Pop Wave with
+  “Getaway”: the first under this desk." It is the first win by any
+  act of ours since the desk began. Two stages in one week are one
+  night.
+- *breakthrough*, the first record to chart from a label nobody had
+  heard of. Once a company.
+- *red*, at the staff meeting: "The red weeks. The company fell far
+  enough behind on what it owed that the staff held a meeting
+  nobody called."
+- *redCleared*, when the count runs back to zero, with how far it
+  had gone: the staff meeting, the creditors' letters, or the final
+  notice. An episode that never reached the meeting clears with its
+  letter and no chapter.
+
+A mark of any other kind is refused, loudly. The state's own check
+names a mark of no kind, with no week, dated after today, or dated
+before this desk began.
+
+**The two firsts.** The marker still says when the company's first
+trophy was won. The mark says whose night this desk's was. When
+they are the same night it is said once, by the mark: "... the
+first music-show trophy in the company's history."
+
+**The record is the company's.** A founding or a last statement
+closes it. The next label's record opens empty, as its lineups do.
+
+**Found while building it: a founded label had no firsts.** The
+last statement gives the dead label its first trophy and its first
+daesang to keep (audit v0.11.3: "the next company's first is a
+first"). The founding did not. At a founded label the first trophy
+was never a first: no letter in capitals, no word in the boardroom,
+no change in the members. Its first daesang got none of a first's
+treatment. And §121's page listed the old house's first trophy as
+the new label's past. The founding follows the last statement's law
+now. *This changes play at a founded label*: its first trophy and
+its first daesang are firsts. The census bot founds nothing, so no
+census row can show it. The long haul's founder scenario founds a
+label, and ran clean.
+
+**Old saves** (migration 0.11.30).
+
+- The record gets the marks the markers can still prove. The chair
+  of the day, when she sat down after the desk did, with nobody
+  named before her. The breakthrough, from the week an act still
+  carries. This desk's first trophy as the file dated it until now,
+  by the record that won it, in the words it had.
+- A chair before the last, and a red episode already over, left
+  nothing to read. An episode past its meeting on the day of the
+  load gets its clearing and not its meeting.
+- A label founded before this version gives the old house back its
+  firsts. Its own first trophy is dated by the record that won it,
+  its own first daesang by the honor, and either may be none.
+- A desk that had already won gets no second first. The rail reads
+  the acts' own last win, which an old save has, and not the
+  record, which it did not.
+
+**Measured: old saves.** 63 real careers were saved by v0.11.29 and
+loaded by this build. The file reads word for word as it did in 61.
+In 2 it is the same with the breakthrough added, which the old file
+could not tell. None differs otherwise, and all 63 pass the state's
+check. The load wrote 63 trophies dated by their record, 2
+breakthroughs and 3 chairs.
+
+**Measured: new careers.** Over 200 careers the records hold 286
+marks: 200 nights, 42 staff meetings, all 42 cleared, and 2
+breakthroughs. No chair: three years do not see a succession. Two
+bands: the night of this desk's first trophy (200 of 200), the red
+weeks (40). The files hold 2,687 chapters where they held 2,601,
+2,089 of them under this desk. No career moved: every one of the
+361 rows the census had is v0.11.29's. Across the long haul's
+eleven scenarios, 620 weeks each, the records hold 21 marks,
+12 of them chairs.
+
+**Found by the mutation run.** The first run was cut short at 98
+of 109 broken lines: 97 caught, none survived, and one crashed the
+suite where it should have failed by name. With the breakthrough
+left off an old file, the suite read the first mark of an empty
+list. The read is guarded, and the second run caught 109 of 109.
+Three guards in the engine had no check on them: an act with no
+shelf at all, an act with no honors, a state with no record. Each
+has one now, and its own broken line. A fourth guarded nothing and
+was deleted. On the final run, 112 of 112.
+
+**Found by the browser pass.** Nothing in this piece. One thing
+older than it: at phone width the top bar breaks the date onto two
+lines when the till has four digits, and breaks the till too when
+the label's short name is long. It is the next piece.
+
+**Found by the machine.** The container restarted once, during
+that first mutation run, while a census ran beside it. Nothing was
+lost. The runs go one at a time now.
+
+Suite_140 (117): the mark and its five kinds; each rail through
+its real week (the succession, the stages, the landing, the red
+ladder) with every gate forced; the night's edges (the week the
+desk began, two stages in one week, an act with no record out, a
+house with no trophy before); the file's words for each kind and
+the order within a week; a founding and a last statement closing
+the record; a founded label's first trophy as a first; an old
+file's marks from its markers, each with its edges; the real load,
+twice; a label founded before this version; the state's check, six
+ways; the Desk through the DOM stub; real weeks with an empty till,
+to the last statement, and with a full one; both tools' wiring.
+Suite_139 holds the chair and the trophy to the record. Mutation-
+checked against 112 broken lines, each caught by a named
+assertion in every suite that owns the line. A real-browser pass
+(24 checks, no page errors): our act wins a stage through the
+real advance button and the night is on the company's page; a desk
+three weeks behind reaches the staff meeting, is paid, and four
+real weeks later the clearing is above it; an era ends and the page
+tells both chairs; a real career saved by v0.11.29 opens with its
+page word for word as that build read it; a founded label's page
+opens with its doors and nothing of the old house.
+Battery 140/140, soak 40 clean, census 200 clean, longhaul 11 ×
+620 clean, e2e 137, the thirteen older browser passes, lockstep
+0.11.30.
+
+*Left for the next pieces.* The top bar. The company anniversary;
+the year-end letter at week 48; the exec-side ledger and a
+succession that transfers a record; the staff given years. *The
+owner's to call*: whether a founded label's first trophy should be
+a first, as it now is. *Still the owner's to call*: from §121, the
+spacing of the manager's titles; from §120, the shape of probation;
 from §119, whether a pass should cost anything, and whether next
 door to the sound should count; the Desk's tie-break (§112); and
 from §109, the fade between records through a service chapter and
@@ -17190,6 +17364,31 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Battery 139/139, soak 40 clean, census 200 clean, longhaul 11 ×
 > 620 clean, e2e 137, a real-browser pass (13), lockstep 0.11.29.
 > Rode to main. Next piece: the chapters that need a written record.
+
+> **0.11.30 — the written record.** Own judgment, under
+> "Approved to tackle as much of the remaining queue as you see fit"
+> and "Break remaining work into smaller pieces": the fourth piece
+> of §96's recommendation 7. §122: what the company's file could not
+> read, because no rail left a marker. Counted first, over 203
+> worlds: the staff meeting of the red weeks in 42, a succession in
+> 3, a breakthrough in 2, and this desk's first trophy dated one to
+> three weeks early in every one. So the rails write a mark as they
+> fire: a week, a kind, and the words it needs. Five kinds: each
+> chair with the one before her; the night of this desk's first
+> trophy; the breakthrough; the red weeks at the staff meeting; and
+> their clearing, with how far it had gone. The record is the
+> company's: a founding or a last statement closes it. Found while
+> building it: a founding left the old house's first trophy and
+> first daesang on the new label, so its own were never firsts, and
+> §121's page listed the old house's trophy as the new label's past.
+> The founding follows the last statement's law now, which changes
+> play at a founded label. Old saves get the marks their markers
+> still prove: 63 real careers saved by 0.11.29 read word for word
+> as they did in 61, and the same with the breakthrough added in 2.
+> Suite_140 (117), 112 mutations caught by name.
+> Battery 140/140, soak 40 clean, census 200 clean, longhaul 11 ×
+> 620 clean, e2e 137, a real-browser pass (24), lockstep 0.11.30.
+> Rode to main. Next piece: the top bar, which wraps at phone width.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

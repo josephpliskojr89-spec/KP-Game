@@ -139,6 +139,12 @@
     });
     state.roster = [];
     state.groups = [];
+    state.annals = [];   // the written record stays with the house it was written for (v0.11.30, §122)
+    // and so do its firsts (v0.11.30; the last statement's law, audit
+    // v0.11.3): the old house's first trophy and first daesang stayed on
+    // the new label, so its own were never firsts
+    state.firstShowWinWeek = 0;
+    delete state.daesangWonYear;
 
     // ---- the world keeps its book straight ------------------------------
     // group-keyed narratives cross the wall only if they can still be

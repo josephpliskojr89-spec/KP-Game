@@ -240,6 +240,7 @@
     if (KP.quietLedger) KP.quietLedger(state);       // the hiatus and the break say when the rest is in (v0.11.20, §111)
     if (KP.wallLedger) KP.wallLedger(state);         // the heads of the other houses (v0.11.22, §113)
     state.deadShorts = state.deadShorts || [];   // the registry exists from week one, so a fork never creates it in a different order
+    state.annals = state.annals || [];           // and so does the company's written record (v0.11.30, §122)
     return state;
   };
   KP.validateState = function (state) {
@@ -319,6 +320,12 @@
     (state.claims || []).forEach(c => {
       if (!c.id || !c.type || !c.subject || !c.subject.kind) bad('malformed claim ' + JSON.stringify(c && c.type));
       else if (!claimChecks[c.type]) bad('claim of unregistered type ' + c.type);
+    });
+    // the written record (v0.11.30, §122): a mark is of a known kind, and
+    // dated inside this desk's own weeks. A move closes the record
+    (state.annals || []).forEach(m => {
+      if (!m || !isFinite(m.week) || !KP.fileMarkKinds().includes(m.kind)) bad('malformed mark on the written record ' + JSON.stringify(m && m.kind));
+      else if (m.week > state.week || m.week < KP.deskSince(state)) bad('a ' + m.kind + ' mark on the written record is dated outside this desk’s weeks (' + m.week + ')');
     });
     return v;
   };

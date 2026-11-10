@@ -125,12 +125,15 @@
         g.trophies = g.trophies || {};
         g.trophies[showId] = (g.trophies[showId] || 0) + 1;
         g.trophiesYear = (g.trophiesYear || 0) + 1;   // the award year's tally (0.9.13 audit B2)
+        // the written record (v0.11.30, §122): this desk's first trophy is
+        // the night no act of ours has won since the desk began. Read before
+        // the win is stamped on the act
+        const deskFirst = !KP.groups(state).some(x => x.lastShowWinWeek >= KP.deskSince(state));
         g.lastShowWinWeek = state.week;   // the slump reads this (v0.9.18)
         // the era's own shelf (v0.11.9, §100): the close reads it back
-        if ((g.releases || []).length) {
-          const eraRel = g.releases[g.releases.length - 1];
-          eraRel.trophies = (eraRel.trophies || 0) + 1;
-        }
+        const eraRel = (g.releases || []).length ? g.releases[g.releases.length - 1] : null;
+        if (eraRel) eraRel.trophies = (eraRel.trophies || 0) + 1;
+        if (deskFirst) KP.fileMark(state, 'trophy', { groupId: g.id, name: g.name, show: label, title: eraRel ? eraRel.songTitle : null });
         g.popularity = KP.clamp((g.popularity || 0) + W.winPop, 0, 100);
         const members = g.members.map(id => state.people[id]).filter(Boolean);
         members.forEach(m => {

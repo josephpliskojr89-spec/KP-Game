@@ -153,7 +153,7 @@
   // A landing this loud from a label this unknown is the story that
   // moves the wall for good. Called with the FINAL reception (post-
   // mash: "changed the industry" from a one-room label IS this event).
-  KP.recordBreakthrough = function (state, g, reception, fameBefore) {
+  KP.recordBreakthrough = function (state, g, reception, fameBefore, title) {
     const F = KP.C.FAME;
     if (fameBefore >= F.breakBelow || reception < F.breakMin) return null;
     const led = ledger(state);
@@ -163,6 +163,8 @@
       .forEach(k => { repObj[k] = KP.clamp(repObj[k] + F.breakRep, 0, 100); });
     state.trust = KP.clamp((state.trust || 0) + F.breakTrust, 0, 100);
     g.eraBreakthrough = state.week;
+    // the written record (v0.11.30, §122): the company breaks through once
+    if (!KP.fileMarks(state).some(m => m.kind === 'breakthrough')) KP.fileMark(state, 'breakthrough', { groupId: g.id, name: g.name, title: title || null });
     KP.recordEvidence(state, 'breakthrough', 'group', g.id);
     return { kind: 'public', ind: 'breakthrough', priority: 'high', groupId: g.id,
       text: '“Who is ' + state.company.name + '?” is the industry question of the week. ' +
