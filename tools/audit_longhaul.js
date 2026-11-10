@@ -580,6 +580,13 @@ for (const sc of RUN) {
       if (Object.keys(up.bands).reduce((n, k) => n + up.bands[k], 0) !== up.reviews) flag(sc.seed, state.week, 'the reviews do not add up by band: ' + up.reviews + ' against ' + JSON.stringify(up.bands));
       if ((state.reviews || []).some(r => r.band !== KP.trustBand(r.trust))) flag(sc.seed, state.week, 'a review is filed under a band its trust is not in');
     }
+    // the company's own file (v0.11.29, §121): in order, one chapter for this desk, nothing dated after today
+    {
+      const cf = KP.companyFile(state), since = KP.deskSince(state);
+      if (!cf.chapters.every((c, i) => i === 0 || c.week >= cf.chapters[i - 1].week)) flag(sc.seed, state.week, 'the company’s file is out of order');
+      if (cf.chapters.filter(c => c.kind === 'desk' && c.week === since).length !== 1) flag(sc.seed, state.week, 'the company’s file has no one chapter for this desk');
+      if (cf.chapters.some(c => c.week > state.week)) flag(sc.seed, state.week, 'a chapter of the company’s file is dated after today');
+    }
     // the letterhead (v0.11.25, §116): the staff calls add up, and an answer needs a call
     if ((wl.callsBooks || 0) + (wl.callsTemper || 0) > (wl.calls || 0)) flag(sc.seed, state.week, 'the staff calls do not add up: ' + [wl.calls, wl.callsBooks, wl.callsTemper].join('/'));
     if (((wl.kinds || {}).theyHiredOurStaff || 0) + ((wl.kinds || {}).weKeptOurStaff || 0) > (wl.calls || 0)) flag(sc.seed, state.week, 'more answers on the books than staff calls: ' + (wl.calls || 0) + ' calls');
@@ -686,6 +693,7 @@ for (const sc of RUN) {
     ', parked ' + ((state.wallLedger || {}).parks || 0) + ' (books ' + ((state.wallLedger || {}).parksBooks || 0) + ', temper ' + ((state.wallLedger || {}).parksTemper || 0) + ', moved ' + ((state.wallLedger || {}).parksMoved || 0) + ')' +
     ' | upstairs: ' + (up => 'asked ' + up.asked + ', promised ' + up.promised + ', kept ' + up.met + ', broken ' + up.missed + ', set aside ' + up.void +
       ', reviews ' + up.reviews + ' (thin ' + up.bands.thin + ', gone ' + up.bands.gone + ')')(KP.upstairsLedger(state)) +
+    ' | file: ' + (cf => cf.chapters.length + ' chapter' + (cf.chapters.length === 1 ? '' : 's') + ' (' + cf.chapters.filter(c => !c.before).length + ' under this desk), ' + cf.manager.title)(KP.companyFile(state)) +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +
     (sgl.heirStabilized ? ' heirStabilized' : '') + (sgl.heirBurst ? ' heirBurst' : '') +

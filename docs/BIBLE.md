@@ -9521,7 +9521,8 @@ feature the player can sit for or refuse.
 
 **7. The people upstairs and down the hall (the exec, the staff, the
 company's file; part one, her own questions, SHIPPED v0.11.27,
-§119; part two, the annual review, SHIPPED v0.11.28, §120).** The
+§119; part two, the annual review, SHIPPED v0.11.28, §120; part
+three, the company's own file, SHIPPED v0.11.29, §121).** The
 exec's `personality` finally read: a question
 family per type (the profit hunter asks about the quarter, the
 traditionalist about the vocal room, the micromanager about a trainee
@@ -13006,6 +13007,112 @@ bot 31 of 203 worlds reach gone, and the long haul's bot is given
 the sound should count; the Desk's tie-break (§112); and from §109,
 the fade between records through a service chapter and the size of
 the window's bank.
+
+## §121 The company's own file (SHIPPED v0.11.29 — §96 recommendation 7, the people upstairs and down the hall, part three)
+
+Owner: *"Break remaining work into smaller pieces"*. The third of
+recommendation 7's pieces: the history, and a page for it. The
+anniversary and the year-end letter are later pieces.
+
+**The finding** (§96): "The company's own file: a durable history
+written by the rails that already fire". The company had no
+history. Every first was a letter, read once and gone with the
+inbox. The manager's title was set to "A&R Manager" at week one,
+shown nowhere, and changed by nothing.
+
+**Counted first** (§118's lesson). Over 40 careers the rails fire
+in most of them: a first trophy's letter in 44 of 48 worlds, an
+award win in 41, a red memo in 25, a succession in 3. And most of
+what they mark is still on the state when the letter is gone: a
+debut week, the week of the first trophy, each record's peak on the
+chart, each act's honors, the settlement, the last bow, the
+founding, the label that folded, the week the chair sat down.
+
+**So the file is read, and not written** (`KP.companyFile`, pure).
+Nothing writes to it, so nothing can drift from the game it
+describes. An old save has its whole file the day it opens, with no
+migration. Reading it changes nothing.
+
+**The chapters**, each from the marker a rail leaves:
+
+- the desk: "You took the A&R desk at Hanseong Culture Group." A
+  founded label: "... opened its doors, out of HCG." After a second
+  chance the desk's week is the new one.
+- each debut, with the record of the debut week.
+- the first number one on the scene chart: the company's, and this
+  desk's when the company's came before it.
+- the first music-show trophy: the company's, and this desk's. This
+  desk's is dated by the record that won it; no rail keeps its
+  week.
+- each year-end honor, dated by its ceremony. The daesang is said
+  in its own words.
+- the first settlement; a last bow; a label that was dissolved
+  before this one; a chair who sat down after the desk did.
+
+Weeks before this desk's own are the company's past: the act it
+inherited debuted, went to number one and won its trophies "before
+your time". The file is in order of the weeks; within a week by
+kind; two of a kind by their words.
+
+**What the manager is called** is what the file proves under this
+desk (`KP.managerTitle`): an A&R manager; a senior one once an act
+has debuted under this desk; the head of A&R after a year-end honor
+for any of our acts; an executive producer after a daesang. A
+founder is a founder. What was won before this desk does not count.
+
+**The Desk.** The record opens with a row for the company: its
+name, the title, how long, and how many chapters are on the file.
+The row opens a page: this desk's chapters, the newest first, then
+the company's past.
+
+**Measured.** Over 200 careers the files hold 2,601 chapters, 13 a
+career, 2,003 of them under this desk: 606 debuts, 398 number ones,
+400 trophies, 979 honors, 16 daesangs, 2 folded labels. Every
+career's file holds a first under this desk (200 of 200, a band).
+No career moved: every one of the census's 360 rows is v0.11.28's.
+Across the long haul's eleven scenarios the files hold 101
+chapters, 84 under the desk of the day.
+
+**The ladder is short.** At the end of the census 184 managers are
+head of A&R and 16 are executive producers, and nobody is less. The
+act the company inherited wins a year-end honor in its first year
+under the bot. The titles are the owner's to space out.
+
+**Not on the file yet**, because no rail leaves a marker: the week
+of a succession before the last one, a red episode, the fame
+breakthrough, and the week this desk won its first trophy. Those
+need a written record. They are the next piece.
+
+**Found by the mutation run.** On the first run 58 of 62 broken
+lines were caught and none survived. Four crashed the suite where
+they should have failed by name: a file that threw, threw inside
+the Desk's render, and the suite rendered unguarded. A page that
+throws is a page that did not draw now. On the final run, 62 of
+62.
+
+Suite_139 (61): a new career's file and its past; each chapter
+from its marker, with its edges; the two firsts, the company's and
+this desk's; the order; the desk's week at a founding and at a
+second chance; each title, and what does not count; a pure read;
+the Desk's row and page through the DOM stub with the real tap, and
+the way back; a hundred and twenty real weeks; both tools' wiring.
+Mutation-checked against 62 broken lines, each caught by a named
+assertion. A real-browser pass (13 checks, no page errors): a
+new career's row opens the page with a real tap and Back returns;
+a finished career from the census bot, loaded through the title
+screen, lists its seventeen chapters the newest first under an
+executive producer, and reading it changes nothing in the save.
+Battery 139/139, soak 40 clean, census 200 clean, longhaul 11 ×
+620 clean, e2e 137, the twelve older browser passes, lockstep
+0.11.29.
+
+*Left for the next pieces.* The chapters that need a written
+record; the company anniversary; the year-end letter at week 48.
+*Still the owner's to call*: from §120, the shape of probation;
+from §119, whether a pass should cost anything, and whether next
+door to the sound should count; the Desk's tie-break (§112); and
+from §109, the fade between records through a service chapter and
+the size of the window's bank.
 
 ## §18 Watch items
 
@@ -17059,6 +17166,30 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Battery 138/138, soak 40 clean, census 200 clean, longhaul 11 ×
 > 620 clean, e2e 137, a real-browser pass (23), lockstep 0.11.28.
 > Rode to main. Next piece: probation, which is the deferred firing.
+
+> **0.11.29 — the company's own file.** Own judgment, under
+> "Approved to tackle as much of the remaining queue as you see fit"
+> and "Break remaining work into smaller pieces": the third piece
+> of §96's recommendation 7. §121: the company had no history; every
+> first was a letter, read once. Counted first: the rails fire in
+> most careers, and most of what they mark is still on the state. So
+> the file is read off those markers and never written: nothing can
+> drift, an old save has its file the day it opens, and no migration
+> was needed. Chapters: the desk, each debut, the first number one
+> and the first trophy (the company's, and this desk's), each
+> year-end honor, the first settlement, a last bow, a folded label,
+> a new chair. Weeks before this desk are the company's past. The
+> manager's title, set at week one and shown nowhere, is now what
+> the file proves under this desk, from A&R manager to executive
+> producer. The Desk's record opens with a row for the company, and
+> the row opens its page. Over 200 careers the files hold 2,601
+> chapters, 13 a career; every one of the census's 360 rows is
+> 0.11.28's. The ladder of titles is short under the bot: nobody
+> ends below head of A&R. Suite_139 (61), 62 mutations caught
+> by name.
+> Battery 139/139, soak 40 clean, census 200 clean, longhaul 11 ×
+> 620 clean, e2e 137, a real-browser pass (13), lockstep 0.11.29.
+> Rode to main. Next piece: the chapters that need a written record.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

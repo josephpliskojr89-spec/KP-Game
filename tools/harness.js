@@ -728,6 +728,7 @@ const BANDS = {
   // careers, 5 of them with trust gone, in 5 careers (the suite forces it)
   reviewHeard:       { lo: 0.90, hi: 1.00, label: 'orgs the executive reviewed when the directors had gone' },
   reviewGone:        { lo: 0.00, hi: 0.40, label: 'orgs reviewed with trust gone' },
+  fileFirst:         { lo: 0.50, hi: 1.00, label: 'orgs whose file holds a first number one or a first trophy under this desk' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -884,6 +885,7 @@ const postSum = {};   // the posting (v0.11.17, §108)
 const quietSum = {};  // the quiet (v0.11.20, §111)
 const wallSum = {};   // the head (v0.11.22, §113)
 const upSum = { types: {} };   // her own questions (v0.11.27, §119)
+const fileSum = {};            // the company's own file (v0.11.29, §121)
 const tally = {
   sensation: 0, strongPlus: 0, missOrQuiet: 0, nonCenterBreakout: 0,
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
@@ -966,7 +968,7 @@ const tally = {
   listPosted: 0, offListDoor: 0,
   quietRested: 0, quietFull: 0,
   headQuoted: 0, houseBooks: 0, parkMoved: 0, callReason: 0, truceCalled: 0, truceTaken: 0, truceBroken: 0,
-  ownAsked: 0, ownKept: 0, ownBroken: 0, reviewHeard: 0, reviewGone: 0,
+  ownAsked: 0, ownKept: 0, ownBroken: 0, reviewHeard: 0, reviewGone: 0, fileFirst: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -2601,6 +2603,25 @@ for (let s = 0; s < SEEDS; s++) {
       guard(kept.every(r => r.band === KP.trustBand(r.trust)), seed + ' a review is filed under a band its trust is not in');
       guard(kept.every((r, i) => i === 0 || r.week > kept[i - 1].week), seed + ' the reviews on the file are out of order');
     }
+    // the company's own file (v0.11.29, §121): read off the state, never
+    // written. It is in order, it has one chapter for this desk, nothing
+    // on it is dated after today, every act that debuted is on it, and
+    // reading it changes nothing
+    {
+      const before = KP.serialize(state);
+      const cf = KP.companyFile(state), since = KP.deskSince(state);
+      const mine = cf.chapters.filter(c => !c.before);
+      if (mine.some(c => c.kind === 'numberOne' || c.kind === 'trophy')) tally.fileFirst++;
+      fileSum.chapters = (fileSum.chapters || 0) + cf.chapters.length;
+      fileSum.mine = (fileSum.mine || 0) + mine.length;
+      cf.chapters.forEach(c => { fileSum['k_' + c.kind] = (fileSum['k_' + c.kind] || 0) + 1; });
+      fileSum['t_' + cf.manager.title] = (fileSum['t_' + cf.manager.title] || 0) + 1;
+      guard(KP.serialize(state) === before, seed + ' reading the company’s file changed the save');
+      guard(cf.chapters.every((c, i) => i === 0 || c.week >= cf.chapters[i - 1].week), seed + ' the company’s file is out of order');
+      guard(cf.chapters.filter(c => c.kind === 'desk').length === 1 && cf.chapters.find(c => c.kind === 'desk').week === since, seed + ' the company’s file has no one chapter for this desk');
+      guard(cf.chapters.every(c => c.week <= state.week && c.before === (c.week < since)), seed + ' a chapter of the company’s file is dated after today, or on the wrong side of this desk');
+      guard(KP.groups(state).filter(g => g.debuted && g.debutWeek != null).every(g => cf.chapters.some(c => c.kind === 'debut' && c.week === g.debutWeek && c.text.startsWith(g.name + ' debuted'))), seed + ' an act that debuted is not on the company’s file');
+    }
     // the letterhead (v0.11.25, §116): who called our staff, and what the
     // answers put on the books. An answer needs a call
     if ((wallL.callsBooks || 0) + (wallL.callsTemper || 0) >= 1) tally.callReason++;
@@ -3322,6 +3343,9 @@ console.log('her own questions: asked ' + (upSum.asked || 0) + ' · put on the r
 console.log('  by question: ' + Object.keys(upSum.types).map(k => ({ execQuarter: 'the quarter', execVoice: 'the voice', execByName: 'the name', execSound: 'the sound', execRemember: 'the record' }[k] || k) +
   ' asked ' + upSum.types[k].asked + ' (kept ' + upSum.types[k].met + ', broken ' + upSum.types[k].missed + ')').join(' · '));
 console.log('the annual review: given ' + (upSum.reviews || 0) + ' times · ' + ['trusted', 'solid', 'watched', 'thin', 'gone'].map(k => k + ' ' + ((upSum.bands || {})[k] || 0)).join(' · '));
+console.log('the company’s file: chapters ' + (fileSum.chapters || 0) + ' · under this desk ' + (fileSum.mine || 0) + ' · ' +
+  ['debut', 'numberOne', 'trophy', 'award', 'daesang', 'settlement', 'lastBow', 'fold', 'chair'].map(k => k + ' ' + (fileSum['k_' + k] || 0)).join(' · '));
+console.log('  the manager’s title at the end: ' + ['A&R Manager', 'Senior A&R Manager', 'Head of A&R', 'Executive Producer', 'Founder'].map(k => k + ' ' + (fileSum['t_' + k] || 0)).join(' · '));
 console.log('the quiet: told the rest was in ' + (quietSum.rested || 0) + ' · told the bank was full ' + (quietSum.full || 0) +
   ' · a member on a break told she was rested ' + (quietSum.breakRested || 0) + ' · acts still parked at the end ' + (quietSum.parked || 0));
 console.log('the posting: lists ' + (postSum.posted || 0) + ' · the month’s first left off ' + (postSum.offMonth || 0) + ' · the year’s first left off ' + (postSum.offYear || 0) +

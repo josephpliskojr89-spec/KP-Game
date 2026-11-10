@@ -37,6 +37,66 @@
     return Math.min(S.stageIQCap, Math.max(0, (p.age || 0) - S.at) * S.stageIQPerYear);
   };
 
+  // ---- the company's own file (v0.11.29, §121) ---------------------------
+  // The company had no history of its own: every first was a letter, read
+  // once and gone. Most of it is still on the state, in the markers the
+  // rails leave behind: a debut week, the first trophy, a record's peak,
+  // the honors, the settlement, the last bow, the founding, the fold, the
+  // chair. The file is READ off them. Nothing is written, so nothing can
+  // drift, and an old save has its file the day it opens. Weeks before
+  // this desk's own are the company's past.
+  KP.deskSince = function (state) { return state.chapterSince || (state.founded && state.founded.week) || 1; };
+  const FILE_ORDER = ['fold', 'desk', 'chair', 'debut', 'numberOne', 'trophy', 'award', 'daesang', 'settlement', 'lastBow'];
+  const honorWeek = h => (h.year - 1) * KP.C.WEEKS_PER_YEAR + KP.C.AWARDS.ceremonyWeek;   // an honor is dated by its ceremony
+  const records = (state, test) => KP.groups(state)
+    .reduce((all, g) => all.concat((g.releases || []).filter(test).map(r => ({ r, g }))), [])
+    .sort((a, b) => a.r.week - b.r.week || (a.g.id < b.g.id ? -1 : 1));
+  // what the manager is called: what the file proves under this desk
+  KP.managerTitle = function (state) {
+    if (state.founded) return 'Founder';
+    const since = KP.deskSince(state);
+    const honors = KP.groups(state).reduce((all, g) => all.concat(g.honors || []), []).filter(h => honorWeek(h) >= since);
+    if (honors.some(h => h.category === 'daesang')) return 'Executive Producer';
+    if (honors.length) return 'Head of A&R';
+    if (KP.groups(state).some(g => g.debutWeek >= since)) return 'Senior A&R Manager';
+    return 'A&R Manager';
+  };
+  KP.companyFile = function (state) {
+    const A = KP.C.AWARDS;
+    const since = KP.deskSince(state);
+    const ch = [];
+    const add = (week, kind, text) => ch.push({ week, kind, text, before: week < since });
+    add(since, 'desk', state.founded
+      ? state.company.name + ' opened its doors' + (state.founded.from ? ', out of ' + state.founded.from : '') + '.'
+      : 'You took the A&R desk at ' + state.company.name + '.');
+    KP.groups(state).forEach(g => {
+      if (g.debutWeek == null) return;   // a lineup that never debuted has no chapter
+      const first = (g.releases || []).find(r => r.week === g.debutWeek);
+      add(g.debutWeek, 'debut', g.name + ' debuted' + (first ? ' with “' + first.songTitle + '”' : '') + '.');
+      (g.honors || []).forEach(h => add(honorWeek(h), h.category === 'daesang' ? 'daesang' : 'award',
+        g.name + ' took ' + (h.category === 'daesang' ? 'the daesang, the grand prize of the year' : A.LABELS[h.category]) + '.'));
+      if (g.recoup && g.recoup.settledWeek != null) add(g.recoup.settledWeek, 'settlement', g.name + ' paid back everything the company had spent on them. From that week their share was theirs.');
+      if (g.retiredWeek) add(g.retiredWeek, 'lastBow', g.name + ' took a last bow.');
+    });
+    // the firsts: the company's own, and this desk's when the company's came before it
+    const ones = records(state, r => r.chartPeak === 1);
+    const says = x => '“' + x.r.songTitle + '” by ' + x.g.name + ' went to number one on the scene chart: ';
+    if (ones.length) add(ones[0].r.week, 'numberOne', says(ones[0]) + 'the company’s first.');
+    const mine = ones.find(x => x.r.week >= since);
+    if (mine && mine !== ones[0]) add(mine.r.week, 'numberOne', says(mine) + 'the first under this desk.');
+    if (state.firstShowWinWeek) add(state.firstShowWinWeek, 'trophy', 'The first music-show trophy in the company’s history.');
+    if (state.firstShowWinWeek < since) {
+      // the company's first came before this desk; this desk's is dated by the record that won it
+      const won = records(state, r => r.week >= since && r.trophies > 0)[0];
+      if (won) add(won.r.week, 'trophy', '“' + won.r.songTitle + '” by ' + won.g.name + ' came out, and won a music-show trophy: the first under this desk.');
+    }
+    ((state.estate && state.estate.folded) || []).forEach(f => add(f.week, 'fold', f.name + ' was dissolved.'));
+    if (!state.founded && state.executive.since > since) add(state.executive.since, 'chair', state.executive.name + ' took the chair.');
+    ch.sort((a, b) => a.week - b.week || FILE_ORDER.indexOf(a.kind) - FILE_ORDER.indexOf(b.kind) || (a.text < b.text ? -1 : 1));
+    return { name: state.company.name, short: state.company.short, since,
+      manager: { name: state.player.name, title: KP.managerTitle(state), weeks: state.week - since }, chapters: ch };
+  };
+
   // ---- the weekly: every clock, one pass (order 859) --------------------
   KP.registerWeekly('timeShare', 859, function (state, rng, inbox, roster) {
     const T = KP.C.TIME;

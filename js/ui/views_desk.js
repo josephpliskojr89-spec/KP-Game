@@ -630,9 +630,29 @@
     return html.join('');
   }
 
+  // the company's own file (v0.11.29, §121): the page behind the row on The record
+  const yearsWord = weeks => { const y = Math.floor(weeks / KP.C.WEEKS_PER_YEAR); return y < 1 ? 'in the first year' : y === 1 ? 'one year in' : y + ' years in'; };
+  UI.renderCompany = function (state) {
+    const f = KP.companyFile(state);
+    const row = c => '<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(c.week).text) + '</span><div>' + UI.esc(c.text) + '</div></div>';
+    const past = f.chapters.filter(c => c.before), mine = f.chapters.filter(c => !c.before);
+    return '<div class="card co-file"><div class="kicker" style="margin-top:0">The company</div>' +
+      '<div style="font-size:1.25rem;font-weight:800;line-height:1.15">' + UI.esc(f.name) + '</div>' +
+      '<div style="font-size:.8rem;color:var(--ink-dim);margin-top:6px">' + UI.esc(f.manager.name) + ' · ' + UI.esc(f.manager.title) + ' · ' + yearsWord(f.manager.weeks) + '</div></div>' +
+      '<div class="kicker">Under this desk</div>' + mine.slice().reverse().map(row).join('') +
+      (past.length ? '<div class="kicker">Before this desk</div>' + past.slice().reverse().map(row).join('') : '');
+  };
+
   function renderRecord(state) {
     const html = [];
     const claims = state.claims || [];
+    {
+      const f = KP.companyFile(state);
+      html.push('<div class="card co-row" data-action="open-company" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px">' +
+        '<div><div style="font-weight:700">' + UI.esc(f.name) + '</div>' +
+        '<div style="font-size:.76rem;color:var(--ink-dim);margin-top:3px">' + UI.esc(f.manager.title) + ' · ' + yearsWord(f.manager.weeks) + ' · ' + f.chapters.length + ' chapter' + (f.chapters.length === 1 ? '' : 's') + ' on the file</div></div>' +
+        '<span style="color:var(--gold);font-size:1.1rem">›</span></div>');
+    }
     html.push(calendarStrip(state));
     // the red counter lives beside the books (v0.11.0, §86): one truth —
     // the clamps report what they swallowed, the counter reads the report

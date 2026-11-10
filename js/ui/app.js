@@ -75,6 +75,7 @@
     if (App.view && App.view.type === 'dossier') el.innerHTML = UI.renderDossier(s, App.view.id, App.dossierTab);
     else if (App.view && App.view.type === 'builder') el.innerHTML = UI.renderBuilder(s, App.builderDraft);
     else if (App.view && App.view.type === 'results') el.innerHTML = '<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>' + UI.renderResults(s, App.view.id);
+    else if (App.view && App.view.type === 'company') el.innerHTML = '<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>' + UI.renderCompany(s);
     else if (App.view && App.view.type === 'rivalact') {
       el.innerHTML = '<div class="pushbar"><button class="btn" data-action="back">‹ Back</button></div>' +
         UI.renderRivalAct(s, App.view.id);
@@ -804,6 +805,7 @@
       case 'open-results': push('results', t.dataset.id); break;
       case 'open-grouppage': push('grouppage', t.dataset.id); break;
       case 'open-rivalact': push('rivalact', t.dataset.id); break;
+      case 'open-company': push('company', 'company'); break;   // the company's own file (v0.11.29, §121)
       case 'studio-group': {
         App.studioGroupId = t.dataset.id;
         App.studioDraft.songId = null; App.studioDraft.conceptId = null; App.studioDraft.week = null;
