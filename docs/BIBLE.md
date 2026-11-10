@@ -9104,7 +9104,7 @@ Suite_114 (41). Measured in the first soak (40 orgs): vote pushes
 every org that sent — and the bands ruled from these. Battery
 114/114, soak 40 clean, longhaul 11 × 620, e2e 134, lockstep 0.11.4.
 
-## §96 Where we stand — the depth survey (post-0.11.4; recommendations 1–4 SHIPPED v0.11.5, v0.11.7, v0.11.9, and 4 in three parts v0.11.10–v0.11.12)
+## §96 Where we stand — the depth survey (post-0.11.4; recommendations 1–4 SHIPPED v0.11.5, v0.11.7, v0.11.9, and 4 in three parts v0.11.10–v0.11.12; 5 in parts from v0.11.13)
 
 Owner, after the televised season shipped: *"Where does this leave
 us? Can you take a look at what needs more depth and give me a
@@ -9486,7 +9486,7 @@ what each member does next. `finalLineup` written on every ending;
 an alumni strip so the open files are reachable; a departed idol who
 can be signed across the street and a letter when she debuts there.
 
-**5. The practice room, attended (the trainee years as episodes).**
+**5. The practice room, attended (the trainee years as episodes; part one, the mission, SHIPPED v0.11.13, §104).**
 The evaluation sheet on a priority ladder (critical at a first #1,
 the line or the talk; high within one of the line; flavor only when
 nothing moved) naming the month's mission, her place and movement,
@@ -10784,6 +10784,115 @@ checks, no page errors). Battery 122/122, soak 40 clean, longhaul
 *Not built.* The door back: an alumna who could be re-signed. "The
 door stays open" is still only a sentence, and it would want its own
 release.
+
+## §104 The mission (SHIPPED v0.11.13 — §96 recommendation 5, the trainee years, part one)
+
+Owner: *"Break remaining work into smaller pieces"*. The practice
+room ships in pieces. This is the first: the month gets a room, and
+the sheet says more than who is first. The door a month (the talk as
+a scene, the showcase slot as a pick), the year-end sheet and the
+posting, and the absences are each their own release.
+
+**The finding** (§96): "The trainee years: two dials, four silent
+weeks, an evaluation sheet." v0.11.5 gave the sheet its priority
+ladder, put the trajectory on the board and rendered the trainee
+paper. The two dials still had no reason to move from one month to
+the next.
+
+Nothing new is drawn. The rotation, the moment and the notice are
+hashes; the showcase keeps the one draw per trainee it always made.
+
+**The month has a room.** Each showcase is held in one of five rooms,
+one for each talent: the ballad round, the formation round, the
+cypher, the solo stage, the camera test. The coaches run a rotation
+(`KP.evalMissionAt`, pure): every room once in five months, in an
+order of the save's own, never the same room twice running. A lap
+whose order would open on the room the last lap closed on swaps its
+first two; the swap never reaches a lap's last room, so the rule
+needs no look further back than one lap. The room is known a month
+ahead: the next one is posted the day the sheet goes up, as a quiet
+notice with its date.
+
+**Drilling it is the dial's reason.** A trainee whose focus is on the
+month's room, first or second, and who is training at all, has
+drilled it a week (`p.missionWeeks`, capped at the month). Not at
+rest, not on a break, not in a lineup in rehearsal: the debut
+schedule owns that week. On the day a drilled room is carried in:
++4 on the showcase for the whole month, pro rata for less
+(`KP.missionPrepOf`). The showcase closes the month and every
+counter starts again; a showcase too small to be held closes it all
+the same.
+
+The number is an edge and not a ladder. The sheet is still a read of
+what the coaches can see, plus the day's nerves; a drilled room
+moves a trainee past a neighbour, not past the room. And the sheet
+is a ranking, so the edge is only worth having when not everybody
+takes it. That is the decision: the month can go to the room for the
+one at the bottom who is two sheets from the talk, or for the ace
+whose streak is a month short, and it costs that trainee a month of
+what she actually needs.
+
+**The sheet says what the room was.** After the story it always
+carried, the sheet names the room and what it asks; then, if a
+trainee drilled it since the day it was posted and climbed, it names
+her ("and it showed"); if nobody drilled it at all, it says the room
+was read on what it already had.
+
+**The line.** With a project open the room reads the sheet at the
+lineup's edge (the seats the practice room's own speculation counts,
+never past the size of the room), and the sheet now says where that
+is: "the top 3 have a case". A trainee who crossed into it this
+month is named, and one who fell out of it, and a month with a
+crossing posts high. §96 asked for critical; v0.11.5 measured what a
+churning room does to a monthly critical (seven in ninety weeks) and
+ruled against it, and that ruling stands.
+
+**One thing from the room.** One sentence a month about one trainee,
+or two, that is not about rank: a first showcase, the piece drilled
+"in her sleep", two years in front of the long table, the youngest
+who would not look at it, the last on the sheet stacking the chairs,
+two friends a place apart, the stairwell at seven in the morning.
+Each of the seven kinds finds its own subject off the files or
+stands down (the youngest must be the only one that young; the last
+on the sheet is not the room's anecdote the month she gets the talk;
+a new signing who has already stood a showcase is not having her
+first). The week's hash picks among the kinds that have a subject,
+and never the kind told last month (`state.lastEvalMomentKind`, the
+season's shape). If that was the only one open, the room says
+nothing rather than repeat itself. Words only.
+
+**The screen.** The Training tab opens on the month's room: its
+name, the talent, what it asks, the date, what drilling does, and
+who is drilling it this week with the weeks each has in. The room is
+marked on every trainee's dial. A building with too few trainees for
+a showcase shows neither.
+
+**Old saves.** Nothing to migrate. A file from before has no
+counters and no room on record; its next showcase has a room, the
+first sheet on this build names it, and the ledger's new counts
+start beside the old ones.
+
+**The bot and the census.** The bot trains each trainee's two best
+reads, so it drills a room whenever the room is one of them and it
+does not rest her. Measured over 40 careers: 1249 showcases; 154
+trainee-months drilled whole, in 38/40 careers (floor .60); 40
+sheets named a climb for it; 688 sheets told one thing from the room
+(55%), in 40/40 careers (floor .60); 15 months the line was crossed.
+This is a real mechanic and the stream moved with it: 87 of the
+census's 340 rows shifted, most by one or two careers, and every
+band holds. The seven-year clock's lines (§101, §103) are unmoved:
+that pass's bot sets no focus, so nobody there drills anything.
+
+Suite_123 (108): the engine, and the Training tab rendered through
+the DOM stub. Mutation-checked against seventeen broken lines, each
+caught by a named assertion. A real-browser pass over the Training
+tab (12 checks, no page errors). Battery 123/123, soak 40 clean,
+longhaul 11 × 620 clean, e2e 134, lockstep 0.11.13.
+
+*Left for the next pieces.* The after-eval talk as a scene and the
+showcase slot as a pick; the year-end sheet read in reverse and the
+posting as a letter for the room with a door for the ace left off;
+the absences' cadence.
 
 ## §18 Watch items
 
@@ -14418,6 +14527,31 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > by name. Battery 122/122, soak 40 clean, longhaul 11x620, e2e 134, a
 > real-browser pass (19), lockstep 0.11.12. Rode to main. Not built:
 > the door back.
+
+
+> **0.11.13 — the mission.** Own judgment, under "Approved to tackle
+> as much of the remaining queue as you see fit" and "Break remaining
+> work into smaller pieces": §96's fifth entry, the trainee years, in
+> pieces; this is the first. §104: the two training dials had no
+> reason to move from one month to the next. Each showcase is now held
+> in one of five rooms, one per talent, on a rotation of the save's own
+> (every room once in five months, never the same twice running), and
+> posted a month ahead. A trainee whose focus is on the month's room
+> has drilled it a week; a whole month of it is worth +4 on the day,
+> pro rata for less: an edge past a neighbour, not a ladder past the
+> room. The sheet names the room and who drilled it and climbed; with
+> a project open it says where the line is and who crossed it (a
+> crossing posts high); and it tells one thing from the room that is
+> not about rank, from seven kinds that each find their own subject
+> and never repeat two months running. The Training tab opens on the
+> month's room and marks it on every dial. Nothing new is drawn.
+> Measured over 40 careers: 1249 showcases, 154 trainee-months drilled
+> whole (38/40 careers), 688 moments told (40/40), 15 line crossings.
+> A real mechanic, so 87 of the census's 340 rows moved, all inside
+> their bands. Suite_123 (108), seventeen mutations caught by name.
+> Battery 123/123, soak 40 clean, longhaul 11x620, e2e 134, a
+> real-browser pass (12), lockstep 0.11.13. Rode to main. Next pieces:
+> the door a month, the year-end sheet and the posting, the absences.
 
 
 > **Planning — the comeback (§91).** Owner: "something that really
