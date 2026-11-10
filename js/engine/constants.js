@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.23',
+    VERSION: '0.11.24',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -3129,6 +3129,11 @@
       },
       // their regard for us, in words: the first row the standing reaches
       WORDS: [[3, 'warm toward us'], [1, 'cordial with us'], [-1, 'even with us'], [-3, 'cool toward us'], [-99, 'holding a grudge']],
+      // what the books weigh, one roll at a time (v0.11.24, §115). The first:
+      // which house parks a comeback on our date. What a house holds against
+      // us today counts point for point, and its head's temper leans on it;
+      // with nothing between the houses the most prestigious goes first
+      AMBUSH_LEAN: { duelist: 2, showman: 1, broker: 0, steward: -2 },
     },
     // ---- Standing & scars (v0.8.3) --------------------------------------
     SCAR: {

@@ -9501,7 +9501,7 @@ absences given a cadence from the fandom's side (the countdown
 project, a letter from the base at the half, "whole again" as a
 ceremony with the return stage named).
 
-**6. The other side of the wall (rivals and the press as people; part one, the head, SHIPPED v0.11.22, §113; part two, the ledger, SHIPPED v0.11.23, §114).** A
+**6. The other side of the wall (rivals and the press as people; part one, the head, SHIPPED v0.11.22, §113; part two, the ledger, SHIPPED v0.11.23, §114; part three, the weight, SHIPPED v0.11.24, §115).** A
 hash-stamped HEAD per signing house (an invented name and a temper
 word in the schools' pattern), shown on the card and quoted yearly in
 the ranking letter through a family per temper. A directed ledger per
@@ -12193,6 +12193,117 @@ and what we do about it; it belongs with who makes the call. *Not
 built:* a head who leaves. *Still the owner's to call*: the Desk's
 tie-break (§112); and from §109, the fade between records through
 a service chapter and the size of the window's bank.
+
+## §115 The weight (SHIPPED v0.11.24 — §96 recommendation 6, the other side of the wall, part three)
+
+Owner: *"Break remaining work into smaller pieces"*. The third of
+recommendation 6's pieces, and the first in which the books weigh
+something. One roll only: which house parks a comeback on our date.
+
+**The finding** (§96): the ledger was to weigh "what the physics
+already roll". The first of those is the ambush. A house in
+shifting distance of our date parked on it at 12% a week, and the
+house was always the most prestigious one in reach. The head had no
+part in it, and neither had anything we had done.
+
+Nothing here draws. Whether a date is parked on is not changed.
+
+**Who parks** (`KP.houseMotive`, pure). Each house in reach has a
+motive: what it holds against us today, point for point, and its
+head's temper leaning on that.
+
+- what it holds: the regard on its books when that is below zero
+  (§114), so it fades as the regard does. A house that is warm
+  toward us has no spite, and is not held back for being warm.
+- the temper: a duelist +2, a showman +1, a broker 0, a steward −2.
+
+The house with the greatest motive parks. With nothing between the
+houses, the most prestigious does, as it always did. A house inside
+its cooldown is not in reach, whatever it holds.
+
+**The broadcaster's show** has no head to take offence and keeps
+no books. It parks only when no house is in reach. It was weighed
+by prestige like a house before; left that way it would have parked
+whenever the houses in reach were stewards.
+
+**The letter says why**, and so does the Studio's clash card
+(`KP.parkWhy`, kept on the clash). When the house holds something:
+"Nam Yeon-sung has not forgotten: Aurum lost a head-to-head week
+to us (Jan · Wk 1 · Y1)." It names the act that weighs most today,
+the newest of equals. When it is the temper: "Baek Joo-eun is a
+duelist, who takes a shared release week as a personal remark."
+When it is only the calendar, nothing is added.
+
+**The letter is critical.** It opens a decision, and it says its
+reason once. As a high letter 3 in 264 were cut by the week's
+budget.
+
+**Old saves** (migration 0.11.24): the wall's ledger counts parked
+dates from zero. A clash open on an old file has no reason on it
+and reads as it always did.
+
+**Measured, before and after**, over the same 200 careers:
+
+| over the same 200 careers | before | after |
+|---|---|---|
+| dates parked on | 852 | 864 |
+| by the most prestigious house standing | 521 | 283 |
+| by a house with something against us | 360 | 452 |
+| by a duelist’s house | 216 | 358 |
+| by a showman’s | 197 | 224 |
+| by a broker’s | 194 | 168 |
+| by a steward’s | 227 | 101 |
+| by the broadcaster’s show | 18 | 13 |
+| the date held | 732 | 734 |
+| the date slipped | 94 | 96 |
+| that week taken by us | 316 of 718 | 335 of 725 |
+
+In the census's own count, 849 dates were parked on by a house over
+the 200 careers: 452 for something on the books, 264 on the head's
+temper, 133 for the calendar alone. 382 were not the most
+prestigious house in reach, and in 165 of the 200 careers that
+happened at least once (a band, 40% to 100%). Across the long
+haul's eleven scenarios, 72 dates: 27 for the books, 35 on temper.
+
+**Told from noise at 1,000 careers.** Who parks decides which act
+lands on our week, so careers move. At 200 careers 169 of the
+census's 350 rows moved, nine of them by ten careers or more, and
+the largest was the first group reaching number one on the scene
+chart: 188 careers to 173. A second 200 careers on both builds did
+not repeat it (173 and 176); of the 37 rows that had moved by five
+or more, 15 moved the same way again and 19 the other way. At 1,000
+careers on both builds the first group reaches number one in 888
+careers and 887, the daesang goes home in 76 and 74, a head-to-head
+week is lost in 665 and 666, and 13 and 12 careers dissolve. One
+row of the 350 differs by more than two standard deviations and
+none by three. A date is parked on 4.2 times a career before and
+4.3 after. A change to who a roll falls on moves rows at 200
+careers by chance alone; a row that moves is a question, and 1,000
+careers on both builds answer it.
+
+Suite_134 (72): the table, the motive, why in words, who parks
+through the real weekly (the books, the temper, both weighed
+against each other, a steward passed over and a steward alone, the
+cooldown, the show, the grandest wherever it stands on the list),
+the main stream left where it was, the Studio card through the DOM
+stub, an old file, and both tools' wiring. Mutation-checked against
+40 broken lines, each caught by a named assertion, all on the first
+run. One guard guarded nothing and was deleted first: the Studio
+checked that the house still stood before asking for the sentence,
+and the sentence already answers that. A real-browser pass (21
+checks, no page errors): with the roll forced in the page and the
+real advance button, the lesser house parks, the letter and the
+Studio's card give the reason, the date is held with the real
+button, a duelist parks on temper, and with nothing between the
+houses no reason is given. Battery 134/134, soak 40 clean, census
+200 clean, longhaul 11 × 620 clean, e2e 137, lockstep 0.11.24.
+
+*Left for the next piece.* The next roll the books weigh. *Not
+changed:* how often a date is parked on. A temper could lean on
+that too; it would move the count, and is its own piece. *Still
+the owner's to call*: the Desk's tie-break (§112); and from §109,
+the fade between records through a service chapter and the size of
+the window's bank.
 
 ## §18 Watch items
 
@@ -16107,6 +16218,30 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > clean, longhaul 11 × 620 clean, e2e 137, a real-browser pass (29),
 > lockstep 0.11.23. Rode to main. Next piece: what the ledger weighs,
 > one roll at a time.
+
+> **0.11.24 — the weight.** Own judgment, under "Approved to tackle
+> as much of the remaining queue as you see fit" and "Break remaining
+> work into smaller pieces": the third piece of §96's recommendation
+> 6, and the first roll the books weigh. §115: a house in reach of
+> our date parked on it at 12% a week, and it was always the most
+> prestigious one. Now the house with the most against us today goes
+> first, its head's temper leans on that (a duelist +2, a showman +1,
+> a steward −2), and with nothing between the houses the most
+> prestigious does it, as before. The broadcaster's show parks only
+> when no house is in reach. Whether a date is parked on is not
+> changed, and nothing draws. The letter and the Studio's clash card
+> say why: the act the house has not forgotten, with its week, or the
+> head's temper. The letter is critical: it opens a decision.
+> Over 200 careers the most prestigious house standing parked 521
+> times of 852 before and 283 of 864 after; a house with something
+> against us 360 and 452; a steward's house 227 and 101. We take the
+> week it parks on 316 times in 718 before and 335 in 725 after. At
+> 200 careers 169 census rows moved; at 1,000 careers on both builds
+> none stands out: the daesang 76 and 74 careers, the first group at
+> number one 888 and 887. Suite_134 (72), 40 mutations caught by name
+> on the first run. Battery 134/134, soak 40 clean, census 200 clean,
+> longhaul 11 × 620 clean, e2e 137, a real-browser pass (21), lockstep
+> 0.11.24. Rode to main. Next piece: the next roll the books weigh.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

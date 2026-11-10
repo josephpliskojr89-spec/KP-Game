@@ -700,6 +700,10 @@ const BANDS = {
   // the ledger (v0.11.23, §114): something went on the books between this
   // house and one across the street. Ruled from the first soak: 40 of 40, 564 acts
   houseBooks:        { lo: 0.90, hi: 1.00, label: 'orgs with something on the books with a rival house' },
+  // the weight (v0.11.24, §115): the books or a head's temper changed which
+  // house parked on a date. Ruled from the first soak: 35 of 40, and 90 of
+  // 174 parked dates were not the grandest house in reach
+  parkMoved:         { lo: 0.40, hi: 1.00, label: 'orgs where the books or a temper changed which house parked on a date' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -936,7 +940,7 @@ const tally = {
   missionDrilled: 0, missionMoment: 0, talkQuestion: 0, slotGiven: 0, yearRead: 0, yearClimb: 0,
   listPosted: 0, offListDoor: 0,
   quietRested: 0, quietFull: 0,
-  headQuoted: 0, houseBooks: 0,
+  headQuoted: 0, houseBooks: 0, parkMoved: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -2504,6 +2508,14 @@ for (let s = 0; s < SEEDS; s++) {
     if ((wallL.acts || 0) >= 1) tally.houseBooks++;
     wallSum.acts = (wallSum.acts || 0) + (wallL.acts || 0);
     Object.keys(wallL.kinds || {}).forEach(k => { wallSum['k_' + k] = (wallSum['k_' + k] || 0) + wallL.kinds[k]; });
+    // the weight (v0.11.24, §115): who parked on our dates, and why. A date
+    // is parked on for the books, for a temper, or for the calendar alone
+    if ((wallL.parksMoved || 0) >= 1) tally.parkMoved++;
+    ['parks', 'parksBooks', 'parksTemper', 'parksMoved'].forEach(k => { wallSum[k] = (wallSum[k] || 0) + (wallL[k] || 0); });
+    guard((wallL.parksBooks || 0) + (wallL.parksTemper || 0) <= (wallL.parks || 0) && (wallL.parksMoved || 0) <= (wallL.parks || 0),
+      seed + ' the parked dates do not add up: ' + [wallL.parks, wallL.parksBooks, wallL.parksTemper, wallL.parksMoved].join('/'));
+    guard((wallL.parks || 0) === ((wallL.kinds || {}).theyAmbushed || 0),
+      seed + ' a house parked on a date and it did not go on its books: ' + (wallL.parks || 0) + ' parked, ' + ((wallL.kinds || {}).theyAmbushed || 0) + ' on the books');
     houses.forEach(r => {
       const rd = KP.houseRead(state, r);
       if (rd.count) { wallSum.booked = (wallSum.booked || 0) + 1; wallSum['w_' + rd.word] = (wallSum['w_' + rd.word] || 0) + 1; }
@@ -3205,6 +3217,9 @@ console.log('the heads: houses standing at the end ' + (wallSum.houses || 0) + '
 console.log('the books: acts recorded ' + (wallSum.acts || 0) + ' (' + Object.keys(KP.C.WALL.KINDS).map(k => k + ' ' + (wallSum['k_' + k] || 0)).join(' · ') +
   ') · houses with something on the books at the end ' + (wallSum.booked || 0) + ' of ' + (wallSum.houses || 0) +
   ' (' + KP.C.WALL.WORDS.map(row => row[1] + ' ' + (wallSum['w_' + row[1]] || 0)).join(' · ') + ')');
+console.log('the weight: dates parked on by a house ' + (wallSum.parks || 0) + ' · for something on the books ' + (wallSum.parksBooks || 0) +
+  ' · on its head’s temper ' + (wallSum.parksTemper || 0) + ' · for the calendar alone ' + ((wallSum.parks || 0) - (wallSum.parksBooks || 0) - (wallSum.parksTemper || 0)) +
+  ' · not the grandest house in reach ' + (wallSum.parksMoved || 0));
 console.log('the quiet: told the rest was in ' + (quietSum.rested || 0) + ' · told the bank was full ' + (quietSum.full || 0) +
   ' · a member on a break told she was rested ' + (quietSum.breakRested || 0) + ' · acts still parked at the end ' + (quietSum.parked || 0));
 console.log('the posting: lists ' + (postSum.posted || 0) + ' · the month’s first left off ' + (postSum.offMonth || 0) + ' · the year’s first left off ' + (postSum.offYear || 0) +

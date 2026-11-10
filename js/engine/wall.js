@@ -19,7 +19,7 @@
 
   function ledger(state) {
     const led = state.wallLedger = state.wallLedger || {};
-    ['heads', 'quotes', 'acts'].forEach(k => { if (led[k] == null) led[k] = 0; });
+    ['heads', 'quotes', 'acts', 'parks', 'parksBooks', 'parksTemper', 'parksMoved'].forEach(k => { if (led[k] == null) led[k] = 0; });
     if (!led.kinds) led.kinds = {};
     return led;
   }
@@ -272,6 +272,47 @@
     const shown = read.acts.slice(0, 3).map(a => a.words + ' (' + KP.weekLabel(a.week).text + ')');
     return (head ? head.name : r.short) + ' is ' + read.word + '. On the books: ' + shown.join('; ') +
       (read.count > 3 ? '; and ' + (read.count - 3) + ' more' : '') + '.';
+  };
+
+  // ==== part three: the weight (v0.11.24, §115) ========================================
+  // What the books weigh, one roll at a time. The first is which house
+  // parks a comeback on our date (calendar.js): the house with the most
+  // against us today goes first, its head's temper leans on that, and with
+  // nothing between the houses the most prestigious does it, as it always
+  // did. Whether a date is parked on at all is not changed, and nothing
+  // here draws.
+  KP.houseMotive = function (state, r) {
+    const W = KP.C.WALL;
+    const read = KP.houseRead(state, r);
+    const head = KP.rivalHead(state, r);
+    const spite = Math.max(0, -read.standing);
+    const lean = head ? (W.AMBUSH_LEAN[head.temper] || 0) : 0;
+    // what it is about: the act that weighs most against us today, the
+    // newest of equals
+    let because = null, heaviest = 0;
+    if (spite > 0) {
+      read.acts.forEach(a => {
+        const now = -a.w * Math.pow(0.5, Math.max(0, state.week - a.week) / W.halfLifeWeeks);
+        if (now > heaviest) { heaviest = now; because = { kind: a.kind, week: a.week }; }
+      });
+    }
+    return { spite, lean, score: spite + lean, because };
+  };
+  // why a house parked: the books, its head's temper, or nothing but the
+  // calendar. Kept on the clash, so the Studio says what the letter said.
+  KP.parkWhy = function (state, r) {
+    const m = KP.houseMotive(state, r);
+    if (m.because) return { by: 'books', kind: m.because.kind, week: m.because.week };
+    if (m.lean > 0) return { by: 'temper' };
+    return null;
+  };
+  KP.parkWhyText = function (state, r, why) {
+    const head = r ? KP.rivalHead(state, r) : null;
+    if (!why || !head) return '';
+    const row = KP.C.WALL.KINDS[why.kind];
+    if (why.by === 'books' && row) return head.name + ' has not forgotten: ' + r.short + ' ' + row.words + ' (' + KP.weekLabel(why.week).text + ').';
+    if (why.by === 'temper') return head.name + ' is a ' + head.temper + ', who ' + KP.headTemperProse(head) + '.';
+    return '';
   };
 
   // ---- the weekly: a house founded since the last tick gets its head -------------

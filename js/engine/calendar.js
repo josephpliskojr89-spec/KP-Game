@@ -100,9 +100,25 @@
         candidates.push({ r, a });
       });
       if (candidates.length && rng.chance(W.ambushChance)) {
-        // the most prestigious house does it — they can afford the pettiness
-        candidates.sort((x, y) => y.r.prestige - x.r.prestige);
+        // the house with the most against us does it, and its head's temper
+        // leans on that (v0.11.24, §115); with nothing between the houses,
+        // the most prestigious — they can afford the pettiness. The
+        // broadcaster's show has no head to take offence: it parks only
+        // when no house would
+        const grandest = candidates.slice().sort((x, y) => y.r.prestige - x.r.prestige)[0].r;
+        const motive = c => (KP.houseMotive ? KP.houseMotive(state, c.r).score : 0);
+        const show = c => (c.r.projectHouse ? 1 : 0);
+        candidates.sort((x, y) => show(x) - show(y) || motive(y) - motive(x) || y.r.prestige - x.r.prestige);
         const { r, a } = candidates[0];
+        const why = KP.parkWhy ? KP.parkWhy(state, r) : null;
+        const whyText = why ? KP.parkWhyText(state, r, why) : '';
+        if (KP.wallLedger && !r.projectHouse) {
+          const led = KP.wallLedger(state);
+          led.parks++;
+          if (why && why.by === 'books') led.parksBooks++;
+          if (why && why.by === 'temper') led.parksTemper++;
+          if (r !== grandest) led.parksMoved++;
+        }
         const wasPublic = a.announcedWeek != null;
         a.cycleWeeks = week - a.lastReleaseWeek;
         a.announcedWeek = week;
@@ -110,16 +126,18 @@
         r.ambushCount = (r.ambushCount || 0) + 1;
         if (KP.recordHouse) KP.recordHouse(state, r.short, 'theyAmbushed');   // on the books between the houses (v0.11.23, §114)
         target.prep.clash = { actId: a.id, company: r.short, actName: a.name, week, resolved: null };
+        if (why) target.prep.clash.why = why;
         if (r.ambushCount >= W.sniperAt) {
           const nar = KP.recordEvidence(state, 'dateSniper', 'rivalCompany', r.short);
           if (nar) notes.push(nar);
         }
-        notes.push({ kind: 'industry', urgent: true, ind: 'ambush', groupId: target.id,
+        // critical (v0.11.24): it opens a decision, and it says why, once
+        notes.push({ kind: 'industry', urgent: true, priority: 'critical', ind: 'ambush', groupId: target.id,
           actName: a.name, company: r.short,
           text: r.short + (wasPublic
             ? ' just MOVED ' + a.name + '’s announced comeback — onto ' + target.name + '’s date. '
             : ' just announced ' + a.name + '’s comeback for ' + KP.weekLabel(week).text + ' — ' + target.name + '’s date. ') +
-            'Scheduling coincidences do not exist in this industry. The desk options are in the Studio: hold the date, or slip ' +
+            'Scheduling coincidences do not exist in this industry. ' + (whyText ? whyText + ' ' : '') + 'The desk options are in the Studio: hold the date, or slip ' +
             W.slipWeeks + ' weeks (' + W.slipCost + ' to rebook the calendar).' });
       }
     }

@@ -1368,6 +1368,11 @@
     });
   } });
 
+  // v0.11.24 — the weight. The wall's ledger counts parked dates from zero.
+  MIGRATIONS.push({ v: '0.11.24', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

@@ -97,7 +97,13 @@
         const W = KP.C.WAR;
         clashCard = '<div class="war-card">' +
           '<div class="w-flag">Date clash · ' + UI.esc(clash.company) + '</div>' +
-          '<div class="w-text">' + UI.esc(clash.actName) + '’s comeback just landed on our announced date. Scheduling coincidences do not exist in this industry.</div>' +
+          '<div class="w-text">' + UI.esc(clash.actName) + '’s comeback just landed on our announced date. Scheduling coincidences do not exist in this industry.' +
+          // why this house (v0.11.24, §115): what the letter said, kept on the clash
+          (function () {
+            const house = (state.rivals || []).find(x => x.short === clash.company);
+            const why = KP.parkWhyText ? KP.parkWhyText(state, house, clash.why) : '';
+            return why ? ' <span class="w-why">' + UI.esc(why) + '</span>' : '';
+          })() + '</div>' +
           '<div class="w-actions">' +
           '<button class="btn primary" data-action="clash-hold" data-id="' + g.id + '">Hold the date</button>' +
           '<button class="btn" data-action="clash-slip" data-id="' + g.id + '">Slip ' + W.slipWeeks + ' weeks · ' + W.slipCost + '</button>' +
