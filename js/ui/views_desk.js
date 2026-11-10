@@ -190,6 +190,25 @@
           '<span class="chip">home ' + UI.esc(KP.weekLabel(rd.endWeek).text) + '</span></div></div>');
       });
     }
+    // the last year (v0.11.10, §101): one card per member on her farewell lap —
+    // the date, how the fans are told, and where her last era stands. A
+    // promise made at the renewal table shows as one, and turns red when no
+    // record can land in time to keep it.
+    if (KP.farewellRead) {
+      KP.farewellRead(state).forEach(r => {
+        const p = state.people[r.personId];
+        const g = r.groupId ? KP.groupById(state, r.groupId) : null;
+        html.push('<div class="objective" style="margin-top:10px;border-color:color-mix(in srgb,var(--magenta) 50%,var(--line));cursor:pointer" data-action="open-dossier" data-id="' + p.id + '">' +
+          '<div class="o-from" style="color:var(--magenta)">The last year · ' + UI.esc(KP.displayName(p)) + (g ? ' · ' + UI.esc(g.name) : '') + '</div>' +
+          '<div class="o-text">' + UI.esc(KP.fillPro('{Pos} contract ends ', p) + KP.weekLabel(r.ends).text) + ' · ' + UI.esc(r.toldWord) +
+          (r.eraWord ? ' · ' + UI.esc(r.eraWord) : '') + '</div>' +
+          '<div class="o-meta"><span class="chip">' + r.weeksLeft + ' week' + (r.weeksLeft === 1 ? '' : 's') + ' left</span>' +
+          (r.promise ? (r.era === 'late' ? '<span class="chip hot">the promised last era will not happen</span>'
+            : r.era === 'landed' ? '<span class="chip gold">the promise at the table: kept when ' + UI.esc(KP.pro(p).she) + ' goes</span>'
+            : '<span class="chip gold">promised at the table: a last era</span>') : '') +
+          '</div></div>');
+      });
+    }
     // Japan (v0.11.7, §98): the in-country weeks, read beside the road
     if (KP.japanAwayRead) {
       KP.groups(state).forEach(g => {

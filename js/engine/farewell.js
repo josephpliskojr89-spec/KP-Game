@@ -351,6 +351,42 @@
     return out;
   };
 
+  // ---- the read: one truth for Today's card and the file's line ----------
+  // where the telling stands, and where her last era stands, in words the
+  // surfaces print. Pure: it writes nothing.
+  KP.farewellRead = function (state) {
+    const F = KP.C.FAREWELL;
+    const out = [];
+    (state.roster || []).forEach(id => {
+      const p = state.people[id];
+      const lap = KP.lapOf(state, p);
+      if (!lap) return;
+      const g = KP.groupOf(state, p.id);
+      const staged = !!stagedLap(state, p);
+      const opens = lap.ends - F.lastEraWeeks;
+      const when = w => KP.weekLabel(w).text;
+      const toldWord = lap.mode !== 'warm' ? 'leaving cold: there is no goodbye to stage'
+        : lap.told === 'fans' ? 'the fans know: ' + KP.fillPro('{she} told them ', p) + when(lap.toldWeek)
+        : lap.told === 'era' ? KP.fillPro('the fans know: announced with {pos} last era', p)
+        : lap.told === 'house' ? KP.fillPro('kept in the house until {pos} last era is announced', p)
+        : 'the fans have not been told';
+      // her last era: landed, locked, still possible, or out of time
+      let era = 'none', eraWord = '';
+      if (lap.era) { era = 'landed'; eraWord = KP.fillPro('{pos} last era has landed' + (lap.stage ? ', and {pos} last stage is on file' : ''), p); }
+      else if (staged && g.prep && inWindow(lap, g.prep.scheduledWeek)) { era = 'locked'; eraWord = KP.fillPro('{pos} last era is locked: it lands ', p) + when(g.prep.scheduledWeek); }
+      else if (staged && state.week + KP.C.DEBUT.prepWeeksMin > lap.ends) { era = 'late'; eraWord = KP.fillPro('no record can land before {she} goes now', p); }
+      else if (staged) {
+        era = 'open';
+        eraWord = state.week < opens ? KP.fillPro('a record that lands from ' + when(opens) + ' on will be {pos} last era', p)
+          : KP.fillPro('a record that lands by ' + when(lap.ends) + ' will be {pos} last era', p);
+      }
+      const promise = (state.claims || []).some(c => !c.resolved && c.type === 'farewellEra' && c.personId === p.id);
+      out.push({ personId: p.id, groupId: g ? g.id : null, ends: lap.ends, weeksLeft: lap.weeksLeft, mode: lap.mode,
+        told: lap.told, toldWord, opens, era, eraWord, promise });
+    });
+    return out.sort((a, b) => a.ends - b.ends || (a.personId < b.personId ? -1 : 1));
+  };
+
   // ---- the timeline hears it (hash picks: the stream stands still) ---------
   const pick = (state, salt, id, lines) => lines[Math.floor(KP.hash01([state.seed, salt, id, state.week].join('|')) * lines.length)];
   KP.onFeedEvent('farewellTold', (state, n) => {

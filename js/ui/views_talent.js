@@ -18,6 +18,7 @@
       html.push(radarCard(state));   // on the radar (from Today since v0.10.41, §89 D15)
       state.roster.map(id => state.people[id]).forEach(p => html.push(rosterRow(state, p)));
       if (!state.roster.length) html.push('<div class="card">No trainees. That is a problem money can fix.</div>');
+      html.push(UI.alumniList(state));   // the open files (v0.11.10, §101)
     } else if (sub === 'training') {
       html.push(renderTrainingPage(state));
     } else {
@@ -52,6 +53,21 @@
       html.push(renderSchools(state));
     }
     return html.join('');
+  };
+
+  // ---- the alumni (v0.11.10, §101): every artist whose contract ended here.
+  // The file "stays open forever" and no list reached it. Newest goodbye first.
+  UI.alumniList = function (state) {
+    const list = Object.values(state.people).filter(p => p.status === 'departed')
+      .sort((a, b) => (b.flags.departedWeek || 0) - (a.flags.departedWeek || 0) || (a.id < b.id ? -1 : 1));
+    if (!list.length) return '';
+    return '<div class="kicker">Alumni · ' + list.length + '</div>' +
+      list.map(p => {
+        const last = (p.chapters || [])[(p.chapters || []).length - 1];
+        return '<div class="talent-row" data-action="open-dossier" data-id="' + p.id + '" style="opacity:.8">' + UI.portrait(p, 'md') +
+          '<div class="t-body"><div class="t-name">' + UI.esc(KP.displayName(p)) + '</div>' +
+          '<div class="t-sub">' + UI.esc(last ? KP.chapterLine(state, last) : 'Left the company') + ' · ' + UI.esc(KP.weekLabel(p.flags.departedWeek || 1).text) + '</div></div></div>';
+      }).join('');
   };
 
   // ---- the regional schools (v0.9.16): the map under the board ---------
@@ -128,6 +144,9 @@
       '<div class="t-chips">' + UI.condChips(p) +
       (grp ? '<span class="chip gold">' + UI.esc(grp.name) + '</span>' : '') +
       (p.status === 'idol' ? '<span class="chip gold">debuted</span>' : '') +
+      // the lap (v0.11.10, §101): the date is on the row
+      (p.status === 'idol' && p.contract && p.contract.leaving && KP.lapOf
+        ? '<span class="chip hot">final term · leaves ' + UI.esc(KP.weekLabel(KP.lapOf(state, p).ends).text) + '</span>' : '') +
       ((p.hype || 0) >= 35 ? '<span class="chip hot">' + UI.esc(KP.hypeWord(p.hype)) + '</span>' : '') +
       // the powers' head start (v0.10.17, §84 B): the file says so —
       // somebody bigger saw her before we did
@@ -331,11 +350,12 @@
     // the forecast and the trainee paper (v0.11.5, §96 wiring): pure reads, null when they do not apply
     const forecast = KP.renewalForecast ? KP.renewalForecast(state, p) : null;
     const paper = KP.traineePaperRead ? KP.traineePaperRead(state, p) : null;
+    const lapRead = KP.farewellRead ? KP.farewellRead(state).find(r => r.personId === p.id) || null : null;
     const nameHtml = p.name.stage
       ? UI.esc(p.name.stage)
       : UI.esc(p.name.family) + '<br>' + UI.esc(p.name.given);
     html.push('<div class="dossier-head">' + UI.portrait(p, 'lg') +
-      '<div class="d-id"><div class="d-label">' + (p.status === 'prospect' ? 'Prospect file' : p.status === 'idol' ? 'Artist file' : 'Trainee file') + '</div>' +
+      '<div class="d-id"><div class="d-label">' + (p.status === 'prospect' ? 'Prospect file' : p.status === 'idol' ? 'Artist file' : p.status === 'departed' ? 'Alumni file' : 'Trainee file') + '</div>' +
       '<div class="bigname">' + nameHtml + '</div>' +
       '<div class="d-meta">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' +
       (p.gender === 'm' ? 'boy' : 'girl') + ' · ' + UI.esc(sourceLabel(state, p)) +
@@ -352,7 +372,9 @@
         ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:5px">Exclusive contract · year ' +
           KP.contractYear(state, p) + ' of ' + (p.contract.years || KP.C.CONTRACT.years) +
           (p.contract.term > 1 ? ' · term ' + p.contract.term : '') +
-          (p.contract.leaving ? ' · <span style="color:var(--magenta)">final term</span>' : '') +
+          // the lap (v0.11.10, §101): the date and how the fans are told, beside the chip
+          (p.contract.leaving ? ' · <span style="color:var(--magenta)">final term' +
+            (lapRead ? ' · leaves ' + UI.esc(KP.weekLabel(lapRead.ends).text) + ' · ' + UI.esc(lapRead.toldWord) + (lapRead.eraWord ? ' · ' + UI.esc(lapRead.eraWord) : '') : '') + '</span>' : '') +
           (p.flags.military ? ' · <span style="color:var(--magenta)">in service — back ' + UI.esc(KP.weekLabel(p.flags.military.until).text) + '</span>' : p.serviceDone ? ' · service completed' : '') +
           // the forecast (v0.11.5, §96 wiring): the band the table would read, from the renewal year on — a word, never the score
           (forecast ? ' · the table would read: <span style="color:' + ({ devoted: 'var(--gold)', gone: 'var(--magenta)' }[forecast] || 'var(--ink)') + '">' + UI.esc(forecast) + '</span>' : '') + '</div>'

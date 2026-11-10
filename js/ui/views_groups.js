@@ -42,10 +42,13 @@
   function archiveCard(state, g) {
     const rels = (g.releases || []).length;
     const size = (g.finalLineup || []).length || g.members.length;
-    return '<div class="card" style="opacity:.72"><b>' + UI.esc(g.name) + '</b>' +
+    const before = alumniOf(state, g).length;
+    // the card is a door (v0.11.10, §101): the record page existed and nothing opened it
+    return '<div class="card" style="opacity:.72;cursor:pointer" data-action="open-grouppage" data-id="' + g.id + '"><b>' + UI.esc(g.name) + '</b>' +
       '<div style="font-size:.78rem;color:var(--ink-dim);margin-top:4px">Concluded ' +
       UI.esc(KP.weekLabel(g.retiredWeek).text) + ' · ' +
-      (size === 1 ? 'solo act' : size + ' members') + ' · ' +
+      (g.type === 'solo' ? 'solo act' : size === 1 ? 'one member at the end' : size + ' members at the end') +
+      (before ? ' · ' + before + ' before' : '') + ' · ' +
       rels + ' release' + (rels === 1 ? '' : 's') +
       (g.fandom ? ' · ' + UI.esc(g.fandom.name) + ' keeps the archive' : '') +
       '</div></div>';
@@ -154,11 +157,94 @@
       '</div>';
   }
 
+  // the discography (lifted out in v0.11.10, §101, unchanged): the story so
+  // far, on the record — the living act's page and a concluded one's read it
+  function discography(state, g, html) {
+      html.push('<div class="kicker">Discography</div>');
+      g.releases.slice().reverse().forEach(r => {
+        const fmt = KP.C.DEBUT.FORMATS.find(f => f.id === r.format);
+        // the record inside the record (v0.7.5): credits and the sleeper
+        const creditBits = [];
+        (r.tracklist || []).forEach(tr => {
+          if (!tr.credit) return;
+          if (tr.credit.type === 'solo') {
+            const p = state.people[tr.credit.memberId];
+            creditBits.push((p ? UI.esc(KP.publicGiven(p)) : '?') + '’s solo “' + UI.esc(tr.title) + '”');
+          } else {
+            creditBits.push('the ' + tr.credit.memberIds.map(id => {
+              const p = state.people[id]; return p ? UI.esc(KP.publicGiven(p)) : '?';
+            }).join(' & ') + ' unit “' + UI.esc(tr.title) + '”');
+          }
+        });
+        // the b-sides, judged (v0.11.1, §92 A): the fan pick in words, and
+        // any b-side that charted or ran again — never the hook
+        if (r.bsides && r.bsides.length) {
+          const pick = r.bsides.slice().sort((a, b) => b.heat - a.heat)[0];
+          creditBits.push('fan pick “' + UI.esc(pick.title) + '” · ' + UI.esc(KP.bsideWord(pick)) +
+            r.bsides.filter(b => b !== pick && (b.peak || b.revivedWeek)).map(b => ' · “' + UI.esc(b.title) + '” ' + UI.esc(KP.bsideWord(b))).join(''));
+        } else if (r.sleeperTitle) creditBits.push('b-side hit “' + UI.esc(r.sleeperTitle) + '”');
+        if (r.revivedWeek) creditBits.push('reverse run ' + UI.esc(KP.weekLabel(r.revivedWeek).text) + (r.revivalNationalPeak ? ' (national #' + r.revivalNationalPeak + ')' : ''));
+        // the pen credits (v0.9.7): names inside the booklet
+        (r.tracklist || []).forEach(tr => {
+          if (!tr.writtenBy) return;
+          const p = state.people[tr.writtenBy];
+          if (p) creditBits.push('“' + UI.esc(tr.title) + '” co-written by ' + UI.esc(KP.publicGiven(p)));
+        });
+        // the era's last line (v0.11.9, §100): how it closed and what followed
+        // it — words and the public shelf only, read off the close's own mark
+        const closeBit = !r.closed ? '' : ' · closed ' + ({
+          crowned: r.closed.trophies >= 2 ? 'with ' + r.closed.trophies + ' trophies' : 'with a trophy',
+          warm: 'warm', quiet: 'quietly', cold: 'cold' }[r.closed.verdict] || 'quietly') +
+          (r.closed.extended ? ' after a second wind' : '');
+        const afterBit = (r.reissuedAs ? ' · reissued as “' + UI.esc(r.reissuedAs) + '”'
+          : r.reissueRested ? ' · left to rest' : '') +
+          // whose last era it was (v0.11.10, §101)
+          ((r.farewellFor || []).map(id => state.people[id]).filter(Boolean).map(p => ' · ' + UI.esc(KP.publicGiven(p)) + '’s last era').join(''));
+        html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(r.week).text) + '</span>' +
+          '<div><b>“' + UI.esc(r.songTitle) + '”</b> · ' + UI.esc(KP.conceptById(r.conceptId).label) +
+          (fmt ? ' · ' + UI.esc(fmt.label.toLowerCase()) : '') +
+          (r.producer ? ' · prod. ' + UI.esc(r.producer) : '') +
+          // the reissue names its era (v0.11.5, §96 wiring): repackageOf is the first record's title
+          '<span class="m-week">' + (r.isDebut ? 'debut · ' : r.repackageOf ? 'extends “' + UI.esc(r.repackageOf) + '” · ' : '') + 'peaked #' + r.chartPeak +
+          (r.nationalPeak != null ? ' · national #' + r.nationalPeak : '') +
+          (r.critics ? ' · critics: ' + UI.esc(KP.verdictWord(r.critics.consensus)) + (r.critics.split ? ' (split)' : '') : '') +
+          (r.chartWeeks ? ' · ' + r.chartWeeks + ' weeks charting' : ' · missed the charts') +
+          closeBit + afterBit +
+          (creditBits.length ? '<br>' + creditBits.join(' · ') : '') + '</span></div></div>');
+      });
+  }
+
+  // who has left this lineup (v0.11.10, §101): the files stay open forever
+  // and were reachable from no list. Words only: where she is now is read
+  // off her own file.
+  function nowWord(state, p) {
+    if (p.status === 'idol') return KP.groupOf(state, p.id) ? KP.fillPro('on {pos} own calendar', p) : 'still with the company';
+    const last = (p.chapters || [])[(p.chapters || []).length - 1];
+    return last ? KP.chapterLine(state, last).replace(/^./, c => c.toLowerCase()) : 'gone from the company';
+  }
+  function personChip(state, p, tail) {
+    return '<span class="chip" style="cursor:pointer" data-action="open-dossier" data-id="' + p.id + '">' + UI.esc(KP.displayName(p)) +
+      (tail ? ' · ' + UI.esc(tail) : '') + '</span>';
+  }
+  function alumniOf(state, g) {
+    const here = new Set((g.members || []).concat(g.finalLineup || []));
+    return (g.alumni || []).filter(a => !here.has(a.id) && state.people[a.id]).map(a => ({ p: state.people[a.id], week: a.week }));
+  }
+  function alumniStrip(state, g) {
+    const list = alumniOf(state, g);
+    if (!list.length) return '';
+    return '<div class="kicker">Former members · ' + list.length + '</div>' +
+      '<div class="pad" style="display:flex;gap:7px;flex-wrap:wrap">' +
+      list.map(a => personChip(state, a.p, 'left ' + KP.chapterWhen(a.week))).join('') + '</div>';
+  }
+
   UI.renderGroupPage = function (state, g) {
     // a closed chapter reads as a record, not a dashboard (0.9.18.2)
     if (g.retiredWeek) {
       const rels = (g.releases || []).length;
       const lineup = (g.finalLineup || []).map(id => state.people[id]).filter(Boolean);
+      const rec = [];
+      if (rels) discography(state, g, rec);
       return '<div class="group-hero"><div class="g-status">Concluded · ' +
         UI.esc(KP.weekLabel(g.retiredWeek).text) + '</div>' +
         '<div class="g-name">' + UI.esc(g.name) + '</div>' +
@@ -166,9 +252,13 @@
         '<span class="chip">' + rels + ' release' + (rels === 1 ? '' : 's') + '</span>' +
         (g.fandom ? '<span class="chip">' + UI.esc(g.fandom.name) + ' keeps the archive</span>' : '') +
         '</div></div>' +
-        (lineup.length ? '<div class="card">The final lineup: ' +
-          lineup.map(p => UI.esc(KP.displayName(p))).join(', ') +
-          ' — still with the company, on their own calendars.</div>' : '');
+        // the lineup at the end, each a door to her file, with where she is
+        // now (v0.11.10, §101): the card said "still with the company" of
+        // members whose contracts had ended
+        (lineup.length ? '<div class="kicker">The final lineup · ' + lineup.length + '</div>' +
+          '<div class="pad" style="display:flex;gap:7px;flex-wrap:wrap">' +
+          lineup.map(p => personChip(state, p, nowWord(state, p))).join('') + '</div>' : '') +
+        alumniStrip(state, g) + rec.join('');
     }
     const members = g.members.map(id => state.people[id]);
     const html = [];
@@ -241,6 +331,7 @@
     if (g.type !== 'solo') {
       html.push('<div class="pad" style="margin-top:2px"><button class="btn small ghost" style="border:1px solid var(--line)" data-action="open-roles" data-id="' + g.id + '">Edit roles</button></div>');
     }
+    html.push(alumniStrip(state, g));   // who has left the lineup (v0.11.10, §101)
 
     // chemistry observations + frictions with their handles
     // what the public remembers about this group (v0.6.0)
@@ -551,56 +642,7 @@
 
     // discography — the story so far, on the record
     if (g.releases && g.releases.length) {
-      html.push('<div class="kicker">Discography</div>');
-      g.releases.slice().reverse().forEach(r => {
-        const fmt = KP.C.DEBUT.FORMATS.find(f => f.id === r.format);
-        // the record inside the record (v0.7.5): credits and the sleeper
-        const creditBits = [];
-        (r.tracklist || []).forEach(tr => {
-          if (!tr.credit) return;
-          if (tr.credit.type === 'solo') {
-            const p = state.people[tr.credit.memberId];
-            creditBits.push((p ? UI.esc(KP.publicGiven(p)) : '?') + '’s solo “' + UI.esc(tr.title) + '”');
-          } else {
-            creditBits.push('the ' + tr.credit.memberIds.map(id => {
-              const p = state.people[id]; return p ? UI.esc(KP.publicGiven(p)) : '?';
-            }).join(' & ') + ' unit “' + UI.esc(tr.title) + '”');
-          }
-        });
-        // the b-sides, judged (v0.11.1, §92 A): the fan pick in words, and
-        // any b-side that charted or ran again — never the hook
-        if (r.bsides && r.bsides.length) {
-          const pick = r.bsides.slice().sort((a, b) => b.heat - a.heat)[0];
-          creditBits.push('fan pick “' + UI.esc(pick.title) + '” · ' + UI.esc(KP.bsideWord(pick)) +
-            r.bsides.filter(b => b !== pick && (b.peak || b.revivedWeek)).map(b => ' · “' + UI.esc(b.title) + '” ' + UI.esc(KP.bsideWord(b))).join(''));
-        } else if (r.sleeperTitle) creditBits.push('b-side hit “' + UI.esc(r.sleeperTitle) + '”');
-        if (r.revivedWeek) creditBits.push('reverse run ' + UI.esc(KP.weekLabel(r.revivedWeek).text) + (r.revivalNationalPeak ? ' (national #' + r.revivalNationalPeak + ')' : ''));
-        // the pen credits (v0.9.7): names inside the booklet
-        (r.tracklist || []).forEach(tr => {
-          if (!tr.writtenBy) return;
-          const p = state.people[tr.writtenBy];
-          if (p) creditBits.push('“' + UI.esc(tr.title) + '” co-written by ' + UI.esc(KP.publicGiven(p)));
-        });
-        // the era's last line (v0.11.9, §100): how it closed and what followed
-        // it — words and the public shelf only, read off the close's own mark
-        const closeBit = !r.closed ? '' : ' · closed ' + ({
-          crowned: r.closed.trophies >= 2 ? 'with ' + r.closed.trophies + ' trophies' : 'with a trophy',
-          warm: 'warm', quiet: 'quietly', cold: 'cold' }[r.closed.verdict] || 'quietly') +
-          (r.closed.extended ? ' after a second wind' : '');
-        const afterBit = r.reissuedAs ? ' · reissued as “' + UI.esc(r.reissuedAs) + '”'
-          : r.reissueRested ? ' · left to rest' : '';
-        html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(r.week).text) + '</span>' +
-          '<div><b>“' + UI.esc(r.songTitle) + '”</b> · ' + UI.esc(KP.conceptById(r.conceptId).label) +
-          (fmt ? ' · ' + UI.esc(fmt.label.toLowerCase()) : '') +
-          (r.producer ? ' · prod. ' + UI.esc(r.producer) : '') +
-          // the reissue names its era (v0.11.5, §96 wiring): repackageOf is the first record's title
-          '<span class="m-week">' + (r.isDebut ? 'debut · ' : r.repackageOf ? 'extends “' + UI.esc(r.repackageOf) + '” · ' : '') + 'peaked #' + r.chartPeak +
-          (r.nationalPeak != null ? ' · national #' + r.nationalPeak : '') +
-          (r.critics ? ' · critics: ' + UI.esc(KP.verdictWord(r.critics.consensus)) + (r.critics.split ? ' (split)' : '') : '') +
-          (r.chartWeeks ? ' · ' + r.chartWeeks + ' weeks charting' : ' · missed the charts') +
-          closeBit + afterBit +
-          (creditBits.length ? '<br>' + creditBits.join(' · ') : '') + '</span></div></div>');
-      });
+      discography(state, g, html);
       // the writers' room (v0.9.7): the producers behind the records,
       // with track records in words — one truth read off their works
       const worked = KP.producersOf(state).filter(pr =>

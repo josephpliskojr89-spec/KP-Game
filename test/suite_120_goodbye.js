@@ -24,6 +24,9 @@
      has no anniversary live
    · an old file keeps its past: alumni read back off the files, a lap
      in flight never charged as sudden
+   · the screens: the last year on Today, the lap on her file, former
+     members on the act's page, the alumni on the Talent tab, and an
+     archive card that opens a record
    Two laws from §99 hold throughout: the week's wire is read before
    the trim, and a fixture forces every gate and relies on no roll. */
 'use strict';
@@ -914,6 +917,140 @@ const oldFile = (src, mut) => {
   KP.departIdol(ol, lf.pid, 'warm', null);
   const n = ol.inbox.find(m => m.ind === 'contractEnd');
   t.eq(n.shape + '|' + Math.round((was - og2.popularity) * 100) / 100, 'plain|' + C.departPopHitWarm, 'and a goodbye the old build began is never charged as sudden');
+}
+
+// ---- the read: one truth for Today's card and the file's line ----
+{
+  const one = f => KP.farewellRead(f.s).filter(r => r.personId === f.pid)[0];
+  t.eq(KP.farewellRead(fork().s).length, 0, 'nobody on a lap: nothing to read');
+  const f = lapped();
+  const before = JSON.stringify(f.s);
+  const r = one(f);
+  t.eq(JSON.stringify(f.s), before, 'the read writes nothing');
+  t.eq([r.groupId, r.ends, r.weeksLeft, r.mode, String(r.told), r.opens, r.era, r.promise].join('|'), [f.gid, ENDS, ENDS - f.s.week, 'warm', 'null', WINDOW, 'open', false].join('|'),
+    'the lap, the week her window opens, and where her last era stands');
+  t.eq(r.toldWord + ' / ' + r.eraWord, 'the fans have not been told / a record that lands from ' + KP.weekLabel(WINDOW).text + ' on will be her last era', 'in words: untold, and the window still ahead');
+  // how the telling reads
+  const word = mut => { const x = lapped(); mut(x); return one(x).toldWord; };
+  t.eq(word(x => { x.p.contract.told = 'house'; }), 'kept in the house until her last era is announced', 'kept in the house');
+  t.eq(word(x => { x.p.contract.told = 'fans'; x.p.contract.toldWeek = 3; }), 'the fans know: she told them ' + KP.weekLabel(3).text, 'told by her, with the week');
+  t.eq(word(x => { x.p.contract.told = 'era'; x.p.contract.toldWeek = 62; }), 'the fans know: announced with her last era', 'told by the era');
+  const cold = one(lapped('cold'));
+  t.eq(cold.toldWord + '|' + cold.era + '|' + cold.eraWord, 'leaving cold: there is no goodbye to stage|none|', 'a cold ending has nothing to stage');
+  // where her last era stands
+  const era = x => { const y = one(x); return y.era + ' / ' + y.eraWord; };
+  t.eq(era(houseLate), 'open / a record that lands by ' + KP.weekLabel(ENDS).text + ' will be her last era', 'inside the window, the deadline is the week she goes');
+  const locked = fork(houseLate);
+  lock(locked, 70);
+  t.eq(era(locked), 'locked / her last era is locked: it lands ' + KP.weekLabel(70).text, 'locked, with its date');
+  t.eq(era(lastEra), 'landed / her last era has landed', 'landed');
+  t.eq(era(preExit), 'landed / her last era has landed, and her last stage is on file', 'landed, with her last stage on file');
+  const late = fork(houseLate);
+  late.p.contract.start -= (late.p.contract.start + C.years * YEAR) - (late.s.week + KP.C.DEBUT.prepWeeksMin - 1);   // forced: her clock
+  t.eq(KP.lapOf(late.s, late.p).ends - late.s.week, KP.C.DEBUT.prepWeeksMin - 1, 'fixture: one week short of the shortest runway');
+  t.eq(era(late), 'late / no record can land before she goes now', 'out of time');
+  late.p.contract.start += 1;
+  t.eq(one(late).era, 'open', 'with exactly the shortest runway left, a record can still land');
+  // the promise shows while it is open
+  const pr = lapped();
+  KP.farewellPromise(pr.s, pr.p);
+  t.eq(one(pr).promise, true, 'a promise made at the table shows on the read');
+  // two laps, soonest first
+  const two = lapped();
+  const o = others(two)[0];
+  o.contract.start = two.p.contract.start - 10;
+  KP.beginLap(two.s, o, 'warm');
+  t.eq(KP.farewellRead(two.s).map(x => x.personId).join(','), o.id + ',' + two.pid, 'two laps read soonest first');
+}
+
+// ---- the screens: Today, the file, the group page, the alumni, the archive ----
+// the stub's own engine reads a save of each fixture
+{
+  const dom = require('./dom_stub');
+  const D = dom.load();
+  const K = D.KP, App = D.App, el = D.el;
+  const load = x => { const s = K.deserialize(KP.serialize(x.s)); return { s, g: s.groups.find(y => y.id === x.gid), p: s.people[x.pid] }; };
+  const page = (s, tab, sub) => { App.state = s; App.mode = 'game'; App.tab = tab; App.view = null; if (sub) App.deskSub = sub; App.render(); return el('screen').innerHTML; };
+  const text = h => dom.stripTags(h).replace(/\s+/g, ' ');
+  const clean = h => !/undefined|NaN|\{she\}|\{her\}|\{pos\}|\{Pos\}/.test(h);
+  const opens = (h, id) => dom.actionsIn(h).filter(a => a.action === 'open-dossier' && a.dataset.id === id).length;
+
+  // a lap with a promise, week 2
+  const a = lapped();
+  KP.farewellPromise(a.s, a.p);
+  const A = load(a);
+  const N = K.displayName(A.p), LEAVES = K.weekLabel(ENDS).text;
+  let h = page(A.s, 'desk', 'today');
+  t.ok(clean(h), 'Today renders clean with a lap on it');
+  t.ok(text(h).includes('The last year · ' + N + ' · ' + A.g.name + ' Her contract ends ' + LEAVES + ' · the fans have not been told · a record that lands from ' + K.weekLabel(WINDOW).text + ' on will be her last era'),
+    'Today carries the last year: who, the date, the telling, the window');
+  t.ok(text(h).includes((ENDS - A.s.week) + ' weeks left') && text(h).includes('promised at the table: a last era'), 'with the weeks left and the promise');
+  t.ok(opens(h, A.p.id) >= 1, 'and the card opens her file');
+  t.ok(!text(page(load(fork()).s, 'desk', 'today')).includes('The last year'), 'no lap, no card');
+  h = page(A.s, 'talent', 'roster');
+  t.ok(text(h).includes('final term · leaves ' + LEAVES), 'the roster row carries the date');
+  h = D.UI.renderDossier(A.s, A.p.id);
+  t.ok(clean(h) && text(h).includes('final term · leaves ' + LEAVES + ' · the fans have not been told · a record that lands from ' + K.weekLabel(WINDOW).text + ' on will be her last era'),
+    'her file carries the lap on the contract line');
+  t.ok(text(h).includes('Artist file') && !text(h).includes('Alumni file'), 'and is still an artist’s file');
+
+  // the promise with no time left to keep it
+  const lateFix = lapped();
+  KP.farewellPromise(lateFix.s, lateFix.p);
+  lateFix.p.contract.start -= (lateFix.p.contract.start + C.years * YEAR) - (lateFix.s.week + 2);   // forced: two weeks left
+  h = page(load(lateFix).s, 'desk', 'today');
+  t.ok(text(h).includes('no record can land before she goes now') && text(h).includes('the promised last era will not happen'), 'a promise that can no longer be kept says so on Today');
+  // and one already kept
+  const keptFix = fork(preExit);
+  KP.farewellPromise(keptFix.s, keptFix.p);
+  h = page(load(keptFix).s, 'desk', 'today');
+  t.ok(text(h).includes('her last era has landed, and her last stage is on file') && text(h).includes('the promise at the table: kept when she goes'), 'a promise her last era has kept says so');
+
+  // after she goes
+  const gone = exitOf();
+  const G = load(gone);
+  h = page(G.s, 'desk', 'today');
+  t.ok(clean(h) && !text(h).includes('The last year'), 'once she is gone the card is gone');
+  h = D.UI.renderGroupPage(G.s, G.g);
+  t.ok(clean(h) && text(h).includes('Former members · 1') && text(h).includes(N + ' · left ' + K.weekLabel(gone.s.week).text), 'the act’s page lists her as a former member, with the week');
+  t.eq(opens(h, G.p.id), 1, 'and the name opens her file');
+  t.ok(text(h).includes(K.publicGiven(G.p) + '’s last era'), 'the discography marks whose last era the record was');
+  h = page(G.s, 'talent', 'roster');
+  t.ok(clean(h) && text(h).includes('Alumni · 1') && text(h).includes(N + ' Contract completed at ' + G.s.company.short + ' (' + G.g.name + ') · ' + K.weekLabel(gone.s.week).text),
+    'the Talent tab lists the alumni, with how and when she left');
+  t.ok(opens(h, G.p.id) >= 1, 'and the row opens her file');
+  h = D.UI.renderDossier(G.s, G.p.id);
+  t.ok(clean(h) && text(h).includes('Alumni file') && text(h).includes('Departed ' + K.weekLabel(gone.s.week).text + ' · the file stays open forever'), 'which is named as an alumni file');
+  t.ok(!text(page(load(fork()).s, 'talent', 'roster')).includes('Alumni'), 'no alumni, no list');
+  t.ok(!text(D.UI.renderGroupPage(load(fork()).s, load(fork()).g)).includes('Former members'), 'and no former members on an act nobody has left');
+
+  // an act concluded by its last contract
+  const last = fork();
+  const order = last.g.members.slice();
+  order.forEach(id => { KP.beginLap(last.s, last.s.people[id], 'warm'); last.s.people[id].contract.told = 'fans'; });   // forced: all four chose to go
+  order.slice(0, 3).forEach(id => KP.departIdol(last.s, id, 'warm', null));
+  answerAll(KP, last.s); tick(KP, last.s);
+  KP.departIdol(last.s, order[3], 'warm', null);
+  const L = load(last);
+  h = page(L.s, 'groups');
+  t.ok(clean(h) && text(h).includes('Concluded ' + K.weekLabel(last.s.week).text + ' · one member at the end · 3 before · ' + L.g.releases.length + ' releases'),
+    'the archive card counts who was there at the end and who went before (it read “0 members”)');
+  t.eq(dom.actionsIn(h).filter(x => x.action === 'open-grouppage' && x.dataset.id === L.g.id).length, 1, 'and the card opens the record (nothing did)');
+  h = D.UI.renderGroupPage(L.s, L.g);
+  const T = text(h);
+  t.ok(clean(h) && T.includes('The final lineup · 1') && T.includes('Former members · 3') && T.includes('Discography'), 'the record: the final lineup, the former members, the discography');
+  t.ok(T.includes(K.displayName(L.s.people[order[3]]) + ' · contract completed at ' + L.s.company.short + ' (' + L.g.name + ')') && !T.includes('still with the company'),
+    'the last one standing is read off her own file, not called “still with the company”');
+  t.eq(order.map(id => opens(h, id)).join(','), '1,1,1,1', 'all four names open their files');
+
+  // an act the disband verb concluded: the lineup stayed with the company
+  const dis = fork();
+  KP.disbandGroup(dis.s, dis.gid);
+  const Dd = load(dis);
+  h = D.UI.renderGroupPage(Dd.s, Dd.g);
+  t.ok(clean(h) && text(h).includes('The final lineup · 4') && (text(h).match(/still with the company/g) || []).length === 4 && !text(h).includes('Former members'),
+    'a disbanded act’s four are still with the company, and it has no former members');
+  t.ok(text(page(Dd.s, 'groups')).includes('4 members at the end ·'), 'its archive card counts four');
 }
 
 t.finish();
