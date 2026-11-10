@@ -757,6 +757,9 @@ const PLAIN = N => N + '’s contract completed today, and the goodbye was every
   t.eq(exitOf(f => { sudden(f); f.p.contract.leavingSince = ENDS - F.askMinWeeks; }).note.shape, 'sudden', 'with exactly the weeks the question needs, it is sudden');
   t.eq(exitOf(f => { sudden(f); delete f.p.contract.leavingSince; }).note.shape, 'plain', 'a lap from before the lap was dated ends plainly');
   t.eq(exitOf(f => { sudden(f); f.g.type = 'solo'; }).note.shape, 'plain', 'and so does a solo act’s: there was no room to tell');
+  // the announcement told them, and then the record slipped past her last week
+  const slipped = exitOf(f => { sudden(f); f.p.contract.told = 'era'; });
+  t.eq(slipped.note.shape + '|' + slipped.popDrop + '|' + slipped.grudge, 'plain|' + C.departPopHitWarm + '|0', 'a last era that was announced and never landed is not a sudden goodbye: the fans were told');
 }
 
 // the promise: "write the ending right" is kept by her last era
@@ -784,6 +787,20 @@ const PLAIN = N => N + '’s contract completed today, and the goodbye was every
   // no promise, no settlement
   const none = exitOf();
   t.ok(none.claim === null && none.acts.length === 0, 'a lap with no promise settles nothing');
+  // bought out after the promise: broken by the company's own hand, never merely void
+  const bought = fork(preExit);
+  plainly(bought); promised(bought);
+  bought.s.budget = 9000;
+  const tr = KP.terminateContract(bought.s, bought.pid);
+  if (!tr.ok) throw new Error('fixture: the buyout refused: ' + tr.reason);
+  const bc = (bought.s.claims || []).find(c2 => c2.type === 'farewellEra' && c2.personId === bought.pid) || {};
+  t.eq(bc.resolved + '|' + bought.s.farewellLedger.broken + '|' + bought.p.directed.some(d2 => d2.kind === 'promiseBroken'), 'missed|1|true', 'a member bought out after the promise: the promise is broken, on her ledger');
+  t.eq(firstOf(bought.s.inbox.filter(m => m.ind === 'contractEnd')).shape, 'cold', 'and the ending is the cold letter it always was');
+  const boughtAfter = fork(preExit);
+  promised(boughtAfter);
+  boughtAfter.s.budget = 9000;
+  KP.terminateContract(boughtAfter.s, boughtAfter.pid);
+  t.eq(((boughtAfter.s.claims || []).find(c2 => c2.type === 'farewellEra') || {}).resolved, 'met', 'bought out after her last era landed: the promise was kept before the buyout');
 }
 
 // released at her own request: not a completed contract, and not the lap's business
@@ -851,6 +868,35 @@ const PLAIN = N => N + '’s contract completed today, and the goodbye was every
   const d = fork();
   must(KP.disbandGroup(d.s, d.gid));
   t.eq((d.g.finalLineup || []).length + '|' + (d.g.alumni || []).length + '|' + d.g.retiredWeek, '4|0|' + d.s.week, 'a disband keeps a final lineup of four and lists no alumni');
+
+  // a release over a story, when she was the last one in the room: the act concludes too
+  {
+    const alone = () => { const x = fork(); const ids = x.g.members.slice(); ids.slice(0, 3).forEach(id => KP.departIdol(x.s, id, 'warm', null)); return Object.assign(x, { lastId: ids[3] }); };
+    const x = alone();
+    t.ok(!x.g.retiredWeek && x.g.members.length === 1, 'fixture: one member is left in the act');
+    const sc = KP.openScene(x.s, { kind: 'theChoice', personId: x.lastId, expiresWeek: x.s.week + 2 });
+    const r = KP.resolveScene(x.s, sc.id, 'release');
+    t.ok(r.ok && x.s.people[x.lastId].status === 'released', 'fixture: she is released over the story');
+    t.eq(x.g.retiredWeek + '|' + JSON.stringify(x.g.finalLineup), x.s.week + '|' + JSON.stringify([x.lastId]), 'the release that empties the lineup concludes the act, with its final lineup (it left an act with nobody in it)');
+    t.eq((x.g.alumni || []).length, 4, 'and all four are on its list');
+    const n = firstOf(x.s.inbox.filter(m => m.ind === 'scandalRelease'));
+    t.ok(n.text.endsWith(' With nobody left in the lineup, ' + x.g.name + '’s chapter closes with it.') && !noisy(n.text), 'the letter says the chapter closes');
+    t.eq(KP.validateState(x.s).length, 0, 'the file is valid');
+    // the question left unanswered: the same ending
+    const y = alone();
+    KP.openScene(y.s, { kind: 'theChoice', personId: y.lastId, expiresWeek: y.s.week + 1 });
+    const wire = [];
+    let guard = 0;
+    while (y.s.people[y.lastId].status === 'idol' && guard++ < 5) { answerAll(KP, y.s, ['theChoice']); tick(KP, y.s).forEach(m => wire.push(m)); }
+    t.eq(y.s.people[y.lastId].status + '|' + !!y.g.retiredWeek + '|' + JSON.stringify(y.g.finalLineup), 'released|true|' + JSON.stringify([y.lastId]), 'a story left unanswered releases her and concludes the act the same way');
+    t.ok(firstOf(wire.filter(m => m.ind === 'scandalRelease')).text.endsWith('’s chapter closes with it.'), 'and its letter says so');
+    t.eq(KP.validateState(y.s).length, 0, 'the file is valid');
+    // with others still in the room the act goes on, and the letter says nothing about a chapter
+    const z = fork();
+    const sz = KP.openScene(z.s, { kind: 'theChoice', personId: z.pid, expiresWeek: z.s.week + 2 });
+    KP.resolveScene(z.s, sz.id, 'release');
+    t.ok(!z.g.retiredWeek && z.g.members.length === 3 && !firstOf(z.s.inbox.filter(m => m.ind === 'scandalRelease')).text.includes('chapter closes'), 'a release that leaves three in the room concludes nothing');
+  }
 
   // the last contract out: the act concludes with a lineup on the record
   const last = fork();

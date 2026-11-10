@@ -232,6 +232,7 @@
         return { toast: KP.fillPro('You protected {her}. It cost money, trust, and part of a fandom — and bought the only thing those can’t: the roster knowing what this label does when it matters.', p) };
       }
       led.released++;
+      let ended = false;
       if (g) {
         g.members = g.members.filter(id => id !== p.id);
         Object.keys(g.roles || {}).forEach(r => { if (g.roles[r] === p.id) delete g.roles[r]; });
@@ -246,6 +247,9 @@
           g.maknae = g.members.map(id => state.people[id]).filter(Boolean)
             .sort((a, b) => a.age - b.age)[0].id;
         }
+        // the last one out concludes the act (v0.11.10, §101): this door
+        // emptied a lineup and left the act standing with nobody in it
+        if (!g.members.length && !g.retiredWeek && KP.concludeAct) { KP.concludeAct(state, g, p.id); ended = true; }
         // the clean exits (v0.10.16): the backstop runs LAST, always
         if (KP.lineupPointerSweep) KP.lineupPointerSweep(state, g, p.id);
       }
@@ -260,7 +264,7 @@
       p.history.push({ week: state.week, text: 'Released. The statement used the word “mutual,” and nobody anywhere believed it. The story won.' });
       KP.note(state, { kind: 'public', ind: 'scandalRelease', priority: 'high', personId: p.id,
         groupId: g ? g.id : undefined,
-        text: KP.fillPro('It is done: ' + KP.displayName(p) + ' and the company have parted ways. The statement is four sentences; the fandom’s response will run for months. An empty chair closes a wound and opens a different one — every label learns which trade this was, later.', p) });
+        text: KP.fillPro('It is done: ' + KP.displayName(p) + ' and the company have parted ways. The statement is four sentences; the fandom’s response will run for months. An empty chair closes a wound and opens a different one — every label learns which trade this was, later.' + (ended ? ' With nobody left in the lineup, ' + g.name + '’s chapter closes with it.' : ''), p) });
       delete p.scandal;
       return { toast: KP.fillPro('{She}’s gone. The wound will close over the empty chair. What kind of label survives is now a settled question — the answer just cost you a person.', p) };
     },
@@ -271,6 +275,7 @@
       const led = ledger(state);
       led.released++;
       const g = KP.groupOf(state, p.id);
+      let ended = false;
       if (g) {
         g.members = g.members.filter(id => id !== p.id);
         Object.keys(g.roles || {}).forEach(r => { if (g.roles[r] === p.id) delete g.roles[r]; });
@@ -281,6 +286,7 @@
           g.maknae = g.members.map(id => state.people[id]).filter(Boolean)
             .sort((a, b) => a.age - b.age)[0].id;
         }
+        if (!g.members.length && !g.retiredWeek && KP.concludeAct) { KP.concludeAct(state, g, p.id); ended = true; }   // the last one out (v0.11.10, §101)
         // the clean exits (v0.10.16): the backstop runs LAST, always
         if (KP.lineupPointerSweep) KP.lineupPointerSweep(state, g, p.id);
       }
@@ -293,7 +299,9 @@
       if (state.scenes) state.scenes = state.scenes.filter(x => x.personId !== p.id);
       p.history.push({ week: state.week, text: 'Released by a company that never held the meeting. The silence was the decision.' });
       return { kind: 'public', ind: 'scandalRelease', priority: 'high', personId: p.id,
-        text: 'The departure announced itself: no meeting, no defense, one paragraph. The fandom will remember that the company chose by not choosing.' };
+        groupId: g ? g.id : undefined,
+        text: 'The departure announced itself: no meeting, no defense, one paragraph. The fandom will remember that the company chose by not choosing.' +
+          (ended ? ' With nobody left in the lineup, ' + g.name + '’s chapter closes with it.' : '') };
     },
   });
 

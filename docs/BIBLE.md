@@ -9104,7 +9104,7 @@ Suite_114 (41). Measured in the first soak (40 orgs): vote pushes
 every org that sent — and the bands ruled from these. Battery
 114/114, soak 40 clean, longhaul 11 × 620, e2e 134, lockstep 0.11.4.
 
-## §96 Where we stand — the depth survey (post-0.11.4; recommendations 1–3 SHIPPED v0.11.5, v0.11.7, v0.11.9)
+## §96 Where we stand — the depth survey (post-0.11.4; recommendations 1–3 SHIPPED v0.11.5, v0.11.7, v0.11.9; 4 in two parts from v0.11.10)
 
 Owner, after the televised season shipped: *"Where does this leave
 us? Can you take a look at what needs more depth and give me a
@@ -9471,7 +9471,7 @@ discography marking it. The pressing's pre-order week as a read and
 the restock as a door. The debut's first stage named as a debut
 stage.
 
-**4. The long goodbye (how a group ends).** The farewell lap as an
+**4. The long goodbye (how a group ends; the member's half SHIPPED v0.11.10, §101; the group's half is §102).** The farewell lap as an
 object once the table sets `contract.leaving`, with three readers:
 the release (a farewell-era mod and a note, hiatusReadsRelease's
 shape), the last stage (critical, a family by voice), the member desk
@@ -10310,6 +10310,178 @@ the new screens (33 checks, no page errors). Battery 119/119, soak
 40 clean, longhaul 11 × 620 clean, e2e 134, lockstep 0.11.9.
 Migration 0.11.9 (ensureLedgers: eraLedger; `since` stamped on a file
 from before the module).
+
+## §101 The long goodbye, part one (SHIPPED v0.11.10 — §96 recommendation 4, a member leaves)
+
+Owner: *"Approved to tackle as much of the remaining queue as you see
+fit"* and *"Break remaining work into smaller pieces"*. Recommendation
+4 ships in two. This is the half where a member goes; the half where a
+group ends, and what happens to a departed artist afterwards, is §102.
+
+**The finding** (§96): "How a group ends is a status flip with a good
+sentence on it: the farewell lap is announced… and nothing reads
+`contract.leaving` for two years; the last contract's expiry is one
+`high` letter; the archive card reads "0 members"… a departed idol's
+file "stays open forever" and is reachable from no list." The renewal
+table told the player "the seventh year becomes a farewell lap — her
+stages, her goodbyes, on her terms", and then the engine did nothing
+with it until the week she left.
+
+One new module, `farewell.js`. It makes no draw: every pick is a hash
+or a voice.
+
+**The lap.** A chosen ending is an object with a date. `KP.beginLap`
+is the one write path at the renewal table's three endings (the
+ending written right, the plea that fails, the line held on someone
+who leaves): it sets the two old fields and stamps the week
+(`contract.leavingSince`). `KP.lapOf(state, p)` reads it: the last
+week, the weeks left, the mode, how the fans were told, her last era
+and her last stage. The last week is the clock's own (the seventh
+year from a start that service pauses), so it is derived and never
+stored.
+
+**The member desk: one question.** A warm lap in a living group of
+two or more puts one question on the one queue (`farewellNews`, a
+priority candidate: an event that waits its turn, three weeks on the
+desk): how are the fans told? It is not asked of a cold ending, a
+solo act, a member on a break or in service, or with fewer than
+eight weeks left. How she raises it is a line by voice. Both answers
+cost. TELL THE FANS NOW: she says it herself; the fandom runs 5
+hotter, the act gives up 2 popularity as the casual audience starts
+counting down, her morale rises 2, it is on her ledger
+(`saidItHerself`), and from then on every record before her last
+era is a countdown record. KEEP IT IN THE HOUSE UNTIL THE LAST ERA
+(the first option, and today's behaviour): nothing moves this week,
+and everything rides on that last era happening. Silence keeps the
+secret by default, and she noticed who decided (`leftWaiting`, a
+high letter).
+
+**The release reads the lap.** A record that lands inside her last 24
+weeks (`FAREWELL.lastEraWeeks`) is her last era, and a lap has one.
+(1) The lock tells: `KP.farewellLockTells`, called by `planDebut` and
+by `planRepackage`, writes a second announcement naming her, the
+landing and the date the paper ends; an in-house lap becomes known
+there, and a question still on the desk is answered by it. A lap she
+announced herself is still named, and the telling stays hers.
+(2) The landing reads it (`KP.farewellReadsRelease`, in
+`hiatusReadsRelease`'s shape, beside it in `resolveDebut`): reach
+row "the farewell", +3 and up to +4 more at a tenth of a point per
+week the fans have known; the fandom +3; the report says whose last
+era it is; the release archives `farewellFor`. A record nobody
+announced tells the fans the week it lands. (3) The countdown: on a
+lap she announced, a record that lands before the window carries
+reach row "the countdown", −2, and the report says every question at
+the press day was about her. That is what telling early costs, and
+it is why a long lap and a short one want different answers. A
+reissue can be the last era. The Studio's date picker marks the
+dates that fall inside her last weeks and says when the window
+opens if none reaches it (`KP.farewellWould`, a pure read).
+
+**Her last stage.** At the close of her last era (order 597, behind
+the era's own close at 596) a critical letter, `lastStage`: the show
+and the week, how it went (carried by her, carried by another who
+"handed her the ending pose", clean, wobbled, fumbled), and a closing
+line by voice, seven of them. It is read at the close because an
+extension can add a stage in the last promotion week: only the close
+knows which stage was last. An era with no music-show stage writes
+none.
+
+**The promise.** "Write the ending right" opens a claim
+(`farewellEra`, held by her, due the week she goes): a last era
+before she leaves. Kept by her last era landing; settled at the exit,
+on any door she leaves through, before `departIdol` voids her other
+claims, so it reads kept or broken on the promises page and never
+merely void (a member bought out after the promise was promised a
+last era and did not get one). Broken, it is on her ledger with what
+a broken promise does to a person; on a warm exit everyone left in
+the room loses 3 morale and the letter says the promised era never
+came. The plea that fails makes no promise.
+
+**The exit reads the lap back.** `KP.farewellAtExit` runs before the
+lineup forgets her. THE BOW, when she had her last era: a critical
+letter read the way the finale is read, last thing first: her last
+stage; her eras from the last back to the first (the ones in between
+counted, not listed, past four); her time at the center in the
+calendar's units; the trophies on the shelf; the close friend she
+leaves, by name; the chair she keeps (the songs she wrote here, whose
+checks follow the person, or her credits in the booklet); and the
+handwritten letter, dated. The room gets 2 of its grief back. A
+PLAIN warm goodbye, when the fans knew and no last era came: the
+letter and the cost it always had. A SUDDEN one, when the company
+had the time and the fans were never told: 3 more popularity, a
+fandom grudge, and a letter that says today is when they found out.
+A lap too short to plan in, one begun before laps were dated, or one
+whose last era was announced and then slipped past her last week is
+never charged as sudden. A member RELEASED at her own request (the
+walkout's third answer) gets her own words: the old path called it
+"contract completed today" with a handwritten letter, and her file
+now says released. A cold ending is the letter it always was.
+
+**Every ending leaves a list and a lineup.** `KP.lineupPointerSweep`,
+the one sweep every door out of a lineup runs last, writes
+`g.alumni` (who, and the week); a disband sweeps members still in
+the lineup, who are the final lineup and not alumni. The last
+contract out writes `g.finalLineup` (only the disband verb did, so
+an act that ended by expiry read "0 members" in the archive). An act
+concludes in one place now (`KP.concludeAct`): a release over a
+story that emptied a lineup left the act standing with nobody in it,
+and it concludes like any other, with a sentence on the letter. A
+concluded act no longer gets the anniversary letter: it had "the
+members streaming from the practice room" for an act with nobody in
+it. Its fandom keeps the date for three years in a quiet letter of
+its own (`anniversaryKept`, normal), and nobody's morale moves.
+
+**The screens.** "The last year" on Today, one card per lap: the
+date, how the fans are told, where her last era stands (still ahead,
+locked, landed, or out of time), the promise as a chip that turns
+red when no record can land in time. The lap on her file's contract
+line and on the roster row. Former members on the act's page, each a
+door to her file. An Alumni list on the Talent tab, and a departed
+artist's file is named an alumni file (it said "Trainee file"). The
+concluded act's page is a record: the final lineup with where each
+is now, read off her own file (it said "still with the company" of
+members whose contracts had ended), the former members, the
+discography, which marks whose last era a record was. The archive
+card counts who was there at the end and who went before, and it
+opens that page: the page existed and nothing opened it.
+
+**Old saves.** Migration 0.11.10 (ensureLedgers: farewellLedger).
+Alumni are read back off the files that already name the group (the
+departed and graduated chapters), and an act the old build ended
+with its last contract gets the final lineup it never had: whoever
+left last. A lap in flight keeps its date and gains no week it
+began: the question is still asked, and its goodbye is never charged
+as sudden.
+
+**The bot and the census.** The bot answers the question: she tells
+the fans when the lap is short enough that the next record is the
+last one anyway, and a long one stays in the house. The first soak
+measured every row of the lap at 0/40. Inside 140 weeks only the
+inherited act reaches its renewal tables, and a boss who answers
+them keeps everyone. So the census holds three ceilings (a lap began
+0/40 under .30, an alumna on a list 0/40 under .30, a cold ending
+0/40 under .10), and the lap is measured where people do choose to
+go: the long-horizon pass, three careers of 380 weeks, whose slim
+clock bot learned one verb (a single that lands inside a leaving
+member's window). It prints its own line and holds its own guards:
+11 laps, 11 asked and 11 kept in the house, 11 told by the era, 4
+last eras shared between them, 11 last stages, 11 bows, 11 promises
+kept, none broken; every departed artist on an act's list, every
+concluded act with a final lineup. The countdown, the sudden
+goodbye and the broken promise are suite-held: a competent bot does
+not produce them.
+
+*Left for §102.* The disband as a scene with doors (the last
+concert, the quiet statement, the farewell record), the final
+statement naming what each member does next, and a departed artist
+signed across the street with a letter when she debuts there.
+
+Suite_120 (382): the engine, and Today, the file, the act's page,
+the Talent tab, the Studio and the archive rendered through the DOM
+stub. Mutation-checked against ten broken engine lines, each caught
+by a named assertion. A real-browser pass over the new screens (30
+checks, no page errors). Battery 120/120, soak 40 clean, longhaul
+11 × 620 clean, e2e 134, lockstep 0.11.10. Migration 0.11.10.
 
 ## §18 Watch items
 
@@ -13865,6 +14037,36 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > soft 39), second wind offered 36 and signed 10. Suite_119 (1016).
 > Battery 119/119, soak 40 clean, longhaul 11x620, e2e 134, lockstep
 > 0.11.9. Rode to main.
+
+> **0.11.10 — the long goodbye, part one.** Own judgment, under
+> "Approved to tackle as much of the remaining queue as you see fit"
+> and "Break remaining work into smaller pieces": §96's fourth entry,
+> shipped in two; this is the half where a member goes. §101: the
+> renewal table set contract.leaving and nothing read it until the week
+> she left. A chosen ending is now a lap with a date. The member desk
+> asks once how the fans are told (now, or kept in the house until the
+> last era; both cost, silence keeps the secret). The release reads the
+> lap: the lock of her last record announces it, her last era lands
+> warmer, a record inside an announced countdown lands colder. Her last
+> stage is a critical letter by voice, read at the era's close. "Write
+> the ending right" is a promise with a date, kept by her last era and
+> never merely void. The exit reads the lap back: the bow (critical,
+> last thing first: the stage, the eras, the center, the shelf, the
+> friend, the chair she keeps, the letter dated), a plain goodbye, a
+> sudden one. Found on the way: an act that ended with its last
+> contract had no final lineup (the archive read "0 members") and the
+> archive card opened nothing; a concluded act kept getting the
+> anniversary live; a release over a story could empty an act and
+> leave it standing; a member let go early was told her contract
+> "completed"; a departed artist's file was reachable from no list.
+> Alumni on every door out of a lineup, an Alumni list, a record page
+> for a concluded act. The census measured the lap at 0/40 (an
+> attentive boss keeps everyone inside 140 weeks), so it is measured
+> in the long pass: 11 laps, 11 last stages, 11 bows, 11 promises
+> kept. Suite_120 (382), ten mutations caught by name. Battery
+> 120/120, soak 40 clean, longhaul 11x620, e2e 134, lockstep 0.11.10.
+> Rode to main. Part two (§102): how a group ends, and across the
+> street.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

@@ -432,6 +432,20 @@
     }
   };
 
+  // the act ends (v0.11.10, §101): ONE place a player's act concludes when
+  // its lineup empties, whichever door the last member left through. The
+  // last-contract path had this inline; a scandal release that emptied an
+  // act left it standing with nobody in it. Everything scheduled dies with
+  // the act, and the record keeps who was standing at the end (only the
+  // disband verb wrote that, so the archive read "0 members").
+  KP.concludeAct = function (state, g, lastId) {
+    g.retiredWeek = state.week;
+    g.finalLineup = [lastId];
+    g.prep = null; g.demos = null; g.tour = null;
+    g.hiatus = null; delete g.returnFrom;
+    g.promoUntil = 0; g.rollout = null; delete g.catalogPush;   // nobody promotes an empty act (audit v0.11.3)
+  };
+
   KP.lineupSurgery = function (state, g, p, warm, push) {
     const C = KP.C.CONTRACT;
       g.members = g.members.filter(id => id !== p.id);
@@ -494,14 +508,7 @@
         // a locked release bricked the weekly loop forever. Everything
         // scheduled dies with the act, and retiredWeek becomes a real
         // gate every desk checks — not a write-only stamp.
-        g.retiredWeek = state.week;
-        // the record keeps who was standing at the end (v0.11.10, §101):
-        // only the disband verb wrote this, so an act that ended with its
-        // last contract read "0 members" in the archive
-        g.finalLineup = [p.id];
-        g.prep = null; g.demos = null; g.tour = null;
-        g.hiatus = null; delete g.returnFrom;
-        g.promoUntil = 0; g.rollout = null; delete g.catalogPush;   // nobody promotes an empty act (audit v0.11.3)
+        KP.concludeAct(state, g, p.id);
         push({ kind: 'public', priority: 'high', groupId: g.id,
           text: g.name + '’s chapter closes with the last contract — the company statement thanks the fans for every era, and means it. The scheduled work comes off the calendar. The catalog stays.' });
       }

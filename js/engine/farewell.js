@@ -314,10 +314,24 @@
   // exit this module has no words for (a cold one); otherwise the shape of
   // the goodbye, its letter, and what it costs or gives the room.
   KP.farewellAtExit = function (state, p, g, warm) {
-    if (!warm || !p.contract) return null;
+    if (!p.contract) return null;
     const F = KP.C.FAREWELL, L = KP.farewellLedger(state);
     const c = p.contract;
     const out = { shape: 'plain', priority: 'high', pop: 0, grudge: 0, roomMorale: 0, text: null, promise: null };
+    // the promise settles on ANY exit, before her claims go void: a member
+    // bought out or let lapse cold after "write the ending right" was
+    // promised a last era and did not get one
+    const claim = (state.claims || []).find(x => !x.resolved && x.type === 'farewellEra' && x.personId === p.id);
+    if (claim) {
+      claim.resolved = c.farewellEra ? 'met' : 'missed';
+      claim.resolvedWeek = state.week;
+      out.promise = claim.resolved;
+      if (c.farewellEra) { L.kept++; KP.recordDirected(state, p.id, 'promiseKept'); claim.replyText = KP.fillPro('{She} got the last era the table promised {her}.', p); }
+      else { L.broken++; KP.recordDirected(state, p.id, 'promiseBroken'); claim.replyText = KP.fillPro('The date came and the last era did not. {She} left without it.', p); }
+    }
+    // a cold ending keeps the letter and the price it always had
+    if (!warm) return null;
+    if (out.promise === 'missed') out.roomMorale -= F.brokenRoomMorale;
     // she asked to go early and was let go: not a completed contract
     if (!c.leaving) {
       out.shape = 'released';
@@ -325,22 +339,13 @@
       return out;
     }
     const group = !!g && g.type !== 'solo' && g.debuted;
-    const claim = (state.claims || []).find(x => !x.resolved && x.type === 'farewellEra' && x.personId === p.id);
-    if (claim) {
-      claim.resolved = c.farewellEra ? 'met' : 'missed';
-      claim.resolvedWeek = state.week;
-      out.promise = claim.resolved;
-      if (c.farewellEra) { L.kept++; KP.recordDirected(state, p.id, 'promiseKept'); }
-      else { L.broken++; KP.recordDirected(state, p.id, 'promiseBroken'); out.roomMorale -= F.brokenRoomMorale; }
-    }
     const broken = out.promise === 'missed'
       ? ' The last era the company promised {her} at the renewal table never came, and everyone left in the room watched it not come.' : '';
     if (group && c.farewellEra) {
       out.shape = 'bow'; out.priority = 'critical'; out.roomMorale += F.bowRoomMorale;
       L.bows++;
       out.text = KP.farewellBow(state, p, g);
-      if (claim) claim.replyText = KP.fillPro('{She} got the last era the table promised {her}.', p);
-    } else if (group && c.told !== 'fans' && c.leavingSince != null &&
+    } else if (group && c.told !== 'fans' && c.told !== 'era' && c.leavingSince != null &&
         (c.start + KP.C.CONTRACT.years * KP.C.WEEKS_PER_YEAR) - c.leavingSince >= F.askMinWeeks) {
       // the company had the year and the fandom got a day
       out.shape = 'sudden'; out.pop = F.suddenPopHit; out.grudge = F.suddenGrudge;
@@ -352,7 +357,6 @@
       out.text = KP.fillPro(KP.displayName(p) + '’s contract completed today, and the goodbye was everything the fandom needed it to be: the letter in {pos} own handwriting, the members crying through the last group bow, the company statement that read like it was written by a person.' + broken +
         ' {She} leaves full, not empty. The door stays open.', p);
     }
-    if (claim && out.promise === 'missed') claim.replyText = KP.fillPro('The date came and the last era did not. {She} left without it.', p);
     return out;
   };
 
