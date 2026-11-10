@@ -1163,19 +1163,28 @@
   // 0.11.9 (the era, closed, §100): the era ledger exists from week one. An
   // era already past its last promotion week is never closed after the fact:
   // the close fires on the exact week, so an old file simply starts closing
-  // at its next comeback.
+  // at its next comeback. An era the file is in the MIDDLE of is not closed
+  // either: before this build no record kept its own trophy tally or its
+  // last stage, so that close would be read from half a record ("no trophy"
+  // over a shelf that holds two, "off the schedule" after a month of
+  // stages). KP.migrate stamps the week the file learned to keep them
+  // (eraLedger.since) and the close rail passes over what landed before it.
   MIGRATIONS.push({ v: '0.11.9', fn: function (state) {
     if (KP.ensureLedgers) KP.ensureLedgers(state);
   } });
 
   KP.migrate = function (state) {
     const applied = [];
+    // a file from before the era module is known by the ledger's absence,
+    // read before the chain: every ensureLedgers below would create it
+    const preEra = !state.eraLedger;
     MIGRATIONS.forEach(m => {
       if (KP.versionLt(state.version, m.v)) {
         m.fn(state);
         applied.push(m.v);
       }
     });
+    if (preEra && state.eraLedger) state.eraLedger.since = state.week;
     // 0.9.9.1 self-heal (no version gate — four-part builds skip the
     // migration chain): saves founded on 0.9.9 lack the letterhead
     if (state.founded && state.company && !state.company.blurb) {

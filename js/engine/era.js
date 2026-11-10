@@ -101,7 +101,11 @@
       bits.push(s);
     }
     if (rel.critics && rel.critics.consensus && KP.verdictWord) {
-      bits.push('critics who settled on “' + KP.verdictWord(rel.critics.consensus) + '”');
+      // a split verdict was told its arguments would outlast the promotion:
+      // the close does not say the critics settled when they did not
+      bits.push(rel.critics.split
+        ? 'critics still arguing, the middle voice at “' + KP.verdictWord(rel.critics.consensus) + '”'
+        : 'critics who settled on “' + KP.verdictWord(rel.critics.consensus) + '”');
     }
     return 'The tally: ' + bits.join('; ') + '.';
   }
@@ -155,6 +159,12 @@
       const rel = lastRel(g);
       // exact-week equality: an old save never closes an ancient era
       if (!rel || rel.closed || state.week !== (g.promoUntil || 0) + 1) return;
+      // nor one it joined mid-promotion: the tally and the last stage were
+      // not kept before this build (save.js stamps `since` on such a file).
+      // A record that landed the week of the stamp has every promotion week
+      // ahead of it, and closes whole.
+      const since = KP.eraLedger(state).since;
+      if (since != null && (rel.week || 0) < since) return;
       inbox.push(KP.closeEra(state, g, rel));
     });
   });
