@@ -369,6 +369,16 @@ const BANDS = {
   eraExtOffered:     { lo: 0.60, hi: 1.00, label: 'orgs offered the second wind (a climbing record in a last week)' },
   eraExtTired:       { lo: 0.02, hi: 0.80, label: 'orgs that signed the second wind through the staff’s flag' },
   eraClosedExtended: { lo: 0.05, hi: 0.90, label: 'orgs whose file marks a closed era as extended' },
+  // the long goodbye (v0.11.10, §101). The first soak measured every row
+  // of it at 0/40: inside 140 weeks only the inherited act reaches its
+  // renewal tables, and a boss who answers them keeps everyone (a lap
+  // begins on the gone band, or on a held line the till could not better).
+  // So the census keeps three ceilings, and the lap itself is measured
+  // where people do choose to go: the long-horizon pass below, which
+  // prints its own line and holds its own guards.
+  byeLap:        { lo: 0.00, hi: 0.30, label: 'orgs where a member chose to go (a farewell lap began)' },
+  byeAlumni:     { lo: 0.00, hi: 0.30, label: 'orgs with a former member on an act’s list' },
+  byeColdExit:   { lo: 0.00, hi: 0.10, label: 'orgs where a contract ended cold' },
   // v0.10.33 — the one market: a collapse's signing class is on the open
   // board and the bot buys a career when flush. Measure-first: collapses
   // are rare inside 140 weeks, so the floor is 0 until a census says more.
@@ -829,6 +839,7 @@ const tally = {
   eraClosedLetter: 0, eraReissueOffered: 0, eraReissueAnr: 0, eraReissueFans: 0, eraReissueDesk: 0,
   eraRested: 0, eraLapsed: 0, eraSuperseded: 0, eraPreorderRead: 0, eraPreorderAhead: 0, eraPreorderSoft: 0,
   eraExtOffered: 0, eraExtTired: 0, eraClosedExtended: 0,
+  byeLap: 0, byeAlumni: 0, byeColdExit: 0,
   careerSigned: 0,
   criticsDarling: 0, pannedHit: 0, criticsSplit: 0, trendNamed: 0,
   commissioned: 0, offLaneRecord: 0, houseChair: 0, themeNamed: 0,
@@ -941,6 +952,8 @@ for (let s = 0; s < SEEDS; s++) {
   const stages = { headline: false, jpAway: false, roadCard: false };
   // the era, closed (v0.11.9, §100): the two new letters, seen pre-trim
   const era = { closeLetter: false, preorderLetter: false, extOffered: false, extTired: false };
+  // the long goodbye (v0.11.10, §101): a cold ending's letter, seen pre-trim
+  const bye = { cold: false };
   let annivSeen = false, scarSeen = false;
   let tourSoldOutSeen = false, tourSoftSeen = false, awardSnubSeen = false;
   let circuitSeen = false, encoreSeen = false, truckSeen = false,
@@ -1634,6 +1647,16 @@ for (let s = 0; s < SEEDS; s++) {
         KP.resolveScene(state, sc.id, pick);
         return;
       }
+      if (sc.kind === 'farewellNews') {
+        // the long goodbye (v0.11.10, §101): told now, the last era is an
+        // event and every record before it is a countdown; kept in the
+        // house, the year is about the work. The boss lets her tell the
+        // fans when the lap is short enough that the next record is the
+        // last one anyway, and keeps a long one in the house.
+        const lp = KP.lapOf(state, state.people[sc.personId]);
+        KP.resolveScene(state, sc.id, lp && lp.weeksLeft <= KP.C.FAREWELL.lastEraWeeks + 12 ? 'now' : 'house');
+        return;
+      }
       if (sc.kind === 'theReissue') {
         // the era extends (v0.9.17; a door since v0.11.9, §100): a boss with
         // a hot record and no fiscal pressure reissues — the chair's pick by
@@ -1909,6 +1932,7 @@ for (let s = 0; s < SEEDS; s++) {
       if (n.ind === 'eraAnnounced' && n.reissue) wire.repackageSet = true;
       if (n.ind === 'eraClosed') era.closeLetter = true;
       if (n.ind === 'preorderWeek') era.preorderLetter = true;
+      if (n.ind === 'contractEnd' && n.shape === 'cold') bye.cold = true;
       if (n.ind === 'graduatedSolo') wire.graduatedSolo = true;
       if (n.ind === 'landed' && n.priority === 'critical') wire.landedCritical = true;
       if (n.ind === 'evalSheet' && n.priority === 'critical') wire.evalCritical = true;
@@ -2478,6 +2502,10 @@ for (let s = 0; s < SEEDS; s++) {
     if (era.extTired) tally.eraExtTired++;
     if (state.groups.some(g => (g.releases || []).some(r => r.closed && r.closed.extended))) tally.eraClosedExtended++;
   }
+  // the long goodbye (v0.11.10, §101): three ceilings, from the ledger and the letter
+  if (((state.farewellLedger || {}).laps || 0) >= 1) tally.byeLap++;
+  if (state.groups.some(g => (g.alumni || []).length)) tally.byeAlumni++;
+  if (bye.cold) tally.byeColdExit++;
   if (doorWaitSeen) tally.doorLeftWaiting++;
   if (annivSeen) tally.annivFelt++;
   if (scarSeen) tally.scarCarried++;
@@ -2629,6 +2657,9 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
 {
   let clockTables = 0, clockRenewed = 0, clockLeavers = 0, clockDeparted = 0;
   let neglectDeparted = 0;
+  // the long goodbye (v0.11.10, §101): the ledgers of the three careers, summed
+  const byeSum = {};
+  let byeLocks = 0, byeBowLetters = 0, byeStageLetters = 0;
   for (let s = 0; s < 3; s++) {
     const seed = 'clock-' + s;
     // seed 2 is the neglect org: it debuts a group and then never answers
@@ -2678,7 +2709,29 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
       // (the economy's teeth are the main pass's guard and haul-insolvent),
       // so the books are kept whole here
       if (state.budget < 200) state.budget = 200;
+      // the long goodbye (v0.11.10, §101): the slim clock bot plans no
+      // comebacks, so a member on her lap would never get a last era. It
+      // learns the one verb: when her window is open, or opens inside a
+      // short runway, it locks a single that lands in it. A refusal (rest,
+      // a record in flight) is tried again next week.
+      if (!neglect && KP.farewellRead) {
+        KP.farewellRead(state).forEach(r => {
+          if (r.era !== 'open' || !r.groupId) return;
+          const fg = KP.groupById(state, r.groupId);
+          const land = Math.max(state.week + KP.C.DEBUT.prepWeeksMin, r.opens);
+          if (!fg || fg.prep || land > r.ends || land - state.week > 8) return;
+          if (!fg.demos) { const rg = KP.rngFor(state); fg.demos = KP.generateDemos(state, rg, fg); state.rngState = rg.state(); }
+          state.budget = Math.max(state.budget, 400);   // the books are kept whole here, as above
+          const res = KP.planDebut(state, { groupId: fg.id, songId: fg.demos[0].id, promo: 'modest', format: 'single', week: land,
+            alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
+          if (res.ok) byeLocks++;
+        });
+      }
       KP.advanceWeek(state);
+      (KP.lastTickNotes || []).forEach(n => {
+        if (n.ind === 'contractEnd' && n.shape === 'bow') byeBowLetters++;
+        if (n.ind === 'lastStage') byeStageLetters++;
+      });
       const errs = KP.validateState(state);
       guard(errs.length === 0, seed + ' long clock wk' + state.week + ': ' + errs[0]);
     }
@@ -2688,6 +2741,11 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
     // and measures nothing about the economy)
     const departed = Object.values(state.people).filter(p => p.status === 'departed');
     clockDeparted += departed.length;
+    Object.keys(state.farewellLedger || {}).forEach(k => { byeSum[k] = (byeSum[k] || 0) + state.farewellLedger[k]; });
+    // every departed artist is on some act's list, or her act is gone with her
+    departed.forEach(p => guard(state.groups.some(gg => (gg.alumni || []).some(al => al.id === p.id)) || !((p.chapters || []).some(ch => ch.kind === 'departed' && ch.group)),
+      seed + ' a departed artist is on no act’s alumni list'));
+    state.groups.forEach(gg => guard(!gg.retiredWeek || !gg.debuted || (gg.finalLineup || []).length > 0, seed + ' a concluded act has no final lineup: ' + gg.name));
     if (neglect) neglectDeparted = departed.length;
     departed.forEach(p => {
       guard(!state.roster.includes(p.id), seed + ' departed idol still on roster');
@@ -2710,6 +2768,15 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
   guard(clockTables >= 6, 'long clock: fewer than 6 renewal tables across the attentive careers');
   guard(clockRenewed >= 1, 'long clock: nobody ever re-signed');
   guard(neglectDeparted >= 1, 'long clock: the neglect org kept everyone — the paper never runs out');
+  console.log('the long goodbye: laps ' + (byeSum.laps || 0) + ' · asked ' + (byeSum.asked || 0) + ' (told now ' + (byeSum.toldNow || 0) + ', kept in ' + (byeSum.keptIn || 0) +
+    ', unanswered ' + (byeSum.unanswered || 0) + ') · told by the era ' + (byeSum.toldByEra || 0) + ' · last eras ' + (byeSum.eras || 0) + ' (locks ' + byeLocks + ') · countdown records ' + (byeSum.shadows || 0) +
+    ' · last stages ' + (byeSum.lastStages || 0) + ' · exits: bow ' + (byeSum.bows || 0) + ', plain ' + (byeSum.plain || 0) + ', sudden ' + (byeSum.sudden || 0) +
+    ' · promises kept ' + (byeSum.kept || 0) + ', broken ' + (byeSum.broken || 0));
+  guard((byeSum.laps || 0) >= 1, 'the long goodbye: nobody chose to go across three long careers');
+  guard((byeSum.eras || 0) >= 1, 'the long goodbye: no leaving member ever got her last era');
+  guard((byeSum.bows || 0) >= 1 && byeBowLetters === byeSum.bows, 'the long goodbye: the bows on the ledger (' + (byeSum.bows || 0) + ') are not the bows on the wire (' + byeBowLetters + ')');
+  guard(byeStageLetters === (byeSum.lastStages || 0), 'the long goodbye: the last stages on the ledger are not the ones on the wire');
+  guard((byeSum.kept || 0) >= 1, 'the long goodbye: no promise of a last era was ever kept');
 }
 
 // age census: 15-16 the norm, 14 a hard floor (owner's law, v0.3.1)

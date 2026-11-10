@@ -516,13 +516,26 @@
         options.map(w => {
           const foes = KP.announcedAt(state, w);
           const big = foes.find(x => (x.act.popularity || 0) >= KP.C.WAR.battleMinPop);
+          // the long goodbye (v0.11.10, §101): a date inside a leaving member's last weeks is marked
+          const lastFor = KP.farewellWould ? KP.farewellWould(state, g, w) : [];
           return '<button class="chip ' + (draft.week === w ? 'hot' : '') + (big ? ' clash' : '') +
             '" data-action="studio-week" data-week="' + w + '">' + UI.esc(KP.weekLabel(w).text) +
-            (foes.length ? ' · vs ' + UI.esc(foes[0].act.name) : '') + '</button>';
+            (foes.length ? ' · vs ' + UI.esc(foes[0].act.name) : '') +
+            (lastFor.length ? ' · ' + UI.esc(KP.publicGiven(state.people[lastFor[0]])) + '’s last era' : '') + '</button>';
         }).join('') +
         '</div>' +
         (options.length ? '' : '<div style="color:var(--danger);font-size:.8rem">No runway left before the deadline.</div>') +
         '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">Announced rival weeks are marked. A clean week keeps the public’s attention whole; a shared week is a head-to-head the recaps will score.</div>' +
+        // the long goodbye (v0.11.10, §101): what a marked date means, and when the window opens if no date reaches it
+        (function () {
+          const laps = (KP.farewellRead ? KP.farewellRead(state) : []).filter(r => r.groupId === g.id && r.era === 'open');
+          if (!laps.length) return '';
+          const r = laps[0], p = state.people[r.personId];
+          const reach = options.some(w => KP.farewellWould(state, g, w).length);
+          return '<div style="font-size:.7rem;color:var(--magenta);margin-top:6px">' + UI.esc(KP.fillPro(KP.displayName(p) + '’s contract ends ' + KP.weekLabel(r.ends).text + '. ' +
+            (reach ? 'A record that lands on a marked date is {pos} last era, and its announcement says so.'
+              : 'None of these dates reaches {pos} last weeks: a record that lands from ' + KP.weekLabel(r.opens).text + ' on will be {pos} last era.'), p)) + '</div>';
+        })() +
         '</div>');
 
       // genre-bending (v0.9.6): under the fusion brief, the second option

@@ -136,15 +136,20 @@
   // ---- the release: her last era -------------------------------------------
   // a lock that lands inside her window says so in its announcement: an
   // in-house lap is told here, with the record that will be her last
-  KP.farewellLockTells = function (state, g, scheduledWeek) {
+  // whose last era a record landing that week would be (pure: the Studio's
+  // date picker reads it before anything is locked)
+  KP.farewellWould = function (state, g, week) {
     if (!g || g.type === 'solo' || !g.debuted) return [];
-    const ids = [];
-    g.members.forEach(id => {
+    return g.members.filter(id => {
+      const lap = stagedLap(state, state.people[id]);
+      return !!lap && !lap.era && inWindow(lap, week);
+    });
+  };
+  KP.farewellLockTells = function (state, g, scheduledWeek) {
+    const ids = KP.farewellWould(state, g, scheduledWeek);
+    ids.forEach(id => {
       const p = state.people[id];
-      const lap = stagedLap(state, p);
-      if (!lap || lap.era || !inWindow(lap, scheduledWeek)) return;
-      if (!known(lap)) tell(state, p, g, 'era');
-      ids.push(id);
+      if (!known(KP.lapOf(state, p))) tell(state, p, g, 'era');
     });
     if (ids.length) {
       KP.note(state, { kind: 'public', ind: 'farewellTold', priority: 'high', personId: ids[0], groupId: g.id, by: 'era',
