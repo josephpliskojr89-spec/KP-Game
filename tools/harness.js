@@ -2779,6 +2779,85 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
   guard((byeSum.kept || 0) >= 1, 'the long goodbye: no promise of a last era was ever kept');
 }
 
+// the last bow (v0.11.11, §102). The census bot never ends an act: ending
+// one is a decision, not a policy, and no competent boss does it inside 140
+// weeks. So the three doors are suite-held, and this pass rides each of
+// them through a real career instead: the inherited act takes one door in
+// week 10, the calendar runs on for a year and a half, and every week is
+// validated. It measures that the rails conclude what the doors begin.
+console.log('\n--- the last bow: three careers, one door each (3 seeds x 90 weeks) ---');
+{
+  const E = KP.C.ENDING;
+  const out = [];
+  ['record', 'concert', 'lapsed'].forEach((plan, i) => {
+    const seed = 'lastbow-' + i;
+    const state = KP.newGame(seed, null, { legacy: true });
+    const g = state.groups.find(x => x.debuted);
+    guard(!!g, seed + ' last bow: no inherited act');
+    if (!g) return;
+    const lineup = g.members.slice();
+    let finals = 0, due = 0, took = null, locked = false, landed = null;
+    for (let w = 0; w < 90; w++) {
+      (state.scenes || []).slice().forEach(sc => {
+        if (sc.kind === 'renewal') { botRenewal(state, sc); return; }
+        if (sc.kind === 'execQuestion') { KP.answerMeeting(state, sc.q && sc.q.type === 'comebackPromise' ? 1 : 0); return; }
+        const def = KP.sceneDef(sc.kind);
+        if (def) { const opts = def.options(state, sc); if (opts && opts.length) KP.resolveScene(state, sc.id, opts[0].id); }
+      });
+      if (state.budget < 400) state.budget = 400;   // the books are kept whole: this pass measures the doors, not the economy
+      if (!took && state.week >= 10 && !g.retiredWeek) {
+        const read = KP.endingDoors(state, g.id);
+        if (read.ok) {
+          const want = plan === 'lapsed' ? 'record' : plan;
+          const door = read.doors.find(d => d.id === want);
+          const how = door && door.ok ? want : 'statement';
+          const r = KP.endGroup(state, g.id, how);
+          guard(r.ok, seed + ' last bow: an open door refused: ' + r.reason);
+          if (r.ok) took = how;
+        }
+      }
+      // the record career makes the record; the lapse career never does
+      if (plan === 'record' && took === 'record' && !locked && !g.retiredWeek && !g.prep && !g.ending.record) {
+        if (!g.demos) { const rg = KP.rngFor(state); g.demos = KP.generateDemos(state, rg, g); state.rngState = rg.state(); }
+        const res = KP.planDebut(state, { groupId: g.id, songId: g.demos[0].id, promo: 'modest', format: 'single', week: state.week + KP.C.DEBUT.prepWeeksMin,
+          alloc: { vocals: 25, dance: 25, rap: 25, media: 25 } });
+        if (res.ok) locked = true;
+      }
+      KP.advanceWeek(state);
+      (KP.lastTickNotes || []).forEach(n => {
+        if (n.ind === 'playerDisband') { finals++; guard(n.priority === 'critical', seed + ' last bow: the final statement is not critical'); }
+        if (n.ind === 'lastRecordDue') due++;
+      });
+      if (g.ending && g.ending.record && landed == null) landed = g.ending.record.week;
+      const errs = KP.validateState(state);
+      guard(errs.length === 0, seed + ' last bow wk' + state.week + ': ' + errs[0]);
+    }
+    const L = state.endingLedger || {};
+    guard(!!took, seed + ' last bow: no door was ever open in 80 weeks');
+    guard(!!g.retiredWeek, seed + ' last bow: the act never concluded (' + plan + ')');
+    guard((g.finalLineup || []).length >= 1, seed + ' last bow: a concluded act has no final lineup');
+    guard(!KP.endingRead(state).length, seed + ' last bow: an ending is still owed at the end of the pass');
+    if (plan === 'record' && took === 'record') {
+      const overtaken = g.ending.how === 'contract' || g.ending.how === 'story';
+      guard(overtaken || (g.ending.how === 'record' && L.announced === 1 && L.records === 1 && L.closed === 1 && finals === 1),
+        seed + ' last bow: the record door did not close as a record (' + JSON.stringify(g.ending) + ' ' + JSON.stringify(L) + ')');
+      guard(overtaken || (!!g.afterglow && g.afterglow.mult === E.glowRecord), seed + ' last bow: no warm shelf after a farewell record');
+    }
+    if (plan === 'lapsed' && took === 'record') {
+      const overtaken = g.ending.how === 'contract' || g.ending.how === 'story';
+      guard(overtaken || (g.ending.how === 'lapsed' && L.lapsed === 1 && finals === 1 && due === 1 && !g.afterglow),
+        seed + ' last bow: the unmade record did not lapse (' + JSON.stringify(g.ending) + ' ' + JSON.stringify(L) + ', due ' + due + ')');
+      guard(overtaken || lineup.every(id => !state.people[id] || state.people[id].status !== 'idol' || (state.people[id].directed || []).some(d => d.kind === 'promiseBroken')),
+        seed + ' last bow: a member of the lapsed act has no broken promise on her ledger');
+    }
+    if (took === 'concert') guard(g.ending.how === 'concert' && L.concerts === 1 && !!g.ending.night && !!g.afterglow, seed + ' last bow: the concert door did not close as a concert');
+    out.push(plan + ': took ' + took + ', ' + (g.ending ? g.ending.how : '?') + ' wk ' + g.retiredWeek + (landed != null ? ' (landed wk ' + landed + ')' : '') +
+      (g.ending && g.ending.night ? ' (till ' + g.ending.night.till + ' on a room of ' + g.ending.night.cost + ')' : '') +
+      ', solos ' + (L.solos || 0));
+  });
+  out.forEach(l => console.log('  ' + l));
+}
+
 // age census: 15-16 the norm, 14 a hard floor (owner's law, v0.3.1)
 const ageMean = allAges.reduce((a, b) => a + b, 0) / allAges.length;
 const age19frac = allAges.filter(a => a >= 19).length / allAges.length;

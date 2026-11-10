@@ -249,7 +249,7 @@
         }
         // the last one out concludes the act (v0.11.10, §101): this door
         // emptied a lineup and left the act standing with nobody in it
-        if (!g.members.length && !g.retiredWeek && KP.concludeAct) { KP.concludeAct(state, g, p.id); ended = true; }
+        if (!g.members.length && !g.retiredWeek && KP.concludeAct) { KP.concludeAct(state, g, p.id, 'story'); ended = true; }
         // the clean exits (v0.10.16): the backstop runs LAST, always
         if (KP.lineupPointerSweep) KP.lineupPointerSweep(state, g, p.id);
       }
@@ -286,7 +286,7 @@
           g.maknae = g.members.map(id => state.people[id]).filter(Boolean)
             .sort((a, b) => a.age - b.age)[0].id;
         }
-        if (!g.members.length && !g.retiredWeek && KP.concludeAct) { KP.concludeAct(state, g, p.id); ended = true; }   // the last one out (v0.11.10, §101)
+        if (!g.members.length && !g.retiredWeek && KP.concludeAct) { KP.concludeAct(state, g, p.id, 'story'); ended = true; }   // the last one out (v0.11.10, §101)
         // the clean exits (v0.10.16): the backstop runs LAST, always
         if (KP.lineupPointerSweep) KP.lineupPointerSweep(state, g, p.id);
       }

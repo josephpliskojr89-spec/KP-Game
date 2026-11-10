@@ -1198,6 +1198,20 @@
     });
   } });
 
+  // 0.11.11 (§102): the ending ledger. An act the old disband verb concluded
+  // is known by the line it wrote on every member's file that week; its
+  // record page says how it ended. An act that ended any other way under an
+  // older build keeps no word for it.
+  MIGRATIONS.push({ v: '0.11.11', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+    (state.groups || []).forEach(g => {
+      if (!g.retiredWeek || !g.debuted || g.ending) return;
+      const said = (g.finalLineup || []).map(id => (state.people || {})[id]).filter(Boolean)
+        .some(p => (p.history || []).some(h => h.week === g.retiredWeek && /concluded team activities/.test(h.text || '')));
+      if (said) g.ending = { how: 'statement', week: g.retiredWeek };
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

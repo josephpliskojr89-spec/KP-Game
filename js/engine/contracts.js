@@ -438,9 +438,12 @@
   // act left it standing with nobody in it. Everything scheduled dies with
   // the act, and the record keeps who was standing at the end (only the
   // disband verb wrote that, so the archive read "0 members").
-  KP.concludeAct = function (state, g, lastId) {
+  KP.concludeAct = function (state, g, lastId, how) {
     g.retiredWeek = state.week;
     g.finalLineup = [lastId];
+    // how it ended stays on the record (v0.11.11, §102): the last contract,
+    // or a story. A last record that was owed is overtaken by this.
+    g.ending = Object.assign(g.ending || {}, { how: how || 'contract', week: state.week });
     g.prep = null; g.demos = null; g.tour = null;
     g.hiatus = null; delete g.returnFrom;
     g.promoUntil = 0; g.rollout = null; delete g.catalogPush;   // nobody promotes an empty act (audit v0.11.3)

@@ -318,7 +318,7 @@
   // `opts.how` names the door it came through (concert | record | lapsed):
   // the door sets what it costs the room, what goes on each ledger, what
   // the board reads, and what stays on the shelf. `opts.inbox` is a rail's
-  // wire; `opts.rail` marks a conclusion nobody can refuse.
+  // wire.
   KP.disbandGroup = function (state, groupId, opts) {
     const D = KP.C.DISBAND, E = KP.C.ENDING;
     const o = opts || {};
@@ -326,15 +326,17 @@
     const g = KP.groupById(state, groupId);
     if (!g) return { ok: false, reason: 'No such group.' };
     if (g.retiredWeek) return { ok: false, reason: 'That chapter is already closed.' };
+    // a last record that is owed is concluded by its own rail, at its close
+    // or its lapse: the promise cannot be cut short by hand
+    if (how === 'statement' && KP.endingOwed && KP.endingOwed(g)) return { ok: false, reason: 'The last record is already announced. The act concludes when that era closes.' };
     if (g.tour) return { ok: false, reason: 'They are on the road — a tour is a stack of signed venue contracts. Bring them home first.' };
     if (g.debuted && g.prep) return { ok: false, reason: 'A release is in production. Let the era end before you end the act.' };
     if (g.debuted && state.week <= (g.promoUntil || 0)) return { ok: false, reason: 'Promotions are running. Ending an act mid-era is a scandal, not a decision.' };
     const debuted = !!g.debuted;
     const members = g.members.map(id => state.people[id]).filter(Boolean);
     // a member's solo record is on the calendar: the act it comes out of
-    // cannot end under it (the era would shelve, and the bill was paid).
-    // A rail's conclusion is not refusable; the era shelves, as it always did.
-    const era = debuted && !o.rail ? members.find(m => m.soloEra) : null;
+    // cannot end under it (the era would shelve, and the bill was paid)
+    const era = debuted ? members.find(m => m.soloEra) : null;
     if (era) return { ok: false, reason: KP.fillPro(KP.displayName(era) + '’s solo record is on the calendar. Let it land before the act it comes out of ends.', era) };
     const push = n => (o.inbox ? (o.inbox.push(n), n) : KP.note(state, n));
     // what each member does next is read off the lineup while there is one
@@ -386,6 +388,10 @@
     // how it ended stays on the record, and so does what the door left
     // behind: a fandom that was given a goodbye keeps the shelf warm
     g.ending = Object.assign(g.ending || {}, { how, week: state.week }, o.night ? { night: o.night } : {});
+    if (KP.endingLedger) {
+      const L = KP.endingLedger(state);
+      L[how === 'concert' ? 'concerts' : how === 'record' ? 'closed' : how === 'lapsed' ? 'lapsed' : 'statements']++;
+    }
     if (how === 'concert' || how === 'record') {
       g.afterglow = { until: state.week + E.glowWeeks, mult: how === 'record' ? E.glowRecord : E.glowConcert };
     }

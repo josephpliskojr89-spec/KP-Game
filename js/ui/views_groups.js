@@ -242,7 +242,8 @@
   // the last bow (v0.11.11, §102): the three doors, as the engine reads
   // them. A door that is shut says why in place of its button.
   UI.endingSheet = function (state, g, read) {
-    return '<div class="note">Three ways to close ' + UI.esc(g.name) + '. Whichever one is taken cannot be undone.</div>' +
+    return '<div class="note">Three ways to close ' + UI.esc(g.name) + '. Whichever one is taken cannot be undone.' +
+      (read.notes || []).map(n => '<div style="margin-top:6px">' + UI.esc(n) + '</div>').join('') + '</div>' +
       read.doors.map(d =>
         '<div class="card" style="margin-top:10px' + (d.ok ? '' : ';opacity:.62') + '">' +
         '<div style="font-weight:800">' + UI.esc(d.title) + '</div>' +
