@@ -8,6 +8,9 @@
 'use strict';
 const { loadEngine } = require('../test/load_engine');
 const KP = loadEngine();
+// the Desk, counted (v0.11.21, §112): what each week wrote and what landed
+const deskCount = require('./desk_count');
+const DESK = deskCount.watch(KP);
 
 const WEEKS = parseInt(process.argv[2] || '620', 10);
 const problems = [];
@@ -437,6 +440,7 @@ const sizes = {};
 const dissolvedWeeks = {};
 const careers = {};
 for (const sc of RUN) {
+  const deskMark = deskCount.mark(DESK);   // this scenario's share of the Desk's count
   const state = KP.newGame(sc.seed, null,
     sc.mode === 'blank' ? { door: 'blank', companyName: 'Audit Blank House' }
       : sc.mode === 'major' ? { door: 'major' }
@@ -492,7 +496,9 @@ for (const sc of RUN) {
       // determinism fork: 20 weeks side by side
       const b = KP.deserialize(KP.serialize(state));
       const a2 = KP.deserialize(KP.serialize(state));
+      DESK.off = true;   // the twins' weeks are not the career's: the Desk is counted once
       for (let i = 0; i < 20; i++) { KP.advanceWeek(a2); KP.advanceWeek(b); }
+      DESK.off = false;
       if (KP.serialize(a2) !== KP.serialize(b)) {
         flag(sc.seed, state.week, 'determinism fork DIVERGED at horizon ' + w);
       }
@@ -537,6 +543,10 @@ for (const sc of RUN) {
     if (!((svl.returns || 0) >= 1)) flag(sc.seed, state.week, 'the service scenario never saw an act come home whole');
     if (!((svl.soloChapters || 0) >= 1)) flag(sc.seed, state.week, 'the service scenario’s soloist never served a service chapter');
   }
+  // the letters that land (v0.11.21, §112): a one-shot letter is written
+  // once, so the week's budget must never cut it. The ledgers below count
+  // letters written; this counts the Desk.
+  deskCount.cutOneShots(DESK, deskMark).forEach(m => flag(sc.seed, state.week, 'a one-shot letter was written and cut by the week’s budget: ' + m));
   // the wait (v0.11.19, §110): a house whose men came home heard from the
   // wait on the way — day 100, the letter from the base, the turn — and
   // never more often than men went
@@ -612,6 +622,9 @@ for (const sc of RUN) {
     top.map(([k, v]) => k + ' ' + Math.round(v / 1024) + 'K').join(', ') +
     ' | service: ' + ['plans', 'notices', 'enlisted', 'walls', 'discharged', 'returns', 'spent', 'closing', 'lapsed', 'soloChapters', 'hundred', 'wrote', 'turn']
       .map(k => k + ' ' + (svl[k] || 0)).join(', ') +
+    // what reached the Desk of it (v0.11.21, §112): the ledger above counts letters written
+    ' | landed: ' + [['whole again', 'wholeAgain'], ['closing', 'returnClosing'], ['lapsed', 'returnLapsed'], ['hundred', 'waitHundred'], ['wrote', 'baseLetter'], ['turn', 'waitTurn']]
+      .map(([w, k]) => w + ' ' + deskCount.since(DESK, deskMark, k).landed).join(', ') +
     ' | risefall: ' + ['rankings', 'overtakes', 'playerNo1', 'classes', 'offers', 'genTurns', 'torchPasses', 'rivalServices']
       .map(k => k + ' ' + ((state.riseFallLedger || {})[k] || 0)).join(', ') +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
@@ -631,6 +644,7 @@ for (const sc of RUN) {
     ', trained ' + ((state.tableLedger || {}).trained || 0));
 }
 
+deskCount.lines(DESK, 5).forEach(l => console.log(l));
 console.log('dissolutions (the last statement, v0.11.0): ' + RUN.map(sc => sc.seed + ' ' + (dissolvedWeeks[sc.seed] == null ? '—' : 'wk ' + dissolvedWeeks[sc.seed] + (careers[sc.seed] ? ' then ' + careers[sc.seed] : ''))).join(' · '));
 report();
 function report() {

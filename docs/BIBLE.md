@@ -11607,6 +11607,11 @@ letters, 11 from the base, 10 turns. Held at the end: a house whose
 men came home heard from the wait, and no mark was said more often
 than men went.
 
+*Corrected by §112.* These are letters written, not letters landed.
+The week's budget cut nine of the eleven day-100 letters, six of
+the eleven from the base and eight of the ten turns before the
+Desk. They are critical since v0.11.21, and all of them land.
+
 Suite_129 (240): the engine, the group page and the file rendered
 through the DOM stub. Mutation-checked against 148 broken lines,
 each caught by a named assertion; on the first run nine of 146
@@ -11777,6 +11782,162 @@ reaches the Desk. Then recommendation 6, the other side of the
 wall, in pieces. *Still the owner's to call* (§109): the fade
 between records through a service chapter, and the size of the
 window's bank.
+
+## §112 The letters that land (SHIPPED v0.11.21 — a repair of §103, §109, §110 and the §96 wiring, found by counting the Desk)
+
+Owner: *"Break remaining work into smaller pieces"*. A repair, not
+a piece of §96. Found while finishing §111, where the same fault
+was caught in that piece's own letters before it shipped.
+
+**The finding.** §110's "Measured" paragraph said the wait's
+letters were said. They were written. The week keeps five letters
+below critical, by priority, then arrival (the inbox law, §89 B),
+and these arrive late in the week. The same count on the Desk,
+across the long haul's eleven scenarios:
+
+| letter | shipped as | written | cut |
+|---|---|---|---|
+| day 100 | normal | 11 | 9 |
+| the letter from the base | high | 11 | 6 |
+| the turn | high or normal | 10 | 8 |
+| her signing across the street | high | 31 | 4 |
+| her debut there | high | 37 | 2 |
+| her life outside | high | 15 | 1 |
+
+And over 200 careers of the census: the met mandate (§96 wiring),
+high, written 168 times and cut 157. It is said in a debut week,
+the loudest there is. The window's closing letter (§109) was never
+written in either run, because the bot spends its windows; it is
+the same letter in the same place.
+
+**How it passed.** A suite reads the week's wire before the trim
+(§99), so that a missing letter fails by name. The census lines
+read ledgers that the composer increments. Nothing read the Desk.
+It had happened twice before inside this program and was half
+seen both times. The wiring (v0.11.5) ruled the met mandate's band
+from "greenlight 4" of 40: that was the letter landing, and the
+mandate was being met in more than four careers in five. The
+soloist's repair (v0.11.15) found her life outside landing three
+times in five, raised it from normal to high, and stopped one rung
+short.
+
+**Eight letters are critical.** Each is said once: its stamp
+burns, or the week it belongs to never comes again. The law's own
+remedy is the one used ("a note that wants to survive a loud week
+must be critical"). Day 100, the letter from the base, the turn
+(for every man, not only the last one home), the window's closing
+letter, her signing, her debut, her life outside, the met mandate.
+The met mandate's band is re-ruled from the letter landing: 168 of
+200, where it read 11.
+
+**The Desk is counted** (`tools/desk_count.js`). It wraps the
+kernel's one trim and counts, by kind, what each week wrote and
+what landed. The census and the long haul both print two lines
+from it: the totals, and the rare letters the budget cuts (a year
+of play writes the kind about once or less, and a quarter or more
+never land). A list names the letters said once, eighteen of them.
+Suite_131 holds each to critical at its source. The tools hold
+each to it at the Desk: one written and cut is a hard violation in
+the census and a flag in the long haul. The long haul's service
+line says what landed beside what was written.
+
+**A law, added to §99's.** The suite reads the wire. The census
+counts the Desk. A count of letters in a "Measured" paragraph is a
+count of letters landed, or it says that it is not.
+
+**What the count shows beyond this repair** (measured, not
+changed: the rule is the owner's law). Over 200 careers the week
+wrote 302,706 letters and 153,561 landed.
+
+| priority | written | landed | cut |
+|---|---|---|---|
+| critical | 13,104 | 13,104 | none |
+| high | 121,783 | 94,273 | 23% |
+| normal | 118,561 | 39,891 | 66% |
+| flavor | 49,258 | 6,293 | 87% |
+
+The budget holds: no week lands more than five below critical. In
+27% of weeks more than five letters arrive at high or critical, so
+"then arrival" decides, and arrival is the order the systems run
+in. Of the high letters from systems that run before order 300,
+two were cut in 11,158. From order 800 on, half were.
+
+| high letters, by the order their system runs at | written | cut |
+|---|---|---|
+| before 300 | 11,158 | 2 letters |
+| 300 to 599 | 37,601 | 2% |
+| 600 to 699 (the release week) | 28,897 | 39% |
+| 700 to 759 | 11,548 | 28% |
+| 760 to 799 | 21,323 | 32% |
+| 800 and later | 11,256 | 49% |
+
+So some kinds almost never land, whatever they say: three eras in
+the red (4 in 100; its scene still opens), a member's first
+songwriting credit (3), the sophomore slump (15), a hit the critics
+panned (16), a lost head-to-head week (18). Fourteen of the 93 high
+kinds land less than half the time, and five of them less than one
+time in ten.
+
+**Three rules, replayed.** The trim decides nothing in the
+simulation, so the same 200 careers were replayed under each rule.
+Every rule lands the same 153,561 letters.
+
+| | today | shuffled | least seen first |
+|---|---|---|---|
+| high kinds landing under half the time | 14 | 17 | 2 |
+| high kinds landing under one in ten | 5 | none | none |
+| three eras in the red | 4% | 43% | 95% |
+| a member's first songwriting credit | 3% | 43% | 78% |
+| the sophomore slump | 15% | 48% | 95% |
+| a story breaks | 68% | 86% | 98% |
+| the monthly sheet | 69% | 72% | 62% |
+| narrative letters (63 a career) | 75% | 67% | 41% |
+| outside offers | 100% | 88% | 78% |
+| health letters | 99% | 81% | 87% |
+
+"Shuffled" breaks ties by a hash of the week, so no system is
+first every week. "Least seen first" breaks them by how often this
+career has already been shown the kind. It nearly ends the
+starving, and the letters it costs are the ones a career sees most.
+Health letters would have to be critical under either: they land
+today only because their system runs early.
+
+*The owner's to call:* the tie-break. Recommended: least seen
+first, with health letters made critical. Until it is called, the
+rule stands, every new letter said once goes in as critical, and
+the census names what is cut.
+
+**Measured.** Priorities move no career: at 40 careers and at 200
+the output is the same as v0.11.20's line for line, but for the
+Desk's two new lines and the met mandate's row. Critical letters:
+12,913 over the 200 careers before, 13,104 after, one more a
+career. Weeks with four or more went from 283 to 307 of 29,440. The
+loudest week has nine, as it had: three records landing, two fusion
+verdicts and a season finale among them. After the repair no letter
+on the list was written and cut, in the census or the long haul.
+Across the long haul's eleven scenarios the wait wrote 11 day-100
+letters, 11 from the base and 10 turns, and the same numbers
+landed.
+
+Suite_131 (83): the law, the list held at its source, the counter,
+eighty real weeks, and both tools' wiring. Suites 115, 122, 128 and
+129 each hold their own letters to a loud week. Mutation-checked
+against 51 broken lines, each caught by a named assertion in every
+suite that owns the line. On the first run one of the 51 survived,
+a line that listed too many letters and still counted the rest, and
+it got a check. A real-browser pass in which a rail registered in
+the page writes nine high letters before anything else, and each of
+five one-shot letters still reaches the Desk through the real
+weekly (21 checks, no page errors). Pointed at the v0.11.20 tree,
+the same pass loses all five. Battery 131/131, soak 40 clean,
+census 200 clean, longhaul 11 × 620 clean, e2e 137, lockstep
+0.11.21.
+
+*Left for the next piece.* Recommendation 6, the other side of
+the wall, in pieces; its letters are designed for the Desk as it
+is. *Still the owner's to call*: the tie-break above; and from
+§109, the fade between records through a service chapter and the
+size of the window's bank.
 
 ## §18 Watch items
 
@@ -15623,6 +15784,29 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 130/130, soak 40 clean, census 200 clean, longhaul 11 × 620 clean,
 > e2e 137, a real-browser pass (40), lockstep 0.11.20. Rode to main.
 > Next piece: the letters that land.
+
+> **0.11.21 — the letters that land.** Own judgment, under "Break
+> remaining work into smaller pieces": a repair of §103, §109, §110
+> and the §96 wiring, not a piece of §96. §112: §110 counted the
+> wait's letters written, and the week's budget of five cut most of
+> them before the Desk: nine of eleven day-100 letters, six of eleven
+> from the base, eight of ten turns, and the met mandate 157 times in
+> 168. A suite reads the wire before the trim and the census read
+> ledgers, so nothing read the Desk. Eight letters said once are
+> critical. The Desk is counted in the census and the long haul
+> (`tools/desk_count.js`); a one-shot written and cut is a violation
+> in both; suite_131 holds a list of eighteen to critical at the
+> source. A law for §99: the suite reads the wire, the census counts
+> the Desk. Beyond the repair, measured and left for the owner: of
+> 302,706 letters the week wrote over 200 careers, 153,561 landed;
+> among high letters arrival decides, and arrival is the order the
+> systems run in, so fourteen of the 93 high kinds land less than half
+> the time. Replayed under two other tie-breaks; "least seen first"
+> leaves two. No career moves: the simulation does not read a letter's
+> priority. Suite_131 (83), 51 mutations caught by name. Battery
+> 131/131, soak 40 clean, census 200 clean, longhaul 11 × 620 clean,
+> e2e 137, a real-browser pass (21), lockstep 0.11.21. Rode to main.
+> Next piece: the other side of the wall.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

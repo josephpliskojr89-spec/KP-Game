@@ -435,7 +435,13 @@ function expireAll(s, kind) { (s.scenes || []).forEach(sc => { if (sc.kind === k
   t.ok(m.status === 'met' && m.metWeek === s.week && !m.metNoted, 'consumed silently with metWeek');
   const wk = KP.advanceWeek(s);
   const letter = (KP.lastTickNotes || []).find(n => n.ind === 'mandateMet');
-  t.ok(letter && letter.priority === 'high' && letter.kind === 'executive' && letter.text.indexOf(s.executive.name + ': “') === 0 && letter.text.indexOf(g.name) >= 0 && /the board/.test(letter.text), 'mandateMet: high, executive voice, names the group and the source');
+  t.ok(letter && letter.priority === 'critical' && letter.kind === 'executive' && letter.text.indexOf(s.executive.name + ': “') === 0 && letter.text.indexOf(g.name) >= 0 && /the board/.test(letter.text), 'mandateMet: critical (said once, in a debut week), executive voice, names the group and the source');
+  {
+    // a debut week is the loudest there is: as a high letter the budget cut this one 157 times in 168 (v0.11.21, §112)
+    const crowd = [];
+    for (let i = 0; i < 9; i++) crowd.push({ kind: 'company', priority: 'high', text: 'crowd ' + i });
+    t.ok(!!letter && KP.trimWeekNotes(crowd.concat([letter]), KP.C.EVENTS.maxInboxPerWeek).includes(letter), 'mandateMet: nine high letters pushed before it in the same week do not cut it');
+  }
   t.ok(m.metNoted, 'noted once');
   KP.advanceWeek(s);
   t.ok(!(KP.lastTickNotes || []).some(n => n.ind === 'mandateMet'), 'never twice');

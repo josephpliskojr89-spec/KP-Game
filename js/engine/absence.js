@@ -334,9 +334,14 @@
       const since = g.wait && g.wait.since != null ? g.wait.since : men.reduce((w, m) => Math.min(w, m.flags.military.since), Infinity);
       const proj = KP.waitProject(state, g, since, state.week, g.wait && g.wait.count);
       if (g.wait && kind !== 'half') g.wait.count = proj.count;   // the count a letter gave
+      // Each mark is said once: the week it falls in never comes again. So each
+      // is critical (§89 B). They shipped normal and high (v0.11.19), and the
+      // week's budget cut most of them: nine of eleven day-100 letters, six of
+      // eleven from the base, eight of ten turns (v0.11.21, §112, measured
+      // over the long haul).
       if (kind === 'hundred') {
         led.hundred++;
-        inbox.push({ kind: 'public', ind: 'waitHundred', priority: 'normal', groupId: g.id, personId: men[0].id,
+        inbox.push({ kind: 'public', ind: 'waitHundred', priority: 'critical', groupId: g.id, personId: men[0].id,
           text: KP.waitHundredText(state, g, men, proj) });
       } else if (kind === 'half') {
         // the leader writes for them if he is among them, else the eldest
@@ -344,11 +349,11 @@
         led.wrote++;
         homeOf(state, g).forEach(m => { m.morale = KP.clamp(m.morale + M.halfMorale, 0, 100); });
         writer.history.push({ week: state.week, text: 'Wrote to the company from the base, at the half of the service.' });
-        inbox.push({ kind: 'company', ind: 'baseLetter', priority: 'high', groupId: g.id, personId: writer.id,
+        inbox.push({ kind: 'company', ind: 'baseLetter', priority: 'critical', groupId: g.id, personId: writer.id,
           text: KP.baseLetterText(state, g, writer, men) });
       } else if (kind === 'turn') {
         led.turn++;
-        inbox.push({ kind: 'public', ind: 'waitTurn', priority: KP.waitTurnRead(state, g, men).whole ? 'high' : 'normal',
+        inbox.push({ kind: 'public', ind: 'waitTurn', priority: 'critical',
           groupId: g.id, personId: men[0].id, text: KP.waitTurnText(state, g, men, proj) });
       }
     });
@@ -504,7 +509,8 @@
       }
       if (r.left === M.returnClosingWeeks) {
         led.closing++;
-        inbox.push({ kind: 'company', ind: 'returnClosing', priority: 'high', groupId: g.id,
+        // one-shot: the warning has one week to be said in, so it must land (v0.11.21, §112)
+        inbox.push({ kind: 'company', ind: 'returnClosing', priority: 'critical', groupId: g.id,
           text: KP.returnClosingText(state, g, r) });
       }
     });

@@ -81,12 +81,13 @@
       what.replace(/^./, c => c.toUpperCase()) + '. The stage years are a chapter {she} talks about kindly.', p) });
     L.lives++;
     if (fell) L.fell++;
-    // high since v0.11.15 (it shipped normal): this is the one letter that
-    // closes an artist's file, and the week's budget of five kept it three
-    // times in five (measured over the soak's long careers; the signing and
-    // the debut, both high, landed fifteen times in fifteen). A one-shot
-    // about a person is not what a busy week should cut.
-    inbox.push({ kind: 'company', ind: 'alumAfter', priority: 'high', personId: p.id,
+    // This is the one letter that closes an artist's file. It shipped normal
+    // and the week's budget of five kept it three times in five; high since
+    // v0.11.15, and still cut once in fourteen over the long haul, with the
+    // signing (once in eight) and the debut (once in twenty). Each is said
+    // once, so each is critical (v0.11.21, §112): a one-shot about a person
+    // is not what a busy week should cut.
+    inbox.push({ kind: 'company', ind: 'alumAfter', priority: 'critical', personId: p.id,
       text: KP.fillPro('Word from outside the building: ' + KP.displayName(p) + (act ? ', formerly of ' + act.name + ',' : '') + ' ' + what +
         (fell ? ', after the solo deal {she} had signed went down with the house that offered it' : '') +
         '. Nobody here was asked, and nobody needed to be. The file stays open; it just has a later page in it now.', p) });
@@ -133,7 +134,7 @@
       act.fandomGrudge = (act.fandomGrudge || 0) + A.grudgeSudden;
       tail += ' ' + act.name + '’s fandom has not forgotten how {she} had to leave, and this week it is saying so again.';
     }
-    inbox.push({ kind: 'industry', ind: 'acrossSigned', priority: 'high', personId: p.id, company: r.short, shape,
+    inbox.push({ kind: 'industry', ind: 'acrossSigned', priority: 'critical', personId: p.id, company: r.short, shape,
       text: KP.fillPro(KP.displayName(p) + (act ? ', formerly of ' + act.name + ',' : '') + ' has signed with ' + r.short + ' as a soloist, ' + away + ' weeks after {pos} contract with ' + co +
         (shape === 'cold' ? ' expired' : shape === 'released' ? ' was dissolved at {pos} own request' : ' completed') + '.' +
         SIGNED[shape].split('{CO}').join(co) + (broken && shape !== 'sudden' ? ' Asked about {pos} last year there, {she} said {she} had learned to get dates in writing.' : '') + tail +
@@ -183,7 +184,7 @@
       tail = ' Nobody at ' + co + ' posted anything. The fandom keeps a list of who did not.';
     }
     const rec = made.rel.reception;
-    inbox.push({ kind: 'industry', ind: 'acrossDebut', priority: 'high', personId: p.id, company: r.short, actName: made.act.name, shape,
+    inbox.push({ kind: 'industry', ind: 'acrossDebut', priority: 'critical', personId: p.id, company: r.short, actName: made.act.name, shape,
       text: KP.fillPro(KP.displayName(p) + ' debuted solo under ' + r.short + ' this week with “' + made.rel.title + '”' +
         (moved ? ' (the house that first signed {her} is gone; the contract moved)' : '') + '. ' +
         (rec >= 64 ? 'It is getting real traction: the name did half the work and the record did the rest.'

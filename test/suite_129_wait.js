@@ -56,6 +56,7 @@ function rideTo(f, week) { let all = []; let guard = 0; while (f.state.week < we
 const firstOf = (list, ind) => (list || []).find(n => n.ind === ind) || {};
 const allOf = (list, ind) => (list || []).filter(n => n.ind === ind);
 const txt = n => String((n && n.text) || '');
+const lands = n => { const crowd = []; for (let i = 0; i < 9; i++) crowd.push({ kind: 'company', priority: 'high', text: 'crowd ' + i }); return !!(n && n.text) && KP.trimWeekNotes(crowd.concat([n]), KP.C.EVENTS.maxInboxPerWeek).includes(n); };   // nine high letters pushed before it, and the week's budget of five (v0.11.21, §112)
 const mil = p => (p && p.flags && p.flags.military) || {};
 const led = state => state.serviceLedger || {};
 const when = w => KP.weekLabel(w).text;
@@ -229,7 +230,8 @@ const at = (state, week) => Object.assign({}, state, { week });   // the same wo
   const w100 = tick(f);
   const h = firstOf(w100, 'waitHundred');
   const p100 = projOf(f);
-  t.eq([h.priority, h.kind, h.groupId, h.personId].join('|'), ['normal', 'public', g.id, man.id].join('|'), 'day 100 is a normal public letter that carries the act and the man');
+  t.eq([h.priority, h.kind, h.groupId, h.personId].join('|'), ['critical', 'public', g.id, man.id].join('|'), 'day 100 is a public letter, said once and so critical, that carries the act and the man');
+  t.ok(lands(h), 'a loud week does not cut it (as a normal letter the budget cut nine in eleven)');
   t.eq(txt(h), 'The hundredth day of the wait for ' + NAME + ' fell this week. The fan cafés’ project for it has a name now, ' + p100.name + ': ' +
     p100.said + ' so far, ' + p100.def.so({ many: false, pos: 'his', color: 'the lightstick’s color' }) + '. He is home ' + when(until) +
     ', and GARRISON works as three until then.', 'it names the project, its count, when he is home and how the act works until then');
@@ -248,7 +250,8 @@ const at = (state, week) => Object.assign({}, state, { week });   // the same wo
   try { M.halfMorale = 0; twinWire = tick(twin); } finally { M.halfMorale = keep; }
   const wHalf = tick(f);
   const b = firstOf(wHalf, 'baseLetter');
-  t.eq([b.priority, b.kind, b.groupId, b.personId].join('|'), ['high', 'company', g.id, man.id].join('|'), 'the letter from the base is a high company letter that carries him');
+  t.eq([b.priority, b.kind, b.groupId, b.personId].join('|'), ['critical', 'company', g.id, man.id].join('|'), 'the letter from the base is a company letter, said once and so critical, that carries him');
+  t.ok(lands(b), 'a loud week does not cut it (as a high letter the budget cut six in eleven)');
   t.ok(txt(b).startsWith('A letter came from the base in ' + NAME + '’s handwriting, ' + HALF + ' weeks in and ' + (M.serviceWeeks - HALF) + ' weeks to go. '), 'it says how far in he is');
   t.ok(['He asks what the group is working on, and then says not to tell him.', 'He asks who has his spot in the formation, and then says he does not want to know.']
     .some(x => txt(b).includes(x)), 'with no record out since he left, he asks about the work');
@@ -269,7 +272,8 @@ const at = (state, week) => Object.assign({}, state, { week });   // the same wo
   const wTurn = tick(f);
   const tn = firstOf(wTurn, 'waitTurn');
   const pT = projOf(f);
-  t.eq([tn.priority, tn.kind, tn.groupId, tn.personId].join('|'), ['high', 'public', g.id, man.id].join('|'), 'the turn is high when the act is whole once he is home');
+  t.eq([tn.priority, tn.kind, tn.groupId, tn.personId].join('|'), ['critical', 'public', g.id, man.id].join('|'), 'the turn is a public letter, said once and so critical');
+  t.ok(lands(tn), 'a loud week does not cut it (the budget cut eight turns in ten)');
   t.eq(txt(tn), 'The countdown accounts turned their counters over this week: a hundred days until ' + NAME + ' is home, ' + when(until) + '. ' +
     pT.name.charAt(0).toUpperCase() + pT.name.slice(1) + (pT.def.plural ? ' stand at ' : ' stands at ') + pT.said + '. That week GARRISON is whole, and a window opens for ' + M.returnWindowWeeks +
     ' weeks: a record locked inside it is THE RETURN. A record locked before he is home is a comeback like any other.',
@@ -395,7 +399,7 @@ const at = (state, week) => Object.assign({}, state, { week });   // the same wo
     'one letter, for the four of them, about the four of them');
   t.ok(!/The room read it/.test(txt(b)), 'there is no room at home to read it');
   t.ok(!/He went /.test(txt(b)), 'and going together needs no sentence');
-  t.eq(tn.priority, 'high', 'the turn is high: the act is whole when they are home');
+  t.eq(tn.priority, 'critical', 'the turn of men who went together is said once, so it is critical');
   t.ok(txt(tn).includes('a hundred days until the four of them are home, ' + when(until) + '.') &&
     txt(tn).endsWith('That week GARRISON is whole, and a window opens for ' + M.returnWindowWeeks + ' weeks: a record locked inside it is THE RETURN. Nothing can be locked before then: the record waits for the gate.'),
     'nothing can be locked before the gate, and the turn says so');
@@ -470,7 +474,8 @@ const at = (state, week) => Object.assign({}, state, { week });   // the same wo
   t.ok(txt(hC).includes(' has a name now, ' + chapter.name + ': '), 'the second man’s day 100 names the chapter’s project, not one of his own');
   // the first man's turn: two are still away after him, and the act is whole when the last is home
   const tA = allOf(wire, 'waitTurn').find(n => n.personId === a.id) || {};
-  t.eq(tA.priority, 'normal', 'the turn is normal when the act is still short after him');
+  t.eq(tA.priority, 'critical', 'the turn of a man who is not the last is said once too, so it is critical');
+  t.ok(lands(tA), 'and a loud week does not cut it');
   t.ok(txt(tA).endsWith(' ' + KP.displayName(b) + ' and ' + KP.displayName(c) + ' are still away after that, so the act is not whole until ' + when(uB) + '.'),
     'it names the two still away, and the week the last of them is home');
   t.ok(!/THE RETURN/.test(txt(tA)), 'and does not promise a window that will not open');
@@ -481,12 +486,12 @@ const at = (state, week) => Object.assign({}, state, { week });   // the same wo
   const tC = allOf(wireC, 'waitTurn').find(n => n.personId === c.id) || {};
   t.ok(KP.inService(a), 'fixture: the first man is still away at the second man’s turn');
   t.ok(txt(tC).endsWith(' ' + KP.displayName(b) + ' is still away after that, so the act is not whole until ' + when(uB) + '.'), 'a man who is home sooner is not still away after');
-  t.eq(tC.priority, 'normal', 'normal again');
+  t.eq(tC.priority, 'critical', 'critical again');
   // the last man's turn: the second is still away but home sooner, so the act is whole when he is
   const wireB = rideTo(f, uB - M.turnWeeks);
   const tB = allOf(wireB, 'waitTurn').find(n => n.personId === b.id) || {};
   t.ok(KP.inService(c) && !KP.inService(a), 'fixture: at the last man’s turn the second is still away and the first is home');
-  t.eq(tB.priority, 'high', 'the last man’s turn is the high one');
+  t.eq(tB.priority, 'critical', 'and the last man’s turn, the one that promises the window');
   t.ok(/That week GARRISON is whole, and a window opens/.test(txt(tB)), 'and it says the act is whole that week');
   t.eq([led(state).hundred, led(state).turn].join('|'), '3|3', 'three men who left on three weeks: three of each');
 }

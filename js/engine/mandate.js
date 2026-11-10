@@ -223,7 +223,10 @@
       m.metNoted = true;
       const g = KP.groupById(state, m.groupId);
       if (!g) return;
-      inbox.push({ kind: 'executive', ind: 'mandateMet', priority: 'high', groupId: g.id,
+      // one-shot: the stamp burns above, and the week it is said in is a debut
+      // week, the loudest there is. As a high letter the budget cut it 157
+      // times in 168 (v0.11.21, §112, measured over 200 careers).
+      inbox.push({ kind: 'executive', ind: 'mandateMet', priority: 'critical', groupId: g.id,
         text: state.executive.name + ': “' + g.name + ' debuted inside the window. The greenlight came from ' + m.source +
           ' — ' + KP.weekLabel(m.issuedWeek).text + ' — and it was kept, on time, with a stage in it. I notice when a window closes with a stage in it. I notice the other thing too, so enjoy this one.”' });
     });

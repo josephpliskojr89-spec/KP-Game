@@ -47,6 +47,7 @@ function ride(state, weeks) { let all = []; for (let i = 0; i < weeks; i++) all 
 const firstOf = (list, ind) => (list || []).find(n => n.ind === ind) || {};
 const allOf = (list, ind) => (list || []).filter(n => n.ind === ind);
 const txt = n => String((n && n.text) || '');
+const lands = n => { const crowd = []; for (let i = 0; i < 9; i++) crowd.push({ kind: 'company', priority: 'high', text: 'crowd ' + i }); return !!(n && n.text) && KP.trimWeekNotes(crowd.concat([n]), KP.C.EVENTS.maxInboxPerWeek).includes(n); };   // nine high letters pushed before it, and the week's budget of five (v0.11.21, §112)
 // the wall takes him this tick: no door, no roll
 function wall(state, man) { man.age = M.deadlineAge; return tick(state); }
 // his service ends in `weeks` ticks
@@ -157,7 +158,8 @@ const GROUPISH = /whole again|every member|members|the group|They are/;
   const wk = tick(state);
   const cl = firstOf(wk, 'returnClosing');
   t.eq(until - state.week, M.returnClosingWeeks, 'fixture: this is the closing week');
-  t.eq(cl.priority, 'high', 'the closing letter is high');
+  t.eq(cl.priority, 'critical', 'the closing letter is critical: its one week is the only week it can be said in');
+  t.ok(lands(cl), 'and a loud week does not cut it');
   t.eq(cl.groupId, g.id, 'it carries the act');
   t.ok(txt(cl).startsWith('Four weeks are left on GARRISON’s return window.'), 'it counts the weeks left');
   t.ok(txt(cl).includes('A record locked by ' + KP.weekLabel(until).text + ' is THE RETURN'), 'it names the last week');

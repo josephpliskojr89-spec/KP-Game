@@ -63,6 +63,7 @@ function fork(src) {
 const CO = base.s.company.short;
 const runTo = (f, week) => { const wire = []; while (f.s.week < week) { answerAll(KP, f.s); tick(KP, f.s).forEach(n => wire.push(n)); } return wire; };
 const mine = (wire, ind, id) => wire.filter(n => n.ind === ind && (id == null || n.personId === id));
+const lands = n => { const crowd = []; for (let i = 0; i < 9; i++) crowd.push({ kind: 'company', priority: 'high', text: 'crowd ' + i }); return !!(n && n.text) && KP.trimWeekNotes(crowd.concat([n]), KP.C.EVENTS.maxInboxPerWeek).includes(n); };   // nine high letters pushed before it, and the week's budget of five (v0.11.21, §112)
 // a member leaves, in one of the five shapes an exit can have. Every gate
 // of the exit is forced on her paper; the verb is the game's own.
 function leave(f, i, shape) {
@@ -169,7 +170,8 @@ const signed = (() => {
   const f = fork(signed); const p = f.s.people[signed.pid];
   const n = firstOf(mine(signed.wire, 'acrossSigned', p.id));
   const top = houses(base.s).slice(0, Math.ceil(houses(base.s).length / 2)).map(r => r.short);
-  t.eq(mine(signed.wire, 'acrossSigned').length + '|' + n.priority + '|' + n.shape, '1|high|cold', 'on her date the signing is one high letter, in the tone of how she left');
+  t.eq(mine(signed.wire, 'acrossSigned').length + '|' + n.priority + '|' + n.shape, '1|critical|cold', 'on her date the signing is one letter, said once and so critical, in the tone of how she left');
+  t.ok(lands(n), 'and a loud week does not cut it');
   t.ok(!!p.flags.across && p.flags.across.week === f.s.week, 'her file carries the signing, and its week');
   t.ok(top.includes(p.flags.across.company), 'a name this big signs with the top half of the street (' + p.flags.across.company + ' of ' + top.join(', ') + ')');
   t.eq(n.company, p.flags.across.company, 'the letter names the same house');
@@ -236,7 +238,8 @@ const signed = (() => {
   // re-pinned v0.11.15: the letter is high, not normal. Measured over the
   // soak's long careers the week's budget of five kept a normal one three
   // times in five; it is the one letter that closes her file (suite_125).
-  t.eq(mine(wire, 'alumAfter').length + '|' + n.priority + '|' + mine(wire, 'acrossSigned').length, '1|high|0', 'past the market’s clock her chapter is one letter the week will not cut, and no signing');
+  t.eq(mine(wire, 'alumAfter').length + '|' + n.priority + '|' + mine(wire, 'acrossSigned').length, '1|critical|0', 'past the market’s clock her chapter is one critical letter, and no signing');
+  t.ok(lands(n), 'which the week will not cut, however loud');
   if (!p.flags.after) p.flags.after = { week: null, what: '' };   // a chapter that is not there fails the checks below by name
   t.ok(p.flags.after.week === f.s.week && typeof p.flags.after.what === 'string' && p.flags.after.what.length > 10, 'her file carries what she does now');
   t.ok(n.text.startsWith('Word from outside the building: ' + KP.displayName(p) + ', formerly of ' + f.g.name + ', ' + p.flags.after.what + '.') && !noisy(n.text), 'the letter says it in the same words');
@@ -284,7 +287,8 @@ const debuted = (() => {
   const r = f.s.rivals.find(x => x.short === p.company) || { acts: [], short: '?' };
   const act = (r.acts || []).find(a => (a.members || []).includes(p.id)) || { members: [], releases: [], name: '' };
   t.eq(debuted.before.status, 'departed', 'fixture: up to the week before, she was still departed');
-  t.eq(mine(debuted.wire, 'acrossDebut').length + '|' + n.priority + '|' + n.shape, '1|high|cold', 'on its date her record is one high letter');
+  t.eq(mine(debuted.wire, 'acrossDebut').length + '|' + n.priority + '|' + n.shape, '1|critical|cold', 'on its date her record is one letter, said once and so critical');
+  t.ok(lands(n), 'and a loud week does not cut it');
   t.eq(p.status + '|' + p.company, 'rival|' + p.flags.across.company, 'she belongs to that house now');
   t.eq(p.signedWeek, p.flags.across.week, 'signed there the week of the announcement');
   t.eq(JSON.stringify(act.members) + '|' + act.name + '|' + act.solo + '|' + act.alumOf, JSON.stringify([p.id]) + '|' + KP.displayName(p) + '|true|' + CO, 'as a solo act under her own name, marked as an artist who was ours');

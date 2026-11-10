@@ -11,6 +11,9 @@ const { loadEngine } = require('../test/load_engine');
 
 const SEEDS = parseInt(process.argv[2] || '40', 10);
 const KP = loadEngine();
+// the Desk, counted (v0.11.21, §112): what each week wrote and what landed
+const deskCount = require('./desk_count');
+const DESK = deskCount.watch(KP);
 
 // alive-and-plausible bands, as fraction of seeds
 const BANDS = {
@@ -309,7 +312,11 @@ const BANDS = {
   // desk cooled 0, tour record 40
   wirePassedChair:    { lo: 0.40, hi: 1.00, label: 'orgs told a passed candidate took a rival’s chair' },
   wireRedInkSilence:  { lo: 0.00, hi: 0.20, label: 'orgs that let the red-ink talk expire (the room read the silence)' },
-  wireMandateMet:     { lo: 0.00, hi: 0.60, label: 'orgs whose exec acknowledged a kept greenlight' },
+  // re-ruled v0.11.21 (§112): "greenlight 4" above was the letter landing,
+  // not the mandate being met. It was written in more than four careers in
+  // five and the week's budget cut it 157 times in 168. Critical now, and it
+  // lands when it is written: 31 of 40.
+  wireMandateMet:     { lo: 0.40, hi: 1.00, label: 'orgs whose exec acknowledged a kept greenlight' },
   wireWarehouseMemo:  { lo: 0.20, hi: 0.95, label: 'orgs that got the warehouse memo (overpressed)' },
   wireRestockPressed: { lo: 0.00, hi: 0.10, label: 'orgs that pressed a second run (bot never)' },
   wireRepackageSet:   { lo: 0.30, hi: 1.00, label: 'orgs whose repackage was announced by letter' },
@@ -3152,6 +3159,11 @@ console.log('\nthe mission: showcases ' + (missionSum.missions || 0) + ' (sheets
 // the talk and the slot (v0.11.14, §105)
 console.log('the year’s sheet: read ' + yearSum.years + ' times · the year’s climb named ' + yearSum.climbs + ' · places on the sheets still on the wall ' + yearSum.rows +
   ' across ' + yearSum.sheets + ' (the longest ' + yearSum.max + ')');
+// the Desk (v0.11.21, §112): the lines above count what the engine wrote;
+// these two count what the week's budget let through, and name the rare
+// letters it cuts. A one-shot written and cut is a violation.
+deskCount.lines(DESK).forEach(l => console.log(l));
+deskCount.cutOneShots(DESK).forEach(m => violations.push('a one-shot letter was written and cut by the week’s budget: ' + m));
 console.log('the quiet: told the rest was in ' + (quietSum.rested || 0) + ' · told the bank was full ' + (quietSum.full || 0) +
   ' · a member on a break told she was rested ' + (quietSum.breakRested || 0) + ' · acts still parked at the end ' + (quietSum.parked || 0));
 console.log('the posting: lists ' + (postSum.posted || 0) + ' · the month’s first left off ' + (postSum.offMonth || 0) + ' · the year’s first left off ' + (postSum.offYear || 0) +
