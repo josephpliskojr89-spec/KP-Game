@@ -649,6 +649,12 @@ const BANDS = {
   directorCalled:    { lo: 0.20, hi: 1.00, label: 'worlds where a director phoned the majors about shown interest' },
   fogPoached:        { lo: 0.30, hi: 1.00, label: 'worlds where a known student signed away before anyone met her' },
   evalHeld:          { lo: 0.80, hi: 1.00, label: 'orgs whose practice room held evaluation days' },
+  // the mission (v0.11.13, §104 — measure-first): the bot trains each
+  // trainee's two best reads, so a room is drilled whenever it is one of
+  // them. Floors only: the room must be drilled somewhere and a moment
+  // must be told somewhere, in most careers.
+  missionDrilled:    { lo: 0.60, hi: 1.00, label: 'orgs where a trainee drilled a whole month’s room' },
+  missionMoment:     { lo: 0.60, hi: 1.00, label: 'orgs where the sheet told one thing from the room' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -799,6 +805,7 @@ const BANDS = {
   dissolvedStd:      { lo: 0.00, hi: 0.05, label: 'orgs that DISSOLVED in standard play (a fatal week, never a flood)' },
 };
 
+const missionSum = {};   // the mission (v0.11.13, §104): summed over the census
 const tally = {
   sensation: 0, strongPlus: 0, missOrQuiet: 0, nonCenterBreakout: 0,
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
@@ -877,6 +884,7 @@ const tally = {
   contentPosted: 0, contentHit: 0,
   fundPitched: 0, fundFinanced: 0, fundPassed: 0,
   evalHeld: 0, projectTalkSeen: 0, traineeQuitAsked: 0, traineeGone: 0,
+  missionDrilled: 0, missionMoment: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -2341,6 +2349,10 @@ for (let s = 0; s < SEEDS; s++) {
   // the rituals (v0.10.7): both ledgers are durable
   const evl = state.evalLedger || {};
   if ((evl.talks || 0) >= 1) tally.evalTalked++;
+  // the mission (v0.11.13, §104): the census's own sums, printed below the bands
+  ['sheets', 'missions', 'drilledFull', 'drilledClimbs', 'moments', 'lineCross', 'talks'].forEach(k => { missionSum[k] = (missionSum[k] || 0) + (evl[k] || 0); });
+  if ((evl.drilledFull || 0) >= 1) tally.missionDrilled++;
+  if ((evl.moments || 0) >= 1) tally.missionMoment++;
   const ptl = state.pointLedger || {};
   if ((ptl.breakdowns || 0) >= 1) tally.breakdownRead++;
   if ((ptl.nearMisses || 0) >= 1) tally.nearMissFuel++;
@@ -2903,6 +2915,11 @@ console.log('\n--- the last bow: three careers, one door each (3 seeds x 90 week
   });
   out.forEach(l => console.log('  ' + l));
 }
+
+// the mission (v0.11.13, §104): what the census's rooms did with it
+console.log('\nthe mission: showcases ' + (missionSum.missions || 0) + ' (sheets ' + (missionSum.sheets || 0) + ') · trainee-months drilled whole ' + (missionSum.drilledFull || 0) +
+  ' · sheets that named a climb for it ' + (missionSum.drilledClimbs || 0) + ' · moments told ' + (missionSum.moments || 0) + ' · months the line was crossed ' + (missionSum.lineCross || 0) +
+  ' · after-eval talks ' + (missionSum.talks || 0));
 
 // age census: 15-16 the norm, 14 a hard floor (owner's law, v0.3.1)
 const ageMean = allAges.reduce((a, b) => a + b, 0) / allAges.length;
