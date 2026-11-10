@@ -412,6 +412,16 @@
       I.memberQualityWeight * avg + I.prestigeQualityWeight * prestige + 14 +
       rng.normal(0, I.actQualityNoise * 0.7), 20, 92));
   }
+  // a lineup is real people (v0.4.3): a group fields at least actSize[0];
+  // a soloist's act (v0.11.12, §103: an alumna across the street) is her
+  // and nobody else. One rule, here, read by the soak every week (v0.11.14:
+  // the harness kept its own copy from before there were soloists, and
+  // called her act no lineup at all the first census career one debuted in).
+  KP.actLineupOk = function (act) {
+    if (!act) return false;
+    const n = (act.members || []).length;
+    return act.solo ? n === 1 : n >= KP.C.INDUSTRY.actSize[0];
+  };
   // the retired-act sink (v0.10.33, §90 B5): an act that concludes lets
   // its people go on — the world's exit for the ones with no chapter
   // here (forgotten), 'gone' for the ones with one. Members already

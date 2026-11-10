@@ -285,6 +285,16 @@ const debuted = (() => {
   t.eq(p.signedWeek, p.flags.across.week, 'signed there the week of the announcement');
   t.eq(JSON.stringify(act.members) + '|' + act.name + '|' + act.solo + '|' + act.alumOf, JSON.stringify([p.id]) + '|' + KP.displayName(p) + '|true|' + CO, 'as a solo act under her own name, marked as an artist who was ours');
   t.eq(houses(f.s).reduce((k, x) => k + (x.acts || []).length, 0), debuted.before.acts + 1, 'one act is added to the street');
+  // the lineup rule the soak reads every week (v0.11.14): the harness kept its
+  // own "at least four" from before there were soloists, and failed the first
+  // census career an alumna debuted solo in. The rule is the engine's now.
+  t.ok(KP.actLineupOk(act), 'a soloist’s act of one is a real lineup');
+  t.ok(!KP.actLineupOk(Object.assign({}, act, { members: [] })) && !KP.actLineupOk(Object.assign({}, act, { members: [p.id, 'x'] })), 'and only of one: an empty solo act is not a lineup, and neither is a solo act of two');
+  const grp = houses(f.s).map(x => (x.acts || []).find(q => !q.solo && !q.retired)).find(Boolean) || { members: [] };
+  t.ok(grp.members.length >= KP.C.INDUSTRY.actSize[0] && KP.actLineupOk(grp), 'a group on the same street still fields at least ' + KP.C.INDUSTRY.actSize[0]);
+  t.ok(!KP.actLineupOk(Object.assign({}, grp, { members: grp.members.slice(0, KP.C.INDUSTRY.actSize[0] - 1) })) && !KP.actLineupOk(Object.assign({}, grp, { members: grp.members.slice(0, 1) })), 'a group one short is not a lineup, and a group of one is not a soloist');
+  t.ok(!KP.actLineupOk(null) && !KP.actLineupOk({ solo: true }) && !KP.actLineupOk({}), 'no act, and an act with no list, are no lineup');
+  t.eq(houses(f.s).reduce((k, x) => k + (x.acts || []).filter(q => !q.retired && !KP.actLineupOk(q)).length, 0), 0, 'every act still running on the street is a real lineup the week she debuts');
   t.eq(act.gen, f.g.gen, 'the act carries the generation of the group she came from: she is not a rookie of this one');
   t.eq(act.releases.length + '|' + (act.releases[0] || {}).isDebut + '|' + (act.releases[0] || {}).title, '1|true|' + p.flags.across.title, 'with one record out, and its title on her file');
   t.eq(p.flags.across.debutWeek + '|' + p.flags.across.actId, f.s.week + '|' + act.id, 'her file carries the week and the act');

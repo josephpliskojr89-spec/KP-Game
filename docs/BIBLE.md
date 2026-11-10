@@ -9486,7 +9486,7 @@ what each member does next. `finalLineup` written on every ending;
 an alumni strip so the open files are reachable; a departed idol who
 can be signed across the street and a letter when she debuts there.
 
-**5. The practice room, attended (the trainee years as episodes; part one, the mission, SHIPPED v0.11.13, §104).**
+**5. The practice room, attended (the trainee years as episodes; part one, the mission, SHIPPED v0.11.13, §104; part two, the talk and the slot, SHIPPED v0.11.14, §105).**
 The evaluation sheet on a priority ladder (critical at a first #1,
 the line or the talk; high within one of the line; flavor only when
 nothing moved) naming the month's mission, her place and movement,
@@ -10893,6 +10893,159 @@ longhaul 11 × 620 clean, e2e 134, lockstep 0.11.13.
 showcase slot as a pick; the year-end sheet read in reverse and the
 posting as a letter for the room with a door for the ace left off;
 the absences' cadence.
+
+## §105 The talk and the slot (SHIPPED v0.11.14 — §96 recommendation 5, the trainee years, part two)
+
+Owner: *"Break remaining work into smaller pieces"*. The second
+piece of the practice room. §96 asked for "one door a month through
+the one queue (the after-eval talk as a scene; the showcase slot as
+a pick)".
+
+**The finding.** Two sheets at the bottom of the board was ten
+minutes with the coaches, two points of morale and a letter: the
+most serious thing that happens to a trainee short of leaving, and
+nothing for the desk to decide. The showcase had no seat the desk
+could give to anybody.
+
+Nothing new is drawn.
+
+**The talk is called on the day and held when the desk says how.**
+The sheet still calls it at the second sheet in the bottom third,
+and that month's sheet still posts critical; it now says the talk is
+due, not held. On the day nothing is said and nothing lands
+(`p.flags.talkDue`: the week, her place). The question comes through
+the one queue (`afterEvalTalk`, a priority candidate: an event, not
+a roll): one person scene at a time, two weeks on the desk. A talk
+the door never gets to is held by the coaches after three weeks; a
+talk due with somebody who has stopped being a trainee is dropped.
+
+**Three answers.** LEFT WITH THE COACHES is the first answer and is
+exactly what the talk was: two morale, the line on her file, the
+letter in one of the three ways it was always told. Nothing on her
+ledger. SAID STRAIGHT, by the one who signed her: it lands harder
+(four, not two), it goes on her ledger as told straight (which
+weighs for the desk, and counts where the building reads whether its
+boss has the hard conversation), and her file remembers it: the
+month she comes off the bottom of the sheet she knows who told her,
+and that is four morale back, once. While she is still at the bottom
+it pays nothing. NO TALK, A MONTH ONE ON ONE: the head coach takes
+her until the next showcase. It costs 6, it gives her a point of
+morale now (given something, not told something), and it is worth 3
+on the day on top of whatever she drilled. Then the sheet answers
+for it: off the bottom, two morale and a line on her file; still
+there, three morale gone and a line that says the hours did not move
+the sheet. It is help and not truth, and it can fail in front of
+her. The answer is not offered to a till that cannot cover the
+hours.
+
+**Silence leaves it with the coaches.** The question was the head
+coach's, not hers, so an unanswered one writes nothing against the
+desk on her ledger: the coaches hold the talk, and that is the cost
+it always had.
+
+**The closing slot.** The last one up has the long table's whole
+attention. By the coaches' custom it goes to last month's first, and
+nothing comes of it: the census's old behaviour, unchanged
+(`KP.showcaseSlotRead`, pure). The desk can give it to somebody else,
+once a month (`KP.setShowcaseSlot`): she is read 2 higher on the
+day, gains 2 morale for being given it, and it is on her file; the
+one who had it by custom loses 1, and the sheet says who had the
+slot and who did not. Giving it to the custom's holder is the custom.
+The pick is for one showcase: a pick who is off the floor that day
+has no slot, and next month it is back with the coaches. Like the
+drilled room it is an edge past a neighbour and not a ladder, and
+unlike the room it is taken from somebody.
+
+**The screens.** The question is on the Desk through the one card,
+its three answers stacked one a row. The closing slot is on the
+Training tab under the month's room: who has it by custom, a chip
+for the custom and one for each of the others on the floor.
+
+**Old saves.** Nothing to migrate. An old build held its talks on
+the day, so no file carries one in flight; the next one called is a
+question.
+
+**Two older suites re-pinned, with the reason on each.** Suite_087
+read the talk onto her file the day the sheet went up; it now reads
+the call on the day and the line when the talk is held. Suite_114's
+season fixture sent "the two we send" and then relied on that seed's
+pair staying on the show for ten weeks: the stream moved, the invite
+picked a different pair, and that pair was cut in its first month.
+The fixture now forces its own gate (the two are made strong enough
+to stay), and passes on this build and on v0.11.13 alike.
+
+**The bot and the census.** The bot leaves the talk with the coaches
+unless the trainee is already low and the books allow the month one
+on one; it never says it straight (suite-held). It gives the closing
+slot to a trainee who is one sheet from the talk. Measured over 40
+careers: 220 talks called and 220 asked, in 40/40 careers (floor
+.60); 195 left with the coaches, 22 a month one on one (off the
+bottom of the next sheet 8, still there 13), none said straight,
+none unanswered, none left unasked. 550 closing slots given, 523 of
+them past a custom holder, in 40/40 careers (floor .30). This is a
+real mechanic and the stream moved with it: 150 of the census's 340
+older rows shifted, and every band holds but one, which has its own
+paragraph below.
+
+**What the long check caught, and it was not this release.** The
+first soak on this build failed twice. Neither failure was the talk
+or the slot.
+
+*A lineup of one.* The soak's weekly invariant "every rival act is
+made of real people" kept its own rule from v0.4.3: at least four.
+v0.11.12 gave the street its first soloists (an alumna debuts under
+her own name, an act of one), and the rule never met one. In a
+140-week census career an artist has to leave, wait, be signed and
+debut, and that happened in 0 of 40 careers on v0.11.12 and on
+v0.11.13. On this build's stream it happened in one, and the
+invariant called her act no lineup at all, thirty-three weeks
+running. The engine was right and the check was wrong: v0.11.13 as
+shipped fails the same check over 200 careers (3 soloist signings,
+91 violations). The rule is the engine's now (`KP.actLineupOk`: a
+group fields at least four, a soloist's act is her and nobody
+else). The census reads it, and so does the seven-year pass, where
+soloists debut on every run (67 acts still running at the end of
+the long careers, 4 of them soloists), with a guard that the rule
+met at least one. Suite_122 holds it (159; six broken rules, each
+caught by name), and with the old rule put back the soak now fails
+on every run, not on one career in 200.
+
+*The flare.* "Orgs whose veteran worked around the file" read 0/40
+against a floor of one career. The flare is the last link of a thin
+chain: a diagnosis pushed through opens a chronic file 35% of the
+time, and the file flares on 5% of its heavy weeks. Before ruling it
+noise the chain was measured. The push roll was read raw over 200
+careers: 35 of 116 opened a file and the draws are uniform (the
+first 80 careers had run cold at 8 of 47, which is what prompted the
+look). The census was then run at 200 careers on this build and on
+v0.11.13 side by side. Careers with a flare: 12/200 here, 21/200
+there (z 1.6). Of the 340 rows the two builds share, none moved past
+z 2.6 and six past 2, where chance alone gives about fifteen: the
+two builds are the same world. At six careers in a hundred, none in
+forty happens one time in twelve, so the floor goes to zero with its
+history written on the band, as the sensation floor did at v0.10.36.
+The chain is held where it can be: suite_084 forces a chronic knee
+through heavy weeks, the throughput line prints every link, and a
+run with twenty chronic files and no flare is a violation (silent at
+40 careers, where there are three to six).
+
+*Found on the way, and left for its own release.* The same v0.11.12
+gap is in the words: when a soloist's act across the street ends,
+the letter announces "the conclusion of team activities", her file
+says she "disbanded", and the alumni line lowercases her name. The
+rival service letters are written for a group too. Reproduced, not
+fixed here: it is the next piece (v0.11.15).
+
+Suite_124 (119): the engine, and the Desk and the Training tab
+rendered through the DOM stub. Mutation-checked against twenty-two
+broken lines, each caught by a named assertion. A real-browser pass
+(14 checks, no page errors). Battery 124/124, soak 40 clean, census
+200 clean, longhaul 11 × 620 clean, e2e 135, lockstep 0.11.14.
+
+*Left for the next pieces.* The soloist, read as one (above). The
+year-end sheet read in reverse and
+the posting as a letter for the room with a door for the ace left
+off; the absences' cadence.
 
 ## §18 Watch items
 
@@ -14552,6 +14705,45 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Battery 123/123, soak 40 clean, longhaul 11x620, e2e 134, a
 > real-browser pass (12), lockstep 0.11.13. Rode to main. Next pieces:
 > the door a month, the year-end sheet and the posting, the absences.
+
+
+> **0.11.14 — the talk and the slot.** Own judgment, under "Approved
+> to tackle as much of the remaining queue as you see fit" and "Break
+> remaining work into smaller pieces": the second piece of §96's fifth
+> entry. §105: two sheets at the bottom was ten minutes with the
+> coaches and a letter, and nothing for the desk to decide. The talk is
+> now called on the day and held when the desk says how, through the
+> one queue: left with the coaches (what it always was, and what
+> silence still is), said straight by the one who signed her (it lands
+> harder, it is on her ledger, and the month she comes off the bottom
+> she knows who told her), or not held at all and the head coach's
+> month spent on her instead (money, an edge on the day, and the next
+> sheet answers for it in front of her). The showcase's closing slot is
+> one pick a month: by custom it goes to last month's first; given to
+> somebody else she is read a little higher and knows it, and so does
+> the one who had it. Nothing new is drawn. Two older suites re-pinned
+> with the reason on each: 087 read the talk onto her file on the day,
+> and 114's season fixture relied on its seed's pair surviving ten
+> weeks (it forces its own gate now, and passes on v0.11.13 too).
+> Measured over 40 careers: 220 talks, all asked (195 left with the
+> coaches, 22 a month one on one, none straight); 550 closing slots
+> given; 150 of 340 older rows moved. The first soak failed twice,
+> and neither failure was this release. One: the soak's "real
+> lineup" invariant still wanted four members and met its first
+> soloist (v0.11.12's alumna across the street), in one career of
+> forty; v0.11.13 as shipped fails it too over 200 careers. The rule
+> is the engine's now (`KP.actLineupOk`) and the seven-year pass
+> reads it, where soloists debut every run. Two: the medical flare
+> read 0/40 against a floor of one; measured at 200 careers on both
+> builds it is 6% to 10% of careers, the roll is fair, and no row
+> moved past z 2.6, so the floor is zero with its history on the
+> band and a guard for runs big enough to carry one. Found on the
+> way and left for v0.11.15: a soloist's act ending is told in a
+> group's words. Suite_124 (119), twenty-two mutations caught by
+> name; suite_122 159. Battery 124/124, soak 40 clean, census 200
+> clean, longhaul 11 × 620 clean, e2e 135, a real-browser pass (14),
+> lockstep 0.11.14. Rode to main. Next pieces: the soloist read as
+> one, the year-end sheet and the posting, the absences.
 
 
 > **Planning — the comeback (§91).** Owner: "something that really

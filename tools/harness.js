@@ -547,7 +547,18 @@ const BANDS = {
   bondWorking:       { lo: 0.50, hi: 1.00, label: 'orgs whose house regular showed his best' },
   medCase:           { lo: 0.60, hi: 1.00, label: 'orgs whose desk saw a diagnosis' },
   medChronic:        { lo: 0.05, hi: 0.80, label: 'orgs carrying a chronic file' },
-  flareFelt:         { lo: 0.02, hi: 0.80, label: 'orgs whose veteran worked around the file' },
+  // floor .02 → 0 (v0.11.14): the flare is the last link of a thin chain
+  // (a diagnosis, pushed through, opens a chronic file 35% of the time;
+  // the file flares 5% of its heavy weeks) and one career in 40 is not a
+  // floor it can carry. Measured 3/40, 3/40, 3/40, 4/40 (v0.11.10–13), then
+  // 0/40 here; on 200 careers 12/200 on this build and 21/200 on v0.11.13
+  // (z 1.6; of 340 rows none moved past z 2.6, six past 2). At 6% of
+  // careers P(0 of 40) is 8%. The roll was read raw over those 200: 35 of
+  // 116 pushes opened a file, the draws uniform. The chain is held by
+  // suite_084 (a chronic knee forced through heavy weeks), the throughput
+  // line prints every link, and a run large enough to be sure is guarded
+  // below (20 chronic files and no flare). The ceiling still catches a flood.
+  flareFelt:         { lo: 0.00, hi: 0.80, label: 'orgs whose veteran worked around the file' },
   chodongMinted:     { lo: 0.90, hi: 1.00, label: 'orgs whose releases printed a first-week number' },
   // ruled first soak: 25/40 and 36/40 — the gamble's two tails. Dead at 0
   // (the pressing choice stopped mattering), wallpaper at 1.0 for sellouts
@@ -2056,11 +2067,16 @@ for (let s = 0; s < SEEDS; s++) {
       }
     }));
 
-    // rivals with faces (v0.4.3): every active act is made of real people
+    // rivals with faces (v0.4.3): every active act is made of real people.
+    // The rule is the engine's (KP.actLineupOk, v0.11.14): this check kept
+    // its own "at least four" from before there were soloists (v0.11.12),
+    // and the first census career an alumna debuted solo in (1 in 200) it
+    // called her act no lineup at all. The long clock below reads the same
+    // rule, where soloists debut on every run.
     state.rivals.forEach(r => (r.acts || []).forEach(a => {
       if (a.retired) return;
-      guard((a.members || []).length >= KP.C.INDUSTRY.actSize[0],
-        seed + ' rival act ' + a.name + ' has no real lineup');
+      guard(KP.actLineupOk(a),
+        seed + ' rival act ' + a.name + ' has no real lineup (' + (a.members || []).length + (a.solo ? ', solo' : '') + ')');
       (a.members || []).forEach(id => guard(state.people[id] && (state.people[id].status === 'rival' ||
         (state.people[id].status === 'trainee' && state.people[id].flags.onProject)),   // the season's held seat (v0.10.32)
         seed + ' rival act member ' + id + ' missing or mis-statused (' + (state.people[id] ? state.people[id].status + ' co=' + state.people[id].company + ' ' + JSON.stringify(state.people[id].flags.onProject || null) + ' hist=' + JSON.stringify((state.people[id].history || []).slice(-3).map(h => h.text.slice(0, 50))) : 'missing') + ')'));
@@ -2691,6 +2707,11 @@ console.log('debut reception: median ' + med +
   ', min ' + (receptions[0] || 0) + ', max ' + (receptions[receptions.length - 1] || 0));
 console.log('releases per org: ' + (totalReleases / SEEDS).toFixed(1) + ' average; groups per org: ' + (totalGroups / SEEDS).toFixed(1));
 console.log('medical throughput: ' + Object.keys(medSum).map(k => k + ' ' + medSum[k]).join(', ') + ' across ' + SEEDS + ' orgs (the flare chain; v0.11.2)');
+// the last link, where the sample can carry it (v0.11.14): a chronic file
+// flares at least once about a third of the time (measured on 200 careers:
+// 35 files, flares in 12 careers), so twenty files and no flare is not luck
+// (under 1 in 3,000); at 40 orgs there are 3 to 6 files and this is silent
+if ((medSum.chronics || 0) >= 20) guard((medSum.flares || 0) >= 1, 'the flare chain: ' + medSum.chronics + ' chronic files across ' + SEEDS + ' orgs and not one flare');
 console.log('reverse runs per org-year: ' + (totalRevivals / (SEEDS * 140 / 52)).toFixed(2) + ' (the lottery ticket stays a ticket under ~1; v0.11.1)');
 console.log('festival slots missed, by cause: ' + (Object.entries(tally.festMissedWhy).map(([k, v]) => k + ' ' + v).join(' · ') || 'none') +
   ' across ' + SEEDS + ' orgs (a booked slot is a signed contract; v0.11.8)');
@@ -2716,6 +2737,7 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
   // across the street (v0.11.12, §103): the ledgers summed, the letters counted off the wire
   const acrSum = {};
   let acrSignLetters = 0, acrDebutLetters = 0, acrLifeLetters = 0, acrPending = 0, acrSoloActs = 0;
+  let clockActs = 0, clockSoloActs = 0;   // the lineup rule, met by groups and by soloists (v0.11.14)
   for (let s = 0; s < 3; s++) {
     const seed = 'clock-' + s;
     // seed 2 is the neglect org: it debuts a group and then never answers
@@ -2829,6 +2851,15 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
       }
       if (f.across && f.across.debutWeek == null) guard(p.status === 'departed' && state.week < f.across.debutAt + 1, seed + ' across: ' + p.id + ' signed and never debuted');
     });
+    // every act still running is a real lineup by the engine's one rule
+    // (v0.11.14): this pass debuts soloists on every run, so the rule and
+    // a lineup of one meet here each time, not once in 200 census careers
+    (state.rivals || []).forEach(r => (r.acts || []).forEach(a => {
+      if (a.retired) return;
+      clockActs++;
+      if (a.solo) clockSoloActs++;
+      guard(KP.actLineupOk(a), seed + ' long clock: rival act ' + a.name + ' has no real lineup (' + (a.members || []).length + (a.solo ? ', solo' : '') + ')');
+    }));
     if (neglect) neglectDeparted = departed.length;
     departed.forEach(p => {
       guard(!state.roster.includes(p.id), seed + ' departed idol still on roster');
@@ -2867,6 +2898,8 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
   guard(acrSignLetters === (acrSum.signed || 0) && acrDebutLetters === (acrSum.debuted || 0) && acrLifeLetters === (acrSum.lives || 0),
     'across the street: the ledger (' + (acrSum.signed || 0) + '/' + (acrSum.debuted || 0) + '/' + (acrSum.lives || 0) + ') is not the wire (' + acrSignLetters + '/' + acrDebutLetters + '/' + acrLifeLetters + ')');
   guard((acrSum.debuted || 0) <= (acrSum.signed || 0), 'across the street: more debuts than signings');
+  console.log('lineups: ' + clockActs + ' acts still running at the end of the long careers, each a real lineup by the one rule · soloists among them ' + clockSoloActs);
+  guard(clockSoloActs >= 1 && clockSoloActs === acrSoloActs, 'the lineup rule never met a soloist: ' + clockSoloActs + ' solo acts read, ' + acrSoloActs + ' alumnae in one');
 }
 
 // the last bow (v0.11.11, §102). The census bot never ends an act: ending
