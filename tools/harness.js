@@ -379,6 +379,11 @@ const BANDS = {
   byeLap:        { lo: 0.00, hi: 0.30, label: 'orgs where a member chose to go (a farewell lap began)' },
   byeAlumni:     { lo: 0.00, hi: 0.30, label: 'orgs with a former member on an act’s list' },
   byeColdExit:   { lo: 0.00, hi: 0.10, label: 'orgs where a contract ended cold' },
+  // across the street (v0.11.12, §103). An attentive boss loses almost
+  // nobody inside 140 weeks, so these are ceilings: the chapter is
+  // measured where people do leave, in the long-horizon pass below.
+  acrossSigned:  { lo: 0.00, hi: 0.20, label: 'orgs with an alumna signed across the street' },
+  acrossLife:    { lo: 0.00, hi: 0.20, label: 'orgs with an alumna in a life outside' },
   // v0.10.33 — the one market: a collapse's signing class is on the open
   // board and the bot buys a career when flush. Measure-first: collapses
   // are rare inside 140 weeks, so the floor is 0 until a census says more.
@@ -840,6 +845,7 @@ const tally = {
   eraRested: 0, eraLapsed: 0, eraSuperseded: 0, eraPreorderRead: 0, eraPreorderAhead: 0, eraPreorderSoft: 0,
   eraExtOffered: 0, eraExtTired: 0, eraClosedExtended: 0,
   byeLap: 0, byeAlumni: 0, byeColdExit: 0,
+  acrossSigned: 0, acrossLife: 0,
   careerSigned: 0,
   criticsDarling: 0, pannedHit: 0, criticsSplit: 0, trendNamed: 0,
   commissioned: 0, offLaneRecord: 0, houseChair: 0, themeNamed: 0,
@@ -2506,6 +2512,9 @@ for (let s = 0; s < SEEDS; s++) {
   if (((state.farewellLedger || {}).laps || 0) >= 1) tally.byeLap++;
   if (state.groups.some(g => (g.alumni || []).length)) tally.byeAlumni++;
   if (bye.cold) tally.byeColdExit++;
+  // across the street (v0.11.12, §103): two ceilings, from the ledger
+  if (((state.acrossLedger || {}).signed || 0) >= 1) tally.acrossSigned++;
+  if (((state.acrossLedger || {}).lives || 0) >= 1) tally.acrossLife++;
   if (doorWaitSeen) tally.doorLeftWaiting++;
   if (annivSeen) tally.annivFelt++;
   if (scarSeen) tally.scarCarried++;
@@ -2660,6 +2669,9 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
   // the long goodbye (v0.11.10, §101): the ledgers of the three careers, summed
   const byeSum = {};
   let byeLocks = 0, byeBowLetters = 0, byeStageLetters = 0;
+  // across the street (v0.11.12, §103): the ledgers summed, the letters counted off the wire
+  const acrSum = {};
+  let acrSignLetters = 0, acrDebutLetters = 0, acrLifeLetters = 0, acrPending = 0, acrSoloActs = 0;
   for (let s = 0; s < 3; s++) {
     const seed = 'clock-' + s;
     // seed 2 is the neglect org: it debuts a group and then never answers
@@ -2731,6 +2743,9 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
       (KP.lastTickNotes || []).forEach(n => {
         if (n.ind === 'contractEnd' && n.shape === 'bow') byeBowLetters++;
         if (n.ind === 'lastStage') byeStageLetters++;
+        if (n.ind === 'acrossSigned') acrSignLetters++;
+        if (n.ind === 'acrossDebut') acrDebutLetters++;
+        if (n.ind === 'alumAfter') acrLifeLetters++;
       });
       const errs = KP.validateState(state);
       guard(errs.length === 0, seed + ' long clock wk' + state.week + ': ' + errs[0]);
@@ -2739,13 +2754,37 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
     // (budget telemetry lives on the MAIN pass — the slim clock bot
     // never plans comebacks, so its balance pins at the monthly floor
     // and measures nothing about the economy)
-    const departed = Object.values(state.people).filter(p => p.status === 'departed');
+    // everyone who left this building, wherever she is now (v0.11.12, §103:
+    // an alumna who debuted across the street is no longer 'departed')
+    const departed = KP.alumniOf(state);
     clockDeparted += departed.length;
     Object.keys(state.farewellLedger || {}).forEach(k => { byeSum[k] = (byeSum[k] || 0) + state.farewellLedger[k]; });
     // every departed artist is on some act's list, or her act is gone with her
     departed.forEach(p => guard(state.groups.some(gg => (gg.alumni || []).some(al => al.id === p.id)) || !((p.chapters || []).some(ch => ch.kind === 'departed' && ch.group)),
       seed + ' a departed artist is on no act’s alumni list'));
     state.groups.forEach(gg => guard(!gg.retiredWeek || !gg.debuted || (gg.finalLineup || []).length > 0, seed + ' a concluded act has no final lineup: ' + gg.name));
+    // across the street (v0.11.12, §103): every alumna whose date has
+    // passed has a next chapter; one who debuted is in an act of the house
+    // she belongs to, or has gone home with her file intact
+    Object.keys(state.acrossLedger || {}).forEach(k => { acrSum[k] = (acrSum[k] || 0) + state.acrossLedger[k]; });
+    const AC = KP.C.ACROSS;
+    KP.alumniOf(state).forEach(p => {
+      const f = p.flags || {};
+      if (p.status === 'departed' && !f.across && !f.after) {
+        acrPending++;
+        guard(state.week <= (f.departedWeek || 0) + AC.waitMax + 1, seed + ' across: ' + p.id + ' left ' + (state.week - (f.departedWeek || 0)) + ' weeks ago and has no next chapter');
+      }
+      if (f.across && f.across.debutWeek != null) {
+        guard(p.status === 'rival' || p.status === 'gone', seed + ' across: ' + p.id + ' debuted across the street and is ' + p.status);
+        if (p.status === 'rival') {
+          const house = (state.rivals || []).find(r => r.short === p.company);
+          const act = house && (house.acts || []).find(a => (a.members || []).includes(p.id));
+          guard(!!act, seed + ' across: ' + p.id + ' is a soloist at ' + p.company + ' in no act');
+          if (act && !act.retired) acrSoloActs++;
+        }
+      }
+      if (f.across && f.across.debutWeek == null) guard(p.status === 'departed' && state.week < f.across.debutAt + 1, seed + ' across: ' + p.id + ' signed and never debuted');
+    });
     if (neglect) neglectDeparted = departed.length;
     departed.forEach(p => {
       guard(!state.roster.includes(p.id), seed + ' departed idol still on roster');
@@ -2777,6 +2816,13 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
   guard((byeSum.bows || 0) >= 1 && byeBowLetters === byeSum.bows, 'the long goodbye: the bows on the ledger (' + (byeSum.bows || 0) + ') are not the bows on the wire (' + byeBowLetters + ')');
   guard(byeStageLetters === (byeSum.lastStages || 0), 'the long goodbye: the last stages on the ledger are not the ones on the wire');
   guard((byeSum.kept || 0) >= 1, 'the long goodbye: no promise of a last era was ever kept');
+  console.log('across the street: clocks ' + (acrSum.clocked || 0) + ' · signed ' + (acrSum.signed || 0) + ' (bow ' + (acrSum.bow || 0) + ', plain ' + (acrSum.plain || 0) + ', released ' + (acrSum.released || 0) +
+    ', sudden ' + (acrSum.sudden || 0) + ', cold ' + (acrSum.cold || 0) + ') · debuted ' + (acrSum.debuted || 0) + ' (friends who posted ' + (acrSum.friends || 0) + ') · lives outside ' + (acrSum.lives || 0) +
+    ' (deals that fell ' + (acrSum.fell || 0) + ') · still to come ' + acrPending + ' · solo acts still running ' + acrSoloActs);
+  guard((acrSum.signed || 0) + (acrSum.lives || 0) >= 1, 'across the street: no departed artist ever got a next chapter across three long careers');
+  guard(acrSignLetters === (acrSum.signed || 0) && acrDebutLetters === (acrSum.debuted || 0) && acrLifeLetters === (acrSum.lives || 0),
+    'across the street: the ledger (' + (acrSum.signed || 0) + '/' + (acrSum.debuted || 0) + '/' + (acrSum.lives || 0) + ') is not the wire (' + acrSignLetters + '/' + acrDebutLetters + '/' + acrLifeLetters + ')');
+  guard((acrSum.debuted || 0) <= (acrSum.signed || 0), 'across the street: more debuts than signings');
 }
 
 // the last bow (v0.11.11, §102). The census bot never ends an act: ending

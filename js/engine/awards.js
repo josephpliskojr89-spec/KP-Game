@@ -93,6 +93,8 @@
     return list.sort((x, y) => y.score - x.score);
   }
 
+  KP.awardField = fieldFor;   // the field, readable (v0.11.12: a veteran's solo must not stand in the rookie one)
+
   // the daesang field (v0.9.5): the whole year, weighed once. Brutal by
   // construction — a year of releases, trophies, and a devoted fandom,
   // against every act in the industry at once.

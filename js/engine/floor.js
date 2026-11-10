@@ -275,7 +275,9 @@
   KP.hasChapter = function (state, p) {
     // a televised run is public knowledge (v0.11.8): the season's cast is
     // never forgotten, whichever board she came from
-    return !!(p.flags && (p.flags.wasOurs || p.flags.readByUs || p.flags.lostToRival)) || !!p.seasonRecord ||
+    // an artist who completed a contract here is an alumna forever (v0.11.12,
+    // §103): her act across the street ending must not delete her file
+    return !!(p.flags && (p.flags.wasOurs || p.flags.readByUs || p.flags.lostToRival || p.flags.departedWeek != null)) || !!p.seasonRecord ||
       ((p.directed || []).length > 0) || p.status === 'idol' || p.status === 'trainee' ||
       (state.roster || []).includes(p.id) ||
       (state.groups || []).some(g => (g.members || []).includes(p.id));

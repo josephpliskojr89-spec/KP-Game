@@ -199,13 +199,22 @@
         L.clocked++;
       }
       if (state.week < f.nextAt) return;
-      const shape = KP.exitShape(state, p);
-      const chance = A.signBase + fameOf(state, p) * A.signPerFame + (shape === 'cold' ? A.coldBonus : 0) - Math.max(0, (p.age || 0) - A.ageFrom) * A.agePerYear;
       const house = pickHouse(state, p);
-      if (house && h(state, p, 'sign') < chance) sign(state, p, house, inbox);
+      if (house && h(state, p, 'sign') < KP.acrossChance(state, p)) sign(state, p, house, inbox);
       else afterLife(state, p, inbox, false);
     });
   });
+  // the odds another house signs her: her own name, how she left, her age
+  KP.acrossChance = function (state, p) {
+    const A = KP.C.ACROSS;
+    return A.signBase + fameOf(state, p) * A.signPerFame + (KP.exitShape(state, p) === 'cold' ? A.coldBonus : 0) -
+      Math.max(0, (p.age || 0) - A.ageFrom) * A.agePerYear;
+  };
+  // the three chapters, as verbs (the rail calls them; so can a test)
+  KP.acrossHouse = pickHouse;
+  KP.acrossSign = sign;
+  KP.acrossDebut = debut;
+  KP.acrossAfter = afterLife;
 
   // ---- the read: where an alumna is now, in words -----------------------------
   KP.whereNow = function (state, p) {
