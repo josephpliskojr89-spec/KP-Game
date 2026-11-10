@@ -664,6 +664,15 @@
       case 'disband-group': {
         const g = KP.groupById(s, t.dataset.id);
         if (!g) break;
+        // the last bow (v0.11.11, §102): a debuted act ends through one of
+        // three doors; a project is still dissolved in one line
+        if (g.debuted) {
+          const read = KP.endingDoors(s, g.id);
+          if (!read.ok) { UI.toast(read.reason, true); break; }
+          UI.modal('How ' + g.name + ' ends', UI.endingSheet(s, g, read),
+            '<button class="btn" data-action="close-modal" style="flex:1">Not yet</button>');
+          break;
+        }
         const selling = g.debuted && (g.popularity || 0) >= KP.C.DISBAND.sellingPop;
         UI.modal(g.debuted ? 'Conclude team activities' : 'Dissolve the project',
           '<div class="note">' + (g.debuted
@@ -674,6 +683,15 @@
           '<button class="btn danger" data-action="disband-confirm" data-id="' + g.id + '" style="flex:1">' +
             (g.debuted ? 'End it' : 'Dissolve it') + '</button>' +
           '<button class="btn" data-action="close-modal" style="flex:1">Keep going</button>');
+        break;
+      }
+      case 'ending-door': {
+        const r = KP.endGroup(s, t.dataset.id, t.dataset.how);
+        UI.closeModal();
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        UI.toast(r.note.slice(0, 120));
+        App.render();
         break;
       }
       case 'disband-confirm': {

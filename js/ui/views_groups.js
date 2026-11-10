@@ -199,7 +199,8 @@
         const afterBit = (r.reissuedAs ? ' · reissued as “' + UI.esc(r.reissuedAs) + '”'
           : r.reissueRested ? ' · left to rest' : '') +
           // whose last era it was (v0.11.10, §101)
-          ((r.farewellFor || []).map(id => state.people[id]).filter(Boolean).map(p => ' · ' + UI.esc(KP.publicGiven(p)) + '’s last era').join(''));
+          ((r.farewellFor || []).map(id => state.people[id]).filter(Boolean).map(p => ' · ' + UI.esc(KP.publicGiven(p)) + '’s last era').join('')) +
+          (r.lastRecord ? ' · the last record' : '');   // the act's own (v0.11.11, §102)
         html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(r.week).text) + '</span>' +
           '<div><b>“' + UI.esc(r.songTitle) + '”</b> · ' + UI.esc(KP.conceptById(r.conceptId).label) +
           (fmt ? ' · ' + UI.esc(fmt.label.toLowerCase()) : '') +
@@ -238,6 +239,32 @@
       list.map(a => personChip(state, a.p, 'left ' + KP.chapterWhen(a.week))).join('') + '</div>';
   }
 
+  // the last bow (v0.11.11, §102): the three doors, as the engine reads
+  // them. A door that is shut says why in place of its button.
+  UI.endingSheet = function (state, g, read) {
+    return '<div class="note">Three ways to close ' + UI.esc(g.name) + '. Whichever one is taken cannot be undone.</div>' +
+      read.doors.map(d =>
+        '<div class="card" style="margin-top:10px' + (d.ok ? '' : ';opacity:.62') + '">' +
+        '<div style="font-weight:800">' + UI.esc(d.title) + '</div>' +
+        d.lines.map(l => '<div style="font-size:.78rem;color:var(--ink-dim);margin-top:5px;line-height:1.35">' + UI.esc(l) + '</div>').join('') +
+        (d.ok
+          ? '<div style="margin-top:10px"><button class="btn ' + (d.id === 'statement' ? 'danger' : 'primary') + '" data-action="ending-door" data-id="' + g.id +
+            '" data-how="' + d.id + '" style="width:100%">' + UI.esc(d.label) + '</button></div>'
+          : '<div style="font-size:.76rem;color:var(--danger);margin-top:8px;line-height:1.35">' + UI.esc(d.reason) + '</div>') +
+        '</div>').join('');
+  };
+  // an ending in flight: the last record is announced and owed
+  function endingCard(state, g) {
+    const r = (KP.endingRead ? KP.endingRead(state) : []).find(x => x.groupId === g.id);
+    if (!r) return '';
+    return '<div class="card" style="border-color:color-mix(in srgb,var(--magenta) 50%,var(--line))">' +
+      '<b>The last record</b> — announced ' + UI.esc(KP.weekLabel(r.since).text) + '. ' + UI.esc(r.word.replace(/^./, c => c.toUpperCase())) + '. ' +
+      UI.esc(g.type === 'solo' ? 'The chapter' : 'The act') + ' concludes when that era closes, and the final statement names what ' +
+      (g.type === 'solo' ? 'comes next' : 'each member does next') + '.' +
+      (r.stage === 'open' ? '<div style="margin-top:10px"><button class="btn primary" data-nav="studio">Open the Studio</button></div>' : '') +
+      '</div>';
+  }
+
   UI.renderGroupPage = function (state, g) {
     // a closed chapter reads as a record, not a dashboard (0.9.18.2)
     if (g.retiredWeek) {
@@ -251,6 +278,10 @@
         '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:6px">' +
         '<span class="chip">' + rels + ' release' + (rels === 1 ? '' : 's') + '</span>' +
         (g.fandom ? '<span class="chip">' + UI.esc(g.fandom.name) + ' keeps the archive</span>' : '') +
+        // how it ended, and what that left on the shelf (v0.11.11, §102)
+        (g.debuted && KP.endedWord ? '<span class="chip">' + UI.esc(KP.endedWord(state, g)) + '</span>' : '') +
+        (KP.afterglowOf && KP.afterglowOf(state, g)
+          ? '<span class="chip gold">the shelf stays warm until ' + UI.esc(KP.weekLabel(g.afterglow.until).text) + ': the catalog pays ' + Math.round(g.afterglow.mult * 100) + '% more</span>' : '') +
         '</div></div>' +
         // the lineup at the end, each a door to her file, with where she is
         // now (v0.11.10, §101): the card said "still with the company" of
@@ -332,6 +363,7 @@
       html.push('<div class="pad" style="margin-top:2px"><button class="btn small ghost" style="border:1px solid var(--line)" data-action="open-roles" data-id="' + g.id + '">Edit roles</button></div>');
     }
     html.push(alumniStrip(state, g));   // who has left the lineup (v0.11.10, §101)
+    html.push(endingCard(state, g));    // the last record, announced and owed (v0.11.11, §102)
 
     // chemistry observations + frictions with their handles
     // what the public remembers about this group (v0.6.0)
@@ -659,8 +691,12 @@
       html.push('<div class="pad" style="margin-top:8px"><button class="btn small" data-action="open-results" data-id="' + g.id + '">Latest full report</button></div>');
     }
     // the door the rivals got (0.9.18.2): quiet, at the bottom, real
-    html.push('<div class="pad" style="margin-top:20px"><button class="btn small ghost" style="border:1px solid var(--line);color:var(--ink-dim)" data-action="disband-group" data-id="' + g.id + '">' +
-      (g.debuted ? 'Conclude team activities' : 'Dissolve the project') + '</button></div>');
+    // (v0.11.11, §102) a debuted act opens the sheet of three doors; an act
+    // whose last record is announced has already taken one
+    if (!(KP.endingOwed && KP.endingOwed(g))) {
+      html.push('<div class="pad" style="margin-top:20px"><button class="btn small ghost" style="border:1px solid var(--line);color:var(--ink-dim)" data-action="disband-group" data-id="' + g.id + '">' +
+        (g.debuted ? (g.type === 'solo' ? 'Close the solo chapter' : 'Conclude team activities') : 'Dissolve the project') + '</button></div>');
+    }
     return html.join('');
   }
 

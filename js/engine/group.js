@@ -313,8 +313,16 @@
   // GROUP ends; the contracts don't: the members stay signed idols with
   // their solo careers (gigs, deals, second jobs) until their own clocks
   // run out. The catalog stays and can still resurface.
-  KP.disbandGroup = function (state, groupId) {
-    const D = KP.C.DISBAND;
+  // the last bow (v0.11.11, §102): this is still the one place an act the
+  // player ends is concluded, and the quiet statement is still its default.
+  // `opts.how` names the door it came through (concert | record | lapsed):
+  // the door sets what it costs the room, what goes on each ledger, what
+  // the board reads, and what stays on the shelf. `opts.inbox` is a rail's
+  // wire; `opts.rail` marks a conclusion nobody can refuse.
+  KP.disbandGroup = function (state, groupId, opts) {
+    const D = KP.C.DISBAND, E = KP.C.ENDING;
+    const o = opts || {};
+    const how = o.how || 'statement';
     const g = KP.groupById(state, groupId);
     if (!g) return { ok: false, reason: 'No such group.' };
     if (g.retiredWeek) return { ok: false, reason: 'That chapter is already closed.' };
@@ -323,11 +331,27 @@
     if (g.debuted && state.week <= (g.promoUntil || 0)) return { ok: false, reason: 'Promotions are running. Ending an act mid-era is a scandal, not a decision.' };
     const debuted = !!g.debuted;
     const members = g.members.map(id => state.people[id]).filter(Boolean);
+    // a member's solo record is on the calendar: the act it comes out of
+    // cannot end under it (the era would shelve, and the bill was paid).
+    // A rail's conclusion is not refusable; the era shelves, as it always did.
+    const era = debuted && !o.rail ? members.find(m => m.soloEra) : null;
+    if (era) return { ok: false, reason: KP.fillPro(KP.displayName(era) + '’s solo record is on the calendar. Let it land before the act it comes out of ends.', era) };
+    const push = n => (o.inbox ? (o.inbox.push(n), n) : KP.note(state, n));
+    // what each member does next is read off the lineup while there is one
+    const roll = debuted && KP.endingRollCall ? KP.endingRollCall(state, g) : null;
+    const solo = g.type === 'solo';
+    const cost = how === 'concert' ? E.concertMorale : how === 'record' ? E.recordMorale
+      : how === 'lapsed' ? D.morale + E.lapseMorale : D.morale;
     members.forEach(p => {
       if (debuted) {
-        p.morale = KP.clamp(p.morale - D.morale, 0, 100);
-        KP.recordDirected(state, p.id, 'disbandedUs');
-        p.history.push({ week: state.week, text: g.name + ' concluded team activities. The statement thanked the fans for every era. The group chat renamed itself and kept going.' });
+        p.morale = KP.clamp(p.morale - cost, 0, 100);
+        KP.recordDirected(state, p.id, how === 'concert' ? 'lastNight' : how === 'record' ? 'lastRecord' : 'disbandedUs');
+        if (how === 'lapsed') KP.recordDirected(state, p.id, 'promiseBroken');
+        p.history.push({ week: state.week, text:
+          how === 'concert' ? (solo ? 'Played the last night of the solo chapter. The encore ran long on purpose.' : g.name + ' played one last concert and concluded team activities the same night. Nobody left the stage quickly.')
+          : how === 'record' ? (solo ? 'The last record’s era closed, and the solo chapter closed with it, on the date it was announced for.' : g.name + ' concluded team activities when the last record’s era closed, on the date it was announced for.')
+          : how === 'lapsed' ? g.name + ' concluded team activities by statement. The last record that was announced was never made.'
+          : g.name + ' concluded team activities. The statement thanked the fans for every era. The group chat renamed itself and kept going.' });
       } else {
         p.morale = KP.clamp(p.morale - D.traineeMorale, 0, 100);
         p.history.push({ week: state.week, text: 'The ' + g.name + ' project was dissolved before the stage. Back to the practice room, carrying it.' });
@@ -355,25 +379,58 @@
       if (!c.resolved && c.groupId === g.id) { c.resolved = 'void'; c.resolvedWeek = state.week; }
     });
     if (!debuted) {
-      const note = KP.note(state, { kind: 'company', priority: 'high',
+      const note = push({ kind: 'company', priority: 'high',
         text: 'The ' + g.name + ' project is dissolved. The trainees are back on the floor by the afternoon — the practice room does not do funerals, it does Monday.' });
       return { ok: true, note: note.text };
     }
+    // how it ended stays on the record, and so does what the door left
+    // behind: a fandom that was given a goodbye keeps the shelf warm
+    g.ending = Object.assign(g.ending || {}, { how, week: state.week }, o.night ? { night: o.night } : {});
+    if (how === 'concert' || how === 'record') {
+      g.afterglow = { until: state.week + E.glowWeeks, mult: how === 'record' ? E.glowRecord : E.glowConcert };
+    }
+    // a member whose solo career was already open keeps it, as an act of
+    // its own: the in-group solo needs a group around it, and there is none
+    if (roll && KP.openSoloAct) {
+      roll.solos.forEach(id => {
+        const p = state.people[id];
+        if (!p || p.status !== 'idol') return;
+        KP.openSoloAct(state, p, g.id);
+        delete p.dualCareer;
+        p.history.push({ week: state.week, text: 'The solo career moved out of ' + g.name + '’s calendar and into its own. Same building, a door with one name on it.' });
+        if (KP.endingLedger) KP.endingLedger(state).solos++;
+      });
+    }
     let trustLine = '';
-    if ((g.popularity || 0) >= D.sellingPop) {
+    if (how === 'lapsed') {
+      state.trust = KP.clamp(state.trust + E.lapseTrust, 0, 100);
+      trustLine = ' ' + state.executive.name + ' did not raise an eyebrow this time. A company that announces a record and does not make it is not unstable, upstairs said; it is unserious.';
+    } else if (how !== 'record' && (g.popularity || 0) >= D.sellingPop) {
+      // the planned ending was priced at its announcement
       state.trust = KP.clamp(state.trust + D.trustSelling, 0, 100);
       trustLine = ' ' + state.executive.name + ' signed the paperwork with one eyebrow raised: ending an act that still sells reads as instability upstairs, and upstairs reads everything.';
     }
-    const note = KP.note(state, { kind: 'public', ind: 'playerDisband', priority: 'critical', groupId: g.id,
-      text: 'The statement is out: ' + g.name + ' concludes team activities. It thanks the fans for every era, and for once every word of it is true. The members remain with the company — their own calendars, their own rooms, the same building. The fan cafés are holding a wake and an archive drive at the same time.' + trustLine });
-    return { ok: true, note: note.text };
+    const note = push({ kind: 'public', ind: 'playerDisband', priority: 'critical', groupId: g.id, how,
+      text: KP.finalStatement ? KP.finalStatement(state, g, how, { roll, night: o.night, trustLine })
+        : 'The statement is out: ' + g.name + ' concludes team activities. It thanks the fans for every era, and for once every word of it is true. The members remain with the company — their own calendars, their own rooms, the same building. The fan cafés are holding a wake and an archive drive at the same time.' + trustLine });
+    return { ok: true, note: note.text, how };
   };
 
   // the timeline grieves in public, the way it does everything
   KP.onFeedEvent('playerDisband', (state, n, rng) => {
     const g = KP.groupById(state, n.groupId);
     if (!g) return null;
-    return rng.pick([
+    // one draw, as before; the door picks the family (v0.11.11, §102)
+    return rng.pick(n.how === 'concert' ? [
+      { persona: 'fan', text: 'I was at the last ' + g.name + ' concert. they did the debut song as the encore and nobody on that stage or in that room got through it. thank you for the night' },
+      { persona: 'stan', text: 'the last-night fancams of ' + g.name + ' are all uploaded and backed up in three places. they gave us a goodbye. we are keeping it' },
+    ] : n.how === 'record' ? [
+      { persona: 'fan', text: g.name + ' said one last record and then gave us one last record, a whole era of it, and ended on the day they said. I am wrecked and I have no complaints' },
+      { persona: 'stan', text: 'final ' + g.name + ' numbers are in and we did that. ending on a real comeback instead of a statement. this is how you close a discography' },
+    ] : n.how === 'lapsed' ? [
+      { persona: 'fan', text: 'they announced a last ' + g.name + ' album. we waited. today there is a statement and no album. I do not have a word for this that I can post' },
+      { persona: 'anti', text: 'promising the fandom a farewell record and then quietly not making it is a choice. everyone will remember which company made it' },
+    ] : [
       { persona: 'fan', text: 'the ' + g.name + ' statement says "concludes team activities" like it isn’t seven years of my life in four words. rest well. thank you. I’m not okay' },
       { persona: 'stan', text: 'archiving every ' + g.name + ' stage tonight. twice. the catalog doesn’t disband and neither do we' },
     ]);

@@ -209,6 +209,21 @@
           '</div></div>');
       });
     }
+    // the last record (v0.11.11, §102): an act whose ending is announced and
+    // owed — where the record stands, and the date it must be locked by
+    if (KP.endingRead) {
+      KP.endingRead(state).forEach(r => {
+        const g = KP.groupById(state, r.groupId);
+        if (!g) return;
+        html.push('<div class="objective" style="margin-top:10px;border-color:color-mix(in srgb,var(--magenta) 50%,var(--line));cursor:pointer" data-action="open-grouppage" data-id="' + g.id + '">' +
+          '<div class="o-from" style="color:var(--magenta)">The last record · ' + UI.esc(g.name) + '</div>' +
+          '<div class="o-text">Announced ' + UI.esc(KP.weekLabel(r.since).text) + ' · ' + UI.esc(r.word) + '</div>' +
+          '<div class="o-meta">' +
+          (r.stage === 'open' ? '<span class="chip' + (r.weeksLeft <= 6 ? ' hot' : '') + '">' + r.weeksLeft + ' week' + (r.weeksLeft === 1 ? '' : 's') + ' to lock it</span>' : '') +
+          '<span class="chip gold">' + UI.esc(g.type === 'solo' ? 'the chapter' : 'the act') + ' concludes when that era closes</span>' +
+          '</div></div>');
+      });
+    }
     // Japan (v0.11.7, §98): the in-country weeks, read beside the road
     if (KP.japanAwayRead) {
       KP.groups(state).forEach(g => {

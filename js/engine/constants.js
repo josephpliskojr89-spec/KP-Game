@@ -246,6 +246,32 @@
       memorialYears: 3,          // a concluded group's fandom keeps the debut date this long
     },
 
+    // The last bow (v0.11.11, §102). How an act ends is a choice of three
+    // doors. The quiet statement is the one the game always had and it
+    // keeps its price (DISBAND). One last concert costs a room and pays a
+    // till, and the act concludes that night. A farewell record is
+    // announced, made, promoted, and the act concludes when that era
+    // closes. What the door leaves behind is on the shelf: a fandom that
+    // was given a goodbye keeps the catalog warm for years.
+    ENDING: {
+      concertCostMult: 2,        // the last night books a bigger room than a fancon...
+      concertTillMult: 2.5,      // ...and sells it out
+      concertFatigue: 8,         // one long night
+      concertMorale: 4,          // what it costs the people in it (the statement costs DISBAND.morale)
+      recordWeeks: 30,           // announced: the last record must be locked inside this many weeks
+      recordIntensity: 6,        // the announcement rallies the fandom
+      recordReach: 4,            // the last record lands warmer (reach)...
+      recordPerIntensity: 0.04,  // ...and warmer for an organized fandom...
+      recordCap: 3,              // ...up to this much on top
+      recordMorale: 2,           // they got a last era: this door costs the room least
+      trustPlanned: -3,          // the board prices a planned ending of an act that sells (the statement is DISBAND.trustSelling)
+      lapseTrust: -8,            // a last record announced and never made: upstairs reads a company that cannot plan
+      lapseMorale: 6,            // ...and the room pays on top of the statement
+      glowWeeks: 144,            // three years of a warm shelf
+      glowConcert: 0.25,         // the catalog annuity's lift after a last night...
+      glowRecord: 0.5,           // ...and after a last era
+    },
+
     // ---- The regional schools (v0.9.16): the pipeline has addresses ----
     // Persistent named academies in the home circuit's cities. Each has a
     // specialty lane, an alumni ledger, and a reputation that moves with
@@ -1982,7 +2008,7 @@
         hearing:    { for: ['heardHer', 'heardOut', 'listened', 'breatherGranted', 'mediated', 'mentored'],
           against: ['breatherDeclined', 'pressed', 'pushedThrough', 'muzzled'],
           yes: 'listens when they say they are struggling', no: 'schedules through what people say' },
-        protection: { for: ['protected', 'protectedHealth', 'stoodByHer', 'welcomedBack', 'endingHonored'],
+        protection: { for: ['protected', 'protectedHealth', 'stoodByHer', 'welcomedBack', 'endingHonored', 'lastNight', 'lastRecord'],
           against: ['madeHerHide', 'benchedPride', 'keptOffline', 'reprimanded'],
           yes: 'puts the person before the schedule when it costs', no: 'puts the schedule first' },
         credit:     { for: ['seen', 'carrySeen', 'glueSeen', 'unitCredit', 'soloCredit', 'gaveTheSpeech', 'trusted'],
@@ -2995,6 +3021,8 @@
         passedOver:       { w: -2, grudge: 1, words: 'first on the board, not on the list' },
         cutFromLineup:    { w: -3, grudge: 2, words: 'cut from the lineup' },
         disbandedUs:      { w: -2, grudge: 2, words: 'the group disbanded under her' },
+        lastNight:        { w: 1,  words: 'given one last night on a stage before the end' },   // the last bow (v0.11.11, §102)
+        lastRecord:       { w: 2,  words: 'given a last era, announced and finished, before the end' },
         watchedTermination: { w: -2, grudge: 1, words: 'watched a member get terminated' },
         friendDeparted:   { w: -1, words: 'her friend left the company' },
         friendReleased:   { w: -3, grudge: 1, words: 'her friend was released' },

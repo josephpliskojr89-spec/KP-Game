@@ -254,11 +254,14 @@
     let catalogRev = 0;
     const writers = {};
     KP.groups(state).forEach(g => {
+      // the last bow (v0.11.11, §102): a fandom that was given a goodbye
+      // keeps the shelf warm for a while after the act is gone
+      const glow = g.afterglow && state.week <= g.afterglow.until ? 1 + g.afterglow.mult : 1;
       (g.releases || []).forEach(r => {
         const age = state.week - r.week;
         if (age <= 0) return;
         const decay = Math.max(C.floorDecay, 1 / (1 + age / C.halfLifeWeeks));
-        catalogRev += Math.max(0, (r.reception || 0) - 45) * C.perReception * decay;
+        catalogRev += Math.max(0, (r.reception || 0) - 45) * C.perReception * decay * glow;
         (r.tracklist || []).forEach(tk => {
           if (tk.writtenBy) writers[tk.writtenBy] = (writers[tk.writtenBy] || 0) + 1;
         });

@@ -114,6 +114,7 @@
   KP.reissueOpenFor = function (state, g, rel) {
     if (!rel || (rel.format || 'single') === 'single' || rel.repackageOf || rel.reissueRested) return false;
     if (!(g.eraLeftovers || []).length || g.prep || g.jpAway || g.tour) return false;
+    if (KP.endingOwed && KP.endingOwed(g)) return false;   // the last record has no second act (v0.11.11, §102)
     return !g.members.some(id => state.people[id] && state.people[id].soloEra);
   };
 

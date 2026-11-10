@@ -593,6 +593,25 @@
     const rung = KP.starRung ? KP.starRung(state, g, p) : 1;
     return rung >= C.graduateRungMin || word === 'first among equals' || word === 'bigger than the group?';
   };
+  // a solo act for a signed artist: one object, two doors into it — the
+  // graduation, and an act that ended under a member whose solo career was
+  // already open (v0.11.11, §102)
+  KP.openSoloAct = function (state, p, originGroupId) {
+    const act = {
+      id: 'g' + (state.nextGroupId++),
+      type: 'solo', gender: p.gender || 'f',
+      gen: (state.gen && state.gen.n) || (KP.C.RISEFALL && KP.C.RISEFALL.GEN.start),
+      originGroupId,   // the door swings both ways (v0.9.25)
+      name: KP.displayName(p),
+      members: [p.id],
+      roles: { leader: p.id, center: p.id },
+      formedWeek: state.week,
+      centerHistory: [{ week: state.week, id: p.id }],
+      debuted: false, prep: null, results: null, demos: null, releases: [],
+    };
+    state.groups.push(act);
+    return act;
+  };
   KP.graduateToSolo = function (state, personId) {
     const p = state.people[personId];
     if (!p || p.status !== 'idol') return { ok: false, reason: 'Only an active artist graduates.' };
@@ -612,18 +631,7 @@
       }
     }
     if (g.rooms) { g.rooms = null; if (g.members.length) KP.assignRooms(state, g); }
-    state.groups.push({
-      id: 'g' + (state.nextGroupId++),
-      type: 'solo', gender: p.gender || 'f',
-      gen: (state.gen && state.gen.n) || (KP.C.RISEFALL && KP.C.RISEFALL.GEN.start),
-      originGroupId: g.id,   // the door swings both ways (v0.9.25)
-      name: KP.displayName(p),
-      members: [p.id],
-      roles: { leader: p.id, center: p.id },
-      formedWeek: state.week,
-      centerHistory: [{ week: state.week, id: p.id }],
-      debuted: false, prep: null, results: null, demos: null, releases: [],
-    });
+    KP.openSoloAct(state, p, g.id);
     KP.lineupPointerSweep(state, g, p.id);   // the clean exits (v0.10.16)
     p.history.push({ week: state.week, text: 'Graduated from ' + g.name + ' into solo management. Same building, new door on it.' });
     KP.chapter(state, p, 'graduated', { group: g.name });

@@ -20,6 +20,7 @@
     if (!g || !g.debuted) return { ok: false, reason: 'Only a debuted group can disappear. Everyone else is just unknown.' };
     if (g.retiredWeek || !g.members.length) return { ok: false, reason: 'That chapter is closed. A hiatus needs somebody to come back.' };
     if (g.hiatus) return { ok: false, reason: 'They are already gone. Announcing it twice is a comeback in reverse.' };
+    if (KP.endingOwed && KP.endingOwed(g)) return { ok: false, reason: 'They owe the fandom one last record. The rest comes after it.' };   // v0.11.11, §102
     if (g.prep) return { ok: false, reason: 'A release is in production. Finish the record or scrap it — not both.' };
     if (g.tour) return { ok: false, reason: 'They are on the road. A hiatus announced from a tour bus is a scandal, not a strategy.' };
     if (state.week <= (g.promoUntil || 0)) return { ok: false, reason: 'Promotions are running. Let the era end before you end the calendar.' };

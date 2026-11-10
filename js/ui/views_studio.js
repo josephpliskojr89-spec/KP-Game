@@ -526,6 +526,10 @@
         '</div>' +
         (options.length ? '' : '<div style="color:var(--danger);font-size:.8rem">No runway left before the deadline.</div>') +
         '<div style="font-size:.7rem;color:var(--ink-dim);margin-top:8px">Announced rival weeks are marked. A clean week keeps the public’s attention whole; a shared week is a head-to-head the recaps will score.</div>' +
+        // the last bow (v0.11.11, §102): the record an ending act locks is its last
+        (KP.endingOwed && KP.endingOwed(g) && !g.ending.record
+          ? '<div style="font-size:.7rem;color:var(--magenta);margin-top:6px">This is ' + UI.esc(g.name) + '’s last record. Its announcement says so, it lands warmer for it, and ' +
+            (g.type === 'solo' ? 'the chapter' : 'the act') + ' concludes when its era closes.</div>' : '') +
         // the long goodbye (v0.11.10, §101): what a marked date means, and when the window opens if no date reaches it
         (function () {
           const laps = (KP.farewellRead ? KP.farewellRead(state) : []).filter(r => r.groupId === g.id && r.era === 'open');
