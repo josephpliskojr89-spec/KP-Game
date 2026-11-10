@@ -9501,7 +9501,7 @@ absences given a cadence from the fandom's side (the countdown
 project, a letter from the base at the half, "whole again" as a
 ceremony with the return stage named).
 
-**6. The other side of the wall (rivals and the press as people; part one, the head, SHIPPED v0.11.22, §113; part two, the ledger, SHIPPED v0.11.23, §114; part three, the weight, SHIPPED v0.11.24, §115; part four, the letterhead, SHIPPED v0.11.25, §116; part five, the truce, SHIPPED v0.11.26, §117).** A
+**6. The other side of the wall (rivals and the press as people; part one, the head, SHIPPED v0.11.22, §113; part two, the ledger, SHIPPED v0.11.23, §114; part three, the weight, SHIPPED v0.11.24, §115; part four, the letterhead, SHIPPED v0.11.25, §116; part five, the truce, SHIPPED v0.11.26, §117; the seat in play and the giants’ weeks measured and not built, §118).** A
 hash-stamped HEAD per signing house (an invented name and a temper
 word in the schools' pattern), shown on the card and quoted yearly in
 the ranking letter through a family per temper. A directed ledger per
@@ -12578,6 +12578,75 @@ named in return, and a truce that we offer. *Still the owner's to
 call*: the Desk's tie-break (§112); and from §109, the fade
 between records through a service chapter and the size of the
 window's bank.
+
+## §118 Two pieces measured and not built (after v0.11.26 — §96 recommendation 6: the seat in play, the giants' weeks)
+
+Owner: *"Break remaining work into smaller pieces"*. Two of
+recommendation 6's pieces were counted before any code was
+written, and as the game stands neither has anything to act on.
+Nothing shipped. Both are the owner's to call.
+
+**The seat in play.** §96: "The overtake as a two-letter event
+('the seat is in play' in December, the ranking in January)."
+Counted over 200 careers, four weeks before each January issue:
+the gap between first and second on the trades' own score.
+
+| the gap in December | the first year | later years |
+|---|---|---|
+| Decembers counted | 206 | 218 |
+| eleven points or more | 198 | 207 |
+| seven to ten | 3 | 4 |
+| four to six | 1 | 3 |
+| three or fewer | 4 | 4 |
+
+Our house is first in 200 of the 206 first Decembers and in 200 of
+the 218 later ones. The seat changed hands in 7 Januaries of 218.
+A December letter would have something to say about one year in
+twenty.
+
+The reason is the score. Ours is our best group's popularity, four
+tenths of the second's, a third of the executive's trust and four
+points a daesang. A house's is eight tenths of its prestige and
+under half its flagship's popularity. By the first December ours
+is far above. *The owner's to call:* whether the trades' ranking
+should be a race, which means re-weighing the two scores, or stay
+what it is, a record of a lead.
+
+**The giants' weeks.** §96: "The national titans' mega-weeks on
+the strip through `announcedWeek` so they crowd you and the date
+picker can see them." A giant's next release week is on the file
+from the day of its last, so marking it is easy. Counted first:
+what releasing near one costs us on the national board, over the
+same 200 careers.
+
+| our release | records | top ten | top three |
+|---|---|---|---|
+| no giant within two weeks | 1,352 | 50% | 7% |
+| a giant that week or the two before | 1,675 | 61% | 9% |
+| a giant in the two weeks after | 577 | 64% | 15% |
+
+Nothing. Records released beside a giant peak a little higher, not
+lower. The summit of the national board is held by the giants'
+standing catalog between their releases (v0.10.22), so a new
+release of theirs changes little about where ours peaks, and
+nothing of theirs touches our reception. A marker on the calendar
+would point at nothing.
+
+For the marker to mean something, a giant's week would have to
+crowd ours, the way a scene rival's shared week does. That is a
+change to difficulty, not a signpost. *The owner's to call.* Also
+not built: the torch letter. A giant does not retire in the game
+as it stands.
+
+**A note on method.** Both pieces were in the plan, and both would
+have passed every check: a letter that is written, lands and reads
+well, and a marker that renders. Counting first is what showed
+there was nothing under them. The two probes run the census bot's
+careers with the engine wrapped, and print one paragraph each.
+
+*What is left of recommendation 6:* the other doors a head could
+open (a borrowed stage week, a trade, a joint stage), and the
+press.
 
 ## §18 Watch items
 
@@ -16565,6 +16634,19 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > census 200 clean, longhaul 11 × 620 clean, e2e 137, a real-browser
 > pass (25), lockstep 0.11.26. Rode to main. Next piece: the other
 > doors a head could open.
+
+> **After 0.11.26 — two pieces measured and not built.** Own judgment,
+> under "Break remaining work into smaller pieces". §118: two of
+> recommendation 6's pieces were counted before any code. The seat in
+> play: over 200 careers the leader on the trades' score is eleven
+> points or more clear in 405 of 424 Decembers, and is our house in
+> 400; the seat changed hands in 7 Januaries of 218, so a December
+> letter would speak one year in twenty. The giants' weeks: 3,604
+> records, and those released beside a national giant peak a little
+> higher on the big board, not lower, so a marker on the calendar
+> would point at nothing. Nothing shipped; no version. Both are the
+> owner's to call: whether the ranking should be a race, and whether a
+> giant's week should crowd ours.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
