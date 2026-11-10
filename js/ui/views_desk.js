@@ -133,7 +133,7 @@
         : (state.fiscal && state.fiscal.pressure > 0
           ? '<span class="chip hot">the board is watching spend</span>'
           : '<span class="chip cool">open signing</span>')) +
-      '<span class="chip">trust: ' + trustWord(state.trust) + '</span>' +
+      '<span class="chip">trust: ' + KP.trustBand(state.trust) + '</span>' +
       '</div></div>');
 
     // the red weeks (v0.11.0, §86): the count beside the directive — the
@@ -726,6 +726,18 @@
           '</div></div>');
       });
     }
+    // the annual review (v0.11.28, §120): what she said when the directors had gone, the newest first
+    const reviews = (state.reviews || []).slice().reverse();
+    if (reviews.length) {
+      const BAND_CHIP = { trusted: 'chip gold', solid: 'chip cool', watched: 'chip', thin: 'chip hot', gone: 'chip hot' };
+      html.push('<div class="kicker">The annual review</div>');
+      reviews.forEach(r => {
+        html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(r.week).text) + '</span>' +
+          '<div><b>' + UI.esc(r.exec) + '</b> <span class="' + BAND_CHIP[r.band] + '">' + UI.esc(r.band) + '</span>' +
+          '<div style="font-size:.78rem;font-style:italic;color:var(--ink-dim);margin-top:5px;line-height:1.45">“' + UI.esc(r.said) + '”</div>' +
+          '</div></div>');
+      });
+    }
     html.push('<div class="kicker">Conversations</div>');
     const log = state.convoLog || [];
     if (log.length) {
@@ -741,8 +753,4 @@
     return html.join('');
   }
 
-  function trustWord(t) {
-    return t >= 80 ? 'trusted' : t >= 60 ? 'solid' : t >= 40 ? 'watched' : t >= 20 ? 'thin' : 'gone';
-  }
-  UI.trustWord = trustWord;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -27,6 +27,8 @@ const ONE_SHOTS = [
   'truceCall', 'truceRan',
   // her own questions (§119): how a promise to the executive ended, said once
   'execOwnMet', 'execOwnMissed',
+  // the annual review (§120): once a year, when the directors have gone
+  'annualReview',
 ];
 
 function watch(KP) {

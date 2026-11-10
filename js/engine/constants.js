@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.27',
+    VERSION: '0.11.28',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -3306,12 +3306,16 @@
         recordWeeks: 48,                  // "the next record" has a year to arrive
         passAgainTrust: -1,               // a pass is free once; each one after it in a row costs this
       },
+      reviewsKept: 12,           // the annual reviews kept on the file (v0.11.28, §120)
     },
 
     // ---- Executives & trust ---------------------------------------------
     EXEC: {
       startTrust: 55,
       trustFloor: 0, trustCap: 100,
+      // where the desk stands with the executive, in the Desk's five words
+      // (v0.11.28, §120: the engine's now, so her review and the chip agree)
+      bands: [[80, 'trusted'], [60, 'solid'], [40, 'watched'], [20, 'thin'], [0, 'gone']],
       debutTrustDelta: { sensation: 22, strong: 14, solid: 6, quiet: -8, miss: -18 },
       missedDeadlinePenalty: -30,
       personalities: ['visionary', 'patient', 'trendChaser', 'profitHunter', 'traditionalist', 'micromanager'],

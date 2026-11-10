@@ -113,9 +113,11 @@
   const OWN = ['execQuarter', 'execVoice', 'execByName', 'execSound', 'execRemember'];
   function ownLedger(state) {
     const led = state.upstairsLedger = state.upstairsLedger || {};
-    ['asked', 'promised', 'passed', 'passedTwice', 'overtaken', 'met', 'missed', 'void'].forEach(k => { if (led[k] == null) led[k] = 0; });
+    ['asked', 'promised', 'passed', 'passedTwice', 'overtaken', 'met', 'missed', 'void', 'reviews'].forEach(k => { if (led[k] == null) led[k] = 0; });
     if (!led.types) led.types = {};
     OWN.forEach(k => { if (!led.types[k]) led.types[k] = { asked: 0, met: 0, missed: 0 }; });
+    if (!led.bands) led.bands = {};   // the annual review, by where the desk stood (v0.11.28, §120)
+    KP.C.EXEC.bands.forEach(b => { if (led.bands[b[1]] == null) led.bands[b[1]] = 0; });
     return led;
   }
   KP.upstairsLedger = ownLedger;
@@ -363,6 +365,95 @@
     if (g && !g.retiredWeek && state.week <= c.byWeek) return null;
     return ownVerdict(state, c, false, 'I asked whether ' + (g ? g.name : 'that group') + '’s next record would land harder. There was no next record.');
   });
+
+  // ---- the annual review (v0.11.28, §120) ---------------------------------
+  // Board season was the company answering for itself. The executive's own
+  // word on the desk was a chip ("trust: watched") and nothing else, and at
+  // "gone" nothing happened (measured over 200 careers: 22 of 424 board
+  // seasons sat at "gone", and three careers stayed there 180 weeks or
+  // more). When the directors have gone she says it: one fact about the
+  // year, in her kind's terms; where the desk stands with her; what that
+  // opens or closes. A letter and a line on the file. Nothing here draws,
+  // and nothing here moves a number.
+  KP.trustBand = function (trust) { return KP.C.EXEC.bands.find(b => trust >= b[0])[1]; };
+  const ourPeople = state => state.roster.map(id => state.people[id]).filter(p => p.status === 'idol' || p.status === 'trainee');
+  const thisYear = state => recordsAfter(state, Math.max(0, state.week - KP.C.WEEKS_PER_YEAR));   // ours, not the records we inherited
+  const some = (n, word) => (n === 0 ? 'no ' + word + 's' : n === 1 ? 'one ' + word : n + ' ' + word + 's');
+  const sheetsSoFar = state => (state.evalLedger ? state.evalLedger.sheets : 0);   // read, never made: a review that is only read changes nothing
+  // the year, in the terms her kind keeps: `last` is the review before this one, whoever gave it
+  const REVIEW_FACT = {
+    profitHunter: (state, last) => {
+      const till = Math.round(state.budget);
+      if (!last) return 'The till holds ' + till + '. Next year I will have a number to hold it against.';
+      return 'The till holds ' + till + '. At the last review it held ' + last.till + '. ' +
+        (till > last.till ? 'That is the direction I am paid to like.' : till < last.till ? 'I am paid to notice the direction.' : 'A year, and the number did not move.');
+    },
+    traditionalist: state => {
+      const p = ourPeople(state).sort((a, b) => b.talents.vocals.cur - a.talents.vocals.cur || (a.id < b.id ? -1 : 1))[0];
+      if (!p) return 'There is no voice in this building to speak of, and I am the one who has to say so to the directors.';
+      return 'The best voice in this building belongs to ' + KP.displayName(p) + '. ' +
+        (p.status === 'idol' ? 'The public can hear it, which is the point.' : 'The public has not heard it yet.');
+    },
+    micromanager: (state, last) => {
+      const sheets = sheetsSoFar(state) - (last ? last.sheets : 0);
+      if (sheets <= 0) return 'No evaluation sheet reached my desk this year. I noticed.';
+      const from = state.week - KP.C.WEEKS_PER_YEAR;
+      const firsts = p => (p.evalHistory || []).filter(e => e.week > from && e.rank === 1).length;
+      const top = ourPeople(state).filter(p => firsts(p)).sort((a, b) => firsts(b) - firsts(a) || (a.id < b.id ? -1 : 1))[0];
+      return 'I read ' + some(sheets, 'evaluation sheet') + ' this year. ' +
+        (top ? KP.displayName(top) + ' was first on more of them than anyone still in this building.' : 'Nobody who was first on one is still in this building.');
+    },
+    trendChaser: state => {
+      const recs = thisYear(state);
+      if (!recs.length) return 'We released nothing this year. The market did not wait for us.';
+      const inIt = recs.filter(r => KP.laneDistance(KP.trendLane(state, Math.floor((r.week - 1) / KP.C.WEEKS_PER_YEAR)), r.conceptId) === 0).length;
+      if (recs.length === 1) return 'We released one record this year. It was ' + (inIt ? '' : 'not ') + 'in the sound of its year.';
+      return 'We released ' + recs.length + ' records this year. ' + (inIt === 0 ? 'None' : inIt === recs.length ? 'All' : inIt === 1 ? 'One' : inIt) +
+        ' of them ' + (inIt === 1 ? 'was in the sound of the year it landed in.' : 'were in the sound of the year they landed in.');
+    },
+    visionary: state => {
+      const best = thisYear(state).sort((a, b) => b.reception - a.reception || a.week - b.week)[0];
+      if (!best) return 'We released nothing this year. Nobody remembers a year like that.';
+      return best.receptionBand === 'sensation' || best.receptionBand === 'strong'
+        ? 'People will remember “' + best.songTitle + '”. That is one more record than most houses get in a year.'
+        : 'The best we made this year was “' + best.songTitle + '”. I do not think anyone will remember it.';
+    },
+    patient: (state, last, year) => 'Year ' + year + ', and we are still here: ' +
+      some(living(state).length, 'act') + ' under this roof, ' + some(freeRoom(state).length, 'trainee') + ' in the room.',
+  };
+  // where the desk stands with her
+  const REVIEW_BAND = {
+    trusted: 'I stopped checking your work some time ago. I read it now because I like to.',
+    solid: 'I have no notes that would not be nitpicking, so I will keep them.',
+    watched: 'I still read everything of yours twice. That is not a complaint. It is where we are.',
+    thin: 'The directors asked me whether you are the right person for this desk. I said yes. I did not say it quickly.',
+    gone: 'The directors asked me whether you are the right person for this desk. I did not answer them. You should know that.',
+  };
+  // what that opens or closes: the two gates trust already keeps, in words
+  KP.reviewOpens = function (state) {
+    if (state.trust < KP.C.MANDATE.pitchTrustMin) return 'Do not bring me a pitch this year. The board would not hear it.';
+    if (!state.founded && state.trust >= KP.C.FOUNDING.trustAt) return 'And if investors ever call me about you, I will tell them the truth. You would like it.';
+    return 'Bring me a pitch when you have one. The board will hear it.';
+  };
+  // what she would say today (pure). The year is the board season's: a
+  // board left unanswered is reviewed three weeks on, and at week 46 that
+  // is past the turn of the year
+  KP.annualReview = function (state, year) {
+    const reviews = state.reviews || [];
+    const band = KP.trustBand(state.trust);
+    const y = year || Math.ceil(state.week / KP.C.WEEKS_PER_YEAR);
+    return { band, year: y, said: [REVIEW_FACT[state.executive.personality](state, reviews[reviews.length - 1] || null, y), REVIEW_BAND[band], KP.reviewOpens(state)].join(' ') };
+  };
+  // board season's last word: on the file, and a letter that always lands (§112)
+  KP.fileReview = function (state, year) {
+    const r = KP.annualReview(state, year), led = ownLedger(state);
+    state.reviews = state.reviews || [];
+    state.reviews.push({ year: r.year, week: state.week, exec: state.executive.name,
+      trust: state.trust, band: r.band, till: Math.round(state.budget), sheets: sheetsSoFar(state), said: r.said });
+    if (state.reviews.length > KP.C.MEETING.reviewsKept) state.reviews.shift();
+    led.reviews++; led.bands[r.band]++;
+    return { kind: 'executive', ind: 'annualReview', priority: 'critical', band: r.band, text: state.executive.name + ', when the directors had gone: “' + r.said + '”' };
+  };
 
   // ---- the scene: the question on the table -----------------------------
   KP.registerScene('execQuestion', {

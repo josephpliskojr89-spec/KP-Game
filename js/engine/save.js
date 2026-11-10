@@ -1388,6 +1388,13 @@
     if (KP.ensureLedgers) KP.ensureLedgers(state);
   } });
 
+  // v0.11.28 — the annual review. No review was ever filed on an old file:
+  // the list opens empty and the ledger counts from zero.
+  MIGRATIONS.push({ v: '0.11.28', fn: function (state) {
+    state.reviews = state.reviews || [];
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

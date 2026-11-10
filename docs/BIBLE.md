@@ -9521,7 +9521,8 @@ feature the player can sit for or refuse.
 
 **7. The people upstairs and down the hall (the exec, the staff, the
 company's file; part one, her own questions, SHIPPED v0.11.27,
-§119).** The exec's `personality` finally read: a question
+§119; part two, the annual review, SHIPPED v0.11.28, §120).** The
+exec's `personality` finally read: a question
 family per type (the profit hunter asks about the quarter, the
 traditionalist about the vocal room, the micromanager about a trainee
 by name from the eval board, the trend chaser about the sound of the
@@ -12876,6 +12877,133 @@ company's own file. *Not built:* a question for the patient
 executive. *The owner's to call*: whether a pass should cost
 anything, and whether next door to the sound should count. *Still
 the owner's to call*: the Desk's tie-break (§112); and from §109,
+the fade between records through a service chapter and the size of
+the window's bank.
+
+## §120 The annual review (SHIPPED v0.11.28 — §96 recommendation 7, the people upstairs and down the hall, part two)
+
+Owner: *"Break remaining work into smaller pieces"*. The second of
+recommendation 7's pieces, and the smaller half of it: the review,
+in words. Probation is the next piece.
+
+**The finding** (§96): "an annual review scene at board week in her
+voice with trust bands that gate something visible". Counted first.
+Board season is the company answering to its directors: once a
+year, at week 46, three answers. The executive's own word on the
+desk was a chip, "trust: watched", and nothing else. Over 200
+careers and the tool's side worlds there were 424 board seasons:
+124 at trusted, 160 solid, 92 watched, 26 thin, 22 gone. Trust went
+under 20 in 31 of 203 worlds. Three long ones sat there for 180
+weeks or more, with nothing said and nothing done.
+
+Nothing here draws, and nothing here moves a number.
+
+**When the directors have gone** she says three things, in order.
+
+*One fact about the year, in the terms her kind keeps.*
+
+- the profit hunter: the till, against the last review's. "The till
+  holds 150. At the last review it held 100. That is the direction
+  I am paid to like."
+- the traditionalist: the best voice in the building, and whether
+  the public has heard it yet.
+- the micromanager: how many evaluation sheets she read, and who
+  was first on more of them than anyone still in the building.
+- the trend chaser: how many records we released, and how many were
+  in the sound of the year they landed in.
+- the visionary: the record that landed hardest, and whether anyone
+  will remember it. A strong record or a sensation is remembered.
+- the patient executive: "Year 2, and we are still here: one act
+  under this roof, 5 trainees in the room."
+
+The year is the last 48 weeks. The records we inherited are not
+ours, and someone who has left the building is not counted.
+
+*Where the desk stands.* The Desk's five words are the engine's now
+(`KP.trustBand`), at the lines the chip always drew: trusted from
+80, solid from 60, watched from 40, thin from 20, gone under it.
+One sentence each. At thin: "The directors asked me whether you are
+the right person for this desk. I said yes. I did not say it
+quickly." At gone: "... I did not answer them. You should know
+that."
+
+*What that opens or closes.* The two gates trust already keeps,
+said in words for the first time. Under 45 the board hears no
+pitch: "Do not bring me a pitch this year." From 70, and not under
+a founder's own board, the founding's gate is open: "And if
+investors ever call me about you, I will tell them the truth. You
+would like it." Between the two: "Bring me a pitch when you have
+one."
+
+**It follows the answer.** Each of the board's three answers is
+followed by her review, read after what the answer did to trust. A
+board left unanswered is reviewed all the same, after the point the
+empty chair costs, in the letter that says so.
+
+**A critical letter, and a line on the file.** `state.reviews`
+keeps the latest twelve: the year, the week, who gave it, trust and
+its word, the till, the sheets printed so far, and what she said.
+The Desk's record lists them, the newest first, each under the name
+of the chair who gave it.
+
+**Found by the browser pass.** A board left unanswered is reviewed
+three weeks later. Board week is week 46 of 48, so by then the year
+has turned, and the review was filed under the next year: "Year 2,
+and we are still here", about the year that had just ended. A
+review is of the board season's year now.
+
+**Found while writing the suite.** My fixtures took a year for 52
+weeks. A year is 48. And reading what she would say made a ledger
+on a file that had none; a read changes nothing now.
+
+**Old saves** (migration 0.11.28): no review was ever filed. The
+list opens empty and the count starts at zero.
+
+**Measured.** In the census's own count over its 200 careers, 400
+reviews, in 200 of 200 careers: 130 at trusted, 161 solid, 81
+watched, 23 thin, 5 gone, the five in five careers. Two bands:
+reviewed (200 of 200), reviewed with trust gone (5). No career
+moved: every one of the census's 358 rows is v0.11.27's. Across the
+long haul's eleven scenarios, 132 reviews: 31 at thin and 77 at
+gone.
+
+**Found by the mutation run.** On the first full run 87 of 89
+broken lines were caught. One survived: no board was answered
+late, so filing an answered board under the week’s year passed.
+The suite has a late answer now. One crashed the suite where it
+should have failed by name, in a check that split a sentence that
+was not there, and got a guard. A partial run before it had four
+more such crashes, each from an engine that threw inside an
+answer; the suite takes a throw as an answer that failed. On the
+final run, 89 of 89.
+
+Suite_138 (110): the five words at their lines; each kind's
+fact, with its edges; the three sentences in order at each word;
+what it opens at each gate, and under a founder; a pure read; her
+review after each of the board's answers, read after the answer; a
+board answered late, and one not answered; the years on the file,
+the last twelve kept, a new chair beside the old; the Desk through
+the DOM stub with the real button; an old file and a reload; both
+tools' wiring; a hundred and ten real weeks. Suite_131 holds the
+letter to the list of letters said once. Mutation-checked against
+89 broken lines, each caught by a named assertion in every suite
+that owns the line. A real-browser pass (23 checks, no page
+errors): the year reaches board week through the real advance
+button, the board is answered with the real button, and the review
+is a critical letter and a line on the record; a second career is
+reviewed at trusted under another kind of executive; a third leaves
+the chair empty with trust gone and is reviewed for the year the
+board sat in. Battery 138/138,
+soak 40 clean, census 200 clean, longhaul 11 × 620 clean, e2e 137,
+the eleven older browser passes, lockstep 0.11.28.
+
+*Left for the next piece.* Probation: at gone, a dated directive,
+and the salaried door as the exit. It is the deferred firing (§86),
+and a new way for a career to end. It needs care: under the census
+bot 31 of 203 worlds reach gone, and the long haul's bot is given
+77 of its 132 reviews there. *Still the owner's to call*: from
+§119, whether a pass should cost anything, and whether next door to
+the sound should count; the Desk's tie-break (§112); and from §109,
 the fade between records through a service chapter and the size of
 the window's bank.
 
@@ -16908,6 +17036,29 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Battery 137/137, soak 40 clean, census 200 clean, longhaul 11 ×
 > 620 clean, e2e 137, a real-browser pass (38), lockstep 0.11.27.
 > Rode to main. Next piece: the annual review at board week.
+
+> **0.11.28 — the annual review.** Own judgment, under "Approved to
+> tackle as much of the remaining queue as you see fit" and "Break
+> remaining work into smaller pieces": the second piece of §96's
+> recommendation 7, the half that is words. §120: the executive's
+> own word on the desk was a chip, and at "gone" nothing happened:
+> 22 of 424 board seasons sat there, three careers for 180 weeks or
+> more. When the directors have gone she says three things: one
+> fact about the year in her kind's terms, where the desk stands,
+> and what that opens or closes. The Desk's five words are the
+> engine's now. The two gates trust already keeps are said in words
+> for the first time: no pitch under 45, the founding from 70. Her
+> review follows each of the board's answers and an unanswered
+> board alike. It is a critical letter and a line on the file, the
+> latest twelve kept and listed on the Desk's record. Nothing
+> draws and nothing moves a number: every one of the census's 358
+> rows is 0.11.27's. The browser pass found a review filed under
+> the wrong year when the board went unanswered past the turn of
+> the year. Over 200 careers, 400 reviews in 200 of 200: 5 with
+> trust gone. Suite_138 (110), 89 mutations caught by name.
+> Battery 138/138, soak 40 clean, census 200 clean, longhaul 11 ×
+> 620 clean, e2e 137, a real-browser pass (23), lockstep 0.11.28.
+> Rode to main. Next piece: probation, which is the deferred firing.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

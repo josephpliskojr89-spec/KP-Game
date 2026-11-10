@@ -576,6 +576,9 @@ for (const sc of RUN) {
       if (up.met + up.missed + up.void + openOwn.length > up.promised) flag(sc.seed, state.week, 'more verdicts on her own promises than promises: ' + [up.promised, up.met, up.missed, up.void, openOwn.length].join('/'));
       if (openOwn.length > 1) flag(sc.seed, state.week, openOwn.length + ' of her own promises stand at once');
       if (openOwn.some(c => c.execName !== state.executive.name)) flag(sc.seed, state.week, 'a promise made to another chair’s question is still on the clock');
+      // the annual review (v0.11.28, §120): counted under one band, the one its trust falls in
+      if (Object.keys(up.bands).reduce((n, k) => n + up.bands[k], 0) !== up.reviews) flag(sc.seed, state.week, 'the reviews do not add up by band: ' + up.reviews + ' against ' + JSON.stringify(up.bands));
+      if ((state.reviews || []).some(r => r.band !== KP.trustBand(r.trust))) flag(sc.seed, state.week, 'a review is filed under a band its trust is not in');
     }
     // the letterhead (v0.11.25, §116): the staff calls add up, and an answer needs a call
     if ((wl.callsBooks || 0) + (wl.callsTemper || 0) > (wl.calls || 0)) flag(sc.seed, state.week, 'the staff calls do not add up: ' + [wl.calls, wl.callsBooks, wl.callsTemper].join('/'));
@@ -681,7 +684,8 @@ for (const sc of RUN) {
     ', truce calls ' + ((state.wallLedger || {}).truceCalls || 0) + ' (shaken ' + ((state.wallLedger || {}).truces || 0) + ', broken ' + ((state.wallLedger || {}).trucesBroken || 0) + ', ran ' + ((state.wallLedger || {}).trucesRun || 0) + ')' +
     ', calls ' + ((state.wallLedger || {}).calls || 0) + ' (books ' + ((state.wallLedger || {}).callsBooks || 0) + ', temper ' + ((state.wallLedger || {}).callsTemper || 0) + ')' +
     ', parked ' + ((state.wallLedger || {}).parks || 0) + ' (books ' + ((state.wallLedger || {}).parksBooks || 0) + ', temper ' + ((state.wallLedger || {}).parksTemper || 0) + ', moved ' + ((state.wallLedger || {}).parksMoved || 0) + ')' +
-    ' | upstairs: ' + (up => 'asked ' + up.asked + ', promised ' + up.promised + ', kept ' + up.met + ', broken ' + up.missed + ', set aside ' + up.void)(KP.upstairsLedger(state)) +
+    ' | upstairs: ' + (up => 'asked ' + up.asked + ', promised ' + up.promised + ', kept ' + up.met + ', broken ' + up.missed + ', set aside ' + up.void +
+      ', reviews ' + up.reviews + ' (thin ' + up.bands.thin + ', gone ' + up.bands.gone + ')')(KP.upstairsLedger(state)) +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +
     (sgl.heirStabilized ? ' heirStabilized' : '') + (sgl.heirBurst ? ' heirBurst' : '') +

@@ -116,14 +116,16 @@
       // durable count (v0.9.37): the 40-entry convoLog evicts old
       // seasons in busy worlds — the census needs a ledger, not a log
       state.boardSeasonsFaced = (state.boardSeasonsFaced || 0) + 1;
+      // her review follows the answer, whichever it was (v0.11.28, §120)
+      const reviewed = out => { out.note = KP.fileReview(state, sc.year); return out; };
       if (optionId === 'growth') {
         KP.openClaim(state, { type: 'growthPromise', subject: { kind: 'exec' },
           baseline: sc.popSum, byWeek: state.week + KP.C.WEEKS_PER_YEAR });
-        return { toast: 'Growth, on the record, with a number attached. The directors like numbers. Numbers can also be read back aloud in one year, which is the part to remember.' };
+        return reviewed({ toast: 'Growth, on the record, with a number attached. The directors like numbers. Numbers can also be read back aloud in one year, which is the part to remember.' });
       }
       if (optionId === 'build') {
         state.trust = KP.clamp(state.trust + 1, 0, 100);
-        return { toast: '“We are building careers, not quarters.” One director wrote it down. Another checked his watch. The executive, notably, nodded.' };
+        return reviewed({ toast: '“We are building careers, not quarters.” One director wrote it down. Another checked his watch. The executive, notably, nodded.' });
       }
       // the third answer has a meaning (v0.11.5, §96 wiring): the room
       // heard it; the board wanted a slide
@@ -132,12 +134,15 @@
         p.morale = KP.clamp(p.morale + B.boardArtistsMorale, 0, 100);
       });
       state.trust = KP.clamp(state.trust + B.boardArtistsTrust, 0, 100);
-      return { toast: 'You pointed at the artists — their work, their growth, their rooms full of trophies-to-be. It is not a strategy slide, and the board wanted a slide: ' + state.executive.name + ' wrote “no plan” in the margin, which costs a little trust upstairs. But the sentence travelled. By evening every idol in the building had heard that the company’s year was summarized as THEM, and the room walked a little taller for it. That is the trade.' };
+      return reviewed({ toast: 'You pointed at the artists — their work, their growth, their rooms full of trophies-to-be. It is not a strategy slide, and the board wanted a slide: ' + state.executive.name + ' wrote “no plan” in the margin, which costs a little trust upstairs. But the sentence travelled. By evening every idol in the building had heard that the company’s year was summarized as THEM, and the room walked a little taller for it. That is the trade.' });
     },
-    expire: (state) => {
+    expire: (state, sc) => {
       state.trust = KP.clamp(state.trust - 1, 0, 100);
-      return { kind: 'executive',
-        text: 'Board season ended with the company’s chair empty at its own review. ' + state.executive.name + KP.fillPro(' covered for you, which cost {her} something, which means it cost you something.', KP.execP(state)) };
+      // her review comes all the same, after what the empty chair cost (v0.11.28, §120)
+      const review = KP.fileReview(state, sc.year);
+      review.text = 'Board season ended with the company’s chair empty at its own review. ' + state.executive.name +
+        KP.fillPro(' covered for you, which cost {her} something, which means it cost you something. ', KP.execP(state)) + review.text;
+      return review;
     },
   });
   KP.registerClaim('growthPromise', (state, c) => {

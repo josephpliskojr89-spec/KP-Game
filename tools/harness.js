@@ -723,6 +723,11 @@ const BANDS = {
   ownAsked:          { lo: 0.50, hi: 1.00, label: 'orgs the executive asked a question of her own' },
   ownKept:           { lo: 0.15, hi: 0.90, label: 'orgs that kept a promise made to her own question' },
   ownBroken:         { lo: 0.15, hi: 0.95, label: 'orgs that broke one' },
+  // the annual review (v0.11.28, §120): every career that reaches a board
+  // week hears one. Ruled from the census: 400 reviews in 200 of 200
+  // careers, 5 of them with trust gone, in 5 careers (the suite forces it)
+  reviewHeard:       { lo: 0.90, hi: 1.00, label: 'orgs the executive reviewed when the directors had gone' },
+  reviewGone:        { lo: 0.00, hi: 0.40, label: 'orgs reviewed with trust gone' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -961,7 +966,7 @@ const tally = {
   listPosted: 0, offListDoor: 0,
   quietRested: 0, quietFull: 0,
   headQuoted: 0, houseBooks: 0, parkMoved: 0, callReason: 0, truceCalled: 0, truceTaken: 0, truceBroken: 0,
-  ownAsked: 0, ownKept: 0, ownBroken: 0,
+  ownAsked: 0, ownKept: 0, ownBroken: 0, reviewHeard: 0, reviewGone: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -2582,6 +2587,19 @@ for (let s = 0; s < SEEDS; s++) {
       guard(openOwn.length <= 1, seed + ' ' + openOwn.length + ' of her own promises stand at once');
       guard(openOwn.every(c => c.execName === state.executive.name), seed + ' a promise made to another chair’s question is still on the clock');
       guard(up.passedTwice <= Math.max(0, up.passed - 1), seed + ' a first pass was charged: ' + up.passed + ' passes, ' + up.passedTwice + ' charged');
+      // the annual review (v0.11.28, §120): every review is counted under
+      // one band, the band is the one its trust falls in, and the file
+      // keeps the latest twelve in order
+      const kept = state.reviews || [];
+      if (up.reviews >= 1) tally.reviewHeard++;
+      if (up.bands.gone >= 1) tally.reviewGone++;
+      upSum.reviews = (upSum.reviews || 0) + up.reviews;
+      upSum.bands = upSum.bands || {};
+      Object.keys(up.bands).forEach(k => { upSum.bands[k] = (upSum.bands[k] || 0) + up.bands[k]; });
+      guard(Object.keys(up.bands).reduce((n, k) => n + up.bands[k], 0) === up.reviews, seed + ' the reviews do not add up by band: ' + up.reviews + ' against ' + JSON.stringify(up.bands));
+      guard(kept.length <= KP.C.MEETING.reviewsKept && kept.length <= up.reviews, seed + ' ' + kept.length + ' reviews on the file, ' + up.reviews + ' given');
+      guard(kept.every(r => r.band === KP.trustBand(r.trust)), seed + ' a review is filed under a band its trust is not in');
+      guard(kept.every((r, i) => i === 0 || r.week > kept[i - 1].week), seed + ' the reviews on the file are out of order');
     }
     // the letterhead (v0.11.25, §116): who called our staff, and what the
     // answers put on the books. An answer needs a call
@@ -3303,6 +3321,7 @@ console.log('her own questions: asked ' + (upSum.asked || 0) + ' · put on the r
   ' · set aside ' + (upSum.void || 0) + ' · on the clock at the end ' + (upSum.open || 0));
 console.log('  by question: ' + Object.keys(upSum.types).map(k => ({ execQuarter: 'the quarter', execVoice: 'the voice', execByName: 'the name', execSound: 'the sound', execRemember: 'the record' }[k] || k) +
   ' asked ' + upSum.types[k].asked + ' (kept ' + upSum.types[k].met + ', broken ' + upSum.types[k].missed + ')').join(' · '));
+console.log('the annual review: given ' + (upSum.reviews || 0) + ' times · ' + ['trusted', 'solid', 'watched', 'thin', 'gone'].map(k => k + ' ' + ((upSum.bands || {})[k] || 0)).join(' · '));
 console.log('the quiet: told the rest was in ' + (quietSum.rested || 0) + ' · told the bank was full ' + (quietSum.full || 0) +
   ' · a member on a break told she was rested ' + (quietSum.breakRested || 0) + ' · acts still parked at the end ' + (quietSum.parked || 0));
 console.log('the posting: lists ' + (postSum.posted || 0) + ' · the month’s first left off ' + (postSum.offMonth || 0) + ' · the year’s first left off ' + (postSum.offYear || 0) +
