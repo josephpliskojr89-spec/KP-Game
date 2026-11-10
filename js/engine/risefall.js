@@ -279,8 +279,13 @@
             const p = state.people[id];
             if (p && p.gender === 'm') { delete p.flags.military; p.serviceDone = state.week; }
           });
-          inbox.push({ kind: 'industry', ind: 'rivalReturn', actName: act.name, company: r.short,
-            text: act.name + ' is whole again — the rotation that kept them short-handed for two years is over, every member discharged. ' + r.short + ' has been saving a comeback date, and everyone knows what kind.' });
+          // an old file can hold a soloist mid-"rotation" (v0.11.12–14 gave an
+          // act of one the stagger); the migration moves him to a pause, and
+          // this line is his either way
+          inbox.push({ kind: 'industry', ind: 'rivalReturn', actName: act.name, company: r.short, solo: !!act.solo,
+            text: act.solo
+              ? act.name + ' is home — discharged on schedule, the gate photos, the coffee trucks. ' + r.short + ' has been saving a comeback date, and everyone knows what kind.'
+              : act.name + ' is whole again — the rotation that kept them short-handed for two years is over, every member discharged. ' + r.short + ' has been saving a comeback date, and everyone knows what kind.' });
         }
         if (act.servicePause && state.week >= act.servicePause.until) {
           delete act.servicePause;
@@ -289,7 +294,7 @@
             const p = state.people[id];
             if (p && p.gender === 'm') { delete p.flags.military; p.serviceDone = state.week; }
           });
-          inbox.push({ kind: 'industry', ind: 'rivalReturn', actName: act.name, company: r.short,
+          inbox.push({ kind: 'industry', ind: 'rivalReturn', actName: act.name, company: r.short, solo: !!act.solo,
             text: act.name + '’s service chapter closed on schedule — the gate photos, the coffee trucks, the fandom that ran a two-year countdown to the minute. ' + r.short + '’s next release is a RETURN, and returns punch.' });
         }
         if (act.servicePause) {
@@ -303,7 +308,10 @@
             !p.serviceDone && !(p.flags && p.flags.military));
         if (!due) return;
         led.rivalServices++;
-        if ((act.popularity || 0) >= SV.staggerPop) {
+        // a soloist cannot rotate (v0.11.15): v0.11.12's act of one took the
+        // stagger when it was warm enough, so "the group held the line
+        // short-handed" and kept releasing while its only member served
+        if (!act.solo && (act.popularity || 0) >= SV.staggerPop) {
           act.serviceRotation = { until: state.week + M.serviceWeeks + SV.rotationTail };
           due.flags.military = { since: state.week, until: state.week + M.serviceWeeks };
           inbox.push({ kind: 'industry', ind: 'rivalEnlist', actName: act.name, company: r.short,
@@ -317,8 +325,10 @@
               p.flags.military = { since: state.week, until: state.week + M.serviceWeeks };
             }
           });
-          inbox.push({ kind: 'industry', ind: 'rivalEnlist', actName: act.name, company: r.short,
-            text: act.name + ' enlists TOGETHER — one statement from ' + r.short + ', a row of short haircuts, a group photo at the gate. The scene loses a whole act to the law for a while, and the wait economy gains one more fandom with a countdown.' });
+          inbox.push({ kind: 'industry', ind: 'rivalEnlist', actName: act.name, company: r.short, solo: !!act.solo,
+            text: act.solo
+              ? act.name + ' enlists this week — ' + r.short + '’s statement is two lines and a date, and the photo at the gate has one person in it. The solo run stops for as long as the law says, and the wait economy gains one more fandom with a countdown.'
+              : act.name + ' enlists TOGETHER — one statement from ' + r.short + ', a row of short haircuts, a group photo at the gate. The scene loses a whole act to the law for a while, and the wait economy gains one more fandom with a countdown.' });
         }
       });
     });
@@ -376,11 +386,18 @@
       { persona: 'casual', text: 'an idol surviving a company collapse and signing a second contract elsewhere is the most professional-athlete thing this industry does' },
     ]);
   });
-  KP.onFeedEvent('rivalEnlist', (state, n, rng) => rng.pick([
+  // one draw either way (v0.11.15): a soloist is not "kings", "a boy group" or "the boys"
+  KP.onFeedEvent('rivalEnlist', (state, n, rng) => rng.pick(n.solo ? [
+    { persona: 'fan', text: (n.actName || 'he') + ' enlistment news. the fandom pivoted to a countdown project in four hours flat. rival fans and ours agreeing for once: come home safe' },
+    { persona: 'casual', text: 'another soloist to the service. the wait economy is genuinely a sector of this industry now' },
+  ] : [
     { persona: 'fan', text: (n.actName || 'they') + ' enlistment news. the fandom pivoted to a countdown project in four hours flat. rival fans and ours agreeing for once: come home safe, kings' },
     { persona: 'casual', text: 'another boy group to the service. the wait economy is genuinely a sector of this industry now' },
   ]));
-  KP.onFeedEvent('rivalReturn', (state, n, rng) => rng.pick([
+  KP.onFeedEvent('rivalReturn', (state, n, rng) => rng.pick(n.solo ? [
+    { persona: 'fan', text: (n.actName || 'he') + ' IS BACK. gate photos. coffee truck. the countdown account posted “0 DAYS” and logged off forever like a legend' },
+    { persona: 'stan', text: (n.actName || 'he') + ' is home and the first comeback is about to eat. returns always eat. this is a warning to every chart' },
+  ] : [
     { persona: 'fan', text: (n.actName || 'they') + ' ARE BACK. gate photos. coffee truck. the countdown account posted “0 DAYS” and logged off forever like a legend' },
     { persona: 'stan', text: 'the ' + (n.company || 'label') + ' boys are home and their first comeback is about to eat. returns always eat. this is a warning to every chart' },
   ]));

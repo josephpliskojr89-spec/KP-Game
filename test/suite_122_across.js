@@ -90,7 +90,8 @@ const houses = s => KP.signingHouses(s).slice().sort((a, b) => (b.prestige || 0)
   t.eq(f.g.members.length, 4, 'fixture: the inherited act has four members');
   t.ok(houses(f.s).length >= 3, 'fixture: at least three houses sign people (' + houses(f.s).map(r => r.short).join(', ') + ')');
   t.ok(f.ids.every(id => f.s.people[id].age < A.ageFrom && KP.socialOf(f.s, f.s.people[id]) < 150000), 'fixture: all four are under the market’s clock and none is a name yet');
-  t.eq(JSON.stringify(f.s.acrossLedger), JSON.stringify({ clocked: 0, signed: 0, debuted: 0, lives: 0, fell: 0, bow: 0, plain: 0, released: 0, sudden: 0, cold: 0, friends: 0 }), 'fixture: the ledger exists from week one and counts nothing');
+  // re-pinned v0.11.15: the ledger gained the count of solo runs that ended (suite_125)
+  t.eq(JSON.stringify(f.s.acrossLedger), JSON.stringify({ clocked: 0, signed: 0, debuted: 0, lives: 0, fell: 0, bow: 0, plain: 0, released: 0, sudden: 0, cold: 0, friends: 0, ended: 0 }), 'fixture: the ledger exists from week one and counts nothing');
   t.ok(!!KP.newGame('across-122-b', null, { legacy: false }).acrossLedger, 'on every door into the game');
   t.eq(KP.alumniOf(f.s).length, 0, 'fixture: nobody has left yet');
   t.ok(A.signBase + 4 * A.signPerFame + A.coldBonus >= 1, 'fixture: a cold exit with the biggest name is a signing no hash can refuse');
@@ -232,7 +233,10 @@ const signed = (() => {
   answerAll(KP, f.s);
   const wire = tick(KP, f.s);
   const n = firstOf(mine(wire, 'alumAfter', p.id));
-  t.eq(mine(wire, 'alumAfter').length + '|' + n.priority + '|' + mine(wire, 'acrossSigned').length, '1|normal|0', 'past the market’s clock her chapter is a quiet letter, and no signing');
+  // re-pinned v0.11.15: the letter is high, not normal. Measured over the
+  // soak's long careers the week's budget of five kept a normal one three
+  // times in five; it is the one letter that closes her file (suite_125).
+  t.eq(mine(wire, 'alumAfter').length + '|' + n.priority + '|' + mine(wire, 'acrossSigned').length, '1|high|0', 'past the market’s clock her chapter is one letter the week will not cut, and no signing');
   if (!p.flags.after) p.flags.after = { week: null, what: '' };   // a chapter that is not there fails the checks below by name
   t.ok(p.flags.after.week === f.s.week && typeof p.flags.after.what === 'string' && p.flags.after.what.length > 10, 'her file carries what she does now');
   t.ok(n.text.startsWith('Word from outside the building: ' + KP.displayName(p) + ', formerly of ' + f.g.name + ', ' + p.flags.after.what + '.') && !noisy(n.text), 'the letter says it in the same words');
@@ -322,7 +326,12 @@ const debuted = (() => {
   t.ok(f.s.people[p.id] === p, 'when her act there ends her file is still in the world (it was deleted)');
   t.eq(p.status, 'gone', 'she goes home');
   t.ok(KP.isAlum(f.s, p) && KP.alumniOf(f.s).some(x => x.id === p.id), 'and is an alumna still');
-  t.ok(/the solo years ended/i.test(KP.whereNow(f.s, p)), 'with the last line of her file as where she is now');
+  // re-pinned v0.11.15: where she is now is read off her file, not off the
+  // wording of her last chapter. In the game that chapter led with the act's
+  // name, the act's name is hers, and the read lowercased it ("jung Da-min
+  // disbanded"). Her last chapter still carries the words it was given.
+  t.ok(/the solo years ended/i.test(KP.chapterLine(f.s, p.chapters[p.chapters.length - 1])), 'with the last line of her file as it was written');
+  t.eq(KP.whereNow(f.s, p), 'home, after a solo run at ' + r.short, 'and where she is now read off her file');
   t.eq(KP.validateState(f.s).length, 0, 'the file is valid');
 }
 

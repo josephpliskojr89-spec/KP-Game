@@ -88,6 +88,17 @@
     return list.sort((x, y) => y.score - x.score);
   }
 
+  // a rival's first trophy, in words (v0.11.15): a soloist's is hers, not
+  // "theirs". A hash picks the line, as it always did.
+  KP.rivalFirstWinLine = function (state, act, co, label) {
+    const first = act.solo ? (act.gender === 'm' ? 'his' : 'her') + ' first as a soloist' : 'their first';
+    return KP.lineFor(state, 'rivalFirstWin|' + act.id, [
+      act.name + ' won ' + label + ' — ' + first + '. ' + co + '’s floor will be unbearable about it through Friday.',
+      act.name + ' won ' + label + ' — ' + first + '. ' + co + ' had the trophy photo on every account they own before the broadcast ended.',
+      'First trophy: ' + act.name + ' won ' + label + ' — ' + first + '. ' + co + '’s lobby has a new framed photo and nobody is allowed to walk past it quietly.',
+      act.name + ' won ' + label + ' — ' + first + '. The encore was mostly crying. ' + co + ' will treat the win as a policy.',
+    ]);
+  };
   KP.showsWeek = function (state, rng) {
     const W = KP.C.SHOWWIN;
     const notes = [];
@@ -190,12 +201,7 @@
           // is wallpaper, and wallpaper crowds real letters out of the desk
           keep({ kind: 'industry', ind: 'rivalShowWin', actName: act.name,
             company: winner.rival.short, showId,
-            text: KP.lineFor(state, 'rivalFirstWin|' + act.id, [
-              act.name + ' won ' + label + ' — their first. ' + winner.rival.short + '’s floor will be unbearable about it through Friday.',
-              act.name + ' won ' + label + ' — their first. ' + winner.rival.short + ' had the trophy photo on every account they own before the broadcast ended.',
-              'First trophy: ' + act.name + ' won ' + label + ' — their first. ' + winner.rival.short + '’s lobby has a new framed photo and nobody is allowed to walk past it quietly.',
-              act.name + ' won ' + label + ' — their first. The encore was mostly crying. ' + winner.rival.short + ' will treat the win as a policy.',
-            ]) });
+            text: KP.rivalFirstWinLine(state, act, winner.rival.short, label) });
         }
       } else if (winner && winner.type === 'pool') {
         const beaten = field.find(c => c.type === 'player');

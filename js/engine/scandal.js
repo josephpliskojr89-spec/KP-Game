@@ -306,6 +306,12 @@
   });
 
   // ---- the week --------------------------------------------------------
+  // the world's story, in words (v0.11.15): a read. A story about a soloist
+  // is about her; "a <her name> member" was a group's sentence.
+  KP.rivalStoryLine = function (act, shape, co) {
+    return 'The industry’s week: a story about ' + (act.solo ? act.name : 'a ' + act.name + ' member') + ' is moving — ' + shape +
+      '. ' + co + '’s response desk is doing what response desks do, and every other label is quietly re-reading its own files.';
+  };
   KP.registerWeekly('scandal', 797, function (state, rng, inbox, roster) {
     const S = KP.C.SCANDAL;
     const led = ledger(state);
@@ -356,8 +362,7 @@
           led.rivalStories++;
           const shape = S.SHAPES[Math.floor(rng.next() * S.SHAPES.length)];
           inbox.push({ kind: 'industry', ind: 'rivalScandal', priority: 'flavor',
-            text: 'The industry’s week: a story about a ' + act.name + ' member is moving — ' + shape +
-              '. ' + r.short + '’s response desk is doing what response desks do, and every other label is quietly re-reading its own files.' });
+            text: KP.rivalStoryLine(act, shape, r.short) });
         }
       }
     }

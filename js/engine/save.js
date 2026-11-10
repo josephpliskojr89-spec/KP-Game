@@ -1228,6 +1228,46 @@
     });
   } });
 
+  // v0.11.15 — the soloist, read as one. v0.11.12 made the first acts of
+  // one (an alumna across the street) and left their endings in a group's
+  // shape. A file on which a solo run already ended carries "<her name>
+  // disbanded" (or "<her name>'s seven-year run ended") as her last chapter
+  // and on her history, and no date for it; a male soloist warm enough for
+  // the stagger was put on a "rotation" and kept releasing while he served.
+  // The chapter and the line are rewritten in her words, the file is
+  // stamped, the ledger counts her, and the rotation becomes the pause it
+  // should have been, ending the week his own service does.
+  MIGRATIONS.push({ v: '0.11.15', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+    const L = KP.acrossLedger ? KP.acrossLedger(state) : null;
+    const TAIL = '. The stage years are the chapter.';
+    Object.values(state.people || {}).forEach(p => {
+      const ac = p.flags && p.flags.across;
+      if (!ac || ac.debutWeek == null || p.status !== 'gone' || ac.endedWeek != null) return;
+      const ch = (p.chapters || []).slice().reverse().find(c => c.kind === 'home') || null;
+      const old = ch ? String(ch.why || '') : '';
+      const wall = /’s seven-year run ended$/.test(old);
+      const line = wall ? 'The solo contract at ' + ac.company + ' ran its term' : 'The solo run at ' + ac.company + ' ended';
+      if (ch && (wall || / disbanded$/.test(old))) {
+        const hist = (p.history || []).slice().reverse().find(x => x.text === old + TAIL);
+        if (hist) hist.text = line + TAIL;
+        ch.why = line;
+      }
+      ac.endedWeek = ch ? ch.week : state.week;
+      ac.endedCo = ac.company;
+      ac.endedHow = wall ? 'wall' : 'cold';
+      if (L) L.ended++;
+    });
+    (state.rivals || []).forEach(r => (r.acts || []).forEach(a => {
+      if (!a.solo || a.retired || !a.serviceRotation) return;
+      const m = state.people[(a.members || [])[0]];
+      const until = m && m.flags && m.flags.military && m.flags.military.until != null ? m.flags.military.until : state.week;
+      a.servicePause = { until: Math.max(state.week, until) };
+      delete a.serviceRotation;
+      delete a.announcedWeek;
+    }));
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

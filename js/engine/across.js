@@ -19,7 +19,9 @@
 
   KP.acrossLedger = function (state) {
     state.acrossLedger = state.acrossLedger || { clocked: 0, signed: 0, debuted: 0, lives: 0, fell: 0,
-      bow: 0, plain: 0, released: 0, sudden: 0, cold: 0, friends: 0 };
+      bow: 0, plain: 0, released: 0, sudden: 0, cold: 0, friends: 0, ended: 0 };
+    // the solo runs that ended (v0.11.15): a field added post-ship, healed lazily
+    if (state.acrossLedger.ended == null) state.acrossLedger.ended = 0;
     return state.acrossLedger;
   };
 
@@ -79,7 +81,12 @@
       what.replace(/^./, c => c.toUpperCase()) + '. The stage years are a chapter {she} talks about kindly.', p) });
     L.lives++;
     if (fell) L.fell++;
-    inbox.push({ kind: 'company', ind: 'alumAfter', priority: 'normal', personId: p.id,
+    // high since v0.11.15 (it shipped normal): this is the one letter that
+    // closes an artist's file, and the week's budget of five kept it three
+    // times in five (measured over the soak's long careers; the signing and
+    // the debut, both high, landed fifteen times in fifteen). A one-shot
+    // about a person is not what a busy week should cut.
+    inbox.push({ kind: 'company', ind: 'alumAfter', priority: 'high', personId: p.id,
       text: KP.fillPro('Word from outside the building: ' + KP.displayName(p) + (act ? ', formerly of ' + act.name + ',' : '') + ' ' + what +
         (fell ? ', after the solo deal {she} had signed went down with the house that offered it' : '') +
         '. Nobody here was asked, and nobody needed to be. The file stays open; it just has a later page in it now.', p) });
@@ -215,6 +222,21 @@
   KP.acrossSign = sign;
   KP.acrossDebut = debut;
   KP.acrossAfter = afterLife;
+  // her solo run across the street is over (v0.11.15). The act's ending is
+  // the industry's to tell (industry.js); what this module owns is her
+  // file: when it ended and under which name the house then had, the
+  // count, and the one sentence that makes the letter about an artist who
+  // was ours. Called before the act retires. Words and a stamp: no draw,
+  // and nothing here moves a number.
+  KP.acrossEnded = function (state, p, rival, act, how) {
+    const f = p.flags = p.flags || {};
+    if (!f.across || f.across.debutWeek == null || f.across.endedWeek != null) return '';
+    f.across.endedWeek = state.week;
+    f.across.endedCo = rival.short;
+    f.across.endedHow = how;
+    KP.acrossLedger(state).ended++;
+    return KP.fillPro(' {She} was ' + (act.alumOf || state.company.short) + '’s before {she} was theirs; the file here has one more page in it now.', p);
+  };
 
   // ---- the read: where an alumna is now, in words -----------------------------
   KP.whereNow = function (state, p) {
@@ -222,6 +244,12 @@
     if (p.status === 'rival' && f.across && f.across.debutWeek != null) return 'soloist at ' + p.company + ' since ' + when(f.across.debutWeek);
     if (p.status === 'departed' && f.across) return 'signed with ' + f.across.company + ' as a soloist';
     if (f.after) return f.after.what;
+    // her solo run is over (v0.11.15): read off her file, never off the
+    // wording of her last chapter. That line led with the act's name, the
+    // act's name is hers, and the fallback below lowercased it.
+    if (f.across && f.across.debutWeek != null) {
+      return 'home' + (f.across.endedWeek != null ? ' since ' + when(f.across.endedWeek) : '') + ', after a solo run at ' + (f.across.endedCo || f.across.company);
+    }
     const last = (p.chapters || [])[(p.chapters || []).length - 1];
     return last ? KP.chapterLine(state, last).replace(/^./, c => c.toLowerCase()) : 'gone from the company';
   };
@@ -238,6 +266,19 @@
     ] : [
       { persona: 'fan', text: N + ' SOLO. new company, same ' + N + ', and the announcement thanked the old one. everybody behaved like adults and I am crying about it' },
       { persona: 'casual', text: 'former group member signs elsewhere as a soloist and both companies are being nice about it. rare. bookmarking this for the next time one goes badly' },
+    ]);
+  });
+  KP.onFeedEvent('soloEnded', (state, n) => {
+    const p = state.people[n.personId];
+    if (!p) return null;
+    const N = KP.publicGiven(p);
+    return pick(state, 'soloEndedEcho', p.id, n.alumOf ? [
+      { persona: 'fan', text: N + '’s solo run is over and I am going to be normal about it. two companies, one voice, and I have every photocard from both' },
+      { persona: 'casual', text: 'so ' + N + ' is done with the second company too. somebody should write down what that career was, start to finish, before the timelines forget' },
+      { persona: 'stan', text: 'streaming ' + N + '’s solo records tonight and the old group’s after. ' + KP.pro(p).she + ' was good in both rooms. that is the whole post' },
+    ] : [
+      { persona: 'fan', text: N + '’s contract is up and there is no farewell stage. I will be rewatching the debut showcase and I will not be taking questions' },
+      { persona: 'casual', text: 'a soloist quietly leaving a company is the saddest two-line statement this industry prints' },
     ]);
   });
   KP.onFeedEvent('acrossDebut', (state, n) => {

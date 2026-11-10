@@ -42,6 +42,28 @@
     return base;
   }
 
+  // ---- the sentences that name another house's artist ---------------------
+  // Reads (v0.11.15), so the words can be held without rolling a friendship.
+  // v0.11.12 made the first acts of one, and these still said "Name of
+  // ACT" and "Name (ACT)": for a soloist, her own name twice. A soloist is
+  // her act; and one who was ours once is not a stranger met in a waiting
+  // room. The rail below writes exactly these.
+  KP.societyLines = {
+    friendFile: (state, friend, act) => 'Made a real friend in a music-show waiting room: ' + KP.ofAct(friend, act) +
+      (act && act.alumOf === state.company.short ? ', who used to work out of this building' : '') + '.',
+    friendLetter: (state, ours, friend, act) => KP.fillPro('Music-show week did what music-show weeks do: ' + KP.publicGiven(ours) +
+      ' and ' + KP.displayName(friend) +
+      (act && !act.solo ? ' (' + act.name + ')' : act && act.alumOf === state.company.short ? ', who was ' + state.company.short + '’s once,' : '') +
+      ' left the building laughing at the same thing, and a fan photo of it is already everywhere. The waiting rooms are where the industry actually lives.', ours),
+    truck: (state, ours, friend, act) => KP.fillPro('A coffee truck arrived at the site with ' + KP.publicGiven(ours) +
+      '’s name on the banner, sent by ' + KP.displayName(friend) +
+      (act && !act.solo ? ' of ' + act.name : '') +
+      '. The staff drank the industry’s friendliest espresso and the fan accounts cried about it for a day. {She} kept the banner.', ours),
+    stanFile: (state, senior, rookie, act) => KP.ofAct(senior, act) + ' named ' + (rookie.gender === 'm' ? 'him' : 'her') + ' a favorite rookie, in public.',
+    stanLetter: (state, senior, rookie, act) => KP.fillPro(KP.ofAct(senior, act) + ' — a name this industry answers to — was asked about rookies and said ' +
+      KP.publicGiven(rookie) + '’s, unprompted, with a whole sentence of reasons. The clip is everywhere. {She} has watched it eleven times and denies it.', rookie),
+  };
+
   // ---- the weekly phase --------------------------------------------------
   KP.registerWeekly('society', 857, function (state, rng, inbox, roster, groups) {
     const S = KP.C.SOCIETY;
@@ -73,8 +95,7 @@
               state.industryFriends.push({ a: ours.id, b: friend.id, actId: act.id, since: state.week });
               ours.morale = KP.clamp(ours.morale + S.friendMorale, 0, 100);
               state.societyQuietUntil = state.week + S.quietWeeks;
-              ours.history.push({ week: state.week,
-                text: 'Made a real friend in a music-show waiting room: ' + KP.displayName(friend) + ' of ' + act.name + '.' });
+              ours.history.push({ week: state.week, text: KP.societyLines.friendFile(state, friend, act) });
               // priority high (0.9.18.1): the friendship's birth is a
               // bounded beat other systems read later (renewals, gigs,
               // the coffee truck) — society runs LAST in the week, so at
@@ -82,8 +103,7 @@
               // maxFriends + the quiet window; no flood risk.
               inbox.push({ kind: 'public', ind: 'industryFriend', priority: 'high',
                 personId: ours.id, friendId: friend.id, actName: act.name,
-                text: KP.fillPro('Music-show week did what music-show weeks do: ' + KP.publicGiven(ours) +
-                  ' and ' + KP.displayName(friend) + ' (' + act.name + ') left the building laughing at the same thing, and a fan photo of it is already everywhere. The waiting rooms are where the industry actually lives.', ours) });
+                text: KP.societyLines.friendLetter(state, ours, friend, act) });
             }
           }
         }
@@ -106,10 +126,7 @@
               KP.displayName(friend) + ' sent to the site. The industry’s friendliest espresso.' });
             inbox.push({ kind: 'public', ind: 'coffeeTruck', priority: 'flavor',
               personId: ours.id, friendId: friend.id,
-              text: KP.fillPro('A coffee truck arrived at the site with ' + KP.publicGiven(ours) +
-                '’s name on the banner, sent by ' + KP.displayName(friend) +
-                (home ? ' of ' + home.act.name : '') +
-                '. The staff drank the industry’s friendliest espresso and the fan accounts cried about it for a day. {She} kept the banner.', ours) });
+              text: KP.societyLines.truck(state, ours, friend, home ? home.act : null) });
           }
         }
       }
@@ -145,12 +162,10 @@
             g.seniorStanWeek = state.week;
             rookie.morale = KP.clamp(rookie.morale + S.stanMorale, 0, 100);
             KP.socialSpike(state, rookie, KP.C.SOCIAL.viralSpike * 0.4, 'seniorStan');
-            rookie.history.push({ week: state.week,
-              text: KP.displayName(senior) + ' of ' + act.name + ' named ' + (rookie.gender === 'm' ? 'him' : 'her') + ' a favorite rookie, in public.' });
+            rookie.history.push({ week: state.week, text: KP.societyLines.stanFile(state, senior, rookie, act) });
             inbox.push({ kind: 'public', ind: 'seniorStan', priority: 'high',
               personId: rookie.id, seniorName: KP.displayName(senior), actName: act.name,
-              text: KP.fillPro(KP.displayName(senior) + ' of ' + act.name + ' — a name this industry answers to — was asked about rookies and said ' +
-                KP.publicGiven(rookie) + '’s, unprompted, with a whole sentence of reasons. The clip is everywhere. {She} has watched it eleven times and denies it.', rookie) });
+              text: KP.societyLines.stanLetter(state, senior, rookie, act) });
           }
         }
       }

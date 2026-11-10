@@ -332,7 +332,7 @@
   // ---- Rival act page (v0.4.3): the competition, viewable ---------------
   UI.renderRivalAct = function (state, actId) {
     const hit = KP.rivalActById(state, actId);
-    if (!hit) return '<div class="card">That group is no longer on the desk’s files.</div>';
+    if (!hit) return '<div class="card">That act is no longer on the desk’s files.</div>';
     const a = hit.act, r = hit.rival;
     const concept = KP.conceptById(a.concept);
     const debutLabel = a.debutWeek >= 1 ? KP.weekLabel(a.debutWeek).text : 'before your time';
@@ -341,7 +341,7 @@
       '<div class="g-name" style="font-size:clamp(1.9rem,10vw,2.8rem)">' + UI.esc(a.name) + '</div>' +
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">' +
       (concept ? '<span class="chip cool">' + UI.esc(concept.label) + '</span>' : '') +
-      (a.retired ? '<span class="chip hot">disbanded</span>'
+      (a.retired ? '<span class="chip hot">' + (a.solo ? 'solo run ended' : 'disbanded') + '</span>'   // a soloist does not disband (v0.11.15)
         : '<span class="chip">' + KP.popularityWord(a.popularity) + ' fanbase</span>') +
       '<span class="chip">since ' + UI.esc(debutLabel) + '</span>' +
       (a.announcedWeek && a.announcedWeek >= state.week
@@ -373,7 +373,7 @@
 
     const members = (a.members || []).map(id => state.people[id]).filter(Boolean);
     if (members.length) {
-      html.push('<div class="kicker">Members</div>');
+      html.push('<div class="kicker">' + (a.solo ? 'The artist' : 'Members') + '</div>');
       html.push('<div class="member-strip">');
       // (v0.11.12, §103) an artist who was ours is not "a face on the
       // board we lost": she is an alumna, and her cell opens her file
@@ -389,8 +389,15 @@
       });
       html.push('</div>');
       members.filter(isAlum).forEach(m => {
+        // once her run there is over the note is in the past tense (v0.11.15:
+        // it went on saying "records for them now" on a retired act's page)
+        const ac = (m.flags || {}).across || {};
+        const over = a.retired || m.status !== 'rival';
         html.push('<div class="note">' + UI.esc(KP.fillPro(KP.displayName(m) + ' was ours until ' + KP.weekLabel((m.flags || {}).departedWeek || 1).text +
-          '. {She} records for ' + r.short + ' now, on the same chart we release against. {Pos} file is still open on the Talent tab, with every chapter in it.', m)) +
+          (over
+            ? '. {She} recorded for ' + r.short + (ac.endedWeek != null ? ' until ' + KP.weekLabel(ac.endedWeek).text : ' after that') + '. '
+            : '. {She} records for ' + r.short + ' now, on the same chart we release against. ') +
+          '{Pos} file is still open on the Talent tab, with every chapter in it.', m)) +
           '<span class="n-who">— the file room</span></div>');
       });
       const lost = members.filter(m => !m.flags.rivalNative && !isAlum(m));

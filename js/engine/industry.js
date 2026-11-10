@@ -422,6 +422,39 @@
     const n = (act.members || []).length;
     return act.solo ? n === 1 : n >= KP.C.INDUSTRY.actSize[0];
   };
+  // a member named with her act (v0.11.15): "Name of ACT" for a group. A
+  // soloist is her act, and naming both says her name twice.
+  KP.ofAct = function (p, act) {
+    const n = KP.displayName(p);
+    return act && !act.solo ? n + ' of ' + act.name : n;
+  };
+  // a soloist's run ends (v0.11.15). v0.11.12 made the first acts of one
+  // and left their endings in a group's words: "the conclusion of team
+  // activities", "the members could not land on the same next chapter",
+  // and "<her name> disbanded" on her own file. The two exits are the
+  // ones any act has (the records stopped landing; the paper ran out);
+  // the words are hers. Built BEFORE the act retires: the world's exit
+  // may forget a stranger with no file. Words only, and no draw.
+  function soloEndNote(state, rival, act, how) {
+    const p = state.people[(act.members || [])[0]] || null;
+    const n = (act.releases || []).length;
+    const recs = n + (n === 1 ? ' record' : ' records');
+    const tail = p && act.alumOf && KP.acrossEnded ? KP.acrossEnded(state, p, rival, act, how) : '';
+    const text = how === 'wall'
+      ? act.name + '’s contract with ' + rival.short + ' ran its full term and was not renewed: seven years as a soloist, ' + recs +
+        ', and a last post that thanked everybody by name.'
+      : KP.lineFor(state, 'soloEnded|' + act.id, [
+        rival.short + ' confirmed this week that ' + act.name + '’s exclusive contract has ended: ' + recs +
+          ' as a soloist there' + (n > 1 ? ', the last of them quiet' : '') + ', and no farewell stage on the calendar.',
+        act.name + '’s solo run at ' + rival.short + ' is over: ' + recs + ', a statement three lines long, and a fan café that saw it coming and posted the old fancams anyway.',
+      ]);
+    return { kind: 'industry', ind: 'soloEnded', how, actName: act.name, company: rival.short,
+      // an artist who was ours: high, like her signing and her debut (the
+      // week's budget cut a normal one in the first career it was read in)
+      personId: p ? p.id : null, alumOf: act.alumOf || null, priority: act.alumOf ? 'high' : undefined,
+      text: text + tail };
+  }
+  KP.soloEndNote = soloEndNote;   // the rail calls it; so can a test
   // the retired-act sink (v0.10.33, §90 B5): an act that concludes lets
   // its people go on — the world's exit for the ones with no chapter
   // here (forgotten), 'gone' for the ones with one. Members already
@@ -798,7 +831,7 @@
           (rel.narNotes || []).forEach(n => notes.push(n));
           pushMove(rival, act.name + ' comeback');
           if (rel.reception >= I.comebackNoteMin) {
-            notes.push({ kind: 'industry', ind: 'rivalHit', actName: act.name, company: rival.short, actGender: act.gender || 'f',
+            notes.push({ kind: 'industry', ind: 'rivalHit', actName: act.name, company: rival.short, actGender: act.gender || 'f', solo: !!act.solo,
               songTitle: rel.title,
               text: KP.lineFor(state, 'rivalHit|' + act.id, [
                 act.name + '’s “' + rel.title + '” is everywhere this week. ' + rival.short + ' will be insufferable about it, and the music shows just got harder to win.',
@@ -818,23 +851,26 @@
             act === activeNow.reduce((m, a) => a.popularity < m.popularity ? a : m);
           if (act.popularity < I.disbandFloorPop * (crowded ? 1.6 : 1) &&
               age > I.disbandMinAgeWeeks && rng.chance(I.disbandChance * (crowded ? 2 : 1))) {
-            KP.retireAct(state, rival, act, act.name + ' disbanded');
+            // a soloist does not disband (v0.11.15): the same exit, her words
+            const soloNote = act.solo ? soloEndNote(state, rival, act, 'cold') : null;
+            KP.retireAct(state, rival, act, soloNote ? 'The solo run at ' + rival.short + ' ended' : act.name + ' disbanded');
             rival.prestige = KP.clamp(rival.prestige - 4, 5, 95);
             if (rival.prestige < KP.C.MEMORY.fadingBelow) {
               const nar = KP.recordEvidence(state, 'fadingHouse', 'rivalCompany', rival.short);
               if (nar) notes.push(nar);
             }
-            pushMove(rival, act.name + ' disbanded');
-            notes.push({ kind: 'industry', ind: 'disband', actName: act.name, company: rival.short,
+            pushMove(rival, soloNote ? act.name + '’s solo run ended' : act.name + ' disbanded');
+            notes.push(soloNote || { kind: 'industry', ind: 'disband', actName: act.name, company: rival.short,
               text: rival.short + ' announced the “conclusion of team activities” for ' + act.name +
                 '. The fans saw it coming, which never once made it hurt less.' });
           } else if (age > I.ROOM.sevenYearWeeks && rng.chance(I.ROOM.wallChance)) {
             // the seven-year wall (0.9.18.1): rival contracts expire on
             // the same clock the player's do. A finished run, not a fall.
-            KP.retireAct(state, rival, act, act.name + '’s seven-year run ended');
+            const soloNote = act.solo ? soloEndNote(state, rival, act, 'wall') : null;
+            KP.retireAct(state, rival, act, soloNote ? 'The solo contract at ' + rival.short + ' ran its term' : act.name + '’s seven-year run ended');
             rival.prestige = KP.clamp(rival.prestige - 2, 5, 95);
-            pushMove(rival, act.name + ' concluded (7 years)');
-            notes.push({ kind: 'industry', ind: 'disband', actName: act.name, company: rival.short,
+            pushMove(rival, soloNote ? act.name + '’s solo contract ran out (7 years)' : act.name + ' concluded (7 years)');
+            notes.push(soloNote || { kind: 'industry', ind: 'disband', actName: act.name, company: rival.short,
               text: act.name + '’s seven-year run ends where the contracts do: ' + rival.short +
                 ' and the members could not land on the same next chapter. Seven years, ' +
                 (act.releases || []).length + ' releases, and a fandom that will now archive everything twice.' });
@@ -1266,6 +1302,16 @@
     return posts;
   }
 
+  // the timeline on a rival's hit, as a read (v0.11.15): a soloist's hit is
+  // not "a win for girl groups". Two lines either way, so the pick is the
+  // same one draw it always was.
+  KP.rivalHitPosts = function (n) {
+    const lane = n.solo ? 'soloists' : n.actGender === 'm' ? 'boy groups' : 'girl groups';
+    return [
+      n.actName + '’s new one is everywhere and I’m not even mad. a win for ' + lane + ' is a win for ' + lane + ',',
+      'you can dislike ' + n.company + ' as a company and still admit ' + n.actName + ' ate. both things are true',
+    ];
+  };
   function rivalEventPosts(state, weekNotes, rng) {
     const posts = [];
     weekNotes.forEach(n => {
@@ -1285,10 +1331,7 @@
           'another debut, another lightstick I have to pretend I’m not going to buy. welcome, ' + n.actName,
         ]));
       } else if (n.ind === 'rivalHit') {
-        posts.push(rng.pick([
-          n.actName + '’s new one is everywhere and I’m not even mad. a win for ' + (n.actGender === 'm' ? 'boy groups is a win for boy groups' : 'girl groups is a win for girl groups') + ',',
-          'you can dislike ' + n.company + ' as a company and still admit ' + n.actName + ' ate. both things are true',
-        ]));
+        posts.push(rng.pick(KP.rivalHitPosts(n)));
       } else if (n.ind === 'disband') {
         posts.push('the ' + n.actName + ' disbandment announcement… I wasn’t even a fan and I’m sad. hug your faves’ albums tonight');
       } else if (n.ind === 'collapse') {

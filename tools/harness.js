@@ -2738,6 +2738,7 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
   const acrSum = {};
   let acrSignLetters = 0, acrDebutLetters = 0, acrLifeLetters = 0, acrPending = 0, acrSoloActs = 0;
   let clockActs = 0, clockSoloActs = 0;   // the lineup rule, met by groups and by soloists (v0.11.14)
+  let acrWire = 0, acrLanded = 0;         // her letters, on the wire and after the week's trim (v0.11.15)
   for (let s = 0; s < 3; s++) {
     const seed = 'clock-' + s;
     // seed 2 is the neglect org: it debuts a group and then never answers
@@ -2810,6 +2811,13 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
         if (n.ind === 'contractEnd' && n.shape === 'bow') byeBowLetters++;
         if (n.ind === 'lastStage') byeStageLetters++;
         if (n.ind === 'acrossSigned') acrSignLetters++;
+        // the four letters about an artist who was ours, read AFTER the trim
+        // too (v0.11.15): the wire said every one was written; nothing said
+        // whether the week's budget of five kept it
+        if (n.ind === 'acrossSigned' || n.ind === 'acrossDebut' || n.ind === 'alumAfter' || n.ind === 'soloEnded') {
+          acrWire++;
+          if ((state.inbox || []).some(m => m.ind === n.ind && m.personId === n.personId && m.week === state.week)) acrLanded++;
+        }
         if (n.ind === 'acrossDebut') acrDebutLetters++;
         if (n.ind === 'alumAfter') acrLifeLetters++;
       });
@@ -2893,11 +2901,22 @@ console.log('\n--- long-horizon pass: the seven-year clock (3 seeds x 380 weeks)
   guard((byeSum.kept || 0) >= 1, 'the long goodbye: no promise of a last era was ever kept');
   console.log('across the street: clocks ' + (acrSum.clocked || 0) + ' · signed ' + (acrSum.signed || 0) + ' (bow ' + (acrSum.bow || 0) + ', plain ' + (acrSum.plain || 0) + ', released ' + (acrSum.released || 0) +
     ', sudden ' + (acrSum.sudden || 0) + ', cold ' + (acrSum.cold || 0) + ') · debuted ' + (acrSum.debuted || 0) + ' (friends who posted ' + (acrSum.friends || 0) + ') · lives outside ' + (acrSum.lives || 0) +
-    ' (deals that fell ' + (acrSum.fell || 0) + ') · still to come ' + acrPending + ' · solo acts still running ' + acrSoloActs);
+    ' (deals that fell ' + (acrSum.fell || 0) + ') · still to come ' + acrPending + ' · solo acts still running ' + acrSoloActs + ' · solo runs ended ' + (acrSum.ended || 0) +
+    ' · her letters that reached the inbox ' + acrLanded + '/' + acrWire);
+  // every one of these is high (v0.11.15: the life outside shipped normal and
+  // the budget kept it 3 times in 5). A week with six highs can still cut
+  // one; more than one in ten cut means a letter has lost its weight again
+  guard(acrWire - acrLanded <= Math.max(1, Math.floor(acrWire / 10)),
+    'across the street: ' + (acrWire - acrLanded) + ' of ' + acrWire + ' letters about a former artist were cut by the week’s budget');
   guard((acrSum.signed || 0) + (acrSum.lives || 0) >= 1, 'across the street: no departed artist ever got a next chapter across three long careers');
   guard(acrSignLetters === (acrSum.signed || 0) && acrDebutLetters === (acrSum.debuted || 0) && acrLifeLetters === (acrSum.lives || 0),
     'across the street: the ledger (' + (acrSum.signed || 0) + '/' + (acrSum.debuted || 0) + '/' + (acrSum.lives || 0) + ') is not the wire (' + acrSignLetters + '/' + acrDebutLetters + '/' + acrLifeLetters + ')');
   guard((acrSum.debuted || 0) <= (acrSum.signed || 0), 'across the street: more debuts than signings');
+  // every solo debut is still running or ended in a soloist's words (v0.11.15):
+  // the only two exits an act of one has both count here, so a third way
+  // out, or an ending told as a group's, shows as a debut unaccounted for
+  guard((acrSum.debuted || 0) === acrSoloActs + (acrSum.ended || 0),
+    'across the street: ' + (acrSum.debuted || 0) + ' solo debuts, ' + acrSoloActs + ' still running and ' + (acrSum.ended || 0) + ' ended');
   console.log('lineups: ' + clockActs + ' acts still running at the end of the long careers, each a real lineup by the one rule · soloists among them ' + clockSoloActs);
   guard(clockSoloActs >= 1 && clockSoloActs === acrSoloActs, 'the lineup rule never met a soloist: ' + clockSoloActs + ' solo acts read, ' + acrSoloActs + ' alumnae in one');
 }
@@ -2979,6 +2998,76 @@ console.log('\n--- the last bow: three careers, one door each (3 seeds x 90 week
       ', solos ' + (L.solos || 0));
   });
   out.forEach(l => console.log('  ' + l));
+}
+
+// the soloist's last page (v0.11.15). In seven years of the long clock no
+// solo run ends (0 of 4), and suite_125 forces the roll. This pass rides both
+// endings through a real career with the roll as shipped: an artist of the
+// inherited act leaves in week 3 and is signed by the game's own verb (her
+// clock's date is not waited for); the week's rail debuts her on her date;
+// then her act is held cold, or past the seven-year wall, until the house
+// lets it go at its own 5% or 3% a week. Every week is validated. The letter
+// must be on the wire once, in a soloist's words, and in the inbox after the
+// week's trim; her file must be stamped and the alumni line must read off it.
+console.log('\n--- the soloist’s last page: two careers, one ending each (the roll as shipped) ---');
+{
+  const I = KP.C.INDUSTRY;
+  const GROUPISH = /team activities|disband|the members/;
+  ['cold', 'wall'].forEach(how => {
+    const seed = 'solopage-' + how;
+    const state = KP.newGame(seed, null, { legacy: true });
+    const g = state.groups.find(x => x.debuted);
+    guard(!!g, seed + ': no inherited act');
+    if (!g) return;
+    let p = null, act = null, letters = 0, landed = 0, text = '', leftWk = null, debutWk = null, endWk = null, after = 0;
+    for (let w = 0; w < 520 && after < 4; w++) {
+      (state.scenes || []).slice().forEach(sc => {
+        if (sc.kind === 'renewal') { botRenewal(state, sc); return; }
+        if (sc.kind === 'execQuestion') { KP.answerMeeting(state, sc.q && sc.q.type === 'comebackPromise' ? 1 : 0); return; }
+        const def = KP.sceneDef(sc.kind);
+        if (def) { const opts = def.options(state, sc); if (opts && opts.length) KP.resolveScene(state, sc.id, opts[0].id); }
+      });
+      if (state.budget < 400) state.budget = 400;   // the books are kept whole: this pass measures an ending, not the economy
+      if (!p && state.week >= 3) {
+        p = state.people[g.members[0]];
+        KP.departIdol(state, p.id, 'cold', null);
+        leftWk = state.week;
+        const house = KP.signingHouses(state)[0];
+        guard(!!house, seed + ': no house on the street to sign her');
+        if (house) KP.acrossSign(state, p, house, []);
+      }
+      if (p && !act && p.status === 'rival') {
+        const r = (state.rivals || []).find(x => x.short === p.company);
+        act = r && (r.acts || []).find(a => (a.members || []).includes(p.id));
+        debutWk = state.week;
+      }
+      if (act && !act.retired) {
+        if (how === 'cold') { act.popularity = 0; act.debutWeek = Math.min(act.debutWeek, state.week - I.disbandMinAgeWeeks - 1); }
+        else { act.popularity = 60; act.debutWeek = Math.min(act.debutWeek, state.week - I.ROOM.sevenYearWeeks - 1); }
+      }
+      KP.advanceWeek(state);
+      (KP.lastTickNotes || []).forEach(n => {
+        if (n.ind === 'disband' && act && n.actName === act.name) guard(false, seed + ': a soloist’s run was told as a group disbanding');
+        if (n.ind !== 'soloEnded' || !p || n.personId !== p.id) return;
+        letters++; text = n.text;
+        if ((state.inbox || []).some(m => m.ind === 'soloEnded' && m.personId === p.id && m.week === state.week)) landed++;
+      });
+      if (act && act.retired) { if (endWk == null) endWk = state.week; after++; }
+      const errs = KP.validateState(state);
+      guard(errs.length === 0, seed + ' wk' + state.week + ': ' + errs[0]);
+    }
+    guard(!!act, seed + ': she never debuted across the street');
+    guard(!!act && !!act.retired, seed + ': the solo run never ended in ten years at the shipped odds');
+    if (!act || !act.retired) return;
+    const ac = (p.flags || {}).across || {};
+    guard(letters === 1 && landed === 1, seed + ': the ending was written ' + letters + ' times and reached the inbox ' + landed);
+    guard(!!text && !GROUPISH.test(text) && text.includes(KP.displayName(p)), seed + ': the ending is not in a soloist’s words: ' + text);
+    guard(p.status === 'gone' && KP.isAlum(state, p), seed + ': she is ' + p.status + ' and ' + (KP.isAlum(state, p) ? 'an alumna' : 'off the alumni list'));
+    guard(ac.endedWeek === endWk && ac.endedHow === how && (state.acrossLedger || {}).ended === 1, seed + ': her file is not stamped (' + JSON.stringify(ac) + ')');
+    guard(KP.whereNow(state, p).indexOf('home since ') === 0, seed + ': the alumni line reads “' + KP.whereNow(state, p) + '”');
+    console.log('  ' + how + ': left wk ' + leftWk + ', debuted solo at ' + (ac.endedCo || ac.company) + ' wk ' + debutWk + ', the run ended wk ' + endWk +
+      ' (' + (endWk - debutWk) + ' weeks, ' + (act.releases || []).length + ' records) · the letter reached the inbox · now: ' + KP.whereNow(state, p));
+  });
 }
 
 // the mission (v0.11.13, §104): what the census's rooms did with it

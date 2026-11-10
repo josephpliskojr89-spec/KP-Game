@@ -11034,7 +11034,7 @@ gap is in the words: when a soloist's act across the street ends,
 the letter announces "the conclusion of team activities", her file
 says she "disbanded", and the alumni line lowercases her name. The
 rival service letters are written for a group too. Reproduced, not
-fixed here: it is the next piece (v0.11.15).
+fixed here: it is the next piece (v0.11.15; SHIPPED, §106).
 
 Suite_124 (119): the engine, and the Desk and the Training tab
 rendered through the DOM stub. Mutation-checked against twenty-two
@@ -11046,6 +11046,113 @@ broken lines, each caught by a named assertion. A real-browser pass
 year-end sheet read in reverse and
 the posting as a letter for the room with a door for the ace left
 off; the absences' cadence.
+
+## §106 The soloist, read as one (SHIPPED v0.11.15 — a repair of v0.11.12, §103)
+
+Owner: *"Break remaining work into smaller pieces"*. This piece was
+not on the queue. The long check on v0.11.14 (§105) found that the
+soak's own lineup rule had never met a soloist; tracing it turned up
+the same gap in the words the player reads, and it ships on its own.
+
+**The finding.** v0.11.12 let a departed artist debut solo at
+another house: the street's first acts of one. Everything that reads
+a rival act was written when every act was a group. Reproduced on
+v0.11.14 before anything was changed: when her act there ends, the
+letter announces "the conclusion of team activities" for her, her
+own file says "<her name> disbanded", and the alumni list, which
+lowercases the first letter of her last chapter, prints her name in
+lower case ("jung Da-min disbanded"). At the seven-year wall "the
+members could not land on the same next chapter". A warm male
+soloist at the service wall was given the stagger, so "the group
+held the line short-handed" and his act went on releasing while its
+only member served. A friend made in a waiting room was "Name of
+Name".
+
+Nothing new is drawn, and one number moves (the service wall, below).
+
+**The two endings, in her words.** An act of one ends the two ways
+any act does: the records stop landing and the house lets it go, or
+the paper runs out after seven years. Both are told as hers now
+(`soloEnded`: one letter, her name on it): what she made there and,
+when she was ours, one sentence that says so. Her file says her solo
+run ended, or that the contract ran its term; the house's move says
+the same. A twin holds it: the same act with the solo flag off ends
+the same week in a group's words, leaves the stream in the same
+place and costs the house the same prestige.
+
+**Her file is stamped, and the alumni line reads off it.** When it
+ended, under which name the house then had, and how
+(`p.flags.across.endedWeek`, `endedCo`, `endedHow`; `KP.acrossEnded`);
+the ledger counts it. `KP.whereNow` reads "home since <date>, after
+a solo run at <house>" off the file, never off the wording of a
+chapter. The act's page says "solo run ended", heads her strip "The
+artist", and the file room's note goes into the past tense.
+
+**The letter is one the week will not cut.** Read in a browser, the
+new letter was not in the inbox: at normal priority the week's
+budget of five had cut it. So the letters about a former artist were
+counted after the trim for the first time. Over the soak's long
+careers the signing and the debut (both high) reached the inbox
+fifteen times in fifteen; the life outside (normal since v0.11.12)
+three times in five. Both the ending and the life outside are high
+now: each is the one letter that closes an artist's file. The long
+pass counts every one of these letters on the wire and again after
+the trim (18 of 18), with a guard.
+
+**The service wall.** A soloist does not rotate: he enlists, the run
+pauses, and the letter is one man's ("the photo at the gate has one
+person in it"). The timeline's posts say nothing of kings or boy
+groups. This is the number that moves: a warm male soloist's act
+stops releasing while he serves.
+
+**The sentences that name another house's artist.** A soloist is
+named alone (`KP.ofAct`). The friendship, the coffee truck and the
+senior's shout-out are reads now (`KP.societyLines`) and the rail
+writes exactly those; so are the world's story
+(`KP.rivalStoryLine`), a rival's first trophy
+(`KP.rivalFirstWinLine`) and the timeline on a hit
+(`KP.rivalHitPosts`). One who was ours once is "who used to work out
+of this building", not a stranger. A story about a soloist is about
+her; her first trophy is "her first as a soloist"; a hit of hers is
+"a win for soloists".
+
+**Old saves** (migration 0.11.15). A file on which a solo run
+already ended has its last chapter and the line on her history
+rewritten in her words, is stamped from the chapter's date, and is
+counted. A chapter in any other words is left as written. A soloist
+an old file left mid-"rotation" is moved to a pause that ends the
+week his own service does. Loaded through the app in a real browser,
+the old save's alumni row reads the same as a new one.
+
+**Two older checks re-pinned in suite_122, and a third, with the
+reason on each.** The ledger's shape gained a count. "Where she is
+now" was pinned to the last line of her file; it is read off the
+file now, and that chapter still carries the words it was given. The
+life outside was pinned as a normal letter.
+
+**The soak.** No solo run ends inside the long clock (0 of 4 in
+seven years), and the suite forces the roll. A new pass rides both
+endings through a real career at the shipped odds (5% and 3% a
+week), validated every week: the letter once on the wire, in a
+soloist's words, in the inbox after the trim, her file stamped, the
+alumni line read off it. The long pass gained an accounting guard:
+every solo debut is still running or ended in a soloist's words.
+With the solo branch removed, the letter demoted, or the stamp
+dropped, the soak fails by name. The census did not move: against
+v0.11.14, 0 of its 342 rows changed over 40 careers, and 0 over 200.
+
+Suite_125 (95); suite_122 160. Fifty-nine broken lines, each caught
+by a named assertion, and three more caught by the soak. A
+real-browser pass (17 checks, no page errors). Battery 125/125,
+soak 40 clean, census 200 clean, longhaul 11 × 620 clean, e2e 135,
+lockstep 0.11.15.
+
+*Left for the next pieces.* The year-end sheet read in reverse and
+the posting as a letter for the room with a door for the ace left
+off; the absences' cadence. *Seen and not changed here, because they
+are mechanics and not words:* a soloist counts as an act when a
+house is judged overextended, and a friendship with a former
+colleague is still made in a waiting room.
 
 ## §18 Watch items
 
@@ -14745,6 +14852,32 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > lockstep 0.11.14. Rode to main. Next pieces: the soloist read as
 > one, the year-end sheet and the posting, the absences.
 
+
+> **0.11.15 — the soloist, read as one.** Own judgment, under "Break
+> remaining work into smaller pieces": a repair of v0.11.12 that the
+> long check on v0.11.14 led to (§105), shipped on its own. §106:
+> v0.11.12 made the street's first acts of one, and everything that
+> reads a rival act still assumed a group. When a former artist's
+> solo act ended, the letter announced "the conclusion of team
+> activities", her file said she "disbanded", and the alumni list
+> printed her name in lower case; a warm male soloist was given the
+> service stagger and kept releasing while he served; a friend was
+> "Name of Name". The two endings are told as hers, her file is
+> stamped and the alumni line reads off it, a soloist at the wall
+> pauses, and the sentences that name another house's artist are
+> reads. Read in a browser the new letter had been cut by the week's
+> budget, so these letters were counted after the trim for the first
+> time: the life outside (normal since v0.11.12) landed three times
+> in five. It and the ending are high now. Migration 0.11.15 rewrites
+> an old file's chapter in her words. A new soak pass rides both
+> endings through a real career at the shipped odds. Nothing new is
+> drawn, and the census did not move (0 of 342 rows, at 40 careers
+> and at 200). Suite_125 (95), suite_122 160, fifty-nine
+> mutations caught by name and three by the soak. Battery 125/125,
+> soak 40 clean, census 200 clean, longhaul 11 × 620 clean, e2e 135,
+> a real-browser pass (17), lockstep 0.11.15. Rode to
+> main. Next pieces: the year-end sheet and the posting, the
+> absences.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
