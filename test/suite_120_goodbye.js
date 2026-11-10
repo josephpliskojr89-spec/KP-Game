@@ -16,6 +16,14 @@
      the lock that tells, her last era
    · her last stage is a critical letter, a line by voice, read at the
      era's close
+   · the exit reads the lap back: the bow (a critical letter, last
+     thing first), a plain goodbye, a sudden one; the promise made at
+     the table is kept by her last era and never merely void
+   · every ending leaves a list and a lineup: alumni written by the one
+     sweep, a final lineup when the last contract goes; a concluded act
+     has no anniversary live
+   · an old file keeps its past: alumni read back off the files, a lap
+     in flight never charged as sudden
    Two laws from §99 hold throughout: the week's wire is read before
    the trim, and a fixture forces every gate and relies on no roll. */
 'use strict';
@@ -564,6 +572,348 @@ const lastEra = (() => { const f = fork(houseLate); lock(f, 70); land(f); return
   t.ok([...byEra, ...stage].every(x => x.includes(N)), 'and names her');
   t.ok(toldEcho(f.s, { ind: 'farewellTold', personId: 'nobody', by: 'fans' }, trap) === null && stageEcho(f.s, { ind: 'lastStage', personId: 'nobody' }, trap) === null,
     'a letter about someone who is not there says nothing');
+}
+
+// ---- the exit reads the lap back ----
+// the lap with its last era and its last stage on file, one week before
+// the paper ends. Each case forks it and changes one thing by hand; the
+// exit is called as the action it is, so nothing else in a week moves.
+const preExit = (() => {
+  const f = fork(lastEra);
+  let guard = 0;
+  while (!lastRel(f).closed && guard++ < 10) { answerAll(KP, f.s); tick(KP, f.s); }
+  runTo(f, ENDS - 1);
+  // forced: sixty idle weeks saturate a room's morale, and a goodbye is read by what it moves
+  others(f).forEach(m => { m.morale = 70; });
+  return f;
+})();
+const NUM = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+const Cap = w => w.charAt(0).toUpperCase() + w.slice(1);
+const exitOf = (mut, mode) => {
+  const f = fork(preExit);
+  if (mut) mut(f);
+  const was = { pop: f.g.popularity, grudge: f.g.fandomGrudge || 0, morale: others(f).map(m => m.morale), acts: (f.p.directed || []).length,
+    close: others(f).map(m => { const rel = (f.s.relationships || {})[KP.pairKey(f.p, m)]; return !!rel && rel.state === 'close'; }) };
+  const mates = others(f);
+  KP.departIdol(f.s, f.pid, mode || 'warm', null);
+  const note = f.s.inbox.find(n => n.ind === 'contractEnd' && n.personId === f.pid);
+  return Object.assign(f, { was, note, mates,
+    popDrop: Math.round((was.pop - f.g.popularity) * 100) / 100,
+    grudge: (f.g.fandomGrudge || 0) - was.grudge,
+    // what the goodbye itself gave or took, once the lineup's own grief is set aside
+    room: mates.map((m, i) => m.morale - was.morale[i] + C.departMoraleWarm + (was.close[i] ? C.friendGrief : 0)),
+    acts: (f.p.directed || []).slice(was.acts).map(d => d.kind),
+    claim: (f.s.claims || []).find(c => c.type === 'farewellEra' && c.personId === f.pid) || null });
+};
+const plainly = f => { delete f.p.contract.farewellEra; delete f.p.contract.lastStage; f.p.contract.told = 'fans'; };
+const PLAIN = N => N + '’s contract completed today, and the goodbye was everything the fandom needed it to be: the letter in her own handwriting, the members crying through the last group bow, the company statement that read like it was written by a person. She leaves full, not empty. The door stays open.';
+{
+  const f = fork(preExit);
+  const lap = KP.lapOf(f.s, f.p);
+  t.eq(f.s.week + '|' + lap.weeksLeft + '|' + lap.told + '|' + !!lap.era + '|' + !!lap.stage, (ENDS - 1) + '|1|era|true|true', 'fixture: one week left, the fans told by the era, her last era and last stage on file');
+  t.ok(others(f).every(m => m.morale >= 20 && m.morale <= 90) && f.g.popularity >= 20, 'fixture: the room’s morale and the act’s popularity have room to move');
+  t.eq(f.g.members.length, 4, 'fixture: all four are still in the room');
+}
+
+// the bow: a critical letter, read last thing first
+{
+  const x = exitOf();
+  const n = x.note, N = KP.displayName(x.p);
+  t.eq([n.kind, n.priority, n.shape, n.warm, n.groupId].join('|'), ['public', 'critical', 'bow', true, x.gid].join('|'), 'a member who had her last era leaves on a critical letter: the bow');
+  const facts = KP.farewellFacts(preExit.s, preExit.p, preExit.g);
+  t.eq(JSON.stringify(facts.eras), JSON.stringify(preExit.g.releases.map(r => r.songTitle)), 'fixture: every record of the act is one of her eras');
+  t.eq(facts.eras.length + '|' + facts.centerWeeks + '|' + facts.friendId + '|' + facts.written + '|' + facts.credits, '4|' + (C.years * YEAR - 1) + '|null|0|0',
+    'fixture: four eras, the center since the debut, no close friend in the room, no credit to her name');
+  const e = facts.eras, ls = preExit.p.contract.lastStage;
+  const trophies = Object.values(preExit.g.trophies).reduce((a, b) => a + b, 0);
+  t.ok(trophies >= 2 && trophies <= 12, 'fixture: a shelf the letter can count in words (' + trophies + ')');
+  t.eq(n.text, N + '’s contract completed today, and the bow was read the way a finale is read, last thing first. ' +
+    'The last stage: ' + KP.showLabel(ls.showId) + ', ' + KP.weekLabel(ls.week).text + ', clean. ' +
+    'The last era: “' + e[3] + '”. Before it, “' + e[2] + '” and “' + e[1] + '”, and back to “' + e[0] + '”, where it started. ' +
+    'Six years and eleven months of it at the center. ' +
+    Cap(NUM[trophies]) + ' trophies on the shelf with her fingerprints on them. ' +
+    'The letter is in her own handwriting, dated ' + KP.weekLabel(x.s.week).text + ', and its last line is the one she asked for: the door stays open.',
+    'the stage, the eras back to the first, the center, the shelf, and the letter with its date');
+  t.ok(!noisy(n.text), 'in clean words');
+  t.eq(x.popDrop + '|' + x.grudge, C.departPopHitWarm + '|0', 'the act pays the warm goodbye’s ' + C.departPopHitWarm + ' and nothing more');
+  t.eq(x.room.join(','), x.mates.map(() => F.bowRoomMorale).join(','), 'and the bow gives the room ' + F.bowRoomMorale + ' of its grief back');
+  t.eq(x.p.status + '|' + x.p.flags.departMode + '|' + x.s.farewellLedger.bows, 'departed|warm|1', 'she is gone, warmly, and the ledger counts a bow');
+  t.eq(KP.chapterLine(x.s, x.p.chapters[x.p.chapters.length - 1]), 'Contract completed at ' + x.s.company.short + ' (' + x.g.name + ')', 'her file says the contract was completed');
+  t.eq(KP.validateState(x.s).length, 0, 'the file is valid');
+
+  // through the week itself: the clock lets her go and the wire carries the bow
+  const w = fork(preExit);
+  answerAll(KP, w.s);
+  const wire = tick(KP, w.s);
+  const ends = wire.filter(m => m.ind === 'contractEnd');
+  t.eq(ends.length + '|' + ends[0].priority + '|' + ends[0].shape, '1|critical|bow', 'the week the paper ends, the wire carries one bow');
+  t.ok(ends[0].text.includes('dated ' + KP.weekLabel(ENDS).text), 'dated the week she left');
+  t.ok(ends[0].text.includes('Seven years of it at the center.'), 'and a whole seven years at the center, to the week');
+  t.eq(w.p.status + '|' + w.g.members.length, 'departed|3', 'the act goes on as three');
+  t.eq(KP.validateState(w.s).length, 0, 'the file is valid after the week');
+}
+
+// the bow's sentences, each forced on its own
+{
+  const bow = mut => { const f = fork(preExit); mut(f); return KP.farewellBow(f.s, f.p, f.g); };
+  const titles = preExit.g.releases.map(r => r.songTitle);
+  const eras = n => bow(f => { f.g.releases = f.g.releases.slice(-n); });
+  t.ok(eras(1).includes('The last era was also the first: “' + titles[3] + '”. '), 'one era: the last was also the first');
+  t.ok(eras(2).includes('The last era: “' + titles[3] + '”. Before it, “' + titles[2] + '”, where it started. '), 'two eras');
+  t.ok(eras(3).includes('The last era: “' + titles[3] + '”. Before it, “' + titles[2] + '”, and back to “' + titles[1] + '”, where it started. '), 'three eras');
+  const six = bow(f => { const r = f.g.releases; f.g.releases = [r[0], Object.assign({}, r[1], { songTitle: 'Extra One' }), Object.assign({}, r[1], { songTitle: 'Extra Two' }), r[1], r[2], r[3]]; });
+  t.ok(six.includes('Before it, “' + titles[2] + '” and “' + titles[1] + '”, two more behind those, and back to “' + titles[0] + '”, where it started. '), 'six eras: the ones in between are counted, not listed');
+  // a member who joined later owns only the eras since
+  const late = bow(f => { f.p.chapters = (f.p.chapters || []).concat([{ week: f.g.releases[2].week, kind: 'debut', group: f.g.name }]); });
+  t.ok(late.includes('The last era: “' + titles[3] + '”. Before it, “' + titles[2] + '”, where it started. '), 'her eras start where her file says she joined');
+  // the center
+  t.ok(!bow(f => { f.g.centerHistory = [{ week: f.g.debutWeek, id: others(f)[0].id }]; }).includes('at the center'), 'never the center: no center sentence');
+  t.ok(bow(f => { f.g.centerHistory = [{ week: f.g.debutWeek, id: others(f)[0].id }, { week: f.s.week - (2 * YEAR + 12), id: f.pid }]; }).includes('Two years and three months of it at the center. '),
+    'two years and three months at the center, in the calendar’s units');
+  t.ok(bow(f => { f.g.centerHistory = [{ week: f.s.week - 20, id: f.pid }, { week: f.s.week - 8, id: others(f)[0].id }]; }).includes('Three months of it at the center. '), 'a center she handed on is counted to the week she handed it on');
+  // the shelf
+  t.ok(!bow(f => { f.g.trophies = {}; }).includes('on the shelf'), 'an empty shelf: no trophy sentence');
+  t.ok(bow(f => { f.g.trophies = { countdown: 1 }; }).includes('One trophy on the shelf with her fingerprints on it. '), 'one trophy, in the singular');
+  // the friend she leaves
+  const friend = bow(f => { const m = others(f)[1]; f.s.relationships[KP.pairKey(f.p, m)] = { score: 70, state: 'close' }; });
+  t.ok(friend.includes('She leaves ' + KP.displayName(others(preExit)[1]) + ' the other half of every inside joke. '), 'a close friend in the room is named');
+  const two = bow(f => { const o = others(f); f.s.relationships[KP.pairKey(f.p, o[1])] = { score: 60, state: 'close' }; f.s.relationships[KP.pairKey(f.p, o[2])] = { score: 80, state: 'close' }; });
+  t.ok(two.includes('She leaves ' + KP.displayName(others(preExit)[2]) + ' the other half'), 'of two close friends, the closer one');
+  // what she keeps
+  const chair = bow(f => { lastRel(f).tracklist[1].writtenBy = f.pid; });
+  t.ok(chair.includes('She keeps her chair in the writing room in the only way that counts: one song here carries her name, and the checks will keep finding her. '), 'a song she wrote: she keeps her chair in the writing room');
+  const booklet = bow(f => { lastRel(f).tracklist[1].credit = { type: 'solo', memberId: f.pid }; });
+  t.ok(booklet.includes('She keeps her name in the booklet, once. ') && !booklet.includes('writing room'), 'a credit and no song of her own: her name in the booklet');
+  // no last stage on file
+  t.ok(bow(f => { delete f.p.contract.lastStage; }).includes('There was no last stage to read: the era ended off the schedule. '), 'a last era with no stage says so');
+  [eras(1), six, late, friend, chair, booklet].forEach((x, i) => t.ok(!noisy(x), 'bow variant ' + (i + 1) + ' reads clean'));
+}
+
+// a warm goodbye with no last era, when the fans were told
+{
+  const x = exitOf(plainly);
+  t.eq(x.note.priority + '|' + x.note.shape, 'high|plain', 'no last era, and the fans knew: a plain warm goodbye, high');
+  t.eq(x.note.text, PLAIN(KP.displayName(x.p)), 'in the words it always had');
+  t.eq(x.popDrop + '|' + x.grudge + '|' + x.room.join(','), C.departPopHitWarm + '|0|' + x.mates.map(() => 0).join(','), 'at the cost it always had: nothing given back, nothing added');
+  t.eq(x.s.farewellLedger.plain + '|' + x.s.farewellLedger.bows + '|' + x.s.farewellLedger.sudden, '1|0|0', 'the ledger counts a plain goodbye');
+}
+
+// a sudden one: the company had the year and the fandom got a day
+{
+  const sudden = f => { delete f.p.contract.farewellEra; delete f.p.contract.lastStage; f.p.contract.told = 'house'; };
+  const x = exitOf(sudden);
+  const N = KP.displayName(x.p);
+  t.eq(x.note.priority + '|' + x.note.shape, 'high|sudden', 'kept in the house and no last era ever came: a sudden goodbye');
+  t.eq(x.note.text, N + '’s contract completed today, and today is when the fandom found out. There is a letter in her own handwriting and nobody was given the year to get ready to read it: no last era, no last stage with a name on it, a goodbye that fits in one afternoon. She leaves on good terms with the building. The cafés are asking who knew, and for how long. The door stays open.',
+    'the letter says who found out when');
+  t.eq(x.popDrop + '|' + x.grudge, (C.departPopHitWarm + F.suddenPopHit) + '|' + F.suddenGrudge, 'it costs ' + F.suddenPopHit + ' more popularity, and the fandom holds a grudge');
+  t.eq(x.room.join(','), x.mates.map(() => 0).join(','), 'the room’s grief is the ordinary one');
+  t.eq(x.s.farewellLedger.sudden, 1, 'the ledger counts it');
+  t.eq(KP.validateState(x.s).length, 0, 'the file is valid');
+  // never asked, never told: the same
+  t.eq(exitOf(f => { sudden(f); delete f.p.contract.told; }).note.shape, 'sudden', 'a question nobody was asked is no excuse');
+  // but a company that never had the time is not charged for it
+  const short = exitOf(f => { sudden(f); f.p.contract.leavingSince = ENDS - (F.askMinWeeks - 1); });
+  t.eq(short.note.shape + '|' + short.popDrop + '|' + short.grudge, 'plain|' + C.departPopHitWarm + '|0', 'a lap too short to plan a goodbye in ends plainly');
+  t.eq(exitOf(f => { sudden(f); f.p.contract.leavingSince = ENDS - F.askMinWeeks; }).note.shape, 'sudden', 'with exactly the weeks the question needs, it is sudden');
+  t.eq(exitOf(f => { sudden(f); delete f.p.contract.leavingSince; }).note.shape, 'plain', 'a lap from before the lap was dated ends plainly');
+  t.eq(exitOf(f => { sudden(f); f.g.type = 'solo'; }).note.shape, 'plain', 'and so does a solo act’s: there was no room to tell');
+}
+
+// the promise: "write the ending right" is kept by her last era
+{
+  const promised = f => { KP.farewellPromise(f.s, f.p); };
+  const kept = exitOf(promised);
+  t.eq(kept.claim.resolved + '|' + kept.claim.resolvedWeek, 'met|' + kept.s.week, 'her last era landed: the promise is kept, settled the week she goes');
+  t.eq(kept.acts.join(','), 'promiseKept', 'and it is on her ledger');
+  t.eq(kept.claim.replyText, 'She got the last era the table promised her.', 'the promises page keeps how it ended');
+  t.eq(kept.note.shape + '|' + kept.s.farewellLedger.kept + '|' + kept.s.farewellLedger.broken, 'bow|1|0', 'it is a bow, and the ledger counts a promise kept');
+  t.eq(kept.room.join(','), kept.mates.map(() => F.bowRoomMorale).join(','), 'the room gets what a bow gives');
+
+  const broke = exitOf(f => { promised(f); plainly(f); });
+  t.eq(broke.claim.resolved + '|' + broke.claim.resolvedWeek, 'missed|' + broke.s.week, 'no last era ever came: the promise is broken, and never merely void');
+  t.eq(broke.acts.join(','), 'promiseBroken', 'on her ledger, with what a broken promise does to a person');
+  t.eq(broke.room.join(','), broke.mates.map(() => -F.brokenRoomMorale).join(','), 'everyone left in the room watched it: ' + F.brokenRoomMorale + ' off each');
+  t.eq(broke.note.text, PLAIN(KP.displayName(broke.p)).replace(' She leaves full,', ' The last era the company promised her at the renewal table never came, and everyone left in the room watched it not come. She leaves full,'),
+    'the letter says the promised era never came');
+  t.eq(broke.claim.replyText, 'The date came and the last era did not. She left without it.', 'and so does the promises page');
+  t.eq(broke.s.farewellLedger.kept + '|' + broke.s.farewellLedger.broken, '0|1', 'the ledger counts a promise broken');
+  const both = exitOf(f => { promised(f); delete f.p.contract.farewellEra; delete f.p.contract.lastStage; f.p.contract.told = 'house'; });
+  t.eq(both.note.shape + '|' + both.claim.resolved, 'sudden|missed', 'a broken promise and a sudden goodbye can be the same goodbye');
+  t.ok(both.note.text.includes('a goodbye that fits in one afternoon. The last era the company promised her at the renewal table never came'), 'and the letter carries both');
+  t.eq(both.room.join(',') + '|' + both.popDrop, both.mates.map(() => -F.brokenRoomMorale).join(',') + '|' + (C.departPopHitWarm + F.suddenPopHit), 'at both prices');
+  // no promise, no settlement
+  const none = exitOf();
+  t.ok(none.claim === null && none.acts.length === 0, 'a lap with no promise settles nothing');
+}
+
+// released at her own request: not a completed contract, and not the lap's business
+{
+  const f = fork();
+  t.ok(!f.p.contract.leaving, 'fixture: she has not chosen to go');
+  const was = f.g.popularity;
+  KP.departIdol(f.s, f.pid, 'warm', null);
+  const n = f.s.inbox.find(m => m.ind === 'contractEnd');
+  t.eq(n.priority + '|' + n.shape + '|' + n.warm, 'high|released|true', 'a member let go early leaves on her own letter');
+  t.eq(n.text, KP.displayName(f.p) + ' asked to be released from her contract, and was. The company statement is short and kind; her own letter to the fans is longer and kinder, and neither one says why. She leaves on speaking terms with everyone in the building, which is its own kind of ending. The door stays open.',
+    'which does not say the contract was completed');
+  t.eq(f.p.history[f.p.history.length - 1].text, 'Released at her own request. Left ' + f.s.company.short + ' on speaking terms with everyone in it.', 'nor does her history');
+  t.eq(KP.chapterLine(f.s, f.p.chapters[f.p.chapters.length - 1]), 'Released at her own request from ' + f.s.company.short + ' (' + f.g.name + ')', 'nor does her file');
+  t.eq(Math.round((was - f.g.popularity) * 100) / 100, C.departPopHitWarm, 'the act pays the warm goodbye’s price');
+  t.eq(Object.values(f.s.farewellLedger).reduce((a, b) => a + b, 0), 0, 'and the lap’s ledger counts nothing');
+
+  // the meeting she called, answered "let her go": the same letter
+  const w = fork();
+  const sc = KP.openScene(w.s, { kind: 'walkOut', personId: w.pid, expiresWeek: w.s.week + 3 });
+  const r = KP.resolveScene(w.s, sc.id, 'release');
+  t.ok(r.ok && w.p.status === 'departed', 'fixture: the walkout’s release lets her go');
+  t.eq(w.s.inbox.find(m => m.ind === 'contractEnd').shape, 'released', 'the walkout’s release reads as a release');
+
+  // a cold ending keeps the words it had
+  const c = fork(preExit);
+  c.p.contract.leaveMode = 'cold';
+  KP.departIdol(c.s, c.pid, 'cold', null);
+  const cn = c.s.inbox.find(m => m.ind === 'contractEnd');
+  t.eq(cn.priority + '|' + cn.shape + '|' + cn.warm, 'high|cold|false', 'a cold ending is the letter it always was');
+  t.ok(cn.text.startsWith(KP.displayName(c.p) + '’s contract expired today. The statement was three sentences.'), 'three sentences');
+  t.eq(c.s.farewellLedger.bows + c.s.farewellLedger.plain + c.s.farewellLedger.sudden, 0, 'and the lap’s ledger does not count it, last era or not');
+}
+
+// ---- every ending leaves a list and a lineup ----
+{
+  // the one sweep every lineup exit runs: who has left is an alumna, who is still in the room is not
+  const f = fork();
+  t.ok(!f.g.alumni, 'fixture: nobody has left the act');
+  KP.lineupPointerSweep(f.s, f.g, f.pid);
+  t.ok(!(f.g.alumni || []).length, 'a sweep over a member still in the lineup (the disband’s order) lists nobody');
+  f.g.members = f.g.members.filter(id => id !== f.pid);
+  KP.lineupPointerSweep(f.s, f.g, f.pid);
+  KP.lineupPointerSweep(f.s, f.g, f.pid);
+  t.eq(JSON.stringify(f.g.alumni), JSON.stringify([{ id: f.pid, week: f.s.week }]), 'once she is out of it, the sweep lists her, with the week, once');
+
+  // each door out of a lineup
+  const door = (label, go) => {
+    const x = fork();
+    go(x);
+    t.eq(JSON.stringify(x.g.alumni), JSON.stringify([{ id: x.pid, week: x.s.week }]), 'alumni: ' + label);
+    t.ok(!x.g.members.includes(x.pid) && x.g.members.length === 3 && !x.g.retiredWeek, label + ': the act goes on as three');
+    t.eq(KP.validateState(x.s).length, 0, label + ': the file is valid');
+    return x;
+  };
+  const must = r => { if (!r || r.ok === false) throw new Error('fixture: ' + (r && r.reason)); };
+  door('the contract ends', x => KP.departIdol(x.s, x.pid, 'warm', null));
+  door('the paper is bought out', x => { x.s.budget = 9000; must(KP.terminateContract(x.s, x.pid)); });
+  const rem = door('she is removed from the lineup', x => must(KP.removeFromLineup(x.s, x.gid, x.pid)));
+  t.eq(rem.p.status, 'idol', 'a member removed from the lineup is its alumna and still on the books');
+  const grad = door('she graduates to her own name', x => must(KP.graduateToSolo(x.s, x.pid)));
+  t.ok(grad.s.groups.some(g2 => g2.type === 'solo' && g2.originGroupId === grad.gid && g2.members[0] === grad.pid), 'and has her own act next door');
+
+  // the disband verb: the lineup is the final lineup, nobody is an alumna
+  const d = fork();
+  must(KP.disbandGroup(d.s, d.gid));
+  t.eq((d.g.finalLineup || []).length + '|' + (d.g.alumni || []).length + '|' + d.g.retiredWeek, '4|0|' + d.s.week, 'a disband keeps a final lineup of four and lists no alumni');
+
+  // the last contract out: the act concludes with a lineup on the record
+  const last = fork();
+  const order = last.g.members.slice();
+  order.slice(0, 3).forEach(id => KP.departIdol(last.s, id, 'warm', null));
+  t.ok(!last.g.retiredWeek && last.g.members.length === 1, 'fixture: one member is left');
+  answerAll(KP, last.s); tick(KP, last.s);
+  KP.departIdol(last.s, order[3], 'warm', null);
+  t.eq(last.g.retiredWeek, last.s.week, 'the last contract out concludes the act');
+  t.eq(JSON.stringify(last.g.finalLineup), JSON.stringify([order[3]]), 'and the record keeps who was standing at the end');
+  t.eq(JSON.stringify(last.g.alumni), JSON.stringify(order.map((id, i) => ({ id, week: i < 3 ? last.s.week - 1 : last.s.week }))), 'with all four on the list, in the order they went');
+  t.eq(KP.validateState(last.s).length, 0, 'the file is valid');
+}
+
+// ---- a concluded act has no anniversary live ----
+{
+  const YEARS = (36 - base.s.groups.find(g => g.id === base.gid).debutWeek) / YEAR;
+  t.eq(YEARS, 6, 'fixture: week 36 is the act’s sixth debut anniversary');
+  const live = fork();
+  const w1 = runTo(live, 36);
+  t.eq(w1.filter(n => n.ind === 'anniversary' && n.groupId === live.gid).length + '|' + w1.filter(n => n.ind === 'anniversaryKept').length, '1|0',
+    'fixture: a living act gets its anniversary letter that week, and no other');
+
+  const kept = w => w.filter(n => n.ind === 'anniversaryKept');
+  const gone = fork();
+  const r = KP.disbandGroup(gone.s, gone.gid);
+  if (!r.ok) throw new Error('fixture: ' + r.reason);
+  const w2 = runTo(gone, 36);
+  t.eq(w2.filter(n => n.ind === 'anniversary').length, 0, 'a concluded act gets no anniversary live: there is nobody to stream it');
+  t.eq(kept(w2).length, 1, 'its fandom keeps the date instead, once');
+  const n = kept(w2)[0], G = gone.g.name, FN = gone.g.fandom.name;
+  t.eq([n.kind, n.priority, n.groupId, n.years].join('|'), ['public', 'normal', gone.gid, YEARS].join('|'), 'a normal letter, the act’s, counting the years');
+  const LINES = [
+    'It would have been ' + G + '’s 6-year anniversary week. The café banner changed at midnight anyway: ' + FN + ' keeps the archive, and the archive keeps the date.',
+    G + '’s debut date came around again, 6 years on. Nobody streamed from the practice room this time. ' + FN + ' posted the old stages frame by frame, on schedule.',
+    '6 years since ' + G + '’s debut stage. The group is concluded and the hashtag is not: it trended for an afternoon, mostly photographs.',
+  ];
+  t.ok(LINES.includes(n.text) && !noisy(n.text), 'in one of the family’s three lines: ' + n.text.slice(0, 70));
+
+  // the fandom keeps it for a few years, not forever
+  const after = (weeksAgo) => { const x = fork(); KP.disbandGroup(x.s, x.gid); x.g.retiredWeek = 36 - weeksAgo; return kept(runTo(x, 36)).length; };   // forced: when it concluded
+  t.eq(after(F.memorialYears * YEAR) + '|' + after(F.memorialYears * YEAR + 1), '1|0', 'kept through the third year, and not a week past it');
+  const nameless = fork();
+  KP.disbandGroup(nameless.s, nameless.gid);
+  delete nameless.g.fandom;   // forced: an act that never had a named fandom
+  t.eq(kept(runTo(nameless, 36)).length, 0, 'an act with no named fandom has nobody to keep it');
+}
+
+// ---- old saves: a file from before the lap had a date ----
+// what 0.11.9 wrote: no farewell ledger, no alumni, a final lineup only from
+// the disband verb, and a lap that was two fields. The version is set by
+// hand: the build's own number moves at the ship.
+const oldFile = (src, mut) => {
+  const o = JSON.parse(KP.serialize(src));
+  o.version = '0.11.9';
+  delete o.farewellLedger;
+  o.groups.forEach(g => { delete g.alumni; });
+  if (mut) mut(o);
+  return JSON.stringify(o);
+};
+{
+  // one member gone on the old build, the act still running
+  const x = exitOf();
+  const s = KP.deserialize(oldFile(x.s));
+  const g = s.groups.find(y => y.id === x.gid);
+  t.eq(s.version, KP.C.VERSION, 'an old file is stamped to this build on load');
+  t.ok(!!s.farewellLedger && Object.values(s.farewellLedger).reduce((a, b) => a + b, 0) === 0, 'the farewell ledger arrives, all zeros');
+  t.eq(JSON.stringify(g.alumni), JSON.stringify([{ id: x.pid, week: x.s.week }]), 'the alumni list is read back off her file: who, and the week she went');
+  t.eq(KP.validateState(s).length, 0, 'the upgraded file is valid');
+  const twice = KP.deserialize(KP.serialize(s));
+  KP.migrate(twice);
+  t.eq(JSON.stringify(twice.groups.find(y => y.id === x.gid).alumni), JSON.stringify(g.alumni), 'the chain run over it again changes nothing');
+
+  // an act the old build ended with its last contract: no final lineup on file
+  const last = fork();
+  const order = last.g.members.slice();
+  order.slice(0, 3).forEach(id => KP.departIdol(last.s, id, 'warm', null));
+  answerAll(KP, last.s); tick(KP, last.s);
+  KP.departIdol(last.s, order[3], 'warm', null);
+  const o = KP.deserialize(oldFile(last.s, f => { f.groups.forEach(y => { delete y.finalLineup; }); }));
+  const og = o.groups.find(y => y.id === last.gid);
+  t.eq(JSON.stringify(og.alumni.map(a => a.id)), JSON.stringify(order), 'all four are read back, in the order they went');
+  t.eq(JSON.stringify(og.finalLineup), JSON.stringify([order[3]]), 'and the act gets the final lineup it never had: whoever left last');
+  t.eq(KP.validateState(o).length, 0, 'the upgraded file is valid');
+  // a final lineup the disband verb wrote is left alone
+  const dis = fork();
+  KP.disbandGroup(dis.s, dis.gid);
+  const od = KP.deserialize(oldFile(dis.s)).groups.find(y => y.id === dis.gid);
+  t.eq((od.finalLineup || []).length + '|' + (od.alumni || []).length, '4|0', 'a disbanded act keeps the lineup it was given, and gains no alumni');
+
+  // a lap in flight: two fields on the old build
+  const lf = lapped();
+  const ol = KP.deserialize(oldFile(lf.s, f => { delete f.people[lf.pid].contract.leavingSince; }));
+  const op = ol.people[lf.pid];
+  const lap = KP.lapOf(ol, op);
+  t.eq(lap.ends + '|' + lap.since + '|' + lap.told, ENDS + '|null|null', 'an old lap keeps its date, and gains no week it began');
+  t.eq(KP.knockCandidates(ol).filter(c => c.kind === 'farewellNews' && c.personId === lf.pid).length, 1, 'the question is still asked');
+  const og2 = ol.groups.find(y => y.id === lf.gid);
+  const was = og2.popularity;
+  KP.departIdol(ol, lf.pid, 'warm', null);
+  const n = ol.inbox.find(m => m.ind === 'contractEnd');
+  t.eq(n.shape + '|' + Math.round((was - og2.popularity) * 100) / 100, 'plain|' + C.departPopHitWarm, 'and a goodbye the old build began is never charged as sudden');
 }
 
 t.finish();
