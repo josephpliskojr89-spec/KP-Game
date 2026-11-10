@@ -692,7 +692,7 @@ function era(seed, run) {
   const talk = (KP.lastTickNotes || []).find(n => n.ind === 'evalTalk');
   const sh3 = sheet();
   ok(talk && talk.priority === 'high', 'the talk’s own letter is high');
-  ok(sh3 && sh3.priority === 'critical' && (sh3.text.includes('after-eval talk, held with ' + KP.displayName(lo)) || /took the top of the sheet for the first time/.test(sh3.text)), 'the talk month posts the sheet critical (a first #1 outranks it in the clause): ' + sh3.text.slice(0, 60));
+  ok(sh3 && sh3.priority === 'critical' && (sh3.text.includes('after-eval talk, due with ' + KP.displayName(lo)) || /took the top of the sheet for the first time/.test(sh3.text)), 'the talk month posts the sheet critical (a first #1 outranks it in the clause): ' + sh3.text.slice(0, 60));
   // an old save: a #1 already on the file does not re-fire
   const s4 = KP.newGame('wire-oldsave', null, { legacy: false, door: 'fresh' });
   s4.budget = 900; KP.advanceWeek(s4);

@@ -268,7 +268,24 @@
         ' every week until then walks in with it drilled, and the sheet shows it. Nobody has to: the month is also for what she needs.</div>' +
         '<div style="font-size:.74rem;margin-top:6px">' + (drilling.length
           ? 'Drilling it this week: ' + drilling.map(p => UI.esc(KP.publicGiven(p)) + ' <span style="color:var(--ink-dim)">' + KP.missionPrepOf(state, p).weeks + '/' + KP.C.EVAL.every + '</span>').join(' · ')
-          : '<span style="color:var(--ink-dim)">Nobody is drilling it this week.</span>') + '</div></div>');
+          : '<span style="color:var(--ink-dim)">Nobody is drilling it this week.</span>') + '</div>' +
+        // the closing slot (v0.11.14, §105): one pick a month. The coaches'
+        // custom is last month's first; the desk can give it to somebody else.
+        (function () {
+          const slot = KP.showcaseSlotRead ? KP.showcaseSlotRead(state) : null;
+          if (!slot) return '';
+          const ace = slot.aceId ? state.people[slot.aceId] : null;
+          const floor = trainees.filter(p => !KP.onBreak(p));
+          return '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:9px">' +
+            '<div style="font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)">The closing slot</div>' +
+            '<div style="font-size:.74rem;color:var(--ink-dim);margin-top:3px;line-height:1.4">The last one up has the long table’s whole attention. By custom it goes to last month’s first' +
+            (ace ? ', ' + UI.esc(KP.publicGiven(ace)) : '') + '. Give it to somebody else and she is read a little higher on the day, and knows she was given it. So does the one who had it.</div>' +
+            '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">' +
+            '<button class="chip ' + (slot.byCoaches ? 'on' : '') + '" data-action="set-slot" data-id="">' + (ace ? 'By custom · ' + UI.esc(KP.publicGiven(ace)) : 'The coaches decide') + '</button>' +
+            floor.filter(p => p.id !== slot.aceId).map(p => '<button class="chip ' + (slot.pickId === p.id ? 'on' : '') + '" data-action="set-slot" data-id="' + p.id + '">' + UI.esc(KP.publicGiven(p)) + '</button>').join('') +
+            '</div></div>';
+        })() +
+        '</div>');
     }
     if (ranked.length >= 2) {
       const evalWeek = ranked[0].evalHistory[ranked[0].evalHistory.length - 1].week;

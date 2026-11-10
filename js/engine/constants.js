@@ -1899,6 +1899,24 @@
       missionPrep: 4,         // on the day, for a full month of drilling the mission (pro rata for less)
       momentNewWeeks: 8,      // a first showcase is hers for this long after she signs
       momentVeteranWeeks: 96, // two years in front of the long table
+      // the talk and the slot (v0.11.14, §105 — measure-first). The
+      // after-eval talk is a question now: left with the coaches (what it
+      // always was), said straight by the one who signed her, or not held
+      // at all and the month spent on her instead.
+      talkExpire: 2,          // weeks the question waits on the desk before the coaches hold it anyway
+      talkWaitWeeks: 3,       // a talk the door never got to is held by the coaches after this long
+      straightMorale: 4,      // said straight: it lands harder than the coaches' version (bottomMorale)...
+      straightClimbMorale: 4, // ...and the month she climbs off the bottom, she knows who told her
+      coachCost: 6,           // a month of the head coach's hours, one on one
+      coachBonus: 3,          // on the day, on top of whatever she drilled
+      coachMorale: 1,         // given something, not told something
+      coachClimbMorale: 2,    // off the bottom after the month
+      coachMissMorale: 3,     // still there after it (subtracted)
+      // the showcase's closing slot: the coaches' custom gives it to last
+      // month's first. The desk can give it to somebody else, once a month.
+      slotBonus: 2,           // the long table is watching the last one up
+      slotMorale: 2,          // hers, for being given it
+      slotSnubMorale: 1,      // the one who had it by custom (subtracted)
     },
     POINTS: {
       nearMissGap: 8,         // close enough to hurt out loud

@@ -62,7 +62,12 @@ function toEvalWeek(s) {
   low.evalBottomStreak = KP.C.EVAL.bottomTalkAfter - 1;
   toEvalWeek(s);
   t.ok(s.evalLedger.talks >= 1, 'the after-eval talk happens');
-  t.ok(low.history.some(h => /after-eval talk/.test(h.text)), 'and goes on the file, in her hearing');
+  // (re-pinned v0.11.14, §105) the talk is called on the day and held when
+  // the desk answers how; with no answer the coaches hold it, as they
+  // always did, and that is when it goes on the file
+  t.ok(!!low.flags.talkDue && !low.history.some(h => /after-eval talk/.test(h.text)), 'it is called on the day, and not yet held');
+  for (let i = 0; i < 5 && low.flags.talkDue; i++) { s.budget = 900; KP.advanceWeek(s); }
+  t.ok(!low.flags.talkDue && low.history.some(h => /after-eval talk/.test(h.text)), 'and goes on the file, in her hearing, when it is held');
 }
 
 // ---- the nudge: one push a week, promo only ----------------------------

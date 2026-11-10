@@ -125,6 +125,121 @@
     return { kind: pick.m.kind, text, ids: pick.who.map(p => p.id) };
   };
 
+  // ---- the after-eval talk, as a question (v0.11.14, §105) ---------------
+  // Two sheets at the bottom used to be ten minutes with the coaches and a
+  // letter. The talk is called on the day now, and how it gets said is
+  // asked through the one queue: left with the long table (what it always
+  // was, and what silence still is), said straight by the one who signed
+  // her, or not held at all and the month spent on her instead.
+  const bump = (state, k) => { const L = evalLedger(state); L[k] = (L[k] || 0) + 1; };
+  const HELD = name => [
+    name + ' got the after-eval talk — bottom of the sheet twice running. {She} nodded through it and stayed two extra hours in practice room 3, which is either the answer or the beginning of a different conversation.',
+    name + ' got the after-eval talk — the door open just enough. Bottom of the sheet twice running. {She} said “yes” eleven times and nothing else, and was in practice room 3 before the coaches had left the building.',
+    'The after-eval talk, held with ' + name + ' this month: two sheets at the bottom, one quiet conversation. {She} did not cry. {She} asked for a copy of the sheet. That is either the answer or a different conversation starting.',
+  ];
+  // the coaches' version: what the talk was before it was a question
+  function coachesTalk(state, p) {
+    const E = KP.C.EVAL, d = p.flags.talkDue || {};
+    p.morale = KP.clamp(p.morale - E.bottomMorale, 0, 100);
+    p.history.push({ week: state.week, text: 'The after-eval talk — the one held with the door open just enough that everyone knows it is happening.' +
+      (d.rank ? ' Rank ' + d.rank + ' of ' + d.of + ' again.' : '') + ' The room gets smaller every month the sheet says the same thing.' });
+    delete p.flags.talkDue;
+    return KP.fillPro(KP.lineFor(state, 'evalTalkHeld|' + p.id, HELD(KP.displayName(p))), p);
+  }
+  KP.registerKnock('evalTalk', ['afterEvalTalk'], function (state) {
+    const out = [];
+    (state.roster || []).forEach(id => {
+      const p = state.people[id];
+      if (!p || p.status !== 'trainee' || !p.flags || !p.flags.talkDue || KP.onBreak(p)) return;
+      out.push({ kind: 'afterEvalTalk', personId: p.id, priority: 1, weight: 6, expiresIn: KP.C.EVAL.talkExpire,
+        onPick: st => bump(st, 'talkAsked') });
+    });
+    return out;
+  });
+  KP.registerScene('afterEvalTalk', {
+    title: (state, sc) => {
+      const p = state.people[sc.personId];
+      return (p ? KP.displayName(p) : 'A trainee') + ' · the after-eval talk';
+    },
+    body: (state, sc) => {
+      const p = state.people[sc.personId];
+      const d = p && p.flags ? p.flags.talkDue : null;
+      if (!p || !d) return 'The month has moved on.';
+      const room = KP.evalMission(state);
+      return KP.fillPro(KP.displayName(p) + ' has been at the bottom of the sheet two months running: rank ' + d.rank + ' of ' + d.of +
+        '. The head coach is at the door asking how it gets said. Left with the long table, it is ten minutes with the door open just enough. Said by you, it is the truth from the person who signed {her}: it lands harder, and {she} will remember who said it. Or there is no talk at all: the head coach takes {her} one on one until the next showcase, ' +
+        room.name + ', and the sheet answers for itself, either way.', p);
+    },
+    options: (state) => [
+      { id: 'coaches', label: 'Leave it with the coaches' },
+      { id: 'yourself', label: 'Say it yourself, straight' },
+      state.budget >= KP.C.EVAL.coachCost ? { id: 'room', label: 'No talk: a month one on one · ' + KP.C.EVAL.coachCost } : null,
+    ].filter(Boolean),
+    resolve: (state, sc, optionId) => {
+      const E = KP.C.EVAL;
+      const p = state.people[sc.personId];
+      if (!p || p.status !== 'trainee' || !p.flags.talkDue) return { toast: 'The month has moved on.' };
+      const d = p.flags.talkDue;
+      if (optionId === 'yourself') {
+        delete p.flags.talkDue;
+        p.morale = KP.clamp(p.morale - E.straightMorale, 0, 100);
+        p.flags.toldStraight = { week: state.week, rank: d.rank };
+        KP.recordDirected(state, p.id, 'toldStraight');
+        bump(state, 'talkStraight');
+        p.history.push({ week: state.week, text: 'Was told where ' + KP.pro(p).she + ' stands by the person who signed ' + KP.pro(p).her + ': rank ' + d.rank + ' of ' + d.of + ', two sheets running, and no adjectives.' });
+        return { toast: KP.fillPro('{She} did not look away once. At the end {she} said “thank you for saying it yourself,” and meant about half of it.', p) };
+      }
+      if (optionId === 'room') {
+        delete p.flags.talkDue;
+        state.budget -= E.coachCost;
+        p.morale = KP.clamp(p.morale + E.coachMorale, 0, 100);
+        p.flags.coached = { since: state.week };
+        bump(state, 'talkRoom');
+        p.history.push({ week: state.week, text: 'No after-eval talk. The head coach took ' + KP.pro(p).her + ' one on one for the month instead, on the room the next showcase is held in.' });
+        return { toast: KP.fillPro('The head coach cleared an hour a day. {She} was told there would be no talk, and why, and has not been late since.', p) };
+      }
+      const text = coachesTalk(state, p);
+      bump(state, 'talkCoaches');
+      return { toast: 'The long table held it. Ten minutes, the door open just enough.',
+        note: { kind: 'company', ind: 'evalTalkHeld', priority: 'normal', personId: p.id, by: 'coaches', text } };
+    },
+    // silence leaves it with the coaches: what the talk always was
+    expire: (state, sc) => {
+      const p = state.people[sc.personId];
+      if (!p || p.status !== 'trainee' || !p.flags.talkDue) return null;
+      const text = coachesTalk(state, p);
+      bump(state, 'talkUnanswered');
+      return { kind: 'company', ind: 'evalTalkHeld', priority: 'normal', personId: p.id, by: 'coaches', text };
+    },
+  });
+
+  // ---- the closing slot (v0.11.14, §105): one pick a month ---------------
+  // The last one up has the long table's whole attention. By the coaches'
+  // custom the slot goes to last month's first, and nothing comes of it.
+  // The desk can give it to somebody else: she is read a little higher on
+  // the day and knows she was given it, and the one who had it by custom
+  // knows that too. The pick is for one showcase.
+  KP.showcaseSlotRead = function (state) {
+    const E = KP.C.EVAL;
+    const floor = (state.roster || []).map(id => state.people[id]).filter(p => p && p.status === 'trainee' && !KP.onBreak(p));
+    if (floor.length < E.minTrainees) return null;
+    const week = KP.nextEvalWeek(state, state.week + 1);
+    const ace = floor.find(p => p.id === state.lastEvalTopId) || null;
+    const pick = state.evalSlot && state.evalSlot.week === week ? floor.find(p => p.id === state.evalSlot.personId) || null : null;
+    return { week, aceId: ace ? ace.id : null, pickId: pick ? pick.id : null, holderId: pick ? pick.id : (ace ? ace.id : null), byCoaches: !pick };
+  };
+  KP.setShowcaseSlot = function (state, personId) {
+    const read = KP.showcaseSlotRead(state);
+    if (!read) return { ok: false, reason: 'There are too few trainees on the floor for a showcase.' };
+    // back to the custom: nobody picked, or the pick is the one who has it anyway
+    if (!personId || personId === read.aceId) { state.evalSlot = null; return { ok: true, byCoaches: true }; }
+    const p = state.people[personId];
+    if (!p || p.status !== 'trainee' || !(state.roster || []).includes(personId)) return { ok: false, reason: 'The closing slot is for a trainee on the floor.' };
+    if (KP.onBreak(p)) return { ok: false, reason: KP.fillPro('{She} is off the floor this month.', p) };
+    state.evalSlot = { personId, week: read.week };
+    return { ok: true, byCoaches: false };
+  };
+
   // ---- the monthly eval --------------------------------------------------
   // the one eval (v0.10.30, §89 D4): her latest rank on the sheet
   KP.evalRankOf = function (p) {
@@ -144,6 +259,16 @@
       if (p.status !== 'trainee' || KP.onBreak(p) || !p.training || rehearsing.has(p.id)) return;
       if ((p.training.focus || []).includes(mission.id) && p.training.intensity !== 'rest') p.missionWeeks = Math.min(E.every, (p.missionWeeks || 0) + 1);
     });
+    // (v0.11.14, §105) a talk the door never got to: the coaches hold it
+    roster.forEach(p => {
+      const d = p.flags && p.flags.talkDue;
+      if (!d) return;
+      if (p.status !== 'trainee') { delete p.flags.talkDue; return; }
+      if (state.week - d.week < E.talkWaitWeeks || (state.scenes || []).some(sc => sc.kind === 'afterEvalTalk' && sc.personId === p.id)) return;
+      const text = coachesTalk(state, p);
+      bump(state, 'talkUnasked');
+      inbox.push({ kind: 'company', ind: 'evalTalkHeld', priority: 'normal', personId: p.id, by: 'coaches', text });
+    });
     if (state.week % E.every !== phase) return;
     const trainees = roster.filter(p => p.status === 'trainee' && !KP.onBreak(p));
     // a showcase that is not held still closes the month: nobody carries a
@@ -159,6 +284,11 @@
         KP.derived(p).stagePresence * 0.15 + rng.normal(0, 3),
     }));
     ranked.forEach(r => { r.score += r.prep.bonus; });
+    // (v0.11.14, §105) a month one on one with the head coach, and the
+    // closing slot when the desk gave it to somebody
+    ranked.forEach(r => { if (r.p.flags.coached) r.score += E.coachBonus; });
+    const slotRow = state.evalSlot && state.evalSlot.week === state.week ? ranked.find(r => r.p.id === state.evalSlot.personId) || null : null;
+    if (slotRow) slotRow.score += E.slotBonus;
     ranked.sort((a, b) => b.score - a.score);
     led.sheets++;
     const of = ranked.length;
@@ -212,21 +342,53 @@
       if (bottomThird) {
         p.evalBottomStreak = (p.evalBottomStreak || 0) + 1;
         if (p.evalBottomStreak === E.bottomTalkAfter) {
+          // (v0.11.14, §105) the talk is called on the day and held through
+          // the one queue: how it gets said is the desk's to decide
           led.talks++;
-          p.morale = KP.clamp(p.morale - E.bottomMorale, 0, 100);
-          p.history.push({ week: state.week, text: 'The after-eval talk — the one held with the door open just enough that everyone knows it is happening. Rank ' + rank + ' of ' + of + ' again. The room gets smaller every month the sheet says the same thing.' });
+          p.flags.talkDue = { week: state.week, rank, of };
           talked = talked || p;   // the month of the talk posts the sheet critical (v0.11.5)
           inbox.push({ kind: 'company', ind: 'evalTalk', priority: 'high', personId: p.id,
             text: KP.fillPro(KP.lineFor(state, 'evalTalk|' + p.id, [
-              KP.displayName(p) + ' got the after-eval talk — bottom of the sheet twice running. {She} nodded through it and stayed two extra hours in practice room 3, which is either the answer or the beginning of a different conversation.',
-              KP.displayName(p) + ' got the after-eval talk — the door open just enough. Bottom of the sheet twice running. {She} said “yes” eleven times and nothing else, and was in practice room 3 before the coaches had left the building.',
-              'The after-eval talk, held with ' + KP.displayName(p) + ' this month: two sheets at the bottom, one quiet conversation. {She} did not cry. {She} asked for a copy of the sheet. That is either the answer or a different conversation starting.',
+              'The after-eval talk is due with ' + KP.displayName(p) + ': bottom of the sheet twice running. The coaches will hold it the way they always have, unless you would rather say it yourself, or spend the month on {her} instead of a conversation. The head coach is waiting on the answer.',
+              KP.displayName(p) + ' is due the after-eval talk: rank ' + rank + ' of ' + of + ' again, two sheets running. The head coach asked whether it stays with the long table. {She} is in practice room 3 and has already guessed.',
+              'Two sheets at the bottom for ' + KP.displayName(p) + ', and the after-eval talk comes next. Who holds it, and what gets said, is yours this week. If nobody says otherwise, the coaches hold it.',
             ]), p) });
         }
       } else {
         p.evalBottomStreak = 0;
       }
+      // (v0.11.14, §105) the sheet answers the month one on one, and the truth
+      if (p.flags.coached) {
+        delete p.flags.coached;
+        if (bottomThird) {
+          p.morale = KP.clamp(p.morale - E.coachMissMorale, 0, 100);
+          p.history.push({ week: state.week, text: 'A month of the head coach’s hours, one on one, and the sheet did not move: rank ' + rank + ' of ' + of + '.' });
+          led.coachMisses = (led.coachMisses || 0) + 1;
+        } else {
+          p.morale = KP.clamp(p.morale + E.coachClimbMorale, 0, 100);
+          p.history.push({ week: state.week, text: 'Came off the bottom of the sheet after a month one on one with the head coach: rank ' + rank + ' of ' + of + '.' });
+          led.coachClimbs = (led.coachClimbs || 0) + 1;
+        }
+      }
+      if (p.flags.toldStraight && !bottomThird) {
+        delete p.flags.toldStraight;
+        p.morale = KP.clamp(p.morale + E.straightClimbMorale, 0, 100);
+        p.history.push({ week: state.week, text: 'Came off the bottom of the sheet: rank ' + rank + ' of ' + of + '. ' + (p.gender === 'm' ? 'He' : 'She') + ' had been told straight where ' + KP.pro(p).she + ' stood, and by whom.' });
+        led.straightClimbs = (led.straightClimbs || 0) + 1;
+      }
     });
+    // the closing slot: hers for being given it, and the one who had it by custom
+    let slotClause = '';
+    if (slotRow) {
+      const sp = slotRow.p;
+      const custom = prevTop && prevTop !== sp.id ? ranked.find(r => r.p.id === prevTop) || null : null;
+      sp.morale = KP.clamp(sp.morale + E.slotMorale, 0, 100);
+      sp.history.push({ week: state.week, text: 'Was given the showcase’s closing slot: the last one up, with the long table’s whole attention.' });
+      led.slots = (led.slots || 0) + 1;
+      if (custom) { custom.p.morale = KP.clamp(custom.p.morale - E.slotSnubMorale, 0, 100); led.slotSnubs = (led.slotSnubs || 0) + 1; }
+      slotClause = ' The closing slot went to ' + KP.displayName(sp) + (custom ? ', not to ' + KP.displayName(custom.p) + ', who had it by custom' : '') + '.';
+    }
+    state.evalSlot = null;
     // ---- the mission, the line and the moment (v0.11.13, §104) ----------
     // who drilled the room all month and climbed for it: the best-placed
     const drilled = ranked.map((r, i) => ({ p: r.p, rank: i + 1, full: (r.p.missionWeeks || 0) >= E.every }))
@@ -260,6 +422,7 @@
       (line ? ' With a project open the sheet is read at the line: the top ' + line + ' have a case' +
         (crossedIn ? ', and ' + KP.displayName(crossedIn) + ' crossed into it this month' : '') +
         (crossedOut ? (crossedIn ? ' as ' : ', and ') + KP.displayName(crossedOut) + ' fell out of it' + (crossedIn ? '' : ' this month') : '') + '.' : '') +
+      slotClause +
       (moment ? ' One thing from the room: ' + moment.text : '');
     const names = ranked.slice(0, 3).map((r, i) => (i + 1) + '. ' + KP.displayName(r.p));
     // the ladder (v0.11.5, §96 wiring): critical the month the talk is held
@@ -276,7 +439,7 @@
       : (firstTop || maxMove >= E.sheetHighMove || aceChanged || crossedIn || crossedOut) ? 'high'
       : maxMove > 0 ? 'normal' : 'flavor';
     const story = firstTop ? KP.displayName(firstTop) + ' took the top of the sheet for the first time'
-      : talked ? 'the after-eval talk, held with ' + KP.displayName(talked)
+      : talked ? 'the after-eval talk, due with ' + KP.displayName(talked)
       : aceChanged ? KP.displayName(ranked[0].p) + ', who took the top from ' + KP.displayName(state.people[prevTop])
       : climber ? KP.displayName(climber) + ', up ' + climberDelta
       : slider ? KP.displayName(slider) + ', down ' + (-sliderDelta)

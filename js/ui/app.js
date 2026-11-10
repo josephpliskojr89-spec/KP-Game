@@ -1049,6 +1049,14 @@
         break;
       }
 
+      // the closing slot (v0.11.14, §105): one pick a month, on the Training tab
+      case 'set-slot': {
+        const r = KP.setShowcaseSlot(s, t.dataset.id || null);
+        if (!r.ok) { UI.toast(r.reason, true); break; }
+        App.save();
+        App.render();
+        break;
+      }
       case 'toggle-focus': {
         const p = s.people[t.dataset.id];
         const d = t.dataset.domain;
