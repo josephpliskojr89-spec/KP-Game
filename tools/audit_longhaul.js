@@ -543,6 +543,16 @@ for (const sc of RUN) {
     if (!((svl.returns || 0) >= 1)) flag(sc.seed, state.week, 'the service scenario never saw an act come home whole');
     if (!((svl.soloChapters || 0) >= 1)) flag(sc.seed, state.week, 'the service scenario’s soloist never served a service chapter');
   }
+  // the head (v0.11.22, §113): every signing house is run by somebody, no
+  // two by the same name, and the January issue never quotes more often
+  // than it comes out
+  {
+    const wl = state.wallLedger || {};
+    const hs = KP.signingHouses(state).map(r => KP.rivalHead(state, r) || {});
+    if (!hs.every(h => h.name && KP.HEAD_TEMPERS.includes(h.temper))) flag(sc.seed, state.week, 'a signing house has no head');
+    if (new Set(hs.map(h => h.name)).size !== hs.length) flag(sc.seed, state.week, 'two houses share a head’s name: ' + hs.map(h => h.name).join(', '));
+    if ((wl.quotes || 0) > ((state.riseFallLedger || {}).rankings || 0)) flag(sc.seed, state.week, 'the ranking quoted a head ' + wl.quotes + ' times in ' + ((state.riseFallLedger || {}).rankings || 0) + ' rankings');
+  }
   // the letters that land (v0.11.21, §112): a one-shot letter is written
   // once, so the week's budget must never cut it. The ledgers below count
   // letters written; this counts the Desk.
@@ -627,6 +637,7 @@ for (const sc of RUN) {
       .map(([w, k]) => w + ' ' + deskCount.since(DESK, deskMark, k).landed).join(', ') +
     ' | risefall: ' + ['rankings', 'overtakes', 'playerNo1', 'classes', 'offers', 'genTurns', 'torchPasses', 'rivalServices']
       .map(k => k + ' ' + ((state.riseFallLedger || {})[k] || 0)).join(', ') +
+    ' | wall: heads stamped ' + ((state.wallLedger || {}).heads || 0) + ', houses standing ' + KP.signingHouses(state).length + ', quoted ' + ((state.wallLedger || {}).quotes || 0) +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +
     (sgl.heirStabilized ? ' heirStabilized' : '') + (sgl.heirBurst ? ' heirBurst' : '') +

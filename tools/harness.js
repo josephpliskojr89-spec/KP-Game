@@ -694,6 +694,9 @@ const BANDS = {
   // till kept the act parked. Floors by measurement.
   quietRested:       { lo: 0.40, hi: 1.00, label: 'orgs told the rest had done its work (a declared hiatus)' },
   quietFull:         { lo: 0.00, hi: 0.90, label: 'orgs told the wait had banked all it can (guarding a bot that parks forever)' },
+  // the head (v0.11.22, §113): the trades' yearly ranking quotes one rival
+  // head. Ruled from the first soak: 40 of 40, and 80 quotes in 80 rankings
+  headQuoted:        { lo: 0.90, hi: 1.00, label: 'orgs whose yearly ranking quoted a rival head' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -848,6 +851,7 @@ const missionSum = {};   // the mission (v0.11.13, §104): summed over the censu
 const yearSum = { years: 0, climbs: 0, rows: 0, sheets: 0, max: 0 };   // the year's sheet (v0.11.16, §107)
 const postSum = {};   // the posting (v0.11.17, §108)
 const quietSum = {};  // the quiet (v0.11.20, §111)
+const wallSum = {};   // the head (v0.11.22, §113)
 const tally = {
   sensation: 0, strongPlus: 0, missOrQuiet: 0, nonCenterBreakout: 0,
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
@@ -929,6 +933,7 @@ const tally = {
   missionDrilled: 0, missionMoment: 0, talkQuestion: 0, slotGiven: 0, yearRead: 0, yearClimb: 0,
   listPosted: 0, offListDoor: 0,
   quietRested: 0, quietFull: 0,
+  headQuoted: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -2476,6 +2481,22 @@ for (let s = 0; s < SEEDS; s++) {
     guard(!g.hiatus.fullNoted || hr.full, seed + ' ' + g.name + ' is stamped as a full bank at ' + hr.banked + ' of ' + hr.cap);
     guard(!hr.full || g.hiatus.fullNoted || g.hiatus.graceFrom, seed + ' ' + g.name + '’s bank is full (' + hr.weeks + ' weeks) and no letter said so');
   });
+  // the head (v0.11.22, §113): every signing house has one, no two share a
+  // name, and the yearly ranking never quotes more often than it is published
+  {
+    const wallL = state.wallLedger || {};
+    const houses = KP.signingHouses(state);
+    const heads = houses.map(r => KP.rivalHead(state, r) || {});
+    if ((wallL.quotes || 0) >= 1) tally.headQuoted++;
+    wallSum.quotes = (wallSum.quotes || 0) + (wallL.quotes || 0);
+    wallSum.stamped = (wallSum.stamped || 0) + (wallL.heads || 0);
+    wallSum.houses = (wallSum.houses || 0) + houses.length;
+    wallSum.rankings = (wallSum.rankings || 0) + ((state.riseFallLedger || {}).rankings || 0);
+    heads.forEach(h => { wallSum['t_' + h.temper] = (wallSum['t_' + h.temper] || 0) + 1; });
+    guard(heads.every(h => h.name && KP.HEAD_TEMPERS.includes(h.temper)), seed + ' a signing house has no head: ' + houses.map((r, i) => r.short + '=' + (heads[i].name || '?')).join(', '));
+    guard(new Set(heads.map(h => h.name)).size === heads.length, seed + ' two houses share a head’s name: ' + heads.map(h => h.name).join(', '));
+    guard((wallL.quotes || 0) <= ((state.riseFallLedger || {}).rankings || 0), seed + ' the ranking quoted a head ' + wallL.quotes + ' times in ' + ((state.riseFallLedger || {}).rankings || 0) + ' rankings');
+  }
   const doorOpen = (state.scenes || []).filter(sc => sc.kind === 'offTheList').length;
   const doorDone = (postL.why || 0) + (postL.next || 0) + (postL.nothing || 0) + (postL.unanswered || 0);
   // a door that was opened and whose trainee then left the room (debuted, released) closes with nothing counted
@@ -3164,6 +3185,8 @@ console.log('the year’s sheet: read ' + yearSum.years + ' times · the year’
 // letters it cuts. A one-shot written and cut is a violation.
 deskCount.lines(DESK).forEach(l => console.log(l));
 deskCount.cutOneShots(DESK).forEach(m => violations.push('a one-shot letter was written and cut by the week’s budget: ' + m));
+console.log('the heads: houses standing at the end ' + (wallSum.houses || 0) + ' (' + KP.HEAD_TEMPERS.map(k => k + ' ' + (wallSum['t_' + k] || 0)).join(' · ') +
+  ') · heads stamped over the careers ' + (wallSum.stamped || 0) + ' · quoted in the yearly ranking ' + (wallSum.quotes || 0) + ' times in ' + (wallSum.rankings || 0) + ' rankings');
 console.log('the quiet: told the rest was in ' + (quietSum.rested || 0) + ' · told the bank was full ' + (quietSum.full || 0) +
   ' · a member on a break told she was rested ' + (quietSum.breakRested || 0) + ' · acts still parked at the end ' + (quietSum.parked || 0));
 console.log('the posting: lists ' + (postSum.posted || 0) + ' · the month’s first left off ' + (postSum.offMonth || 0) + ' · the year’s first left off ' + (postSum.offYear || 0) +

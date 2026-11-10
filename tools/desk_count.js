@@ -19,8 +19,8 @@ const ONE_SHOTS = [
   'hiatusRested', 'hiatusFull', 'breakRested', 'hiatusCooling',
   // a departed artist's next chapter (§103)
   'acrossSigned', 'acrossDebut', 'alumAfter',
-  // the met mandate (§96 wiring), the year's sheet (§107)
-  'mandateMet', 'evalYear',
+  // the met mandate (§96 wiring), the year's sheet (§107), the year's ranking (§113)
+  'mandateMet', 'evalYear', 'powerRanking',
   // the ceremonies of the road and the last stage (§98, §101)
   'tourEnd', 'festHeadline', 'lastStage',
 ];

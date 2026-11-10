@@ -397,6 +397,9 @@
     state.nextPersonId = KP.peekNextId();
     state.rngState = rng.state();
     if (KP.ensureLedgers) KP.ensureLedgers(state);   // no render is the first to touch a ledger (audit v0.11.3)
+    // every house across the street opens with a head (v0.11.22, §113): a
+    // private stream, so the world above is the world it was
+    if (KP.stampHeads) KP.stampHeads(state);
     return state;
   };
 })(typeof window !== 'undefined' ? window : globalThis);

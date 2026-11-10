@@ -1327,6 +1327,14 @@
     });
   } });
 
+  // v0.11.22 — the head. Every signing house on an old file gets the head a
+  // new game would have given it: the same private stream, keyed by the seed
+  // and the house, so nothing else on the file moves.
+  MIGRATIONS.push({ v: '0.11.22', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+    if (KP.stampHeads) KP.stampHeads(state);
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

@@ -9104,7 +9104,7 @@ Suite_114 (41). Measured in the first soak (40 orgs): vote pushes
 every org that sent — and the bands ruled from these. Battery
 114/114, soak 40 clean, longhaul 11 × 620, e2e 134, lockstep 0.11.4.
 
-## §96 Where we stand — the depth survey (post-0.11.4; recommendations 1–4 SHIPPED v0.11.5, v0.11.7, v0.11.9, and 4 in three parts v0.11.10–v0.11.12; 5 in seven parts v0.11.13–v0.11.20)
+## §96 Where we stand — the depth survey (post-0.11.4; recommendations 1–4 SHIPPED v0.11.5, v0.11.7, v0.11.9, and 4 in three parts v0.11.10–v0.11.12; 5 in seven parts v0.11.13–v0.11.20; 6 in parts from v0.11.22)
 
 Owner, after the televised season shipped: *"Where does this leave
 us? Can you take a look at what needs more depth and give me a
@@ -9501,7 +9501,7 @@ absences given a cadence from the fandom's side (the countdown
 project, a letter from the base at the half, "whole again" as a
 ceremony with the return stage named).
 
-**6. The other side of the wall (rivals and the press as people).** A
+**6. The other side of the wall (rivals and the press as people; part one, the head, SHIPPED v0.11.22, §113).** A
 hash-stamped HEAD per signing house (an invented name and a temper
 word in the schools' pattern), shown on the card and quoted yearly in
 the ranking letter through a family per temper. A directed ledger per
@@ -11936,6 +11936,109 @@ census 200 clean, longhaul 11 × 620 clean, e2e 137, lockstep
 *Left for the next piece.* Recommendation 6, the other side of
 the wall, in pieces; its letters are designed for the Desk as it
 is. *Still the owner's to call*: the tie-break above; and from
+§109, the fade between records through a service chapter and the
+size of the window's bank.
+
+## §113 The head (SHIPPED v0.11.22 — §96 recommendation 6, the other side of the wall, part one)
+
+Owner: *"Break remaining work into smaller pieces"*. The first of
+recommendation 6's pieces. The plan for the rest: the ledger each
+house keeps on us, the call a head makes, the seat in play, the
+titans' weeks, the press.
+
+**The finding** (§96): "the rivals have a philosophy word and a
+scoreboard, no head, no voice, no door, and no memory of what you
+did to them". This piece is the head and the voice. The door and
+the memory read what it stamps.
+
+The weekly draws nothing, and nothing here draws from the main
+stream.
+
+**Every signing house has a head** (`wall.js`, `r.head`): a name,
+and a temper. The name comes from a private stream keyed by the
+seed and the house, so it is the house's own and the same in every
+fork of a save. A name another head carries, or our own
+executive's, is drawn again. The temper is a hash in the schools'
+pattern (§84). The stamp is made once: at a new game, the week
+after a house is founded, and on an old file when it is opened.
+The broadcaster's project house is a show, not a house, and has
+none.
+
+**Four tempers**, each a sentence on the card:
+
+- *duelist*: takes a shared release week as a personal remark
+- *broker*: believes every problem is a trade nobody has priced yet
+- *steward*: runs the house like a trust and returns calls on
+  Thursdays
+- *showman*: has never met a microphone that was not meant for her
+
+They are words in this piece. They were chosen for what comes
+next: who ambushes, who trades, who offers a truce, who wants the
+joint stage.
+
+**The read is pure** (`KP.rivalHead`): the stamped head, or the one
+the stamp will give a house founded since the last tick. It writes
+nothing, so a screen can ask. A house a day old is on the Industry
+tab with the head it will have.
+
+**The card says who runs the house**: "Kang So-seo runs it: a
+duelist, who takes a shared release week as a personal remark."
+
+**The January issue quotes one head.** The trades' yearly ranking
+was a list and a sentence about the top seat. It ends now with one
+head speaking: the one whose year it was (`KP.rankingStory`). A
+house that took the seat. The house that lost it, when we took it.
+The house in second, when we hold it. Otherwise the house one rung
+above us, which holds the top if that rung is the first. What the
+head says comes from a family for the temper and the seat: four
+tempers, five seats, two lines each, forty lines, and the pronouns
+are the head's own. The same head in the same seat the next year
+is given the family's other line.
+
+**The January issue is critical.** It is said once a year, in a
+week that does not come again, so by §112's law it cannot be cut.
+It joins the list of letters said once (nineteen now).
+
+**Old saves** (migration 0.11.22). Each house gets the head a new
+game would have given it. Nothing else on the file moves.
+
+**Found by the mutation run.** Two guards guarded nothing and were
+deleted: a house's own name excluded from the names taken, when a
+house being named has none; and our own row excluded from the
+houses a ranking can quote, when it is never among the signing
+houses. Four broken lines crashed the suite where they should have
+failed by name, and each crash got a guard.
+
+**Measured.** Over 200 careers 1,146 heads were stamped and 893
+houses stood at the end: 251 duelists, 212 brokers, 219 stewards,
+211 showmen. The January issue came out 400 times and quoted a head
+400 times. Across the long haul's eleven scenarios: 146 heads, and
+132 quotes in 132 rankings. No career moved. Nothing draws from the
+main stream, and the census output is v0.11.21's line for line but
+for its own new lines, a kilobyte of save, and what reaches the
+Desk. The January issue no longer takes one of the week's five
+places, so 364 more letters landed over the 200 careers, and two
+rows that count a letter landing moved with them: a passed
+candidate in a rival's chair (169 careers, from 167) and the
+protest truck (143, from 142).
+
+Suite_132 (395): the stamp, the private stream, the read, the
+story, every line of every family filled for a woman and for a man,
+the ranking through the real weekly, the card through the DOM stub,
+an old file. Mutation-checked against 55 broken lines, each caught
+by a named assertion. On the first run 49 of 56 were: three
+survived and four crashed the suite. Two of the survivors were the
+guards above, the third got a check, and each crash got a guard. A
+real-browser pass: each house's card, an old save opened through
+the title screen, and the January issue brought to the Desk through
+the real weekly (19 checks, no page errors). Battery 132/132, soak
+40 clean, census 200 clean, longhaul 11 × 620 clean, e2e 137,
+lockstep 0.11.22.
+
+*Left for the next piece.* The ledger: what each house remembers
+of us, in words on its card, and what that weighs. *Not built:* a
+head who leaves. A house keeps its head for as long as it stands.
+*Still the owner's to call*: the Desk's tie-break (§112); and from
 §109, the fade between records through a service chapter and the
 size of the window's bank.
 
@@ -15807,6 +15910,27 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 131/131, soak 40 clean, census 200 clean, longhaul 11 × 620 clean,
 > e2e 137, a real-browser pass (21), lockstep 0.11.21. Rode to main.
 > Next piece: the other side of the wall.
+
+> **0.11.22 — the head.** Own judgment, under "Approved to tackle as
+> much of the remaining queue as you see fit" and "Break remaining
+> work into smaller pieces": the first piece of §96's recommendation
+> 6, the other side of the wall. §113: a rival house was a philosophy
+> word and a scoreboard. Each signing house has a head now, a name and
+> one of four tempers (duelist, broker, steward, showman), stamped
+> once from a private stream and never from the main one. The card
+> says who runs the house and what the temper means. The trades'
+> January ranking ends with one head speaking, the one whose year it
+> was, from a family of lines for the temper and the seat; and it is
+> critical, as a letter said once a year (§112). Old files get the
+> heads a new game would have given them. The mutation run found two
+> guards that guarded nothing, deleted, and four broken lines that
+> crashed the suite where they should have failed by name. No career
+> moved. The January issue no longer takes one of the week's five
+> places, so two rows that count a letter landing moved, by two
+> careers and by one. Suite_132 (395), 55 mutations caught by name.
+> Battery 132/132, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, e2e 137, a real-browser pass (19), lockstep 0.11.22. Rode to
+> main. Next piece: the ledger each house keeps on us.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

@@ -159,7 +159,15 @@
       } else if (top.isPlayer && !led.playerNo1) {
         led.playerNo1++;
       }
-      inbox.push({ kind: 'industry', ind: 'powerRanking', priority: 'high', text: line });
+      // the head speaks (v0.11.22, §113): the piece quotes one house's head,
+      // the one whose year it was, in that head's own way of talking
+      const quote = KP.rankingQuote ? KP.rankingQuote(state, rows, prev) : null;
+      if (quote) {
+        line += ' ' + quote.text;
+        state.powerRanking.quote = { short: quote.short, head: quote.head, temper: quote.temper, sit: quote.sit };
+      }
+      // one-shot: the January issue is said once a year, so it must land (§89 B, §112)
+      inbox.push({ kind: 'industry', ind: 'powerRanking', priority: 'critical', text: line });
     }
 
     // ---- the offer: the imperial house comes for YOU ------------------

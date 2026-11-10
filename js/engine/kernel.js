@@ -237,6 +237,7 @@
     if (KP.postingLedger) KP.postingLedger(state);   // the list on the door (v0.11.17, §108)
     if (KP.returnLedger && state.serviceLedger) KP.returnLedger(state);   // the return's sums ride the service ledger (v0.11.18, §109)
     if (KP.quietLedger) KP.quietLedger(state);       // the hiatus and the break say when the rest is in (v0.11.20, §111)
+    if (KP.wallLedger) KP.wallLedger(state);         // the heads of the other houses (v0.11.22, §113)
     state.deadShorts = state.deadShorts || [];   // the registry exists from week one, so a fork never creates it in a different order
     return state;
   };

@@ -256,6 +256,12 @@
         (r.bankroll && state.week <= r.bankroll.until
           ? ' · <span style="color:var(--gold)">the money is real</span>' : '') + '</div>' +
         '<div class="rv-blurb">' + UI.esc(r.blurb || '') + '</div>' +
+        // who runs it (v0.11.22, §113): the head, and what the temper means
+        (function () {
+          const h = KP.rivalHead ? KP.rivalHead(state, r) : null;
+          return h ? '<div class="rv-head" style="font-size:.76rem;color:var(--ink-dim);margin-top:6px;line-height:1.45">' +
+            '<span style="color:var(--ink)">' + UI.esc(h.name) + '</span> runs it: a ' + UI.esc(h.temper) + ', who ' + UI.esc(KP.headTemperProse(h)) + '.</div>' : '';
+        })() +
         (rNars.length ? UI.narrativeLines(state, rNars.slice(0, 2)) : '') +
         // what they remember of you (v0.11.5, §96 wiring): the offer's two
         // answers, recorded on the rival by the offer scene, read here
