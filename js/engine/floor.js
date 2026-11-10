@@ -178,6 +178,14 @@
     // is the world's business (measured: 145 'gone' files per 620-week
     // save were kept for a chapter that was never ours)
     if (p.flags.readByUs || KP.CHANNEL_PRIVATE[p.channel] || p.flags.wasOurs) p.flags.lostToRival = 1;
+    // on the books between the houses (v0.11.23, §114): someone who had
+    // left this building, by whatever road she reached them; or a lead this
+    // desk had read, signed off our board. One it never opened was never
+    // ours to lose, and one whose window we let close was not taken.
+    if (KP.recordHouse) {
+      if (p.releasedFrom === state.company.short) KP.recordHouse(state, rival.short, 'theySignedOneWhoLeft');
+      else if (how === 'board' && p.flags.readByUs) KP.recordHouse(state, rival.short, 'theyTookOurLead');
+    }
     delete p.castoffUntil; delete p.reentryAt;
     if (KP.schoolRecordAlum) KP.schoolRecordAlum(state, p, rival.short);
     state.prospects = (state.prospects || []).filter(id => id !== p.id);

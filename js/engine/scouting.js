@@ -277,6 +277,9 @@
       KP.floorLedger(state).resigned++;
       p.history.push({ week: state.week, text: 'Came back to ' + state.company.short + '. The second signature is the one that means something.' });
     }
+    // a trainee another house cut, signed here: that house watches (v0.11.23,
+    // §114). A house that folded under her is not watching anything.
+    if (p.castoffFrom && p.castoffFrom !== state.company.short && KP.recordHouse) KP.recordHouse(state, p.castoffFrom, 'weSignedTheirCastoff');
     const manner = p.releasedFrom === state.company.short ? 'back' : (p.channel === 'freeAgent' ? 'market' : null);
     KP.chapter(state, p, 'signed', manner ? { co: state.company.short, how: manner } : { co: state.company.short });
     delete p.castoffUntil; delete p.reentryAt; delete p.releasedFrom; delete p.releasedBy;

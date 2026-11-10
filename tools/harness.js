@@ -697,6 +697,9 @@ const BANDS = {
   // the head (v0.11.22, §113): the trades' yearly ranking quotes one rival
   // head. Ruled from the first soak: 40 of 40, and 80 quotes in 80 rankings
   headQuoted:        { lo: 0.90, hi: 1.00, label: 'orgs whose yearly ranking quoted a rival head' },
+  // the ledger (v0.11.23, §114): something went on the books between this
+  // house and one across the street. Ruled from the first soak: 40 of 40, 564 acts
+  houseBooks:        { lo: 0.90, hi: 1.00, label: 'orgs with something on the books with a rival house' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -933,7 +936,7 @@ const tally = {
   missionDrilled: 0, missionMoment: 0, talkQuestion: 0, slotGiven: 0, yearRead: 0, yearClimb: 0,
   listPosted: 0, offListDoor: 0,
   quietRested: 0, quietFull: 0,
-  headQuoted: 0,
+  headQuoted: 0, houseBooks: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -2496,6 +2499,18 @@ for (let s = 0; s < SEEDS; s++) {
     guard(heads.every(h => h.name && KP.HEAD_TEMPERS.includes(h.temper)), seed + ' a signing house has no head: ' + houses.map((r, i) => r.short + '=' + (heads[i].name || '?')).join(', '));
     guard(new Set(heads.map(h => h.name)).size === heads.length, seed + ' two houses share a head’s name: ' + heads.map(h => h.name).join(', '));
     guard((wallL.quotes || 0) <= ((state.riseFallLedger || {}).rankings || 0), seed + ' the ranking quoted a head ' + wallL.quotes + ' times in ' + ((state.riseFallLedger || {}).rankings || 0) + ' rankings');
+    // the ledger (v0.11.23, §114): the books hold only acts the table knows,
+    // within their caps, and a house's regard is one of the five words
+    if ((wallL.acts || 0) >= 1) tally.houseBooks++;
+    wallSum.acts = (wallSum.acts || 0) + (wallL.acts || 0);
+    Object.keys(wallL.kinds || {}).forEach(k => { wallSum['k_' + k] = (wallSum['k_' + k] || 0) + wallL.kinds[k]; });
+    houses.forEach(r => {
+      const rd = KP.houseRead(state, r);
+      if (rd.count) { wallSum.booked = (wallSum.booked || 0) + 1; wallSum['w_' + rd.word] = (wallSum['w_' + rd.word] || 0) + 1; }
+      guard((r.directed || []).every(a => KP.C.WALL.KINDS[a.kind] && a.week <= state.week), seed + ' ' + r.short + '’s books hold an act the table does not know, or one from the future');
+      guard((r.directed || []).length <= KP.C.WALL.cap && Object.keys(KP.C.WALL.KINDS).every(k => (r.directed || []).filter(a => a.kind === k).length <= KP.C.WALL.perKind), seed + ' ' + r.short + '’s books are over their caps');
+      guard(!rd.count || KP.C.WALL.WORDS.some(row => row[1] === rd.word), seed + ' ' + r.short + '’s regard has no word');
+    });
   }
   const doorOpen = (state.scenes || []).filter(sc => sc.kind === 'offTheList').length;
   const doorDone = (postL.why || 0) + (postL.next || 0) + (postL.nothing || 0) + (postL.unanswered || 0);
@@ -3187,6 +3202,9 @@ deskCount.lines(DESK).forEach(l => console.log(l));
 deskCount.cutOneShots(DESK).forEach(m => violations.push('a one-shot letter was written and cut by the week’s budget: ' + m));
 console.log('the heads: houses standing at the end ' + (wallSum.houses || 0) + ' (' + KP.HEAD_TEMPERS.map(k => k + ' ' + (wallSum['t_' + k] || 0)).join(' · ') +
   ') · heads stamped over the careers ' + (wallSum.stamped || 0) + ' · quoted in the yearly ranking ' + (wallSum.quotes || 0) + ' times in ' + (wallSum.rankings || 0) + ' rankings');
+console.log('the books: acts recorded ' + (wallSum.acts || 0) + ' (' + Object.keys(KP.C.WALL.KINDS).map(k => k + ' ' + (wallSum['k_' + k] || 0)).join(' · ') +
+  ') · houses with something on the books at the end ' + (wallSum.booked || 0) + ' of ' + (wallSum.houses || 0) +
+  ' (' + KP.C.WALL.WORDS.map(row => row[1] + ' ' + (wallSum['w_' + row[1]] || 0)).join(' · ') + ')');
 console.log('the quiet: told the rest was in ' + (quietSum.rested || 0) + ' · told the bank was full ' + (quietSum.full || 0) +
   ' · a member on a break told she was rested ' + (quietSum.breakRested || 0) + ' · acts still parked at the end ' + (quietSum.parked || 0));
 console.log('the posting: lists ' + (postSum.posted || 0) + ' · the month’s first left off ' + (postSum.offMonth || 0) + ' · the year’s first left off ' + (postSum.offYear || 0) +

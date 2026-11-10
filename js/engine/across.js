@@ -120,6 +120,7 @@
     p.history.push({ week: state.week, text: 'Signed with ' + r.short + ' as a soloist, ' + away + ' weeks after leaving ' + co + '.' });
     L.signed++;
     L[shape] = (L[shape] || 0) + 1;
+    if (KP.recordHouse) KP.recordHouse(state, r.short, 'theySignedOurAlumna');   // on the books between the houses (v0.11.23, §114)
     // what the tone costs, or gives
     let tail = '';
     if (shape === 'bow') {

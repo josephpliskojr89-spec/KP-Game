@@ -98,6 +98,8 @@ const t = makeT('suite_115_wiring');
   s.career = (s.career || []).concat([{ week: 40, from: 'Old', door: 'investor', to: s.company.short }]);
   s.estate = s.estate || {}; s.estate.folded = (s.estate.folded || []).concat([{ name: 'Old Label', short: 'Old', week: 40 }]);
   s.rivals[0].offerLeveraged = s.week; s.rivals[1].offerDeclined = s.week;
+  // the offer's two answers are acts on the books between the houses now (v0.11.23, §114)
+  KP.recordHouse(s, s.rivals[0].short, 'weLeveragedTheirOffer'); KP.recordHouse(s, s.rivals[1].short, 'weDeclinedTheirOffer');
   const before = JSON.stringify(s);
   const pages = {};
   const view = (label) => { App.render(); pages[label] = el('screen').innerHTML; return pages[label]; };
@@ -127,7 +129,7 @@ const t = makeT('suite_115_wiring');
   t.ok(/first among equals|bigger than the group\?|the face/.test(pages.grouppage), 'the star wears the word on the member strip');
   t.ok(/Distribution: /.test(pages.record) && / club since /.test(pages.record) && /This quarter so far: [+-]?\d+/.test(pages.record), 'the books card reads the distributor, the club and the running quarter');
   t.ok(/in the chair since /.test(pages.scene) && /The chapters:/.test(pages.scene) && /Labels before this one: /.test(pages.scene), 'the company card reads the exec’s tenure, the chapters and the folded labels');
-  t.ok(/Remembers the letter you put on the board’s table\./.test(pages.scene) && /declined with the good stationery\./.test(pages.scene), 'the rivals remember the offer');
+  t.ok(/had its offer letter put on our board’s table \(/.test(pages.scene) && /made us an offer and was declined, with the good stationery \(/.test(pages.scene), 'the rivals remember the offer, each on its own card, with the week');
   t.ok(/Vocals: a (step|rung|flight) (up|down)|Dance: a (step|rung|flight) (up|down)/.test(pages.person) && !/Vocals [+-]\d/.test(pages.person), 'since debut reads in words, not digits');
   D.click({ action: 'launch-solo', id: idol.id });
   const modal = el('modal-root').innerHTML;
@@ -157,6 +159,7 @@ function expireAll(s, kind) { (s.scenes || []).forEach(sc => { if (sc.kind === k
   t.ok(sc && sc.company === suitor.short, 'the offer opens from the imperial house');
   const r = KP.resolveScene(s, sc.id, 'leverage');
   t.eq(suitor.offerLeveraged, s.week, 'leverage is recorded on the rival (offerLeveraged = week)');
+  t.eq(JSON.stringify((suitor.directed || []).map(a => a.kind + '@' + a.week)), JSON.stringify(['weLeveragedTheirOffer@' + s.week]), 'and on the books between the houses, once');
   t.ok(/second envelope/.test(r.toast), 'the toast says they never send twice');
   // the rail never re-opens for that short
   s.offerAskedWeek = -999; guard = 0;
@@ -167,7 +170,10 @@ function expireAll(s, kind) { (s.scenes || []).forEach(sc => { if (sc.kind === k
   const su2 = s2.rivals[0]; su2.prestige = RF.offerPrestige + 4; s2.trust = RF.offerTrust + 10; guard = 0;
   while (!scene(s2, 'theOffer') && guard++ < 60) { su2.prestige = Math.max(su2.prestige, RF.offerPrestige + 4); s2.trust = Math.max(s2.trust, RF.offerTrust + 10); KP.advanceWeek(s2); }
   const sc2 = scene(s2, 'theOffer');
-  if (sc2) { KP.resolveScene(s2, sc2.id, 'decline'); t.eq(su2.offerDeclined, s2.week, 'decline is recorded (offerDeclined = week)'); t.ok(!su2.offerLeveraged, 'and leverage is not'); }
+  if (sc2) {
+    KP.resolveScene(s2, sc2.id, 'decline'); t.eq(su2.offerDeclined, s2.week, 'decline is recorded (offerDeclined = week)'); t.ok(!su2.offerLeveraged, 'and leverage is not');
+    t.eq(JSON.stringify((su2.directed || []).filter(a => /Offer/.test(a.kind)).map(a => a.kind + '@' + a.week)), JSON.stringify(['weDeclinedTheirOffer@' + s2.week]), 'the decline goes on the books between the houses, once');
+  }
   else t.ok(false, 'second offer world never opened');
 }
 

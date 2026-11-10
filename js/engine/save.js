@@ -1335,6 +1335,39 @@
     if (KP.stampHeads) KP.stampHeads(state);
   } });
 
+  // v0.11.23 — the ledger. What an old file already records between the
+  // houses goes on the books with its own week: an offer leveraged or
+  // declined, the last date they parked on, the walkout that made the old
+  // house a rival, an artist of ours they signed, and whoever is on their
+  // floor today that left this building or was a lead this desk had read.
+  // What it recorded without a week (the head-to-head weeks) stays off them.
+  MIGRATIONS.push({ v: '0.11.23', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+    if (!KP.recordHouse) return;
+    const wk = x => typeof x === 'number' && isFinite(x);
+    const ours = state.company && state.company.short;
+    const ROADS = { board: 1, window: 1, late: 1, market: 1 };   // floor.js's SIGN_WORDS
+    KP.signingHouses(state).forEach(r => {
+      if (r.directed && r.directed.length) return;
+      const seeds = [];
+      if (wk(r.offerLeveraged)) seeds.push([r.offerLeveraged, 'weLeveragedTheirOffer']);
+      if (wk(r.offerDeclined)) seeds.push([r.offerDeclined, 'weDeclinedTheirOffer']);
+      if (r.ambushCount && wk(r.lastAmbushWeek)) seeds.push([r.lastAmbushWeek, 'theyAmbushed']);
+      if (r.founderGrudge && state.founded && state.founded.from === r.short && wk(state.founded.week)) seeds.push([state.founded.week, 'weWalkedOut']);
+      Object.values(state.people || {}).forEach(p => {
+        const a = p.flags && p.flags.across;
+        if (a && a.company === r.short && wk(a.week)) seeds.push([a.week, 'theySignedOurAlumna']);
+        // still on their floor: her file says by which road she came, and when
+        if (p.status !== 'rival' || p.company !== r.short) return;
+        const last = (p.chapters || []).slice().reverse().find(ch => ch.kind === 'signed');
+        if (!last || last.co !== r.short || !ROADS[last.how] || !wk(last.week)) return;
+        if (p.releasedFrom === ours) seeds.push([last.week, 'theySignedOneWhoLeft']);
+        else if (last.how === 'board' && p.flags && p.flags.readByUs) seeds.push([last.week, 'theyTookOurLead']);
+      });
+      seeds.sort((x, y) => x[0] - y[0]).forEach(([week, kind]) => KP.recordHouse(state, r.short, kind, week));
+    });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

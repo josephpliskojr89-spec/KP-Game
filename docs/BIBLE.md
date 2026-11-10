@@ -9501,7 +9501,7 @@ absences given a cadence from the fandom's side (the countdown
 project, a letter from the base at the half, "whole again" as a
 ceremony with the return stage named).
 
-**6. The other side of the wall (rivals and the press as people; part one, the head, SHIPPED v0.11.22, §113).** A
+**6. The other side of the wall (rivals and the press as people; part one, the head, SHIPPED v0.11.22, §113; part two, the ledger, SHIPPED v0.11.23, §114).** A
 hash-stamped HEAD per signing house (an invented name and a temper
 word in the schools' pattern), shown on the card and quoted yearly in
 the ranking letter through a family per temper. A directed ledger per
@@ -12036,11 +12036,163 @@ the real weekly (19 checks, no page errors). Battery 132/132, soak
 lockstep 0.11.22.
 
 *Left for the next piece.* The ledger: what each house remembers
-of us, in words on its card, and what that weighs. *Not built:* a
+of us, in words on its card (§114), and what that weighs. *Not built:* a
 head who leaves. A house keeps its head for as long as it stands.
 *Still the owner's to call*: the Desk's tie-break (§112); and from
 §109, the fade between records through a service chapter and the
 size of the window's bank.
+
+## §114 The ledger (SHIPPED v0.11.23 — §96 recommendation 6, the other side of the wall, part two)
+
+Owner: *"Break remaining work into smaller pieces"*. The second of
+recommendation 6's pieces. The plan for the rest: what the ledger
+weighs, the call a head makes, the seat in play, the titans' weeks,
+the press.
+
+**The finding** (§96): the rivals had "no memory of what you did to
+them". The card had two sentences about one thing, the offer letter
+(v0.11.5). Everything else the game decides between the houses was
+a counter on the rival or a feud on our group, and none of it was a
+sentence a player could read.
+
+Nothing here draws, and nothing rolls on the ledger in this piece.
+
+**Each signing house keeps books on us** (`r.directed`,
+`KP.recordHouse`). An act is a week and a kind. It is recorded
+where the game already decides it, and the call site names the kind
+and nothing else. One table (`KP.C.WALL.KINDS`) holds each kind's
+weight on their regard for us and the words the card uses. An
+unknown kind throws. A house that does not stand records nothing,
+and the broadcaster's project house keeps no books.
+
+Eleven kinds. What we did:
+
+- we took a head-to-head week from their act (−2)
+- we signed a trainee they had cut (−1)
+- we put their offer letter on our board's table (−3)
+- we declined their offer (−1)
+- we walked out of the house to found our own (−6, the old house
+  only)
+
+What they did:
+
+- they took a head-to-head week from us (+1)
+- they parked a comeback on our date (0)
+- they signed a lead this desk had read, off our board (0)
+- they signed an artist who was once ours (+1)
+- they signed someone who had left this building (0)
+- they took the co-build we passed on (+1)
+
+A lead counts only if this desk had read the file and the house
+signed it off our board: by its own scouts, or by its intake taking
+a public file. One this desk never opened was never ours to lose,
+and one whose window we let close was not taken. Someone who had
+left this building counts by any road, once, and is not also a
+lead.
+
+**The caps.** A house keeps the latest five acts of a kind and
+twenty-four in all; the oldest goes first. The walkout is the one
+act the table keeps for good.
+
+**The read is pure** (`KP.houseRead`). Their regard for us is the
+sum of the weights, each halved every 104 weeks: a house forgets
+more slowly than a person does (48). What they hold against us is
+the sum of what we did, never halved; the next piece reads it. Five
+words for the regard: warm toward us (3 and up), cordial with us
+(1), even with us (−1), cool toward us (−3), holding a grudge
+(below). An empty book has no word.
+
+**The card says it**: "Kang So-seo is cool toward us. On the books:
+lost a head-to-head week to us (Mar · Wk 2 · Y2); parked a comeback
+on our date (Feb · Wk 4 · Y2); and 2 more." The head's name, the
+word, the three latest acts with their weeks, and a count of the
+rest. A house with nothing on its books says nothing. The offer's
+two old sentences are gone: its two answers are acts among the
+rest.
+
+**The founding.** The house we walk out of becomes a house across
+the street, and it opens its books with the walkout. It weighs six:
+a grudge for two years, cool for five, and a week it takes from us
+the same month does not thaw it. What the other houses hold is
+kept: they kept books on the architect, as their offer flags and
+the rivalry stories already did.
+
+**Old saves** (migration 0.11.23). What an old file records with a
+week goes on the books with that week: an offer leveraged or
+declined, the last date they parked on, the walkout, an artist of
+ours they signed, and whoever is on their floor today that had left
+this building or was a lead this desk had read (her file says by
+which road she came, and when). Head-to-head weeks were recorded
+on our groups without the house's week, and stay off.
+
+**Found while finishing it.** The first build recorded nine kinds
+and was through its mutation run when three gaps showed. The old
+house had empty books, so one week taken from us would have read
+"cordial with us" on the card of the house the game itself marks
+as holding a grudge. A read lead was recorded only when a house's
+scouts signed it, and not when its intake took the same file off
+the open board. Someone who had left us and signed across the
+street was a letter and not an act. All three were closed before
+the piece shipped, and the check chain was stopped and run again.
+One more thing on the same card: a floor of one read "1 trainees".
+
+**Found by the check chain.** The long haul's new flag for the
+walkout fired on its first run, in four scenarios founded through
+other doors: a fresh start after a dissolution, and a blank start.
+Those leave no house behind. The flag was wrong and was corrected,
+then proven to fire by breaking the record in a scratch copy.
+
+**Found by the mutation run.** On the first build, 51 of 55 broken
+lines were caught. One crashed the suite where it should have
+failed by name. The half-life was not pinned. The order of an old
+file's seeds was not tested. And the record of an artist they
+signed survived its own removal, because until the version was
+bumped every reload ran the new migration and seeded the act back
+from her flag. The version is bumped before the mutation run and
+the browser pass. After the three gaps were closed, 78 of 79: every
+file in the old-save fixture had one signing, so the last signing
+and the first could not be told apart.
+
+**Measured.** Over 200 careers 2,901 acts went on the books: 1,081
+head-to-head weeks they took and 814 we took, 833 dates parked on,
+79 castoffs of theirs signed here, 73 offers declined, 17 people
+who had left us signed there, two pacts taken, one offer put on the
+board's table and one artist of ours signed across the street.
+Every career had something on the books with a house (200 of 200).
+Of the 893 houses standing at the end, 612 kept a book: 8 warm
+toward us, 96 cordial, 253 even, 184 cool, 71 holding a grudge.
+Across the long haul's eleven scenarios, 374 acts; the founder's
+old house holds the walkout, dated the week of the founding. No
+career moved: nothing draws and nothing rolls on the ledger, and
+the soak, the census and the long haul are v0.11.22's line for line
+but for the ledger's own lines and a kilobyte or two of save. The
+census bot never reads a lead, puts an offer on the board's table
+once in 200 careers, and does not found a house; those three are
+held by the suite, which forces each through the game, and by the
+browser pass, which taps the real Look button, the real answer and
+the real papers.
+
+Suite_133 (115): the table, the record, the read and its five
+words at their lines, the caps, the card's sentence, each act
+through the game where the game decides it, the roads onto a
+floor, the founding, an old file, the card through the DOM stub.
+Suites 115 and 122 hold the offer's two answers and the signing
+across the street to the books. Mutation-checked against 82 broken
+lines, each caught by a named assertion in every suite that owns
+the line. A real-browser pass (29 checks, no page errors): the
+card, an old save opened through the title screen, the offer
+answered on the Desk, the founding signed with its button, and a
+file read with the Look button and signed off the open board a week
+later. Battery 133/133, soak 40 clean, census 200 clean, longhaul
+11 × 620 clean, e2e 137, lockstep 0.11.23.
+
+*Left for the next piece.* What the ledger weighs: one roll at a
+time (the date a house parks on first), each measured on its own.
+*Not recorded yet:* the call a house makes to one of our chairs,
+and what we do about it; it belongs with who makes the call. *Not
+built:* a head who leaves. *Still the owner's to call*: the Desk's
+tie-break (§112); and from §109, the fade between records through
+a service chapter and the size of the window's bank.
 
 ## §18 Watch items
 
@@ -15931,6 +16083,30 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Battery 132/132, soak 40 clean, census 200 clean, longhaul 11 × 620
 > clean, e2e 137, a real-browser pass (19), lockstep 0.11.22. Rode to
 > main. Next piece: the ledger each house keeps on us.
+
+> **0.11.23 — the ledger.** Own judgment, under "Approved to tackle
+> as much of the remaining queue as you see fit" and "Break remaining
+> work into smaller pieces": the second piece of §96's recommendation
+> 6. §114: a rival house remembered one thing, the offer letter, in
+> two sentences. Each signing house keeps books on us now: an act is
+> a week and a kind, recorded where the game already decides it. A
+> head-to-head week either way, a date they parked on, a lead this
+> desk had read, a castoff we signed, someone who left us and signed
+> there, the offer's two answers, the pact we passed on, the walkout
+> that made the old house a rival. One table weighs the eleven kinds.
+> The card says how the head regards us, in one of five words, and
+> the three latest acts with their weeks. Nothing rolls on it yet.
+> Old files are seeded from what they record with a week. Three gaps
+> were found after the first build and closed before it shipped: the
+> old house's empty books, a read lead taken by a house's intake, and
+> the one who left us. The mutation run caught 51 of 55 on the first
+> build and 78 of 79 after the gaps; every miss got a check.
+> No career moved. Over 200 careers 2,901 acts went on the books, and
+> 612 of 893 houses standing at the end kept one. Suite_133 (115), 82
+> mutations caught by name. Battery 133/133, soak 40 clean, census 200
+> clean, longhaul 11 × 620 clean, e2e 137, a real-browser pass (29),
+> lockstep 0.11.23. Rode to main. Next piece: what the ledger weighs,
+> one roll at a time.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

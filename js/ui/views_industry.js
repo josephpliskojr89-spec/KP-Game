@@ -263,14 +263,13 @@
             '<span style="color:var(--ink)">' + UI.esc(h.name) + '</span> runs it: a ' + UI.esc(h.temper) + ', who ' + UI.esc(KP.headTemperProse(h)) + '.</div>' : '';
         })() +
         (rNars.length ? UI.narrativeLines(state, rNars.slice(0, 2)) : '') +
-        // what they remember of you (v0.11.5, §96 wiring): the offer's two
-        // answers, recorded on the rival by the offer scene, read here
-        (r.offerLeveraged || r.offerDeclined
-          ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:6px">' +
-            (r.offerLeveraged ? 'Remembers the letter you put on the board’s table.' : '') +
-            (r.offerLeveraged && r.offerDeclined ? ' ' : '') +
-            (r.offerDeclined ? 'Sent an offer once; you declined with the good stationery.' : '') + '</div>'
-          : '') +
+        // what lies between the houses (v0.11.23, §114): how the head regards
+        // us, and the latest acts on the books. The offer's two answers had
+        // two sentences here (v0.11.5); they are acts among the rest now
+        (function () {
+          const words = KP.houseLedgerWords ? KP.houseLedgerWords(state, r) : '';
+          return words ? '<div class="rv-ledger" style="font-size:.72rem;color:var(--ink-dim);margin-top:6px;line-height:1.45">' + UI.esc(words) + '</div>' : '';
+        })() +
         (actLines ? '<div class="rv-acts">' + actLines + '</div>'
           : '<div class="rv-acts"><div class="rv-act"><span class="rv-act-note">No active act — the trainee floor is all they have.</span></div></div>') +
         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">' +
@@ -279,7 +278,7 @@
           const top = floor.slice(0, 3).map(p => UI.esc(KP.displayName(p)) +
             (p.flags.lostToRival ? '<span class="rv-act-note"> (once on our board)</span>' : '') +
             (p.releasedFrom === state.company.short ? '<span class="rv-act-note"> (left this building)</span>' : ''));
-          return '<span class="chip">' + floor.length + ' trainees' + (top.length ? ' · ' + top.join(', ') + (floor.length > 3 ? ', …' : '') : '') + '</span>';
+          return '<span class="chip">' + floor.length + (floor.length === 1 ? ' trainee' : ' trainees') + (top.length ? ' · ' + top.join(', ') + (floor.length > 3 ? ', …' : '') : '') + '</span>';
         })() +
         (interested ? '<span class="chip hot">tracking ' + interested + ' of your leads</span>' : '') +
         moves +

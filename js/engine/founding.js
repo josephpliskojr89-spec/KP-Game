@@ -109,6 +109,9 @@
     });
     state.rivals = state.rivals || [];
     state.rivals.push(legacy);
+    // the old house opens its books with this (v0.11.23, §114). What the
+    // other houses hold stays as it is: they kept books on the architect
+    if (KP.recordHouse) KP.recordHouse(state, legacy.short, 'weWalkedOut');
 
     // ---- the people stay people — on the other side of the wall --------
     const everybody = new Set(state.roster.slice());

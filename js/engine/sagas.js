@@ -372,6 +372,7 @@
       .sort((a, b) => (b.prestige || 0) - (a.prestige || 0))[0];
     if (partner) {
       partner.prestige = KP.clamp((partner.prestige || 0) + S.JV.declinePrestige, 5, 95);
+      if (KP.recordHouse) KP.recordHouse(state, partner.short, 'tookThePactWePassed');   // on the books between the houses (v0.11.23, §114)
       const sagas = KP.planSagas(state);
       sagas.pending.push({ kind: 'jvAct', week: state.week + S.JV.declineActWeeks,
         actName: sc.act, partner: sc.company, rivalShort: partner.short });

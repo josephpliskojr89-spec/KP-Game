@@ -173,6 +173,10 @@ const signed = (() => {
   t.eq(mine(signed.wire, 'acrossSigned').length + '|' + n.priority + '|' + n.shape, '1|critical|cold', 'on her date the signing is one letter, said once and so critical, in the tone of how she left');
   t.ok(lands(n), 'and a loud week does not cut it');
   t.ok(!!p.flags.across && p.flags.across.week === f.s.week, 'her file carries the signing, and its week');
+  // on the books between the houses (v0.11.23, §114): the house that signed her, and only that house
+  const across = (p.flags.across || {}).company;
+  t.eq(f.s.rivals.filter(r => !r.projectHouse).map(r => r.short + ':' + (r.directed || []).filter(a => a.kind === 'theySignedOurAlumna' && a.week === f.s.week).length).join(),
+    f.s.rivals.filter(r => !r.projectHouse).map(r => r.short + ':' + (r.short === across ? 1 : 0)).join(), 'the house that signed her has it on its books, that week, and no other house does');
   t.ok(top.includes(p.flags.across.company), 'a name this big signs with the top half of the street (' + p.flags.across.company + ' of ' + top.join(', ') + ')');
   t.eq(n.company, p.flags.across.company, 'the letter names the same house');
   t.ok(p.flags.across.debutAt >= f.s.week + A.debutMin && p.flags.across.debutAt <= f.s.week + A.debutMax, 'with a date for her first record there: ' + A.debutMin + ' to ' + A.debutMax + ' weeks out (' + (p.flags.across.debutAt - f.s.week) + ')');

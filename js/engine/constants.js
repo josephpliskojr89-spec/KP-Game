@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.22',
+    VERSION: '0.11.23',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -3102,6 +3102,33 @@
         leftWaiting:      { w: -2, grudge: 1, words: 'left waiting for an answer' },
         tableLeftWaiting: { w: -3, grudge: 1, words: 'the renewal folder left unopened' },
       },
+    },
+    // ---- The other side of the wall (v0.11.23, §114) ---------------------
+    // What lies between this house and each house across the street, the
+    // way a person's ledger does (§89 D3). The weight is how the act moves
+    // their regard for us; the words are what the card says. Recorded and
+    // read in this part; nothing rolls on it yet.
+    WALL: {
+      cap: 24,                   // acts kept on one house
+      perKind: 5,                // and of one kind: the board moves weekly, the ledger should not be all leads
+      halfLifeWeeks: 104,        // houses forget slower than people: two years
+      KINDS: {
+        // what we did
+        weTookTheWeek:         { w: -2, words: 'lost a head-to-head week to us' },
+        weSignedTheirCastoff:  { w: -1, words: 'watched us sign a trainee they had cut' },
+        weLeveragedTheirOffer: { w: -3, words: 'had its offer letter put on our board’s table' },
+        weDeclinedTheirOffer:  { w: -1, words: 'made us an offer and was declined, with the good stationery' },
+        weWalkedOut:           { w: -6, keep: true, words: 'watched its architect walk out the front door' },   // the founder's old house: a grudge for two years, cool for five; never dropped from a full book
+        // what they did
+        theyTookTheWeek:       { w: 1,  words: 'took a head-to-head week from us' },
+        theyAmbushed:          { w: 0,  words: 'parked a comeback on our date' },
+        theyTookOurLead:       { w: 0,  words: 'signed a lead this desk had read' },
+        theySignedOurAlumna:   { w: 1,  words: 'signed an artist who was once ours' },
+        theySignedOneWhoLeft:  { w: 0,  words: 'signed someone who had left this building' },
+        tookThePactWePassed:   { w: 1,  words: 'took the co-build we passed on' },
+      },
+      // their regard for us, in words: the first row the standing reaches
+      WORDS: [[3, 'warm toward us'], [1, 'cordial with us'], [-1, 'even with us'], [-3, 'cool toward us'], [-99, 'holding a grudge']],
     },
     // ---- Standing & scars (v0.8.3) --------------------------------------
     SCAR: {

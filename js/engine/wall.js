@@ -19,7 +19,8 @@
 
   function ledger(state) {
     const led = state.wallLedger = state.wallLedger || {};
-    ['heads', 'quotes'].forEach(k => { if (led[k] == null) led[k] = 0; });
+    ['heads', 'quotes', 'acts'].forEach(k => { if (led[k] == null) led[k] = 0; });
+    if (!led.kinds) led.kinds = {};
     return led;
   }
   KP.wallLedger = ledger;
@@ -215,6 +216,62 @@
     led.last = { key, i: q.i };
     const head = KP.rivalHead(state, story.house);
     return { short: story.house.short, head: head.name, temper: head.temper, sit: story.sit, text: q.text };
+  };
+
+  // ==== part two: the ledger (v0.11.23, §114) =========================================
+  // What lies between this house and one across the street. An act is
+  // recorded where the game already decides it: the head-to-head week, the
+  // date they parked on, the lead they took, the castoff we signed, the
+  // one who left us and signed there, the offer and what we did with it,
+  // the pact we passed on, the walkout that made the old house a rival.
+  // One table weighs them (KP.C.WALL.KINDS); a call site names the kind
+  // and nothing else, and an unknown kind throws. A house that no longer
+  // stands records nothing.
+  KP.recordHouse = function (state, short, kind, week) {
+    const W = KP.C.WALL;
+    if (!W.KINDS[kind]) throw new Error('wall: unknown house act "' + kind + '"');
+    const r = KP.signingHouses(state).find(x => x.short === short);
+    if (!r) return null;
+    r.directed = r.directed || [];
+    const act = { week: week != null ? week : state.week, kind };
+    r.directed.push(act);
+    // of one kind the oldest goes first, then the oldest of all; an act
+    // the table keeps (the walkout) is never the one to go
+    const same = r.directed.filter(a => a.kind === kind);
+    if (same.length > W.perKind) r.directed.splice(r.directed.indexOf(same[0]), 1);
+    while (r.directed.length > W.cap) {
+      const i = r.directed.findIndex(a => !(W.KINDS[a.kind] || {}).keep);
+      r.directed.splice(i < 0 ? 0 : i, 1);
+    }
+    const led = ledger(state);
+    led.acts++;
+    led.kinds[kind] = (led.kinds[kind] || 0) + 1;
+    return act;
+  };
+  // the read (pure): their regard for us, decayed, in a number and a word;
+  // what they hold against us, undecayed; and the acts, newest first
+  KP.houseRead = function (state, r) {
+    const W = KP.C.WALL;
+    const acts = ((r && r.directed) || []).filter(a => W.KINDS[a.kind]);
+    let standing = 0, grudge = 0;
+    acts.forEach(a => {
+      const w = W.KINDS[a.kind].w;
+      standing += w * Math.pow(0.5, Math.max(0, state.week - a.week) / W.halfLifeWeeks);
+      if (w < 0) grudge += -w;
+    });
+    const word = acts.length ? (W.WORDS.find(row => standing >= row[0]) || W.WORDS[W.WORDS.length - 1])[1] : null;
+    return { standing, grudge, word, count: acts.length,
+      acts: acts.slice().reverse().map(a => ({ week: a.week, kind: a.kind, w: W.KINDS[a.kind].w, words: W.KINDS[a.kind].words })) };
+  };
+  // the card's sentence: how the head regards us, and the three latest
+  // acts with their weeks. A house with nothing on the books says nothing.
+  KP.houseLedgerWords = function (state, r) {
+    const read = KP.houseRead(state, r);
+    if (!read.count) return '';
+    const head = KP.rivalHead(state, r);
+    const shown = read.acts.slice(0, 3).map(a => a.words + ' (' + KP.weekLabel(a.week).text + ')');
+    return (head ? head.name : r.short) + ' is ' + read.word + '. On the books: ' + shown.join('; ') +
+      (read.count > 3 ? '; and ' + (read.count - 3) + ' more' : '') + '.';
   };
 
   // ---- the weekly: a house founded since the last tick gets its head -------------

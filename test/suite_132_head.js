@@ -47,11 +47,11 @@ const prevOf = list => ({ year: 1, entries: rows(list) });
     t.ok(TEMPERS.includes(h.temper) && (h.g === 'f' || h.g === 'm') && h.since === 1, r.short + '’s head has a temper, and has been there since the first week');
   });
   t.eq(new Set(houses(s).map(r => (r.head || {}).name)).size, houses(s).length, 'no two heads share a name');
-  t.eq(JSON.stringify(s.wallLedger), JSON.stringify({ heads: houses(s).length, quotes: 0 }), 'the ledger counts the heads stamped, and no quote yet');
+  t.eq([(s.wallLedger || {}).heads, (s.wallLedger || {}).quotes].join('|'), [houses(s).length, 0].join('|'), 'the ledger counts the heads stamped, and no quote yet');
   const s2 = world('head-shape');
   delete s2.wallLedger;
   KP.ensureLedgers(s2);
-  t.eq(JSON.stringify(s2.wallLedger), JSON.stringify({ heads: 0, quotes: 0 }), 'a file with no ledger is given one, at zero');
+  t.eq([(s2.wallLedger || {}).heads, (s2.wallLedger || {}).quotes].join('|'), '0|0', 'a file with no ledger is given one, at zero');
   t.eq(KP.rivalHead(s, null), null, 'no house has no head');
   t.eq(KP.rivalHead(s, { short: 'ShowHouse', projectHouse: true }), null, 'the broadcaster’s project house is a show, not a house, and has none');
   // each temper's words, and a pronoun that is the head's own
@@ -304,7 +304,7 @@ const prevOf = list => ({ year: 1, entries: rows(list) });
   const back = KP.deserialize(JSON.stringify(old));
   t.eq(houses(back).map(r => JSON.stringify({ name: (r.head || {}).name, g: (r.head || {}).g, temper: (r.head || {}).temper })).join(), was.join(), 'an old file’s houses get the heads a new game would have given them');
   t.ok(houses(back).every(r => (r.head || {}).since === back.week), 'since the week the file was opened');
-  t.eq(JSON.stringify(back.wallLedger), JSON.stringify({ heads: was.length, quotes: 0 }), 'and its ledger starts there');
+  t.eq([(back.wallLedger || {}).heads, (back.wallLedger || {}).quotes].join('|'), [was.length, 0].join('|'), 'and its ledger starts there');
   t.eq(JSON.stringify(back.rngState), JSON.stringify(s.rngState), 'the main stream is where it was');
   // a current file is left alone
   const cur = KP.deserialize(KP.serialize(s));

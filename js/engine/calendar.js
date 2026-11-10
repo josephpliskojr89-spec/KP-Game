@@ -108,6 +108,7 @@
         a.announcedWeek = week;
         r.lastAmbushWeek = state.week;
         r.ambushCount = (r.ambushCount || 0) + 1;
+        if (KP.recordHouse) KP.recordHouse(state, r.short, 'theyAmbushed');   // on the books between the houses (v0.11.23, §114)
         target.prep.clash = { actId: a.id, company: r.short, actName: a.name, week, resolved: null };
         if (r.ambushCount >= W.sniperAt) {
           const nar = KP.recordEvidence(state, 'dateSniper', 'rivalCompany', r.short);
@@ -193,6 +194,8 @@
       const members = g.members.map(id => state.people[id]);
       g.feuds = g.feuds || {};
       const feud = g.feuds[foe.actId] = g.feuds[foe.actId] || { wins: 0, losses: 0 };
+      // the week goes on the books between the two houses (v0.11.23, §114)
+      if (KP.recordHouse) KP.recordHouse(state, foe.company, won ? 'weTookTheWeek' : 'theyTookTheWeek');
       if (won) {
         feud.wins++;
         g.popularity = KP.clamp(g.popularity + W.winPop, 0, 100);

@@ -552,6 +552,23 @@ for (const sc of RUN) {
     if (!hs.every(h => h.name && KP.HEAD_TEMPERS.includes(h.temper))) flag(sc.seed, state.week, 'a signing house has no head');
     if (new Set(hs.map(h => h.name)).size !== hs.length) flag(sc.seed, state.week, 'two houses share a head’s name: ' + hs.map(h => h.name).join(', '));
     if ((wl.quotes || 0) > ((state.riseFallLedger || {}).rankings || 0)) flag(sc.seed, state.week, 'the ranking quoted a head ' + wl.quotes + ' times in ' + ((state.riseFallLedger || {}).rankings || 0) + ' rankings');
+    // the ledger (v0.11.23, §114): only acts the table knows, within the caps
+    KP.signingHouses(state).forEach(r => {
+      const acts = r.directed || [];
+      if (!acts.every(a => KP.C.WALL.KINDS[a.kind] && a.week <= state.week)) flag(sc.seed, state.week, r.short + '’s books hold an act the table does not know, or one from the future');
+      if (acts.length > KP.C.WALL.cap || Object.keys(KP.C.WALL.KINDS).some(k => acts.filter(a => a.kind === k).length > KP.C.WALL.perKind)) flag(sc.seed, state.week, r.short + '’s books are over their caps');
+    });
+    // the walkout: the house we walked out of (the founding; a fresh start
+    // after a dissolution or from a blank door leaves no house behind) holds
+    // it once, dated the week of the founding, and no other house holds one
+    {
+      const walk = KP.signingHouses(state).map(r => [r.short, (r.directed || []).filter(a => a.kind === 'weWalkedOut').map(a => a.week).join()]).filter(x => x[1]);
+      const oldHouse = state.founded ? KP.signingHouses(state).find(r => r.founderGrudge && r.short === state.founded.from) : null;
+      const want = oldHouse ? oldHouse.short + ' @' + state.founded.week : '';
+      if (walk.map(x => x.join(' @')).join('; ') !== want) {
+        flag(sc.seed, state.week, 'the walkout is not on the old house’s books alone: wanted ' + (want || 'none') + ', found ' + (walk.map(x => x.join(' @')).join('; ') || 'none'));
+      }
+    }
   }
   // the letters that land (v0.11.21, §112): a one-shot letter is written
   // once, so the week's budget must never cut it. The ledgers below count
@@ -638,6 +655,7 @@ for (const sc of RUN) {
     ' | risefall: ' + ['rankings', 'overtakes', 'playerNo1', 'classes', 'offers', 'genTurns', 'torchPasses', 'rivalServices']
       .map(k => k + ' ' + ((state.riseFallLedger || {})[k] || 0)).join(', ') +
     ' | wall: heads stamped ' + ((state.wallLedger || {}).heads || 0) + ', houses standing ' + KP.signingHouses(state).length + ', quoted ' + ((state.wallLedger || {}).quotes || 0) +
+    ', acts on the books ' + ((state.wallLedger || {}).acts || 0) +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +
     (sgl.heirStabilized ? ' heirStabilized' : '') + (sgl.heirBurst ? ' heirBurst' : '') +
