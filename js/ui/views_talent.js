@@ -255,6 +255,21 @@
     // the evaluation board (v0.9.16): the ranking everyone reads monthly
     // the one eval (v0.10.30, §89 D4): the sheet the coaches rank on what they SEE
     const ranked = trainees.filter(p => KP.evalRankOf(p)).sort((a, b) => KP.evalRankOf(a) - KP.evalRankOf(b));
+    // the mission (v0.11.13, §104): the room the next showcase is held in,
+    // known a month ahead, and who is drilling it. Shown once there are
+    // enough trainees for a showcase to be held at all.
+    const mission = KP.evalMission && trainees.length >= KP.C.EVAL.minTrainees ? KP.evalMission(state) : null;
+    if (mission) {
+      const drilling = trainees.filter(p => (p.training.focus || []).includes(mission.id) && p.training.intensity !== 'rest' && !prepIds.includes(p.id));
+      html.push('<div class="card" style="padding:12px;border-color:color-mix(in srgb,var(--cyan) 45%,var(--line))">' +
+        '<div style="font-weight:800">This month’s room: ' + UI.esc(mission.name) + ' <span class="chip cool">' + UI.esc(mission.label) + '</span></div>' +
+        '<div style="font-size:.76rem;color:var(--ink-dim);margin-top:4px;line-height:1.4">' + UI.esc(mission.what.replace(/^./, c => c.toUpperCase())) + '. The showcase is ' +
+        UI.esc(KP.weekLabel(mission.week).text) + '. A trainee whose focus is on ' + UI.esc(mission.label.toLowerCase()) +
+        ' every week until then walks in with it drilled, and the sheet shows it. Nobody has to: the month is also for what she needs.</div>' +
+        '<div style="font-size:.74rem;margin-top:6px">' + (drilling.length
+          ? 'Drilling it this week: ' + drilling.map(p => UI.esc(KP.publicGiven(p)) + ' <span style="color:var(--ink-dim)">' + KP.missionPrepOf(state, p).weeks + '/' + KP.C.EVAL.every + '</span>').join(' · ')
+          : '<span style="color:var(--ink-dim)">Nobody is drilling it this week.</span>') + '</div></div>');
+    }
     if (ranked.length >= 2) {
       const evalWeek = ranked[0].evalHistory[ranked[0].evalHistory.length - 1].week;
       const next = evalWeek + KP.C.EVAL.every;
@@ -288,7 +303,8 @@
       } else {
         html.push('<div class="focus-chips" style="margin-top:10px">' +
           KP.C.TALENTS.map(d => '<button class="chip ' + ((p.training.focus || []).includes(d) ? 'on' : '') + '" ' +
-            'data-action="toggle-focus" data-id="' + p.id + '" data-domain="' + d + '">' + UI.esc(KP.C.TALENT_LABELS[d]) + '</button>').join('') +
+            'data-action="toggle-focus" data-id="' + p.id + '" data-domain="' + d + '">' + UI.esc(KP.C.TALENT_LABELS[d]) +
+            (mission && mission.id === d ? ' · the room' : '') + '</button>').join('') +   // the month's room, marked on the dial (v0.11.13)
           '</div>' +
           '<div class="seg" style="margin-top:9px">' +
           KP.C.TRAIN.intensities.map(i => '<button class="' + (p.training.intensity === i ? 'on ' + i : '') + '" ' +

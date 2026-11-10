@@ -1893,6 +1893,12 @@
       bottomMorale: 2,
       historyCap: 12,
       sheetHighMove: 2,       // a move this big, either way, or a new ace posts the sheet 'high' (v0.11.5, §96 wiring — measure-first)
+      // the mission (v0.11.13, §104 — measure-first): each showcase is held in
+      // one of five rooms, announced a month ahead. A trainee who drills that
+      // room until the day carries it into the showcase.
+      missionPrep: 4,         // on the day, for a full month of drilling the mission (pro rata for less)
+      momentNewWeeks: 8,      // a first showcase is hers for this long after she signs
+      momentVeteranWeeks: 96, // two years in front of the long table
     },
     POINTS: {
       nearMissGap: 8,         // close enough to hurt out loud

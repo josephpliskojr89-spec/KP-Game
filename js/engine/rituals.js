@@ -47,27 +47,119 @@
     return { ok: true };
   };
 
+  // ---- the mission (v0.11.13, §104): the month has a room ---------------
+  // The trainee years were two dials and four silent weeks. Each showcase is
+  // now held in one of five rooms, known a month ahead, so the focus dial
+  // has a reason to move: a trainee who drills the month's room until the
+  // day carries it in. The coaches run a rotation: every room once in five
+  // months, in an order of the save's own, never the same room twice
+  // running. A hash, never a draw.
+  const MISSIONS = [
+    { id: 'vocals', name: 'the ballad round', what: 'one voice, one piano, nowhere to stand but in the song' },
+    { id: 'dance', name: 'the formation round', what: 'eight counts, a wall of mirror, and the dance coach’s clipboard' },
+    { id: 'rap', name: 'the cypher', what: 'a beat nobody chose and sixteen bars each' },
+    { id: 'charisma', name: 'the solo stage', what: 'ninety seconds alone in front of the long table' },
+    { id: 'visuals', name: 'the camera test', what: 'three lenses, a ring light, and the playback on the big screen' },
+  ];
+  KP.EVAL_MISSIONS = MISSIONS;
+  KP.evalPhase = function (state) { return Math.floor(KP.hash01([state.seed, 'evalphase'].join('|')) * KP.C.EVAL.every); };
+  // the next showcase on or after a week
+  KP.nextEvalWeek = function (state, from) {
+    const every = KP.C.EVAL.every, ph = KP.evalPhase(state);
+    let w = from == null ? state.week : from;
+    while (((w % every) + every) % every !== ph) w++;
+    return w;
+  };
+  KP.evalMissionAt = function (state, evalWeek) {
+    const n = MISSIONS.length;
+    const k = Math.floor((evalWeek - KP.evalPhase(state)) / KP.C.EVAL.every);   // which showcase this is
+    const lap = Math.floor(k / n), pos = ((k % n) + n) % n;
+    const order = L => MISSIONS.map((m, i) => ({ i, h: KP.hash01([state.seed, 'mission', L, m.id].join('|')) }))
+      .sort((a, b) => a.h - b.h || a.i - b.i).map(x => x.i);
+    const cur = order(lap);
+    // a lap that would open on the room the last one closed on swaps its
+    // first two. The swap never reaches a lap's last room, so this needs no
+    // look further back than one lap.
+    if (cur[0] === order(lap - 1)[n - 1]) { const t = cur[0]; cur[0] = cur[1]; cur[1] = t; }
+    return MISSIONS[cur[pos]];
+  };
+  // the room the next showcase is held in, and its date, from the desk's
+  // seat: between weeks, this week's showcase (if it was one) is over
+  KP.evalMission = function (state) {
+    const week = KP.nextEvalWeek(state, state.week + 1);
+    return Object.assign({ week, label: KP.C.TALENT_LABELS[KP.evalMissionAt(state, week).id] }, KP.evalMissionAt(state, week));
+  };
+  // how much of the month she has drilled it, in words the board prints
+  KP.missionPrepOf = function (state, p) {
+    const every = KP.C.EVAL.every;
+    const weeks = Math.min(every, (p && p.missionWeeks) || 0);
+    return { weeks, of: every, share: weeks / every, bonus: Math.round((weeks / every) * KP.C.EVAL.missionPrep * 100) / 100 };
+  };
+
+  // ---- the moment: one thing from the room, never the same kind twice running ----
+  // each kind finds its own subject off the files, or stands down. Words only.
+  const tenure = (state, p) => (p.signedWeek != null ? state.week - p.signedWeek : 0);
+  const MOMENTS = [
+    { kind: 'newest', find: (state, rows) => { const E = KP.C.EVAL; const r = rows.filter(x => tenure(state, x.p) <= E.momentNewWeeks && (x.p.evalHistory || []).length <= 1).sort((a, b) => tenure(state, a.p) - tenure(state, b.p) || (a.p.id < b.p.id ? -1 : 1))[0]; return r ? [r.p] : null; },
+      text: 'It was {N}’s first showcase. {She} lost the second verse, said so out loud, and started again from the top. The long table wrote that down as a point in {pos} favour.' },
+    { kind: 'drilled', find: (state, rows) => { const r = rows.filter(x => (x.p.missionWeeks || 0) >= KP.C.EVAL.every).sort((a, b) => a.rank - b.rank)[0]; return r ? [r.p] : null; },
+      text: '{N} had the month’s piece in {pos} sleep. {Pos} roommate confirms this literally.' },
+    { kind: 'veteran', find: (state, rows) => { const r = rows.filter(x => tenure(state, x.p) >= KP.C.EVAL.momentVeteranWeeks).sort((a, b) => tenure(state, b.p) - tenure(state, a.p) || (a.p.id < b.p.id ? -1 : 1))[0]; return r ? [r.p] : null; },
+      text: '{N} has stood in front of that table for two years and more. {She} still bows to it before the music starts, and the newer ones have started doing it too.' },
+    { kind: 'youngest', find: (state, rows) => { const s = rows.slice().sort((a, b) => a.p.age - b.p.age || (a.p.id < b.p.id ? -1 : 1)); return s.length >= 2 && s[0].p.age < s[1].p.age ? [s[0].p] : null; },
+      text: '{N}, the youngest in the room, did not look at the long table once. The coaches are divided on whether that is nerve or nerves.' },
+    { kind: 'last', find: (state, rows) => { const r = rows[rows.length - 1]; return r && rows.length >= 3 && !(r.p.evalBottomStreak >= KP.C.EVAL.bottomTalkAfter) ? [r.p] : null; },
+      text: '{N}, last on the sheet, stayed to stack the chairs and asked the dance coach one question. The answer took ten minutes, and {she} wrote it down.' },
+    { kind: 'pair', find: (state, rows) => { for (let i = 0; i + 1 < rows.length; i++) { const rel = (state.relationships || {})[KP.pairKey(rows[i].p, rows[i + 1].p)]; if (rel && rel.state === 'close') return [rows[i].p, rows[i + 1].p]; } return null; },
+      text: '{N} and {M} finished one place apart and compared notes on the stairs, which is either friendship or reconnaissance. In this building it is usually both.' },
+    { kind: 'early', find: (state, rows) => { const r = rows.filter(x => x.p.training && x.p.training.intensity === 'heavy').sort((a, b) => b.p.fatigue - a.p.fatigue || (a.p.id < b.p.id ? -1 : 1))[0]; return r ? [r.p] : null; },
+      text: '{N} was running the piece in the stairwell at seven in the morning. The showcase was at four.' },
+  ];
+  KP.EVAL_MOMENTS = MOMENTS.map(m => m.kind);
+  // rows: [{ p, rank }] in sheet order. Returns { kind, text, ids } or null.
+  KP.evalMoment = function (state, rows) {
+    const open = MOMENTS.map(m => ({ m, who: m.find(state, rows) })).filter(x => x.who && x.m.kind !== state.lastEvalMomentKind);
+    if (!open.length) return null;
+    const pick = open[Math.floor(KP.hash01([state.seed, 'evalMoment', state.week].join('|')) * open.length)];
+    const text = KP.fillPro(pick.m.text.split('{N}').join(KP.displayName(pick.who[0])).split('{M}').join(pick.who[1] ? KP.displayName(pick.who[1]) : ''), pick.who[0]);
+    return { kind: pick.m.kind, text, ids: pick.who.map(p => p.id) };
+  };
+
   // ---- the monthly eval --------------------------------------------------
   // the one eval (v0.10.30, §89 D4): her latest rank on the sheet
   KP.evalRankOf = function (p) {
     const e = p && p.evalHistory && p.evalHistory[p.evalHistory.length - 1];
     return e ? e.rank : null;
   };
-  KP.registerWeekly('evals', 612, function (state, rng, inbox, roster) {
+  KP.registerWeekly('evals', 612, function (state, rng, inbox, roster, groups) {
     const E = KP.C.EVAL;
     const phase = Math.floor(KP.hash01([state.seed, 'evalphase'].join('|')) * E.every);
+    // the mission (v0.11.13, §104): every week, a trainee whose focus is on
+    // the month's room (and who is training at all) has drilled it a week
+    const mission = KP.evalMissionAt(state, KP.nextEvalWeek(state));
+    // (a lineup in rehearsal has no week of its own: the debut schedule owns it)
+    const rehearsing = new Set();
+    (groups || []).forEach(g => { if (g.prep) g.members.forEach(id => rehearsing.add(id)); });
+    roster.forEach(p => {
+      if (p.status !== 'trainee' || KP.onBreak(p) || !p.training || rehearsing.has(p.id)) return;
+      if ((p.training.focus || []).includes(mission.id) && p.training.intensity !== 'rest') p.missionWeeks = Math.min(E.every, (p.missionWeeks || 0) + 1);
+    });
     if (state.week % E.every !== phase) return;
     const trainees = roster.filter(p => p.status === 'trainee' && !KP.onBreak(p));
-    if (trainees.length < E.minTrainees) return;
+    // a showcase that is not held still closes the month: nobody carries a
+    // drilled room into the next one
+    if (trainees.length < E.minTrainees) { roster.forEach(p => { if (p.missionWeeks) p.missionWeeks = 0; }); return; }
     const led = evalLedger(state);
     const panel = KP.DATA.evaluators[0];
     // the coaches rank what they SEE — perceived reads, the fog intact,
-    // plus the day itself (a showcase has nerves)
+    // plus the day itself (a showcase has nerves), plus the room she drilled
     const ranked = trainees.map(p => ({
-      p,
+      p, prep: KP.missionPrepOf(state, p),
       score: KP.C.TALENTS.reduce((s, d) => s + KP.perceived(state, p, d, panel), 0) / KP.C.TALENTS.length +
         KP.derived(p).stagePresence * 0.15 + rng.normal(0, 3),
-    })).sort((a, b) => b.score - a.score);
+    }));
+    ranked.forEach(r => { r.score += r.prep.bonus; });
+    ranked.sort((a, b) => b.score - a.score);
     led.sheets++;
     const of = ranked.length;
     let climber = null, climberDelta = 0;
@@ -135,6 +227,40 @@
         p.evalBottomStreak = 0;
       }
     });
+    // ---- the mission, the line and the moment (v0.11.13, §104) ----------
+    // who drilled the room all month and climbed for it: the best-placed
+    const drilled = ranked.map((r, i) => ({ p: r.p, rank: i + 1, full: (r.p.missionWeeks || 0) >= E.every }))
+      .filter(x => x.full).filter(x => { const h = x.p.evalHistory; return h.length >= 2 && h[h.length - 2].rank > x.rank; })[0] || null;
+    const anyDrilled = ranked.some(r => (r.p.missionWeeks || 0) > 0);
+    led.missions = (led.missions || 0) + 1;
+    led.drilledFull = (led.drilledFull || 0) + ranked.filter(r => (r.p.missionWeeks || 0) >= E.every).length;
+    if (drilled) led.drilledClimbs = (led.drilledClimbs || 0) + 1;
+    // the line: with a project open, the room reads the sheet at the lineup's edge
+    let line = null, crossedIn = null, crossedOut = null;
+    if (state.project) {
+      const slots = (state.project.locked || []).length + ((state.project.seeking || []).length || 2);
+      line = Math.min(of, Math.max(3, slots));
+      ranked.forEach((r, i) => {
+        const h = r.p.evalHistory;
+        if (h.length < 2) return;
+        const was = h[h.length - 2].rank, now = i + 1;
+        if (was > line && now <= line && !crossedIn) crossedIn = r.p;
+        if (was <= line && now > line && !crossedOut) crossedOut = r.p;
+      });
+      if (crossedIn || crossedOut) led.lineCross = (led.lineCross || 0) + 1;
+    }
+    const moment = KP.evalMoment(state, ranked.map((r, i) => ({ p: r.p, rank: i + 1 })));
+    if (moment) { state.lastEvalMomentKind = moment.kind; led.moments = (led.moments || 0) + 1; }
+    // the month closes: the next room starts from nothing
+    roster.forEach(p => { if (p.missionWeeks) p.missionWeeks = 0; });
+    state.lastEvalMission = { week: state.week, id: mission.id };
+    const extra = ' The room this month was ' + mission.name + ': ' + mission.what + '.' +
+      (drilled ? ' ' + KP.displayName(drilled.p) + ' had drilled it since the day it was posted, and it showed.'
+        : anyDrilled ? '' : ' Nobody had drilled it; the room was read on what it already had.') +
+      (line ? ' With a project open the sheet is read at the line: the top ' + line + ' have a case' +
+        (crossedIn ? ', and ' + KP.displayName(crossedIn) + ' crossed into it this month' : '') +
+        (crossedOut ? (crossedIn ? ' as ' : ', and ') + KP.displayName(crossedOut) + ' fell out of it' + (crossedIn ? '' : ' this month') : '') + '.' : '') +
+      (moment ? ' One thing from the room: ' + moment.text : '');
     const names = ranked.slice(0, 3).map((r, i) => (i + 1) + '. ' + KP.displayName(r.p));
     // the ladder (v0.11.5, §96 wiring): critical the month the talk is held
     // or the FIRST #1 in the building's history is taken; high on a trainee's
@@ -145,8 +271,9 @@
     // weeks of a small room.)
     const roomsFirst = !!firstTop && !Object.values(state.people).some(q =>
       q !== firstTop && q.flags && q.flags.firstEvalTopWeek && q.flags.firstEvalTopWeek < state.week);
+    // (v0.11.13) a trainee crossing the line while a project is open is news
     const priority = (talked || roomsFirst) ? 'critical'
-      : (firstTop || maxMove >= E.sheetHighMove || aceChanged) ? 'high'
+      : (firstTop || maxMove >= E.sheetHighMove || aceChanged || crossedIn || crossedOut) ? 'high'
       : maxMove > 0 ? 'normal' : 'flavor';
     const story = firstTop ? KP.displayName(firstTop) + ' took the top of the sheet for the first time'
       : talked ? 'the after-eval talk, held with ' + KP.displayName(talked)
@@ -154,18 +281,23 @@
       : climber ? KP.displayName(climber) + ', up ' + climberDelta
       : slider ? KP.displayName(slider) + ', down ' + (-sliderDelta)
       : null;
-    inbox.push({ kind: 'company', ind: 'evalSheet', priority,
+    inbox.push({ kind: 'company', ind: 'evalSheet', priority, mission: mission.id, moment: moment ? moment.kind : null,
       text: KP.lineFor(state, 'evalSheet', [
         'Monthly evaluation day: showcase run twice, coaches at the long table, and the ranked sheet on the wall by six — ' + names.join(' · ') + ' of ' + of +
-          (story ? '. The room’s story is ' + story + ' — everyone recalibrated who to practice next to.' : '. Nobody moved — the sheet read like last month’s.') +
+          (story ? '. The room’s story is ' + story + ' — everyone recalibrated who to practice next to.' : '. Nobody moved — the sheet read like last month’s.') + extra +
           ' The sheet ranks what the coaches can SEE. Everyone in the building knows those are not always the same thing.',
         'Evaluation day. The showcase ran twice, the coaches sat the long table, and by six the sheet was on the wall: ' + names.join(' · ') + ' of ' + of +
-          (story ? '. The story is ' + story + ', and the room re-sorted itself by dinner.' : '. Nothing moved; the room ate dinner in the usual order.') +
+          (story ? '. The story is ' + story + ', and the room re-sorted itself by dinner.' : '. Nothing moved; the room ate dinner in the usual order.') + extra +
           ' The sheet is what the coaches saw. The building keeps its own sheet.',
         'The monthly sheet went up at six: ' + names.join(' · ') + ' of ' + of +
-          (story ? '. Everyone read it for one thing first — ' + story + ' — and then back up to see who had been passed.' : '. Everyone read it once and went back to practice; nothing had moved.') +
+          (story ? '. Everyone read it for one thing first — ' + story + ' — and then back up to see who had been passed.' : '. Everyone read it once and went back to practice; nothing had moved.') + extra +
           ' Rank is what a showcase can measure. The rest gets argued in the hallway.',
       ]) });
+    // the next room is posted with the sheet: a month to drill it
+    const next = KP.evalMissionAt(state, state.week + E.every);
+    inbox.push({ kind: 'company', ind: 'evalMission', priority: 'flavor', mission: next.id,
+      text: 'Posted under the sheet: next month’s showcase is ' + next.name + ' — ' + next.what + '. ' + KP.weekLabel(state.week + E.every).text +
+        '. A trainee whose focus is on ' + KP.C.TALENT_LABELS[next.id].toLowerCase() + ' from now until then walks in with it drilled.' });
   });
 
   // ---- the timeline reacts ----------------------------------------------
