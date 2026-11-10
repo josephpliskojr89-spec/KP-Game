@@ -279,7 +279,10 @@
     }
     // a trainee another house cut, signed here: that house watches (v0.11.23,
     // §114). A house that folded under her is not watching anything.
-    if (p.castoffFrom && p.castoffFrom !== state.company.short && KP.recordHouse) KP.recordHouse(state, p.castoffFrom, 'weSignedTheirCastoff');
+    if (p.castoffFrom && p.castoffFrom !== state.company.short && KP.recordHouse) {
+      KP.recordHouse(state, p.castoffFrom, 'weSignedTheirCastoff');
+      if (KP.breakTruce) KP.breakTruce(state, p.castoffFrom, p);   // inside a truce, this is what breaks it (v0.11.26, §117)
+    }
     const manner = p.releasedFrom === state.company.short ? 'back' : (p.channel === 'freeAgent' ? 'market' : null);
     KP.chapter(state, p, 'signed', manner ? { co: state.company.short, how: manner } : { co: state.company.short });
     delete p.castoffUntil; delete p.reentryAt; delete p.releasedFrom; delete p.releasedBy;

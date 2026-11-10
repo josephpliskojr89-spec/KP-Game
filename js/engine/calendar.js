@@ -94,6 +94,7 @@
       const candidates = [];
       eachAct(state, (r, a) => {
         if (state.week - (r.lastAmbushWeek || -999) < W.ambushCooldown) return;
+        if (KP.truceWith && KP.truceWith(state, r)) return;   // a house in a truce with us stays off our dates (v0.11.26, §117)
         const due = actDue(a);
         if (due <= state.week || due === week) return;
         if (Math.abs(due - week) > W.ambushWindow) return;

@@ -708,6 +708,13 @@ const BANDS = {
   // had a reason the scene could give. Ruled from the first soak: 39 of 40,
   // and 94 of 111 calls
   callReason:        { lo: 0.40, hi: 1.00, label: 'orgs where a house that called our staff had a reason the scene could give' },
+  // the truce (v0.11.26, §117): a head who holds a grudge calls once. The
+  // bot shakes on it in half its careers, by seed. Ruled from the census:
+  // called in 68 of 200 careers, shaken on in 33, broken in none (the bot
+  // never signs a castoff of a house it has a truce with; the suite does)
+  truceCalled:       { lo: 0.05, hi: 0.90, label: 'orgs a rival head called with a truce' },
+  truceTaken:        { lo: 0.02, hi: 0.60, label: 'orgs that shook on a truce' },
+  truceBroken:       { lo: 0.00, hi: 0.30, label: 'orgs that broke a truce by signing one the house had cut' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -944,7 +951,7 @@ const tally = {
   missionDrilled: 0, missionMoment: 0, talkQuestion: 0, slotGiven: 0, yearRead: 0, yearClimb: 0,
   listPosted: 0, offListDoor: 0,
   quietRested: 0, quietFull: 0,
-  headQuoted: 0, houseBooks: 0, parkMoved: 0, callReason: 0,
+  headQuoted: 0, houseBooks: 0, parkMoved: 0, callReason: 0, truceCalled: 0, truceTaken: 0, truceBroken: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -1608,6 +1615,12 @@ for (let s = 0; s < SEEDS; s++) {
         const g = p && KP.groupOf(state, p.id);
         const devoted = g && g.fandom && g.fandom.intensity >= 55;
         KP.resolveScene(state, sc.id, devoted ? 'confirm' : 'statement');
+        return;
+      }
+      if (sc.kind === 'theTruce') {
+        // half the careers shake on it, by seed, so both answers are measured
+        // (v0.11.26, §117); the other half give the polite no
+        KP.resolveScene(state, sc.id, KP.hash01([state.seed, 'botTruce'].join('|')) < 0.5 ? 'take' : 'decline');
         return;
       }
       if (sc.kind === 'theOffer') {
@@ -2520,6 +2533,20 @@ for (let s = 0; s < SEEDS; s++) {
       seed + ' the parked dates do not add up: ' + [wallL.parks, wallL.parksBooks, wallL.parksTemper, wallL.parksMoved].join('/'));
     guard((wallL.parks || 0) === ((wallL.kinds || {}).theyAmbushed || 0),
       seed + ' a house parked on a date and it did not go on its books: ' + (wallL.parks || 0) + ' parked, ' + ((wallL.kinds || {}).theyAmbushed || 0) + ' on the books');
+    // the truce (v0.11.26, §117): a call is answered once; a truce ends
+    // once; and a house in a truce with us has not parked on a date since
+    if ((wallL.truceCalls || 0) >= 1) tally.truceCalled++;
+    if ((wallL.truces || 0) >= 1) tally.truceTaken++;
+    if ((wallL.trucesBroken || 0) >= 1) tally.truceBroken++;
+    ['truceCalls', 'truces', 'truceDeclined', 'trucesBroken', 'trucesRun'].forEach(k => { wallSum[k] = (wallSum[k] || 0) + (wallL[k] || 0); });
+    wallSum.truceOn = (wallSum.truceOn || 0) + houses.filter(r => KP.truceWith(state, r)).length;
+    guard((wallL.truces || 0) + (wallL.truceDeclined || 0) <= (wallL.truceCalls || 0), seed + ' more truce answers than calls: ' + [wallL.truceCalls, wallL.truces, wallL.truceDeclined].join('/'));
+    guard((wallL.trucesBroken || 0) + (wallL.trucesRun || 0) + houses.filter(r => KP.truceWith(state, r)).length <= (wallL.truces || 0), seed + ' more truces ended or in force than were shaken on');
+    houses.forEach(r => {
+      guard(!r.truce || state.week <= r.truce.until + 1, seed + ' ' + r.short + '’s truce ran out and is still on the file');
+      guard(!KP.truceWith(state, r) || !(r.lastAmbushWeek > r.truce.since), seed + ' ' + r.short + ' parked on a date inside its truce');
+      guard(!KP.truceWith(state, r) || !r.founderGrudge, seed + ' the old house is in a truce');
+    });
     // the letterhead (v0.11.25, §116): who called our staff, and what the
     // answers put on the books. An answer needs a call
     if ((wallL.callsBooks || 0) + (wallL.callsTemper || 0) >= 1) tally.callReason++;
@@ -3233,6 +3260,8 @@ console.log('the weight: dates parked on by a house ' + (wallSum.parks || 0) + '
   ' · not the grandest house in reach ' + (wallSum.parksMoved || 0));
 console.log('the letterhead: staff calls ' + (wallSum.calls || 0) + ' · from a house with something against us ' + (wallSum.callsBooks || 0) +
   ' · on its head’s temper ' + (wallSum.callsTemper || 0) + ' · matched, and on its books ' + (wallSum.k_weKeptOurStaff || 0) + ' · hired away ' + (wallSum.k_theyHiredOurStaff || 0));
+console.log('the truce: a head called ' + (wallSum.truceCalls || 0) + ' times · shaken on ' + (wallSum.truces || 0) + ' · declined or unanswered ' + (wallSum.truceDeclined || 0) +
+  ' · broken by a signing ' + (wallSum.trucesBroken || 0) + ' · ran their year ' + (wallSum.trucesRun || 0) + ' · in force at the end ' + (wallSum.truceOn || 0));
 console.log('the quiet: told the rest was in ' + (quietSum.rested || 0) + ' · told the bank was full ' + (quietSum.full || 0) +
   ' · a member on a break told she was rested ' + (quietSum.breakRested || 0) + ' · acts still parked at the end ' + (quietSum.parked || 0));
 console.log('the posting: lists ' + (postSum.posted || 0) + ' · the month’s first left off ' + (postSum.offMonth || 0) + ' · the year’s first left off ' + (postSum.offYear || 0) +

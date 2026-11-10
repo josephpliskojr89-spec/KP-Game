@@ -207,6 +207,11 @@
       '<div class="t-sub">' + p.age + ' · ' + UI.esc(p.born && KP.fromLine ? KP.fromLine(state, p) : sourceLabel(state, p)) + ' · ' + looksWord(state, p) + '</div>' +
       '<div class="t-read">“' + UI.esc(best.line) + '”</div>' +
       '<div class="t-chips">' + UI.heatChips(state, p.id) +
+      // the signpost (v0.11.26, §117): signing her breaks a truce
+      (function () {
+        const house = KP.truceAtRisk ? KP.truceAtRisk(state, p) : null;
+        return house ? '<span class="chip hot">signing breaks the truce with ' + UI.esc(house.short) + '</span>' : '';
+      })() +
       (p.channel && { application: 'applicant', referral: 'referred', street: 'street cast',
         washout: 'washout', social: 'went viral', showKid: 'season finalist', season: 'seen on the season', released: 'released, came back around', castoff: 'a castoff', freeAgent: 'a career, off the market' }[p.channel]
         ? '<span class="chip' + (KP.CHANNEL_PRIVATE[p.channel] ? ' cool' : '') + '">' +

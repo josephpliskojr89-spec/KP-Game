@@ -19,7 +19,8 @@
 
   function ledger(state) {
     const led = state.wallLedger = state.wallLedger || {};
-    ['heads', 'quotes', 'acts', 'parks', 'parksBooks', 'parksTemper', 'parksMoved', 'calls', 'callsBooks', 'callsTemper'].forEach(k => { if (led[k] == null) led[k] = 0; });
+    ['heads', 'quotes', 'acts', 'parks', 'parksBooks', 'parksTemper', 'parksMoved', 'calls', 'callsBooks', 'callsTemper',
+      'truceCalls', 'truces', 'truceDeclined', 'trucesBroken', 'trucesRun'].forEach(k => { if (led[k] == null) led[k] = 0; });
     if (!led.kinds) led.kinds = {};
     return led;
   }
@@ -364,9 +365,132 @@
     return head && OFFER_LINES[head.temper] ? head.name + ' signed it, and added one line by hand: ' + OFFER_LINES[head.temper] : '';
   };
 
+  // ==== part five: the truce (v0.11.26, §117) ==========================================
+  // The first door a head opens. A house that holds a grudge, whose head is
+  // not a duelist, calls once and offers a truce: hash-timed, never drawn.
+  // Taken, what the house held is struck from the books (the walkout
+  // excepted, and the old house never calls) and for a year the house does
+  // not park on our dates and we do not sign anyone it has cut. Signing
+  // one breaks it, and that goes on the books heavier than what was struck.
+  KP.truceWith = function (state, r) { return !!(r && r.truce && state.week <= r.truce.until); };
+  // would this head call this week? (pure; the hash is the house's and the week's)
+  KP.truceDue = function (state, r) {
+    const T = KP.C.WALL.TRUCE;
+    const head = r ? KP.rivalHead(state, r) : null;
+    if (!head || r.founderGrudge || KP.truceWith(state, r)) return false;
+    if (r.truceAsked != null && state.week - r.truceAsked < T.cooldown) return false;
+    if (!(KP.houseRead(state, r).standing < T.below)) return false;
+    return KP.hash01([state.seed, r.short, state.week, 'truce'].join('|')) < (T.chance[head.temper] || 0);
+  };
+  const TRUCE_LINES = {
+    steward: '“A house that spends its year on another house has not spent it on its artists. I would like both of ours back.”',
+    broker: '“This has cost us both more than it has made either of us. I have run the numbers twice.”',
+    showman: '“The feud was good television. It has stopped being good television.”',
+  };
+  KP.TRUCE_LINES = Object.assign({}, TRUCE_LINES);
+  // what the truce is, in one sentence: the letter, the scene and the card all say it
+  const TERMS = 'they stay off our dates, and we do not sign anyone they have cut';
+  KP.takeTruce = function (state, r) {
+    const W = KP.C.WALL;
+    r.directed = (r.directed || []).filter(a => { const row = W.KINDS[a.kind]; return !row || row.w >= 0 || row.keep; });
+    r.truce = { since: state.week, until: state.week + W.TRUCE.weeks };
+    KP.recordHouse(state, r.short, 'theyMadePeace');
+    ledger(state).truces++;
+    return r.truce;
+  };
+  KP.declineTruce = function (state, r) {
+    KP.recordHouse(state, r.short, 'theyOfferedATruce');
+    ledger(state).truceDeclined++;
+  };
+  // signing someone the house cut, inside a truce: it is over, and it is remembered
+  KP.breakTruce = function (state, short, p) {
+    const r = KP.signingHouses(state).find(x => x.short === short);
+    if (!KP.truceWith(state, r)) return null;
+    delete r.truce;
+    KP.recordHouse(state, r.short, 'weBrokeTheTruce');
+    ledger(state).trucesBroken++;
+    const head = KP.rivalHead(state, r);
+    const n = { kind: 'industry', ind: 'truceBroken', priority: 'critical', company: r.short, personId: p ? p.id : null,
+      text: (head ? head.name : r.short) + ' read ' + (p ? KP.displayName(p) + '’s' : 'the') + ' signing photo as an answer. The truce with ' + r.short + ' is over: the handshake was that ' + TERMS + ', and the second half of that sentence was ours. It is back on their books, heavier than what the truce struck.' };
+    KP.note(state, n);
+    return n;
+  };
+  KP.registerScene('theTruce', {
+    title: (state, sc) => sc.company + ' · the truce',
+    body: (state, sc) => {
+      const r = KP.signingHouses(state).find(x => x.short === sc.company);
+      if (!r) return sc.company + ' is no longer a house, and the call with it.';
+      const read = KP.houseRead(state, r);
+      const held = read.acts.filter(a => a.w < 0);
+      const first = held[0] ? ' What they hold: ' + r.short + ' ' + held[0].words + ' (' + KP.weekLabel(held[0].week).text + ')' + (held.length > 1 ? ', and ' + (held.length - 1) + ' more' : '') + '.' : '';
+      return KP.signedBy(state, r) + ' is offering a truce for a year: ' + TERMS + '.' + first +
+        ' Shake on it and that is struck from the books. Break it, by signing one of theirs, and it goes back on heavier than before.';
+    },
+    // the polite no comes first: it is what a desk that does not answer amounts to
+    options: () => [
+      { id: 'decline', label: 'Decline, politely' },
+      { id: 'take', label: 'Shake on it' },
+    ],
+    resolve: (state, sc, optionId) => {
+      const r = KP.signingHouses(state).find(x => x.short === sc.company);
+      if (!r) return { toast: 'The house that called is gone.' };
+      const head = KP.rivalHead(state, r);
+      const who = head ? head.name : r.short;
+      if (optionId === 'take') {
+        const tr = KP.takeTruce(state, r);
+        return { toast: 'Shaken on: a truce until ' + KP.weekLabel(tr.until).text + '.',
+          note: { kind: 'industry', ind: 'truceTaken', priority: 'critical', company: r.short,
+            text: 'A truce with ' + r.short + ', shaken on by ' + who + ' and this desk. Until ' + KP.weekLabel(tr.until).text + ' ' + TERMS + '. What they held against us is struck from their books. The trades will work it out from the calendar by spring.' } };
+      }
+      KP.declineTruce(state, r);
+      return { toast: 'Declined, politely. ' + who + ' thanked the desk for its time, and meant about half of it.' };
+    },
+    expire: (state, sc) => {
+      const r = KP.signingHouses(state).find(x => x.short === sc.company);
+      if (!r) return null;
+      KP.declineTruce(state, r);
+      const head = KP.rivalHead(state, r);
+      return { kind: 'industry', ind: 'truceUnanswered', priority: 'normal', company: r.short,
+        text: 'The call from ' + (head ? head.name : r.short) + ' went unreturned. ' + r.short + ' took the silence for a polite no, and wrote it down as one.' };
+    },
+  });
+  function truceWeek(state, inbox) {
+    const T = KP.C.WALL.TRUCE;
+    const led = ledger(state);
+    KP.signingHouses(state).forEach(r => {
+      // a truce that ran its year: said once, so it must land (§112)
+      if (r.truce && state.week > r.truce.until) {
+        delete r.truce;
+        led.trucesRun++;
+        inbox.push({ kind: 'industry', ind: 'truceRan', priority: 'critical', company: r.short,
+          text: 'The truce with ' + r.short + ' ran its year. Nothing in it is owed any more: their dates are theirs to choose, and their castoffs are anybody’s.' });
+      }
+    });
+    // one call at a time, the first house on the list that is due
+    if ((state.scenes || []).some(sc => sc.kind === 'theTruce')) return;
+    const r = KP.signingHouses(state).find(x => KP.truceDue(state, x));
+    if (!r) return;
+    const head = KP.rivalHead(state, r);
+    r.truceAsked = state.week;
+    led.truceCalls++;
+    KP.openScene(state, { kind: 'theTruce', company: r.short, expiresWeek: state.week + T.answerWeeks });
+    // critical: it opens a decision, and a head calls about this once in two years
+    inbox.push({ kind: 'industry', ind: 'truceCall', priority: 'critical', company: r.short,
+      text: head.name + ' of ' + r.name + ' called the desk directly, which heads of houses do not do. ' + TRUCE_LINES[head.temper] +
+        ' The offer is a truce for a year: ' + TERMS + '. It is on the Desk.' });
+  }
+  KP.truceTerms = function () { return TERMS; };
+  // the house whose truce signing this person would break, or null (pure):
+  // the board and the signing sheet both ask before the pen does
+  KP.truceAtRisk = function (state, p) {
+    const r = p && p.castoffFrom ? KP.signingHouses(state).find(x => x.short === p.castoffFrom) : null;
+    return KP.truceWith(state, r) ? r : null;
+  };
+
   // ---- the weekly: a house founded since the last tick gets its head -------------
   // before the ranking (562), so a house a week old can be quoted
-  KP.registerWeekly('wall', 560, function (state) {
+  KP.registerWeekly('wall', 560, function (state, rng, inbox) {
     KP.stampHeads(state);
+    truceWeek(state, inbox);
   });
 })(typeof window !== 'undefined' ? window : globalThis);

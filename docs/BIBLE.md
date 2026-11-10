@@ -9501,7 +9501,7 @@ absences given a cadence from the fandom's side (the countdown
 project, a letter from the base at the half, "whole again" as a
 ceremony with the return stage named).
 
-**6. The other side of the wall (rivals and the press as people; part one, the head, SHIPPED v0.11.22, §113; part two, the ledger, SHIPPED v0.11.23, §114; part three, the weight, SHIPPED v0.11.24, §115; part four, the letterhead, SHIPPED v0.11.25, §116).** A
+**6. The other side of the wall (rivals and the press as people; part one, the head, SHIPPED v0.11.22, §113; part two, the ledger, SHIPPED v0.11.23, §114; part three, the weight, SHIPPED v0.11.24, §115; part four, the letterhead, SHIPPED v0.11.25, §116; part five, the truce, SHIPPED v0.11.26, §117).** A
 hash-stamped HEAD per signing house (an invented name and a temper
 word in the schools' pattern), shown on the card and quoted yearly in
 the ranking letter through a family per temper. A directed ledger per
@@ -12447,6 +12447,137 @@ census 200 clean, longhaul 11 × 620 clean, e2e 137, lockstep
 *Still the owner's to call*: the Desk's tie-break (§112); and from
 §109, the fade between records through a service chapter and the
 size of the window's bank.
+
+## §117 The truce (SHIPPED v0.11.26 — §96 recommendation 6, the other side of the wall, part five)
+
+Owner: *"Break remaining work into smaller pieces"*. The fifth of
+recommendation 6's pieces, and the first door a head opens.
+
+**The finding** (§96): "One recurring door, `rivalCall`, opened by
+temper", with "a truce after a named rivalry" among its uses and
+"the polite no as the bot's default". Since §114 a house's regard
+could be read, and since §115 it weighed on our dates, but there
+was nothing to do about it. This is the first thing to do.
+
+**When a head calls** (`KP.truceDue`, pure). A house whose regard
+for us is under −3, which is the card's "holding a grudge". Its
+head is not a duelist: a duelist never calls. It is not the house
+we walked out of: the old house never calls. It is not already in
+a truce with us, and its head has not called in the last 96 weeks.
+Then each week is a hash of the seed, the house and the week
+against the temper's chance: a steward 8 in 100, a broker 5, a
+showman 3. Nothing is drawn from the main stream. One call waits
+on the Desk at a time, for three weeks.
+
+**The letter** is the head's, and critical: it opens a decision,
+and a head calls about this once in two years. Each temper has a
+line:
+
+- steward: "A house that spends its year on another house has not
+  spent it on its artists. I would like both of ours back."
+- broker: "This has cost us both more than it has made either of
+  us. I have run the numbers twice."
+- showman: "The feud was good television. It has stopped being
+  good television."
+
+**The terms** are one sentence, the same in the letter, the scene
+and on the card: "they stay off our dates, and we do not sign
+anyone they have cut". A truce runs 48 weeks.
+
+**Two answers.** The polite no comes first, so a desk that does
+not answer amounts to it, and so does every tool's bot.
+
+- *Decline, politely.* Nothing changes. It goes on the books in
+  words and weighs nothing: the house "offered us a truce and was
+  politely declined". A call left three weeks unanswered is
+  written down the same way.
+- *Shake on it.* What the house held against us is struck from its
+  books; what it did, and the walkout, stay. The handshake goes on
+  them (+1). It costs no money and no trust. Its price is its
+  terms.
+
+**In force.** A house in a truce with us is not in reach of our
+dates (§115): it does not park, whoever else does. Its card says
+until when, and the terms.
+
+**Breaking it.** Signing anyone the house has cut ends the truce
+at the signing. Both go on the books: the castoff signed (−1) and
+the truce broken (−4), which is heavier than most of what a
+handshake strikes. A critical letter says who read the signing
+photo as an answer. The player is told before the pen: the board
+marks her, "signing breaks the truce with Novaline", and the
+signing sheet says it again in red.
+
+**The year runs out.** The week after its last, the truce is off
+the file and a critical letter says so, once.
+
+**Old saves** (migration 0.11.26): the wall's ledger counts truces
+from zero.
+
+**Measured.** The census bot shakes on it in half its careers, by
+seed, so both answers are measured; the other tools' bots give the
+polite no. Over 200 careers a head called 79 times, in 68 careers:
+38 were shaken on, 39 declined or left unanswered, and 2 were still
+waiting at the end. Of the 38 truces, 16 ran their year, 21 were in
+force at the end, one went with a house that did not last the
+career, and none was broken. Three bands: a head called (68 of
+200), a truce shaken on (33), a truce broken (0). Across the long
+haul's eleven scenarios, 3 calls, all declined.
+
+**At 1,000 careers on both builds** (§115's law). 381 calls in 333
+careers; 186 truces. A date is parked on 4.3 times a career before
+and after: 4,205 dates before, 4,204 after. No outcome moved: the
+daesang goes home in 74 careers and 75, the first group reaches
+number one in 880 and 882, a head-to-head week is lost in 681 and
+681, 12 and 12 careers dissolve. Of 352 rows, 127 differ and none
+by two standard deviations.
+
+**Not measured by the census: the break.** In 1,000 careers the bot
+never signed someone a house had cut while in a truce with that
+house. The break is held by the suite, through a real signing and
+through the signing sheet's two buttons, and by the browser pass.
+
+**Found while finishing it.** The browser pass passed without
+doing what it claimed. Its Sign button opens a sheet, and the
+script closed the sheet and signed through the engine instead. It
+now taps the sheet's own buttons, and the sheet got the warning it
+was missing. The handshake's toast ran off the screen and was
+shortened.
+
+**Found by the mutation run.** One broken line hung the suite for
+half an hour instead of failing: with the head's mark unset, a
+check set the week to a value that was not a number, and the
+engine never came back from it. The check now fails by name first,
+and the runner treats two minutes without an answer as a crash. On
+the full run after that, 60 of 61 were caught; the miss was a
+mutation that crashed by its own construction, replaced by a real
+one (a truce past its year still shown on the card) with a check.
+One guard guarded nothing and was deleted.
+
+Suite_136 (102): the table, when a head calls and when not, the
+hash's share over two thousand weeks, the call through the real
+weekly with the main stream left where it was, one call at a time,
+the scene's words, each answer, silence, a house that stops
+standing, the walkout kept, a truce in force on our dates, the year
+running out, the break through a real signing, the card, the board,
+the Desk, the signing sheet driven through its two buttons, an old
+file, a reload, both tools' wiring. Suites 131 and 133 hold the two
+letters and the three acts to their lists. Mutation-checked against
+61 broken lines, each caught by a named assertion in every suite
+that owns the line. A real-browser pass (25 checks, no page
+errors): the head calls with the week's hash forced, the Desk
+carries the call, the truce is shaken on with the real button and
+is on the card, the board and the signing sheet both warn, and
+signing through the sheet ends it. Battery 136/136, soak 40 clean,
+census 200 clean, longhaul 11 × 620 clean, e2e 137, lockstep
+0.11.26.
+
+*Left for the next piece.* The other doors a head could open: a
+borrowed stage week, a trade, a joint stage. *Not built:* a price
+named in return, and a truce that we offer. *Still the owner's to
+call*: the Desk's tie-break (§112); and from §109, the fade
+between records through a service chapter and the size of the
+window's bank.
 
 ## §18 Watch items
 
@@ -16409,6 +16540,31 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > soak 40 clean, census 200 clean, longhaul 11 × 620 clean, e2e 137, a
 > real-browser pass (22), lockstep 0.11.25. Rode to main. Next piece:
 > a door a head opens.
+
+> **0.11.26 — the truce.** Own judgment, under "Approved to tackle as
+> much of the remaining queue as you see fit" and "Break remaining
+> work into smaller pieces": the fifth piece of §96's recommendation
+> 6, and the first door a head opens. §117: a house's regard could be
+> read and weighed on our dates, and there was nothing to do about
+> it. A house holding a grudge, whose head is not a duelist, calls
+> once with a truce: hash-timed, never drawn, a steward soonest. Two
+> answers, the polite no first. Shaken on, what the house held is
+> struck from its books, and for 48 weeks it stays off our dates and
+> we do not sign anyone it has cut. Signing one ends it and goes on
+> the books at −4; the board and the signing sheet both say so first.
+> The call, the handshake, the break and the end of the year are
+> critical letters. The browser pass had passed without signing
+> through the page, and was rebuilt; one broken line hung the suite
+> for half an hour, and the runner now calls two minutes a crash.
+> Over 200 careers a head called 79 times in 68 careers and 38 truces
+> were shaken on, the census bot taking it in half its careers; none
+> was broken, so the break is held by the suite and the browser pass.
+> At 1,000 careers on both builds no outcome moved: the daesang 74 and
+> 75 careers, the first group at number one 880 and 882. Suite_136
+> (102), 61 mutations caught by name. Battery 136/136, soak 40 clean,
+> census 200 clean, longhaul 11 × 620 clean, e2e 137, a real-browser
+> pass (25), lockstep 0.11.26. Rode to main. Next piece: the other
+> doors a head could open.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

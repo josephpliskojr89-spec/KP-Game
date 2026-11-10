@@ -824,7 +824,12 @@
           '<div class="pad" style="font-size:.88rem;line-height:1.5;color:var(--ink-dim)">Contract cost <b style="color:var(--gold)">₩ ' + cost + '</b>. ' +
           (KP.signingsCapped(s)
             ? 'Signings remaining after this: ' + (s.signingsAllowed - s.signingsUsed - 1) + '.'
-            : 'Budget after this: ₩ ' + (s.budget - cost) + '. The executive reads the books monthly.') + '</div>',
+            : 'Budget after this: ₩ ' + (s.budget - cost) + '. The executive reads the books monthly.') +
+          // the sheet says it before the pen does (v0.11.26, §117)
+          (function () {
+            const house = KP.truceAtRisk ? KP.truceAtRisk(s, p) : null;
+            return house ? '<div class="sign-truce" style="margin-top:8px;color:var(--danger)">' + UI.esc(KP.fillPro('Signing {her} breaks the truce with ', p) + house.short) + '. It goes back on their books heavier than what the truce struck.</div>' : '';
+          })() + '</div>',
           '<button class="btn" data-action="close-modal" style="flex:1">Not yet</button>' +
           '<button class="btn primary" data-action="sign-confirm" data-id="' + p.id + '" style="flex:1">' + KP.fillPro('Sign {her}', p) + '</button>');
         break;

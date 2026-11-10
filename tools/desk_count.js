@@ -23,6 +23,8 @@ const ONE_SHOTS = [
   'mandateMet', 'evalYear', 'powerRanking',
   // the ceremonies of the road and the last stage (§98, §101)
   'tourEnd', 'festHeadline', 'lastStage',
+  // the truce (§117): a head calls about it once in two years, and it runs out once
+  'truceCall', 'truceRan',
 ];
 
 function watch(KP) {

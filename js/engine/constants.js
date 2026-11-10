@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.25',
+    VERSION: '0.11.26',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -3119,6 +3119,7 @@
         weLeveragedTheirOffer: { w: -3, words: 'had its offer letter put on our board’s table' },
         weDeclinedTheirOffer:  { w: -1, words: 'made us an offer and was declined, with the good stationery' },
         weKeptOurStaff:        { w: -1, words: 'called one of our staff and was outbid' },
+        weBrokeTheTruce:       { w: -4, words: 'had its truce with us broken by a signing' },
         weWalkedOut:           { w: -6, keep: true, words: 'watched its architect walk out the front door' },   // the founder's old house: a grudge for two years, cool for five; never dropped from a full book
         // what they did
         theyTookTheWeek:       { w: 1,  words: 'took a head-to-head week from us' },
@@ -3127,6 +3128,8 @@
         theySignedOurAlumna:   { w: 1,  words: 'signed an artist who was once ours' },
         theySignedOneWhoLeft:  { w: 0,  words: 'signed someone who had left this building' },
         theyHiredOurStaff:     { w: 1,  words: 'hired one of our staff away' },
+        theyOfferedATruce:     { w: 0,  words: 'offered us a truce and was politely declined' },
+        theyMadePeace:         { w: 1,  words: 'shook hands with us on a truce' },
         tookThePactWePassed:   { w: 1,  words: 'took the co-build we passed on' },
       },
       // their regard for us, in words: the first row the standing reaches
@@ -3143,6 +3146,15 @@
       // from within
       CALL_LEAN: { broker: 2, duelist: 1, showman: 0, steward: -2 },
       callPerPoint: 0.5, callFloor: 0.25,
+      // the truce (v0.11.26, §117): the first door a head opens. A house
+      // holding a grudge whose head is not a duelist calls, hash-timed
+      TRUCE: {
+        below: -3,               // their regard under this: holding a grudge
+        weeks: 48,               // a truce runs a year
+        cooldown: 96,            // a head who has called does not call again for two years
+        answerWeeks: 3,          // the call waits this long on the Desk
+        chance: { steward: 0.08, broker: 0.05, showman: 0.03, duelist: 0 },   // weekly, while the grudge stands
+      },
     },
     // ---- Standing & scars (v0.8.3) --------------------------------------
     SCAR: {

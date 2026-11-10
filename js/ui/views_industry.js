@@ -270,6 +270,10 @@
           const words = KP.houseLedgerWords ? KP.houseLedgerWords(state, r) : '';
           return words ? '<div class="rv-ledger" style="font-size:.72rem;color:var(--ink-dim);margin-top:6px;line-height:1.45">' + UI.esc(words) + '</div>' : '';
         })() +
+        // a truce in force (v0.11.26, §117): what it is, and until when
+        (KP.truceWith && KP.truceWith(state, r)
+          ? '<div class="rv-truce" style="font-size:.72rem;color:var(--ink);margin-top:6px;line-height:1.45">Truce until ' + UI.esc(KP.weekLabel(r.truce.until).text) + ': ' + UI.esc(KP.truceTerms()) + '.</div>'
+          : '') +
         (actLines ? '<div class="rv-acts">' + actLines + '</div>'
           : '<div class="rv-acts"><div class="rv-act"><span class="rv-act-note">No active act — the trainee floor is all they have.</span></div></div>') +
         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">' +
