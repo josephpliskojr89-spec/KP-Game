@@ -267,6 +267,9 @@
         : g.debuted
         ? g.name + '’s comeback is official: ' + KP.weekLabel(plan.week).text + ', on every calendar the fandom keeps. The reply section is already fighting about the concept from one dark teaser image and a font.'
         : state.company.short + ' put a date on the debut everyone suspected: ' + g.name + ', ' + KP.weekLabel(plan.week).text + '. The industry-watcher accounts have opinions. The trainees’ old academy classmates have screenshots.' });
+    // the long goodbye (v0.11.10, §101): a record that will land inside a
+    // leaving member's last weeks says so in its announcement
+    if (g.debuted && KP.farewellLockTells) KP.farewellLockTells(state, g, plan.week);
     // the public eye (v0.9.36, §77): a NEW group's announcement mints
     // expectations, prints the ace who made it — and the known trainee
     // it skipped becomes the story the owner asked for
@@ -418,6 +421,8 @@
         Object.assign({}, format, { tracks: RP.tracks }));
       if (!plan.rng) state.rngState = trng.state();
     }
+    // the long goodbye (v0.11.10, §101): a reissue can be the last era too
+    if (KP.farewellLockTells) KP.farewellLockTells(state, g, g.prep.scheduledWeek);
     // the engine writes the announcement (v0.11.5, §96 wiring): the bot's
     // path and the desk's get the same letter; the toast keeps its clause.
     // v0.11.9 (§100): it is an era announced, in that family, and it says
@@ -759,6 +764,9 @@
     const season = KP.seasonRead ? KP.seasonRead(state, concept.id) : { mod: 0, line: null };
     // the declared return (v0.9.12): anticipation converts to numbers
     const hiaRead = KP.hiatusReadsRelease ? KP.hiatusReadsRelease(state, g, isDebut) : { mod: 0, note: null };
+    // the long goodbye (v0.11.10, §101): a leaving member's last era, or the
+    // countdown before it — one read supplies the number, the words and the names
+    const fareRead = KP.farewellReadsRelease ? KP.farewellReadsRelease(state, g, isDebut) : { mod: 0, note: null, ids: [] };
     // the MV reads on the record (v0.9.17): a cinema budget lifts, a
     // performance cut costs a little — the internet does notice budgets
     const MVC = KP.C.MV;
@@ -841,6 +849,7 @@
     L.add('reach', 'the promo buy', D.promoBoost[g.prep.promo]);
     L.add('reach', 'the tour', tourLift);
     L.add('reach', 'the return', memRead.mod + hiaRead.mod + (g.prep.returnRun ? KP.C.STAR.returnRunReception : 0));
+    if (fareRead.mod) L.add('reach', fareRead.mod > 0 ? 'the farewell' : 'the countdown', fareRead.mod);
     if (season.mod < 0) L.add('reach', 'the season', season.mod);
     L.add('reach', 'the crowd', -crowd);
     L.add('reach', 'bad blood', badBloodMod);
@@ -1171,7 +1180,8 @@
       execLine: execDebutLine(band.key, centerOvershadowed, state),
       publicNotes: publicNotes(state, band.key, breakout, centerOvershadowed, demo, rng, spark > 0, isDebut, crowd, benched, fatigueAvg, natPeak, critics)
         .concat(memRead.notes)
-        .concat(hiaRead.note ? [hiaRead.note] : []),
+        .concat(hiaRead.note ? [hiaRead.note] : [])
+        .concat(fareRead.note ? [fareRead.note] : []),
       mash, fusionOutcome,
       // the product (v0.10.0): the two publics, decomposed
       product: product ? { chodong: product.chodong, run: product.run,
@@ -1235,6 +1245,8 @@
       isDebut, format: format.id, tracks: format.tracks,
       anticipation,   // the countdown's cash-in, on the record (v0.9.19)
       returnRun: g.prep.returnRun || null,   // the alum on the sleeve (v0.9.25)
+      // whose last era this is (v0.11.10, §101): the close reads her last stage off it
+      farewellFor: fareRead.ids.length ? fareRead.ids.slice() : null,
       // the product (v0.10.0): the fandom's number, archived beside the public's
       chodong: product ? product.chodong : null,
       pressing: product ? { run: product.run, versions: product.versions, pob: product.pob,

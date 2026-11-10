@@ -62,6 +62,7 @@ const PRECACHE = [
   'js/engine/sagas.js?v=' + V,
   'js/engine/tour.js?v=' + V,
   'js/engine/era.js?v=' + V,
+  'js/engine/farewell.js?v=' + V,
   'js/engine/fandom.js?v=' + V,
   'js/engine/outside.js?v=' + V,
   'js/engine/hiatus.js?v=' + V,

@@ -223,6 +223,28 @@
       // the soak read 569 of 665 landings 'ahead' and none 'soft'.
     },
 
+    // The long goodbye (v0.11.10, §101 — measure-first). A chosen ending is
+    // a lap with a date on it. The member desk asks once how the fans are
+    // told, and both answers cost: told now, the last era is an event and
+    // every record before it is a countdown; kept in the house, the year
+    // stays about the work and everything rides on the last era happening.
+    FAREWELL: {
+      askMinWeeks: 8,            // the question is not asked with fewer weeks than this left
+      toldIntensity: 5,          // told now: the cafés rally (fandom intensity)...
+      toldPopHit: 2,             // ...and the casual audience starts counting down (subtracted)
+      toldMorale: 2,             // hers: she said it herself
+      lastEraWeeks: 24,          // a record landing this close to her last week is her last era
+      eraReach: 3,               // the last era lands warmer (reach)...
+      eraPerWeek: 0.1,           // ...and warmer for every week the fans have known...
+      eraCap: 4,                 // ...up to this much on top
+      eraIntensity: 3,           // the last era belongs to the fandom
+      shadowReach: 2,            // a record inside an announced countdown, before the last era (subtracted)
+      suddenPopHit: 3,           // nobody was told before she left: on top of the warm hit
+      suddenGrudge: 1,           // ...and the fandom remembers who knew
+      brokenRoomMorale: 3,       // a promised ending that never came: the room watched (subtracted)
+      bowRoomMorale: 2,          // the bow gives the room some of its grief back
+    },
+
     // ---- The regional schools (v0.9.16): the pipeline has addresses ----
     // Persistent named academies in the home circuit's cities. Each has a
     // specialty lane, an alumni ledger, and a reputation that moves with
@@ -2942,6 +2964,7 @@
         welcomedBack:     { w: 2,  words: 'welcomed back after the hardest stretch' },
         wonBack:          { w: 3,  words: 'won back at the table' },
         endingHonored:    { w: 2,  words: 'the ending she asked for, honored' },
+        saidItHerself:    { w: 2,  words: 'told the fans herself, in her own words' },   // the long goodbye (v0.11.10, §101)
         gaveTheSpeech:    { w: 2,  words: 'the speech was hers to give' },
         stingCoached:     { w: 1,  words: 'the coach sent over when a loss sat badly' },
         stingRespected:   { w: 1,  words: 'let a loss fuel her, on purpose' },

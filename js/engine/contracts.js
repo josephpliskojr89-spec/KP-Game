@@ -149,6 +149,16 @@
         '’s exclusive contract enters its renewal window. Two years of runway, one conversation that decides how they get used. The table is on the Desk — and {she} knows the folder went up.', due) });
   });
 
+  // the lap begins (v0.11.10, §101): ONE write path for a chosen ending —
+  // the mode, and the week the table wrote it. The last week is the
+  // clock's own (KP.lapOf); farewell.js reads the rest.
+  KP.beginLap = function (state, p, mode) {
+    p.contract.leaving = true;
+    p.contract.leaveMode = mode;
+    p.contract.leavingSince = state.week;
+    if (KP.farewellLedger) KP.farewellLedger(state).laps++;
+  };
+
   // ---- the renewal table --------------------------------------------------
   const BODIES = {
     devoted: '{She} signs before the coffee arrives, then holds the pen out and asks, grinning, if the company wants another seven on top. The ledger between you is the reason: the answered doors, the kept dates, the name on the right tracks. Some renewals are ceremonies. This is one.',
@@ -302,8 +312,7 @@
       }
       if (optionId === 'hold') {
         if (rng.chance(C.holdLeaveChance)) {
-          p.contract.leaving = true;
-          p.contract.leaveMode = 'cold';
+          KP.beginLap(state, p, 'cold');
           KP.recordDirected(state, p.id, 'heldLine');
           return { toast: KP.fillPro('You held the line. {She} nodded, closed the folder, and said {she} would honor the current term — which was {pos} way of answering the question you did not ask. The seventh year has a date on it now.', p) };
         }
@@ -321,8 +330,7 @@
             note: { kind: 'public', ind: 'renewed', priority: 'high', personId: p.id,
               text: KP.fillPro(KP.displayName(p) + ' re-signed. The fandom will never know there was a night the candles almost came out. Some saves happen in rooms with no cameras.', p) } };
         }
-        p.contract.leaving = true;
-        p.contract.leaveMode = 'warm';
+        KP.beginLap(state, p, 'warm');
         return { toast: KP.fillPro('{She} heard you out — all of it — and then said, gently, that some decisions are finished before the meeting. The seventh year will be {pos} last. {She} asked to spend it well, which is the kindest available version of this.', p) };
       }
       if (optionId === 'graduate') {
@@ -344,9 +352,11 @@
             text: KP.fillPro(KP.displayName(p) + ' leaves ' + (g ? g.name + '’s' : 'the') + ' lineup — and stays in the building: a solo contract, {pos} own calendar, {pos} own name on the marquee. The fandom is reading the statement for the word “forever” and finding it twice.', p) } };
       }
       if (optionId === 'farewell') {
-        p.contract.leaving = true;
-        p.contract.leaveMode = 'warm';
+        KP.beginLap(state, p, 'warm');
         KP.recordDirected(state, p.id, 'endingHonored');
+        // the ending written right is a promise with a date (v0.11.10, §101):
+        // a last era before she goes, on the ledger like every promise here
+        if (KP.farewellPromise) KP.farewellPromise(state, p);
         return { toast: KP.fillPro('You wrote the ending right: the seventh year becomes a farewell lap — {pos} stages, {pos} goodbyes, on {pos} terms. {She} cried exactly once, thanked you twice, and started planning what to wear for the last encore.', p),
           note: { kind: 'company', priority: 'high', personId: p.id,
             text: KP.fillPro('The building knows now: ' + KP.displayName(p) + '’s seventh year will be {pos} last. The fandom will find out when it is time. Until then, every stage {she} takes is quietly a farewell stage — the staff have started filming everything.', p) } };
@@ -495,8 +505,19 @@
     const warm = mode !== 'cold';
     const push = n => { if (inbox) inbox.push(n); else KP.note(state, n); };
 
+    // the long goodbye (v0.11.10, §101): the lap is read back BEFORE the
+    // lineup forgets her (the bow names the friend she leaves), and her
+    // promise settles before the claims below go void
+    const bye = KP.farewellAtExit ? KP.farewellAtExit(state, p, g, warm) : null;
+
     // the group: lineup, roles, rooms — the validator's whole checklist
     if (g) KP.lineupSurgery(state, g, p, warm, push);
+    // what the goodbye cost, or gave back, to the ones still in the room
+    if (bye && g) {
+      if (bye.pop) g.popularity = KP.clamp((g.popularity || 0) - bye.pop, 0, 100);
+      if (bye.grudge) g.fandomGrudge = (g.fandomGrudge || 0) + bye.grudge;
+      if (bye.roomMorale) g.members.forEach(id => { const m = state.people[id]; if (m) m.morale = KP.clamp(m.morale + bye.roomMorale, 0, 100); });
+    }
 
     // the desk: her outside work winds down (one list, v0.10.42), her
     // claims settle void
@@ -518,14 +539,18 @@
     p.status = 'departed';
     p.flags.departedWeek = state.week;
     p.flags.departMode = mode;
-    KP.chapter(state, p, 'departed', { co: state.company.short, group: g ? g.name : null, mode: warm ? 'warm' : 'cold' });   // the file (v0.10.33)
-    p.history.push({ week: state.week, text: warm
+    const released = !!bye && bye.shape === 'released';
+    KP.chapter(state, p, 'departed', Object.assign({ co: state.company.short, group: g ? g.name : null, mode: warm ? 'warm' : 'cold' },
+      released ? { how: 'released' } : {}));   // the file (v0.10.33)
+    p.history.push({ week: state.week, text: released
+      ? 'Released at ' + (p.gender === 'm' ? 'his' : 'her') + ' own request. Left ' + state.company.short + ' on speaking terms with everyone in it.'
+      : warm
       ? 'Contract completed. Left ' + state.company.short + ' after ' + (p.contract ? p.contract.term : 1) + ' term' + ((p.contract && p.contract.term > 1) ? 's' : '') + ', on good terms, with the send-off ' + (p.gender === 'm' ? 'he' : 'she') + ' earned.'
       : 'Contract expired. Left ' + state.company.short + '. The last year was quiet in the wrong way.' });
 
-    push({ kind: 'public', ind: 'contractEnd', priority: 'high', personId: p.id,
-      groupId: g ? g.id : null, warm,
-      text: warm
+    push({ kind: 'public', ind: 'contractEnd', priority: bye ? bye.priority : 'high', personId: p.id,
+      groupId: g ? g.id : null, warm, shape: bye ? bye.shape : (warm ? 'plain' : 'cold'),
+      text: bye ? bye.text : warm
         ? KP.fillPro(KP.displayName(p) + '’s contract completed today, and the goodbye was everything the fandom needed it to be: the letter in {pos} own handwriting, the members crying through the last group bow, the company statement that read like it was written by a person. {She} leaves full, not empty. The door stays open.', p)
         : KP.fillPro(KP.displayName(p) + '’s contract expired today. The statement was three sentences. The fandom read everything the sentences did not say, and the quote-posts will run for a week. Somewhere in the building is a ledger that explains this, and everyone who can read it knows it.', p) });
     if (g && g.members.length) {

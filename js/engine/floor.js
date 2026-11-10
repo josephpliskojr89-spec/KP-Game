@@ -94,7 +94,7 @@
       case 'seasonLineup': return 'Won the ' + ch.show + ' lineup' + (ch.act ? ' — ' + ch.act : '') + (ch.permanent ? ' (permanent)' : '');
       case 'projectEnd': return (ch.act || 'The project') + '’s run ended' + (co ? ' — back to ' + co : '');
       case 'kept': return 'Kept by ' + (ch.show || 'the show') + '’s label';
-      case 'departed': return (ch.mode === 'cold' ? 'Contract expired at ' : 'Contract completed at ') + co + (ch.group ? ' (' + ch.group + ')' : '');
+      case 'departed': return (ch.how === 'released' ? 'Released at her own request from ' : ch.mode === 'cold' ? 'Contract expired at ' : 'Contract completed at ') + co + (ch.group ? ' (' + ch.group + ')' : '');
       case 'graduated': return 'Graduated from ' + (ch.group || 'the group') + ' to solo';
       case 'enlisted': return 'Enlisted';
       case 'discharged': return 'Discharged';
