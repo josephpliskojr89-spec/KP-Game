@@ -492,6 +492,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .war-card .w-text { font-size: .86rem; line-height: 1.5; margin: 8px 0 0; }
 .war-card .w-actions { display: flex; gap: 8px; margin-top: 12px; }
 .war-card .w-actions .btn { flex: 1; }
+/* long answers stack (v0.11.9): one answer a row, instead of a column each */
+.war-card .w-actions.stack { flex-direction: column; }
+.war-card .w-actions.stack .btn { flex: 0 0 auto; width: 100%; line-height: 1.35; }
 
 /* landscape / tablet: center the phone column */
 @media (min-width: 700px) {

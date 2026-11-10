@@ -5,14 +5,29 @@
   const KP = root.KP = root.KP || {};
   const UI = KP.UI;
 
+  // long answers stack (v0.11.9, §100): a row shares the card's width
+  // between its buttons, so the reissue door's three answers (each a
+  // title, a build and a bill) stood as three ten-line columns on a phone.
+  // An answer that would run past three lines in its share of the row
+  // takes a row of its own. The rooms are characters, measured on the
+  // 390px column in a real browser: two answers get about 13 a line,
+  // three about 8, four about 4.
+  UI.answersStack = function (opts) {
+    const n = (opts || []).length;
+    if (n < 2) return false;
+    const room = n === 2 ? 40 : n === 3 ? 24 : 12;
+    return opts.some(o => String(o.label || '').length > room);
+  };
+
   // the stage door (v0.8.0): EVERY held scene renders through this one card
   function sceneCard(state, sc) {
     const def = KP.sceneDef(sc.kind);
     if (!def) return '';
+    const opts = def.options(state, sc);
     return '<div class="war-card held"><div class="w-flag">' + UI.esc(def.title(state, sc)) + '</div>' +
       '<div class="w-text">' + UI.esc(def.body(state, sc)) + '</div>' +
-      '<div class="w-actions" style="flex-wrap:wrap">' +
-      def.options(state, sc).map(o => '<button class="btn" data-action="scene-opt" data-scene="' + sc.id + '" data-opt="' + UI.esc(o.id) + '">' + UI.esc(o.label) + '</button>').join('') +
+      (UI.answersStack(opts) ? '<div class="w-actions stack">' : '<div class="w-actions" style="flex-wrap:wrap">') +
+      opts.map(o => '<button class="btn" data-action="scene-opt" data-scene="' + sc.id + '" data-opt="' + UI.esc(o.id) + '">' + UI.esc(o.label) + '</button>').join('') +
       '</div></div>';
   }
 

@@ -30,6 +30,8 @@
      week it learned to keep an era's record, an era it joined
      mid-promotion is never closed from half a record, and a reissue
      the old build locked lands on the terms it was signed on
+   · the Desk's card: long answers stack, one a row (seen in a real
+     browser: three answers in a row were three ten-line columns)
    Two laws from §99 hold throughout: the week's wire is read before
    the trim, and a fixture forces every gate and relies on no roll. */
 'use strict';
@@ -774,6 +776,29 @@ const withFandom = pick => {
   t.ok(text.includes('Reissue with the chair’s pick, “Chair Song” · ' + K.C.MV.TIERS[build0.mv].label + ' · ' + K.roundsWord(build0.signRounds) + ' · ' + bill0),
     'the Desk card quotes the desk’s build and its bill');
   t.ok(text.includes('ERALINE · the reissue'), 'under the door’s title');
+
+  // long answers stack: each of the door's answers carries a title, a build
+  // and a bill, and three of them in one row were three ten-line columns on
+  // a phone (seen in a real browser: 110px wide, 178px tall)
+  {
+    const rowOf = (h, id) => { const at = h.indexOf('data-scene="' + id + '"'); return h.slice(h.lastIndexOf('<div class="w-actions', at), at); };
+    t.ok(D.UI.answersStack(K.sceneDef('theReissue').options(s, sc)), 'the door’s answers are long ones');
+    t.ok(rowOf(html, sc.id).startsWith('<div class="w-actions stack">'), 'so the card draws them one a row');
+    // a card with short answers keeps its row
+    const s2 = K.deserialize(K.serialize(s));
+    const ink = K.openScene(s2, { kind: 'redInk', groupId: s2.groups[0].id, expiresWeek: s2.week + 3 });
+    App.state = s2; App.tab = 'desk'; App.render();
+    const h2 = el('screen').innerHTML;
+    t.ok(!D.UI.answersStack(K.sceneDef('redInk').options(s2, ink)), 'fixture: the red ledger’s two answers are short');
+    t.ok(rowOf(h2, ink.id).startsWith('<div class="w-actions" style="flex-wrap:wrap">'), 'a card with short answers keeps them side by side');
+    // the rule: an answer that would run past three lines in its share of the row
+    const of = (...lens) => lens.map(n => ({ label: 'x'.repeat(n) }));
+    t.ok(!D.UI.answersStack(of(40, 40)) && D.UI.answersStack(of(41, 5)), 'two answers share a row up to forty characters');
+    t.ok(!D.UI.answersStack(of(24, 24, 24)) && D.UI.answersStack(of(5, 25, 5)), 'three up to twenty-four');
+    t.ok(!D.UI.answersStack(of(12, 12, 12, 12)) && D.UI.answersStack(of(5, 5, 5, 13)), 'four up to twelve');
+    t.ok(!D.UI.answersStack(of(200)) && !D.UI.answersStack([]) && !D.UI.answersStack(null), 'one answer, or none, has the row to itself');
+    desk();   // the page goes back to the fixture's own state
+  }
 
   // the Studio: the same call, with the sheet that changes it
   html = studio();

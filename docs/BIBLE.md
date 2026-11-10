@@ -8396,6 +8396,14 @@ extension's own). `planFor` and `rolloutWeek` read plans longer
 than four weeks. The bot extends when the room is not already tired
 (avg fatigue < 70).
 
+*Corrected in v0.11.9 (§100).* "Once an era" was once a career in the
+code: the stamp (`g.eraExtendedWeek`) was written on the group and
+never cleared, so one extension shut the door for good.
+`KP.eraExtended(g)` now reads it against the last landing. The bot
+signs through the staff's flag while the room is under 75: at the
+flag's own 70 nearly every climbing last week arrived flagged, and
+the boss took 3 doors in twelve years.
+
 *The comeback stage.* The era's first stage — the first show booked
 in the first promo week — is a named special inside the shows' pass:
 the same read as the live term, archived on the release
@@ -8440,6 +8448,13 @@ darling 23/40, the stopwatch 18/40; debut reception median 53 (min
 27, max 79), sensation 2/40, strong+ 11/40, quiet/miss 15/40, end
 budget median 3155 (the offers bill their swaps). Longhaul saves
 615–975 KB; the walkthrough grew a check (114).
+
+*Since (v0.11.9, §100).* The extension row read 3 to 8 of 40 across
+the later soaks under the bot that signed only an unflagged room,
+and 10/40 once it signed through the flag; the band holds. The
+warehouse floor moved again, .20 → .05: the row samples each group's
+LAST landing, the suggested sheet almost never overpresses, and the
+reissue no longer does by construction.
 
 Battery 105/105, soak 40 clean, longhaul 10x620, e2e 114,
 lockstep 0.10.38.
@@ -9089,7 +9104,7 @@ Suite_114 (41). Measured in the first soak (40 orgs): vote pushes
 every org that sent — and the bands ruled from these. Battery
 114/114, soak 40 clean, longhaul 11 × 620, e2e 134, lockstep 0.11.4.
 
-## §96 Where we stand — the depth survey (post-0.11.4; recommendation 1 SHIPPED v0.11.5)
+## §96 Where we stand — the depth survey (post-0.11.4; recommendations 1–3 SHIPPED v0.11.5, v0.11.7, v0.11.9)
 
 Owner, after the televised season shipped: *"Where does this leave
 us? Can you take a look at what needs more depth and give me a
@@ -9443,7 +9458,7 @@ tier-3 bill as a critical ceremony letter; regrets counted and read
 back by the next organizer. The Japan weeks get the same card and
 one in-country moment a week.
 
-**3. The era, closed (every comeback's second half).** An `eraClosed`
+**3. The era, closed (every comeback's second half; SHIPPED v0.11.9, §100).** An `eraClosed`
 family the week promotion ends — the last stage, the tally in words
 (trophies, best chart week, the chodong's standing, the critics'
 consensus), the room's state, the window if the drawer is stocked —
@@ -10064,6 +10079,237 @@ clean, longhaul 11 × 620 clean, e2e 134 (one conditional
 branch fewer than 0.11.7's 135), lockstep 0.11.8. Migration 0.11.8
 (ensureLedgers; `st.truth` stamped on every chair and every waiting
 candidate with the legacy hash).
+
+## §100 The era, closed (SHIPPED v0.11.9 — §96 recommendation 3)
+
+Owner: *"Approved to tackle as much of the remaining queue as you see
+fit."* The queue's third entry. The §96 survey found that every
+comeback had a first half (the announcement, the teasers, the landing,
+the comeback stage) and then promotion simply ran out: no letter said
+the era was over, the trophies and the last stage were never read
+back, and the reissue was a panel in the Studio that inherited its
+video and its rounds from whatever the last lock form happened to
+hold. This release is the second half. One new module, `era.js`, and
+it makes no draw anywhere: every pick in it is a hash.
+
+**The close.** The week after the last promotion week
+(`state.week === g.promoUntil + 1`, exact equality; weekly order 596,
+after the week's stages at 580 and promotion at 585, before a landing
+at 600) the desk reads the era back in one high letter, `eraClosed`.
+Four verdicts (`KP.eraVerdict`): CROWNED when the era's own shelf
+holds a trophy, which outranks the reception's word; WARM for a
+record that landed strong or a sensation; COLD for a miss; QUIET for
+the rest. Each verdict is a family of three opening lines through
+`KP.lineFor`, never the same line twice running (`g.lastCloseLine`).
+Then the last stage in words (carried, and by whom; clean; wobbled;
+fumbled; or "the era ended off the schedule" when no broadcaster had
+the group in its last week). Then the tally in words: the trophies;
+the best chart week, with the national board in brackets; the first
+week in copies, with "a career best", "the pressing sold through" or
+"boxes left in the warehouse"; and the critics, who either "settled
+on" a word or are "still arguing, the middle voice at" one. A split
+verdict was told its arguments would outlast the promotion, and the
+close does not say the critics settled when they did not. Then the
+second wind, if the era took one; the room in a word (fresh, tired,
+spent: the average fatigue of the members present against 45 and 70,
+never a digit); and, when the drawer is stocked, the window and "the
+call is on the desk".
+
+It claims something: a crowned close lifts the morale of every member
+present by 3 and a cold one costs 2 (`ERA.closeMoraleUp`,
+`closeMoraleDown`). It leaves a mark: `rel.closed = { week, trophies,
+lastStage, verdict, room }` (and `extended`), which the discography
+on the group page reads ("closed with 2 trophies", "closed warm after
+a second wind", "reissued as …", "left to rest"). Two facts had to
+start being kept for the close to have anything to read: `rel.trophies`
+(shows.js, counted beside the group's own shelf) and `rel.lastStage`
+(the week's notable stage, overwritten each promotion week, so an
+extension's stage is the true last one).
+
+**The reissue is a door.** A close with a stocked drawer opens
+`theReissue` on the Desk, on the ground `KP.planRepackage` already
+stood on (`KP.reissueOpenFor`: not a single, not itself a reissue,
+not rested, no lock in flight, nobody in Japan, on the road or in a
+solo era). The picks are stamped when the door opens. The A&R chair
+hears the strongest hook left in the drawer. The fan desk reads the
+cafés, who want more of the era's own sound and, among that, whatever
+will look best on a stage; with none of the era's sound left, the
+best stage in the whole drawer (`sc.fansWhy`). Three answers: the
+chair's pick, which is the bot's default; the fans' pick, when it
+differs; or let the era rest. Each reissue answer carries the video
+tier, the fan-sign rounds and the bill on its label. Resting is a
+real answer: the record is marked `reissueRested`, the drawer closes
+for good, and every member present gets 8 fatigue back
+(`ERA.restRelief`). The fans' pick, or a pick both desks agree on,
+warms the fandom by 2. Silence is the worst answer: the door lapses
+with the window, six weeks after promotion, with no reissue and no
+rest handed back. A new lock supersedes the door. Every outcome is
+counted on `state.eraLedger` (closed, reissueOffered, anr, fans,
+desk, rested, lapsed, superseded).
+
+The Studio keeps its panel, and the panel is now the reissue's own
+sheet: the video tier and the rounds are chosen there (the desk's
+build by default, `KP.reissueBuild`: a standard video and the
+suggested rounds), the drawer marks whose pick is whose, and the
+panel says the same call is waiting on the Desk. One bill is quoted
+everywhere (`KP.reissueBill`: the record at the reprint's 55%, the
+video at the group's stature, the pressing, the home discount), and
+it is the real bill. Before, a reissue paid for no pressing at all
+and then settled against a full-size sheet it never chose, so it
+overpressed by construction; the soak's bot met the warehouse memo
+almost nowhere else. The pressing is now sized to the reprint's
+share of demand (`KP.reissuePressing`: 55% of the run and of the
+lock read) and billed, and the cost accrues to the group's ledger
+and to the era's spend.
+
+The announcement goes out through `eraAnnounced`'s family, marked
+`reissue`, public and high; the old `repackageSet` ind is retired.
+It says what the reissue is made of ("with a standard MV and no
+fan-sign rounds on the sheet. It lands …"). The landing's
+`eraExtended` letter reads the second act against the first: the two
+reception words ("The first act landed quiet; the second lands
+solid, which is the rarer direction for a reprint to travel."), then
+the two chart peaks ("It opens at #3, under the first act's #1.").
+The lock carries the first act's word and peak for that
+(`prep.repackage.band`, `.chartPeak`), and the first act's file is
+marked `reissuedAs`. The reissue's own close ends "That closes both
+acts: “…” landed quiet, and its reissue solid." and opens no second
+door: an era extends once.
+
+**One era, two acts (the red ledger).** Because the reissue now
+carries a bill, its net joins the first act's instead of standing as
+a second era (debut.js, the landing). `g.lastEraNet` becomes the sum.
+A red era that the reissue brings level clears the count and reopens
+the hard conversation (zero is black). A level era that the reissue
+tips under is counted, once. The same era is never counted twice.
+Before, the reissue had no bill on the era and stood as an era of its
+own, so any reissue wiped the red count, and one that lost money
+would have counted the same era a second time.
+
+**The pre-order week, as a read.** One week before the shelf (order
+591, behind the T-1 teaser) the distributor's count arrives as a
+normal letter, `preorderWeek`: the count against the pressing, and a
+word. The read is the settle's own sum. `KP.demandRead` is the
+settle's arithmetic up to the reception, lifted out of
+`KP.settleProduct` so the pre-order week reads the same number the
+landing will finish; the settle multiplies it by the reception, the
+noise and the reissue's share in the old order, so every first-week
+number lands on the unit it always did. The word is the settle's
+verdict on an ordinary week, a middling record with no luck either
+way: AHEAD when that week sells the run out, SOFT when it leaves the
+warehouse memo (`PRODUCT.overpressAt`, 1.6), TRACKING between. It
+has no thresholds of its own, on purpose. The first build carried
+two, against a different sum (`KP.preorderRead`'s campaign factor,
+which the settle never reads), and the soak measured the word as
+wallpaper: 569 of 665 landings read ahead and none soft. The word is
+stamped on the lock (`prep.preorder`), archived on the record
+(`rel.pressing.preorder`), and the close says how it held up: "the
+pre-order week called it", "read it wrong", "the record outran its
+pre-orders", "fell short of its pre-orders". A reissue's pressing
+gets a read of its own, at the reprint's share. The record also
+keeps which sheet the run was (`rel.pressing.preset`).
+
+**The second wind belongs to its promotion.** `g.eraExtendedWeek`
+was written at the extension and never cleared, so one extension
+shut the door for the rest of a career, and every later promotion
+wore "· extended" in the Studio. `KP.eraExtended(g)` reads the stamp
+against the last landing: older than that, it is another era's.
+Read, not cleared, so an old save carries its stale stamp and needs
+no migration.
+
+**The closed broadcast door.** Found while pinning the lock.
+`KP.planDebut` swapped a plan's show slots to radio (the door closed
+to a label nobody has heard of, §76) in the caller's own plan,
+before the till could refuse the lock. A refused lock retried with
+the same plan found no show left to swap and told nothing, and the
+day the shows opened was no news to a label that had never been told
+they were closed. The lock works on its own copy now, and the letter
+goes out from the lock that happens.
+
+**Old saves.** Migration 0.11.9 (ensureLedgers). An era already past
+its last promotion week is never closed after the fact: the close
+fires on the exact week. An era the file is in the middle of is not
+closed either, because before this build no record kept its
+trophies or its last stage, and that close would say "no trophy"
+over a shelf that holds two. `KP.migrate` knows a file from before
+the era module by the ledger's absence, read before the chain runs,
+and stamps the week the file learned to keep the record
+(`eraLedger.since`); the close passes over any record that landed
+before it. A record that lands the week of the stamp has every
+promotion week ahead of it and closes whole. A new game carries no
+such week. A reissue the old build had already locked lands on the
+terms it was signed on: no pressing sheet (the settle sizes one as
+it always did, and may overpress as it always did), no pre-order
+read, no comparison it was never given a word for. Its close still
+reads both acts, because the first act's landing word was always on
+file.
+
+**The timeline.** `eraClosed` echoes on the feed, two lines in two
+voices for each verdict; the reissue's announcement has three lines
+of its own. Both are picked by hash and draw nothing, so the feed's
+stream stands where it stood. The lock's letter is a desk letter
+(`fed: false`), read by the next week's feed pass.
+
+**The Desk's cards.** Seen in a real browser, not in the stub: the
+door's three answers, each a title, a build and a bill, stood as
+three columns 110px wide and ten lines tall on a phone.
+`UI.answersStack`: an answer that would run past three lines in its
+share of the row takes a row of its own (two answers share a row up
+to forty characters, three up to twenty-four, four up to twelve).
+Every decision card draws through the one component, so the rule
+reaches all of them: of the 45 scene kinds that opened across eight
+seeds, 12 always stack, 4 sometimes, 29 never.
+
+**The bot.** It answers the door: it rests an era under fiscal
+pressure or one that landed under 62; otherwise it wants the bill
+covered half again before it signs; it takes the fans' pick only
+for a cold fandom (intensity under 45); it may leave the door open
+while the account is short, and the door may lapse. It no longer
+reaches for the reissue unprompted. It signs the second wind through
+the staff's flag while the room is under 75, the line the encore
+already uses. A probe over 40 seeds had found 657 last promotion
+weeks, 95 of them with a record still climbing, and 92 of those
+flagged tired: the boss that signed only an unflagged room took 3
+doors in twelve years, and the census row measured its caution
+instead of the verb. And it learned the pressing ladder (cautious,
+the desk's sheet, bold): up a rung after a sellout, down after a
+memo, lean only after two red quarters running.
+
+*Measured (40 orgs; the era rows also at 120 seeds before they were
+ruled).* A close read 40; the door offered 40; the chair's pick 32;
+the fans' pick 4; a Studio build 0 (the bot never); rested 40;
+lapsed 1; superseded 0; the pre-order read 40, ahead 38, soft 39;
+the second wind offered 36, signed through the flag 7, a closed era
+marked extended 10; an era extended on a climbing record 10 (the row
+had read 3 to 8 under the cautious boss). Three older bands moved,
+with the history on them: the sold-out row keeps its band at 31/40
+and has its label corrected (it samples each group's last landing,
+never the archive); the warehouse floor .20 → .05 (7/40: the memo
+now belongs to the bold run after a sellout, because the suggested
+sheet almost never overpresses and the reissue no longer does by
+construction); the mash's acclaim ceiling .60 → .75 (the row follows
+`fusionTried` and cannot sit under it; nothing here touches the
+mash's roll). The final soak is byte-identical to the one before the
+old-file rule went in: that rule moves nothing in a new game.
+
+*Known limits.* The desk's letters queue behind the whole week's
+wire, so a loud week can crowd a desk letter's echo out of the
+eight-post week; what is promised, and pinned, is that the week's
+own pass reads the letter and clears the mark. No migration sizes a
+pressing sheet for a reissue the old build locked.
+
+*Already shipped.* Two of recommendation 3's lines went out early, in
+the wiring (v0.11.5): the restock as a door (`restockCall`) and the
+debut's first stage named as a debut stage.
+
+Suite_119 (1016): the engine, and the Desk, the Studio and the group
+page rendered through the DOM stub. Its last two blocks (the closed
+door, the red ledger) were mutation-checked against the old engine
+lines: 13 and 11 assertions fail by name. A real-browser pass over
+the new screens (33 checks, no page errors). Battery 119/119, soak
+40 clean, longhaul 11 × 620 clean, e2e 134, lockstep 0.11.9.
+Migration 0.11.9 (ensureLedgers: eraLedger; `since` stamped on a file
+from before the module).
 
 ## §18 Watch items
 
@@ -13593,6 +13839,32 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > merger's silent move written onto the file. Suite_118 (20). Battery
 > 118/118, soak 40 clean, longhaul 11x620, e2e 134, lockstep 0.11.8.
 > Rode to main.
+
+> **0.11.9 — the era, closed.** Own judgment, under "Approved to tackle
+> as much of the remaining queue as you see fit": §96's third entry, the
+> comeback's second half. §100: the week promotion ends the desk reads
+> the era back in one high letter (four verdicts, the last stage, the
+> tally in words, the room), marks the record closed, and moves the
+> room on a crowned or a cold close. A stocked drawer makes the reissue
+> a door on the Desk (the chair's pick, the fans' pick, let it rest;
+> silence lapses, a new lock supersedes) with its video, rounds and one
+> real bill shown; the pressing is sized to the reprint and billed. The
+> landing reads the second act against the first; the discography
+> keeps how an era closed. The pre-order week is a read off the
+> settle's own sum (the first build's thresholds measured as wallpaper:
+> 569 of 665 ahead, none soft). Found on the way: the second wind's
+> stamp was never cleared (one extension shut the door for a career);
+> a lock the till refused ate the closed broadcast door's letter; a
+> reissue with no bill wiped the red ledger (one era, two acts now);
+> and, in a real browser, the door's long answers stood as ten-line
+> columns (long answers stack on every decision card). Old files keep
+> their past: an era joined mid-promotion is never closed from half a
+> record. The bot learned the door, the second wind through the flag,
+> and the pressing ladder. Measured: a close 40, the door 40, chair's
+> pick 32, fans' 4, rested 40, lapsed 1, pre-order read 40 (ahead 38,
+> soft 39), second wind offered 36 and signed 10. Suite_119 (1016).
+> Battery 119/119, soak 40 clean, longhaul 11x620, e2e 134, lockstep
+> 0.11.9. Rode to main.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
