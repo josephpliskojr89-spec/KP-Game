@@ -25,6 +25,8 @@ const ONE_SHOTS = [
   'tourEnd', 'festHeadline', 'lastStage',
   // the truce (§117): a head calls about it once in two years, and it runs out once
   'truceCall', 'truceRan',
+  // her own questions (§119): how a promise to the executive ended, said once
+  'execOwnMet', 'execOwnMissed',
 ];
 
 function watch(KP) {

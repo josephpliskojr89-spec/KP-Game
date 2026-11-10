@@ -9520,7 +9520,8 @@ retires. The press given an outlet and a critic with memory — a
 feature the player can sit for or refuse.
 
 **7. The people upstairs and down the hall (the exec, the staff, the
-company's file).** The exec's `personality` finally read: a question
+company's file; part one, her own questions, SHIPPED v0.11.27,
+§119).** The exec's `personality` finally read: a question
 family per type (the profit hunter asks about the quarter, the
 traditionalist about the vocal room, the micromanager about a trainee
 by name from the eval board, the trend chaser about the sound of the
@@ -12647,6 +12648,236 @@ careers with the engine wrapped, and print one paragraph each.
 *What is left of recommendation 6:* the other doors a head could
 open (a borrowed stage week, a trade, a joint stage), and the
 press.
+
+## §119 Her own questions (SHIPPED v0.11.27 — §96 recommendation 7, the people upstairs and down the hall, part one)
+
+Owner: *"Break remaining work into smaller pieces"*. The first of
+recommendation 7's pieces: the executive's kind is read.
+
+**The finding** (§96): "The exec's `personality` finally read: a
+question family per type". Counted first (§118's lesson). Over 200
+careers the Monday meeting sat down 2,941 times and had nothing to
+ask 1,626 times. Six kinds of executive are in the data, each with
+a sentence of their own at the start of a career. The kind was
+copied from file to file and read by nothing.
+
+**What each kind asks**, when the meeting has nothing else. The
+older questions come first: the board's solo question, whose debut
+lands first, when the second lineup forms.
+
+- the profit hunter, about the quarter: "Twelve weeks from today,
+  is there more in the till than the 132 in it this morning?"
+- the traditionalist, about the best voice in the trainee room:
+  "Half a year from now, is it a better one?"
+- the micromanager, about the lowest name on the last evaluation
+  sheet: "Take a full month. On the sheet after that, is she
+  higher?"
+- the trend chaser, about the sound of the year: "When our next
+  record lands, is it in the sound of its year?"
+- the visionary, about the act the public knows best: "Does the
+  next one land harder?"
+- the patient executive asks nothing. That is what patient means.
+
+§96 named four. The visionary's is a fifth, in the words of her own
+introduction. Each needs something to ask about: a trainee in the
+room; a printed sheet with someone below first; an act that could
+release a record (standing, debuted, not on hiatus); a record
+already out. Nothing here draws.
+
+**Each question is a family** (§93). Three ways of opening it,
+picked by hash, never the one she used last time. The question
+itself is the last sentence and is the same in all three, so what
+is promised does not depend on which she used. This was added after
+the count below: a question at 84 meetings in 100 would have been
+the same sentence twice a year.
+
+**Two answers.** The promise first, as in every question of hers.
+
+- *On the record.* A promise to this chair, checked by the game. It
+  costs nothing until it is judged. Kept, trust +2. Broken, trust
+  −2, and twice that under the fund's board seat. These are the
+  numbers every promise to her has always moved.
+- *A pass*, in her words for it. Free once. A second pass in a row
+  costs 1, and so does each one after it: "That is two of my
+  questions running with nothing on the record." Anything put on
+  her record in between ends the run, and a new chair starts her
+  own count. (§96 release 1: no answer is free.)
+
+Silence costs what it always cost her: 1.
+
+**What each promise is held to.**
+
+- the quarter: more in the till, in whole units, twelve weeks after
+  the question. The same number is not more. From an empty till or
+  the red, the promise is the black.
+- the voice: three points better, half a year from the answer. A
+  debut keeps it at once. Letting her go breaks it at once.
+- the name: a higher number on the first sheet a full month after
+  the answer. The sheets between do not count. A debut keeps it;
+  letting her go breaks it; a sheet that is never held judges
+  nobody.
+- the sound: our next record, whichever act releases it, in the
+  sound of the year it lands in. Next door to the sound is not in
+  it. A record that moves the year's sound keeps it. A year with no
+  record breaks it.
+- the record: that act's next record landing harder than its last.
+  Level is not harder. A last bow first, or a year with no record,
+  breaks it.
+
+**One at a time, and hers.** While one of these promises stands she
+asks no new one. It is made to her: under the next chair it is set
+aside, unjudged, with no letter.
+
+**Overtaken.** A question waits four weeks. If what it asks about
+has already happened by the answer, there is nothing left to
+promise: the trainee has left the room or debuted, the next sheet
+is printed, the next record is out, the act is gone. She crosses it
+off: nothing promised, nothing charged, whichever answer is tapped.
+Without this a slow answer was a free one.
+
+**The verdict is a letter in her voice**, and critical: it is said
+once. "You said the quarter would close above 132. It closed at
+133. I like a number that keeps its word." "Yoon Ye-dam: number 6
+when I asked, number 6 on this sheet. I notice when a name does not
+move, too." The Desk's record lists the promise in words with its
+date, and keeps what she said beside the verdict.
+
+**Found while building it: three things on the Desk.**
+
+- A promise that was set aside read "broken". A promise ended by a
+  founding, a fresh start, a contract's end or a group's last bow
+  is not judged, and the settled list called every one of them
+  broken. It reads "set aside" now.
+- The settled list named today's chair for every promise. A promise
+  made to her question names the chair it was made to.
+- A toast was one line, cut with three dots at the screen's edge.
+  Most replies in the game are a sentence or two, so most were cut.
+  A toast wraps now. It stays 2.2 seconds, plus a twenty-fifth of a
+  second for each character past forty, to a ceiling of six. It
+  never takes a tap meant for what is under it, and a new one
+  replaces the last.
+
+**Old saves** (migration 0.11.27): the ledger upstairs counts from
+zero. A promise from before this version has no chair on it and is
+judged as it always was.
+
+**Measured, before and after**, over the same 200 careers and the
+tool's side worlds:
+
+| over the same 200 careers | before | after |
+|---|---|---|
+| Monday meetings | 2,941 | 2,941 |
+| with a question | 1,315 | 2,472 |
+| with nothing to ask | 1,626 | 469 |
+
+The census bot steers toward none of the five. It answers each by a
+hash of the week it was asked, so both answers are measured; the
+other tools' bots always promise. In the census's own count over
+its 200 careers she asked 1,083 times, in 168 careers. 501 went on
+the record and 510 were passed, 149 of them a second pass in a row
+and charged. 163 promises were kept, 298 broken, 12 set aside, and
+28 were on the clock at the end. Three bands: she asked (168 of
+200), a promise kept (103), one broken (133). Across the long
+haul's eleven scenarios, whose bot always promises, she asked 187
+times: 77 promises kept, 82 broken, 25 set aside.
+
+| unsteered, over 200 careers | asked | kept | broken |
+|---|---|---|---|
+| the quarter | 203 | 64 | 19 |
+| the voice | 155 | 19 | 32 |
+| the name | 221 | 37 | 65 |
+| the sound | 282 | 7 | 127 |
+| the record | 222 | 36 | 55 |
+
+The sound is the hard one unsteered. The bot picks a concept for
+the group and not for the year, and keeps 7 of 134. A desk that
+picks the year's lane for its next record keeps it. That is the
+trend chaser: an executive who pays for chasing the year and
+charges for ignoring it.
+
+**Trust**, the one number this moves, on both builds over the same
+200 careers:
+
+| over the same 200 careers | before | after |
+|---|---|---|
+| mean trust, all weeks | 67.3 | 66.7 |
+| mean trust at the last week | 64.1 | 63.1 |
+| weeks under 40 | 9.4% | 9.6% |
+| weeks at 60 or more | 65.4% | 64.3% |
+| weeks at 70 or more | 47.2% | 46.0% |
+
+Trust is 0.6 lower on average under a desk that steers toward none
+of the five. By the chair's kind: 1.7 lower under the trend chaser
+(70.7 to 69.1), unchanged to the hundredth under the patient
+executive (69.14), and 0.4 higher under the profit hunter (67.1 to
+67.5), whose quarter the bot mostly keeps.
+
+**At 1,000 careers on both builds** (§115's law). 5,219 questions
+in 836 careers; 810 promises kept and 1,417 broken. No outcome
+moved: the daesang goes home in 75 careers and 75, the first group
+reaches number one in 882 and 881, a head-to-head week is lost in
+681 and 684, 12 and 12 careers dissolve. Of 355 rows, 130 differ
+and none by two standard deviations. The two that moved most: a
+debut anniversary celebrated in 999 careers and 996, and trust
+drifting down from above its bar in 848 and 831. The wordings were
+added after this run; they draw nothing, and the 200 careers run
+after them match the 200 before them in every one of 358 rows.
+
+**Found by the browser pass.** The suite and the first browser
+script were written as if a week turned between her question and
+the answer. It does not: the week turns at the start of the next
+advance, and the desk answers in the week it was asked. The rules
+were right for either order. Both scripts were corrected, and the
+suite tests the slow answer as its own case. The script also tapped
+the first "promise" button on the page, which another scene can
+own; it taps hers by its id. The cut toast was seen in a
+screenshot.
+
+**Found by the mutation run.** On the first run 131 of 139 broken
+lines were caught and none survived, but 8 crashed the suite where
+they should have failed by name: with no question on the Desk, a
+check read through a promise, a person or a list that was not
+there. Each got a guard, and a stand-in nobody could mistake for
+the trainee. After the timeline was corrected one line survived:
+counting the quarter from the answer and not from the question. The
+suite had no late answer to the quarter, and has one now. Seven
+guards guarded nothing and were deleted: a filter on a list already
+filtered, five checks for things that are always there, and a
+rounding of a number that is always whole. On the final run, 153
+of 153.
+
+Suite_137 (280): the table; what each kind asks through the
+real meeting, and when it has nothing to ask about; who is named,
+and the same one every time; the older questions first; the promise
+and what it is held to; a pass in each one's voice, the second in a
+row, what ends the run; each way a question is overtaken; one
+promise at a time; each verdict through the stage door's week, both
+ways and at its edges; the next chair; the Desk through the DOM
+stub with the real button; the toast's time and its rule; an old
+file and a reload; both tools' wiring; the three wordings of each
+question and the real pick over forty meetings; two hundred real
+weeks under each kind. Suite_131 holds the two verdicts to the list
+of letters said once. Mutation-checked against 153 broken lines,
+each caught by a named assertion in every suite that owns the line.
+A real-browser pass (38 checks, no page errors): the question
+arrives through the real advance button, is promised with the real
+button, is on the Desk's list with its date, and reads kept twelve
+weeks on; the micromanager's sheet is the verdict; a trend chaser
+is passed on twice, asks another way the second time, and the
+second pass costs one; a promise is set aside under the next chair;
+and the toast shows the whole sentence. Battery 137/137, soak 40
+clean, census 200 clean, longhaul 11 × 620 clean, e2e 137, the ten
+older browser passes, lockstep 0.11.27.
+
+*Left for the next pieces.* The annual review at board week, with
+trust bands that gate something. The exec-side ledger, and a
+succession that transfers a record. The staff given years. The
+company's own file. *Not built:* a question for the patient
+executive. *The owner's to call*: whether a pass should cost
+anything, and whether next door to the sound should count. *Still
+the owner's to call*: the Desk's tie-break (§112); and from §109,
+the fade between records through a service chapter and the size of
+the window's bank.
 
 ## §18 Watch items
 
@@ -16647,6 +16878,36 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > would point at nothing. Nothing shipped; no version. Both are the
 > owner's to call: whether the ranking should be a race, and whether a
 > giant's week should crowd ours.
+
+> **0.11.27 — her own questions.** Own judgment, under "Approved to
+> tackle as much of the remaining queue as you see fit" and "Break
+> remaining work into smaller pieces": the first piece of §96's
+> recommendation 7. §119: the Monday meeting had nothing to ask
+> 1,626 times in 2,941, and the executive's kind was read by
+> nothing. With nothing else to ask she asks what her kind asks: the
+> profit hunter about the quarter, the traditionalist about the best
+> voice in the room, the micromanager about the lowest name on the
+> sheet, the trend chaser about the sound of the year, the visionary
+> about the best-known act's next record. A patient executive asks
+> nothing. Each is a family of three wordings. Two answers: a
+> promise, checked, worth 2 trust either way like every promise to
+> her; or a pass, free once and 1 for each one after it in a row.
+> One of her promises stands at a time and leaves with her chair. A
+> question overtaken before its answer is crossed off. Both verdicts
+> are critical letters. Three Desk repairs rode along: a promise set
+> aside read "broken"; the settled list named today's chair; and a
+> toast was cut at one line, so most replies in the game were. The
+> suite and the browser script had a week turning between question
+> and answer; it does not, and both were corrected. A question now
+> comes at 84 meetings in 100, from 45. Over 200 careers she asked
+> 1,083 times in 168; the census bot answers by a hash, keeps 163
+> and breaks 298. Trust is 0.6 lower on average, 1.7 under the trend
+> chaser. At 1,000 careers on both builds no outcome moved: the
+> daesang 75 and 75 careers, the first group at number one 882 and
+> 881. Suite_137 (280), 153 mutations caught by name.
+> Battery 137/137, soak 40 clean, census 200 clean, longhaul 11 ×
+> 620 clean, e2e 137, a real-browser pass (38), lockstep 0.11.27.
+> Rode to main. Next piece: the annual review at board week.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

@@ -568,6 +568,15 @@ for (const sc of RUN) {
       if (r.truce && state.week > r.truce.until + 1) flag(sc.seed, state.week, r.short + '’s truce ran out and is still on the file');
       if (KP.truceWith(state, r) && r.lastAmbushWeek > r.truce.since) flag(sc.seed, state.week, r.short + ' parked on a date inside its truce');
     });
+    // her own questions (v0.11.27, §119): an answer needs a question, a verdict needs a promise, one stands at a time, and it is this chair's
+    {
+      const up = KP.upstairsLedger(state);
+      const openOwn = (state.claims || []).filter(c => !c.resolved && up.types[c.type]);
+      if (up.promised + up.passed + up.overtaken > up.asked) flag(sc.seed, state.week, 'more answers to her own questions than questions: ' + [up.asked, up.promised, up.passed, up.overtaken].join('/'));
+      if (up.met + up.missed + up.void + openOwn.length > up.promised) flag(sc.seed, state.week, 'more verdicts on her own promises than promises: ' + [up.promised, up.met, up.missed, up.void, openOwn.length].join('/'));
+      if (openOwn.length > 1) flag(sc.seed, state.week, openOwn.length + ' of her own promises stand at once');
+      if (openOwn.some(c => c.execName !== state.executive.name)) flag(sc.seed, state.week, 'a promise made to another chair’s question is still on the clock');
+    }
     // the letterhead (v0.11.25, §116): the staff calls add up, and an answer needs a call
     if ((wl.callsBooks || 0) + (wl.callsTemper || 0) > (wl.calls || 0)) flag(sc.seed, state.week, 'the staff calls do not add up: ' + [wl.calls, wl.callsBooks, wl.callsTemper].join('/'));
     if (((wl.kinds || {}).theyHiredOurStaff || 0) + ((wl.kinds || {}).weKeptOurStaff || 0) > (wl.calls || 0)) flag(sc.seed, state.week, 'more answers on the books than staff calls: ' + (wl.calls || 0) + ' calls');
@@ -672,6 +681,7 @@ for (const sc of RUN) {
     ', truce calls ' + ((state.wallLedger || {}).truceCalls || 0) + ' (shaken ' + ((state.wallLedger || {}).truces || 0) + ', broken ' + ((state.wallLedger || {}).trucesBroken || 0) + ', ran ' + ((state.wallLedger || {}).trucesRun || 0) + ')' +
     ', calls ' + ((state.wallLedger || {}).calls || 0) + ' (books ' + ((state.wallLedger || {}).callsBooks || 0) + ', temper ' + ((state.wallLedger || {}).callsTemper || 0) + ')' +
     ', parked ' + ((state.wallLedger || {}).parks || 0) + ' (books ' + ((state.wallLedger || {}).parksBooks || 0) + ', temper ' + ((state.wallLedger || {}).parksTemper || 0) + ', moved ' + ((state.wallLedger || {}).parksMoved || 0) + ')' +
+    ' | upstairs: ' + (up => 'asked ' + up.asked + ', promised ' + up.promised + ', kept ' + up.met + ', broken ' + up.missed + ', set aside ' + up.void)(KP.upstairsLedger(state)) +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +
     (sgl.heirStabilized ? ' heirStabilized' : '') + (sgl.heirBurst ? ' heirBurst' : '') +

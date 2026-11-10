@@ -452,9 +452,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .toast {
   position: fixed; left: 50%; transform: translateX(-50%);
   bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 18px); z-index: 60;
-  background: var(--surface2); border: 1px solid var(--line); border-radius: 999px;
-  padding: 10px 18px; font-size: .8rem; font-weight: 600; white-space: nowrap; max-width: 90vw;
-  overflow: hidden; text-overflow: ellipsis;
+  background: var(--surface2); border: 1px solid var(--line); border-radius: 18px;
+  /* a reply is read (v0.11.27, §119): it wraps where it used to be cut at one line, and it never takes a tap */
+  padding: 10px 18px; font-size: .8rem; font-weight: 600; line-height: 1.4; text-align: center;
+  width: max-content; max-width: 90vw; pointer-events: none;
   animation: toast-in .25s ease;
   box-shadow: 0 8px 30px rgba(0,0,0,.5);
 }

@@ -81,13 +81,19 @@
   };
   UI.closeModal = function () { document.getElementById('modal-root').innerHTML = ''; };
 
+  // how long a toast stays (v0.11.27, §119): long enough to read. A short one
+  // keeps the 2.2 seconds it always had; each character past forty adds a
+  // twenty-fifth of a second, to a ceiling of six
+  UI.toastMs = function (msg) { return Math.min(6000, 2200 + Math.max(0, String(msg).length - 40) * 40); };
   UI.toast = function (msg, bad) {
+    document.querySelectorAll('.toast').forEach(old => old.remove());   // one at a time: a new one replaces the last
     const t = document.createElement('div');
     t.className = 'toast' + (bad ? ' bad' : '');
     t.textContent = msg;
     document.body.appendChild(t);
-    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; }, 2200);
-    setTimeout(() => t.remove(), 2600);
+    const ms = UI.toastMs(msg);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; }, ms);
+    setTimeout(() => t.remove(), ms + 400);
   };
 
   // Friction card: the problem and its handle, together. Used by dossier,

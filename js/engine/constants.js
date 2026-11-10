@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.26',
+    VERSION: '0.11.27',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -3299,6 +3299,13 @@
       quarterWeeks: 12,          // "this quarter" means this quarter
       payoffTrust: 2, missTrust: -2, silenceTrust: -1,
       ignoreAfterWeeks: 4,       // an unanswered question is an answer
+      // her own questions (v0.11.27, §119): what each kind of executive asks
+      // when the meeting would otherwise be silent
+      OWN: {
+        voiceWeeks: 24, voiceGain: 3,     // the best voice in the room, half a year on: this many points better
+        recordWeeks: 48,                  // "the next record" has a year to arrive
+        passAgainTrust: -1,               // a pass is free once; each one after it in a row costs this
+      },
     },
 
     // ---- Executives & trust ---------------------------------------------

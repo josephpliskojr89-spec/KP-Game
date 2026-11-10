@@ -715,6 +715,14 @@ const BANDS = {
   truceCalled:       { lo: 0.05, hi: 0.90, label: 'orgs a rival head called with a truce' },
   truceTaken:        { lo: 0.02, hi: 0.60, label: 'orgs that shook on a truce' },
   truceBroken:       { lo: 0.00, hi: 0.30, label: 'orgs that broke a truce by signing one the house had cut' },
+  // her own questions (v0.11.27, §119): five of the six kinds of executive
+  // ask one when the meeting has nothing else, and a succession can change
+  // the kind. The bot steers toward none of them and answers each by a hash
+  // of its week. Ruled from the census: asked in 168 of 200 careers, a
+  // promise kept in 103, one broken in 133
+  ownAsked:          { lo: 0.50, hi: 1.00, label: 'orgs the executive asked a question of her own' },
+  ownKept:           { lo: 0.15, hi: 0.90, label: 'orgs that kept a promise made to her own question' },
+  ownBroken:         { lo: 0.15, hi: 0.95, label: 'orgs that broke one' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -870,6 +878,7 @@ const yearSum = { years: 0, climbs: 0, rows: 0, sheets: 0, max: 0 };   // the ye
 const postSum = {};   // the posting (v0.11.17, §108)
 const quietSum = {};  // the quiet (v0.11.20, §111)
 const wallSum = {};   // the head (v0.11.22, §113)
+const upSum = { types: {} };   // her own questions (v0.11.27, §119)
 const tally = {
   sensation: 0, strongPlus: 0, missOrQuiet: 0, nonCenterBreakout: 0,
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
@@ -952,6 +961,7 @@ const tally = {
   listPosted: 0, offListDoor: 0,
   quietRested: 0, quietFull: 0,
   headQuoted: 0, houseBooks: 0, parkMoved: 0, callReason: 0, truceCalled: 0, truceTaken: 0, truceBroken: 0,
+  ownAsked: 0, ownKept: 0, ownBroken: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -1514,6 +1524,11 @@ for (let s = 0; s < SEEDS; s++) {
           const reopens = g ? Math.max((g.promoUntil || 0) + KP.C.COMEBACK.restWeeks, g.tourRestUntil || 0) : state.week;
           const canThisQuarter = reopens + 6 <= state.week + KP.C.MEETING.quarterWeeks;
           KP.answerMeeting(state, canThisQuarter ? 0 : 1);
+        } else if (KP.upstairsLedger(state).types[q.type]) {
+          // her own questions (v0.11.27, §119): this bot steers toward none of
+          // them, so it answers each by a hash of the week it was asked, and
+          // both answers are measured (the other tools' bots always promise)
+          KP.answerMeeting(state, KP.hash01([state.seed, 'botOwn', q.week].join('|')) < 0.5 ? 0 : 1);
         } else {
           KP.answerMeeting(state, 0);
         }
@@ -2547,6 +2562,27 @@ for (let s = 0; s < SEEDS; s++) {
       guard(!KP.truceWith(state, r) || !(r.lastAmbushWeek > r.truce.since), seed + ' ' + r.short + ' parked on a date inside its truce');
       guard(!KP.truceWith(state, r) || !r.founderGrudge, seed + ' the old house is in a truce');
     });
+    // her own questions (v0.11.27, §119): an answer needs a question, a
+    // verdict needs a promise, and one of her promises stands at a time
+    {
+      const up = KP.upstairsLedger(state);
+      const OWN_T = Object.keys(up.types);
+      const openOwn = (state.claims || []).filter(c => !c.resolved && OWN_T.includes(c.type));
+      if (up.asked >= 1) tally.ownAsked++;
+      if (up.met >= 1) tally.ownKept++;
+      if (up.missed >= 1) tally.ownBroken++;
+      ['asked', 'promised', 'passed', 'passedTwice', 'overtaken', 'met', 'missed', 'void'].forEach(k => { upSum[k] = (upSum[k] || 0) + up[k]; });
+      upSum.open = (upSum.open || 0) + openOwn.length;
+      OWN_T.forEach(k => {
+        const row = upSum.types[k] = upSum.types[k] || { asked: 0, met: 0, missed: 0 };
+        ['asked', 'met', 'missed'].forEach(f => { row[f] += up.types[k][f]; });
+      });
+      guard(up.promised + up.passed + up.overtaken <= up.asked, seed + ' more answers to her own questions than questions: ' + [up.asked, up.promised, up.passed, up.overtaken].join('/'));
+      guard(up.met + up.missed + up.void + openOwn.length <= up.promised, seed + ' more verdicts on her own promises than promises: ' + [up.promised, up.met, up.missed, up.void, openOwn.length].join('/'));
+      guard(openOwn.length <= 1, seed + ' ' + openOwn.length + ' of her own promises stand at once');
+      guard(openOwn.every(c => c.execName === state.executive.name), seed + ' a promise made to another chair’s question is still on the clock');
+      guard(up.passedTwice <= Math.max(0, up.passed - 1), seed + ' a first pass was charged: ' + up.passed + ' passes, ' + up.passedTwice + ' charged');
+    }
     // the letterhead (v0.11.25, §116): who called our staff, and what the
     // answers put on the books. An answer needs a call
     if ((wallL.callsBooks || 0) + (wallL.callsTemper || 0) >= 1) tally.callReason++;
@@ -3262,6 +3298,11 @@ console.log('the letterhead: staff calls ' + (wallSum.calls || 0) + ' · from a 
   ' · on its head’s temper ' + (wallSum.callsTemper || 0) + ' · matched, and on its books ' + (wallSum.k_weKeptOurStaff || 0) + ' · hired away ' + (wallSum.k_theyHiredOurStaff || 0));
 console.log('the truce: a head called ' + (wallSum.truceCalls || 0) + ' times · shaken on ' + (wallSum.truces || 0) + ' · declined or unanswered ' + (wallSum.truceDeclined || 0) +
   ' · broken by a signing ' + (wallSum.trucesBroken || 0) + ' · ran their year ' + (wallSum.trucesRun || 0) + ' · in force at the end ' + (wallSum.truceOn || 0));
+console.log('her own questions: asked ' + (upSum.asked || 0) + ' · put on the record ' + (upSum.promised || 0) + ' · passed ' + (upSum.passed || 0) +
+  ' (a second in a row, charged ' + (upSum.passedTwice || 0) + ') · overtaken before the answer ' + (upSum.overtaken || 0) + ' · kept ' + (upSum.met || 0) + ' · broken ' + (upSum.missed || 0) +
+  ' · set aside ' + (upSum.void || 0) + ' · on the clock at the end ' + (upSum.open || 0));
+console.log('  by question: ' + Object.keys(upSum.types).map(k => ({ execQuarter: 'the quarter', execVoice: 'the voice', execByName: 'the name', execSound: 'the sound', execRemember: 'the record' }[k] || k) +
+  ' asked ' + upSum.types[k].asked + ' (kept ' + upSum.types[k].met + ', broken ' + upSum.types[k].missed + ')').join(' · '));
 console.log('the quiet: told the rest was in ' + (quietSum.rested || 0) + ' · told the bank was full ' + (quietSum.full || 0) +
   ' · a member on a break told she was rested ' + (quietSum.breakRested || 0) + ' · acts still parked at the end ' + (quietSum.parked || 0));
 console.log('the posting: lists ' + (postSum.posted || 0) + ' · the month’s first left off ' + (postSum.offMonth || 0) + ' · the year’s first left off ' + (postSum.offYear || 0) +

@@ -658,7 +658,7 @@
       }
     }
     html.push(booksCard(state));
-    const who = c => c.subject.kind === 'exec' ? state.executive.name
+    const who = c => c.subject.kind === 'exec' ? (c.execName || state.executive.name)   // a promise to her own question names the chair it was made to (v0.11.27, §119)
       : c.subject.kind === 'idol' ? (state.people[c.subject.id || c.personId] ? KP.displayName(state.people[c.subject.id || c.personId]) : 'her')
       : c.subject.kind === 'fund' ? (c.fundName || 'the fund')
       : c.subject.kind;
@@ -718,6 +718,7 @@
       settled.forEach(c => {
         const chip = c.resolved === 'met' ? '<span class="chip cool">kept</span>'
           : c.resolved === 'metPoorly' ? '<span class="chip">kept, barely</span>'
+          : c.resolved === 'void' ? '<span class="chip">set aside</span>'   // not judged: the act ended, the chair changed, the sheet was not held (v0.11.27, §119)
           : '<span class="chip hot">broken</span>';
         html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(c.resolvedWeek || c.week).text) + '</span>' +
           '<div><b>' + UI.esc(who(c)) + '</b>: ' + what(c) + ' ' + chip +

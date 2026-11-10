@@ -235,6 +235,7 @@
     if (KP.endingLedger) KP.endingLedger(state);     // how an act ends (v0.11.11, §102)
     if (KP.acrossLedger) KP.acrossLedger(state);     // a departed artist's next chapter (v0.11.12, §103)
     if (KP.postingLedger) KP.postingLedger(state);   // the list on the door (v0.11.17, §108)
+    if (KP.upstairsLedger) KP.upstairsLedger(state); // her own questions (v0.11.27, §119)
     if (KP.returnLedger && state.serviceLedger) KP.returnLedger(state);   // the return's sums ride the service ledger (v0.11.18, §109)
     if (KP.quietLedger) KP.quietLedger(state);       // the hiatus and the break say when the rest is in (v0.11.20, §111)
     if (KP.wallLedger) KP.wallLedger(state);         // the heads of the other houses (v0.11.22, §113)
