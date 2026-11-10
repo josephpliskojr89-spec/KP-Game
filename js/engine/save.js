@@ -1297,6 +1297,14 @@
     if (KP.ensureLedgers) KP.ensureLedgers(state);
   } });
 
+  // v0.11.19 — the wait. Nothing on an old file changes. A man already
+  // away keeps the marks that are still ahead of him and never hears a
+  // late one; how he went was not recorded, so his letter does not say.
+  // The ledger gains its three sums at zero.
+  MIGRATIONS.push({ v: '0.11.19', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

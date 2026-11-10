@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.18',
+    VERSION: '0.11.19',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1546,6 +1546,10 @@
       returnBuildup: 26,         // a comeback locked inside the window banks this
       returnWindowWeeks: 24,     // how long the discharge moment stays convertible
       returnClosingWeeks: 4,     // the letter that says the window is closing (v0.11.18, §109)
+      // the wait (v0.11.19, §110): a service has three marks between the gates
+      hundredWeeks: 14,          // day 100 of the wait falls in this week of it
+      turnWeeks: 14,             // D-100: the countdown turns this many weeks before he is home
+      halfMorale: 2,             // the room reads his letter from the base
       planSilenceMorale: -2,     // the plan folder left to the scheduling office: each man reads the default off the wall (v0.11.5, §96 wiring — measure-first)
       papersSilenceMorale: -3,   // his papers left in the drawer unanswered: left waiting, and the room noticed (v0.11.5, §96 wiring — measure-first)
     },

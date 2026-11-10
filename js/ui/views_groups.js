@@ -588,6 +588,9 @@
         '</div>');
     }
 
+    // the service map (v0.11.19, §110): who is away and how far in, who
+    // goes next, and what the fandom's project has come to
+    html.push(UI.serviceMapCard(state, g));
     // the return window (v0.11.18, §109): the result end of a service was a
     // window nobody could see. It has a last week, and the page says it.
     html.push(UI.returnWindowCard(state, g));
@@ -726,6 +729,40 @@
   }
 
   // ---- builder ---------------------------------------------------------
+  // the service map (v0.11.19, §110) — the map the scheduling office pinned
+  // to the wall: each man's place in the wait, read from the one read
+  UI.serviceMapCard = function (state, g) {
+    const M = KP.C.MIL;
+    if (!g.debuted || g.retiredWeek) return '';
+    const men = g.members.map(id => state.people[id]).filter(m => m && m.gender === 'm');
+    const live = m => KP.inService(m) || (!m.serviceDone && (m.age >= M.noticeAge - 2 || (m.flags && m.flags.enlistPapers != null)));
+    if (!men.some(live)) return '';   // nobody is near the window yet
+    const rank = m => KP.inService(m) ? 0 : m.serviceDone ? 2 : 1;
+    const rows = men.slice().sort((x, y) => rank(x) - rank(y) ||
+      (KP.inService(x) ? x.flags.military.until - y.flags.military.until : y.age - x.age)).map(m => {
+      const r = KP.waitRead ? KP.waitRead(state, m) : null;
+      // a man away: the row says when he is home, and a line under it how far in
+      // and what is next (one row for all of it broke his name across two lines)
+      const right = r
+        ? 'away · home ' + UI.esc(KP.weekLabel(r.until).text)
+        : m.serviceDone ? 'served'
+          : (m.flags && m.flags.enlistPapers != null) ? '<span style="color:var(--gold)">' + (m.age >= M.deadlineAge - 1 ? 'the wall is close' : 'papers held') + ' · the wall at ' + M.deadlineAge + '</span>'
+            : 'papers at ' + M.noticeAge + ' · the wall at ' + M.deadlineAge;
+      return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:.8rem;padding:3px 0;opacity:' + (m.serviceDone ? '.55' : '1') + '">' +
+        '<span style="white-space:nowrap">' + UI.esc(KP.displayName(m)) + ', ' + m.age + '</span><span style="text-align:right">' + right + '</span></div>' +
+        (r ? '<div style="font-size:.68rem;color:var(--ink-dim);text-align:right;margin:-2px 0 4px">week ' + r.served + ' of ' + r.total +
+          ' · next: ' + UI.esc(KP.waitNextWords(state, m)) + '</div>' : '');
+    }).join('');
+    const proj = g.wait && state.week - g.wait.since >= M.hundredWeeks && KP.waitProject
+      ? KP.waitProject(state, g, g.wait.since, state.week, g.wait.count) : null;
+    return '<div class="kicker">The service map</div><div class="card">' + rows +
+      (men.length >= 2 ? '<div style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px;font-size:.72rem;color:var(--ink-dim)">The plan: ' +
+        (g.servicePlan === 'together' ? 'together, one wait and one return.' : g.servicePlan === 'stagger' ? 'staggered, one at a time as each window closes.'
+          : 'not chosen yet. The folder reaches the Desk when the eldest is ' + M.noticeAge + '.') + '</div>' : '') +
+      (proj ? '<div style="margin-top:6px;font-size:.72rem;color:var(--ink-dim)">The fandom’s project for the wait: ' + UI.esc(proj.name) + ', ' + UI.esc(proj.said) + ' so far.</div>' : '') +
+      '</div>';
+  };
+
   // the return window (v0.11.18, §109) — one card, read from the one read
   UI.returnWindowCard = function (state, g) {
     const win = KP.returnRead ? KP.returnRead(state, g) : null;

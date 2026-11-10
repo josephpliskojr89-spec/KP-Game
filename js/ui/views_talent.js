@@ -773,8 +773,13 @@
 
     // the service (v0.9.23): while he serves, the desk waits with everyone
     if (p.flags.military) {
-      html.push('<div class="pad" style="margin-top:18px;font-size:.72rem;color:var(--ink-dim)">In mandatory service — discharge expected ' +
-        UI.esc(KP.weekLabel(p.flags.military.until).text) + '. The contract clock is paused. The desk has no verbs here; nobody does.</div>');
+      // the wait, read (v0.11.19, §110): a two-year chapter was a chip and a date
+      const wr = KP.waitRead ? KP.waitRead(state, p) : null;
+      html.push('<div class="pad" style="margin-top:18px;font-size:.72rem;color:var(--ink-dim)">In mandatory service — ' +
+        (wr ? 'week ' + wr.served + ' of ' + wr.total + ', home ' : 'discharge expected ') +
+        UI.esc(KP.weekLabel(p.flags.military.until).text) + '.' +
+        (wr ? ' Next: ' + UI.esc(KP.waitNextWords(state, p)) + '.' : '') +
+        ' The contract clock is paused. The desk has no verbs here; nobody does.</div>');
       return html.join('');
     }
 

@@ -537,6 +537,16 @@ for (const sc of RUN) {
     if (!((svl.returns || 0) >= 1)) flag(sc.seed, state.week, 'the service scenario never saw an act come home whole');
     if (!((svl.soloChapters || 0) >= 1)) flag(sc.seed, state.week, 'the service scenario’s soloist never served a service chapter');
   }
+  // the wait (v0.11.19, §110): a house whose men came home heard from the
+  // wait on the way — day 100, the letter from the base, the turn — and
+  // never more often than men went
+  if ((svl.discharged || 0) >= 1 && !((svl.hundred || 0) >= 1 && (svl.wrote || 0) >= 1 && (svl.turn || 0) >= 1)) {
+    flag(sc.seed, state.week, 'men came home (' + svl.discharged + ') but the wait was silent: day 100 ' + (svl.hundred || 0) +
+      ', letters from the base ' + (svl.wrote || 0) + ', turns ' + (svl.turn || 0));
+  }
+  ['hundred', 'wrote', 'turn'].forEach(k => {
+    if ((svl[k] || 0) > (svl.enlisted || 0)) flag(sc.seed, state.week, 'more ' + k + ' letters (' + svl[k] + ') than men who went (' + (svl.enlisted || 0) + ')');
+  });
   // the return (v0.11.18, §109): every time an act came home whole there
   // was a ceremony, and every window it opened was spent, lapsed or is
   // still open (an act that ended takes its window with it)
@@ -600,7 +610,7 @@ for (const sc of RUN) {
   console.log(sc.seed + ': wk ' + state.week + ', ' + Math.round(total / 1024) + ' KB, ' +
     Object.keys(state.people).length + ' files | top: ' +
     top.map(([k, v]) => k + ' ' + Math.round(v / 1024) + 'K').join(', ') +
-    ' | service: ' + ['plans', 'notices', 'enlisted', 'walls', 'discharged', 'returns', 'spent', 'closing', 'lapsed', 'soloChapters']
+    ' | service: ' + ['plans', 'notices', 'enlisted', 'walls', 'discharged', 'returns', 'spent', 'closing', 'lapsed', 'soloChapters', 'hundred', 'wrote', 'turn']
       .map(k => k + ' ' + (svl[k] || 0)).join(', ') +
     ' | risefall: ' + ['rankings', 'overtakes', 'playerNo1', 'classes', 'offers', 'genTurns', 'torchPasses', 'rivalServices']
       .map(k => k + ' ' + ((state.riseFallLedger || {})[k] || 0)).join(', ') +

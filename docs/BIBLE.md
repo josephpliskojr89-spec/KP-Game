@@ -9486,7 +9486,7 @@ what each member does next. `finalLineup` written on every ending;
 an alumni strip so the open files are reachable; a departed idol who
 can be signed across the street and a letter when she debuts there.
 
-**5. The practice room, attended (the trainee years as episodes; part one, the mission, SHIPPED v0.11.13, §104; part two, the talk and the slot, SHIPPED v0.11.14, §105; part three, the year’s sheet, SHIPPED v0.11.16, §107; part four, the posting, SHIPPED v0.11.17, §108; the absences, part one, the return, SHIPPED v0.11.18, §109).**
+**5. The practice room, attended (the trainee years as episodes; part one, the mission, SHIPPED v0.11.13, §104; part two, the talk and the slot, SHIPPED v0.11.14, §105; part three, the year’s sheet, SHIPPED v0.11.16, §107; part four, the posting, SHIPPED v0.11.17, §108; the absences, part one, the return, SHIPPED v0.11.18, §109; part two, the wait, SHIPPED v0.11.19, §110).**
 The evaluation sheet on a priority ladder (critical at a first #1,
 the line or the talk; high within one of the line; flavor only when
 nothing moved) naming the month's mission, her place and movement,
@@ -11500,6 +11500,126 @@ chapter; only a one-person act is.
 project at day 100, the letter from the base at the half, the
 countdown turning at D-100. The quiet: the hiatus and the personal
 break.
+
+## §110 The wait (SHIPPED v0.11.19 — §96 recommendation 5, the absences, part two)
+
+Owner: *"Break remaining work into smaller pieces"*. The second of
+the absences' three pieces. The return (§109) was the result end of
+a service. This is the eighteen months before it.
+
+**The finding** (§96): "a two-year service chapter is a chip and a
+date, 'the desk has no verbs here; nobody does'". The desk still has
+no verbs. The recommendation was a cadence from the fandom's side,
+and that is what this is: three marks between the gates, each a
+letter composed from the state, and a map on the page.
+
+The weekly draws nothing. The timeline reacts to day 100 and to the
+turn, one pick each.
+
+**One man's wait is a read** (`KP.waitRead`, pure): how far in, how
+long to go, how he went, the marks and the next one. A full service
+has three: day 100 (week 14 of it, the week that day falls in), the
+half (week 36), and D-100 (14 weeks before the gate). A service too
+short to hold them in order has only its gate, so a fixture's
+three-week service says nothing.
+
+**One letter an act, a mark.** Four men who went together cross a
+mark in the same week and get one letter, for the four of them. Two
+of a stagger who left the same week are named together. The ledger
+counts letters, not men.
+
+**Day 100: the fandom's project gets a name and a count**
+(`waitHundred`, normal). The game has always said the fandom "runs
+the wait like a project". The project is one of four, by hash of
+the seed, the act and the week the chapter opened: the letter
+drive, the paper cranes, the forest, the rice. Its count is real
+state: the weeks waited, at the project's rate, times how big and
+how warm the fandom is. It carries the fandom's own name and color
+when it has them. A count a letter gave is never said smaller
+afterwards: a pile of letters does not shrink because the act had a
+bad month, so the chapter keeps the last count said and the next
+one starts from it. The letter ends with how the act works until he
+is home ("works as three"), or that it waits with him.
+
+**The half: he writes from the base** (`baseLetter`, high). The
+leader writes if he is among them, else the eldest. It is composed
+from his file. What the act did without him: a record out since he
+left, by its title, and where it peaked if it reached the top
+twenty ("somebody on a base always knows"); with none, he asks
+about the work; with nobody at home, the letter is about the base.
+How he went, which the service now records (`how`): at the wall, or
+early; together needs no sentence. Whether his papers sat on the
+desk unanswered. How he signs it, by how he carries the company:
+the company's name before his own, his name and the date, or his
+name alone, polite the way a form is polite. If there is a room at
+home it reads the letter standing up, and each of them is lifted 2.
+
+**The papers are the service's own stamp.** The first cut read "left
+waiting" off his ledger between the papers and the bus. The suite's
+fixture had a man left waiting at some other door in those weeks,
+and the letter blamed the papers for it. Every door that expires
+leaves that act. The papers' own expiry stamps the man now
+(`papersUnanswered`), the letter reads the stamp, and the gate
+clears it with the papers.
+
+**D-100: the countdown turns** (`waitTurn`). It says when he is
+home, what the project stands at, and the return's rule ahead of
+time: that week the act is whole, a window opens for 24 weeks, and
+a record locked before he is home is a comeback like any other.
+That last sentence is the one a player needs before the gate and
+could not have had. An act that is wholly away is told instead that
+nothing can be locked before then. If another man is still away
+after him, the letter names him and the week the act is whole, and
+promises no window; it is `high` only when the act is whole once he
+is home.
+
+**The gate.** The ceremony (§109) closes the project: its last
+count, never less than the last one said, and the project's own
+closing line. A chapter that never reached day 100 has no project
+to close.
+
+**The service map** (the group page). The plan scene says the
+scheduling office "pinned a two-year map of who-is-away-when to the
+wall", and nothing showed it. Each man of a boy group, in order:
+the ones away (how far in, when home, the next mark), the ones
+still to go (the papers' age and the wall's, or that the papers are
+held, or that the wall is close), the ones served. The plan. From
+day 100, the project and its count. It goes up two years before
+the first papers. His file says the same of him where it said a
+date.
+
+**Read in a browser.** The map's first cut put everything about a
+man away on one row, and his name broke across two lines. His row
+says when he is home, and a line under it says how far in he is and
+what is next. The turn said "the paper cranes stands at"; the verb
+agrees with the project now.
+
+**Old saves** (migration 0.11.19). Nothing changes. A man already
+away keeps the marks still ahead of him and never hears a late one.
+How he went was not recorded, so his letter does not say.
+
+**Measured.** The soak cannot reach a service. The 40-career soak
+and the 200-career census are the same output as v0.11.18's, line
+for line. The long haul measures it. Its service scenario: 5 men
+went and 5 came home, with 5 day-100 letters, 5 letters from the
+base and 5 turns. Across all eleven scenarios: 11 went, 11 day-100
+letters, 11 from the base, 10 turns. Held at the end: a house whose
+men came home heard from the wait, and no mark was said more often
+than men went.
+
+Suite_129 (240): the engine, the group page and the file rendered
+through the DOM stub. Mutation-checked against 148 broken lines,
+each caught by a named assertion; on the first run nine of 146
+survived and one crashed the suite, and each got a check or a
+guard. A real-browser pass that brings each of the three letters
+and the gate to the Desk through the real weekly, and reads the map
+and the file (29 checks, no page errors). Battery 129/129, soak 40
+clean, census 200 clean, longhaul 11 × 620 clean, e2e 137, lockstep
+0.11.19.
+
+*Left for the next piece.* The quiet: the hiatus and the personal
+break. *Still the owner's to call* (§109): the fade between records
+through a service chapter, and the size of the window's bank.
 
 ## §18 Watch items
 
@@ -15299,6 +15419,28 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 40 clean, census 200 clean, longhaul 11 × 620 clean, e2e 137, a
 > real-browser pass (39), lockstep 0.11.18. Rode to main. Next pieces:
 > the wait, the quiet.
+
+> **0.11.19 — the wait.** Own judgment, under "Approved to tackle as
+> much of the remaining queue as you see fit" and "Break remaining
+> work into smaller pieces": the second of the absences' three pieces.
+> §110: the eighteen months before the gate were a chip and a date. A
+> service has three marks now, each one letter an act: day 100, when
+> the fandom's project gets a name and a count from real state; the
+> half, when he writes from the base, composed from his file (what the
+> act did without him, how he went, whether his papers sat unanswered,
+> how he carries the company); and D-100, when the countdown turns and
+> the return's rule is said ahead of time. The gate closes the
+> project. The group page carries the service map the plan scene
+> always said was pinned to the wall. The desk still has no verbs.
+> Caught by the suite's own fixture: the letter read "left waiting"
+> off the ledger and blamed the papers for another door; the papers
+> stamp the man themselves now. The soak cannot reach a service and
+> did not move (346 of 346 rows, at 40 careers and at 200). The long
+> haul measures it: 11 men went, 11 day-100 letters, 11 from the base,
+> 10 turns. Suite_129 (240), 148 mutations caught by name. Battery
+> 129/129, soak 40 clean, census 200 clean, longhaul 11 × 620 clean,
+> e2e 137, a real-browser pass (29), lockstep 0.11.19. Rode to main.
+> Next piece: the quiet.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

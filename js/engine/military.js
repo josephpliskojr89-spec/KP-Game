@@ -32,6 +32,8 @@
     const forced = !!(opts && opts.forced);
     const g = KP.groupOf(state, p.id);
     p.flags.military = { since: state.week, until: state.week + M.serviceWeeks };
+    // how he went (v0.11.19, §110): his letter from the base reads it
+    p.flags.military.how = forced ? 'wall' : (opts && opts.quiet) ? 'together' : 'now';
     delete p.flags.personalHiatus;   // the state supersedes the statement
     // the absences, attended (v0.11.18, §109): the stretch the act is short
     // is a chapter the return ceremony reads, and a soloist's service is
@@ -72,6 +74,7 @@
     const weeks = state.week - p.flags.military.since;
     delete p.flags.military;
     delete p.flags.enlistPapers;     // the next window, if any, is a new story
+    delete p.flags.papersUnanswered;
     p.serviceDone = state.week;      // durable — the census and the wall both read it
     p.morale = KP.clamp(p.morale + M.dischargeMorale, 0, 100);
     p.fatigue = Math.min(p.fatigue, M.dischargeFatigueCap);
@@ -283,6 +286,7 @@
       // left waiting on the one question everyone his age has already done
       // the math on (v0.11.5, §96 wiring): the ledger and the morale both keep it
       KP.recordDirected(state, p.id, 'leftWaiting');
+      p.flags.papersUnanswered = state.week;   // his letter from the base reads this, not the ledger: other doors leave men waiting too (v0.11.19, §110)
       p.morale = KP.clamp(p.morale + KP.C.MIL.papersSilenceMorale, 0, 100);
       return { kind: 'company', personId: p.id,
         text: KP.fillPro('The enlistment papers for ' + KP.displayName(p) + ' sat unanswered — which is an answer: {she} works until the wall. The law keeps better calendars than desks do. {She} noticed the drawer never opened again; so did the room, which watched {her} wait for a word that did not come.', p) };
