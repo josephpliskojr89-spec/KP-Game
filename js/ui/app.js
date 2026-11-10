@@ -140,6 +140,14 @@
     }
     App.render();
   }
+  // the posting (v0.11.17, §108): the executive's review is the upstairs half
+  // of a lineup. The room's half is a letter on the Desk; the modal says so.
+  function postedNote(r) {
+    if (!r || !r.posting) return '';
+    const who = r.posting.slighted ? KP.displayName(r.posting.slighted) : null;
+    return '<div class="note">The list is on the practice room door. What the room made of it is on the Desk' +
+      (who ? ', and ' + UI.esc(who) + ' will come to the desk about it' : '') + '.<span class="n-who">— the practice room</span></div>';
+  }
   function push(type, id) {
     App.stack.push({ view: App.view, scroll: window.scrollY, mark: id || null });
     App.view = { type, id };
@@ -1138,7 +1146,7 @@
         App.view = null; App.stack.length = 0; App.tab = 'groups';
         UI.modal('The executive reviews the solo',
           r.review.map(line => '<div class="note">' + UI.esc(line) +
-            '<span class="n-who">— ' + UI.esc(s.executive.name) + '</span></div>').join(''),
+            '<span class="n-who">— ' + UI.esc(s.executive.name) + '</span></div>').join('') + postedNote(r),
           '<button class="btn primary" data-action="close-modal" style="flex:1">Understood</button>');
         App.render();
         break;
@@ -1153,7 +1161,7 @@
         App.view = null; App.stack.length = 0; App.tab = 'groups';
         UI.modal('The executive reviews the lineup',
           r.review.map(line => '<div class="note">' + UI.esc(line) +
-            '<span class="n-who">— ' + UI.esc(s.executive.name) + '</span></div>').join(''),
+            '<span class="n-who">— ' + UI.esc(s.executive.name) + '</span></div>').join('') + postedNote(r),
           '<button class="btn primary" data-action="close-modal" style="flex:1">Understood</button>');
         App.render();
         break;

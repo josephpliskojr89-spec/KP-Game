@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.16',
+    VERSION: '0.11.17',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1925,6 +1925,19 @@
       yearClimbAt: 2,         // places up, first sheet of the year to the last, to be the year's climb
       yearClimbMorale: 2,     // hers, for being named
       yearKeep: 3,            // years of sheets the wall keeps
+    },
+    // the posting (v0.11.17, §108 — measure-first). The list on the door is a
+    // letter for the room; the one it slighted most comes to the desk once.
+    POSTING: {
+      yearOffMorale: 4,       // first on the year's sheet, not on the list (the month's first is docked 6, in group.js)
+      bothExtraMorale: 2,     // first on both: the month's dock, and this
+      waitedWeeks: 96,        // two years on the floor before a list with her name on it is worth a sentence
+      doorWeeks: 6,           // she comes to the desk within this many weeks of the list, or not at all
+      doorExpire: 3,          // weeks she stands in the doorway
+      whyMorale: 3,           // told why: a reason is worth half the dock
+      promiseMorale: 6,       // promised the next lineup: all of it, on credit
+      promiseWeeks: 96,       // "the next lineup" has two years to exist
+      nothingMorale: 2,       // "the list is the list" (subtracted)
     },
     POINTS: {
       nearMissGap: 8,         // close enough to hurt out loud

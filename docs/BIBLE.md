@@ -9486,7 +9486,7 @@ what each member does next. `finalLineup` written on every ending;
 an alumni strip so the open files are reachable; a departed idol who
 can be signed across the street and a letter when she debuts there.
 
-**5. The practice room, attended (the trainee years as episodes; part one, the mission, SHIPPED v0.11.13, §104; part two, the talk and the slot, SHIPPED v0.11.14, §105; part three, the year’s sheet, SHIPPED v0.11.16, §107).**
+**5. The practice room, attended (the trainee years as episodes; part one, the mission, SHIPPED v0.11.13, §104; part two, the talk and the slot, SHIPPED v0.11.14, §105; part three, the year’s sheet, SHIPPED v0.11.16, §107; part four, the posting, SHIPPED v0.11.17, §108).**
 The evaluation sheet on a priority ladder (critical at a first #1,
 the line or the talk; high within one of the line; flavor only when
 nothing moved) naming the month's mission, her place and movement,
@@ -11248,6 +11248,124 @@ clean, census 200 clean, longhaul 11 × 620 clean, e2e 135, lockstep
 
 *Left for the next pieces.* The posting as a letter for the room
 with a door for the ace left off; the absences' cadence.
+
+## §108 The posting (SHIPPED v0.11.17 — §96 recommendation 5, the trainee years, part four)
+
+Owner: *"Break remaining work into smaller pieces"*. The fourth
+piece of the practice room, and the one the year's sheet (§107) was
+waiting for.
+
+**The finding** (§96): "The list on the wall, the most repeated
+ceremony of a career, is a modal of the exec's sentences with no
+letter for the room and no door for the ace left off."
+
+What a lineup did to the room was already in the engine: the ones
+on it had a line on their files, the one locked into the project
+and left out was docked 8, and the month's first left off was
+docked 6 with "first on the board, not on the list" on her ledger.
+None of it was told, and none of it could be seen before the list
+went up.
+
+Nothing is drawn.
+
+**Who the room will look for and not find is a read**
+(`KP.postingRead`, pure). The floor is every free trainee. Off the
+list, the room looks for the month's first (the board's), the
+year's first (the last sheet on the wall, if she is still on the
+floor), and anybody locked into the project. It reads the same
+before the list is posted and after. The lineup builder shows it
+while the list is still a draft: who is first on this month's sheet
+and not on it, who was first on the year's sheet and not on it, who
+is locked in and not on it, and that the one slighted most will
+come to the desk about it.
+
+**The list is one critical letter**, in the inbox the moment it is
+posted (a player action: `KP.note`, never the week's trim). The
+list, with the leader and the center marked; the one on it who
+waited longest, if that is two years or more ("the first list with
+her name on it"); who is not on it, in the room's order of
+attention; how many others read it twice; a closer, one of three,
+the act's own. A solo is a notice, read the same way. The
+executive's review is still the modal, and it now says the list is
+on the door and who will come about it.
+
+**The year's first left off is a slight now.** Until this release
+only the month's first was docked. The year's first who is not the
+month's first is docked 4 and has it on her ledger. One who is
+first on both is docked the month's 6 and 2 more, and it is on her
+ledger once, not twice. What group.js did to the month's first and
+to the dropped is as it was, to the number.
+
+**The door** (`offTheList`). The one the list slighted most (the
+month's first; the year's first when the month's is on the list)
+comes to the desk once, through the one queue, as a priority
+candidate, any week of the six after the list. She is not asking to
+be put on it: "I am asking what the sheet is for." Three answers.
+TELL HER WHY: 3 morale back, and told straight on her ledger: a
+reason is worth half the dock. PROMISE HER THE NEXT LINEUP: 6
+morale, on credit: it opens the practice room's own promise
+(`debutByPromise`), kept the day she debuts and broken the day
+another act debuts without her or two years pass, and when it
+breaks she packs the same night and the room watches. It is not
+offered to a trainee who already holds one. THE LIST IS THE LIST: 2
+more morale gone, and nothing new on her ledger: being passed over
+already stands. Silence, when she has come and stood in the
+doorway three weeks, is left waiting on her ledger, as for anyone
+who knocked.
+
+**A promise of the next lineup is about the lineup after this
+one.** The practice room's promise breaks "the day a debut goes out
+without her". The list that just left her off is about to debut
+without her, by design, so a promise made at this door would have
+broken on that debut. The claim carries the act it was made about
+(`exceptGroupId`) and the check steps over it. A twin holds it: the
+same promise without the exception is broken by that debut.
+
+**The answers stack.** Read in a browser, three short answers were
+laid three to a row and "Promise the next lineup" wrapped to three
+lines. It is worded "Promise her the next lineup", past the length
+at which the Desk gives each answer a row of its own.
+
+**Old saves** (migration 0.11.17). Nothing on an old file changes.
+Its ledger arrives, all zeros, and its next list is a letter.
+
+**The bot and the census.** The bot tells her why. It never
+promises: a promise of the next lineup is a commitment and a
+boss's to make, so that answer is suite-held, with the breaking and
+the keeping of it. Two floors: a posted list is a letter (40/40
+careers, 200/200), and the one a list left off came to the desk
+(11/40, 61/200). Over 200 careers: 413 lists; the month's first
+left off 75 times and the year's first 19; 73 locked in and
+dropped; 67 came to the desk, and all 67 were told why.
+
+**What moved, and why.** The door takes a week on the one queue and
+its answer moves morale, so careers part ways after it: 69 of 344
+older rows moved at 40 careers, the largest by three careers; 117
+of 344 at 200, the largest by nine of 200. None left its band. Two
+more runs name the cause. With the posting switched off, all 344
+older rows read as v0.11.16's. With the letter and the slight
+standing and the door shut, the same. The door is the whole of it.
+
+**The walkthrough.** It ran 134 checks where v0.11.16 ran 135. The
+one that did not run is conditional: it reads the staff's note when
+a comeback lock draws one, and this career's second lock drew none,
+because the walkthrough's own list left the month's first off, she
+came to the desk, and the weeks after went differently. Three
+checks were added where the walkthrough posts its list (the
+builder's read, the review's line, the letter), each shown to fail
+by name when its line is broken: 137.
+
+Suite_127 (102): the engine, the lineup builder and the Desk
+rendered through the DOM stub. Mutation-checked against
+seventy-nine broken lines, each caught by a named assertion. A
+real-browser pass that builds a list, posts it through the app and
+answers the door (16 checks, no page errors). Battery 127/127,
+soak 40
+clean, census 200 clean, longhaul 11 × 620 clean, e2e 137, lockstep
+0.11.17.
+
+*Left for the next piece.* The absences' cadence: the last part of
+§96's fifth entry.
 
 ## §18 Watch items
 
@@ -14998,6 +15116,32 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 126/126, soak 40 clean, census 200 clean, longhaul 11 × 620 clean,
 > e2e 135, a real-browser pass (18), lockstep 0.11.16. Rode to main.
 > Next pieces: the posting, the absences.
+
+> **0.11.17 — the posting.** Own judgment, under "Approved to tackle
+> as much of the remaining queue as you see fit" and "Break remaining
+> work into smaller pieces": the fourth piece of §96's fifth entry.
+> §108: the list on the wall was a modal of the executive's
+> sentences, with no letter for the room and no door for the ace left
+> off. What a lineup did to the room was in the engine and was never
+> told. Who the room will look for and not find is now a read the
+> lineup builder shows before the list goes up; the list is one
+> critical letter the moment it is posted; the year's first left off
+> (§107) is a slight, which it was not; and the one the list slighted
+> most comes to the desk once, through the one queue: told why,
+> promised the next lineup, or told the list is the list. The promise
+> is the practice room's own, and is about the lineup after this one:
+> the act that left her off debuts without her by design, and the
+> claim steps over it. Nothing is drawn. Two floors (a list is a
+> letter, 200/200 careers; the one left off came to the desk,
+> 61/200). The door moves older rows, as a door on the one queue
+> must: 117 of 344 at 200 careers, the largest by nine, none out of
+> band; with the door shut, measured, none move. The walkthrough ran
+> one check fewer (a conditional one: its second lock drew no staff
+> note on the new path) and gained three where it posts its list.
+> Suite_127 (102), seventy-nine mutations caught by name. Battery
+> 127/127, soak 40 clean, census 200 clean, longhaul 11 × 620 clean,
+> e2e 137, a real-browser pass (16), lockstep 0.11.17. Rode to main.
+> Next piece: the absences.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

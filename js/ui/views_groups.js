@@ -734,6 +734,9 @@
         ((soloist.hype || 0) >= 35 ? '<div style="margin-top:8px;color:var(--magenta);font-size:.8rem">' + KP.fillPro('The internet already knows {her}. A solo cashes all of that in.', soloist) + '</div>' : '') +
         '<div style="margin-top:12px"><button class="btn primary" data-action="builder-propose-solo" data-id="' + soloist.id + '">Propose ' + UI.esc(KP.displayName(soloist)) + ', solo</button></div>' +
         '</div>');
+      // the posting (v0.11.17, §108): a solo is a list of one, and the room reads it the same way
+      const offSolo = KP.postingLines ? KP.postingLines(state, draft.members) : [];
+      if (offSolo.length) html.push('<div class="note">' + offSolo.map(l => UI.esc(l)).join('<br>') + '<span class="n-who">— the practice room door</span></div>');
     }
 
     // the project: fewer than a full lineup can still become a commitment
@@ -777,6 +780,13 @@
       html.push('<div class="kicker">Room preview</div>');
       KP.chemistryNotes(state, members).forEach(n => html.push('<div class="note">' + UI.esc(n) + '</div>'));
       KP.frictionPairs(state, draft.members).forEach(f => html.push(UI.frictionCard(state, f)));
+      // the posting (v0.11.17, §108): who the room will look for on this
+      // list and not find, before it goes up
+      const off = KP.postingLines ? KP.postingLines(state, draft.members) : [];
+      if (off.length) {
+        html.push('<div class="kicker">What the room will read</div>');
+        html.push('<div class="note">' + off.map(l => UI.esc(l)).join('<br>') + '<span class="n-who">— the practice room door</span></div>');
+      }
 
       html.push('<div class="kicker">Name</div>');
       // your own name, or one of the pitches (v0.8.4, owner request)

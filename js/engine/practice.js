@@ -281,7 +281,9 @@
     if (p.status !== 'trainee') return { resolved: 'missed', notes: [] };
     // "the NEXT lineup" means the next one: a debut that goes out without
     // her breaks the promise on the spot, not at the deadline
-    const passedBy = KP.groups(state).some(g =>
+    // (v0.11.17, §108) a promise made to the one a list left off is about
+    // the list AFTER that one: the act just posted debuts without her by design
+    const passedBy = KP.groups(state).some(g => g.id !== c.exceptGroupId &&
       (g.debutWeek || 0) > c.week && g.debutWeek <= state.week && !g.members.includes(p.id));
     if ((state.week > c.byWeek || passedBy) && KP.onBreak(p)) {
       c.byWeek = state.week + 1;   // she is away (v0.10.32): the letter waits for her to be back in the room

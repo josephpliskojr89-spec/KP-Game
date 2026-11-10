@@ -225,9 +225,18 @@ async function main() {
   ok((await page.$eval('.role-row select', el => el.value)) === other,
     'a chosen role survives re-render — no snap-back to staff picks');
   ok(await page.$$eval('.note', els => els.length) >= 1, 'room preview gives chemistry observations');
+  // the posting (v0.11.17, §108): the builder shows what the room will
+  // read exactly when the engine's read has something to say, and a
+  // posted list is a critical letter the moment it goes up
+  const roomLines = await page.evaluate(() => KP.postingLines(KP.App.state, KP.App.builderDraft.members));
+  ok(/What the room will read/.test(await page.textContent('#screen')) === (roomLines.length > 0),
+    'the builder shows what the room will read when the list leaves somebody off');
   await tap('[data-action=builder-propose]');
   await page.waitForSelector('.modal-sheet');
   ok((await page.textContent('.modal-sheet')).includes('reviews the lineup'), 'executive reacts to the proposal');
+  ok((await page.textContent('.modal-sheet')).includes('The list is on the practice room door'), 'the review says the list is on the door');
+  ok(await page.evaluate(() => KP.App.state.inbox.some(n => n.ind === 'lineupPosted' && n.priority === 'critical')),
+    'the posted list is a critical letter');
   await tap('[data-action=close-modal]');
   // v0.9.10: two groups now (the inherited veterans + the new lineup) —
   // the tab shows cards; open the new group's page (second card)

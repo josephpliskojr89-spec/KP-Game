@@ -1268,6 +1268,12 @@
     }));
   } });
 
+  // v0.11.17 — the posting. Nothing on an old file needs changing: the next
+  // list it posts is a letter like any other. Its ledger arrives, all zeros.
+  MIGRATIONS.push({ v: '0.11.17', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

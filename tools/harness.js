@@ -676,6 +676,11 @@ const BANDS = {
   // often has fewer than three trainees who stood half of it)
   yearRead:          { lo: 0.60, hi: 1.00, label: 'orgs whose year was read from the bottom up' },
   yearClimb:         { lo: 0.30, hi: 1.00, label: 'orgs where the year’s climb was named' },
+  // the posting (v0.11.17, §108) — measure-first: 40/40 and 11/40 on the first
+  // soak (79 lists; the bot's lists left the month's first off 13 times and
+  // the year's first never: that door is suite-held)
+  listPosted:        { lo: 0.90, hi: 1.00, label: 'orgs whose lineup went up as a letter for the room' },
+  offListDoor:       { lo: 0.05, hi: 0.80, label: 'orgs where the one a list left off came to the desk' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -828,6 +833,7 @@ const BANDS = {
 
 const missionSum = {};   // the mission (v0.11.13, §104): summed over the census
 const yearSum = { years: 0, climbs: 0, rows: 0, sheets: 0, max: 0 };   // the year's sheet (v0.11.16, §107)
+const postSum = {};   // the posting (v0.11.17, §108)
 const tally = {
   sensation: 0, strongPlus: 0, missOrQuiet: 0, nonCenterBreakout: 0,
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
@@ -907,6 +913,7 @@ const tally = {
   fundPitched: 0, fundFinanced: 0, fundPassed: 0,
   evalHeld: 0, projectTalkSeen: 0, traineeQuitAsked: 0, traineeGone: 0,
   missionDrilled: 0, missionMoment: 0, talkQuestion: 0, slotGiven: 0, yearRead: 0, yearClimb: 0,
+  listPosted: 0, offListDoor: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -1719,6 +1726,13 @@ for (let s = 0; s < SEEDS; s++) {
       // gets the month one on one when the books allow it; otherwise it is
       // left with the coaches, as it always was. The bot never says it
       // straight: that answer is suite-held.
+      if (sc.kind === 'offTheList') {
+        // the posting (v0.11.17, §108): the bot tells her why. A promise of
+        // the next lineup is a real commitment and a boss's to make, not a
+        // policy's: it is suite-held.
+        KP.resolveScene(state, sc.id, 'why');
+        return;
+      }
       if (sc.kind === 'afterEvalTalk') {
         const tp = state.people[sc.personId];
         const optsT = KP.sceneDef('afterEvalTalk').options(state, sc);
@@ -2429,6 +2443,17 @@ for (let s = 0; s < SEEDS; s++) {
   })();
   guard((evl.years || 0) <= yearsDue, seed + ' the year’s sheet was read ' + evl.years + ' times in a career of ' + state.week + ' weeks, in which ' + yearsDue + ' years have had their last showcase');
   guard((state.evalYears || []).every(y => y.rows.length >= KP.C.EVAL.minTrainees && y.rows[0].place === 1 && y.topId === y.rows[0].id), seed + ' a year’s sheet on the wall is malformed');
+  // the posting (v0.11.17, §108)
+  const postL = state.postingLedger || {};
+  if ((postL.posted || 0) >= 1) tally.listPosted++;
+  if ((postL.knocks || 0) >= 1) tally.offListDoor++;
+  Object.keys(postL).forEach(k => { postSum[k] = (postSum[k] || 0) + (postL[k] || 0); });
+  const doorOpen = (state.scenes || []).filter(sc => sc.kind === 'offTheList').length;
+  const doorDone = (postL.why || 0) + (postL.next || 0) + (postL.nothing || 0) + (postL.unanswered || 0);
+  // a door that was opened and whose trainee then left the room (debuted, released) closes with nothing counted
+  guard(doorDone + doorOpen <= (postL.knocks || 0), seed + ' the posting: ' + (postL.knocks || 0) + ' came to the desk and ' + doorDone + ' were answered or left, with ' + doorOpen + ' still open');
+  guard((postL.knocks || 0) <= (postL.offMonth || 0) + (postL.offYear || 0), seed + ' the posting: more came to the desk than any list left off');
+  guard(state.inbox.filter(n => n.ind === 'lineupPosted').every(n => n.priority === 'critical' && !!n.groupId), seed + ' the posting: a list’s letter is not critical or names no act');
   guard((state.evalYears || []).length === Math.min(KP.C.EVAL.yearKeep, evl.years || 0), seed + ' the wall holds ' + (state.evalYears || []).length + ' sheets and the ledger read ' + (evl.years || 0));
   const ptl = state.pointLedger || {};
   if ((ptl.breakdowns || 0) >= 1) tally.breakdownRead++;
@@ -3106,6 +3131,9 @@ console.log('\nthe mission: showcases ' + (missionSum.missions || 0) + ' (sheets
 // the talk and the slot (v0.11.14, §105)
 console.log('the year’s sheet: read ' + yearSum.years + ' times · the year’s climb named ' + yearSum.climbs + ' · places on the sheets still on the wall ' + yearSum.rows +
   ' across ' + yearSum.sheets + ' (the longest ' + yearSum.max + ')');
+console.log('the posting: lists ' + (postSum.posted || 0) + ' · the month’s first left off ' + (postSum.offMonth || 0) + ' · the year’s first left off ' + (postSum.offYear || 0) +
+  ' · locked into the project and dropped ' + (postSum.dropped || 0) + ' · came to the desk about it ' + (postSum.knocks || 0) + ' (told why ' + (postSum.why || 0) +
+  ', promised the next ' + (postSum.next || 0) + ', the list is the list ' + (postSum.nothing || 0) + ', left in the doorway ' + (postSum.unanswered || 0) + ')');
 console.log('the talk: called ' + (missionSum.talks || 0) + ' · asked ' + (missionSum.talkAsked || 0) + ' (left with the coaches ' + (missionSum.talkCoaches || 0) + ', said straight ' + (missionSum.talkStraight || 0) +
   ', a month one on one ' + (missionSum.talkRoom || 0) + ', unanswered ' + (missionSum.talkUnanswered || 0) + ') · never asked, held by the coaches ' + (missionSum.talkUnasked || 0) +
   ' · the month one on one: off the bottom ' + (missionSum.coachClimbs || 0) + ', still there ' + (missionSum.coachMisses || 0) +

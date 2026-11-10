@@ -123,6 +123,9 @@
       if (roles[r] && !memberIds.includes(roles[r])) delete roles[r];
     });
 
+    // the posting (v0.11.17, §108): who the room will look for and not find,
+    // read before anything moves (the project is still open here)
+    const posting = KP.postingRead ? KP.postingRead(state, memberIds) : null;
     state.groups = state.groups || [];
     state.nextGroupId = state.nextGroupId || 1;
     const group = {
@@ -176,7 +179,10 @@
       KP.recordDirected(state, ace.id, 'passedOver');
       ace.history.push({ week: state.week, text: 'Ranked first on the evaluation board when the ' + name + ' lineup was posted — without ' + (ace.gender === 'm' ? 'his' : 'her') + ' name on it. Nobody in the practice room said anything, which said everything.' });
     }
-    return { ok: true, group, review: KP.execReviewLineup(state, members, roles) };
+    // the list is a letter for the room now, and the one it slighted most
+    // will come to the desk about it (v0.11.17, §108)
+    if (posting && KP.postingAfter) KP.postingAfter(state, group, posting);
+    return { ok: true, group, review: KP.execReviewLineup(state, members, roles), posting };
   };
 
   // The executive reacts to the proposal in words. Approval is granted —
