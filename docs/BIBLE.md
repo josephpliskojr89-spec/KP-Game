@@ -9104,7 +9104,7 @@ Suite_114 (41). Measured in the first soak (40 orgs): vote pushes
 every org that sent — and the bands ruled from these. Battery
 114/114, soak 40 clean, longhaul 11 × 620, e2e 134, lockstep 0.11.4.
 
-## §96 Where we stand — the depth survey (post-0.11.4; recommendations 1–3 SHIPPED v0.11.5, v0.11.7, v0.11.9; 4 in two parts from v0.11.10)
+## §96 Where we stand — the depth survey (post-0.11.4; recommendations 1–3 SHIPPED v0.11.5, v0.11.7, v0.11.9; 4 in three parts from v0.11.10)
 
 Owner, after the televised season shipped: *"Where does this leave
 us? Can you take a look at what needs more depth and give me a
@@ -9471,7 +9471,7 @@ discography marking it. The pressing's pre-order week as a read and
 the restock as a door. The debut's first stage named as a debut
 stage.
 
-**4. The long goodbye (how a group ends; the member's half SHIPPED v0.11.10, §101; the group's half is §102).** The farewell lap as an
+**4. The long goodbye (how a group ends; the member's half SHIPPED v0.11.10, §101; the group's half SHIPPED v0.11.11, §102; across the street is §103).** The farewell lap as an
 object once the table sets `contract.leaving`, with three readers:
 the release (a farewell-era mod and a note, hiatusReadsRelease's
 shape), the last stage (critical, a family by voice), the member desk
@@ -10472,9 +10472,9 @@ goodbye and the broken promise are suite-held: a competent bot does
 not produce them.
 
 *Left for §102.* The disband as a scene with doors (the last
-concert, the quiet statement, the farewell record), the final
-statement naming what each member does next, and a departed artist
-signed across the street with a letter when she debuts there.
+concert, the quiet statement, the farewell record) and the final
+statement naming what each member does next. *(Shipped v0.11.11; a
+departed artist signed across the street moved to §103.)*
 
 Suite_120 (382): the engine, and Today, the file, the act's page,
 the Talent tab, the Studio and the archive rendered through the DOM
@@ -10482,6 +10482,168 @@ stub. Mutation-checked against ten broken engine lines, each caught
 by a named assertion. A real-browser pass over the new screens (30
 checks, no page errors). Battery 120/120, soak 40 clean, longhaul
 11 × 620 clean, e2e 134, lockstep 0.11.10. Migration 0.11.10.
+
+## §102 The last bow (SHIPPED v0.11.11 — §96 recommendation 4, a group ends)
+
+Owner: *"Break remaining work into smaller pieces"*. The group's half
+of the long goodbye ships on its own. What happens to a departed
+artist afterwards (the signing across the street, the letter when she
+debuts there) is §103.
+
+**The finding** (§96): "How a group ends is a status flip with a good
+sentence on it." The disband was one quiet button at the bottom of
+the act's page, one confirmation, and one statement that said the
+same thing of every act: "the members remain with the company — their
+own calendars, their own rooms, the same building".
+
+One new module, `ending.js`. It makes no draw.
+
+**Three doors.** The quiet button now opens a sheet, and the sheet is
+a read (`KP.endingDoors`, pure): three doors, the kindest first, each
+with what it does, what it costs the room, what the board reads and
+what it leaves on the shelf, in the numbers the verb will use. A door
+that is shut says why in place of its button, and the verb
+(`KP.endGroup`) refuses on the same words. A project that has not
+debuted is still dissolved from its old one-line confirmation.
+
+THE QUIET STATEMENT is the door the game always had, at the price it
+always had: today, free, 10 morale from every member, `disbandedUs`
+on every ledger, and the board's 8 trust if the act still sells.
+Nothing is left on the shelf but the records.
+
+ONE LAST CONCERT is the fancon machinery at a bigger room. The room
+costs twice a fancon's (20), the till is two and a half times a
+fancon's off the same fanbase read, and the act concludes when the
+house lights come up. It needs what a fancon needs: an organized
+fandom (intensity 30), a group that is here, the bill up front. It
+costs the room 4 morale where the statement costs 10, and the ledger
+word is `lastNight`, which weighs for the company: a night that was
+given, not a group that was taken. The board prices it like the
+statement: it is still an act that sells, ended today. A small
+fandom does not cover the room, so the door is not free money: it is
+a softer ending bought at a loss.
+
+A FAREWELL RECORD is an arc. The announcement is a critical letter
+with two dates on it: the week it was said, and the week the record
+must be locked by (30 weeks out). The fandom rallies (+6). The board
+reads a planned ending and prices it lighter (3, not 8). Nobody's
+morale moves. From there the act owes a record, and three readers
+know it. (1) The lock tells: the record an ending act locks is
+announced as its last (`KP.endingLockTells`, from `planDebut` and
+`planRepackage`). A record already in production when the door is
+taken becomes the last one, and the announcement names its date.
+(2) The landing reads it (`KP.endingReadsRelease`, in
+`hiatusReadsRelease`'s shape, beside the member's read in
+`resolveDebut`): reach row "the last record", +4 and up to +3 more
+for an organized fandom; the report says what the record was; the
+release is archived as the act's last. A leaving member's own row
+("the farewell", §101) is absorbed by it: the act's last record is
+everyone's last era, so her lift is inside it and not on top, and it
+still counts as her last era for the promise made at her table.
+(3) The close concludes: a rail at order 598, behind the era's own
+close (596) and a member's last stage (597), concludes the act the
+week its last promotion ends. That week's wire reads the era back
+first and the act second. It waits for a tour to come home and for a
+member's solo record to land: an act does not end under a record.
+This door costs the room 2 morale, the least of the three, and the
+ledger word is `lastRecord`, which weighs most.
+
+Announced and never made is a broken promise. Six weeks before the
+date one high letter says so. The week after it, with no record
+locked, the quiet statement goes out by itself: the statement's
+morale and 6 more, `disbandedUs` and `promiseBroken` on every
+ledger, 8 trust whether or not the act still sold ("not unstable,
+upstairs said; unserious"), and nothing on the shelf. A record
+locked inside the date is not a lapse however late it lands. While
+the record is owed the act cannot take another door, cannot be ended
+by the old verb, cannot go on an ordinary hiatus, and gets no
+reissue door at its close (the last record has no second act). A
+service hiatus slides the date: a full window from the discharge.
+If the lineup empties by contract first, the act closes that way and
+owes nothing.
+
+**The final statement names what each member does next.** One
+composer (`KP.finalStatement`) for every door, and the middle of it
+is a roll call read off the lineup before the lineup empties
+(`KP.endingRollCall`, pure). A fact with a date goes first, each in
+her own sentence, in lineup order: in service, until when; on a lap
+the fans know about, the date she named; her solo career, below; on
+a personal break, she stays on it; a second job, by its name. Those
+with nothing special on file share one sentence. A lap that was kept
+in the house is not announced by the company's statement. The head
+of the letter is the door's: the statement's old two sentences; the
+last night's seats, till and set, first record to last; the last
+record's title, the count of the discography and the years it took.
+The tail is the door's too, and so is the timeline's reply (one
+draw, as before; four families).
+
+**A member whose solo career was open keeps it.** Found while
+reading: the in-group solo (`dualCareer`, §87 F) needs a group around
+it, so ending the group silently closed a career the company had
+opened. Now it becomes an act of its own: the same object a
+graduation opens, through one shared helper (`KP.openSoloAct`), under
+her name, out of the act that ended. The statement says so, her file
+says so, and the sheet says so before any door is taken, with what
+it holds up: the new act takes the development slot until her solo
+debut.
+
+**A member's solo record on the calendar shuts every door.** Also
+found: the old verb ended the act under her record, the record
+shelved the next week, and the bill had been paid. The verb refuses
+now, on any door, and names whose record it is.
+
+**What the door leaves on the shelf.** A fandom that was given a
+goodbye keeps the catalog warm: the act's share of the catalog
+annuity pays a quarter more for three years after a last concert and
+half more after a farewell record (`g.afterglow`, read by the
+annuity's own loop). The statement leaves nothing. It is a modest
+number on an old shelf and a real one on a young one, which is the
+right way round: it rewards ending an act at the right time, not
+late.
+
+**Every conclusion says how it came.** `g.ending` keeps the door and
+the week (statement, concert, record, lapsed), and the two endings
+nobody chose are written the same way: the last contract, and a
+release over a story. A concluded act's page says how it ended and,
+while it lasts, what that left on the shelf.
+
+**The screens.** The sheet. "The last record" on the act's page
+(when it was said, the date, what follows), with the quiet button
+gone: the door is taken. The same card on Today, with the weeks left
+to lock it, turning hot inside six. A line in the Studio's date
+picker that the record on the desk is the last one. On the record
+page: how it ended, the warm shelf, and the last record marked in
+the discography.
+
+**Old saves.** Migration 0.11.11 (ensureLedgers: endingLedger). An
+act the old verb concluded is known by the line it wrote on every
+member's file that week, and its page says it ended with a
+statement. An act that ended any other way under an older build
+keeps no word for it: none is invented.
+
+**The bot and the census.** The bot never ends an act: ending one is
+a decision, not a policy, and no competent boss does it inside 140
+weeks. So the doors are suite-held, and the harness gained a short
+pass that rides each of them through a real career instead (three
+seeds, 90 weeks, the inherited act takes one door in week 10, every
+week validated). The record career announced in week 10, landed its
+last record in week 14 and concluded in week 19. The concert career
+played its last night in week 10 to a till of 105 on a room of 20.
+The lapse career announced in week 10 and lapsed in week 41. Inside
+the census nobody ends an act, and every band stands exactly where
+v0.11.10 left it: the stream is unmoved.
+
+Suite_121 (266): the engine, and the sheet, the act's page, Today,
+the Studio and the record page rendered through the DOM stub.
+Mutation-checked against seventeen broken engine lines, each caught
+by a named assertion; two more were equivalent by design (the rail
+and the verb both refuse to end an act mid-promotion or under a solo
+record) and were replaced. A real-browser pass over the new screens
+(33 checks, no page errors). Battery 121/121, soak 40 clean, longhaul 11 × 620 clean, e2e 134,
+lockstep 0.11.11. Migration 0.11.11.
+
+*Left for §103.* A departed artist signed across the street, with a
+letter when she debuts there.
 
 ## §18 Watch items
 
@@ -14067,6 +14229,29 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 120/120, soak 40 clean, longhaul 11x620, e2e 134, lockstep 0.11.10.
 > Rode to main. Part two (§102): how a group ends, and across the
 > street.
+
+> **0.11.11 — the last bow.** Own judgment, under "Approved to tackle
+> as much of the remaining queue as you see fit" and "Break remaining
+> work into smaller pieces": the group's half of §96's fourth entry,
+> on its own. §102: the disband was one button and one statement. It
+> is now a sheet of three doors, read before one is taken: the quiet
+> statement (the price it always had), one last concert (the fancon
+> machinery at a bigger room: a bill, a till, a softer landing), a
+> farewell record (announced with a date, locked in the Studio, landed
+> warmer, and the act concludes at that era's close; announced and
+> never made is the quiet statement with a broken promise on every
+> ledger). The final statement names what each member does next, read
+> off her own file. A fandom that was given a goodbye keeps the shelf
+> warm: the catalog pays more for three years. Every conclusion says
+> how it came. Found on the way: ending a group silently closed a
+> member's open solo career (it becomes an act of its own now), and
+> the old verb ended an act under a member's solo record (the record
+> shelved, the bill was paid). The bot never ends an act, so the doors
+> are suite-held and a short harness pass rides each through a real
+> career. Suite_121 (266), seventeen mutations caught by name. Battery
+> 121/121, soak 40 clean with every census number unmoved, longhaul
+> 11x620, e2e 134, a real-browser pass (33), lockstep 0.11.11. Rode to
+> main. Part three (§103): across the street.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
