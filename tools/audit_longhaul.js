@@ -562,6 +562,9 @@ for (const sc of RUN) {
     // house parked is on that house's books
     if ((wl.parksBooks || 0) + (wl.parksTemper || 0) > (wl.parks || 0) || (wl.parksMoved || 0) > (wl.parks || 0)) flag(sc.seed, state.week, 'the parked dates do not add up: ' + [wl.parks, wl.parksBooks, wl.parksTemper, wl.parksMoved].join('/'));
     if ((wl.parks || 0) !== ((wl.kinds || {}).theyAmbushed || 0)) flag(sc.seed, state.week, 'a house parked on a date and it did not go on its books: ' + (wl.parks || 0) + ' parked, ' + ((wl.kinds || {}).theyAmbushed || 0) + ' on the books');
+    // the letterhead (v0.11.25, §116): the staff calls add up, and an answer needs a call
+    if ((wl.callsBooks || 0) + (wl.callsTemper || 0) > (wl.calls || 0)) flag(sc.seed, state.week, 'the staff calls do not add up: ' + [wl.calls, wl.callsBooks, wl.callsTemper].join('/'));
+    if (((wl.kinds || {}).theyHiredOurStaff || 0) + ((wl.kinds || {}).weKeptOurStaff || 0) > (wl.calls || 0)) flag(sc.seed, state.week, 'more answers on the books than staff calls: ' + (wl.calls || 0) + ' calls');
     // the walkout: the house we walked out of (the founding; a fresh start
     // after a dissolution or from a blank door leaves no house behind) holds
     // it once, dated the week of the founding, and no other house holds one
@@ -660,6 +663,7 @@ for (const sc of RUN) {
       .map(k => k + ' ' + ((state.riseFallLedger || {})[k] || 0)).join(', ') +
     ' | wall: heads stamped ' + ((state.wallLedger || {}).heads || 0) + ', houses standing ' + KP.signingHouses(state).length + ', quoted ' + ((state.wallLedger || {}).quotes || 0) +
     ', acts on the books ' + ((state.wallLedger || {}).acts || 0) +
+    ', calls ' + ((state.wallLedger || {}).calls || 0) + ' (books ' + ((state.wallLedger || {}).callsBooks || 0) + ', temper ' + ((state.wallLedger || {}).callsTemper || 0) + ')' +
     ', parked ' + ((state.wallLedger || {}).parks || 0) + ' (books ' + ((state.wallLedger || {}).parksBooks || 0) + ', temper ' + ((state.wallLedger || {}).parksTemper || 0) + ', moved ' + ((state.wallLedger || {}).parksMoved || 0) + ')' +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +

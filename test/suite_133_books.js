@@ -15,8 +15,8 @@ const dom = require('./dom_stub');
 const KP = loadEngine();
 const t = makeT('suite_133_books');
 const W = KP.C.WALL;
-const KINDS = ['weTookTheWeek', 'weSignedTheirCastoff', 'weLeveragedTheirOffer', 'weDeclinedTheirOffer', 'weWalkedOut',
-  'theyTookTheWeek', 'theyAmbushed', 'theyTookOurLead', 'theySignedOurAlumna', 'theySignedOneWhoLeft', 'tookThePactWePassed'];
+const KINDS = ['weTookTheWeek', 'weSignedTheirCastoff', 'weLeveragedTheirOffer', 'weDeclinedTheirOffer', 'weKeptOurStaff', 'weWalkedOut',
+  'theyTookTheWeek', 'theyAmbushed', 'theyTookOurLead', 'theySignedOurAlumna', 'theySignedOneWhoLeft', 'theyHiredOurStaff', 'tookThePactWePassed'];
 
 // ---- the kit ------------------------------------------------------------------
 const world = seed => KP.newGame(seed, null, { legacy: true });
@@ -43,11 +43,11 @@ const lock = (state, g, week) => KP.planDebut(state, { groupId: g.id, songId: g.
 // ---- A. the shape -------------------------------------------------------------
 {
   ['recordHouse', 'houseRead', 'houseLedgerWords'].forEach(k => t.ok(typeof KP[k] === 'function', 'the engine carries KP.' + k));
-  t.eq(Object.keys(W.KINDS).sort().join(','), KINDS.slice().sort().join(','), 'eleven acts are on the table');
+  t.eq(Object.keys(W.KINDS).sort().join(','), KINDS.slice().sort().join(','), 'thirteen acts are on the table (two more since §116)');
   t.ok(KINDS.every(k => typeof W.KINDS[k].w === 'number' && W.KINDS[k].words.length > 10 && !/[.{}]/.test(W.KINDS[k].words)), 'each has a weight and words that can sit in a list');
   t.eq(new Set(KINDS.map(k => W.KINDS[k].words)).size, KINDS.length, 'and no two say the same thing');
-  t.eq(KINDS.map(k => k + ' ' + W.KINDS[k].w).join(', '), 'weTookTheWeek -2, weSignedTheirCastoff -1, weLeveragedTheirOffer -3, weDeclinedTheirOffer -1, weWalkedOut -6, ' +
-    'theyTookTheWeek 1, theyAmbushed 0, theyTookOurLead 0, theySignedOurAlumna 1, theySignedOneWhoLeft 0, tookThePactWePassed 1', 'the table weighs each act as §114 says');
+  t.eq(KINDS.map(k => k + ' ' + W.KINDS[k].w).join(', '), 'weTookTheWeek -2, weSignedTheirCastoff -1, weLeveragedTheirOffer -3, weDeclinedTheirOffer -1, weKeptOurStaff -1, weWalkedOut -6, ' +
+    'theyTookTheWeek 1, theyAmbushed 0, theyTookOurLead 0, theySignedOurAlumna 1, theySignedOneWhoLeft 0, theyHiredOurStaff 1, tookThePactWePassed 1', 'the table weighs each act as §114 and §116 say');
   t.ok(KINDS.filter(k => /^we[A-Z]/.test(k)).every(k => W.KINDS[k].w < 0), 'what we did to them cools their regard');
   t.ok(KINDS.filter(k => /^they[A-Z]|^took/.test(k)).every(k => W.KINDS[k].w >= 0), 'what they did to us does not');
   t.eq([W.halfLifeWeeks, W.cap, W.perKind].join('|'), '104|24|5', 'a house forgets in two years, and keeps twenty-four acts, five of a kind');

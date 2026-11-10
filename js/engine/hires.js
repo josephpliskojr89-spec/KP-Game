@@ -373,6 +373,17 @@
     ledger(state).walked++;
     return m;
   }
+  // the house on the other end of the call (v0.11.25, §116): the scene
+  // names its head, says why this house, and the answer goes on its books
+  const callStamp = (state, rival) => {
+    if (!rival) return {};
+    const why = KP.callOpened ? KP.callOpened(state, rival) : null;
+    return why ? { rivalShort: rival.short, why } : { rivalShort: rival.short };
+  };
+  const callHouse = (state, sc) => (KP.callHouseOf ? KP.callHouseOf(state, sc) : null);
+  const callFrom = (state, sc) => { const r = callHouse(state, sc); return r && KP.signedBy ? KP.signedBy(state, r) : sc.rivalName; };
+  const callWhy = (state, sc) => { const r = callHouse(state, sc); const t = r && KP.parkWhyText ? KP.parkWhyText(state, r, sc.why) : ''; return t ? ' ' + t : ''; };
+  const onBooks = (state, sc, kind) => { const r = callHouse(state, sc); if (r && KP.recordHouse) KP.recordHouse(state, r.short, kind); };
   KP.registerScene('seatPoach', {
     title: (state, sc) => {
       if (sc.groupId) {   // the road manager (v0.10.43): one scene for every chair
@@ -388,16 +399,16 @@
         const g = KP.groupById(state, sc.groupId);
         const m = g && g.manager;
         if (!g || !m) return '';
-        return sc.rivalName + ' wants ' + m.name + ' — the person who knows ' + g.name +
+        return callFrom(state, sc) + ' wants ' + m.name + ' — the person who knows ' + g.name +
           '’s van seating, coffee orders, and bad days better than the members’ own families do. Money keeps ' +
-          (m.name.split(' ')[0]) + ' (' + KP.C.HIRES.raiseCost + '); nothing else will.';
+          (m.name.split(' ')[0]) + ' (' + KP.C.HIRES.raiseCost + '); nothing else will.' + callWhy(state, sc);
       }
       const st = (state.seats || {})[sc.seatId];
       const seat = KP.C.HIRES.SEATS.find(x => x.id === sc.seatId);
-      return (st ? st.name : 'Your ' + seat.label) + ' got the call — ' + sc.rivalName +
+      return (st ? st.name : 'Your ' + seat.label) + ' got the call — ' + callFrom(state, sc) +
         ', better title, real money. This is what happens when the results carry a name: the industry ' +
         'reads your credits and hires your people. A raise keeps the chair (' + KP.C.HIRES.raiseCost +
-        '); pride keeps nothing.';
+        '); pride keeps nothing.' + callWhy(state, sc);
     },
     // the raise is offered only when the account can pay it (audit
     // v0.11.3: an unaffordable "Match it" fell through to the walk)
@@ -415,9 +426,11 @@
           if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -KP.C.HIRES.raiseCost);
           m.countered = state.week;
           led.raises++;
+          onBooks(state, sc, 'weKeptOurStaff');
           return { toast: m.name + ' stays — better pay, same vans, and one very relieved group chat. The members threw a small dorm party with a hand-drawn banner. The banner misspells “congratulations.” It is already framed.' };
         }
         managerWalks(state, g, sc);
+        onBooks(state, sc, 'theyHiredOurStaff');
         return { toast: m.name + ' left on good terms, which somehow made the last van ride quieter. A new manager starts next week. The seating chart starts from zero.',
           note: { kind: 'company', groupId: g.id,
             text: g.name + ' said goodbye to ' + m.name + ' this week. The maknae cried at the send-off dinner, then everyone did, including — briefly, professionally — ' + m.name + '.' } };
@@ -428,10 +441,12 @@
         state.budget -= KP.C.HIRES.raiseCost;
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -KP.C.HIRES.raiseCost);
         led.raises++;
+        onBooks(state, sc, 'weKeptOurStaff');
         return { toast: st.name + ' stays. The raise is real; so is the fact they took the meeting.' };
       }
       led.walked++;
       delete state.seats[sc.seatId];
+      onBooks(state, sc, 'theyHiredOurStaff');
       KP.note(state, { kind: 'company', ind: 'seatWalked', priority: 'high',
         text: st.name + ' goes to ' + sc.rivalName + ' with a leaving speech that thanks everyone and a start date that says everything. The chair is open, and whether that is a loss or a mercy is exactly the thing nobody will ever know for certain.' });
       return { toast: 'The chair is open. The industry hires from the schools it respects — that is the compliment and the bill.' };
@@ -442,11 +457,12 @@
         const g = KP.groupById(state, sc.groupId);
         if (!g || !g.manager) return null;
         const m = managerWalks(state, g, sc);
+        onBooks(state, sc, 'theyHiredOurStaff');
         return { kind: 'company', priority: 'high', groupId: g.id,
           text: 'The counter-offer window closed unanswered, and ' + m.name + ' signed elsewhere. The members found out from the group chat. The silence in the van this week has a new-staff-orientation quality to it.' };
       }
       const st = (state.seats || {})[sc.seatId];
-      if (st) { ledger(state).walked++; delete state.seats[sc.seatId]; }
+      if (st) { ledger(state).walked++; delete state.seats[sc.seatId]; onBooks(state, sc, 'theyHiredOurStaff'); }
       return null;
     },
   });
@@ -559,21 +575,27 @@
         (redHot || KP.C.HIRES.REP_TIERS.indexOf(S[seatId].tier) >= HR.poachTierMin));
       const mgrTarget = KP.groups(state).find(g => g.debuted && !g.retiredWeek && g.manager &&
         (g.popularity || 0) >= MG.poachPopMin && state.week - g.manager.since >= MG.poachTenureMin);
-      const rivalOf = () => { const hs = KP.signingHouses(state); return hs[rng.int(0, Math.max(0, hs.length - 1))]; };
+      // who calls (v0.11.25, §116): a weighted draw on the one number that
+      // was always drawn here (rng.int took one; this takes the same one)
+      const rivalOf = () => {
+        const hs = KP.signingHouses(state);
+        const u = rng.next();
+        return KP.callingHouse ? KP.callingHouse(state, hs, u) : hs[Math.floor(u * hs.length)];
+      };
       if (seatTarget && rng.chance(HR.poachChance * redMult)) {
         state.seatPoachQuiet = state.week + HR.poachCooldown;
         led.poachCalls++;
         const rival = rivalOf();
-        KP.openScene(state, { kind: 'seatPoach', seatId: seatTarget,
-          rivalName: rival ? rival.name : 'a rival house', expiresWeek: state.week + 2 });
+        KP.openScene(state, Object.assign({ kind: 'seatPoach', seatId: seatTarget,
+          rivalName: rival ? rival.name : 'a rival house', expiresWeek: state.week + 2 }, callStamp(state, rival)));
       } else if (mgrTarget && rng.chance(MG.poachChance * redMult)) {
         state.seatPoachQuiet = state.week + HR.poachCooldown;
         led.poachCalls++;
         const rival = rivalOf();
         const rivalName = rival ? rival.name : 'a rival house';
-        KP.openScene(state, { kind: 'seatPoach', groupId: mgrTarget.id, rivalName, expiresWeek: state.week + 2 });
+        KP.openScene(state, Object.assign({ kind: 'seatPoach', groupId: mgrTarget.id, rivalName, expiresWeek: state.week + 2 }, callStamp(state, rival)));
         inbox.push({ kind: 'company', priority: 'high', groupId: mgrTarget.id,
-          text: mgrTarget.manager.name + ' got an offer from ' + rivalName +
+          text: mgrTarget.manager.name + ' got an offer from ' + (KP.signedBy ? KP.signedBy(state, rival) : rivalName) +
             ' — better title, better hours, someone else’s vans. The counter-offer window is on the Desk, and the members have already noticed the long phone calls.' });
       }
     }

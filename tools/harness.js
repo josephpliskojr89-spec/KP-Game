@@ -704,6 +704,10 @@ const BANDS = {
   // house parked on a date. Ruled from the first soak: 35 of 40, and 90 of
   // 174 parked dates were not the grandest house in reach
   parkMoved:         { lo: 0.40, hi: 1.00, label: 'orgs where the books or a temper changed which house parked on a date' },
+  // the letterhead (v0.11.25, §116): a house that called one of our staff
+  // had a reason the scene could give. Ruled from the first soak: 39 of 40,
+  // and 94 of 111 calls
+  callReason:        { lo: 0.40, hi: 1.00, label: 'orgs where a house that called our staff had a reason the scene could give' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -940,7 +944,7 @@ const tally = {
   missionDrilled: 0, missionMoment: 0, talkQuestion: 0, slotGiven: 0, yearRead: 0, yearClimb: 0,
   listPosted: 0, offListDoor: 0,
   quietRested: 0, quietFull: 0,
-  headQuoted: 0, houseBooks: 0, parkMoved: 0,
+  headQuoted: 0, houseBooks: 0, parkMoved: 0, callReason: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -2516,6 +2520,13 @@ for (let s = 0; s < SEEDS; s++) {
       seed + ' the parked dates do not add up: ' + [wallL.parks, wallL.parksBooks, wallL.parksTemper, wallL.parksMoved].join('/'));
     guard((wallL.parks || 0) === ((wallL.kinds || {}).theyAmbushed || 0),
       seed + ' a house parked on a date and it did not go on its books: ' + (wallL.parks || 0) + ' parked, ' + ((wallL.kinds || {}).theyAmbushed || 0) + ' on the books');
+    // the letterhead (v0.11.25, §116): who called our staff, and what the
+    // answers put on the books. An answer needs a call
+    if ((wallL.callsBooks || 0) + (wallL.callsTemper || 0) >= 1) tally.callReason++;
+    ['calls', 'callsBooks', 'callsTemper'].forEach(k => { wallSum[k] = (wallSum[k] || 0) + (wallL[k] || 0); });
+    guard((wallL.callsBooks || 0) + (wallL.callsTemper || 0) <= (wallL.calls || 0), seed + ' the staff calls do not add up: ' + [wallL.calls, wallL.callsBooks, wallL.callsTemper].join('/'));
+    guard(((wallL.kinds || {}).theyHiredOurStaff || 0) + ((wallL.kinds || {}).weKeptOurStaff || 0) <= (wallL.calls || 0),
+      seed + ' more answers on the books than calls: ' + (wallL.calls || 0) + ' calls');
     houses.forEach(r => {
       const rd = KP.houseRead(state, r);
       if (rd.count) { wallSum.booked = (wallSum.booked || 0) + 1; wallSum['w_' + rd.word] = (wallSum['w_' + rd.word] || 0) + 1; }
@@ -3220,6 +3231,8 @@ console.log('the books: acts recorded ' + (wallSum.acts || 0) + ' (' + Object.ke
 console.log('the weight: dates parked on by a house ' + (wallSum.parks || 0) + ' · for something on the books ' + (wallSum.parksBooks || 0) +
   ' · on its head’s temper ' + (wallSum.parksTemper || 0) + ' · for the calendar alone ' + ((wallSum.parks || 0) - (wallSum.parksBooks || 0) - (wallSum.parksTemper || 0)) +
   ' · not the grandest house in reach ' + (wallSum.parksMoved || 0));
+console.log('the letterhead: staff calls ' + (wallSum.calls || 0) + ' · from a house with something against us ' + (wallSum.callsBooks || 0) +
+  ' · on its head’s temper ' + (wallSum.callsTemper || 0) + ' · matched, and on its books ' + (wallSum.k_weKeptOurStaff || 0) + ' · hired away ' + (wallSum.k_theyHiredOurStaff || 0));
 console.log('the quiet: told the rest was in ' + (quietSum.rested || 0) + ' · told the bank was full ' + (quietSum.full || 0) +
   ' · a member on a break told she was rested ' + (quietSum.breakRested || 0) + ' · acts still parked at the end ' + (quietSum.parked || 0));
 console.log('the posting: lists ' + (postSum.posted || 0) + ' · the month’s first left off ' + (postSum.offMonth || 0) + ' · the year’s first left off ' + (postSum.offYear || 0) +

@@ -184,7 +184,7 @@
         KP.openScene(state, { kind: 'theOffer', company: suitor.short,
           expiresWeek: state.week + 3 });
         inbox.push({ kind: 'company', urgent: true,
-          text: 'A courier envelope, heavy paper, ' + suitor.name + '’s letterhead: they want YOU. Not your acts, not your trainees — the person running this desk. The meeting is offered quietly, the way real offers always are. It is on the Desk, and it is the founding’s mirror held up to your face.' });
+          text: 'A courier envelope, heavy paper, ' + suitor.name + '’s letterhead' + (KP.rivalHead && KP.rivalHead(state, suitor) ? ', ' + KP.rivalHead(state, suitor).name + '’s signature' : '') + ': they want YOU. Not your acts, not your trainees — the person running this desk. The meeting is offered quietly, the way real offers always are. It is on the Desk, and it is the founding’s mirror held up to your face.' });
       }
     }
 
@@ -347,7 +347,8 @@
     title: (state, sc) => sc.company + ' · the offer',
     body: (state, sc) => {
       const r = (state.rivals || []).find(x => x.short === sc.company);
-      return (r ? r.name : sc.company) + ' is at the top of the power ranking and hiring like it intends to stay there — and the role on the table is yours: run their operation, their budget, their imperial-era machine. The number is flattering. The office has a view. Everything you built here stays here, because that is how these deals work. The industry has exactly two respectable answers, and both of them are leverage if you hold them right.';
+      const hand = r && KP.offerHand ? KP.offerHand(state, r) : '';   // the head signs it (v0.11.25, §116)
+      return (r ? r.name : sc.company) + ' is at the top of the power ranking and hiring like it intends to stay there — and the role on the table is yours: run their operation, their budget, their imperial-era machine. The number is flattering. The office has a view. Everything you built here stays here, because that is how these deals work.' + (hand ? ' ' + hand : '') + ' The industry has exactly two respectable answers, and both of them are leverage if you hold them right.';
     },
     options: () => [
       { id: 'decline', label: 'Decline — this house is the project' },

@@ -9501,7 +9501,7 @@ absences given a cadence from the fandom's side (the countdown
 project, a letter from the base at the half, "whole again" as a
 ceremony with the return stage named).
 
-**6. The other side of the wall (rivals and the press as people; part one, the head, SHIPPED v0.11.22, §113; part two, the ledger, SHIPPED v0.11.23, §114; part three, the weight, SHIPPED v0.11.24, §115).** A
+**6. The other side of the wall (rivals and the press as people; part one, the head, SHIPPED v0.11.22, §113; part two, the ledger, SHIPPED v0.11.23, §114; part three, the weight, SHIPPED v0.11.24, §115; part four, the letterhead, SHIPPED v0.11.25, §116).** A
 hash-stamped HEAD per signing house (an invented name and a temper
 word in the schools' pattern), shown on the card and quoted yearly in
 the ranking letter through a family per temper. A directed ledger per
@@ -12189,7 +12189,8 @@ later. Battery 133/133, soak 40 clean, census 200 clean, longhaul
 *Left for the next piece.* What the ledger weighs: one roll at a
 time (the date a house parks on first), each measured on its own.
 *Not recorded yet:* the call a house makes to one of our chairs,
-and what we do about it; it belongs with who makes the call. *Not
+and what we do about it; it belongs with who makes the call
+(recorded in §116). *Not
 built:* a head who leaves. *Still the owner's to call*: the Desk's
 tie-break (§112); and from §109, the fade between records through
 a service chapter and the size of the window's bank.
@@ -12304,6 +12305,148 @@ that too; it would move the count, and is its own piece. *Still
 the owner's to call*: the Desk's tie-break (§112); and from §109,
 the fade between records through a service chapter and the size of
 the window's bank.
+
+## §116 The letterhead (SHIPPED v0.11.25 — §96 recommendation 6, the other side of the wall, part four)
+
+Owner: *"Break remaining work into smaller pieces"*. The fourth of
+recommendation 6's pieces: two more places where a house chooses
+us. The second roll the books weigh, and a signature on both.
+
+**The finding** (§96, and §114's "not recorded yet"). When a house
+called one of our staff away, the house was drawn at random and
+only its name was used. The scene had no head in it, said nothing
+of why this house, and what we answered went nowhere. The offer
+letter came from a letterhead and nobody.
+
+**Who calls** (`KP.callingHouse`). Every house is in reach of a
+phone, so there is nothing to sort: it is a weighted draw on the
+one number that was always drawn there. A house's weight is 1, plus
+half a point for each point of motive, never under a quarter. The
+motive is §115's, with its own lean: what the house holds against
+us today, and its head's temper.
+
+- a broker +2 (a broker trades in people)
+- a duelist +1
+- a showman 0
+- a steward −2 (a steward promotes from within)
+
+So a broker's house is called from twice as often as a showman's,
+a steward's a quarter as often, and a house with a lost week on its
+books as often as a broker's. With every weight equal the draw
+picks the house it always picked. A house that is warm toward us
+is neither more nor less likely.
+
+**The scene is signed, and says why.** "Heo Si-seo of Whitecliff
+Company wants Nam Byung-chul". When the house holds something, the
+scene ends with it: "Heo Si-seo has not forgotten: Whitecliff lost
+a head-to-head week to us (Feb · Wk 1 · Y1)." When it is the
+temper: "… is a broker, who believes every problem is a trade
+nobody has priced yet." A showman or a steward with nothing on the
+books gives no reason. The letter about a road manager names the
+head too.
+
+**The answer goes on the books** (§114's table, thirteen kinds
+now):
+
+- matched: the house "called one of our staff and was outbid" (−1)
+- wished well, or left unanswered: the house "hired one of our
+  staff away" (+1)
+
+So the two answers cost different things. The raise keeps the
+person and cools the house, which then parks on our dates and
+calls again a little more readily. Letting them go loses the
+person and warms it.
+
+**The offer is signed.** The letter: "Novaline Entertainment's
+letterhead, Park In-beom's signature: they want YOU." The scene
+carries one line in the head's own hand, by temper:
+
+- duelist: "I would rather have you inside this building than
+  across the street from it."
+- broker: "Everything has a price. I have worked out yours, and I
+  think you will find it fair."
+- steward: "This house will outlast both of us. I am choosing who
+  looks after it next."
+- showman: "Picture the announcement. I already have."
+
+**Not weighed: who writes the offer.** §96 listed "the offer's
+suitor" among the rolls. Measured first: in 78 offers over 200
+careers exactly one house could have written, every time. There is
+no choice to weigh. The pact we pass on is taken once or twice in
+200 careers, and is left as it is.
+
+**Old saves** (migration 0.11.25): the wall's ledger counts calls
+from zero. A call open on an old file has no short and no reason on
+it: its head is found by the name it carries, and its answer still
+goes on the books.
+
+**Measured, before and after**, over the same 200 careers:
+
+| over the same 200 careers | before | after |
+|---|---|---|
+| staff calls | 538 | 538 |
+| from a broker’s house | 107 | 175 |
+| from a duelist’s | 145 | 175 |
+| from a showman’s | 141 | 123 |
+| from a steward’s | 145 | 65 |
+| from a house with something against us | 171 | 248 |
+| matched | 425 | 424 |
+| wished well | 111 | 111 |
+
+The table counts every call the run made, the tool's side worlds
+included; the census's own line counts the 200 careers. There, 528
+calls: 246 from a house with something against us, 179 on its
+head's temper; 414 were matched and went on the house's books as
+outbid, 111 as a hire. In 189 of the 200 careers a house that
+called had a reason the scene could give (a band, 40% to 100%).
+Across the long haul's eleven scenarios, 79 calls: 31 for the
+books, 36 on temper.
+
+**At 1,000 careers on both builds** (§115's law). How often a call
+comes is not changed: the roll is the one it was, and the draw
+takes the one number it took. What moves careers is the books: an
+answer is an act now, and what a house holds weighs on the dates it
+parks on (§115). Over 1,000 careers 2,617 calls, 2,012 matched and
+587 hired away. Dates parked on for something on the books: 2,103
+before, 2,344 after. No outcome moved: the daesang goes home in 74
+careers and 74, the first group reaches number one in 887 and 880,
+a head-to-head week is lost in 666 and 681, 12 and 12 careers
+dissolve. Of 351 rows, 152 differ and none by two standard
+deviations.
+
+**Found by the mutation run.** 41 of 45 broken lines were caught on
+the first run. Two survived. The check that a house with something
+against us calls accepted whichever house the draw gave it, so the
+old unweighed draw passed it; it now runs the hires week on a
+stream that always says the same number, where the draw says the
+first house and the books say the last. And the check that who
+calls takes one number from the stream compared two worlds built by
+the same code, so a second draw passed it; it now reads what the
+week asks of the stream. Two more crashed the suite where they
+should have failed by name, and each got a guard.
+
+Suite_135 (70): the tables, the weighted draw at its shares, the
+one draw, who calls through the hires week, the reason on the
+scene, each answer on the books for a road manager and for a chair
+(matched, wished well, unanswered, a chair already empty), a scene
+from an older version, a house that no longer stands, the offer's
+four lines and its letter through the real weekly, the Desk through
+the DOM stub, an old file, both tools' wiring. Suite_133 holds the
+two new acts to the table. Mutation-checked against 45 broken
+lines, each caught by a named assertion in every suite that owns
+the line. A real-browser pass (22 checks, no page errors): the
+house with something against us calls, the Desk's scene is signed
+and reasoned, the raise is paid with the real button and the
+house's card says it was outbid, the manager is wished well in a
+second world and the hire is on the books, and the offer on the
+Desk carries the head's line. Battery 135/135, soak 40 clean,
+census 200 clean, longhaul 11 × 620 clean, e2e 137, lockstep
+0.11.25.
+
+*Left for the next piece.* Who goes after the leads on our board.
+*Still the owner's to call*: the Desk's tie-break (§112); and from
+§109, the fade between records through a service chapter and the
+size of the window's bank.
 
 ## §18 Watch items
 
@@ -16242,6 +16385,30 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > on the first run. Battery 134/134, soak 40 clean, census 200 clean,
 > longhaul 11 × 620 clean, e2e 137, a real-browser pass (21), lockstep
 > 0.11.24. Rode to main. Next piece: the next roll the books weigh.
+
+> **0.11.25 — the letterhead.** Own judgment, under "Approved to
+> tackle as much of the remaining queue as you see fit" and "Break
+> remaining work into smaller pieces": the fourth piece of §96's
+> recommendation 6. §116: the house that called one of our staff away
+> was drawn at random, and only its name was used. Who calls is a
+> weighted draw now, on the one number that was always drawn: what
+> the house holds against us and its head's temper raise its weight
+> (a broker +2, a duelist +1, a steward −2). The scene names the head
+> and says why this house. The answer goes on the books: matched, the
+> house was outbid (−1); wished well or left unanswered, it hired one
+> of ours away (+1). The offer is signed by the head, with one line in
+> the head's hand for each temper. Who writes the offer is not
+> weighed: in 78 offers over 200 careers one house could have written,
+> every time. The mutation run caught 41 of 45 on the first run; two
+> checks could not fail and were rebuilt, two crashes got guards.
+> Over 200 careers, 538 calls before and after: from a broker's house
+> 107 and 175, a steward's 145 and 65, a house with something against
+> us 171 and 248. At 1,000 careers on both builds no outcome moved:
+> the daesang 74 and 74 careers, the first group at number one 887 and
+> 880. Suite_135 (70), 45 mutations caught by name. Battery 135/135,
+> soak 40 clean, census 200 clean, longhaul 11 × 620 clean, e2e 137, a
+> real-browser pass (22), lockstep 0.11.25. Rode to main. Next piece:
+> a door a head opens.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.24',
+    VERSION: '0.11.25',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -3118,6 +3118,7 @@
         weSignedTheirCastoff:  { w: -1, words: 'watched us sign a trainee they had cut' },
         weLeveragedTheirOffer: { w: -3, words: 'had its offer letter put on our board’s table' },
         weDeclinedTheirOffer:  { w: -1, words: 'made us an offer and was declined, with the good stationery' },
+        weKeptOurStaff:        { w: -1, words: 'called one of our staff and was outbid' },
         weWalkedOut:           { w: -6, keep: true, words: 'watched its architect walk out the front door' },   // the founder's old house: a grudge for two years, cool for five; never dropped from a full book
         // what they did
         theyTookTheWeek:       { w: 1,  words: 'took a head-to-head week from us' },
@@ -3125,6 +3126,7 @@
         theyTookOurLead:       { w: 0,  words: 'signed a lead this desk had read' },
         theySignedOurAlumna:   { w: 1,  words: 'signed an artist who was once ours' },
         theySignedOneWhoLeft:  { w: 0,  words: 'signed someone who had left this building' },
+        theyHiredOurStaff:     { w: 1,  words: 'hired one of our staff away' },
         tookThePactWePassed:   { w: 1,  words: 'took the co-build we passed on' },
       },
       // their regard for us, in words: the first row the standing reaches
@@ -3134,6 +3136,13 @@
       // us today counts point for point, and its head's temper leans on it;
       // with nothing between the houses the most prestigious goes first
       AMBUSH_LEAN: { duelist: 2, showman: 1, broker: 0, steward: -2 },
+      // the second: which house calls one of our staff away (v0.11.25,
+      // §116). Every house is in reach, so it is a weighted draw: a house's
+      // weight is 1, plus half a point for each point of motive, never
+      // under the floor. A broker trades in people; a steward promotes
+      // from within
+      CALL_LEAN: { broker: 2, duelist: 1, showman: 0, steward: -2 },
+      callPerPoint: 0.5, callFloor: 0.25,
     },
     // ---- Standing & scars (v0.8.3) --------------------------------------
     SCAR: {

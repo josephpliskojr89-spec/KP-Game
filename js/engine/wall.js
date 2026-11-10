@@ -19,7 +19,7 @@
 
   function ledger(state) {
     const led = state.wallLedger = state.wallLedger || {};
-    ['heads', 'quotes', 'acts', 'parks', 'parksBooks', 'parksTemper', 'parksMoved'].forEach(k => { if (led[k] == null) led[k] = 0; });
+    ['heads', 'quotes', 'acts', 'parks', 'parksBooks', 'parksTemper', 'parksMoved', 'calls', 'callsBooks', 'callsTemper'].forEach(k => { if (led[k] == null) led[k] = 0; });
     if (!led.kinds) led.kinds = {};
     return led;
   }
@@ -281,12 +281,12 @@
   // nothing between the houses the most prestigious does it, as it always
   // did. Whether a date is parked on at all is not changed, and nothing
   // here draws.
-  KP.houseMotive = function (state, r) {
+  KP.houseMotive = function (state, r, leanTable) {
     const W = KP.C.WALL;
     const read = KP.houseRead(state, r);
     const head = KP.rivalHead(state, r);
     const spite = Math.max(0, -read.standing);
-    const lean = head ? (W.AMBUSH_LEAN[head.temper] || 0) : 0;
+    const lean = head ? ((leanTable || W.AMBUSH_LEAN)[head.temper] || 0) : 0;
     // what it is about: the act that weighs most against us today, the
     // newest of equals
     let because = null, heaviest = 0;
@@ -300,8 +300,8 @@
   };
   // why a house parked: the books, its head's temper, or nothing but the
   // calendar. Kept on the clash, so the Studio says what the letter said.
-  KP.parkWhy = function (state, r) {
-    const m = KP.houseMotive(state, r);
+  KP.parkWhy = function (state, r, leanTable) {
+    const m = KP.houseMotive(state, r, leanTable);
     if (m.because) return { by: 'books', kind: m.because.kind, week: m.because.week };
     if (m.lean > 0) return { by: 'temper' };
     return null;
@@ -313,6 +313,55 @@
     if (why.by === 'books' && row) return head.name + ' has not forgotten: ' + r.short + ' ' + row.words + ' (' + KP.weekLabel(why.week).text + ').';
     if (why.by === 'temper') return head.name + ' is a ' + head.temper + ', who ' + KP.headTemperProse(head) + '.';
     return '';
+  };
+
+  // ==== part four: the letterhead (v0.11.25, §116) =====================================
+  // The second roll the books weigh: which house calls one of our staff
+  // away (hires.js). Every house is in reach, so it is a weighted draw on
+  // the one number that was always drawn: with every weight equal it picks
+  // the house the old draw picked.
+  KP.callingHouse = function (state, houses, u) {
+    if (!houses || !houses.length) return null;
+    const W = KP.C.WALL;
+    const weights = houses.map(r => Math.max(W.callFloor, 1 + W.callPerPoint * KP.houseMotive(state, r, W.CALL_LEAN).score));
+    let x = u * weights.reduce((s, w) => s + w, 0);
+    for (let i = 0; i < houses.length; i++) { x -= weights[i]; if (x < 0) return houses[i]; }
+    return houses[houses.length - 1];
+  };
+  // the house a call came from: by its short, or (a scene opened by an
+  // older version) by the name the scene carries
+  KP.callHouseOf = function (state, sc) {
+    return KP.signingHouses(state).find(r => (sc.rivalShort ? r.short === sc.rivalShort : r.name === sc.rivalName)) || null;
+  };
+  // the call opens: the reason is kept on the scene, and counted
+  KP.callOpened = function (state, r) {
+    if (!r) return null;
+    const why = KP.parkWhy(state, r, KP.C.WALL.CALL_LEAN);
+    const led = ledger(state);
+    led.calls++;
+    if (why && why.by === 'books') led.callsBooks++;
+    if (why && why.by === 'temper') led.callsTemper++;
+    return why;
+  };
+  // who signed it: the head's name before the house's, for a letter or a scene
+  KP.signedBy = function (state, r) {
+    const head = r ? KP.rivalHead(state, r) : null;
+    return head ? head.name + ' of ' + r.name : (r ? r.name : 'a rival house');
+  };
+  // the offer (risefall.js) is signed too, and carries one line in the
+  // head's own hand. Only one house can ever write it, so there is nothing
+  // to weigh: measured, 78 offers in 200 careers and one possible writer
+  // each time
+  const OFFER_LINES = {
+    duelist: '“I would rather have you inside this building than across the street from it.”',
+    broker: '“Everything has a price. I have worked out yours, and I think you will find it fair.”',
+    steward: '“This house will outlast both of us. I am choosing who looks after it next.”',
+    showman: '“Picture the announcement. I already have.”',
+  };
+  KP.OFFER_LINES = Object.assign({}, OFFER_LINES);
+  KP.offerHand = function (state, r) {
+    const head = r ? KP.rivalHead(state, r) : null;
+    return head && OFFER_LINES[head.temper] ? head.name + ' signed it, and added one line by hand: ' + OFFER_LINES[head.temper] : '';
   };
 
   // ---- the weekly: a house founded since the last tick gets its head -------------
