@@ -9104,7 +9104,7 @@ Suite_114 (41). Measured in the first soak (40 orgs): vote pushes
 every org that sent — and the bands ruled from these. Battery
 114/114, soak 40 clean, longhaul 11 × 620, e2e 134, lockstep 0.11.4.
 
-## §96 Where we stand — the depth survey (post-0.11.4; recommendations 1–3 SHIPPED v0.11.5, v0.11.7, v0.11.9; 4 in three parts from v0.11.10)
+## §96 Where we stand — the depth survey (post-0.11.4; recommendations 1–4 SHIPPED v0.11.5, v0.11.7, v0.11.9, and 4 in three parts v0.11.10–v0.11.12)
 
 Owner, after the televised season shipped: *"Where does this leave
 us? Can you take a look at what needs more depth and give me a
@@ -9471,7 +9471,7 @@ discography marking it. The pressing's pre-order week as a read and
 the restock as a door. The debut's first stage named as a debut
 stage.
 
-**4. The long goodbye (how a group ends; the member's half SHIPPED v0.11.10, §101; the group's half SHIPPED v0.11.11, §102; across the street is §103).** The farewell lap as an
+**4. The long goodbye (SHIPPED in three: a member leaves, v0.11.10, §101; a group ends, v0.11.11, §102; across the street, v0.11.12, §103).** The farewell lap as an
 object once the table sets `contract.leaving`, with three readers:
 the release (a farewell-era mod and a note, hiatusReadsRelease's
 shape), the last stage (critical, a family by voice), the member desk
@@ -10643,7 +10643,147 @@ record) and were replaced. A real-browser pass over the new screens
 lockstep 0.11.11. Migration 0.11.11.
 
 *Left for §103.* A departed artist signed across the street, with a
-letter when she debuts there.
+letter when she debuts there. *(Shipped v0.11.12.)*
+
+## §103 Across the street (SHIPPED v0.11.12 — §96 recommendation 4, what comes after)
+
+Owner: *"Break remaining work into smaller pieces"*. The last piece
+of the long goodbye, on its own. With it §96's fourth recommendation
+is complete: a member leaves (§101), a group ends (§102), and the one
+who left has somewhere to go.
+
+**The finding** (§96): "a departed idol's file 'stays open forever'
+and is reachable from no list." §101 made it reachable. Nothing was
+ever written in it again: the last line of every alumna's file was
+the week she left.
+
+One new module, `across.js`. The main stream is never drawn from:
+every pick is a hash, and the one record this module makes is made
+on an rng of its own, keyed by her file.
+
+**The clock.** A departed artist's next chapter has a date: 12 to 40
+weeks after she left, hers by hash, stamped the first week the rail
+sees her (order 621, behind the open board's own re-entries at 619).
+Nothing is written before it.
+
+**The chapter is one of two.** On her date another house signs her
+as a soloist, or she builds a life outside the industry. The odds
+are read off her file (`KP.acrossChance`, pure): a base of 0.4; 0.12
+for each step of her own name, the renewal table's fame, up to four;
+0.15 more when leaving was not her idea (a cold exit: she did not
+choose to stop); 0.06 less for every birthday past twenty-seven, the
+market's clock. A name of two steps or more signs with the top half
+of the street. An empty street leaves only the second chapter.
+
+**The signing is a letter in the tone of how she left.** How she
+left is stamped on her file at the exit from this build on
+(`flags.departShape`, the five shapes §101 gave an exit) and read
+back off her chapters and her paper for anyone who left before it
+(`KP.exitShape`; a sudden goodbye cannot be told from a plain one
+there, and is not guessed). The letter says who, formerly of which
+act, to which house, how many weeks after, and how the paper ended.
+Then the tone, and each tone has one small consequence. After THE
+BOW she thanks the company by name, twice, and the board reads it:
+trust +1 ("the cheapest advertising it will ever get"). A PLAIN
+goodbye is cordial and nothing moves. A RELEASE is "a fresh start"
+and nothing moves. After a SUDDEN goodbye she says what she was not
+given, and the fandom of the act she left remembers it (a grudge
+point, if that act is still standing). After a COLD exit the
+announcement does not mention the company; the comment section
+does, and the board reads that too: trust −2. A promise broken on
+her file speaks whatever the exit looked like: she "learned to get
+dates in writing", and the old fandom hears it.
+
+**She stays departed until the record lands.** A rival's floor is
+cast into rookie groups and culled by age, and she is neither. So
+the signing changes nothing but her file: a chapter ("Signed to X as
+a soloist"), a date for her first record there (6 to 16 weeks out),
+and where she is now, in words. No house can cast her.
+
+**The debut is a rival act of one.** On its date she belongs to
+that house, in a solo act under her own name, made by the same
+function that makes any rival act from named people
+(`KP.makeRivalAct`), marked as an artist who was ours. Its concept
+is the last one she recorded here; its generation is her old
+group's; it does not debut as an unknown (a seeded popularity from
+her own name). Her record goes on the chart this company releases
+against, and from there the machinery that carries every rival act
+carries her: the release cycle, the chart, the head-to-head ledger,
+the crowded week. The letter says what the record did, what it
+means for the act she left, and who posted: after a warm exit a
+close friend still in the building posts the cover an hour after
+midnight and her morale rises 2; with no such friend the company's
+own account does; after a cold exit nobody does, and "the fandom
+keeps a list of who did not". If the house that signed her folded or
+merged before the record, the contract moves to another, and the
+letter says so; with no house left at all the deal falls through
+and her chapter becomes a life outside.
+
+**A veteran is nobody's rookie.** Found while building: a
+seven-year artist's first solo record would have stood in the
+year's rookie field, been written up as a monster rookie at the
+numbers her talents land, and carried a generation's torch. An act
+marked as an alumna's stands in none of the three.
+
+**A life outside is words on a file.** What she does is read off
+what she was best at (a dancer's studio, a vocalist's academy, a
+writer's borrowed name, an agency, a radio slot), by hash inside
+that, and one in four simply goes home. A quiet letter, a chapter,
+nothing else: no number moves. She stays an alumna on the books.
+
+**An alumna is never forgotten.** Found by the suite: the world's
+exit (`KP.goHome`) forgets a stranger with no file, and "no file"
+was read off the ledger and the scouting flags. An artist who
+completed a contract here with nothing ever written on her ledger
+was a stranger by that test, so when her act across the street
+ended she was deleted from the save. Completing a contract here is
+a chapter here, by itself (`KP.hasChapter`). She goes home, with
+the last line of her file as where she is now, and stays on the
+list.
+
+**The list is who was ours.** `KP.alumniOf`: every artist who left
+this building, whatever her status is now, most recent first. The
+Talent tab's Alumni list reads it, and its line is where she is now
+(`KP.whereNow`): signed with a house, a soloist there since a week,
+what she does outside, or how she left when there is no later
+chapter yet. Her file stays an alumni file under any status and
+says "now:" when there is something to say. The act's page reads
+its former members through the same word. On the Industry tab an
+act that is hers reads "solo, formerly ours" on the house's card;
+on its page her cell says "was ours" and opens her file, with a
+note from the file room in place of the scout's "moved faster"
+(which was about a face lost off the board, and she was not that).
+
+**Old saves.** Migration 0.11.12 (ensureLedgers: acrossLedger). An
+artist who left long before her next chapter had a clock would have
+every chapter written in the week the file is opened: the ones
+already overdue are spread over the next 2 to 31 weeks by hash. One
+whose date is still to come keeps it.
+
+**The bot and the census.** No bot verb: the chapter is the world's.
+Inside the census an attentive boss loses almost nobody, so it holds
+two ceilings (an alumna signed across the street 0/40 under .20, a
+life outside 0/40 under .20; every older band stands exactly where
+v0.11.11 left it), and the chapter is measured where people do
+leave, in the long-horizon pass. Three careers of 380 weeks set 20
+clocks: 9 signings (6 after a bow, 3 after a cold exit), 4 of them
+debuted by the end with all 4 acts still running, 5 lives outside,
+and 6 chapters still to come. The seven-year clock's own line is
+unmoved (11 laps, 11 bows, 11 promises kept). The pass guards
+that the ledger is the wire, that every alumna whose date has passed
+has a chapter, and that one who debuted is in an act of the house
+she belongs to or has gone home with her file intact.
+
+Suite_122 (153): the engine, and the Talent tab, her file, the
+act's page and the Industry tab rendered through the DOM stub.
+Mutation-checked against eighteen broken engine lines, each caught
+by a named assertion. A real-browser pass over the new screens (19
+checks, no page errors). Battery 122/122, soak 40 clean, longhaul
+11 × 620 clean, e2e 134, lockstep 0.11.12. Migration 0.11.12.
+
+*Not built.* The door back: an alumna who could be re-signed. "The
+door stays open" is still only a sentence, and it would want its own
+release.
 
 ## §18 Watch items
 
@@ -14252,6 +14392,33 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 121/121, soak 40 clean with every census number unmoved, longhaul
 > 11x620, e2e 134, a real-browser pass (33), lockstep 0.11.11. Rode to
 > main. Part three (§103): across the street.
+
+> **0.11.12 — across the street.** Own judgment, under "Approved to
+> tackle as much of the remaining queue as you see fit" and "Break
+> remaining work into smaller pieces": the last piece of §96's fourth
+> entry, which is now complete. §103: a departed artist's file stayed
+> open forever and nothing was ever written in it again. She has a next
+> chapter now, on a clock of her own (12 to 40 weeks after she left):
+> another house signs her as a soloist, or she builds a life outside
+> the industry. Her own name, how she left and her age set the odds.
+> The signing is a letter in the tone of how she left, and each tone
+> has one small consequence (a bow: the board's trust up; a cold exit:
+> down; a sudden one, or a broken promise: the old fandom remembers).
+> She stays departed until her record lands, so no rival floor casts
+> her; then she is a rival act of one, under her own name, on the
+> chart this company releases against. No chapter draws from the main
+> stream. Found on the way: a seven-year artist's first solo would
+> have stood in the rookie field and been written up as a monster
+> rookie; and the world's exit deleted an alumna with an empty ledger
+> when her act across the street ended. Every artist who was ours
+> stays on the Alumni list, wherever she is. The census sees none of
+> it inside 140 weeks (0/40, two ceilings, every older band unmoved);
+> the long pass measures it: 20 clocks, 9 signings, 4 debuts, 5 lives
+> outside, 6 still to come. Suite_122 (153), eighteen mutations caught
+> by name. Battery 122/122, soak 40 clean, longhaul 11x620, e2e 134, a
+> real-browser pass (19), lockstep 0.11.12. Rode to main. Not built:
+> the door back.
+
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
