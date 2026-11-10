@@ -671,6 +671,11 @@ const BANDS = {
   slotGiven:         { lo: 0.30, hi: 1.00, label: 'orgs that gave the showcase’s closing slot to somebody' },
   missionDrilled:    { lo: 0.60, hi: 1.00, label: 'orgs where a trainee drilled a whole month’s room' },
   missionMoment:     { lo: 0.60, hi: 1.00, label: 'orgs where the sheet told one thing from the room' },
+  // the year's sheet (v0.11.16, §107) — measure-first: 36/40 and 25/40 on the
+  // first soak (47 readings of a possible 80: a new building's first year
+  // often has fewer than three trainees who stood half of it)
+  yearRead:          { lo: 0.60, hi: 1.00, label: 'orgs whose year was read from the bottom up' },
+  yearClimb:         { lo: 0.30, hi: 1.00, label: 'orgs where the year’s climb was named' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -822,6 +827,7 @@ const BANDS = {
 };
 
 const missionSum = {};   // the mission (v0.11.13, §104): summed over the census
+const yearSum = { years: 0, climbs: 0, rows: 0, sheets: 0, max: 0 };   // the year's sheet (v0.11.16, §107)
 const tally = {
   sensation: 0, strongPlus: 0, missOrQuiet: 0, nonCenterBreakout: 0,
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
@@ -900,7 +906,7 @@ const tally = {
   contentPosted: 0, contentHit: 0,
   fundPitched: 0, fundFinanced: 0, fundPassed: 0,
   evalHeld: 0, projectTalkSeen: 0, traineeQuitAsked: 0, traineeGone: 0,
-  missionDrilled: 0, missionMoment: 0, talkQuestion: 0, slotGiven: 0,
+  missionDrilled: 0, missionMoment: 0, talkQuestion: 0, slotGiven: 0, yearRead: 0, yearClimb: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -2401,6 +2407,29 @@ for (let s = 0; s < SEEDS; s++) {
   if ((evl.slots || 0) >= 1) tally.slotGiven++;
   if ((evl.drilledFull || 0) >= 1) tally.missionDrilled++;
   if ((evl.moments || 0) >= 1) tally.missionMoment++;
+  // the year's sheet (v0.11.16, §107): a census career is not quite three
+  // years, so the year is read twice in it, or three times in the saves
+  // whose showcases fall on week 141
+  if ((evl.years || 0) >= 1) tally.yearRead++;
+  if ((evl.yearClimbs || 0) >= 1) tally.yearClimb++;
+  yearSum.years += evl.years || 0; yearSum.climbs += evl.yearClimbs || 0;
+  (state.evalYears || []).forEach(y => { yearSum.rows += y.rows.length; yearSum.sheets++; if (y.rows.length > yearSum.max) yearSum.max = y.rows.length; });
+  // a year can be read once its last showcase has been held, and not before.
+  // (The first cut of this guard said "at most two" and was wrong: the
+  // 200-career census found the career that reaches the third year's.)
+  const yearsDue = (() => {
+    let n = 0;
+    for (let y = 1; y < 50; y++) {
+      let w = KP.nextEvalWeek(state, (y - 1) * KP.C.WEEKS_PER_YEAR + 1), last = null;
+      while (w <= y * KP.C.WEEKS_PER_YEAR) { last = w; w += KP.C.EVAL.every; }
+      if (last == null || last > state.week) break;
+      n++;
+    }
+    return n;
+  })();
+  guard((evl.years || 0) <= yearsDue, seed + ' the year’s sheet was read ' + evl.years + ' times in a career of ' + state.week + ' weeks, in which ' + yearsDue + ' years have had their last showcase');
+  guard((state.evalYears || []).every(y => y.rows.length >= KP.C.EVAL.minTrainees && y.rows[0].place === 1 && y.topId === y.rows[0].id), seed + ' a year’s sheet on the wall is malformed');
+  guard((state.evalYears || []).length === Math.min(KP.C.EVAL.yearKeep, evl.years || 0), seed + ' the wall holds ' + (state.evalYears || []).length + ' sheets and the ledger read ' + (evl.years || 0));
   const ptl = state.pointLedger || {};
   if ((ptl.breakdowns || 0) >= 1) tally.breakdownRead++;
   if ((ptl.nearMisses || 0) >= 1) tally.nearMissFuel++;
@@ -3075,6 +3104,8 @@ console.log('\nthe mission: showcases ' + (missionSum.missions || 0) + ' (sheets
   ' · sheets that named a climb for it ' + (missionSum.drilledClimbs || 0) + ' · moments told ' + (missionSum.moments || 0) + ' · months the line was crossed ' + (missionSum.lineCross || 0) +
   ' · after-eval talks ' + (missionSum.talks || 0));
 // the talk and the slot (v0.11.14, §105)
+console.log('the year’s sheet: read ' + yearSum.years + ' times · the year’s climb named ' + yearSum.climbs + ' · places on the sheets still on the wall ' + yearSum.rows +
+  ' across ' + yearSum.sheets + ' (the longest ' + yearSum.max + ')');
 console.log('the talk: called ' + (missionSum.talks || 0) + ' · asked ' + (missionSum.talkAsked || 0) + ' (left with the coaches ' + (missionSum.talkCoaches || 0) + ', said straight ' + (missionSum.talkStraight || 0) +
   ', a month one on one ' + (missionSum.talkRoom || 0) + ', unanswered ' + (missionSum.talkUnanswered || 0) + ') · never asked, held by the coaches ' + (missionSum.talkUnasked || 0) +
   ' · the month one on one: off the bottom ' + (missionSum.coachClimbs || 0) + ', still there ' + (missionSum.coachMisses || 0) +

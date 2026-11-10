@@ -9486,7 +9486,7 @@ what each member does next. `finalLineup` written on every ending;
 an alumni strip so the open files are reachable; a departed idol who
 can be signed across the street and a letter when she debuts there.
 
-**5. The practice room, attended (the trainee years as episodes; part one, the mission, SHIPPED v0.11.13, §104; part two, the talk and the slot, SHIPPED v0.11.14, §105).**
+**5. The practice room, attended (the trainee years as episodes; part one, the mission, SHIPPED v0.11.13, §104; part two, the talk and the slot, SHIPPED v0.11.14, §105; part three, the year’s sheet, SHIPPED v0.11.16, §107).**
 The evaluation sheet on a priority ladder (critical at a first #1,
 the line or the talk; high within one of the line; flavor only when
 nothing moved) naming the month's mission, her place and movement,
@@ -11153,6 +11153,101 @@ off; the absences' cadence. *Seen and not changed here, because they
 are mechanics and not words:* a soloist counts as an act when a
 house is judged overextended, and a friendship with a former
 colleague is still made in a waiting room.
+
+## §107 The year's sheet (SHIPPED v0.11.16 — §96 recommendation 5, the trainee years, part three)
+
+Owner: *"Break remaining work into smaller pieces"*. The third piece
+of the practice room, and half of what was planned as one: the
+posting (the lineup list as a letter for the room, with a door for
+the ace left off) is its own release.
+
+**The finding** (§96): "the year-end sheet read in reverse as the
+loop's ceremony". Twelve showcases make a year, and the twelfth sheet
+was the same letter as the other eleven. Nothing in the building
+knew a year had passed.
+
+Nothing new is drawn, and nothing new is kept on a trainee but a
+flag: the year is read off the twelve sheets every file already
+carries (`evalHistory`).
+
+**The year so far is a read** (`KP.evalYearRead`, pure). A trainee
+has a place on the year's sheet once she has stood four showcases
+this year and half of the ones held. The first career it was read
+in gave the year to a trainee who had stood four of ten, all at the
+top: four months at the top is a strong winter, not a year. The
+order is her average standing in the room she stood in (a 2nd of 4
+and a 4th of 8 are not the same month), then her months at the top,
+then her best month, then how many she stood. This calendar year
+only; trainees on the roster only. The Training tab shows it under
+the month's board all year: every trainee with a place, her months
+at the top, how many showcases are left, and what a place takes.
+
+**Once a year it is a ceremony** (`KP.evalYearDue`,
+`KP.evalYearSheet`). On the year's last showcase, after the month's
+own sheet and the next room are posted, the head coach reads the
+year from the bottom up: one critical letter. Fourth and below are
+read as names; third, second and first each get a clause (months at
+the top, or her best month, in how many showcases); the last name
+in the letter is the year's first. The one who climbed furthest
+from her first sheet of the year to her last (two places or more,
+and not the year's first, whose clause already says it) is named as
+the year's climb, with the month she started in. Trainees who did
+not stand enough of the year are named as that. The letter closes
+one of three ways, turned by the year, never the same two years
+running.
+
+**What it does is small and is hers.** The year's first gains 3
+morale, is marked on her file (`p.flags.yearTop`), and has a line
+on it; the board carries "first of Y1" beside her name. The year's
+climb gains 2 and has a line. The first name read has a line and
+nothing else: her months already moved her. A year with fewer than
+three places has no sheet. Measured, the 342 older census rows do
+not move at all: the morale is small and lands on the two trainees
+who need it least. The ceremony is the point, and so is the flag:
+the posting will read it.
+
+**The wall keeps three years** (`state.evalYears`): each sheet as it
+was read, names and all, so a trainee who has since debuted or left
+is still on last year's. The Training tab shows the sheet as read
+until the new year, and last year's sheet in January until this
+year has places of its own.
+
+**Found in a screenshot: the board showed two firsts.** The real
+career used for the browser pass had put the year's first on a
+break for the year's last showcase. The evaluation board listed
+every trainee by her last rank, whenever that was, so it showed her
+old "1" above the new first, under the date of a sheet a month old.
+That is from v0.9.16, not from this release. The board is the
+latest sheet now: those who stood it, in order, under its own date,
+and under it who did not, with where she last stood.
+
+**Old saves.** Nothing to migrate. An old file's year so far reads
+off the sheets it already carries, and its year is read on the
+year's last showcase like any other.
+
+**The bot and the census.** The bot does nothing with it. Measured
+over 40 careers: the year was read 47 times of a possible 80, in
+36/40 careers (floor .60); the year's climb was named 31 times, in
+25/40 (floor .30); 180 places on 47 sheets, the longest 6. A new
+building's first year often has fewer than three trainees who stood
+half of it. The soak guards the wall against the ledger, and that
+no career reads a year whose last showcase has not been held. The
+first cut of that guard said "at most two", and the 200-career
+census caught it: in the saves whose showcases fall on week 141 a
+career reaches the third year's (one career in 200 had the room for
+it). The guard was wrong, not the game. The 342 older rows did not
+move: 0 of 342 against v0.11.15, at 40 careers and at 200 (where
+the year was read 228 times, in 175/200 careers).
+
+Suite_126 (95): the engine, and the Training tab rendered through
+the DOM stub. Mutation-checked against fifty-seven broken lines,
+each caught by a named assertion. A real-browser pass over a real
+first year (18 checks, no page errors). Battery 126/126, soak 40
+clean, census 200 clean, longhaul 11 × 620 clean, e2e 135, lockstep
+0.11.16.
+
+*Left for the next pieces.* The posting as a letter for the room
+with a door for the ace left off; the absences' cadence.
 
 ## §18 Watch items
 
@@ -14878,6 +14973,31 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > a real-browser pass (17), lockstep 0.11.15. Rode to
 > main. Next pieces: the year-end sheet and the posting, the
 > absences.
+
+> **0.11.16 — the year's sheet.** Own judgment, under "Approved to
+> tackle as much of the remaining queue as you see fit" and "Break
+> remaining work into smaller pieces": the third piece of §96's fifth
+> entry, and half of what was planned as one (the posting is next).
+> §107: twelve showcases make a year, and the twelfth sheet was the
+> same letter as the other eleven. The year so far is now a read off
+> the sheets every file already carries: a place takes four showcases
+> stood and half of the ones held, ordered by her standing in the
+> room she stood in. The Training tab shows it all year. On the
+> year's last showcase the head coach reads it from the bottom up, in
+> one critical letter whose last name is the year's first; the year's
+> climb is named; the wall keeps three years of sheets. The year's
+> first gains 3 morale and a mark on her file, the climb 2. Nothing
+> is drawn. Found in a screenshot and fixed: the evaluation board
+> listed a trainee who had sat a showcase out by her old rank, so it
+> could show two firsts under last month's date (from v0.9.16).
+> Measured over 40 careers: read 47 times in 36/40 careers, the climb
+> named in 25/40; the 342 older rows did not move, at 40 careers or
+> at 200. The 200-career census caught one of this release's own
+> guards being wrong (a career can reach a third year's reading).
+> Suite_126 (95), fifty-seven mutations caught by name. Battery
+> 126/126, soak 40 clean, census 200 clean, longhaul 11 × 620 clean,
+> e2e 135, a real-browser pass (18), lockstep 0.11.16. Rode to main.
+> Next pieces: the posting, the absences.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

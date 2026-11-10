@@ -461,7 +461,123 @@
     inbox.push({ kind: 'company', ind: 'evalMission', priority: 'flavor', mission: next.id,
       text: 'Posted under the sheet: next month’s showcase is ' + next.name + ' — ' + next.what + '. ' + KP.weekLabel(state.week + E.every).text +
         '. A trainee whose focus is on ' + KP.C.TALENT_LABELS[next.id].toLowerCase() + ' from now until then walks in with it drilled.' });
+    // (v0.11.16, §107) the year's last showcase: the year, read in reverse
+    if (KP.evalYearDue(state)) KP.evalYearSheet(state, inbox);
   });
+
+  // ---- the year's sheet (v0.11.16, §107) --------------------------------
+  // Twelve showcases make a year, and the twelfth sheet was the same letter
+  // as the other eleven. The year's sheet is built from what the monthly
+  // sheets already wrote on every file (evalHistory keeps twelve): each
+  // trainee's place across the year, her best month, her months at the top,
+  // where she started the year and where she ends it. It is a read all year
+  // (the Training tab shows the year so far) and a ceremony once: on the
+  // year's last showcase the head coach reads it from the bottom up.
+  // Nothing is drawn.
+  const yearOfWeek = w => Math.floor((w - 1) / KP.C.WEEKS_PER_YEAR) + 1;
+  const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
+  const MONTHS = { Jan: 'January', Feb: 'February', Mar: 'March', Apr: 'April', May: 'May', Jun: 'June',
+    Jul: 'July', Aug: 'August', Sep: 'September', Oct: 'October', Nov: 'November', Dec: 'December' };
+  const monthOf = w => { const m = KP.weekLabel(w).month; return MONTHS[m] || m; };
+  const listAnd = xs => xs.length <= 1 ? (xs[0] || '') : xs.slice(0, -1).join(', ') + ' and ' + xs[xs.length - 1];
+  KP.evalYearOf = function (state) { return yearOfWeek(state.week); };
+  // the year so far, as a read. A trainee has a place on it once she has
+  // stood yearMinSheets showcases this year AND half of the ones held: four
+  // months at the top is a strong winter, not a year (the first career it
+  // was read in gave the year to a trainee who had stood four of ten). The
+  // order is her average standing in the room she stood in (a 2nd of 4 and
+  // a 4th of 8 are not the same month), then months at the top, then her
+  // best, then how many she stood. Pure: it writes nothing.
+  KP.evalYearRead = function (state, year) {
+    const E = KP.C.EVAL, Y = KP.C.WEEKS_PER_YEAR;
+    year = year || yearOfWeek(state.week);
+    const from = (year - 1) * Y + 1, to = year * Y;
+    const weeks = new Set(), rows = [], fresh = [];
+    const floor = (state.roster || []).map(id => state.people[id]).filter(p => p && p.status === 'trainee')
+      .map(p => ({ p, h: (p.evalHistory || []).filter(e => e.week >= from && e.week <= to) })).filter(x => x.h.length);
+    floor.forEach(x => x.h.forEach(e => weeks.add(e.week)));
+    const need = Math.max(E.yearMinSheets, Math.ceil(weeks.size / 2));
+    floor.forEach(({ p, h }) => {
+      if (h.length < need) { fresh.push(p); return; }
+      rows.push({ p, sheets: h.length,
+        pct: h.reduce((s, e) => s + (e.rank - 1) / Math.max(1, e.of - 1), 0) / h.length,
+        mean: Math.round(h.reduce((s, e) => s + e.rank, 0) / h.length * 10) / 10,
+        best: h.reduce((m, e) => Math.min(m, e.rank), Infinity),
+        firsts: h.filter(e => e.rank === 1).length,
+        first: h[0], last: h[h.length - 1], move: h[0].rank - h[h.length - 1].rank });
+    });
+    rows.sort((a, b) => a.pct - b.pct || b.firsts - a.firsts || a.best - b.best || b.sheets - a.sheets || (a.p.id < b.p.id ? -1 : 1));
+    rows.forEach((r, i) => { r.place = i + 1; });
+    let toGo = 0;
+    for (let w = KP.nextEvalWeek(state, state.week + 1); w <= to; w += E.every) toGo++;
+    // the year's climb: the furthest up from her first sheet of the year to
+    // her last, and not the one who is first (her clause already says it)
+    const climb = rows.filter(r => r.place !== 1 && r.move >= E.yearClimbAt).sort((a, b) => b.move - a.move || a.place - b.place)[0] || null;
+    return { year, held: weeks.size, need, toGo, rows, fresh, top: rows[0] || null, climb, ok: rows.length >= E.minTrainees };
+  };
+  // is this week's showcase the year's last, with the year not yet read?
+  KP.evalYearDue = function (state) {
+    const year = yearOfWeek(state.week);
+    if (state.week !== KP.nextEvalWeek(state, state.week)) return false;
+    if (KP.nextEvalWeek(state, state.week + 1) <= year * KP.C.WEEKS_PER_YEAR) return false;
+    return !(state.evalYears || []).some(y => y.year === year);
+  };
+  // one clause of a year: what she did with it
+  KP.evalYearClause = function (r) {
+    return (r.firsts ? r.firsts + (r.firsts === 1 ? ' month' : ' months') + ' at the top' : 'best month a ' + ordinal(r.best)) +
+      ', in ' + r.sheets + ' showcases';
+  };
+  // the ceremony, in words: from the bottom up, so the last name read is
+  // the year's first. Three ways to close it, turned by the year, never the
+  // same two years running.
+  const YEAR_CLOSERS = [
+    'The first name read is not the last word on anybody; the last name read will be reminded of it for twelve months.',
+    'Nobody clapped until the last name. Then everybody did, including the ones who had hoped it would be theirs.',
+    'The sheet stays on the wall until the new year. Everyone in the room will pass it forty times and read it every time.',
+  ];
+  KP.evalYearText = function (state, read) {
+    const rows = read.rows, nm = r => KP.displayName(r.p), words = ['And first on the year, ', 'Second, ', 'Third, '];
+    const tail = rows.slice(3).reverse(), head = rows.slice(0, 3).reverse();
+    const turn = Math.floor(KP.hash01([state.seed, 'evalYearClose'].join('|')) * YEAR_CLOSERS.length);
+    return 'The year’s sheet went up beside this month’s, and the head coach read it the way it is always read: from the bottom up. ' +
+      (tail.length ? 'From the bottom: ' + tail.map(nm).join(', ') + '. ' : '') +
+      head.map(r => words[r.place - 1] + nm(r) + ': ' + KP.evalYearClause(r) + '. ').join('') +
+      (read.climb ? 'The year’s climb was ' + nm(read.climb) + '’s: ' + ordinal(read.climb.first.rank) + ' in ' + monthOf(read.climb.first.week) +
+        ', ' + ordinal(read.climb.last.rank) + ' now. ' : '') +
+      (read.fresh.length ? listAnd(read.fresh.map(p => KP.displayName(p))) + ' did not stand enough of the year’s showcases for a place on it. ' : '') +
+      read.held + ' showcases this year. ' + YEAR_CLOSERS[(read.year + turn) % YEAR_CLOSERS.length];
+  };
+  // the ceremony. What it does is small and is hers: the year's first knows
+  // she was read last, the one who climbed furthest is named for it, and the
+  // first name read has it on her file. The wall keeps the sheet.
+  KP.evalYearSheet = function (state, inbox) {
+    const E = KP.C.EVAL;
+    const read = KP.evalYearRead(state);
+    if (!read.ok) return null;
+    const led = evalLedger(state);
+    led.years = (led.years || 0) + 1;
+    const top = read.top, last = read.rows[read.rows.length - 1], climb = read.climb;
+    top.p.morale = KP.clamp(top.p.morale + E.yearTopMorale, 0, 100);
+    top.p.flags.yearTop = (top.p.flags.yearTop || []).concat([read.year]);
+    top.p.history.push({ week: state.week, text: 'First on the year’s sheet for Y' + read.year + ': ' + KP.evalYearClause(top) +
+      '. ' + (top.p.gender === 'm' ? 'His' : 'Her') + ' name was read last, which is how the room is told.' });
+    if (climb) {
+      climb.p.morale = KP.clamp(climb.p.morale + E.yearClimbMorale, 0, 100);
+      climb.p.history.push({ week: state.week, text: 'The year’s climb for Y' + read.year + ': ' + ordinal(climb.first.rank) + ' in ' + monthOf(climb.first.week) +
+        ', ' + ordinal(climb.last.rank) + ' on the year’s last sheet. The head coach said so in front of the room.' });
+      led.yearClimbs = (led.yearClimbs || 0) + 1;
+    }
+    if (last !== climb) {
+      last.p.history.push({ week: state.week, text: 'Read first off the year’s sheet for Y' + read.year + ', which is read from the bottom.' });
+    }
+    state.evalYears = (state.evalYears || []).concat([{ year: read.year, week: state.week, held: read.held,
+      topId: top.p.id, climbId: climb ? climb.p.id : null,
+      rows: read.rows.map(r => ({ id: r.p.id, name: KP.displayName(r.p), place: r.place, mean: r.mean, best: r.best, firsts: r.firsts, sheets: r.sheets, move: r.move })) }])
+      .slice(-E.yearKeep);
+    inbox.push({ kind: 'company', ind: 'evalYear', priority: 'critical', year: read.year, personId: top.p.id,
+      text: KP.evalYearText(state, read) });
+    return read;
+  };
 
   // ---- the timeline reacts ----------------------------------------------
   KP.onFeedEvent('evalSheet', (state, n, rng) => rng.chance(0.25) ? rng.pick([

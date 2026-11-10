@@ -242,6 +242,37 @@
       '</div></div>';
   }
 
+  // the year's sheet (v0.11.16, §107): the year so far under the month's
+  // board, all year; the sheet as it was read once the year's last showcase
+  // is over; and last year's until this year has places of its own
+  function yearSheetHtml(state) {
+    if (!KP.evalYearRead) return '';
+    const yr = KP.evalYearRead(state);
+    const wall = (state.evalYears || []).slice(-1)[0] || null;
+    const cell = (place, name, firsts) => '<span style="white-space:nowrap"><b>' + place + '</b> ' + UI.esc(name) +
+      (firsts ? ' <span style="color:var(--ink-dim)">' + firsts + '× first</span>' : '') + '</span>';
+    const block = (title, cells, note) => '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:9px">' +
+      '<div style="font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)">' + title + '</div>' +
+      '<div style="font-size:.78rem;margin-top:5px;line-height:1.7">' + cells.join(' · ') + '</div>' +
+      '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:4px;line-height:1.4">' + note + '</div></div>';
+    const read = wall && wall.year === yr.year;
+    if (read) {
+      return block('The year’s sheet · Y' + wall.year, wall.rows.map(r => cell(r.place, r.name, r.firsts)),
+        'Read from the bottom up on ' + UI.esc(KP.weekLabel(wall.week).text) + '. It stays on the wall until the new year.');
+    }
+    if (yr.rows.length >= 2) {
+      return block('The year so far · Y' + yr.year, yr.rows.map(r => cell(r.place, KP.displayName(r.p), r.firsts)),
+        (yr.toGo ? yr.toGo + (yr.toGo === 1 ? ' showcase' : ' showcases') + ' to go. ' : '') +
+        'On the year’s last showcase the head coach reads this from the bottom up. A place on it takes ' + yr.need +
+        ' showcases stood' + (yr.fresh.length ? '; ' + yr.fresh.length + (yr.fresh.length === 1 ? ' trainee is' : ' trainees are') + ' short of that' : '') + '.');
+    }
+    if (wall && wall.year === yr.year - 1) {
+      return block('Last year’s sheet · Y' + wall.year, wall.rows.map(r => cell(r.place, r.name, r.firsts)),
+        'Still on the wall. This year’s has no places yet: it takes ' + yr.need + ' showcases stood.');
+    }
+    return '';
+  }
+
   function renderTrainingPage(state) {
     const html = [];
     const trainees = state.roster.map(id => state.people[id]).filter(p => p.status === 'trainee');
@@ -254,7 +285,15 @@
       'Two focus areas max per trainee. Heavy weeks add up — so does rest.</div>');
     // the evaluation board (v0.9.16): the ranking everyone reads monthly
     // the one eval (v0.10.30, §89 D4): the sheet the coaches rank on what they SEE
-    const ranked = trainees.filter(p => KP.evalRankOf(p)).sort((a, b) => KP.evalRankOf(a) - KP.evalRankOf(b));
+    // (v0.11.16) the board is the latest sheet. A trainee who did not stand
+    // it (on a break, away on a season) kept her old place here, so the
+    // board could show two firsts under the date of a sheet a month old.
+    // She is named under it instead, with where she last stood.
+    const onFile = trainees.filter(p => KP.evalRankOf(p));
+    const lastSheetOf = p => p.evalHistory[p.evalHistory.length - 1];
+    const boardWeek = onFile.reduce((m, p) => Math.max(m, lastSheetOf(p).week), 0);
+    const ranked = onFile.filter(p => lastSheetOf(p).week === boardWeek).sort((a, b) => KP.evalRankOf(a) - KP.evalRankOf(b));
+    const away = onFile.filter(p => lastSheetOf(p).week !== boardWeek);
     // the mission (v0.11.13, §104): the room the next showcase is held in,
     // known a month ahead, and who is drilling it. Shown once there are
     // enough trainees for a showcase to be held at all.
@@ -288,7 +327,7 @@
         '</div>');
     }
     if (ranked.length >= 2) {
-      const evalWeek = ranked[0].evalHistory[ranked[0].evalHistory.length - 1].week;
+      const evalWeek = boardWeek;
       const next = evalWeek + KP.C.EVAL.every;
       html.push('<div class="card" style="padding:12px">' +
         '<div style="font-weight:800">The evaluation board</div>' +
@@ -303,10 +342,16 @@
           evalMoveHtml(tr) +
           (tr && tr.word ? '<span class="chip">' + tr.word + '</span>' : '') +
           ((p.flags.evalStreak || 0) >= KP.C.EVAL.aceStreakAt ? '<span class="chip gold">the ace</span>' : '') +
+          ((p.flags.yearTop || []).length ? '<span class="chip gold">first of Y' + p.flags.yearTop[p.flags.yearTop.length - 1] + '</span>' : '') +   // the year's sheet (v0.11.16)
           (p.flags.agingOut ? '<span class="chip">the clock</span>' : '') +
           '</div>';
         }).join('') +
-        '</div></div>');
+        '</div>' +
+        (away.length ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:6px;line-height:1.5">Not on this sheet: ' +
+          away.map(p => '<span data-action="open-dossier" data-id="' + p.id + '">' + UI.esc(KP.displayName(p)) + '</span>' +
+            ((p.flags.yearTop || []).length ? ' <span class="chip gold">first of Y' + p.flags.yearTop[p.flags.yearTop.length - 1] + '</span>' : '') +
+            ' (last ranked ' + lastSheetOf(p).rank + ' of ' + lastSheetOf(p).of + ', ' + UI.esc(KP.weekLabel(lastSheetOf(p).week).text) + ')').join(' · ') + '</div>' : '') +
+        yearSheetHtml(state) + '</div>');
     }
     trainees.forEach(p => {
       const inPrep = prepIds.includes(p.id);

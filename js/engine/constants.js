@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.15',
+    VERSION: '0.11.16',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1917,6 +1917,14 @@
       slotBonus: 2,           // the long table is watching the last one up
       slotMorale: 2,          // hers, for being given it
       slotSnubMorale: 1,      // the one who had it by custom (subtracted)
+      // the year's sheet (v0.11.16, §107 — measure-first). Twelve showcases
+      // make a year. On the year's last one the head coach reads the year
+      // from the bottom up, off what the monthly sheets already wrote.
+      yearMinSheets: 4,       // showcases stood this year to have a place on it (a third of the year)
+      yearTopMorale: 3,       // first on the year: read last, and the room knows why
+      yearClimbAt: 2,         // places up, first sheet of the year to the last, to be the year's climb
+      yearClimbMorale: 2,     // hers, for being named
+      yearKeep: 3,            // years of sheets the wall keeps
     },
     POINTS: {
       nearMissGap: 8,         // close enough to hurt out loud
