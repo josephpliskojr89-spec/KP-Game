@@ -329,6 +329,10 @@
       if (!m || !isFinite(m.week) || !KP.fileMarkKinds().includes(m.kind)) bad('malformed mark on the written record ' + JSON.stringify(m && m.kind));
       else if (m.week > state.week || m.week < KP.deskSince(state)) bad('a ' + m.kind + ' mark on the written record is dated outside this desk’s weeks (' + m.week + ')');
     });
+    // the greenlights (v0.11.37, §129): one still open was given under this desk
+    (state.mandates || []).forEach(m => {
+      if (m.status === 'open' && m.issuedWeek < KP.deskSince(state)) bad('a greenlight from before this desk is still open (' + m.id + ', given week ' + m.issuedWeek + ')');
+    });
     return v;
   };
 })(typeof window !== 'undefined' ? window : globalThis);

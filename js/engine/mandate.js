@@ -15,6 +15,8 @@
       { issued: 0, pitched: 0, granted: 0, denied: 0, met: 0, lapsed: 0 };
     return state.mandateLedger;
   }
+  // the shape of a greenlight, in the words the room uses
+  const shape = (kind, gender) => kind === 'solo' ? 'solo act' : gender === 'm' ? 'boy group' : gender === 'f' ? 'girl group' : 'new group';
 
   // ---- the one truth: every open mandate, whatever desk it came from --
   KP.openMandates = function (state) {
@@ -74,6 +76,7 @@
       gender: opts.gender || null,
       personId: opts.personId || null,
       source: opts.source || 'the board',
+      exec: state.executive.name,   // the chair who gave it (v0.11.37, §129)
       issuedWeek: state.week,
       window: opts.window || (state.week + KP.C.MANDATE.windowWeeks),
       status: 'open',
@@ -95,10 +98,42 @@
       m.status = 'met';
       m.metWeek = state.week;
       m.groupId = g.id;
+      m.act = g.name;   // the record names the act that kept it, whatever becomes of the act (v0.11.37, §129)
       ledger(state).met++;
       state.objectiveHistory = state.objectiveHistory || [];
       state.objectiveHistory.push({ type: 'mandate', status: 'met', week: state.week, source: m.source });
     }
+  };
+
+  // ---- the wall (v0.11.37, §129) ---------------------------------------
+  // A greenlight is the house's that gave it. When the desk moves to
+  // another house, by a founding or through a door after a last statement,
+  // one still open is set aside unjudged: nobody at the next house gave it,
+  // so nobody there can keep it or leave it dark. The calendar upstairs
+  // closes with the board that kept it.
+  KP.closeGreenlights = function (state) {
+    (state.mandates || []).forEach(m => { if (m.status === 'open') m.status = 'void'; });
+    delete state.mandateCooldownUntil;
+  };
+
+  // ---- the greenlights on the record (v0.11.37, §129) --------------------
+  // What the chair gave this desk and what came of it, in words. READ off
+  // the greenlights themselves, which are never thrown away, and off
+  // nothing else: who gave it is stamped as it is given, and the act that
+  // kept it as it debuts, so a row can be read with no act on the file.
+  // One set aside at the wall was the last house's and is not on this
+  // desk's record.
+  KP.greenlights = function (state) {
+    const since = KP.deskSince(state);
+    const when = week => KP.weekLabel(week).text;
+    return (state.mandates || []).filter(m => m.status !== 'void' && m.issuedWeek >= since).map(m => ({
+      id: m.id, week: m.issuedWeek, status: m.status,
+      who: m.exec || 'The chair of the day',   // an old file may not prove who sat there
+      gave: 'greenlit a ' + shape(m.kind, m.gender) + '. It came from ' + m.source + '.',
+      came: m.status === 'met' ? (m.act || 'An act') + ' debuted ' + when(m.metWeek) + ', inside the window.'   // an old file may not name it
+        : m.status === 'lapsed' ? 'The window closed ' + when(m.window) + ' with no stage in it.'
+        : 'The window runs to ' + when(m.window) + '.',
+    }));
   };
 
   // ---- the pitch: you take the room's case upstairs -------------------
@@ -182,7 +217,7 @@
     ledger(state).granted++;
     KP.note(state, { kind: 'executive', priority: 'high',
       text: KP.fillPro(state.executive.name + ' heard the pitch out, asked two questions about money and one about the room, and signed. A ' +
-        (kind === 'solo' ? 'solo act' : (gender === 'm' ? 'boy group' : gender === 'f' ? 'girl group' : 'new group')) +
+        shape(kind, gender) +
         ' is greenlit — the window runs to ' + KP.weekLabel(m.window).text + '. “You asked for this one,” {she} said. “That is the part I will remember either way.”', execP) });
     return { ok: true, mandate: m };
   };

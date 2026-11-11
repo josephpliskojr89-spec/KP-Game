@@ -9530,7 +9530,8 @@ company's file; part one, her own questions, SHIPPED v0.11.27,
 three, the company's own file, SHIPPED v0.11.29, §121; part four,
 the written record, SHIPPED v0.11.30, §122; part five, the year's
 close, SHIPPED v0.11.32, §124; part six, the label's birthday,
-SHIPPED v0.11.36, §128).** The
+SHIPPED v0.11.36, §128; part seven, the greenlights on the record,
+SHIPPED v0.11.37, §129).** The
 exec's `personality` finally read: a question
 family per type (the profit hunter asks about the quarter, the
 traditionalist about the vocal room, the micromanager about a trainee
@@ -14093,6 +14094,205 @@ to the sound should count; the Desk's tie-break (§112); and from
 §109, the fade between records through a service chapter and the
 size of the window's bank.
 
+## §129 The greenlights on the record (SHIPPED v0.11.37 — §96 recommendation 7, the people upstairs and down the hall, part seven)
+
+Owner: *"Break remaining work into smaller pieces"*. The seventh of
+recommendation 7's pieces: "a small exec-side ledger so the pitch
+she granted and the greenlight honoured are remembered in words".
+The other half of that sentence, a succession that hands over a
+record and not a number, is a piece of its own and comes next.
+
+**Counted first.** A greenlight is never thrown away. Each one is
+on the state with the week it was given, where it came from and
+what came of it. No screen listed them.
+
+| | |
+|---|---|
+| census careers given at least one | 195 of 200 |
+| greenlights in all | 347 |
+| kept | 169 |
+| left dark | 24 |
+| still open when the census stops | 154 |
+| that came from a pitch | 192 |
+| from the turn of the generation | 148 |
+| from the board's own read of the room | 7 |
+| pitches taken upstairs, and refused | 326, 134 |
+| long-haul careers given at least one | 7 of 11 |
+| greenlights there | 68: 2 kept, 59 left dark, 6 open, 1 set aside |
+
+So nearly every career has something to list, and most have two.
+
+**What the record says.** One row for each on the Desk's Record
+tab, the newest first: the week it was given, the chair who gave
+it, what was greenlit, where it came from, and what came of it.
+From a real career:
+
+"CEO Moon Sang-chul greenlit a new group. It came from your pitch.
+*kept* ELRISE II debuted Aug · Wk 4 · Y2, inside the window."
+
+"CEO Moon Sang-chul greenlit a new group. It came from the
+generational directive. *left dark* The window closed Jan · Wk 2 ·
+Y5 with no stage in it."
+
+An open one says when its window runs to. The section sits after
+the promises and before the annual review, and a desk that was
+given nothing has no section.
+
+**Read, not written** (`KP.greenlights`, pure). Two names are kept
+that nothing held. The chair's is stamped on a greenlight as it is
+given, the way a promise to the chair and an annual review already
+carry theirs. The act's is stamped as its debut keeps the
+greenlight. So a row is read off the greenlight alone, and needs
+no act on the file. The words for what was greenlit are the ones
+the pitch's own note uses, from one helper.
+
+**Found while counting: a greenlight crossed the wall.** A founding
+and a second chance set aside every open promise and left the open
+greenlights as they were. So a greenlight the old house gave stayed
+open at the next house, and was kept or left dark there.
+
+| | |
+|---|---|
+| desk changes in the long haul | 4 |
+| of those, with a greenlight open that day | 1 |
+| desk changes in the census | 2 |
+| of those, with a greenlight open that day | 0 |
+
+In the long haul's founder career the old house gave a greenlight
+in week 142. The label was founded in week 151, and in week 161
+its first act "kept" the old house's greenlight, and the label's
+chair wrote that it "was kept, on time, with a stage in it".
+
+One real saved career, a label founded in week 141 that still
+carried the old house's directive, played the same forty weeks
+before and after. Before, in week 195 the label's chair says "We
+greenlit a project and the floor stayed dark", and trust falls
+from 54 to 51 for a greenlight the label never gave. After, the
+directive is set aside when the save loads, nothing is said, and
+in week 201 trust stands at 52 where it stood at 49.
+
+**The rule now.** A greenlight is the house's that gave it. When
+the desk moves to another house, one still open is set aside
+unjudged (`KP.closeGreenlights`), as an open promise already was.
+The calendar upstairs opens with the new house: a pitch closes it
+for eight weeks and a refusal on doctrine for forty-eight, and the
+new house's board heard neither. The record lists this desk's own,
+from the week the desk began.
+
+**Old saves** (migration 0.11.37). Each greenlight is named as far
+as the written record proves who sat in the chair that week
+(`KP.chairProven`). With no change of chair on the record it is
+the chair sitting now. Before or after a change it is the one the
+mark names. In the week of a change two people sat there, so
+nobody is proven and the row says "The chair of the day". One
+that was kept is named for its act while the file still holds the
+act, and else its row says "An act". A greenlight the last house
+gave that is still open is set aside.
+
+**The state's own check.** One line in `KP.validateState`: a
+greenlight still open was given under this desk.
+
+**What moved.** The census’s output is v0.11.36’s to the byte: no
+desk change there had a greenlight open. In the long haul one
+career moved, by one letter: the founder’s label no longer writes
+that the old house’s greenlight was kept. Every scenario’s line is
+the same but for the new count.
+
+**The long haul's check, tried.** The suite only reads the long
+haul's text, and §127 showed what that is worth. So the long haul
+keeps books of its own: which greenlights it has seen, who sat in
+the chair when each appeared, and which were on file the day the
+desk moved. It asks the engine for none of that. It was then run
+against four engines broken on purpose.
+A founding that leaves the old house’s greenlights open. A
+greenlight that carries no name. A record that lists the last
+house’s. A record that says every greenlight is still open. Each
+run stopped at the long haul’s limit, 61 problems, and every one of
+them names a greenlight. On the tree as it stands the same run is
+clean.
+
+**Found by the mutation run.** Nothing. On the first run 58 of 58
+broken lines were caught by name. The repair told below made the
+list 63, and 63 of 63 were caught on the next run and on
+the final one.
+
+**Mistakes on the way.**
+
+- The first draft read a kept row's act off the file. A label at
+  its last statement has no acts on the file while it waits for a
+  door. There the record threw, and the state's check raised a
+  false alarm. No run found it: no dissolved career in the census
+  or the long haul had a kept greenlight. It was found by reading
+  the diff while the first check chain ran, and the chain was
+  stopped. The debut stamps the act's name now, the record reads
+  nothing but the greenlight, and the check that leaned on the
+  acts is gone. The suite dissolves a label with a kept greenlight
+  and reads its record.
+- Three of the suite's own expectations were wrong on their first
+  runs: two week names worked out by hand, and the name of the
+  field that holds the Desk's tab.
+- The first count took three of the census’s side worlds for
+  careers: 203 worlds, not 200. The three were given nothing, so
+  the figures above did not move. The second count matched no
+  career at all on its first run: it looked for a career by the
+  state’s own seed, which is a number.
+
+**Found and not fixed here.** A screenshot from the browser pass
+shows a second thing crossing the wall. At a founded label the
+chair's first annual review holds the label's till against the old
+house's: "The till holds 278. At the last review it held 652." The
+652 is the old house's. That is §120's defect, shipped in
+v0.11.28. It is the next piece, and it will be counted first.
+
+Suite_144 (71): the name a greenlight carries, by hand, by the
+real pitch and by the real directive, with the pitch's note still
+saying what was greenlit; the record's rows for a girl group, a boy
+group, a group nobody named and a solo, each open, kept by the real
+debut and left dark by the real rail, with a window that runs on
+while a lineup is in development; the record at a founded label and
+after a second chance, from the desk's first week; the wall by
+hand, through a real founding and through a second chance by each
+door, with the old window closing on a label that is not judged for
+it; a dissolved label waiting for a door, whose record still reads;
+who sat in the chair by the written record; old files with and
+without a change of chair, one whose act is off the file, and one
+at a founded label; the state's check; the Desk's rows, their
+order, their chips and an act's name escaped. Mutation-checked
+against 63 broken lines, each caught by a named assertion. A
+real-browser pass (20 checks, no page errors): a solo pitched
+by the real button is the first row on a new career's record, and
+the row keeps to the screen at 390 and at 320 pixels; a real career
+saved by v0.11.34 opens with both its greenlights named, and
+thirty-one real weeks on the open one's row reads left dark; a real
+label founded under v0.11.35 opens with the old house's directive
+set aside, plays thirty-five real weeks past the old window with
+nothing lapsing and nothing said, and its own first pitch is the
+only row on its record.
+Battery 144/144, soak 40 clean, census 200 clean, longhaul 11 ×
+620 clean, the till audit clean, e2e 137, 32, 41 and 23, the
+nineteen older browser passes, lockstep 0.11.37.
+
+*Left for the next pieces.* The review's last year, a repair; a
+succession that hands over a record; the staff given years. *The
+owner's to call*: whether a new label's Record tab should list the
+old house's greenlights too, as it lists the old house's reviews
+and promises today; and the wording of a row and of its three
+chips. *Still the owner's to call*: from §128, whether a birthday
+should lift morale, whether a salaried house should have a
+founding date of its own, and the wording of the three openings;
+from §126, whether the count on Offers should sit beside the word;
+from §125, whether a long tag should take the line or the three
+long words be given shorter ones; from §124, the headline's order,
+and whether the letter should say more or less than its four
+things; from §123, whether the date should sit under the name on
+the larger phones too; from §122, whether a founded label's first
+trophy should be a first; from §121, the spacing of the manager's
+titles; from §120, the shape of probation; from §119, whether a
+pass should cost anything, and whether next door to the sound
+should count; the Desk's tie-break (§112); and from §109, the fade
+between records through a service chapter and the size of the
+window's bank.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -18350,6 +18550,41 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 620 clean, the till audit clean, e2e 137, 32, 41 and 23, a
 > real-browser pass (14), lockstep 0.11.36.
 > Rode to main. Next piece: the exec-side ledger.
+
+> **0.11.37 — the greenlights on the record.** Own judgment, under
+> "Approved to tackle as much of the remaining queue as you see
+> fit" and "Break remaining work into smaller pieces": the seventh
+> piece of §96's recommendation 7, the exec-side ledger. The
+> handover at a succession is cut off as a piece of its own.
+> §129: every greenlight the chair gave this desk is a row on the
+> Record tab, the newest first: who gave it, what was greenlit,
+> where it came from, and what came of it. Counted first:
+> 195 of 200 census careers are given at least one greenlight, 347 in
+> all: 169 kept, 24 left dark and 154 still open when the census
+> stops. 192 came from a pitch, 148 from the turn of the generation
+> and 7 from the board’s own read of the room.
+> Read off the greenlights themselves; two names kept, the chair's
+> as it is given and the act's as it is kept. Old saves are named
+> as far as the written record proves who sat in the chair.
+> Found while counting: a founding and a second chance left open
+> greenlights open, so one the old house gave was kept or left
+> dark at the next: 1 of the long haul's 4 desk changes, and one
+> real save docked 3 trust in week 195 for a greenlight its label
+> never gave. Now one still open is set aside when the desk moves,
+> and the calendar upstairs opens with the new house.
+> The census’s output is 0.11.36’s to the byte. The long haul’s
+> founder career writes one letter fewer.
+> Suite_144 (71), 63 mutations caught by name, none missed
+> on any run. The long haul's own books, tried against four broken
+> engines, flagged each. A first draft's record threw at a
+> dissolved label: found reading the diff, repaired before the
+> ship.
+> Battery 144/144, soak 40 clean, census 200 clean, longhaul 11 ×
+> 620 clean, the till audit clean, e2e 137, 32, 41 and 23, a
+> real-browser pass (20), lockstep 0.11.37.
+> Found and not fixed: at a founded label the first annual review
+> holds its till against the old house's (§120).
+> Rode to main. Next piece: the review's last year, a repair.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

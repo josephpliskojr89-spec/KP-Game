@@ -756,6 +756,18 @@
           '</div></div>');
       });
     }
+    // the greenlights (v0.11.37, §129): what the chair gave this desk and what came of it, the newest first
+    const lights = KP.greenlights(state).reverse();
+    if (lights.length) {
+      const LIGHT_CHIP = { met: '<span class="chip cool">kept</span>', open: '<span class="chip gold">open</span>', lapsed: '<span class="chip hot">left dark</span>' };
+      html.push('<div class="kicker">The greenlights</div>');
+      lights.forEach(e => {
+        html.push('<div class="mail gl-row"><span class="m-tag">' + UI.esc(KP.weekLabel(e.week).text) + '</span>' +
+          '<div><b>' + UI.esc(e.who) + '</b> ' + UI.esc(e.gave) + ' ' + LIGHT_CHIP[e.status] +
+          '<div class="gl-came" style="font-size:.78rem;color:var(--ink-dim);margin-top:5px;line-height:1.45">' + UI.esc(e.came) + '</div>' +
+          '</div></div>');
+      });
+    }
     // the annual review (v0.11.28, §120): what she said when the directors had gone, the newest first
     const reviews = (state.reviews || []).slice().reverse();
     if (reviews.length) {

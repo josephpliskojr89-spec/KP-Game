@@ -1420,6 +1420,23 @@
   MIGRATIONS.push({ v: '0.11.35', fn: function (state) {
     state.yearLedger = { took: 0, open: { week: state.week, budget: state.budget } };
   } });
+  // v0.11.37 — the greenlights on the record. A greenlight carries the name
+  // of the chair who gave it, and one kept the name of the act that kept
+  // it. An old file's are named as far as its written record proves who sat
+  // there that week, and by the act while the file still holds it. And one
+  // still open that the last house gave is set aside, as a founding or a
+  // door after a last statement now does: it was never this house's to keep
+  // or to leave dark.
+  MIGRATIONS.push({ v: '0.11.37', fn: function (state) {
+    const since = KP.deskSince(state);
+    (state.mandates || []).forEach(m => {
+      if (m.issuedWeek < since) { if (m.status === 'open') m.status = 'void'; return; }
+      const name = KP.chairProven(state, m.issuedWeek);
+      if (name) m.exec = name;
+      const act = KP.groupById(state, m.groupId);   // only one kept names an act
+      if (act) m.act = act.name;
+    });
+  } });
 
   KP.migrate = function (state) {
     const applied = [];

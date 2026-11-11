@@ -439,6 +439,7 @@ if (!RUN.length) { console.error('no scenario named ' + process.env.HAUL_ONLY); 
 const sizes = {};
 const dissolvedWeeks = {};
 const careers = {};
+const GL = { given: 0, met: 0, lapsed: 0, open: 0, void: 0, walls: 0 };   // the greenlights of every career (v0.11.37, §129)
 for (const sc of RUN) {
   const deskMark = deskCount.mark(DESK);   // this scenario's share of the Desk's count
   const state = KP.newGame(sc.seed, null,
@@ -452,7 +453,29 @@ for (const sc of RUN) {
       : sc.mode === 'founder' ? { door: 'major' }
       : sc.mode === 'home' ? { door: 'fresh', homeCity: 'busan' }
       : sc.mode === 'insolvent' ? { door: 'fresh' } : undefined);
+  // the greenlights on the record (v0.11.37, §129). The bookkeeping is this tool's own: which greenlights it has seen,
+  // who sat in the chair when each first appeared, and which were on file when the desk moved to another house.
+  // Nothing here asks the engine what it expects: a check that does agrees with an engine that has it wrong
+  const gl = { seen: {}, chair: state.executive.name, last: {}, given: 0, walls: 0, wallOpen: 0 };
+  const glLook = () => {   // one not seen before was given since the last look, by the chair of that time
+    (state.mandates || []).forEach(m => {
+      if (gl.seen[m.id]) return;
+      gl.seen[m.id] = true; gl.given++;
+      if (m.exec !== gl.chair) flag(sc.seed, state.week, 'a greenlight given under ' + gl.chair + ' carries the name ' + m.exec);
+    });
+    gl.chair = state.executive.name;
+  };
+  const glWall = move => {   // the desk moves to another house: everything on file is the last house's from here on
+    glLook();
+    const was = {};
+    (state.mandates || []).forEach(m => { was[m.id] = m.status; });
+    if (!move()) return;
+    gl.walls++;
+    Object.keys(was).forEach(id => { if (was[id] === 'open') gl.wallOpen++; gl.last[id] = was[id] === 'open' ? 'void' : was[id]; });   // what each must read from now on
+    gl.chair = state.executive.name;
+  };
   if (sc.mode === 'service') seedBoyGroup(state);
+  glLook();
   let founded = false;
   let dissolvedAt = null;
   const bd = { due: 0, wrote: 0, landed: 0 };   // the label's birthdays (v0.11.36, §128)
@@ -461,8 +484,11 @@ for (const sc of RUN) {
     // dissolved label takes the blank page and the world keeps running
     if (KP.chapterPending && KP.chapterPending(state)) {
       if (dissolvedAt == null) dissolvedAt = state.week;
-      const r = KP.nextChapter(state, 'blank', { companyName: 'Chapter' + ((state.career || []).length + 2) + ' House' });   // a distinct short per chapter — the obituaries keep their names
-      if (!r.ok) flag(sc.seed, state.week, 'the blank page refused: ' + r.reason);
+      glWall(() => {
+        const r = KP.nextChapter(state, 'blank', { companyName: 'Chapter' + ((state.career || []).length + 2) + ' House' });   // a distinct short per chapter — the obituaries keep their names
+        if (!r.ok) flag(sc.seed, state.week, 'the blank page refused: ' + r.reason);
+        return r.ok;
+      });
     }
     if (sc.mode === 'service' && w === SOLO_SEED_WEEK && dissolvedAt == null) seedSoloMan(state);
     botWeek(state, sc.mode);
@@ -487,10 +513,21 @@ for (const sc of RUN) {
     }
     if (sc.mode === 'founder' && !founded && KP.foundingEligible &&
         KP.foundingEligible(state).ok) {
-      KP.foundLabel(state, 'Audit House');
+      glWall(() => { KP.foundLabel(state, 'Audit House'); return !!state.founded; });
       founded = true;
     }
+    glLook();
     KP.advanceWeek(state);
+    // the greenlights (v0.11.37, §129): one the last house gave reads as it did the day the desk moved, and one that
+    // was open that day reads set aside; the record lists this desk's own and no other, each with its chair and its end
+    glLook();
+    {
+      const all = state.mandates || [];
+      all.forEach(m => { if (gl.last[m.id] && m.status !== gl.last[m.id]) flag(sc.seed, state.week, 'a greenlight the last house gave (' + m.id + ') reads “' + m.status + '” at this one and should read “' + gl.last[m.id] + '”'); });
+      const mine = all.filter(m => !gl.last[m.id]), rec = KP.greenlights(state);
+      if (rec.map(e => e.id).join() !== mine.map(m => m.id).join()) flag(sc.seed, state.week, 'the record lists the greenlights [' + rec.map(e => e.id).join() + '] and this desk was given [' + mine.map(m => m.id).join() + ']');
+      else rec.forEach((e, i) => { if (e.status !== mine[i].status || e.who !== mine[i].exec) flag(sc.seed, state.week, 'the record says “' + e.who + ', ' + e.status + '” of a greenlight (' + e.id + ') that ' + mine[i].exec + ' gave and that reads “' + mine[i].status + '”'); });
+    }
     // the label's birthday (v0.11.36, §128): the week its doors opened, each year, one letter, and it lands.
     // The week it is due is worked out here from the founding itself, never asked of the engine: a check that
     // asks the engine when the birthday is agrees with an engine that has it wrong
@@ -664,6 +701,12 @@ for (const sc of RUN) {
   if ((svl.lapsed || 0) > (svl.closing || 0)) {
     flag(sc.seed, state.week, 'a return window lapsed (' + svl.lapsed + ') with no closing letter before it (' + (svl.closing || 0) + ')');
   }
+  // the greenlights at the scenario's end (v0.11.37, §129), and this tool's own count of the wall held against the file
+  const glEnd = { met: 0, lapsed: 0, open: 0, void: 0 };
+  (state.mandates || []).forEach(m => { glEnd[m.status]++; });
+  if (glEnd.void !== gl.wallOpen) flag(sc.seed, state.week, gl.wallOpen + ' greenlights were open when the desk moved and ' + glEnd.void + ' read set aside');
+  GL.given += gl.given; GL.walls += gl.walls;
+  ['met', 'lapsed', 'open', 'void'].forEach(k => { GL[k] += glEnd[k]; });
   // the sagas (v0.9.31): the hash window [60,320] sits fully inside a
   // 620-week run — every world MUST have been invaded at least once,
   // and the deck never deals more than two
@@ -729,6 +772,7 @@ for (const sc of RUN) {
     ' | file: ' + (cf => cf.chapters.length + ' chapter' + (cf.chapters.length === 1 ? '' : 's') + ' (' + cf.chapters.filter(c => !c.before).length + ' under this desk), ' + cf.manager.title)(KP.companyFile(state)) +
     ' | years: ' + (state.years || []).length + ' closed (' + (state.years || []).filter(a => a.headline).length + ' with a headline)' +
     ' | birthdays: ' + bd.wrote + ' written, ' + bd.landed + ' landed, of ' + bd.due + ' due' +
+    ' | greenlights: ' + gl.given + ' given (' + glEnd.met + ' kept, ' + glEnd.lapsed + ' left dark, ' + glEnd.open + ' open, ' + glEnd.void + ' set aside), ' + gl.walls + ' desk change' + (gl.walls === 1 ? '' : 's') +
     ' | record: ' + (marks => marks.length + ' mark' + (marks.length === 1 ? '' : 's') + ' (chairs ' + marks.filter(m => m.kind === 'chair').length + ', red weeks ' + marks.filter(m => m.kind === 'red').length + ')')(KP.fileMarks(state)) +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +
@@ -748,6 +792,7 @@ for (const sc of RUN) {
 }
 
 deskCount.lines(DESK, 5).forEach(l => console.log(l));
+console.log('the greenlights (v0.11.37): ' + GL.given + ' given · ' + GL.met + ' kept · ' + GL.lapsed + ' left dark · ' + GL.open + ' open · ' + GL.void + ' set aside at ' + GL.walls + ' desk change' + (GL.walls === 1 ? '' : 's'));
 console.log('dissolutions (the last statement, v0.11.0): ' + RUN.map(sc => sc.seed + ' ' + (dissolvedWeeks[sc.seed] == null ? '—' : 'wk ' + dissolvedWeeks[sc.seed] + (careers[sc.seed] ? ' then ' + careers[sc.seed] : ''))).join(' · '));
 report();
 function report() {

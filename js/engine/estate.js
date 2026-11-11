@@ -520,6 +520,7 @@
     if (door === 'salaried') delete state.founded;
     else state.founded = { week, warChest: chest, from: dead.short, door };
     state.chapterSince = week;
+    KP.closeGreenlights(state);   // what the dead label was greenlit is not the next house's to keep (v0.11.37, §129)
     state.nextMeetingWeek = week + 8;
     state.renewalQuietUntil = 0; state.truckQuietUntil = 0;
     delete state.petProjectDone; delete state.hypeDirective;

@@ -91,6 +91,18 @@
     state.annals = marks.sort((a, b) => a.week - b.week);
     return state.annals;
   };
+  // who sat in the chair in a given week, as far as the written record
+  // proves it (migration 0.11.37, §129). No mark: nobody has changed chairs
+  // under this desk. A mark in that same week proves nothing, since two
+  // people sat there that week. Before the first mark it is the one that
+  // mark says had held the chair, and an old file's mark may not say.
+  KP.chairProven = function (state, week) {
+    const marks = KP.fileMarks(state).filter(m => m.kind === 'chair');
+    if (!marks.length) return state.executive.name;
+    if (marks.some(m => m.week === week)) return null;
+    const last = marks.filter(m => m.week < week).pop();
+    return last ? last.name : marks[0].after || null;
+  };
   // a founding before v0.11.30 left the old house's firsts on the new
   // label, so its own were never firsts (migration 0.11.30). An old file
   // is put right as far as its markers go: the label's first trophy by the
