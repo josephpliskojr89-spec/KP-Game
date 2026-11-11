@@ -24,9 +24,15 @@
   KP.ledgerFlow = function (state, stream, amount) {
     const b = books(state);
     b.cur[stream] = (b.cur[stream] || 0) + amount;
-    // the year's own sum (v0.11.32, §124): what came in, for the letter the
-    // company writes to itself at the year's close
-    if (amount > 0) KP.yearLedger(state).took += amount;
+  };
+  // the till's one door in (v0.11.35, §127): every credit to the till passes
+  // through here, and the year's own sum counts it here. The books cannot be
+  // asked what came in: they enter some takings net of their cost, and some
+  // not at all. An amount below nothing moves the till and is not counted.
+  KP.takeIn = function (state, amount) {
+    const led = KP.yearLedger(state);   // books that open here open with the till as it stood, before the credit
+    state.budget += amount;
+    if (amount > 0) led.took += amount;
   };
 
   // ---- jeongsan: the recoup ledger -------------------------------------
@@ -165,7 +171,7 @@
     if (d.tier >= D.TIERS.length - 1) return { ok: false, reason: 'There is no bigger desk to sign with.' };
     d.tier++;
     if (withAdvance) {
-      state.budget += D.advance;
+      KP.takeIn(state, D.advance);
       d.advanceOwed = Math.round(D.advance * D.advanceVig);
       KP.ledgerFlow(state, 'distributor', D.advance);
     }

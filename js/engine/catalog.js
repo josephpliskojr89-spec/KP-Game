@@ -191,7 +191,7 @@
       const fandomMult = alive ? 1 + KP.fandomIntensity(g) * KP.C.FANDOM.revenueFactor : 1;
       const windfall = Math.round((C.revivalWindfallBase +
         Math.max(0, pick.q - 30) * C.revivalWindfallPerReception) * fandomMult);
-      state.budget += windfall;
+      KP.takeIn(state, windfall);
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'catalog', windfall);   // §89 E: royalties are a books line
       const sceneScore = C.revivalScore + (pick.q - 50) * 0.3;
       KP.chartEnter(state, {

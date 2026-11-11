@@ -41,7 +41,7 @@
     // the board reinvests in what works — and not in a missed deadline
     // (audit v0.11.3: the grant paid out after a miss, off the books)
     const grant = prev.status === 'missed' ? 0 : Math.round(25 + Math.max(0, lastReception - 45) * 0.6);
-    if (grant > 0) { state.budget += grant; if (KP.ledgerFlow) KP.ledgerFlow(state, 'financing', grant); }
+    if (grant > 0) { KP.takeIn(state, grant); if (KP.ledgerFlow) KP.ledgerFlow(state, 'financing', grant); }
     // the first post-debut directive announces the opening-up: the
     // signing allowance is retired, the books become the leash
     const capJustLifted = prev.type === 'debutGirlGroup';

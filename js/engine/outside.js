@@ -120,7 +120,7 @@
     d.weeksRun = (d.weeksRun || 0) + 1;
     // a declined solo request cools the wire
     const dpay = d.cooled ? Math.max(0, d.weekly - D.cooledWeeklyCut) : d.weekly;
-    state.budget += dpay;
+    KP.takeIn(state, dpay);
     if (KP.ledgerFlow) KP.ledgerFlow(state, 'outside', dpay);
     if (p && d.weeksLeft % 4 === 0) {
       p.fatigue = KP.clamp(p.fatigue + D.shootFatigue, 0, 100);   // the shoots are real
@@ -206,7 +206,7 @@
     if (!p || p.status !== 'idol') { job.weeksLeft = 0; return; }   // departures end everything
     job.weeksLeft--;
     job.weeksRun = (job.weeksRun || 0) + 1;
-    if (job.weekly) { state.budget += job.weekly; if (KP.ledgerFlow) KP.ledgerFlow(state, 'outside', job.weekly); }
+    if (job.weekly) { KP.takeIn(state, job.weekly); if (KP.ledgerFlow) KP.ledgerFlow(state, 'outside', job.weekly); }
     p.fatigue = KP.clamp(p.fatigue + G.gigFatigue, 0, 100);
     if (job.weeksRun % G.mediaExpEvery === 0) p.mediaExp = KP.clamp(p.mediaExp + 1, 0, 100);
     if (job.kind !== 'ost' && job.weeksRun % 2 === 0) {
@@ -256,7 +256,7 @@
         const rec = KP.clamp(Math.round(p.talents.vocals.cur * 0.7 +
           ((KP.groupOf(state, p.id) || {}).popularity || 0) * 0.15 + rng.int(-8, 12)), 20, 96);
         job.reception = rec;
-        state.budget += job.lump || 0;
+        KP.takeIn(state, job.lump || 0);
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'outside', job.lump || 0);
         p.flags.ostDrops = (p.flags.ostDrops || 0) + 1;
         p.history.push({ week: state.week, text: 'Sang the ' + job.label + ' OST. Reception: ' + KP.receptionWord(rec).toLowerCase() + '.' });   // a word, never the number (v0.11.5, §96 wiring)
@@ -406,7 +406,7 @@
       if (optionId === 'allow') {
         led.soloAllowed++;
         const fee = d ? Math.round(d.lump * D.soloBonusMult) : 0;
-        state.budget += fee;
+        KP.takeIn(state, fee);
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'outside', fee);
         if (p) {
           KP.socialSpike(state, p, D.soloSpike, 'sponsorsolo');
@@ -465,7 +465,7 @@
       return { ok: false, reason: o.kind === 'brand' ? 'That artist is no longer on the roster. The brand has been informed.' : 'That artist is not available to sign.' };
     }
     if (o.kind === 'brand') {
-      state.budget += o.lump;
+      KP.takeIn(state, o.lump);
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'outside', o.lump);
       jobs(state).push({ id: o.id, kind: 'brand', personId: o.personId, label: o.label,
         lump: o.lump, weekly: o.weekly, weeks: o.weeks, weeksLeft: o.weeks, signedWeek: state.week, weeksRun: 0 });

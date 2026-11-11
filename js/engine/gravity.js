@@ -449,7 +449,7 @@
     const title = KP.genSongTitle(rng, {});
     const revPer = format === 'mini' ? ST.albumRevPerReception : ST.soloSingleRev;
     const revenue = Math.round(reception * revPer);
-    state.budget += revenue;
+    KP.takeIn(state, revenue);
     if (KP.ledgerFlow) KP.ledgerFlow(state, 'albums', revenue);
     p.soloDisc = p.soloDisc || [];
     p.soloDisc.push({ week: state.week, title, format, reception, direction });

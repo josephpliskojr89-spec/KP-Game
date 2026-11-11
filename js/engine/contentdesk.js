@@ -275,7 +275,7 @@
     if (woy % KP.C.BOOKS.quarterWeeks === 0 && state.week > 4 && state.adViews >= C.adViewsPerWon) {
       const won = Math.floor(state.adViews / C.adViewsPerWon);
       state.adViews -= won * C.adViewsPerWon;
-      state.budget += won;
+      KP.takeIn(state, won);
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'catalog', won);   // the archive's line (§89 D10)
       const first = !(led.adPaid > 0);
       led.adPaid = (led.adPaid || 0) + won;

@@ -38,7 +38,7 @@
     regions.na = KP.clamp((regions.na || 0) + gain, 0, 100);
     regions.eu = KP.clamp((regions.eu || 0) + gain, 0, 100);
     const revenue = Math.round((last.reception || 0) * E.rev);
-    state.budget += revenue;
+    KP.takeIn(state, revenue);
     if (KP.ledgerFlow) KP.ledgerFlow(state, 'streams', revenue);
     if (KP.settleShare) KP.settleShare(state, g, revenue);
     ledger(state).enCuts++;

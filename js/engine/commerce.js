@@ -86,7 +86,7 @@
     state.budget -= M.fanconCost;
     const fanbase = KP.fanbaseRead ? KP.fanbaseRead(state, g) : 2000;
     const revenue = Math.round((fanbase / 1000) * M.fanconPerK);
-    state.budget += revenue;
+    KP.takeIn(state, revenue);
     if (KP.ledgerFlow) { KP.ledgerFlow(state, 'commerce', revenue - M.fanconCost); }
     if (KP.settleShare) KP.settleShare(state, g, revenue);
     g.fandom.intensity = KP.clamp(g.fandom.intensity + M.fanconIntensity, 0, 100);
@@ -136,7 +136,7 @@
       const fanbase = KP.fanbaseRead ? KP.fanbaseRead(state, g) : 2000;
       const members = Math.round(fanbase * M.memberShare);
       const revenue = Math.round((members / 1000) * M.perK * M.TIERS[tier].rate);
-      state.budget += revenue;
+      KP.takeIn(state, revenue);
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', revenue);
       if (KP.settleShare) KP.settleShare(state, g, revenue);
       // enrollment is a monetization push — it counts toward the season's
@@ -183,7 +183,7 @@
       }
       const fanbase = KP.fanbaseRead ? KP.fanbaseRead(state, g) : 2000;
       const revenue = Math.round((fanbase / 1000) * M.greetingsPerK * (lavish ? M.greetingsLavishMult : 1));
-      state.budget += revenue;
+      KP.takeIn(state, revenue);
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', revenue);
       if (KP.settleShare) KP.settleShare(state, g, revenue);
       ledger(state).greetings++;
@@ -222,7 +222,7 @@
         const fanbase = KP.fanbaseRead ? KP.fanbaseRead(state, g) : 2000;
         const members = Math.round(fanbase * M.memberShare);
         const revenue = Math.round((members / 1000) * M.perK * M.TIERS[g.fanclub.tier].rate);
-        state.budget += revenue;
+        KP.takeIn(state, revenue);
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', revenue);
         if (KP.settleShare) KP.settleShare(state, g, revenue);
         led.renewals++;   // a books line, not a letter (§89 C)
@@ -241,7 +241,7 @@
         g.tour.merchShipped = true;
         const fanbase = KP.fanbaseRead ? KP.fanbaseRead(state, g) : 2000;
         const revenue = Math.round((fanbase / 1000) * M.tourMerchPerK);
-        state.budget += revenue;
+        KP.takeIn(state, revenue);
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'tours', revenue);   // the tour's line (§89 D10)
         led.tourMerch++;   // a books line, not a letter (§89 C)
         // the table is a push like any other — a tour landing on top of
@@ -269,7 +269,7 @@
     });
     catalogRev = Math.round(catalogRev);
     if (catalogRev > 0) {
-      state.budget += catalogRev;
+      KP.takeIn(state, catalogRev);
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'catalog', catalogRev);
       led.catalogPaid += catalogRev;
     }

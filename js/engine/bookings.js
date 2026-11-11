@@ -136,7 +136,7 @@
       ledger(state).flyered++;
     }
     o.taken = g.id;
-    if (o.fee < 0) { state.budget += o.fee; if (KP.ledgerFlow) KP.ledgerFlow(state, 'appearances', o.fee); }   // the rental bills at signing, on the stage-fee line
+    if (o.fee < 0) { state.budget -= -o.fee; if (KP.ledgerFlow) KP.ledgerFlow(state, 'appearances', o.fee); }   // the rental bills at signing, on the stage-fee line
     // no echo note (§89 B): the toast said it, the calendar strip shows it
     return { ok: true, offer: o };
   };
@@ -160,7 +160,7 @@
     const members = g.members.map(id => state.people[id]).filter(Boolean);
     const stage = stageRead(state, g, o);
     const q = KP.clamp((stage - 30) / 50, 0.25, 1.3) * (o.flyered ? B.flyerBoost : 1);
-    if (o.fee > 0) { state.budget += o.fee; if (KP.ledgerFlow) KP.ledgerFlow(state, 'appearances', o.fee); }
+    if (o.fee > 0) { KP.takeIn(state, o.fee); if (KP.ledgerFlow) KP.ledgerFlow(state, 'appearances', o.fee); }
     const fans = Math.round((K.fans[0] + rng.next() * (K.fans[1] - K.fans[0])) * q);
     members.forEach(m => {
       if (KP.onBreak(m)) return;

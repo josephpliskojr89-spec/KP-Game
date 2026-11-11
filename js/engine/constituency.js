@@ -180,7 +180,7 @@
     const revenue = Math.min(C.lightstickRevenue, Math.round(KP.fanbaseRead(state, g) * C.lightstickPerFan));
     const net = revenue - C.lightstickCost;
     state.budget -= C.lightstickCost;
-    state.budget += revenue;
+    KP.takeIn(state, revenue);
     if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', net);   // §89 E
     g.lightstickWeek = state.week;
     KP.fandomGain(g, C.lightstickFandomGain);

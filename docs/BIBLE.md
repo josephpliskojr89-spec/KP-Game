@@ -13462,8 +13462,9 @@ chapters on each person's file (§90). A year is the calendar's. A
 desk that began inside it answers for its own weeks.
 
 **Two things are kept** (`state.yearLedger`), because nothing else
-holds them: what came in, which the flows add up as they happen,
-and the till the year opened with. What went out is what came in
+holds them: what came in, which the flows add up as they happen
+(corrected in v0.11.35, §127: the flows missed part of it, and it
+is counted at the till now), and the till the year opened with. What went out is what came in
 less what the till gained. The sum is given only when it adds up.
 A till that gained more than came in was fed from outside the
 books, and then the letter gives the till and how far it moved.
@@ -13795,6 +13796,162 @@ pass should cost anything, and whether next door to the sound
 should count; the Desk's tie-break (§112); and from §109, the fade
 between records through a service chapter and the size of the
 window's bank.
+
+## §127 The till's one door in (SHIPPED v0.11.35 — a repair of §124's books)
+
+Owner: *"Break remaining work into smaller pieces"*. Not on §96's
+list. A defect in §124, shipped in v0.11.32, found by the first
+look at the next piece and counted before it was touched.
+
+**The defect.** At the year's close the company writes "X came in
+and Y went out". §124 fed X from the quarter's books: every entry
+above nothing was taken as money that came in. The books were
+never that. They enter some takings net of their cost, and some
+not at all:
+
+- a unit era's takings and its cost were in no book;
+- the lightstick, the fan meeting and the last concert were
+  entered as one net figure;
+- the monthly stipend was netted against the month's bills in one
+  line, and in no book.
+
+So X was short, and Y, which is X less what the till gained, was
+short by the same amount. The till's close and its move were
+always right.
+
+**How it got through.** §124 checked that the sum "added up", and
+the check was that Y was not below nothing. That catches a till
+fed from outside. It cannot catch a count that is short.
+
+**Counted first.** Over 200 careers and their side worlds, 424
+years closed:
+
+| | |
+|---|---|
+| years whose letter said too little came in | 424 of 424 |
+| what the letters counted | 1,096,634 |
+| what the tills took | 1,265,633 |
+| short by | 13.4% |
+| in the middle year | 14.2% |
+| in the worst year | all of it |
+
+Every year was short, because every year takes in its stipends.
+In the worst year the books saw nothing come in at all.
+
+One real career, the same year, before and after: "1453 came in
+and 750 went out. The till closes at 5283, up 703." and "1597 came
+in and 894 went out. The till closes at 5283, up 703." The 144
+between them is twelve stipends.
+
+**The rule now.** Every credit to the till passes through one
+function, `KP.takeIn`, and the year's sum counts it there. The
+books keep their own entries and no longer feed the year. What
+went out is still what came in less what the till gained, and now
+that is every debit.
+
+Thirty-four lines in twenty-one files go through the door. Two
+lines that netted are two steps now: the stipend comes in and then
+the month's bills go out, and the last night's takings come in and
+then its cost goes out. The till is a whole number at every step,
+so the arithmetic is the same to the last bit, and no career moved.
+
+**Held three ways.**
+
+- *By the source.* The suite reads every file of the engine and
+  the screens. One line adds to the till, and it is the door's
+  own. Every plain assignment to the till is one of six that set a
+  company's till when it opens or folds, or one of five clamps that
+  can only lower it.
+- *By the suite.* A unit era, the lightstick, the last concert and
+  the month's turn each go through their real line with the till
+  watched from outside the engine. Two real years close, and in
+  each what the letter counts is what the watched till saw.
+- *By a new audit* (`tools/audit_till.js`). It plays the soak with
+  the till of every world watched and asks of every rise where it
+  came from: the door, a company's opening till, the tool's own
+  hand, or a line it then names. Run on the tree as shipped in
+  v0.11.34 it names 29 lines.
+  Run on this one: 22,010 credits came through the door, 489,420 in
+  all, and the year’s ledgers took every one.
+
+**Old saves** (migration 0.11.35). What the year in hand has
+counted cannot be made whole, so its books open again on the day
+of the load. Its letter gives the till and not the sum, and the
+year after is whole. The years already filed keep the sums they
+were given, which are short, and the letters already in the inbox
+are not rewritten.
+
+**The quarterly statement is untouched.** It never claimed a
+total: it gives each stream net and puts the rest under
+operations, and that still adds up.
+
+**No simulation changed.** The census's output is v0.11.34's to
+the byte. The long haul says the same of every scenario. One save
+is a kilobyte larger: at a blank-page label the stipend had kept
+letters from giving a sum, and they carry one now.
+
+**Found while building it.** The door first raised the till and
+then opened the year's books if they were not open. Books opened
+that way would have opened with the credit already in the till and
+counted it as well. The books open first now, and a broken line
+holds the order.
+
+**Found by the mutation run.** On the first run 22 of 23 broken
+lines were caught. The one that got through broke the audit
+itself: the suite only read the tool's text. The audit is a module
+now. The suite takes its watcher and its report and holds them on
+a small case of its own: a credit through the door, a world loaded
+from a save, an opening till, a line that goes round the door, a
+door that miscounts, and an audit that saw nothing. Second run, 31
+of 31. On the final run, 31 of 31.
+
+**Mistakes on the way**, each caught by a first run.
+
+- The suite's fixture for the month's turn looked for it among the
+  phases a module registers. It is in the driver's own list. The
+  fixture plays real weeks at an empty label now.
+- The fixture for two real years played an idle desk, and an idle
+  desk is dissolved in its twenty-eighth week. It has a till deep
+  enough for two idle years now.
+- The same fixture looked for both letters at the end, in an inbox
+  that keeps sixty. Each is checked the week it lands.
+- The probe that counted the defect took a company's opening till
+  for a credit, twice.
+
+Suite_142 (51): the source held to one door; the door's own
+arithmetic and its order; the books left to themselves; the four
+credits the books missed, each through its real line; two real
+years against a watched till; the letter from a till moved by
+hand; an old file from v0.11.34, one from before the year's close,
+and one of this version; the audit on its own small case. Suite_141
+holds the count to the door. Mutation-checked against 31 broken
+lines, each caught by a named assertion in every suite that owns
+the line. A real-browser pass (15 checks, no page errors): a
+real career saved by v0.11.34 in the middle of its fourth year
+opens with its books opened again and its three filed years as
+they were; twenty-eight real weeks by the real button close that
+year with the till alone, every credit the watched till saw having
+been counted; forty-eight more close the next with a sum that is
+what the watched till saw come in and go out.
+Battery 142/142, soak 40 clean, census 200 clean, longhaul 11 ×
+620 clean, the till audit clean, e2e 137, 32, 41 and 23, the
+seventeen older browser passes, lockstep 0.11.35.
+
+*Left for the next pieces.* The company anniversary, set aside for
+this repair with its count done and its code drafted. The
+exec-side ledger and a succession that transfers a record; the
+staff given years. *Still the owner's to call*: from §126, whether
+the count on Offers should sit beside the word; from §125, whether
+a long tag should take the line or the three long words be given
+shorter ones; from §124, the headline's order, and whether the
+letter should say more or less than its four things; from §123,
+whether the date should sit under the name on the larger phones
+too; from §122, whether a founded label's first trophy should be a
+first; from §121, the spacing of the manager's titles; from §120,
+the shape of probation; from §119, whether a pass should cost
+anything, and whether next door to the sound should count; the
+Desk's tie-break (§112); and from §109, the fade between records
+through a service chapter and the size of the window's bank.
 
 ## §18 Watch items
 
@@ -17997,6 +18154,36 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Battery 141/141, soak 40 clean, census 200 clean, longhaul 11 ×
 > 620 clean, e2e 137, 32, 41 and 23, a real-browser pass (28),
 > lockstep 0.11.34.
+> Rode to main. Next piece: the company anniversary.
+
+> **0.11.35 — the till's one door in.** Own judgment, under
+> "Approved to tackle as much of the remaining queue as you see fit"
+> and "Break remaining work into smaller pieces": a repair of
+> 0.11.32, found by the first look at the next piece. §127: the
+> year-end letter's "X came in and Y went out" fed X from the
+> quarter's books, and the books enter some takings net of their
+> cost and some not at all: a unit era, the lightstick, the fan
+> meeting, the last concert, the monthly stipend. Counted first:
+> the letter said too little came in for every one of 424 years
+> over 200 careers, 13.4% short in all; the till's close and
+> its move were always right. 0.11.32 had checked only that what
+> went out was not below nothing, which cannot catch a short
+> count. Now every credit to the till passes through KP.takeIn and
+> the year's sum counts it there: 34 lines in 21 files, the same
+> arithmetic to the last bit. Held three ways: the suite reads the
+> source for any other line that adds to the till; it plays the
+> missed credits and two real years against a till watched from
+> outside; and a new audit, tools/audit_till.js, plays the soak
+> with every till watched and names any line that goes round the
+> door. On the tree as shipped in 0.11.34 it names 29. Old saves:
+> the year in hand opens its books again at the load and closes
+> with the till alone; years already filed keep the short sums
+> they were given. No simulation changed: the census's 365 rows
+> are 0.11.34's. Suite_142 (51), 31 mutations caught by
+> name.
+> Battery 142/142, soak 40 clean, census 200 clean, longhaul 11 ×
+> 620 clean, the till audit clean, e2e 137, 32, 41 and 23, a
+> real-browser pass (15), lockstep 0.11.35.
 > Rode to main. Next piece: the company anniversary.
 
 > **Planning — the comeback (§91).** Owner: "something that really

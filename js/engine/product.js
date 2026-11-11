@@ -292,7 +292,7 @@
       // stream and the group's share
       const revenue = Math.round((units / 1000) * P.marginPerK * (P.pobMargin[sc.pob] || 1) *
         (sc.overseasMult || 1) * (KP.distCut ? KP.distCut(state) : 1));
-      state.budget += revenue;
+      KP.takeIn(state, revenue);
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'albums', revenue);
       if (KP.settleShare) KP.settleShare(state, g, revenue);
       KP.productLedger(state).restocks++;

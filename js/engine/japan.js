@@ -263,7 +263,7 @@
       if (rank <= 10) led.topTens++;
       if (rank === 1) led.numberOnes++;
       const revenue = Math.round(score * J.revPerScore * (1 - KP.jpCut(state)));   // the signed cut (v0.11.5)
-      state.budget += revenue;
+      KP.takeIn(state, revenue);
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'japan', revenue);
       if (KP.settleShare) KP.settleShare(state, g, revenue);
       regions.jp = KP.clamp(regions.jp + J.warmthGain[laneId], 0, 100);
@@ -282,7 +282,7 @@
         g.jpRung = rungIdx;
         led.rungs++;
         const rrev = Math.round(rung.rev * (1 - KP.jpCut(state)));
-        state.budget += rrev;
+        KP.takeIn(state, rrev);
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'japan', rrev);
         if (KP.settleShare) KP.settleShare(state, g, rrev);
         if (rung.id === 'dome') {

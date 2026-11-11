@@ -361,7 +361,7 @@
         return;
       }
       const pay = Math.round(f.pay * (due.headline ? F.headlineMult : 1));
-      state.budget += pay;
+      KP.takeIn(state, pay);
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'appearances', pay);   // a stage fee, on the stage-fee line (§89 D10)
       g.festBook = g.festBook || {};
       g.festBook[due.festivalId] = yearOf(state);

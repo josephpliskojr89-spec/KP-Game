@@ -254,7 +254,7 @@
         kr.idx++;
       }
       revenue = Math.round(revenue);
-      state.budget += revenue;
+      KP.takeIn(state, revenue);
       if (KP.ledgerFlow) { KP.ledgerFlow(state, 'tours', revenue); KP.settleShare(state, g, revenue); }
       if (weekSold) {
         members.forEach(m => { m.morale = KP.clamp(m.morale + T.soldOutMorale, 0, 100); });
@@ -367,7 +367,7 @@
       if (state.jv && state.week <= state.jv.until) revenue *= (1 - state.jv.share);
     }
     revenue = Math.round(revenue);
-    state.budget += revenue;
+    KP.takeIn(state, revenue);
     if (KP.ledgerFlow) { KP.ledgerFlow(state, 'tours', revenue); KP.settleShare(state, g, revenue); }
 
     if (soldOut) {

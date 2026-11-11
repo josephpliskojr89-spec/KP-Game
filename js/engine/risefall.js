@@ -362,7 +362,7 @@
         ledger(state).leveraged++;
         if (r) r.offerLeveraged = state.week;
         if (r && KP.recordHouse) KP.recordHouse(state, r.short, 'weLeveragedTheirOffer');   // and on the books between the houses (v0.11.23, §114)
-        state.budget += RF.leverageBudget;
+        KP.takeIn(state, RF.leverageBudget);
         state.trust = KP.clamp((state.trust || 0) + RF.leverageTrust, 0, 100);
         return { toast: 'The board read the letterhead, went quiet, and found ' + RF.leverageBudget + ' of “previously committed” development budget within the hour. ' + state.executive.name + ': “I am glad we agree on your value. I will remember that we agreed under these circumstances.” Trust +' + RF.leverageTrust + ', and a line item nobody will ever explain to accounting. ' + sc.company + ' heard by Friday what their letter was used for. Houses like that do not send a second envelope — ever.' };
       }

@@ -636,7 +636,7 @@
     KP.groups(state).forEach(g => (g.releases || []).forEach(r => {
       if (!r.sold && (r.reception || 0) >= S.saleMinReception) r.sold = state.week;
     }));
-    state.budget += q.price;
+    KP.takeIn(state, q.price);
     if (KP.ledgerFlow) KP.ledgerFlow(state, 'financing', q.price);   // an asset sale is capital — the fund's toll reads revenue, not the shelf (audit v0.11.3)
     state.shelfSales = (state.shelfSales || 0) + 1;
     KP.note(state, { kind: 'company', ind: 'shelfSold', priority: 'high',

@@ -1082,7 +1082,7 @@
       product.notes.forEach(push);
       push(KP.recordProfile(state, g, product.physRev, digital, product.chodong, reception));
     }   // the pre-product revenue fallback was unreachable (§89 C)
-    state.budget += revenue;
+    KP.takeIn(state, revenue);
     // the settlement (v0.10.1): the streams hit the books, the group's
     // share moves against the ledger, the advance repays itself
     if (KP.settleShare) {

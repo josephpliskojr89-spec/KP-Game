@@ -248,7 +248,8 @@
         // exists — but the rest is not forgiven any more. The shortfall
         // is REPORTED as arrears, and the counter beside the books reads it
         const owed = upkeep + payroll + commute;
-        const have = state.budget + KP.C.ECON.monthlyStipend;
+        KP.takeIn(state, KP.C.ECON.monthlyStipend);   // the stipend comes in, then the month's bills go out (v0.11.35, §127)
+        const have = state.budget;
         state.budget = Math.max(0, have - owed);
         if (owed > have && KP.redReport) KP.redReport(state, 'payroll', owed - have);
 

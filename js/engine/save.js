@@ -1412,6 +1412,14 @@
     if (KP.ensureLedgers) KP.ensureLedgers(state);
     if (KP.yearBackfill) KP.yearBackfill(state);
   } });
+  // v0.11.35 — the till's one door in. Until now the year's sum was fed by
+  // the books, which missed part of what came in. What the year in hand
+  // has counted so far cannot be made whole, so its books open again today:
+  // its letter will give the till and not the sum, and the year after is
+  // whole. The years already filed keep what they said.
+  MIGRATIONS.push({ v: '0.11.35', fn: function (state) {
+    state.yearLedger = { took: 0, open: { week: state.week, budget: state.budget } };
+  } });
 
   KP.migrate = function (state) {
     const applied = [];

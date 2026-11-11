@@ -126,7 +126,8 @@
     if (how === 'statement') return KP.disbandGroup(state, groupId);
     if (how === 'concert') {
       const n = night(state, g);
-      state.budget += n.till - n.cost;
+      KP.takeIn(state, n.till);   // the night's takings come in whole, and its cost goes out (v0.11.35, §127)
+      state.budget -= n.cost;
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'commerce', n.till - n.cost);
       if (KP.settleShare) KP.settleShare(state, g, n.till);
       g.members.map(id => state.people[id]).filter(Boolean).forEach(m => {

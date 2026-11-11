@@ -187,7 +187,7 @@
       }
       led.taken++;
       if (optionId === 'board') {
-        state.budget += o.board;
+        KP.takeIn(state, o.board);
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'financing', o.board);
         f.board = { until: state.week + F.boardWeeks, fund: o.fund };
         led.boardSeats++;
@@ -196,7 +196,7 @@
         return { toast: '+' + o.board + '. The board seat is filled. The Monday meetings just got a second reader.' };
       }
       if (optionId === 'revshare') {
-        state.budget += o.rev;
+        KP.takeIn(state, o.rev);
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'financing', o.rev);
         f.revShare = { pct: F.revSharePct, until: state.week + F.revShareWeeks, fund: o.fund };
         led.revShares++;
@@ -205,7 +205,7 @@
         return { toast: '+' + o.rev + '. The settlement has a new line for two years.' };
       }
       // the covenant — biggest money, hardest clock
-      state.budget += o.covenant;
+      KP.takeIn(state, o.covenant);
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'financing', o.covenant);
       led.covenants++;
       const target = KP.groups(state).some(g => g.debuted) ? 'chart' : 'debut';

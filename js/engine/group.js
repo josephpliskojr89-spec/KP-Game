@@ -489,7 +489,7 @@
       0.25 * (g.popularity || 0) + rng.normal(0, 5), 1, 100));
     state.rngState = rng.state();
     const revenue = Math.round(reception * U.revPerReception);
-    state.budget += revenue;
+    KP.takeIn(state, revenue);
     g.lastUnitWeek = state.week;
     unit.eras.push({ week: state.week, title, reception });
     members.forEach(m => {

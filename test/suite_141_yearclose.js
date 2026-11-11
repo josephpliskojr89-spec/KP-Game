@@ -64,14 +64,19 @@ const said = (s, over, last) => parts(letter(s, Object.assign({}, blank, over), 
 }
 
 // ---- B. what came in ----------------------------------------------------------------
+// counted at the till's one door in since v0.11.35 (§127, suite_142): the books missed part of it
 {
   const s = KP.newGame('year-flows', null, {});
+  say(() => KP.takeIn(s, 300));
+  say(() => KP.takeIn(s, -120));
+  say(() => KP.takeIn(s, 50.5));
+  say(() => KP.takeIn(s, 0));
+  t.eq((s.yearLedger || {}).took, 350.5, 'the year’s sum takes everything that came into the till, and nothing that went out');
   say(() => KP.ledgerFlow(s, 'albums', 300));
   say(() => KP.ledgerFlow(s, 'production', -120));
   say(() => KP.ledgerFlow(s, 'tours', 50.5));
   say(() => KP.ledgerFlow(s, 'financing', 0));
-  t.eq((s.yearLedger || {}).took, 350.5, 'the year’s sum takes every flow that came in, and none that went out');
-  t.eq(js(s.books.cur), '{"albums":300,"production":-120,"tours":50.5,"financing":0}', 'and the quarter’s own books take them all, as they did');
+  t.eq(js(s.books.cur), '{"albums":300,"production":-120,"tours":50.5,"financing":0}', 'and the quarter’s own books take every flow, as they did');
 }
 
 // ---- C. the account, each tally from what the state shows ---------------------------
