@@ -15552,6 +15552,356 @@ whether next door to the sound should count; the Desk's tie-break
 chapter and the size of the window's bank.
 
 
+## §136 The directive (the owner’s decisions on all 42 questions — after v0.11.43; NOT a release)
+
+Every question the Bible had left as the owner’s to call (§109 to
+§135) was put to the owner in one list of 42, and the owner
+answered all of them in one directive. It is recorded here in the
+owner’s words. These are approved design decisions. The running
+list of open questions that each section carried is closed by this
+section.
+
+**The direction.** Owner: *"Prioritize believable industry
+simulation, persistent history, meaningful consequences, distinct
+personalities, and long-term career development. Avoid arbitrary
+balancing, unnecessary punishment, and changes that invalidate
+existing saves."* And: *"Implement the approved work
+systematically, maintain save compatibility wherever possible, and
+continue running automated tests. Use your judgment on minor UI and
+editorial details within the principles established here."*
+
+**I. Major design decisions.**
+
+1. *Probation and firing.* "Build both systems. Staff should
+   receive warnings and meaningful opportunities to improve before
+   dismissal becomes necessary, except in appropriately serious
+   circumstances. Probation should have clear causes, consequences,
+   and recovery conditions. Firing should affect relationships,
+   morale, reputation, and operational capacity where appropriate."
+2. *Staff at a founding.* "Allow the player to recruit loyal staff
+   from their previous agency when founding a new label.
+   Recruitment should depend on relationships, loyalty,
+   circumstances, and appropriate costs or consequences. Not
+   everyone should automatically follow. The former agency retains
+   staff who do not leave."
+3. *Weekly letter limit.* "Prioritize letters the player has not
+   previously seen. Protect critical health notices and messages
+   requiring important decisions. The inbox limit must never
+   silently eliminate essential gameplay information or prevent the
+   player from responding to an actionable event."
+4. *Rival rankings.* "Investigate why the player’s agency
+   consistently dominates the rankings and why the top position
+   rarely changes. Identify and correct underlying simulation
+   imbalances rather than artificially manipulating standings.
+   Rival agencies should be capable of genuine success through the
+   same credible competitive dynamics affecting the player."
+5. *Staff name pool.* "Expand the staff name pool to approximately
+   400 names to reduce repetition across long careers."
+
+**II. Industry competition and executive relationships.**
+
+6. *Giants’ release weeks.* "Major rival releases should affect the
+   player’s releases through realistic, variable competition.
+   Consider audience overlap, popularity, promotional strength,
+   market attention, and timing. Avoid universal or fixed
+   penalties."
+7. *Giants retiring.* "Implement retirement and succession for
+   major industry figures. Successors should be capable of bringing
+   different personalities, priorities, and strategies to their
+   agencies. Retirement should be communicated through appropriate
+   in-game correspondence."
+8. *Truces.* "Make truces negotiable, with meaningful costs,
+   concessions, and terms. Allow the player to initiate
+   negotiations as well as respond to rival proposals. Outcomes
+   should depend on the relationship and circumstances."
+9. *Older saves with carried staff.* "Preserve existing saves,
+   including established staff arrangements. Correct the
+   staff-transfer behavior for future agency foundings only. Do not
+   retroactively remove staff from older saves."
+10. *New executive’s starting trust.* "Use partial inheritance of
+   the previous executive relationship when calculating starting
+   trust. The prior relationship should matter, but its influence
+   must be capped so a new executive offers a meaningful
+   opportunity to rebuild trust."
+
+**III. Trust, culture, and consequences.**
+
+11. *Passing on an executive’s question.* "Only penalize passing
+   when the decision is genuinely urgent or when refusing to act
+   has a clear contextual consequence. Do not punish reasonable
+   restraint or declining nonessential commitments."
+12. *The trend chaser’s question.* "Allow records in adjacent
+   musical styles to count toward satisfying a trend-focused
+   executive, but award a weaker benefit than an exact match."
+13. *An unanswered poach call.* "Add contextual trust and
+   relationship consequences when the player ignores a poaching
+   approach. Consequences should reflect the employee’s importance,
+   existing relationships, and circumstances rather than imposing
+   an arbitrary universal penalty."
+14. *Label birthdays.* "Give staff a small morale boost on the
+   agency’s founding anniversary. Keep the effect modest and
+   appropriate to the occasion."
+15. *Salaried house founding dates.* "Established agencies should
+   retain their own historical founding dates and anniversaries,
+   regardless of when the player joined them."
+
+**IV. Career history, military service, and scandals.**
+
+16. *A founded label’s first trophy.* "Track both agency milestones
+   and the player’s executive career milestones. A newly founded
+   agency can celebrate its first award even when its founder
+   previously won awards elsewhere."
+17. *Military service popularity decay.* "Replace the severe fixed
+   decline with dynamic popularity retention. Account for fandom
+   loyalty, existing fame, group activity, time away, and other
+   relevant circumstances. Military service should present a
+   meaningful challenge without automatically destroying an
+   established act’s popularity."
+18. *The return window.* "Increase the potential impact of
+   post-service returns through a larger, variable bonus. The
+   outcome should depend on anticipation, retained fan interest,
+   and comeback quality. A successful return should be meaningful
+   but never guaranteed."
+19. *Scandal-forced breaks.* "Replace the universal twelve-week
+   minimum with variable hiatus lengths based on scandal severity,
+   public reaction, and the agency’s response. Returning
+   prematurely should carry appropriate risks when public sentiment
+   remains unfavorable."
+20. *Rival houses’ memory.* "Preserve rivals’ personal memories of
+   the player after the player founds a new label. Establish
+   separate agency-to-agency relationships for the new company.
+   Personal history should influence those relationships without
+   making them identical to the former agency’s relationships."
+
+**V. Historical credits and inbox priorities.**
+
+21. *Credits after someone leaves.* "Preserve all historical
+   creative and professional credits permanently. A person’s
+   departure must not erase their contributions to previous
+   projects or the historical record."
+22. *The yearly word.* "Combine annual staff reflections into one
+   protected yearly digest rather than generating several
+   individually protected letters. Preserve distinct voices and
+   meaningful individual reflections within that digest."
+23. *Candidate is in the building.* "Make candidate-arrival letters
+   uncuttable. The player must receive notification of an available
+   interview or important recruitment opportunity."
+24. *Road manager’s unanswered offer.* "Make actionable,
+   time-sensitive offers uncuttable. The inbox system must not
+   conceal an offer requiring a response."
+25. *A rival taking your date.* "Protect these letters from the
+   inbox limit only when an immediate player response is required.
+   Otherwise, they may follow ordinary letter-priority rules,
+   provided the underlying schedule remains accurate and
+   accessible."
+
+**VI. Writing and presentation.**
+
+26. *Annual staff reflections.* "Give staff distinct voices
+   reflecting personality, role, trust, history, and recent events.
+   Favor contextual reactions and minimal repetition. Avoid generic
+   dialogue that makes every employee sound interchangeable."
+27. *Credits and résumés.* "Rewrite awkward credit and résumé
+   language for clarity and naturalness. Preserve historical
+   attribution and the permanence of professional credits."
+28. *Founding letter and staff wording.* "Make founding
+   correspondence dynamic. It should accurately reflect which
+   employees followed the player, which remained behind, and any
+   associated recruitment costs or consequences."
+29. *Executive handover.* "Use contextual handover wording based on
+   the circumstances of succession, previous reputation, and
+   inherited trust. The language should reflect whether the new
+   relationship begins positively, cautiously, or under difficult
+   circumstances."
+30. *Company birthday letters.* "Keep anniversary correspondence
+   short, varied, and aware of significant milestones. Avoid
+   repetitive celebrations and excessive inbox clutter."
+31. *Greenlight row and chips.* "Use concise, explicit labels and
+   meaningful status indicators. The player should quickly
+   understand the project, its current state, and the implications
+   of the available decisions."
+32. *Year-end headline.* "Rank annual developments by significance
+   rather than following a rigid category order. Show up to four
+   major developments, emphasizing the events that genuinely
+   defined the year."
+
+**VII. Staff records and interface.**
+
+33. *Staff card: last yearly word.* "Keep each staff member’s most
+   recent annual reflection visible on their staff card."
+34. *Duplicate staff names in older saves.* "Distinguish staff
+   members with identical names through contextual information such
+   as role, agency, or tenure. Do not automatically rename
+   established characters in existing saves."
+35. *Old greenlights in a new label’s Record tab.* "Separate the
+   new agency’s history from the player’s overall executive career
+   history. The new agency’s official record should contain its own
+   achievements, while the player’s career record should preserve
+   accomplishments from previous employers."
+36. *Promises made to previous executives.* "Continue identifying
+   the original executive to whom a promise was made. Preserve
+   historical attribution even after leadership changes."
+37. *Manager title spacing.* "Use your judgment to correct and
+   standardize manager title spacing across the interface and
+   across different career stages. Prioritize consistency and
+   readability."
+38. *Straight answers versus careful answers.* "Distinguish candid
+   and diplomatic executives through their writing, dialogue, and
+   personality rather than explicit visual labels. Players should
+   discover these traits through interactions."
+
+**VIII. Final interface decisions.**
+
+39. *Date under the manager’s name.* "Display the current in-game
+   date beneath the manager’s name when screen space permits. Use
+   responsive behavior to avoid crowding smaller devices."
+40. *Long personality tags.* "Shorten long display labels while
+   preserving their meaning. Do not alter the underlying
+   personality traits or mechanics merely to solve a layout issue."
+41. *Offers count placement.* "Choose the placement of the
+   outstanding-offers count based on responsive layout and
+   readability. The count may appear beside or below the label as
+   appropriate. This is an implementation detail delegated to you."
+
+**IX. Major future systems (42).**
+
+- *A. The imprint.* Approved concept, implementation deferred. "An
+  imprint or sublabel system is desirable for future development,
+  particularly for larger entertainment companies managing distinct
+  creative identities or divisions. Do not prioritize
+  implementation in the immediate next phase. Preserve the concept
+  for a later roadmap."
+- *B. The player-owned academy.* Approved for the next development
+  phase. "The academy should create a meaningful long-term trainee
+  development pipeline, allowing the player to invest in future
+  talent through coaching, facilities, development, and management
+  decisions." Its principles, in the owner’s words: "Development
+  should require time, money, and sustained investment. Trainees
+  should have differing potential, personalities, development
+  rates, and outcomes. Investment should improve opportunities
+  without guaranteeing superstars. Academy graduates should connect
+  naturally to the existing trainee, debut, and agency systems.
+  Academy operations should create meaningful strategic and
+  financial tradeoffs. The system should reward long-term planning
+  rather than functioning as a guaranteed talent factory." The
+  detailed mechanics are delegated, "provided they remain
+  consistent with KPM’s existing systems and overall philosophy".
+- *C. Accepting an outside offer.* Approved concept, implementation
+  deferred. "It should eventually support meaningful career
+  movement, changes in authority, new relationships, and
+  consequences for leaving an existing employer."
+
+**X. The instructions.**
+
+1. "Complete the remaining previously planned work, incorporating
+   the decisions above."
+2. "Prioritize gameplay correctness, meaningful simulation
+   behavior, and save compatibility."
+3. "Begin planning and implementing the player-owned academy as the
+   next major approved system, without allowing it to derail
+   completion of existing commitments."
+4. "Keep the imprint and outside-offer systems on the future
+   roadmap, but do not implement them yet."
+5. "Delegate minor wording, spacing, and responsive-layout details
+   to your own judgment within the approved guidelines."
+6. "Maintain automated tests and add regression coverage for major
+   changes, particularly historical records, agency founding, staff
+   movement, inbox priorities, and executive succession."
+7. "Avoid artificial difficulty or guaranteed player success. The
+   simulation should produce believable outcomes through its
+   underlying mechanics."
+8. "Preserve the emergent storytelling that comes from persistent
+   characters, institutional memory, professional relationships,
+   and meaningful consequences."
+
+And: *"Do not stop for additional minor design questions that can
+reasonably be resolved from these instructions. Make sensible
+implementation decisions, document important assumptions, and
+continue working. Only escalate genuinely consequential design
+conflicts or decisions that would substantially alter the approved
+direction. The objective is a deeper, more coherent entertainment
+management simulation, not simply a larger collection of
+disconnected features."*
+
+**How three of them are read.** Three decisions name something the
+game does not have in the form the words assume. Each reading is an
+assumption, written down so it can be corrected.
+
+- *1, probation and firing.* The question was about the desk: §96’s
+  "probation with a dated directive and the salaried door as the
+  exit, which is the deferred firing", where the executive puts the
+  player on notice. The answer speaks of staff. Both are built. The
+  executive’s probation of the desk, with its causes, its
+  directive, its way back and its firing. And the desk’s own staff:
+  a chair is warned and given a term to improve before it is let
+  go, and a firing with no warning costs more in the building and
+  in the market.
+- *14, a birthday’s morale.* The chairs carry no morale number. The
+  lift goes to the people of the house who do, its trainees and
+  artists, and it is small. If the staff are given a morale of
+  their own by decision 1, the birthday reads it too.
+- *38, straight and careful.* The question was where the line
+  between the two voices should fall. The answer is wider: no badge
+  for the trait, on a chair or on an executive. Nothing new is
+  labelled. The interview’s prose read of a candidate stays, since
+  it is an interaction and the place the trait is first met, and
+  the voices carry it from there.
+
+**The build order.** Small pieces, each counted first, each shipped
+whole with its suite, its mutation run, its browser pass and the
+full chain. Several small decisions that touch one thing ship
+together.
+
+*First, what is already shipped, amended by a decision.*
+
+- The letters that must land (3, 23, 24, 25): least seen first,
+  health notices protected, and no letter that opens a decision
+  with a deadline can be cut.
+- Four hundred names (5), and people who share a name told apart by
+  their chair (34).
+- The yearly digest (22), the card that keeps the word (33), and
+  the voices (26).
+- The credits that stay (21), in plainer words (27).
+- The house’s own birthday (14, 15, 30).
+- The handover, inherited in part (10, 29), and promises that keep
+  their name (36).
+- Her questions without a toll (11, 12).
+- The call left unanswered (13).
+- Two records, the house’s and the career’s (35, 16), and the
+  greenlight’s row (31).
+- The year’s four (32).
+- The screen (37, 39, 40, 41).
+- The founding, with those who follow (2, 28), and what the rivals
+  remember (20). Old saves stand as they are (9).
+
+*Then the simulation, each counted before a number is moved.*
+
+- The service, retained (17), and the return (18).
+- The break that fits the scandal (19).
+- The ranking, investigated (4): why our house leads almost every
+  year, and what in the simulation makes it so.
+- The giants’ weeks (6).
+- Retirement and succession (7).
+- The truce, negotiated, and one we can open (8).
+
+*Then the rest of the queue (§96).*
+
+- Recommendation 7: the letter when the trades’ word for a chair
+  rises; leaving on their own terms; probation and firing (1), the
+  desk’s and the staff’s; the fandom’s history page; faces for the
+  funds; the rest of what a desk change leaves on the file.
+- Recommendation 6: the other doors a head could open, the press,
+  the PR desk’s memory, and the towns’ promoters.
+- Recommendation 8: the writing room.
+
+*And the academy (42 B).*
+
+- Its design is written as a section of its own once the amendments
+  are in, and it is built in pieces after the queue, sooner if the
+  owner says so. The imprint and the outside offer stay on the
+  roadmap, unbuilt.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -20032,6 +20382,15 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > pass (16), lockstep 0.11.43.
 > Rode to main. Next piece: a letter when the trades' word for a
 > chair rises.
+
+> **The directive (§136) — NOT a release.** The owner answered all
+> 42 open questions in one directive, and approved the next phase:
+> the amendments those answers make to what is shipped, the
+> simulation changes, the rest of §96's queue, and the player-owned
+> academy as the next major system. The imprint and the outside
+> offer are approved and deferred. §136 records the directive in
+> the owner's words, how three of its decisions are read, and the
+> build order. The running list of open questions is closed.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
