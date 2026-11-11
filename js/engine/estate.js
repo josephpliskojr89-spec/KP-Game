@@ -182,6 +182,10 @@
     const CL = KP.C.SCHOOLS.CLASS;
     const went = { market: 0, academy: 0, project: 0, service: 0 };
 
+    // the roll (v0.11.47, §140): every chair still sat goes on it as the house folds. It is read first, while the
+    // records are here and the roster is still the roster: a scout's line counts who debuted, and nobody has yet
+    if (KP.rollHouseCloses) KP.rollHouseCloses(state, 'folded');
+
     // ---- the people: the file is forever; the letterhead is not -----------
     const everybody = new Set(state.roster.slice());
     oldGroups.forEach(g => g.members.forEach(id => everybody.add(id)));
@@ -252,6 +256,8 @@
       const seat = KP.C.HIRES.SEATS.find(x => x.id === seatId);
       const r = houses.length ? houses[Math.floor(KP.hash01([state.seed, st.id, 'fold'].join('|')) * houses.length)] : null;
       seatsWent.push({ name: st.name, seat: seat ? seat.label : seatId, where: r ? r.short : 'the fog' });
+      const gone = (state.staffRoll || []).filter(e => e.id === st.id && e.how === 'folded' && e.until === week)[0];
+      if (gone && r) gone.to = r.short;   // the roll says where each went (§140)
     });
     delete state.seats;   // the next building mints its own chairs
     delete state.staffSearch;
@@ -585,7 +591,7 @@
     state.nextPersonId = KP.peekNextId();
     // the chairs: a new building's names (the salaried label's staff; the founders' four)
     KP.seatBuilding(state, state.seed + '|ch' + ((state.career || []).length + 1),
-      door === 'salaried' ? 'here before you — the résumé is this company' : 'here since the second beginning');
+      door === 'salaried' ? 'here before you came; this company is the whole résumé' : 'here since the second beginning');
     // every door people enter the world through mints the public number
     // on the spot (social.js's law; audit v0.11.3: the chapter's trainees
     // and the inherited act minted at first render and forked the twin)

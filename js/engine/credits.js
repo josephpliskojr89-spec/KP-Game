@@ -71,9 +71,13 @@
   // the two verdicts (v0.10.34): a producer's name is made by the
   // RECORD — the works carry craft, and heat reads it (old works fall
   // back to the reception they were stamped with)
+  // a track record is read to its depth, the last twelve: a house chair's list is kept whole for its credit
+  // (v0.11.47, §140), and every read that decides anything looks at the same twelve it always did
+  KP.worksRecent = function (pr) { return ((pr && pr.works) || []).slice(-KP.C.CREDITS.worksCap); };
   KP.producerHeat = function (pr) {
     if (!pr.works.length) return 'unproven';
-    const avg = pr.works.reduce((s, w) => s + (w.craft != null ? w.craft : w.reception), 0) / pr.works.length;
+    const recent = KP.worksRecent(pr);
+    const avg = recent.reduce((s, w) => s + (w.craft != null ? w.craft : w.reception), 0) / recent.length;
     if (avg >= 66) return 'in demand';
     if (avg >= 55) return 'reliable';
     if (avg >= 45) return 'workmanlike';
@@ -110,8 +114,9 @@
         if (pr) {
           pr.works.push({ week: state.week, title: rel.songTitle, reception: rel.reception,
             craft: rel.craft != null ? rel.craft : rel.reception, groupId: g.id });
-          if (pr.works.length > C.worksCap) pr.works.shift();
-          const together = pr.works.filter(w => w.groupId === g.id).length;
+          // a house chair's list is its credit at this house, and a credit is kept whole (v0.11.47, §140; §136: 21)
+          if (!pr.house && pr.works.length > C.worksCap) pr.works.shift();
+          const together = KP.worksRecent(pr).filter(w => w.groupId === g.id).length;
           if (together >= C.signatureAt) {
             const nar = KP.recordEvidence(state, 'signatureSound', 'group', g.id, { producer: pr.name });
             if (nar) inbox.push(nar);
@@ -122,7 +127,7 @@
           const w = KP.writerById(state, rel.writerId);
           if (w && w.works && !w.pen) {
             w.works.push({ week: state.week, title: rel.songTitle, craft: rel.craft != null ? rel.craft : rel.reception, groupId: g.id });
-            if (w.works.length > C.worksCap) w.works.shift();
+            if (!w.house && w.works.length > C.worksCap) w.works.shift();
           }
         }
         // the booklet: members who wrote get their names read out loud —

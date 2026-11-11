@@ -76,14 +76,19 @@
   };
   const one = n => (n === 1 ? 'one' : String(n));
   const HOW = [['crowned', 'with a trophy'], ['warm', 'warm'], ['quiet', 'quietly'], ['cold', 'cold']];
-  // in full, for the chair's own card. A studio chair's count is the card's chip
-  KP.seatCreditSaid = function (c) {
+  // in full, for the chair's own card and for the roll. A studio chair's count is the card's chip. The words were
+  // made plainer in v0.11.47 (§140; the owner's ruling, §136: 27): they still say where a chair was, and never
+  // what it was worth there
+  // of a house this desk has left, the same words are said of then and there: `shut` is how that house closed to
+  // the desk ("the desk left", "HCG folded"), and an era running that day is said to have been running that day
+  KP.seatCreditSaid = function (c, shut) {
     if (!c.n || c.kind === 'records') return '';
     if (c.kind === 'floor') {
-      return 'Of the ' + c.of + ' on this house’s roster, ' + one(c.n) + ' signed on their watch' +
-        (c.debuted ? ', and ' + one(c.debuted) + ' of them ' + (c.debuted === 1 ? 'has' : 'have') + ' debuted' : '') + '.';
+      return 'Ran scouting when ' + one(c.n) + ' of the ' + c.of + ' on the roster signed' +
+        (c.debuted ? ', ' + one(c.debuted) + ' of whom ' + (shut ? 'had' : c.debuted === 1 ? 'has' : 'have') + ' debuted' : '') + '.';
     }
-    return 'In the room for ' + (c.n === 1 ? 'one era' : c.n + ' eras') + ' of this house' + erasStand(c) + '.';
+    const said = 'Worked on ' + (c.n === 1 ? 'one era' : c.n + ' eras') + (shut ? ' there' : ' here') + erasStand(c) + '.';
+    return shut ? said.replace(/still running\.$/, 'still running when ' + shut + '.') : said;
   };
   // how a count of eras stands, to follow the count: ", which closed warm", ", all still running", ": 3 closed with a trophy, 2 warm"
   function erasStand(c) {
@@ -93,19 +98,100 @@
     if (closed.length === 1 && c[closed[0][0]] === c.n) return ', all closed ' + closed[0][1];
     return ': ' + closed.map((h, i) => one(c[h[0]]) + (i ? ' ' : ' closed ') + h[1]).join(', ') + (c.running ? '; ' + one(c.running) + ' still running' : '');
   }
-  // in a clause, for a call from outside and for a goodbye: the count, and the best of it
-  KP.seatCreditShort = function (c) {
+  // in a clause, for a call from outside and for a goodbye: the count, the house by its name, and the best of it.
+  // A credit that crosses the street is read there, so it names the house
+  KP.seatCreditShort = function (c, house) {
     if (!c.n) return '';
-    if (c.kind === 'records') return one(c.n) + (c.n === 1 ? ' record' : ' records') + ' for this house';
-    if (c.kind === 'floor') return one(c.n) + ' of the ' + c.of + ' on this house’s roster signed on their watch';
+    const at = house || 'this house';
+    if (c.kind === 'records') return one(c.n) + (c.n === 1 ? ' record' : ' records') + ' made at ' + at;
+    if (c.kind === 'floor') return one(c.n) + ' of the ' + c.of + ' on ' + at + '’s roster, signed while they ran scouting';
     const best = c.crowned ? ['crowned', 'closed with a trophy'] : c.warm ? ['warm', 'closed warm'] : null;
-    return one(c.n) + (c.n === 1 ? ' era' : ' eras') + ' for this house' +
+    return one(c.n) + (c.n === 1 ? ' era' : ' eras') + ' at ' + at +
       (!best ? '' : c.n === 1 ? ', ' + best[1] : ', ' + one(c[best[0]]) + ' of them ' + best[1]);
   };
   // what a chair takes out of the door: one sentence, or nothing when there is nothing to take
   KP.seatLeavesWith = function (state, st) {
-    const said = KP.seatCreditShort(KP.seatCredit(state, st));
-    return said ? ' On the résumé that leaves with ' + st.name + ': ' + said + '.' : '';
+    const said = KP.seatCreditShort(KP.seatCredit(state, st), state.company.short);
+    return said ? ' ' + st.name + ' leaves with this on the résumé: ' + said + '.' : '';
+  };
+  // a résumé line as files wrote it before v0.11.47, in the plainer words: the facts are the ones it held
+  const RESUME_WAS = { 'here since the beginning — the résumé is this company': 'here since the beginning; this company is the whole résumé',
+    'here since the founding — the résumé is this label': 'here since the founding; this label is the whole résumé',
+    'here before you — the résumé is this company': 'here before you came; this company is the whole résumé' };
+  KP.resumePlain = function (line) {
+    const s = String(line);
+    if (RESUME_WAS[s]) return RESUME_WAS[s];
+    const a = /^(\d+) years in, most recently at (.+)$/.exec(s);
+    if (a) return a[1] + ' years in the industry, most recently at ' + a[2];
+    const b = /^was in the room for (.+)$/.exec(s);
+    return b ? 'worked through ' + b[1] : s;
+  };
+  // what the trades know a name for, as a person says it (§140): the chair's own work, not its title
+  const KNOWN = { vocal: 'vocal coaching', dance: 'dance coaching', perf: 'staging', scout: 'scouting', anr: 'A&R', marketing: 'marketing' };
+  KP.knownForSaid = function (tag) { return KNOWN[tag] || ((KP.C.HIRES.SEATS.find(x => x.id === tag) || {}).label || String(tag)); };
+
+  // ---- the roll (v0.11.47, §140; the owner's ruling, §136: 21). Everyone who has sat a chair of a house this
+  // desk has run, and gone: kept for good, with the chair, the weeks, how they went, and the credit as the file
+  // read it the day they went (§133). An era still running that day is read again until it has closed. When the
+  // desk leaves a house, or the house folds, the roll of that house closes as it stands: the records it was read
+  // from stay behind, so every line of it is shut (`shut` is how the house closed) and is never read again,
+  // whatever the next house is called. Nothing here is drawn, and nothing reads the roll back into the simulation
+  const ROLL_HOWS = ['released', 'replaced', 'walked', 'lapsed', 'stayed', 'folded'];
+  KP.rollHows = () => ROLL_HOWS.slice();
+  KP.staffRoll = function (state) { return state.staffRoll || (state.staffRoll = []); };
+  // who was signed on the scout's watch is written on each of them, once: the name stays on the file of everyone
+  // they brought in, whoever sits in the chair after. The law is the credit's own: signed after the chair was taken
+  KP.signedStamp = function (state) {
+    const sc = (state.seats || {}).scout;
+    if (!sc) return;
+    (state.roster || []).forEach(id => { const p = state.people[id];
+      if (p && p.signedUnder === undefined && p.signedWeek > sc.since) p.signedUnder = sc.name; });
+  };
+  KP.seatGoes = function (state, st, how, more) {
+    if (st.seatId === 'scout') KP.signedStamp(state);
+    const e = Object.assign({ id: st.id, name: st.name, seatId: st.seatId, house: state.company.short, since: st.since, until: state.week, how,
+      credit: KP.seatCredit(state, st) }, more || {});
+    if (st.word) e.word = { week: st.word.week, text: st.word.text };
+    KP.staffRoll(state).push(e);
+    return e;
+  };
+  // the eras that were running the day a chair went, read again while this house's records are on the file. A
+  // record that lands after they went is not theirs: the read stops at the week they went
+  KP.rollSettle = function (state) {
+    (state.staffRoll || []).forEach(e => {
+      if (!e.shut && e.credit.kind === 'eras' && e.credit.running) e.credit = KP.seatCredit(state, { seatId: e.seatId, since: e.since }, e.since, e.until);
+    });
+  };
+  // the house closes to this desk: every chair still sat goes on the roll as it stands, read while the records are
+  // here, and every line of this house is shut
+  KP.rollHouseCloses = function (state, how) {
+    KP.rollSettle(state);
+    const S = state.seats || {};
+    const went = KP.C.HIRES.SEATS.filter(x => S[x.id]).map(x => KP.seatGoes(state, S[x.id], how));
+    KP.staffRoll(state).forEach(e => { if (!e.shut) e.shut = how; });
+    return went;
+  };
+  // one line of the roll, as the Building tab says it
+  KP.rollSaid = function (state, e) {
+    const seat = KP.C.HIRES.SEATS.find(x => x.id === e.seatId) || { label: e.seatId };
+    const how = e.how === 'released' ? 'let go' : e.how === 'replaced' ? 'replaced' + (e.by ? ' by ' + e.by : '')
+      : e.how === 'walked' ? 'went to ' + (e.to || 'another house') : e.how === 'lapsed' ? 'went to ' + (e.to || 'another house') + ' on an offer left unanswered'
+      : e.how === 'stayed' ? 'stayed with ' + e.house + ' when the desk left' : 'there when ' + e.house + ' folded' + (e.to ? ', and went to ' + e.to : '');
+    const shut = !e.shut ? '' : e.shut === 'folded' ? e.house + ' folded' : 'the desk left';
+    const credit = e.credit.kind === 'records' ? (e.credit.n ? 'Made ' + one(e.credit.n) + (e.credit.n === 1 ? ' record' : ' records') + (shut ? ' there.' : ' here.') : '')
+      : KP.seatCreditSaid(e.credit, shut);
+    return { name: e.name, label: seat.label, from: e.since, to: e.until, how, credit, word: e.word || null };
+  };
+  // who was in the room when a record landed: the five rooms' chairs sat before this week, by name. The record
+  // keeps the names as its booklet keeps its writers': a chair that goes is still on every record it worked on
+  KP.roomNames = function (state) {
+    const S = state.seats || {}, room = {};
+    KP.C.HIRES.SEATS.forEach(x => { if (!x.studio && x.id !== 'scout' && S[x.id] && S[x.id].since < state.week) room[x.id] = S[x.id].name; });
+    return room;
+  };
+  KP.roomSaid = function (room) {
+    const SHORT = { vocal: 'vocal', dance: 'dance', perf: 'staging', anr: 'A&R', marketing: 'marketing' };
+    return KP.C.HIRES.SEATS.filter(x => room && room[x.id]).map(x => room[x.id] + ' (' + SHORT[x.id] + ')').join(', ');
   };
 
   // ---- the staff's year (v0.11.46, §139; the owner's ruling, §136: 22, 26 and 33). The yearly word (v0.11.42,
@@ -429,6 +515,7 @@
     state.budget -= severance;
     if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -severance);
     const leaves = KP.seatLeavesWith(state, st);   // what the résumé takes with it (v0.11.41, §133)
+    KP.seatGoes(state, st, 'released');             // and what stays on the roll (v0.11.47, §140)
     delete S[seatId];
     if (state.scenes) state.scenes = state.scenes.filter(sc =>
       !(sc.kind === 'seatPoach' && sc.seatId === seatId));
@@ -536,8 +623,8 @@
       : core[Math.floor(h(state, sid, 'kf') * core.length)].id;
     const years = 2 + Math.floor(h(state, sid, 'yr') * 12);
     const resume = [
-      years + ' years in, most recently at ' + HOUSES[Math.floor(h(state, sid, 'h1') * HOUSES.length)],
-      'was in the room for ' + ERAS[Math.floor(h(state, sid, 'e1') * ERAS.length)],
+      years + ' years in the industry, most recently at ' + HOUSES[Math.floor(h(state, sid, 'h1') * HOUSES.length)],
+      'worked through ' + ERAS[Math.floor(h(state, sid, 'e1') * ERAS.length)],
     ];
     const cand = { id: sid, name, seatId, tier, knownForTag: knownFor, resume,
       style: STYLES[Math.floor(h(state, sid, 'st') * STYLES.length)],
@@ -631,7 +718,7 @@
           knownForTag: null, since: 1, style: STYLES[Math.floor(h(state, sid, 'st') * STYLES.length)],
           warmth: Math.round(h(state, sid, 'pw') * 100),
           candor: Math.round(h(state, sid, 'pc') * 100),
-          resume: ['here since the beginning — the résumé is this company'] };
+          resume: ['here since the beginning; this company is the whole résumé'] };
         state.seats[seatId].truth = truthFor(state, state.seats[seatId]);   // minted once (v0.11.8, §99)
       };
       mk('vocal', KP.staffName ? KP.staffName(state.seed + '|coach') : 'Coach Baek');   // the legacy coach IS the vocal seat (v0.10.43)
@@ -709,8 +796,7 @@
         ', ' + (c.candor >= 50 ? 'answers straight even when it costs' : 'answers carefully, edges sanded') +
         ' — and by every account, ' + STYLE_WORD[c.style] + '. ' +
         'The résumé: ' + c.resume.join('; ') + '.' + studioLine + ' ' +
-        'The industry file: ' + c.tier + (c.knownForTag ? ', known for ' +
-          (HR.SEATS.find(x => x.id === c.knownForTag) || seat).label + ' work' : '') +
+        'The industry file: ' + c.tier + (c.knownForTag ? ', known for ' + KP.knownForSaid(c.knownForTag) : '') +
         '. The fee is ' + HR.hireCost[c.tier] + '. The résumé says where they were. It does not say what they did there.';
     },
     options: (state, sc) => {
@@ -744,6 +830,7 @@
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -cost);
       const leaves = prev ? KP.seatLeavesWith(state, prev) : '';   // what the one who leaves takes (v0.11.41, §133)
       if (prev) {
+        KP.seatGoes(state, prev, 'replaced', { by: sc.cand.name });
         led.fired++;
         // letting a name go by replacement raises the same eyebrows
         if (HR.REP_TIERS.indexOf(prev.tier) >= HR.fireTrustTierMin) {
@@ -809,11 +896,11 @@
       const seat = KP.C.HIRES.SEATS.find(x => x.id === sc.seatId);
       // what the industry read (v0.11.41, §133): the credit at this house; with none, the name they came in with;
       // and for a chair with neither, the red weeks, which are the only reason such a chair is called
-      const read = st ? KP.seatCreditShort(KP.seatCredit(state, st)) : '';
+      const read = st ? KP.seatCreditShort(KP.seatCredit(state, st), state.company.short) : '';
       const named = st && KP.C.HIRES.REP_TIERS.indexOf(st.tier) >= KP.C.HIRES.poachTierMin;
       return (st ? KP.seatNameTold(state, sc.seatId) : 'Your ' + seat.label) + ' got the call — ' + callFrom(state, sc) +
         ', better title, real money. ' +
-        (!st || read ? 'This is what happens when the results carry a name: the industry reads your credits and hires your people.' + (read ? ' What it read: ' + read + '.' : '')
+        (!st || read ? 'This is what happens when the results carry a name: the industry reads your credits and hires your people.' + (read ? ' The credit it read: ' + read + '.' : '')
           : named ? st.name + ' has no credit at this house yet: the call is for the name they came in with.'
           : 'The call is not for a credit or a name: a house this far behind has its chairs called.') +
         ' A raise keeps the chair (' + KP.C.HIRES.raiseCost +
@@ -857,6 +944,7 @@
       led.walked++;
       const leaves = KP.seatLeavesWith(state, st);   // what the résumé takes across the street (v0.11.41, §133)
       const told = KP.seatNameTold(state, sc.seatId);   // said while the chair is still theirs
+      KP.seatGoes(state, st, 'walked', { to: sc.rivalName });
       delete state.seats[sc.seatId];
       onBooks(state, sc, 'theyHiredOurStaff');
       KP.note(state, { kind: 'company', ind: 'seatWalked', priority: 'high',
@@ -879,6 +967,7 @@
       // the letter is one the week's budget cannot cut
       const seat = KP.C.HIRES.SEATS.find(x => x.id === sc.seatId);
       const leaves = KP.seatLeavesWith(state, st);
+      KP.seatGoes(state, st, 'lapsed', { to: sc.rivalName });
       ledger(state).walked++; delete state.seats[sc.seatId]; onBooks(state, sc, 'theyHiredOurStaff');
       return { kind: 'company', ind: 'seatLapsed', priority: 'critical',
         text: 'The offer sat on the desk until it answered itself: ' + st.name + ' signed with ' + sc.rivalName + ', and the ' + seat.label + ' chair is open.' + leaves };
@@ -890,6 +979,9 @@
     const HR = KP.C.HIRES;
     const led = ledger(state);
     const S = seats(state);
+    // the roll (§140): the scout's name on whoever signed on their watch, and the gone chairs' running eras read again
+    KP.signedStamp(state);
+    KP.rollSettle(state);
     // the market remembers (v0.11.5, §96 wiring): about a season after a
     // pass, the name takes a chair across the street — one letter, the
     // house hash-picked (no draw), the entry dropped

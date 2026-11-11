@@ -41,7 +41,7 @@
       // shows this room his best — repeat collaboration is a discount
       // paid in access, not money
       const bonded = !!(group && pr.works &&
-        pr.works.filter(w => w.groupId === group.id).length >= MK.bondAt);
+        KP.worksRecent(pr).filter(w => w.groupId === group.id).length >= MK.bondAt);
       // the studio (v0.10.35): the composition IS the producer's craft
       // through the fit law — a pitch out of his lanes is weaker for it
       const ST = KP.C.STUDIO;

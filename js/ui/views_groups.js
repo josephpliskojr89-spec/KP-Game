@@ -211,7 +211,9 @@
           (r.critics ? ' · critics: ' + UI.esc(KP.verdictWord(r.critics.consensus)) + (r.critics.split ? ' (split)' : '') : '') +
           (r.chartWeeks ? ' · ' + r.chartWeeks + ' weeks charting' : ' · missed the charts') +
           closeBit + afterBit +
-          (creditBits.length ? '<br>' + creditBits.join(' · ') : '') + '</span></div></div>');
+          (creditBits.length ? '<br>' + creditBits.join(' · ') : '') +
+          // who was in the room (v0.11.47, §140): the chairs sat as it landed, kept on the record for good
+          (r.room && KP.roomSaid(r.room) ? '<br><span class="rel-room">in the room: ' + UI.esc(KP.roomSaid(r.room)) + '</span>' : '') + '</span></div></div>');
       });
   }
 

@@ -558,15 +558,14 @@
       const credit = KP.seatCreditSaid(KP.seatCredit(state, st));
       const sev = Math.max(HR.severanceMin,
         Math.round((HR.hireCost[st.tier] || HR.hireCost.working) * HR.severanceMult));
-      const knownFor = st.knownForTag
-        ? (HR.SEATS.find(x => x.id === st.knownForTag) || seat).label : null;
+      const knownFor = st.knownForTag ? KP.knownForSaid(st.knownForTag) : null;   // the work, not the title (v0.11.47, §140)
       html.push('<div class="card">' +
         '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">' +
         '<span style="font-weight:800">' + UI.esc(st.name) + '</span>' +
         '<span style="font-size:.72rem;color:var(--ink-dim)">' + UI.esc(seat.label) + '</span></div>' +
         '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">' +
         '<span class="chip">' + UI.esc(st.tier) + '</span>' +
-        (knownFor ? '<span class="chip">known for ' + UI.esc(knownFor) + ' work</span>' : '') +
+        (knownFor ? '<span class="chip">known for ' + UI.esc(knownFor) + '</span>' : '') +
         (st.lane ? '<span class="chip cool">lanes: ' + UI.esc(KP.producerLanes(st).map(l => (KP.conceptById(l) || { label: l }).label.toLowerCase()).join(' / ')) + '</span>' : '') +
         (st.themes ? '<span class="chip cool">themes: ' + UI.esc(st.themes.map(t => (KP.themeById(t) || { label: t }).label.toLowerCase()).join(', ')) + '</span>' : '') +
         (made ? '<span class="chip">' + made + ' record' + (made > 1 ? 's' : '') + ' for this house</span>' : '') +
@@ -589,6 +588,31 @@
           ? '<button class="btn small" data-action="seat-search" data-id="' + seat.id + '">Help wanted · ' + HR.searchCost + '</button>' : '') +
         '</div></div>');
     });
+    // the roll (v0.11.47, §140; the owner's ruling, §136: 21): everyone who has sat a chair here and gone, kept for
+    // good. One tap opens it, the last to go first; the houses this desk ran before follow, each under its name.
+    // A line is of this house until the house closes to the desk, whatever the next one is called
+    const roll = (state.staffRoll || []).slice().reverse();
+    if (roll.length) {
+      const open = !!(KP.App && KP.App.rollOpen);
+      const here = roll.filter(e => !e.shut).length;
+      const whose = here === roll.length ? 'Who has sat here' : here ? 'Who has sat here and before' : 'Who sat at the houses before';
+      html.push('<button class="btn fold-btn" data-action="roll-toggle" style="width:100%;margin:2px 0 10px">' +
+        (open ? 'Close the roll' : whose + ' · ' + roll.length + (roll.length === 1 ? ' name' : ' names')) + '</button>');
+      if (open) {
+        html.push('<div class="roll"><div class="fold-cap">Everyone who has sat a chair and gone' + (here < roll.length ? ', here and at the houses before' : '') + '. A credit stays on the roll for good.</div>');
+        let house = null;
+        roll.forEach(e => {
+          const r = KP.rollSaid(state, e);
+          const under = e.shut ? 'At ' + e.house : 'Here';
+          if (under !== house) { house = under; if (here < roll.length) html.push('<div class="roll-house">' + UI.esc(under) + '</div>'); }
+          html.push('<div class="roll-row"><div><span class="roll-name">' + UI.esc(r.name) + '</span> <span class="roll-seat">' + UI.esc(r.label) + '</span></div>' +
+            '<div class="roll-when">' + UI.esc(KP.weekLabel(Math.max(1, r.from)).text) + ' to ' + UI.esc(KP.weekLabel(r.to).text) + ' · ' + UI.esc(r.how) + '</div>' +
+            (r.credit ? '<div class="roll-credit">' + UI.esc(r.credit) + '</div>' : '') +
+            (r.word ? '<div class="roll-word">Their last word, on Year ' + Math.floor((r.word.week - 1) / KP.C.WEEKS_PER_YEAR) + ': “' + UI.esc(r.word.text) + '”</div>' : '') + '</div>');
+        });
+        html.push('</div>');
+      }
+    }
     html.push('<div class="pad" style="font-size:.68rem;color:var(--ink-dim);margin-bottom:12px">The résumé says where they were. The industry file says the price. What they actually do to your rooms, only the months say — and never in a number. That is the whole job of judging them.</div>');
     return html.join('');
   }

@@ -294,6 +294,7 @@
       case 'talent-sub': App.talentSub = t.dataset.sub; App.render(); break;
       case 'desk-sub': App.deskSub = t.dataset.sub; App.render(); break;
       case 'fold-toggle': App.foldOpen = !App.foldOpen; App.render(); break;   // below the fold (v0.11.44, §137)
+      case 'roll-toggle': App.rollOpen = !App.rollOpen; App.render(); break;   // the roll of who has sat (v0.11.47, §140)
       case 'dossier-tab': App.dossierTab = t.dataset.tab; App.render(); break;
       case 'industry-sub': App.industrySub = t.dataset.sub; App.render(); break;
       case 'industry-chart': App.industryChart = t.dataset.chart; App.render(); break;

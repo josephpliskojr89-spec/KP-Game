@@ -1283,6 +1283,8 @@
       craft, appeal, critics: { consensus: critics.consensus, split: critics.split,
         verdicts: critics.verdicts.map(v => ({ id: v.id, band: v.band })) },
       producerId: demo.producerId || null, producer: demo.producer,
+      // who was in the room (v0.11.47, §140): the rooms' chairs sat as it landed, by name, for good
+      room: KP.roomNames ? KP.roomNames(state) : {},
       // the studio (v0.10.35): the lyric's name and its theme, the fit it was written at
       writerId: demo.writerId || null, writer: demo.writer || null, theme: demo.theme || null,
       fitMult: demo.fitMult != null ? demo.fitMult : null, commissioned: !!demo.commissioned,

@@ -196,7 +196,7 @@
     const heat = KP.producerHeat(pr);
     const need = A[heat];
     if (!need) return { ok: true };
-    const bonded = !!(g && (pr.works || []).filter(w => w.groupId === g.id).length >= KP.C.MARKET.bondAt);
+    const bonded = !!(g && KP.worksRecent(pr).filter(w => w.groupId === g.id).length >= KP.C.MARKET.bondAt);
     if (bonded) return { ok: true, bonded: true };
     const fame = KP.fameRead ? KP.fameRead(state) : 1;
     if (fame >= need) return { ok: true };
@@ -263,7 +263,7 @@
     (g.demos || []).forEach(d => { usedTitles[d.title] = true; });
     const craft = pr ? pr.craft : 50;
     const fit = KP.laneFitMult(KP.producerLanes(pr), c.lane);
-    const bonded = !!(pr && (pr.house || (pr.works || []).filter(x => x.groupId === g.id).length >= KP.C.MARKET.bondAt));
+    const bonded = !!(pr && (pr.house || KP.worksRecent(pr).filter(x => x.groupId === g.id).length >= KP.C.MARKET.bondAt));
     const q = () => KP.clamp(Math.round(rng.normal(KP.C.SONG.qualityMean, KP.C.SONG.qualitySd)), 10, 95);
     const d = {
       id: 'comm' + state.week + '_' + (g.id || ''),

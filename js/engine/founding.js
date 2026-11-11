@@ -113,6 +113,11 @@
     // other houses hold stays as it is: they kept books on the architect
     if (KP.recordHouse) KP.recordHouse(state, legacy.short, 'weWalkedOut');
 
+    // the roll (v0.11.47, §140): the chairs stay with the house, and the roll says so. It is read first, while the
+    // records are here and the roster is still the roster: a scout's line counts who debuted, and whoever has no
+    // signing date has not been given this week's
+    if (KP.rollHouseCloses) KP.rollHouseCloses(state, 'stayed');
+
     // ---- the people stay people — on the other side of the wall --------
     const everybody = new Set(state.roster.slice());
     oldGroups.forEach(g => g.members.forEach(id => everybody.add(id)));
@@ -238,7 +243,7 @@
     state.managerGen = (state.managerGen || 0) + 1;
     // and so do the chairs (v0.11.40, §132): "everything you built stays behind", and the staff was built
     // too. The old house keeps its people; the label opens with the founders' four, as the blank page does
-    const chairs = KP.seatBuilding(state, state.seed + '|founded|' + state.week, 'here since the founding — the résumé is this label');
+    const chairs = KP.seatBuilding(state, state.seed + '|founded|' + state.week, 'here since the founding; this label is the whole résumé');
     const four = Object.keys(chairs).map(seatId => chairs[seatId].name);
     state.nextMeetingWeek = state.week + 8;
     delete state.knockLedger;   // the one door opens fresh for the new house (v0.10.30)

@@ -447,7 +447,7 @@
       '<div class="d-meta">' + (p.name.stage ? UI.esc(p.name.display) + ' · ' : '') + p.age + ' · ' +
       (p.gender === 'm' ? 'boy' : 'girl') + ' · ' + UI.esc(sourceLabel(state, p)) +
       (p.status === 'prospect' ? ' · ' + looksWord(state, p) : '') +
-      (p.signedWeek ? ' · signed ' + UI.esc(KP.weekLabel(p.signedWeek).text) : '') +
+      (p.signedWeek ? ' · signed ' + UI.esc(KP.weekLabel(p.signedWeek).text) + (p.signedUnder ? ' under ' + UI.esc(p.signedUnder) : '') : '') +
       (p.origin ? ' · <span style="color:var(--cyan)">' + UI.esc(KP.regionLabel(p.origin)) + ' · ' + UI.esc(p.nativeLang || '') +
         (KP.koOf(p) < 95 ? ' · Korean ' + (KP.koOf(p) >= KP.C.TONGUE.koConversational ? 'conversational' : 'learning') : '') + '</span>' : '') +
       (p.status === 'idol' && p.age >= KP.C.TIME.SENESCE.at

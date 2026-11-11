@@ -28,7 +28,7 @@ const desk = (seed, week) => { const s = KP.newGame(seed, null, {}); s.week = we
 // a chair as the interview leaves it on the file
 const sit = (s, seatId, since, more) => { const S = obj(say(() => KP.staffSeats(s)));
   S[seatId] = Object.assign({ id: 'sf' + since + '_' + seatId.length + '31', name: 'Chair of ' + seatId, seatId, tier: 'known', knownForTag: null, since, style: 'scrappy', warmth: 60, candor: 60,
-    resume: ['9 years in, most recently at a mid-tier label'], truth: { base: 0.5, gem: false, bestSeat: 'vocal' } }, more || {});
+    resume: ['9 years in the industry, most recently at a mid-tier label'], truth: { base: 0.5, gem: false, bestSeat: 'vocal' } }, more || {});
   return S[seatId]; };
 // a record on a group's file: the week it landed, and how its era closed, if it has
 const rec = (week, closed, more) => Object.assign({ week, songTitle: 'T' + week, receptionBand: 'solid', trophies: 0, chartPeak: 9, chartWeeks: 3, conceptId: 'cute' },
@@ -76,24 +76,24 @@ const body = (s, sc) => String(say(() => KP.sceneDef('seatPoach').body(s, sc)));
 
 // ---- B. the words -------------------------------------------------------------------------
 {
-  t.eq(full(eras(9, 3, 4, 1, 1)), 'In the room for 9 eras of this house: 3 closed with a trophy, 4 warm, one quietly, one cold.', 'in full: the count, then how they closed, each kind once');
-  t.eq(full(eras(9, 3, 4, 1, 0, 1)), 'In the room for 9 eras of this house: 3 closed with a trophy, 4 warm, one quietly; one still running.', 'one still in promotion is said last');
-  t.eq(full(eras(5, 0, 0, 2, 3)), 'In the room for 5 eras of this house: 2 closed quietly, 3 cold.', 'the first kind named carries the word “closed”, whichever it is');
-  t.eq(full(eras(3, 0, 0, 0, 3)), 'In the room for 3 eras of this house, all closed cold.', 'all one way is said in a word');
-  t.eq(full(eras(3, 0, 0, 0, 2, 1)), 'In the room for 3 eras of this house: 2 closed cold; one still running.', 'but not when one is still running');
-  t.eq(full(eras(2, 0, 0, 0, 0, 2)), 'In the room for 2 eras of this house, all still running.', 'two acts in promotion and nothing closed yet');
+  t.eq(full(eras(9, 3, 4, 1, 1)), 'Worked on 9 eras here: 3 closed with a trophy, 4 warm, one quietly, one cold.', 'in full: the count, then how they closed, each kind once');
+  t.eq(full(eras(9, 3, 4, 1, 0, 1)), 'Worked on 9 eras here: 3 closed with a trophy, 4 warm, one quietly; one still running.', 'one still in promotion is said last');
+  t.eq(full(eras(5, 0, 0, 2, 3)), 'Worked on 5 eras here: 2 closed quietly, 3 cold.', 'the first kind named carries the word “closed”, whichever it is');
+  t.eq(full(eras(3, 0, 0, 0, 3)), 'Worked on 3 eras here, all closed cold.', 'all one way is said in a word');
+  t.eq(full(eras(3, 0, 0, 0, 2, 1)), 'Worked on 3 eras here: 2 closed cold; one still running.', 'but not when one is still running');
+  t.eq(full(eras(2, 0, 0, 0, 0, 2)), 'Worked on 2 eras here, all still running.', 'two acts in promotion and nothing closed yet');
   t.eq([eras(1, 1), eras(1, 0, 1), eras(1, 0, 0, 1), eras(1, 0, 0, 0, 1), eras(1, 0, 0, 0, 0, 1)].map(full).join(' | '),
-    'In the room for one era of this house, which closed with a trophy. | In the room for one era of this house, which closed warm. | In the room for one era of this house, which closed quietly. | ' +
-    'In the room for one era of this house, which closed cold. | In the room for one era of this house, still running.', 'one era, each way it can stand');
-  t.eq(short(eras(9, 3, 4, 1, 1)), '9 eras for this house, 3 of them closed with a trophy', 'in a clause: the count and the best of it');
-  t.eq(short(eras(9, 0, 4, 4, 1)), '9 eras for this house, 4 of them closed warm', 'with no trophy the best is the warm ones');
-  t.eq(short(eras(9, 1, 4, 4)), '9 eras for this house, one of them closed with a trophy', 'one trophy is “one of them”');
-  t.eq(short(eras(4, 0, 0, 2, 2)), '4 eras for this house', 'with neither, the count alone');
-  t.eq([eras(1, 1), eras(1, 0, 1), eras(1, 0, 0, 1), eras(1, 0, 0, 0, 0, 1)].map(short).join(' | '), 'one era for this house, closed with a trophy | one era for this house, closed warm | one era for this house | one era for this house', 'one era, in a clause');
-  t.eq(short({ kind: 'records', n: 3 }) + ' | ' + short({ kind: 'records', n: 1 }) + ' | ' + js(full({ kind: 'records', n: 3 })), '3 records for this house | one record for this house | ""', 'a studio chair’s credit is its records made here; in full it is the card’s own chip');
-  t.eq(full({ kind: 'floor', n: 7, of: 17, debuted: 3 }), 'Of the 17 on this house’s roster, 7 signed on their watch, and 3 of them have debuted.', 'the scout: who signed on their watch, and who of those has debuted');
-  t.eq(full({ kind: 'floor', n: 7, of: 17, debuted: 1 }) + ' | ' + full({ kind: 'floor', n: 1, of: 17, debuted: 0 }), 'Of the 17 on this house’s roster, 7 signed on their watch, and one of them has debuted. | Of the 17 on this house’s roster, one signed on their watch.', 'one who has, and none who have');
-  t.eq(short({ kind: 'floor', n: 7, of: 17, debuted: 3 }) + ' | ' + js(short({ kind: 'floor', n: 0, of: 17, debuted: 0 })), '7 of the 17 on this house’s roster signed on their watch | ""', 'the scout in a clause, and nothing said of a scout nobody signed under');
+    'Worked on one era here, which closed with a trophy. | Worked on one era here, which closed warm. | Worked on one era here, which closed quietly. | ' +
+    'Worked on one era here, which closed cold. | Worked on one era here, still running.', 'one era, each way it can stand');
+  t.eq(short(eras(9, 3, 4, 1, 1)), '9 eras at this house, 3 of them closed with a trophy', 'in a clause: the count and the best of it');
+  t.eq(short(eras(9, 0, 4, 4, 1)), '9 eras at this house, 4 of them closed warm', 'with no trophy the best is the warm ones');
+  t.eq(short(eras(9, 1, 4, 4)), '9 eras at this house, one of them closed with a trophy', 'one trophy is “one of them”');
+  t.eq(short(eras(4, 0, 0, 2, 2)), '4 eras at this house', 'with neither, the count alone');
+  t.eq([eras(1, 1), eras(1, 0, 1), eras(1, 0, 0, 1), eras(1, 0, 0, 0, 0, 1)].map(short).join(' | '), 'one era at this house, closed with a trophy | one era at this house, closed warm | one era at this house | one era at this house', 'one era, in a clause');
+  t.eq(short({ kind: 'records', n: 3 }) + ' | ' + short({ kind: 'records', n: 1 }) + ' | ' + js(full({ kind: 'records', n: 3 })), '3 records made at this house | one record made at this house | ""', 'a studio chair’s credit is its records made here; in full it is the card’s own chip');
+  t.eq(full({ kind: 'floor', n: 7, of: 17, debuted: 3 }), 'Ran scouting when 7 of the 17 on the roster signed, 3 of whom have debuted.', 'the scout: who signed on their watch, and who of those has debuted');
+  t.eq(full({ kind: 'floor', n: 7, of: 17, debuted: 1 }) + ' | ' + full({ kind: 'floor', n: 1, of: 17, debuted: 0 }), 'Ran scouting when 7 of the 17 on the roster signed, one of whom has debuted. | Ran scouting when one of the 17 on the roster signed.', 'one who has, and none who have');
+  t.eq(short({ kind: 'floor', n: 7, of: 17, debuted: 3 }) + ' | ' + js(short({ kind: 'floor', n: 0, of: 17, debuted: 0 })), '7 of the 17 on this house’s roster, signed while they ran scouting | ""', 'the scout in a clause, and nothing said of a scout nobody signed under');
 }
 
 // ---- C. the scout and the studio ---------------------------------------------------------------
@@ -134,12 +134,12 @@ const body = (s, sc) => String(say(() => KP.sceneDef('seatPoach').body(s, sc)));
   App.state = s; App.mode = 'game'; App.tab = 'desk'; App.deskSub = 'building'; App.stack = []; App.view = null;
   const html = draw();
   const card = word => { const i = html.indexOf(word); return i < 0 ? 'no card for ' + word + ' (' + html.slice(0, 60) + ')' : html.slice(i, html.indexOf('data-action="seat-release"', i)); };
-  t.ok(card('Sa &lt;i&gt;Bo-ra&lt;/i&gt;').includes('<div class="seat-credit" style="font-size:.72rem;color:var(--ink-dim);margin-top:4px">In the room for 3 eras of this house: one closed with a trophy, one warm; one still running.</div>'),
+  t.ok(card('Sa &lt;i&gt;Bo-ra&lt;/i&gt;').includes('<div class="seat-credit" style="font-size:.72rem;color:var(--ink-dim);margin-top:4px">Worked on 3 eras here: one closed with a trophy, one warm; one still running.</div>'),
     'the chair’s card says what they were in the room for, under the résumé (' + card('Sa &lt;i&gt;Bo-ra&lt;/i&gt;').replace(/<[^>]+>/g, '|').replace(/\|+/g, '|').slice(-230) + ')');
   t.ok(card('Sa &lt;i&gt;Bo-ra&lt;/i&gt;').indexOf('The résumé:') < card('Sa &lt;i&gt;Bo-ra&lt;/i&gt;').indexOf('seat-credit') && card('Sa &lt;i&gt;Bo-ra&lt;/i&gt;').indexOf('seat-credit') < card('Sa &lt;i&gt;Bo-ra&lt;/i&gt;').indexOf('This chair '),
     'between the résumé and what the chair runs');
   t.ok(!card('Joo Bo-ra').includes('seat-credit'), 'a chair with nothing behind it at this house has no such line');
-  t.ok(card('Scout Im').includes('Of the ' + s.roster.length + ' on this house’s roster, one signed on their watch.</div>'), 'the scout’s card says who signed on their watch');
+  t.ok(card('Scout Im').includes('Ran scouting when one of the ' + s.roster.length + ' on the roster signed.</div>'), 'the scout’s card says who signed on their watch');
 }
 
 // ---- E. a call from outside says what the industry read -----------------------------------------
@@ -149,7 +149,7 @@ const body = (s, sc) => String(say(() => KP.sceneDef('seatPoach').body(s, sc)));
   records(s, [rec(110, 'crowned'), rec(120, 'crowned'), rec(130, 'quiet')]);
   const RAISE = KP.C.HIRES.raiseCost;
   t.eq(body(s, call('vocal')), 'Coach Shin got the call — Rival House, better title, real money. This is what happens when the results carry a name: the industry reads your credits and hires your people. ' +
-    'What it read: 3 eras for this house, 2 of them closed with a trophy. A raise keeps the chair (' + RAISE + '); pride keeps nothing.', 'a chair with credits here: the scene says what the industry read');
+    'The credit it read: 3 eras at HCG, 2 of them closed with a trophy. A raise keeps the chair (' + RAISE + '); pride keeps nothing.', 'a chair with credits here: the scene says what the industry read');
   sit(s, 'dance', 195, { name: 'Coach Nam', tier: 'a name' });
   t.eq(body(s, call('dance')), 'Coach Nam got the call — Rival House, better title, real money. Coach Nam has no credit at this house yet: the call is for the name they came in with. ' +
     'A raise keeps the chair (' + RAISE + '); pride keeps nothing.', 'a chair with none here and a name in the trades: the call is for the name, and the scene does not say the industry read credits');
@@ -161,13 +161,13 @@ const body = (s, sc) => String(say(() => KP.sceneDef('seatPoach').body(s, sc)));
   sit(s, 'anr', 195, { name: 'Sa Bo-ra', tier: 'unknown' });
   t.ok(body(s, call('anr')).includes('The call is not for a credit or a name'), 'an unknown likewise');
   sit(s, 'perf', 100, { name: 'Director Baek', tier: 'working' });
-  t.ok(body(s, call('perf')).includes('What it read: 3 eras for this house, 2 of them closed with a trophy.'), 'a working name with credits here is read on them');
+  t.ok(body(s, call('perf')).includes('The credit it read: 3 eras at HCG, 2 of them closed with a trophy.'), 'a working name with credits here is read on them');
   sit(s, 'producer', 100, { name: 'Pyo Sang-cheol', tier: 'a name', works: [{ week: 110, title: 'A' }, { week: 120, title: 'B' }] });
-  t.ok(body(s, call('producer')).includes('the industry reads your credits and hires your people. What it read: 2 records for this house. A raise'), 'a house producer is read on the records made here');
+  t.ok(body(s, call('producer')).includes('the industry reads your credits and hires your people. The credit it read: 2 records made at HCG. A raise'), 'a house producer is read on the records made here');
   sit(s, 'scout', 100, { name: 'Scout Yoon', tier: 'known' });
   s.roster.forEach(id => { delete s.people[id].signedWeek; });
   s.people[s.roster[0]].signedWeek = 150; s.people[s.roster[1]].signedWeek = 160;
-  t.ok(body(s, call('scout')).includes('What it read: 2 of the ' + s.roster.length + ' on this house’s roster signed on their watch. A raise'), 'a scout on who signed on their watch');
+  t.ok(body(s, call('scout')).includes('The credit it read: 2 of the ' + s.roster.length + ' on HCG’s roster, signed while they ran scouting. A raise'), 'a scout on who signed on their watch');
   delete s.seats.scout;
   t.ok(body(s, call('scout')).startsWith('Your head scout got the call — Rival House, better title, real money. This is what happens when the results carry a name: the industry reads your credits and hires your people. A raise'),
     'a call for a chair that has since emptied reads as it always did, and does not crash');
@@ -176,7 +176,7 @@ const body = (s, sc) => String(say(() => KP.sceneDef('seatPoach').body(s, sc)));
 // ---- F. the goodbyes ------------------------------------------------------------------------------
 {
   const mk = (seed) => { const s = desk(seed, 200); s.budget = 500; sit(s, 'vocal', 100, { name: 'Coach Shin', tier: 'working' }); records(s, [rec(110, 'crowned'), rec(120, 'warm'), rec(130, 'quiet')]); return s; };
-  const SENT = ' On the résumé that leaves with Coach Shin: 3 eras for this house, one of them closed with a trophy.';
+  const SENT = ' Coach Shin leaves with this on the résumé: 3 eras at HCG, one of them closed with a trophy.';
   t.eq(String(say(() => KP.seatLeavesWith(mk('cr-leaves'), mk('cr-leaves').seats.vocal))), SENT, 'what a chair takes out of the door, in one sentence');
   const bare = mk('cr-leaves-none'); records(bare, []);
   t.eq(js(say(() => KP.seatLeavesWith(bare, bare.seats.vocal))), '""', 'and nothing when there is nothing to take');
@@ -207,7 +207,7 @@ const body = (s, sc) => String(say(() => KP.sceneDef('seatPoach').body(s, sc)));
   // kept with a raise: nobody leaves, nothing is said
   const k = mk('cr-kept');
   say(() => KP.sceneDef('seatPoach').resolve(k, call('vocal'), 'raise'));
-  t.ok(!!k.seats.vocal && !(k.inbox || []).some(n => /On the résumé that leaves/.test(n.text)), 'a chair kept with a raise takes nothing anywhere');
+  t.ok(!!k.seats.vocal && !(k.inbox || []).some(n => /leaves with this on the résumé/.test(n.text)), 'a chair kept with a raise takes nothing anywhere');
 }
 
 // ---- G. the call left unanswered ---------------------------------------------------------------------
@@ -217,7 +217,7 @@ const body = (s, sc) => String(say(() => KP.sceneDef('seatPoach').body(s, sc)));
   records(s, [rec(110, 'crowned'), rec(120, 'warm')]);
   const walkedBefore = obj(say(() => KP.hiresLedger(s))).walked || 0;
   const n = obj(say(() => KP.sceneDef('seatPoach').expire(s, call('vocal'))));
-  t.eq(n.text, 'The offer sat on the desk until it answered itself: Coach Shin signed with Rival House, and the head vocal coach chair is open. On the résumé that leaves with Coach Shin: 2 eras for this house, one of them closed with a trophy.',
+  t.eq(n.text, 'The offer sat on the desk until it answered itself: Coach Shin signed with Rival House, and the head vocal coach chair is open. Coach Shin leaves with this on the résumé: 2 eras at HCG, one of them closed with a trophy.',
     'a call left unanswered: the chair goes, and a letter says who took them, which chair is open, and what went with them');
   t.eq([n.kind, n.ind, n.priority].join('/'), 'company/seatLapsed/critical', 'it is said once, and the week’s budget cannot cut it');
   t.ok(!s.seats.vocal && (KP.hiresLedger(s).walked || 0) === walkedBefore + 1, 'and the chair is open, counted as walked');

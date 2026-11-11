@@ -218,6 +218,9 @@ function botWeek(state, mode) {
       return;
     }
     if (sc.kind === 'seatPoach') {
+      // the trial's own career (v0.11.47, §140): with HAUL_UNANSWERED set, the bot leaves a call for its staff
+      // on the desk until it lapses, which no bot here does otherwise. Off, every call is answered
+      if (process.env.HAUL_UNANSWERED) return;
       KP.resolveScene(state, sc.id, state.budget > KP.C.HIRES.raiseCost + 100 ? 'raise' : 'walk');
       return;
     }
@@ -227,6 +230,12 @@ function botWeek(state, mode) {
       if (opts && opts.length) KP.resolveScene(state, sc.id, opts[0].id);
     }
   });
+  // the trial's own career (v0.11.47, §140): with HAUL_LETGO set, the bot lets one chair go every sixty weeks,
+  // each chair in its turn, which no bot here does otherwise. Off, nobody is let go
+  if (process.env.HAUL_LETGO && wk % 60 === 30) {
+    const turn = KP.C.HIRES.SEATS[Math.floor(wk / 60) % KP.C.HIRES.SEATS.length].id;
+    if ((state.seats || {})[turn]) KP.releaseSeat(state, turn);
+  }
   // discourse: the same constrained menu the human gets
   KP.liveDiscourses(state).forEach(d => {
     if (d.responded) return;
@@ -460,6 +469,7 @@ const HO = { given: 0 };                                                    // t
 const CH = { walls: 0, minted: 0 };                                         // the chairs at every desk change (v0.11.40, §132)
 const CR = { held: 0, calls: 0, callsHeld: 0 };                             // the credits of every chair (v0.11.41, §133)
 const YR = { due: 0, wrote: 0, landed: 0, lines: 0, words: 0, held: 0 };    // the staff's letters on the year (v0.11.46, §139)
+const RL = { gone: 0, lines: 0, held: 0, recs: 0, stamped: 0, atDesk: 0, shut: 0 };   // the roll, the room on a record, the scout's name (v0.11.47, §140)
 const NM = { cands: 0, weeks: 0, turns: 0, beyond: 0 };                     // the names of every candidate (v0.11.43, §135)
 // this tool's own copy of the names (v0.11.45, §138): the hundred of before, and the four hundred
 const NAMES_FAM = ['Baek', 'Cha', 'Im', 'Joo', 'Gil', 'Weon', 'Pyo', 'Sa', 'Byun', 'Ma', 'Seok', 'Ok', 'Bang', 'Eom', 'Mo', 'Kwak', 'Yeom', 'Gong', 'Ra', 'Bong'];
@@ -691,6 +701,109 @@ for (const sc of RUN) {
     nw.kinds = Object.keys(nw.wrote).length;
     fresh.forEach(m => { nw.shown[kindOf(m)] = true; if (idOf(m) > nw.lastId) nw.lastId = idOf(m); });
   };
+  // the roll (v0.11.47, §140): this tool's own note of every chair it sees sat. One it saw sat at the last look and
+  // does not see now has gone, and is on the roll: once, under the name, the chair and the house this tool noted,
+  // from the week it first saw them to this one. A line of the roll is never lost and never changes, but for an era
+  // that was running when they went and has closed since. While the house's records are on the file, the credit on
+  // a line is this tool's own books of that chair, week by week: the eras that landed while it saw them sat and how
+  // each closed, the roster that came on while the scout sat, the records it saw a studio chair's list gain. A
+  // chair that goes at the desk is read that day too: it is the one read of a chair left behind when the desk
+  // leaves a house. Once this tool has seen the desk leave a house, every line of that house is shut and its
+  // credit never changes; a line of a house whose chairs are sat is open. A record carries the rooms' chairs this
+  // tool saw sat as its week began, and keeps them. Each of the roster first seen while a scout sat carries that
+  // scout's name, and nobody else carries one. And a studio chair's list of records loses nothing. Nothing here
+  // asks the engine who has gone
+  const rl = { sat: {}, began: {}, copy: [], rooms: {}, under: {}, floor: {}, titles: {}, house: null, left: {}, gone: 0, lines: 0, recs: 0, stamped: 0, held: 0, atDesk: 0, shut: 0 };
+  const rlFloor = () => {   // what this tool's books hold for the scout sat now
+    const sc = (state.seats || {}).scout;
+    if (!sc) return null;
+    const mine = state.roster.filter(id => cr.on[id] > yr.first[sc.id]);
+    return { id: sc.id, n: mine.length, of: state.roster.length, debuted: mine.filter(id => state.people[id].status === 'idol').length };
+  };
+  const rlLook = after => {
+    const S = state.seats || {}, now = {}, roll = state.staffRoll || [], house = state.company.short;
+    Object.keys(S).forEach(k => { now[S[k].id] = { name: S[k].name, seatId: k, house }; });
+    const adds = c => (c.kind !== 'eras' ? true : c.crowned + c.warm + c.quiet + c.cold + c.running === c.n);
+    if (rl.house && rl.house !== house) rl.left[rl.house] = true;   // this tool has seen the desk leave that house
+    crOver();   // the desk's own week can end an act
+    rl.house = house;
+    rl.copy.forEach((was, i) => {
+      const e = roll[i];
+      if (!e) { flag(sc.seed, state.week, 'a line of the roll is gone: ' + was.name + ', ' + was.seatId); return; }
+      if (!['id', 'name', 'seatId', 'house', 'since', 'until', 'how', 'to', 'by'].every(f => e[f] === was[f]) || e.credit.kind !== was.credit.kind) flag(sc.seed, state.week, 'a line of the roll has changed: ' + was.name + ', ' + was.seatId);
+      else if (e.credit.kind === 'eras' && e.house !== house && JSON.stringify(e.credit) !== JSON.stringify(was.credit)) flag(sc.seed, state.week, 'the credit of ' + e.name + ' on the roll has changed since the desk left ' + e.house);
+    });
+    // whoever was sat at the last look and is not sat now
+    Object.keys(rl.sat).forEach(id => {
+      if (now[id]) return;
+      const was = rl.sat[id], mine = roll.filter(e => e.id === id);
+      rl.gone++;
+      if (mine.length !== 1) { flag(sc.seed, state.week, was.name + ' sat in the ' + was.seatId + ' chair and has gone, and the roll holds ' + mine.length + ' lines for them'); return; }
+      const e = mine[0];
+      if (e.name !== was.name || e.seatId !== was.seatId || e.house !== was.house || e.since !== yr.first[id] || e.until !== state.week) {
+        flag(sc.seed, state.week, 'the roll files ' + e.name + ' in the ' + e.seatId + ' chair at ' + e.house + ' from week ' + e.since + ' to ' + e.until + ', and this tool saw ' + was.name + ' in the ' + was.seatId + ' chair at ' + was.house + ' from week ' + yr.first[id] + ' to ' + state.week);
+      }
+      // gone at the desk, before the week ran: this tool's books of the chair are as the last week left them, and
+      // the line says what they say. It is the one read of a chair that stays behind when the desk leaves a house
+      if (!after && ERA_CHAIRS.includes(e.seatId)) {
+        const own = crOwn(id);
+        const a = [e.credit.n, e.credit.crowned, e.credit.warm, e.credit.quiet, e.credit.cold, e.credit.running].join('/'), b = [own.n, own.crowned, own.warm, own.quiet, own.cold, own.running].join('/');
+        rl.atDesk++;
+        if (a !== b) flag(sc.seed, state.week, 'the roll files ' + e.name + ' with ' + a + ' (eras, with a trophy, warm, quietly, cold, still running) the day they went, and this tool had seen ' + b + ' land and close while they sat');
+      }
+      if (e.seatId === 'scout') {   // the scout's count as this tool held it at the last look, or holds it at this one
+        const held = [rl.floor[id], (() => { const mineNow = state.roster.filter(p => cr.on[p] > yr.first[id]); return { n: mineNow.length, of: state.roster.length, debuted: mineNow.filter(p => state.people[p].status === 'idol').length }; })()].filter(Boolean);
+        if (!held.some(f => f.n === e.credit.n && f.of === e.credit.of && f.debuted === e.credit.debuted)) flag(sc.seed, state.week, 'the roll credits ' + e.name + ' with ' + e.credit.n + ' of ' + e.credit.of + ' signed, ' + e.credit.debuted + ' debuted, and this tool held ' + held.map(f => f.n + ' of ' + f.of + ', ' + f.debuted).join(' or '));
+      } else if (!ERA_CHAIRS.includes(e.seatId)) {
+        const own = ((yr.made[id] || {}).weeks || []).length;
+        if (e.credit.kind !== 'records' || e.credit.n !== own) flag(sc.seed, state.week, 'the roll credits ' + e.name + ' with ' + e.credit.n + ' records made here and this tool saw ' + own);
+      }
+    });
+    rl.sat = now;
+    const fl = rlFloor();
+    if (fl) rl.floor[fl.id] = fl;
+    // every line of this house: whole, and the eras on it this tool's own
+    roll.forEach(e => {
+      if (!adds(e.credit)) flag(sc.seed, state.week, 'the credit of ' + e.name + ' on the roll does not add up');
+      // a line of a house this tool has seen the desk leave is shut, and a line of a house with its chairs sat is not
+      if (rl.left[e.house]) { rl.shut++; if (!e.shut) flag(sc.seed, state.week, 'the desk has left ' + e.house + ', and the line of ' + e.name + ' on its roll is not shut'); }
+      else if (e.shut && Object.keys(S).length) flag(sc.seed, state.week, 'the line of ' + e.name + ' on the roll is shut, and the chairs of ' + e.house + ' are sat');
+      if (e.house !== house || !ERA_CHAIRS.includes(e.seatId)) return;
+      const own = crOwn(e.id);
+      rl.held++;
+      const a = [e.credit.n, e.credit.crowned, e.credit.warm, e.credit.quiet, e.credit.cold, e.credit.running].join('/'), b = [own.n, own.crowned, own.warm, own.quiet, own.cold, own.running].join('/');
+      if (after && a !== b) flag(sc.seed, state.week, 'the roll credits ' + e.name + ' with ' + a + ' (eras, with a trophy, warm, quietly, cold, still running) and this tool saw ' + b + ' land and close while they sat');
+    });
+    rl.copy = roll.map(e => JSON.parse(JSON.stringify(e)));
+    rl.lines = roll.length;
+    // a studio chair's list of records loses nothing
+    Object.keys(S).forEach(k => {
+      if (!KP.C.HIRES.SEATS.find(x => x.id === k).studio) return;
+      const st = S[k], have = (st.works || []).map(w => w.title + '|' + w.groupId);
+      (rl.titles[st.id] || []).forEach(t => { if (!have.includes(t)) flag(sc.seed, state.week, 'a record has gone from the list of ' + st.name + ': ' + t.split('|')[0]); });
+      rl.titles[st.id] = have;
+    });
+    if (!after) { rl.began = now; return; }   // the chairs sat as the week begins: whose names a record landing this week carries
+    // the records that landed this week, and every record this tool has seen: the room, by name, for good
+    KP.groups(state).forEach(g => (g.releases || []).forEach(rel => {
+      const key = g.id + '|' + rel.week, said = JSON.stringify(rel.room || null);
+      if (rel.week === state.week && rl.rooms[key] == null) {
+        const own = {};
+        KP.C.HIRES.SEATS.forEach(x => { const id = Object.keys(rl.began).find(i => rl.began[i].seatId === x.id); if (id && ERA_CHAIRS.includes(x.id)) own[x.id] = rl.began[id].name; });
+        rl.recs++;
+        if (said !== JSON.stringify(own)) flag(sc.seed, state.week, 'the record “' + rel.songTitle + '” carries the room ' + said + ' and this tool saw ' + JSON.stringify(own) + ' sat as the week began');
+        rl.rooms[key] = said;
+      } else if (rl.rooms[key] != null && rl.rooms[key] !== said) flag(sc.seed, state.week, 'the room on the record “' + rel.songTitle + '” has changed');
+    }));
+    // who signed on a scout's watch: noted the look this tool first sees them on the roster, held from the look after
+    state.roster.forEach(id => {
+      const p = state.people[id];
+      if (rl.under[id] === undefined) { const scn = (state.seats || {}).scout; rl.under[id] = scn && cr.on[id] > yr.first[scn.id] ? scn.name : null; }
+      if (cr.on[id] >= state.week) return;
+      if (rl.under[id]) rl.stamped++;
+      if ((p.signedUnder || null) !== rl.under[id]) flag(sc.seed, state.week, KP.displayName(p) + ' carries the scout’s name “' + (p.signedUnder || 'none') + '” and this tool noted “' + (rl.under[id] || 'none') + '” the week they came on to the roster');
+    });
+  };
   const chLook = () => {
     const S = state.seats || {};
     yrMade();
@@ -705,7 +818,7 @@ for (const sc of RUN) {
   // in a week the chair began sat, how each closed by this tool's own reading of the close, and the week each of
   // the roster came on to it. The engine's read of a chair's credit is held to them every week, and so is what a
   // call from outside says the industry read. Nothing here asks the engine what a chair is credited with
-  const cr = { rec: {}, on: {}, sat: [], seen: {}, held: 0, calls: 0, callsHeld: 0 };
+  const cr = { rec: {}, on: {}, sat: [], seen: {}, over: {}, held: 0, calls: 0, callsHeld: 0 };
   const ERA_CHAIRS = ['vocal', 'dance', 'perf', 'anr', 'marketing'];
   const closedAs = rel => ((rel.trophies || 0) >= 1 ? 'crowned' : rel.receptionBand === 'sensation' || rel.receptionBand === 'strong' ? 'warm' : rel.receptionBand === 'miss' ? 'cold' : 'quiet');
   const crRoster = () => {   // who is on the roster at this look, and since which week
@@ -714,15 +827,26 @@ for (const sc of RUN) {
     cr.on = now;
   };
   const crBegin = () => { crRoster(); cr.sat = Object.keys(state.seats || {}).map(k => state.seats[k].id); };   // the chairs sat as the week begins
+  // an era with no close on the file is running only while it is its act's latest record, the act stands, and
+  // the promotion has weeks left. One that is none of these never came to its close (an act that ends the week
+  // its record lands), and it reads by its trophies and its reception, as its close would have. No long career
+  // held one until the trial's own (v0.11.47, §140), and these books read it as running for good
+  const crOver = () => {
+    cr.over = {};
+    KP.groups(state).forEach(g => (g.releases || []).forEach((rel, i, all) => {
+      if (!rel.closed && (g.retiredWeek || i < all.length - 1 || state.week > (g.promoUntil || 0))) cr.over[g.id + '|' + rel.week] = closedAs(rel);
+    }));
+  };
   const crOwn = id => {
     const book = cr.rec[id] || {}, keys = Object.keys(book);
     const own = { n: keys.length, crowned: 0, warm: 0, quiet: 0, cold: 0 };
-    keys.forEach(k => { if (book[k]) own[book[k]]++; });
+    keys.forEach(k => { const how = book[k] || cr.over[k]; if (how) own[how]++; });
     own.running = own.n - own.crowned - own.warm - own.quiet - own.cold;
     return own;
   };
   const crLook = () => {
     crRoster();
+    crOver();
     const rels = {};
     KP.groups(state).forEach(g => (g.releases || []).forEach(rel => { rels[g.id + '|' + rel.week] = rel; }));
     Object.keys(rels).forEach(key => {
@@ -756,7 +880,7 @@ for (const sc of RUN) {
       if (!st || !ERA_CHAIRS.includes(x.seatId)) return;
       cr.callsHeld++;
       const own = crOwn(st.id), body = KP.sceneDef('seatPoach').body(state, x);
-      const m = /What it read: (one|\d+) eras? for this house(?:, (?:(one|\d+) of them )?closed (with a trophy|warm))?\./.exec(body);
+      const m = /The credit it read: (one|\d+) eras? at [^,.]+(?:, (?:(one|\d+) of them )?closed (with a trophy|warm))?\./.exec(body);
       const said = m ? [num(m[1]), m[3] ? num(m[2] || m[1]) : 0, m[3] || 'none'].join('/') : /has no credit at this house yet/.test(body) ? 'no credit, a name' : /not for a credit or a name/.test(body) ? 'no credit, no name' : 'nothing';
       const best = own.crowned ? [own.crowned, 'with a trophy'] : own.warm ? [own.warm, 'warm'] : [0, 'none'];
       const named = ['known', 'a name'].includes(st.tier);
@@ -851,6 +975,7 @@ for (const sc of RUN) {
   };
   if (sc.mode === 'service') seedBoyGroup(state);
   glLook();
+  rlLook(false);
   let founded = false;
   let dissolvedAt = null;
   const bd = { due: 0, wrote: 0, landed: 0 };   // the label's birthdays (v0.11.36, §128)
@@ -888,10 +1013,14 @@ for (const sc of RUN) {
     }
     if (sc.mode === 'founder' && !founded && KP.foundingEligible &&
         KP.foundingEligible(state).ok) {
+      // the scout's count as the desk leaves: the desk's own week may have signed someone since the last look
+      crRoster();
+      { const fl = rlFloor(); if (fl) rl.floor[fl.id] = fl; }
       glWall(() => { KP.foundLabel(state, 'Audit House'); return !!state.founded; }, true);
       founded = true;
     }
     glLook();
+    rlLook(false);   // the chairs sat as the week begins, and whoever the desk's own week let go
     rvLook();
     const sheetsAsTheTickBegan = sheetsNow(), chairAsTheTickBegan = gl.chair, trustAsTheTickBegan = state.trust;
     crBegin();
@@ -906,6 +1035,7 @@ for (const sc of RUN) {
     // the greenlights (v0.11.37, §129): one the last house gave reads as it did the day the desk moved, and one that
     // was open that day reads set aside; the record lists this desk's own and no other, each with its chair and its end
     glLook();
+    rlLook(true);
     if (state.executive.name !== chairAsTheTickBegan) hoLook(chairAsTheTickBegan, trustAsTheTickBegan);
     {
       const all = state.mandates || [];
@@ -1101,6 +1231,7 @@ for (const sc of RUN) {
   CH.walls += ch.walls; CH.minted += ch.minted;
   CR.held += cr.held; CR.calls += cr.calls; CR.callsHeld += cr.callsHeld;
   YR.due += yr.due; YR.wrote += yr.wrote; YR.landed += yr.landed; YR.lines += yr.lines; YR.words += yr.words; YR.held += yr.held;
+  RL.gone += rl.gone; RL.lines += rl.lines; RL.held += rl.held; RL.recs += rl.recs; RL.stamped += rl.stamped; RL.atDesk += rl.atDesk; RL.shut += rl.shut;
   NM.cands += nm.cands; NM.weeks += nm.weeks; NM.turns += nm.turns; NM.beyond += nm.beyond;
   if (nm.cands >= 20 && !nm.beyond) flag(sc.seed, state.week, nm.cands + ' candidates took a meeting and not one under a name beyond the hundred of before');
   FD.wrote += fd.wrote; FD.desk += fd.desk; FD.below += fd.below; if (fd.most > FD.most) FD.most = fd.most;
@@ -1199,6 +1330,7 @@ console.log('the kept place (v0.11.44): ' + NW.weeks + ' weeks wrote a kind its 
 console.log('below the fold (v0.11.44): ' + FD.wrote + ' letters written by the week · ' + FD.desk + ' on the Desk, ' + FD.below + ' below the fold, each the week it was written and the week after, by this tool’s own count of the wire · the fold at its fullest held ' + FD.most + ' letters');
 console.log('one name, one chair (v0.11.43): ' + NM.cands + ' candidates took a meeting, each held to this tool’s own note of the names it had heard and its own copy of the four hundred · ' + NM.beyond + ' under a name beyond the hundred of before · the four hundred came round ' + NM.turns + ' time' + (NM.turns === 1 ? '' : 's') + ' · ' + NM.weeks + ' weeks of chairs sat, each looked at for two under one name');
 console.log('the staff’s year (v0.11.46): ' + YR.due + ' first weeks of a year with a chair sat twelve weeks · ' + YR.wrote + ' letters written, ' + YR.landed + ' landed · ' + YR.lines + ' lines, each under the name, the title and the weeks this tool has seen the chair sat · ' + YR.words + ' words, ' + YR.held + ' held to this tool’s own books of the chair’s year, each to the letter before and to the others of its letter');
+console.log('the roll (v0.11.47): ' + RL.gone + ' chairs seen sat and gone, each on the roll the week it went, by this tool’s own note of who sat · ' + RL.lines + ' lines at the careers’ ends, none lost or changed · ' + RL.atDesk + ' credits read the day a chair went at the desk and ' + RL.held + ' weekly reads of a line’s eras, each this tool’s own books · ' + RL.shut + ' weekly reads of a line of a house the desk had left, each shut · ' + RL.recs + ' records, each carrying the room this tool saw sat as its week began · ' + RL.stamped + ' weekly reads of a scout’s name on someone who signed on their watch');
 console.log('the credits (v0.11.41): ' + CR.held + ' weeks of a chair’s credit held to this tool’s own books of what landed, how it closed and who signed · ' + CR.calls + ' calls from outside, ' + CR.callsHeld + ' of them for a chair that works an era, each held to the same books');
 console.log('the chairs (v0.11.40): ' + CH.walls + ' desk change' + (CH.walls === 1 ? '' : 's') + ' · ' + CH.minted + ' chairs opened the next buildings, four at each · none carried across, by this tool’s own books of who sat');
 console.log('the handovers (v0.11.39): ' + HO.given + ' · each letter held to this tool’s own books of the chair who left');

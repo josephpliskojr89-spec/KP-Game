@@ -1506,6 +1506,23 @@
     state.deskWrote = Object.assign({}, seen);   // what the file can know it wrote is what it holds
     state.fold = [];
   } });
+  // 0.11.47 (§140; the owner's ruling, §136: 21 and 27): the credits that stay. The roll begins empty: an older file
+  // kept nothing of a chair once it had gone, and cannot say who sat before. What it can still prove, it writes
+  // down: on each record, the rooms' chairs who sat when it landed and sit yet; on each of the roster, the scout
+  // who sits yet and sat when they signed. And the résumés are put in the plainer words, the facts as they were
+  MIGRATIONS.push({ v: '0.11.47', fn: function (state) {
+    state.staffRoll = [];
+    const S = state.seats || {};
+    const plain = st => { if (st && Array.isArray(st.resume)) st.resume = st.resume.map(KP.resumePlain); };
+    Object.keys(S).forEach(k => plain(S[k]));
+    (state.scenes || []).forEach(sc => { if (sc && sc.cand) plain(sc.cand); });
+    const rooms = KP.C.HIRES.SEATS.filter(x => !x.studio && x.id !== 'scout' && S[x.id]);
+    KP.groups(state).forEach(g => (g.releases || []).forEach(rel => {
+      rel.room = {};
+      rooms.forEach(x => { if (S[x.id].since < rel.week) rel.room[x.id] = S[x.id].name; });
+    }));
+    KP.signedStamp(state);
+  } });
 
   KP.migrate = function (state) {
     const applied = [];

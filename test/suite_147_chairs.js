@@ -32,7 +32,7 @@ const distinct = list => new Set(list).size === list.length;
 // a chair hired the ordinary way, as the interview leaves it on the file
 const hire = (s, seatId, week, more) => { const S = obj(say(() => KP.staffSeats(s)));
   S[seatId] = Object.assign({ id: 'sf' + week + '_' + seatId.length + '77', name: 'Hired ' + seatId, seatId, tier: 'a name', knownForTag: null, since: week, style: 'scrappy', warmth: 60, candor: 60,
-    resume: ['9 years in, most recently at a mid-tier label', 'was in the room for a famous era'], truth: { base: 0.5, gem: false, bestSeat: 'vocal' } }, more || {});
+    resume: ['9 years in the industry, most recently at a mid-tier label', 'worked through a famous era'], truth: { base: 0.5, gem: false, bestSeat: 'vocal' } }, more || {});
   return S[seatId]; };
 // a full building at an old house: the four it opened with, three hired since, a posting up
 const full = s => { hire(s, 'anr', 20); hire(s, 'marketing', 60); hire(s, 'producer', 90, { works: [{ week: 100, title: 'A', craft: 60, groupId: act(s).id }, { week: 120, title: 'B', craft: 70, groupId: act(s).id }] });
@@ -103,7 +103,7 @@ const load = (s, version) => { const raw = JSON.parse(KP.serialize(s)); (raw.sta
   t.ok(chairs(f).every(c => !was.some(o => o.id === c.id)), 'none of the old house’s people is in them: everything built stays behind, the staff with it');
   t.eq(col(f, 'since'), [1, 1, 1, 1].map(() => 3 * YEAR).join(), 'the four have sat since the founding week');
   t.eq(col(f, 'tier'), 'working,working,working,working', 'and are working names, as the blank page’s are');
-  t.eq(col(f, 'resume'), [1, 1, 1, 1].map(() => 'here since the founding — the résumé is this label').join(), 'their résumé is this label');
+  t.eq(col(f, 'resume'), [1, 1, 1, 1].map(() => 'here since the founding; this label is the whole résumé').join(), 'their résumé is this label');
   t.eq(col(f, 'id'), FOUR.split(',').map(k => 'sf' + (gen + 1) + '_' + k).join(), 'they are minted under the new building’s count, after it has moved on');
   t.eq(col(f, 'name'), named(f.seed + '|founded|' + 3 * YEAR).join(), 'under names the founding’s own week gives');
   t.ok(distinct(chairs(f).map(c => c.name)), 'each under a name of its own');
@@ -144,7 +144,7 @@ const load = (s, version) => { const raw = JSON.parse(KP.serialize(s)); (raw.sta
   say(() => KP.dissolveLabel(sal, 'read'));
   const sd = obj(say(() => KP.nextChapter(sal, 'salaried')));
   t.ok(sd.ok === true && !sal.founded, 'the fixture: the salaried door opens (' + js(sd).slice(0, 40) + ')');
-  t.eq(col(sal, 'resume'), [1, 1, 1, 1].map(() => 'here before you — the résumé is this company').join(), 'a house that hires the desk has chairs that were there first');
+  t.eq(col(sal, 'resume'), [1, 1, 1, 1].map(() => 'here before you came; this company is the whole résumé').join(), 'a house that hires the desk has chairs that were there first');
   t.eq(col(sal, 'since') + ' · ' + js(complaints(sal)), [1, 1, 1, 1].map(() => 2 * YEAR - 10).join() + ' · []', 'sat, on the file, from the week the desk arrived');
 }
 
@@ -204,12 +204,12 @@ const load = (s, version) => { const raw = JSON.parse(KP.serialize(s)); (raw.sta
   t.eq(js(chairs(back).map(c => c.truth)), js(before.map(c => c.truth)), 'and each is worth what they were worth');
   t.eq(col(back, 'since'), '141,141,141,141,141,141,141,150', 'each who came across has sat in this label’s chair since the day it opened; one hired there since keeps their week');
   t.eq(resume(back, 'vocal'), js(['came across from HCG at the founding']), 'one who was “here since the beginning” at the old house is not at this one: the file says where they came from');
-  t.eq(resume(back, 'anr'), js(['9 years in, most recently at a mid-tier label', 'was in the room for a famous era', 'came across from HCG at the founding']), 'a hired one keeps the résumé they came with, and gains the line');
+  t.eq(resume(back, 'anr'), js(['9 years in the industry, most recently at a mid-tier label', 'worked through a famous era', 'came across from HCG at the founding']), 'a hired one keeps the résumé they came with, and gains the line');
   t.eq(resume(back, 'writer'), js(before.filter(c => c.seatId === 'writer')[0].resume), 'the one hired at the label gains nothing');
   t.eq(resume(back, 'dance'), js(['came across from HCG at the founding']), 'and a chair with no résumé on the file is given the one true line');
   const second = full(desk('ch-old-second', 161));
   second.chapterSince = 60; second.founded = { week: 141, from: 'SECOND', warChest: 278 };
-  second.seats.vocal.since = 60; second.seats.vocal.resume = ['here before you — the résumé is this company'];
+  second.seats.vocal.since = 60; second.seats.vocal.resume = ['here before you came; this company is the whole résumé'];
   t.eq(resume(load(second, '0.11.39'), 'vocal'), js(['came across from SECOND at the founding']), 'one who was “here before you” at a second house was not here before the label: that line goes too');
   t.eq((((back.seats || {}).producer || {}).works || []).length, 2, 'the records a producer made for the old house stay on their file');
   t.eq(js(complaints(back)), '[]', 'and the corrected file is a valid state');

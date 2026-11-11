@@ -232,6 +232,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .mail.folded { opacity: .78; }
 .fold { margin-top: 6px; border-top: 1px dashed var(--ink-faint); }
 .fold-cap { padding: 10px 16px 0; font-size: .68rem; color: var(--ink-faint); }
+/* the roll of who has sat a chair and gone (v0.11.47, §140) */
+.roll { margin: 0 0 12px; border-top: 1px dashed var(--ink-faint); }
+.roll-house { padding: 12px 16px 2px; font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+.roll-row { padding: 10px 16px; border-bottom: 1px solid var(--line); font-size: .76rem; line-height: 1.5; }
+.roll-name { font-weight: 800; }
+.roll-seat, .roll-when { font-size: .7rem; color: var(--ink-dim); }
+.roll-credit { margin-top: 3px; }
+.roll-word { margin-top: 3px; font-size: .72rem; color: var(--ink-dim); }
 /* a letter of several lines: each after the first on its own, a little apart (v0.11.46, §139) */
 .mail .m-line { display: block; margin-top: 7px; }
 /* a letter's tag is one word (v0.11.33, §125). The letter starts 73 px in, as

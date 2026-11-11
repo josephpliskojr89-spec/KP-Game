@@ -402,6 +402,12 @@
       const st = state.seats[seatId];
       if (st.since < KP.deskSince(state)) bad('a chair of this building has been sat since before the building opened (' + seatId + ', since week ' + st.since + ')');
     });
+    // the roll (v0.11.47, §140): each line is whole, and none is dated outside its own weeks or after this one
+    (state.staffRoll || []).forEach((e, i) => {
+      if (!e || !e.name || !e.house || !e.credit || !isFinite(e.since) || !isFinite(e.until) || !KP.C.HIRES.SEATS.some(x => x.id === e.seatId) || !KP.rollHows().includes(e.how) ||
+          (e.shut !== undefined && e.shut !== 'stayed' && e.shut !== 'folded')) bad('a malformed line on the roll (' + i + ')');
+      else if (e.until < e.since || e.until > state.week) bad('a line on the roll is dated outside its own weeks (' + e.name + ', ' + e.since + ' to ' + e.until + ')');
+    });
     return v;
   };
 })(typeof window !== 'undefined' ? window : globalThis);

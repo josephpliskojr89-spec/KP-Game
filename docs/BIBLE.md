@@ -16820,6 +16820,333 @@ from two events and not from a number. And the house's wider year
 is left to the company's own letter.
 
 
+## §140 The credits that stay, in plainer words (SHIPPED v0.11.47 — the owner's ruling, §136: decisions 21 and 27)
+
+The fourth piece built on the directive (§136). Owner, on credits:
+*"Preserve all historical creative and professional credits
+permanently. A person's departure must not erase their
+contributions to previous projects or the historical record."* On
+the words: *"Rewrite awkward credit and résumé language for clarity
+and naturalness. Preserve historical attribution and the permanence
+of professional credits."*
+
+**Counted first.** A chair's credit (§133) was read off the records
+while the chair was sat. When the chair went, a goodbye letter said
+the credit once and the file dropped the chair. On the tree before
+this piece:
+
+| on v0.11.46 | the census, 200 careers | the long haul, 11 careers |
+|---|---|---|
+| chairs that went from a house the desk ran | 663 | 198 |
+| of them, with a credit to their name | 576 | 80 |
+| eras on those credits | 4,381 | 1,133 |
+| of those, closed with a trophy | 2,291 | 615 |
+| signings on a scout’s watch | 432 | 30 |
+| records made by a studio chair | 22 | 0 |
+| chairs left with a house the desk walked out of | 0 | 8 |
+| goodbyes still on the file at the career’s end | 68 | 2 |
+
+A goodbye said the credit once. The Desk keeps its newest letters,
+so at a career’s end 68 of the census’s 663 goodbyes were still on
+the file, and 2 of the long haul’s 198. Nothing else on the file
+said those chairs had ever been sat. The one founding in the long
+haul left eight chairs with the old house, five of them with a
+credit and 90 eras between them. The founding letter named them and
+the file kept nothing of what they had done. The count itself could
+not see the chairs of a house that folds: it looked when the next
+building opened, and they were gone by then. The roll has them, ten
+in the census and eleven in the long haul.
+
+**The roll.** The file keeps a line for everyone who has sat a
+chair and gone (`state.staffRoll`). A line holds who it was, which
+chair, which house, the week they sat and the week they went, how
+they went, the credit as the file read it that day, and their last
+word on a year (§139). It holds nothing of the fog: no truth and no
+price. The roll is never trimmed. Nothing is drawn to write it, and
+nothing reads it back into the simulation.
+
+- *Six ways to go.* Let go. Replaced at an interview, and by whom.
+  Took a call, and where to. A call left unanswered, and where to.
+  Stayed with the house when the desk left it (§132). There when
+  the house folded, and which house took them.
+- *An era still running that day* is read again each week until it
+  has closed (`KP.rollSettle`). The read stops at the week they
+  went. A trophy won after they went, on a record they worked on,
+  is on their line. A record that lands after they went is not.
+- *A house that closes to the desk.* At a founding and at a fold
+  every chair still sat goes on the roll. It is read first, while
+  the records are on the file and the roster is still the roster.
+  Then every line of that house is shut, with how the house closed.
+  A shut line is never read again, whatever the next house is
+  called.
+
+**On the record, by name.** A record carries the names of the
+rooms' chairs sat when it landed (`rel.room`): vocal, dance,
+staging, A&R and marketing. The law is the credit's own. A record
+is a chair's if it landed after the chair was taken. The act's page
+says it under the record: "in the room: Kang Soo-jin (vocal), Coach
+Kwak (dance), Director Cha (staging)". The names stay when the
+chairs change. A producer and a writer were on the record already,
+and so were the members who wrote.
+
+**The scout's name.** Each of the roster signed after the scout sat
+carries the scout's name (`signedUnder`). The week writes it, and
+so does the day a scout goes. It is written once and never written
+over. A person's page says "signed Jan · Wk 2 · Y1 under Scout Im".
+Someone signed the week a scout sat, or while the chair was empty,
+carries no name. That is the credit's law too.
+
+**A house chair's own list.** The file kept the last twelve records
+of any producer or writer, so a house chair's credit for its own
+house stopped at twelve (seen in §139). A house chair's list is
+kept whole now. A producer or writer of the pool still keeps
+twelve. Every read that decides anything looks at the same twelve
+it always did (`KP.worksRecent`): the word for a track record, and
+the three records together that make a sound the public can name.
+Three more reads go through the same function. They only ever see a
+pool list, which is twelve at most.
+
+**The plainer words** (decision 27). Each line holds the facts it
+held. A credit that crosses the street now names the house, since
+it is read there.
+
+| was | is |
+|---|---|
+| In the room for 17 eras of this house: 8 closed with a trophy | Worked on 17 eras here: 8 closed with a trophy |
+| Of the 17 on this house’s roster, 7 signed on their watch, and 3 of them have debuted. | Ran scouting when 7 of the 17 on the roster signed, 3 of whom have debuted. |
+| On the résumé that leaves with Joo Bo-ra: 3 eras for this house. | Joo Bo-ra leaves with this on the résumé: 3 eras at HCG. |
+| What it read: 17 eras for this house, 8 of them closed with a trophy. | The credit it read: 17 eras at HCG, 8 of them closed with a trophy. |
+| 11 years in, most recently at a management boutique | 11 years in the industry, most recently at a management boutique |
+| was in the room for one long tour cycle | worked through one long tour cycle |
+| here since the beginning — the résumé is this company | here since the beginning; this company is the whole résumé |
+| known for head vocal coach work | known for vocal coaching |
+
+**The Building tab.** One line at its foot: "Who has sat here · 3
+names". A tap opens the roll, the last to go first. A row has the
+name, the title, the dates, how they went, the credit, and the last
+word with its year. A roll with one house on it names no house.
+With more, this house's lines stand under "Here" and each house
+before under its own name, and the line reads "here and before" or
+"at the houses before". A line of a house the desk has left is said
+of then and there: "Worked on one era there, still running when HCG
+folded."
+
+**Old files.** One migration. The roll starts empty. An older file
+kept nothing of a chair once it had gone, and cannot say who sat
+before. Each record is given the rooms' chairs who sat when it
+landed and sit yet. Each of the roster signed after the scout who
+sits yet is given that name. The résumés of the chairs sat, and of
+a candidate waiting in the building, are put in the plainer words.
+The letters a file already holds read as they did.
+
+**Measured**, on the tree as shipped.
+
+| at the careers’ ends | the census | the long haul |
+|---|---|---|
+| lines on the roll | 673 | 217 |
+| replaced at an interview | 635 | 196 |
+| took a call | 28 | 2 |
+| there when the house folded | 10 | 11 |
+| stayed when the desk left | 0 | 8 |
+| lines with a credit | 584 | 90 |
+| eras on them | 4,389 | 1,231 |
+| eras that were running the day the chair went | 311 | 36 |
+| of those, closed since and read again | 303 | 31 |
+| trophies those eras closed with | 162 | 12 |
+| lines of a house the desk has left, each shut | 11 | 22 |
+| lines with a last word on a year | 576 | 192 |
+| records carrying the room | 3,284 of 3,882 | 308 of 326 |
+| names on those records | 16,063 | 1,433 |
+| of them, someone who has gone | 4,381 | 1,132 |
+| of the roster, signed under a scout | 1,355 of 3,343 | 22 of 45 |
+| of them, under a scout who has gone | 412 | 9 |
+
+Every chair the count saw go is on the roll, with the ones it could
+not see. No career of either set lets a chair go or leaves a call
+unanswered, since no bot does: the trial’s own careers do both.
+Every record with no room is one its house held before the desk
+came. The average census file was 604,615 bytes and is 608,019,
+0.6% more: the roll is 1,219 of that, the rooms 1,946 and the
+scouts’ names 184.
+
+**What moved.** Nothing in the simulation moves. Each of the
+census’s 200 careers was played on v0.11.46 and on this tree, and
+each ends on the same file once the Desk, the roll, the rooms on
+the records, the scouts’ names and the résumés’ words are set
+aside. No census career has a house chair with more than twelve
+records, the most being five, so the one career that has, the
+trial’s own, was held the same way: it ends on the same file under
+both trees. None of the census’s 365 rows moved. One other line
+did: the average file is 594 KB where it was 590. In the long haul
+the eleven careers read as they did but for their size, which is up
+by 17 KB at the most, and the tool has one line more, for the roll.
+
+**The tools' books.** The long haul keeps its own note of every
+chair it sees sat, and asks the engine nothing about who has gone.
+A chair it saw sat at the last look and does not see now is on the
+roll once, under the name, the chair and the house the tool noted,
+from the week it first saw them to this one. No line is ever lost
+or changed. While a house's records are on the file, the eras on a
+line are the tool's own books of that chair, read every week. A
+chair that goes at the desk is read that day too. A scout's line is
+the tool's own count of the roster, and a studio chair's is the
+records the tool saw its list gain. Once the tool has seen the desk
+leave a house, every line of that house is shut and its credit does
+not change. A record carries the rooms' chairs the tool saw sat as
+its week began, and keeps them. Each of the roster first seen while
+a scout sat carries that scout's name, and nobody else carries one.
+A house chair's list loses nothing.
+
+Over the eleven long careers the tool saw 217 chairs sat and gone,
+each on the roll the week it went. It read 142 credits the day a
+chair went at the desk, and a line’s eras 56,464 times, each
+against its own books. It read a line of a house the desk had left
+23,096 times, each shut. It saw 333 records land, each carrying the
+room it had noted, and read a scout’s name on a signing 14,682
+times.
+
+It was run against thirty-one engines broken on purpose, each a
+small change to the engine, on a long career that holds the case.
+Each of the six ways of going, with its line not written. A line
+that begins a week late, ends a week early, or is filed under the
+house’s full name. A line written twice, and a roll that keeps only
+its last twenty. A credit read from the day they went: for every
+chair, for the scout alone, and for a studio chair alone. A running
+era never read again, read past the week they went, read with the
+week moved, and read with its count of running eras kept. A house
+that closes without shutting its lines, a shut line read again, and
+a line shut the day it is written. The founding and the fold as
+this piece first wrote them, after the roster is rewritten, and
+again after the records are left behind. A record with no room, a
+room with the scout in it, and a departure that takes the name off
+the records. A scout’s name never written, and written on everyone.
+A house chair’s list cut at twelve again. Thirty were flagged, each
+in the words written for its case. One was not: the fold as first
+written loses who had debuted on a scout’s line, and no long career
+has a scout with a signing to their name when a house folds. The
+suite holds it by fixture. On the tree as it stands every career
+the trial used is clean. Three cases are in no long career, since
+no bot lets a chair go, leaves a call unanswered, or briefs a
+record to a house chair. The long haul has a switch for each, used
+by the trial alone: `HAUL_LETGO`, `HAUL_UNANSWERED` and
+`HAUL_STUDIO`.
+
+**Found by the trial.** The career in which the bot lets chairs go
+came to an act whose contracts ended the week its record landed.
+Such an era never comes to a close. The engine reads it by its
+trophies and its reception, as its close would have, which is the
+law §133 wrote for it. The tool’s books read it as running for
+good, and flagged every chair’s credit every week after: 61 flags
+before the run stopped. The books were wrong, and had been since
+v0.11.41. No long career had held the case. They read such an era
+by the tool’s own reading of a close now. The old books are kept in
+the trial as an engine of their own, run against the tree as it is,
+and are flagged 61 times.
+
+**Assumptions the owner may overrule.**
+
+- *The roll begins with this version.* An older file's earlier
+  staff are not on it. Nothing on the file says who they were.
+- *Only the ten chairs.* Road managers and executives are not on
+  the roll. An executive's handover is its own record (§131).
+- *A chair left behind at a founding is on the roll*, as "stayed
+  with HCG when the desk left". The roll is the desk's record of
+  who sat for it. It is not only a list of departures.
+- *A closed house's line stays as it stood that day.* An era that
+  was running then reads "still running when the desk left" for
+  good. The file does not follow that house's records once the desk
+  has gone.
+- *The room names five chairs.* The scout is credited on the
+  people, and the studio chairs on the record's own credits.
+- *"Signed under" follows the credit's law.* A signing in the week
+  a scout sat is not on that scout's watch.
+- *The words.* "Worked on", "ran scouting when", "worked through",
+  "at HCG". They are mine. Each is written in one place and is easy
+  to change.
+
+**What the checks found, and what I got wrong.**
+
+- The fold and the founding read the chairs after the roster had
+  been rewritten. A scout's line lost who had debuted. At a
+  founding it also counted everyone who had no signing date. I
+  found it reading the two functions to place the trial's engines.
+  The tool had excused a scout's line at a desk change, and no
+  longer does. The founding as first written is one of the trial's
+  engines, and is flagged. The fold as first written is not: no
+  long career has a scout with a signing to their name when a house
+  folds. The suite holds it by fixture.
+- The first rule for reading a line again went by the house's name,
+  and read any line a week old. A second house with the same short
+  name would have read the first house's lines against its own
+  records and left them with nothing. The engine refuses a name
+  that is on a building or an obituary, so only a return to a
+  salaried house could have reached it. The shut mark replaced the
+  name. The week-old clause could never change a line at the same
+  house, and is gone.
+- The long haul's books of an era were wrong for an era that never
+  closes. The trial found it, as told above.
+- The suite's first run failed five checks, every one a mistake in
+  its own fixtures. Two more of mine followed, one of arithmetic
+  and one wrong count. It crashed twice under a broken engine,
+  where its own law says it fails by name.
+- The browser pass looked for an act's card on a tab that shows a
+  lone act's page. Its first screenshot of the roll was taken under
+  a toast.
+- Two older browser passes pinned the old words. They are brought
+  up to the new ones, and their filed copies are kept beside them.
+- A guard in the migration that could never be false is deleted. So
+  is a trial switch that did not produce its case.
+
+Suite_153 (102), new: each of the four ways a chair goes, the line
+it leaves, and the raise and the open chair that leave none; a
+line’s own facts, and nothing of the fog on it; a scout’s line, a
+studio chair’s, and a chair with nothing to its name; an era
+running the day they went, held while it runs, read when it closes,
+settled after, and read by the week on a stream that grants
+nothing; a record another act puts out after they went; an era
+whose act ended before its close; a shut line left alone; a real
+founding and a real fold, the chairs sat that day under the old
+house’s name, the scout’s count read before the roster is
+rewritten, every line of the house shut, a second house closing
+after the first, a last read as a house folds, and a later house
+under the folded one’s short name; each way of going as a person
+says it, here and there; the Building tab with no roll, its one
+line, its rows, its headings, and whose names the line says; the
+real buttons, the act’s page and a person’s page; the room as read
+and as said, on a record landed by real weeks, kept when the coach
+goes, and saved; the scout’s name after and not on the week, once,
+never over, at the going, and not for an empty chair; fifteen
+records kept whole while the reads look at twelve, the pool’s
+twelve, and the sound an act and a producer are known for; the old
+words and the new, a candidate, the meeting, and the chairs a house
+opens with; an older file; and the validator. Suites 147 and 148
+are brought up to the new words. Mutation-checked against 98 broken
+lines, each caught by a named assertion; the first run caught 95 of
+96 and crashed the suite on the other. A real-browser pass (32
+checks, no page errors): a real career saved by v0.11.42 at week
+220 opens with nobody on the roll, its résumés in the new words and
+its records naming the room; a chair with eras to its name is let
+go by the real button and is on the roll with its credit, and is
+still named on every record it worked on; thirty real weeks by the
+real button and every line is a row, the last to go first; the
+house folds and the next building’s roll reads under the old
+house’s name, each credit said of there; a chair let go at the new
+house stands under “Here”; and in a new career a record landed by
+real weeks names the room, and someone signed in its second week
+reads “signed under” the scout.
+Battery 153/153, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, the till audit clean, e2e 137, 32, 41 and 23, the
+twenty-eight older browser passes, lockstep 0.11.47.
+
+*Left for the next pieces.* The rest of the directive's amendments,
+in §136's order: the house's own birthday, the handover inherited
+in part, her questions. *Seen on the way*: a comeback can land the
+week its act's contracts end, and that era never comes to a close.
+The credit reads it by its reception. Whether a record should be
+allowed to land that week is a question for the simulation pieces.
+*The owner's to see*: the assumptions above.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -21401,6 +21728,36 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
 > pass (23), lockstep 0.11.46.
 > Rode to main. Next piece: the credits that stay.
+
+> **0.11.47 — the credits that stay, in plainer words.** The fourth
+> piece built on the directive (§136: decisions 21 and 27). §140:
+> everyone who has sat a chair and gone is kept on a roll, with the
+> chair, the house, the weeks, how they went, the credit as the file
+> read it that day, and their last word on a year. An era running
+> that day is read again until it closes. At a fold and at a
+> founding the chairs still sat go on the roll, and that house's
+> lines are shut. A record carries the names of the rooms' chairs
+> sat when it landed; each signing carries the scout's name; a house
+> chair's list of records is kept whole. The words for a credit and
+> a résumé are plainer and hold the same facts. Counted first:
+> over the census’s 200 careers 663 chairs went, 576 with a credit,
+> 4,381 eras between them, and at the careers’ ends 68 goodbyes were
+> still on the file to say so. On this tree all 663 are on the roll,
+> with the ten chairs of houses that folded.
+> Nothing in the simulation moves: each of the census’s 200 careers
+> ends on the same file as under v0.11.46, what this piece adds set
+> aside, and so does the one long career in which a house chair passes
+> twelve records. None of the census’s 365 rows moved.
+> Suite_153 new (102); 98 mutations caught by name, the first run 95
+> and a crash. The long haul reads the roll, the rooms and the scouts’
+> names by its own books: tried against thirty-one broken engines, it
+> flagged thirty, and the trial found a fault in the tool’s own books
+> of an era. Reading the code found one more: the fold and the
+> founding read a scout’s line after the roster was rewritten.
+> Battery 153/153, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
+> pass (32), lockstep 0.11.47.
+> Rode to main. Next piece: the house's own birthday.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
