@@ -329,6 +329,40 @@
   });
 
   // ---- the weekly: every clock, one pass (order 859) --------------------
+  // ---- the handover (v0.11.39, §131) -------------------------------------
+  // What the file holds under one chair of this desk, READ off what is
+  // already there: the greenlights that chair gave (§129), the promises
+  // made upstairs while they sat, and their last review's word for the desk.
+  // The rating the next chair inherits is that word, or, from a chair who
+  // gave no review, where the desk stands the day it is read.
+  KP.chairRecord = function (state, name) {
+    const since = KP.deskSince(state);
+    const lights = KP.greenlights(state).filter(e => e.who === name);
+    const upstairs = (state.claims || []).filter(c => c.subject.kind === 'exec' && c.week > since && (c.execName || KP.chairProven(state, c.week)) === name);
+    const reviews = (state.reviews || []).filter(r => r.exec === name && r.week > since);
+    const n = (list, test) => list.filter(test).length;
+    return { name, given: lights.length, kept: n(lights, e => e.status === 'met'), dark: n(lights, e => e.status === 'lapsed'),
+      promises: upstairs.length, promisesKept: n(upstairs, c => c.resolved === 'met' || c.resolved === 'metPoorly'), promisesBroken: n(upstairs, c => c.resolved === 'missed'),
+      review: reviews.length ? reviews[reviews.length - 1].band : null, rated: reviews.length ? reviews[reviews.length - 1].band : KP.trustBand(state.trust) };
+  };
+  // the record in one sentence: what was greenlit and what came of it, what was promised and what came of it, and the last review's word
+  const some = n => (n === 0 ? 'none' : n === 1 ? 'one' : String(n));
+  KP.chairRecordSaid = function (r) {
+    return [
+      r.given ? many(r.given, 'greenlight', 'greenlights') + ', ' + some(r.kept) + ' kept and ' + some(r.dark) + ' left dark' : 'no greenlights',
+      r.promises ? many(r.promises, 'promise', 'promises') + ' upstairs, ' + some(r.promisesKept) + ' kept and ' + some(r.promisesBroken) + ' broken' : 'no promises upstairs',
+      r.review ? 'and a last review that read “' + r.review + '”' : 'and no review of theirs on the file',
+    ].join('; ');
+  };
+  // what the next chair says of the rating they inherit, by the Desk's five words
+  const RATED = {
+    trusted: 'rated you as highly as this house rates anyone',
+    solid: 'rated you well',
+    watched: 'was still reading your work twice',
+    thin: 'kept you on, and not by much',
+    gone: 'had stopped answering for you',
+  };
+
   KP.registerWeekly('timeShare', 859, function (state, rng, inbox, roster) {
     const T = KP.C.TIME;
     const led = ledger(state);
@@ -368,6 +402,7 @@
           !(state.scenes || []).some(sc => sc.kind === 'newChair')) {
         const old = state.executive;
         const warm = (state.trust || 0) >= 60;
+        const left = KP.chairRecord(state, old.name);   // read while the chair is still theirs (v0.11.39, §131)
         const candidates = KP.DATA.executives.filter(e => e.name !== old.name);
         const next = candidates[Math.floor(
           KP.hash01([state.seed, 'nextExec', gen].join('|')) * candidates.length)];
@@ -391,8 +426,8 @@
             (warm ? 'The last thing packed was a framed chart printout — one of ours. “Whatever the next chair thinks of you,” ' + old.name.split(' ')[0] + ' said at the door, “make them learn it the way I did.”'
                   : 'The goodbye was professional, which both of you understood to be a complete sentence. Some eras end even; this one ends filed.') });
         inbox.push({ kind: 'executive', urgent: true, ind: 'newChair', priority: 'critical',
-          text: next.name + ' takes the chair Monday. ' + next.intro + ' The new executive has read the file — every number, every promise, every year. What has not transferred is the part that took years to build: the benefit of the doubt. The first meeting is on the Desk, and it sets the tone for the era.' });
-        KP.openScene(state, { kind: 'newChair', prevName: old.name,
+          text: next.name + ' takes the chair Monday. ' + next.intro + ' The new executive has read the file ' + old.name + ' left: ' + KP.chairRecordSaid(left) + '. What has not transferred is the part that took years to build: the benefit of the doubt. The first meeting is on the Desk, and it sets the tone for the era.' });
+        KP.openScene(state, { kind: 'newChair', prevName: old.name, rated: left.rated,
           expiresWeek: state.week + 3 });
       }
     }
@@ -435,7 +470,7 @@
   // ---- the first meeting: the new chair sets the tone -------------------
   KP.registerScene('newChair', {
     title: (state) => state.executive.name + ' · the first meeting',
-    body: (state, sc) => state.executive.name + KP.fillPro(' opens the file — YOUR file — and closes it again without reading, which is the test. “' + (sc.prevName || 'My predecessor') + ' rated you highly. I inherited the rating, not the reasons. You can walk me through the record, or we can start from a clean page and let this year speak. Choose — I read a lot into how people choose.”', KP.execP(state)),
+    body: (state, sc) => state.executive.name + KP.fillPro(' opens the file — YOUR file — and closes it again without reading, which is the test. “' + (sc.prevName || 'My predecessor') + ' ' + (RATED[sc.rated] || 'rated you highly') + '. I inherited the rating, not the reasons. You can walk me through the record, or we can start from a clean page and let this year speak. Choose — I read a lot into how people choose.”', KP.execP(state)),
     options: () => [
       { id: 'receipts', label: 'Walk the record — bring the receipts' },
       { id: 'slate', label: 'The clean page — let this year speak' },

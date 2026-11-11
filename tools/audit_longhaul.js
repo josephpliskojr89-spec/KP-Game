@@ -441,6 +441,7 @@ const dissolvedWeeks = {};
 const careers = {};
 const GL = { given: 0, met: 0, lapsed: 0, open: 0, void: 0, walls: 0 };   // the greenlights of every career (v0.11.37, §129)
 const RV = { given: 0, firsts: 0, counted: 0 };                            // the annual reviews of every career (v0.11.38, §130)
+const HO = { given: 0 };                                                    // the handovers of every career (v0.11.39, §131)
 for (const sc of RUN) {
   const deskMark = deskCount.mark(DESK);   // this scenario's share of the Desk's count
   const state = KP.newGame(sc.seed, null,
@@ -458,13 +459,44 @@ for (const sc of RUN) {
   // who sat in the chair when each first appeared, and which were on file when the desk moved to another house.
   // Nothing here asks the engine what it expects: a check that does agrees with an engine that has it wrong
   const gl = { seen: {}, chair: state.executive.name, last: {}, given: 0, walls: 0, wallOpen: 0 };
+  // the handover (v0.11.39, §131): this tool's own books of each chair of this desk. What it saw greenlit and promised
+  // upstairs while they sat, by the look it first saw each at, and the last review it saw them give
+  const ho = { books: {}, claims: {}, changes: {}, given: 0 };
+  const book = name => (ho.books[name] = ho.books[name] || { lights: [], claims: [], band: null });
   const glLook = () => {   // one not seen before was given since the last look, by the chair of that time
     (state.mandates || []).forEach(m => {
       if (gl.seen[m.id]) return;
       gl.seen[m.id] = true; gl.given++;
+      book(gl.chair).lights.push(m.id);
       if (m.exec !== gl.chair) flag(sc.seed, state.week, 'a greenlight given under ' + gl.chair + ' carries the name ' + m.exec);
     });
+    (state.claims || []).forEach(c => {
+      if (ho.claims[c.id]) return;
+      ho.claims[c.id] = true;
+      if (c.subject.kind === 'exec') book(gl.chair).claims.push(c.id);
+    });
     gl.chair = state.executive.name;
+  };
+  const num = w => (w === 'no' || w === 'none' ? 0 : w === 'one' ? 1 : Number(w));
+  const hoLook = (old, trustAsTheTickBegan) => {   // the chair changed this week with no desk change: the letter is held to the books of the one who left
+    ho.given++;
+    ho.changes[state.week] = true;
+    const b = book(old);
+    const lights = b.lights.map(id => (state.mandates || []).find(m => m.id === id)).filter(Boolean);
+    // a promise made in the very week of an earlier change is nobody's by the record, unless it names its chair
+    const claims = b.claims.map(id => (state.claims || []).find(c => c.id === id)).filter(c => c && (c.execName || !ho.changes[c.week] || c.week === state.week));
+    const own = [lights.length, lights.filter(m => m.status === 'met').length, lights.filter(m => m.status === 'lapsed').length,
+      claims.length, claims.filter(c => c.resolved === 'met' || c.resolved === 'metPoorly').length, claims.filter(c => c.resolved === 'missed').length];
+    const letter = (KP.lastTickNotes || []).find(n => n.ind === 'newChair');
+    const m = letter && /has read the file (.+?) left: (?:(no) greenlights|(one|\d+) greenlights?, (none|one|\d+) kept and (none|one|\d+) left dark); (?:(no) promises upstairs|(one|\d+) promises? upstairs, (none|one|\d+) kept and (none|one|\d+) broken); and (?:a last review that read “(\w+)”|no review of theirs on the file)\./.exec(letter.text);
+    if (!m) { flag(sc.seed, state.week, 'the chair changed and the letter does not say what ' + old + ' left'); return; }
+    const said = [m[2] ? 0 : num(m[3]), m[2] ? 0 : num(m[4]), m[2] ? 0 : num(m[5]), m[6] ? 0 : num(m[7]), m[6] ? 0 : num(m[8]), m[6] ? 0 : num(m[9])];
+    if (m[1] !== old) flag(sc.seed, state.week, 'the handover names ' + m[1] + ' and the chair who left was ' + old);
+    if (said.join() !== own.join()) flag(sc.seed, state.week, 'the handover says ' + said.join('/') + ' of ' + old + ' (greenlights given, kept, left dark; promises made, kept, broken) and this tool saw ' + own.join('/'));
+    if ((m[10] || null) !== b.band) flag(sc.seed, state.week, 'the handover gives ' + old + '’s last review as “' + (m[10] || 'none') + '” and the last this tool saw them give read “' + (b.band || 'none') + '”');
+    const scene = (state.scenes || []).find(x => x.kind === 'newChair');
+    const rating = b.band || KP.trustBand(trustAsTheTickBegan);   // with no review of theirs, where the desk stood as the week began
+    if (!scene || scene.rated !== rating) flag(sc.seed, state.week, 'the first meeting carries “' + (scene && scene.rated) + '” and the rating ' + old + ' left was “' + rating + '”');
   };
   // the annual reviews (v0.11.38, §130). A chair who counts sheets says how many reached the desk this year. The count
   // is held to this tool's own books: the sheets the career had seen at the last mark, which is the desk's last review
@@ -476,6 +508,7 @@ for (const sc of RUN) {
     const r = list[list.length - 1];
     if (!r || r.week !== state.week || rv.seen === r.week) return;
     rv.seen = r.week; rv.given++;
+    book(r.exec).band = r.band;
     if (rv.first) rv.firsts++;
     const at = [sheetsNow()].concat(before == null || before === sheetsNow() ? [] : [before]);   // a showcase in the same tick may fall either side of the review
     if (!at.includes(r.sheets)) flag(sc.seed, state.week, 'a review notes ' + r.sheets + ' sheets, and the career had seen ' + at.join(' or '));
@@ -497,6 +530,7 @@ for (const sc of RUN) {
     Object.keys(was).forEach(id => { if (was[id] === 'open') gl.wallOpen++; gl.last[id] = was[id] === 'open' ? 'void' : was[id]; });   // what each must read from now on
     gl.chair = state.executive.name;
     rv.base = sheetsNow(); rv.first = true;   // and the next house's year of sheets begins here
+    ho.books = {}; ho.changes = {};           // and so do the books of its chairs
   };
   if (sc.mode === 'service') seedBoyGroup(state);
   glLook();
@@ -542,12 +576,13 @@ for (const sc of RUN) {
     }
     glLook();
     rvLook();
-    const sheetsAsTheTickBegan = sheetsNow();
+    const sheetsAsTheTickBegan = sheetsNow(), chairAsTheTickBegan = gl.chair, trustAsTheTickBegan = state.trust;
     KP.advanceWeek(state);
     rvLook(sheetsAsTheTickBegan);
     // the greenlights (v0.11.37, §129): one the last house gave reads as it did the day the desk moved, and one that
     // was open that day reads set aside; the record lists this desk's own and no other, each with its chair and its end
     glLook();
+    if (state.executive.name !== chairAsTheTickBegan) hoLook(chairAsTheTickBegan, trustAsTheTickBegan);
     {
       const all = state.mandates || [];
       all.forEach(m => { if (gl.last[m.id] && m.status !== gl.last[m.id]) flag(sc.seed, state.week, 'a greenlight the last house gave (' + m.id + ') reads “' + m.status + '” at this one and should read “' + gl.last[m.id] + '”'); });
@@ -734,6 +769,7 @@ for (const sc of RUN) {
   if (glEnd.void !== gl.wallOpen) flag(sc.seed, state.week, gl.wallOpen + ' greenlights were open when the desk moved and ' + glEnd.void + ' read set aside');
   GL.given += gl.given; GL.walls += gl.walls;
   RV.given += rv.given; RV.firsts += rv.firsts; RV.counted += rv.counted;
+  HO.given += ho.given;
   ['met', 'lapsed', 'open', 'void'].forEach(k => { GL[k] += glEnd[k]; });
   // the sagas (v0.9.31): the hash window [60,320] sits fully inside a
   // 620-week run — every world MUST have been invaded at least once,
@@ -802,6 +838,7 @@ for (const sc of RUN) {
     ' | birthdays: ' + bd.wrote + ' written, ' + bd.landed + ' landed, of ' + bd.due + ' due' +
     ' | greenlights: ' + gl.given + ' given (' + glEnd.met + ' kept, ' + glEnd.lapsed + ' left dark, ' + glEnd.open + ' open, ' + glEnd.void + ' set aside), ' + gl.walls + ' desk change' + (gl.walls === 1 ? '' : 's') +
     ' | reviews: ' + rv.given + ' given, ' + rv.firsts + ' the first under a new desk, ' + rv.counted + ' by a chair who counts sheets' +
+    ' | handovers: ' + ho.given +
     ' | record: ' + (marks => marks.length + ' mark' + (marks.length === 1 ? '' : 's') + ' (chairs ' + marks.filter(m => m.kind === 'chair').length + ', red weeks ' + marks.filter(m => m.kind === 'red').length + ')')(KP.fileMarks(state)) +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +
@@ -821,6 +858,7 @@ for (const sc of RUN) {
 }
 
 deskCount.lines(DESK, 5).forEach(l => console.log(l));
+console.log('the handovers (v0.11.39): ' + HO.given + ' · each letter held to this tool’s own books of the chair who left');
 console.log('the reviews (v0.11.38): ' + RV.given + ' given · ' + RV.firsts + ' the first under a new desk · ' + RV.counted + ' by a chair who counts sheets, each count held to the desk’s own year');
 console.log('the greenlights (v0.11.37): ' + GL.given + ' given · ' + GL.met + ' kept · ' + GL.lapsed + ' left dark · ' + GL.open + ' open · ' + GL.void + ' set aside at ' + GL.walls + ' desk change' + (GL.walls === 1 ? '' : 's'));
 console.log('dissolutions (the last statement, v0.11.0): ' + RUN.map(sc => sc.seed + ' ' + (dissolvedWeeks[sc.seed] == null ? '—' : 'wk ' + dissolvedWeeks[sc.seed] + (careers[sc.seed] ? ' then ' + careers[sc.seed] : ''))).join(' · '));

@@ -1450,6 +1450,18 @@
     Object.keys(state.people || {}).forEach(id => ((state.people[id].evalHistory) || []).forEach(e => { if (e.week > since) mine[e.week] = true; }));
     state.evalLedger.before = state.evalLedger.sheets - Object.keys(mine).length;
   } });
+  // v0.11.39 — the handover. A first meeting with a new chair that is still
+  // open on the Desk was opened saying the one who left "rated you highly",
+  // whatever their last review said. It is given that review's word, so
+  // what it says now is true. A chair who left no review leaves the meeting
+  // as it was: the number has been carried since, and proves nothing.
+  MIGRATIONS.push({ v: '0.11.39', fn: function (state) {
+    (state.scenes || []).forEach(sc => {
+      if (sc.kind !== 'newChair') return;
+      const review = KP.chairRecord(state, sc.prevName).review;
+      if (review) sc.rated = review;
+    });
+  } });
 
   KP.migrate = function (state) {
     const applied = [];

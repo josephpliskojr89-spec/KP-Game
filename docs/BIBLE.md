@@ -9531,7 +9531,8 @@ three, the company's own file, SHIPPED v0.11.29, §121; part four,
 the written record, SHIPPED v0.11.30, §122; part five, the year's
 close, SHIPPED v0.11.32, §124; part six, the label's birthday,
 SHIPPED v0.11.36, §128; part seven, the greenlights on the record,
-SHIPPED v0.11.37, §129).** The
+SHIPPED v0.11.37, §129; part eight, the handover, SHIPPED v0.11.39,
+§131).** The
 exec's `personality` finally read: a question
 family per type (the profit hunter asks about the quarter, the
 traditionalist about the vocal room, the micromanager about a trainee
@@ -14456,6 +14457,185 @@ should count; the Desk's tie-break (§112); and from §109, the fade
 between records through a service chapter and the size of the
 window's bank.
 
+## §131 The handover (SHIPPED v0.11.39 — §96 recommendation 7, the people upstairs and down the hall, part eight)
+
+Owner: *"Break remaining work into smaller pieces"*. The eighth of
+recommendation 7's pieces, and the second half of the sentence
+§129 began: "and succession transfers a record instead of a
+number".
+
+**Counted first.** When a chair's era ends, the next one is given
+35 parts in 100 of the distance the old trust stood from 55, a
+letter, and a first meeting. The letter said the new executive
+"has read the file — every number, every promise, every year". The
+meeting said "{the one who left} rated you highly. I inherited the
+rating, not the reasons."
+
+| | |
+|---|---|
+| changes of chair in the census's 200 careers | 0 |
+| in the long haul's 11 | 12 |
+| the meeting said "rated you highly" | 12 of 12 |
+| of those, the desk stood at thin or gone | 12 of 12 |
+| the last review the one who left gave read gone | 11 of 12 |
+| greenlights under the chairs who left | 54: 2 kept, 45 left dark, 7 open |
+| promises upstairs under them | 43: 10 kept, 15 broken, 3 set aside, 15 open |
+| the number, the day before and the day after | 0 to 36 nine times; 32 to 47; 25 to 45; 18 to 42 |
+
+So the line was said every time, and every time it was untrue. The
+census never lives long enough to hear it: no career there reaches
+a change of chair. This piece is held by its suite and by the long
+haul.
+
+**What the next chair is handed.** The record under the one who
+leaves (`KP.chairRecord`, pure), read off what the file already
+holds:
+
+- the greenlights that chair gave, and how many were kept and left
+  dark (§129's own rows, by the name each carries);
+- the promises made upstairs while they sat, and how many were
+  kept and broken. A promise to the chair's own question carries
+  their name (§119). Any other is theirs by the week, as far as the
+  written record proves who sat (§129);
+- the word of the last review they gave under this desk (§120).
+
+The letter says it in one sentence. From a real career:
+
+"The new executive has read the file CEO Moon Sang-chul left: 2
+greenlights, one kept and one left dark; 5 promises upstairs, one
+kept and 3 broken; and a last review that read “gone”."
+
+A chair who gave no review leaves "no review of theirs on the
+file", and no word is put in their mouth.
+
+**The rating, named truly.** The first meeting carries the rating
+the next chair inherits: the last review's word, or, from a chair
+who gave no review, where the desk stood the day they left. The
+line has five forms now, one for each of the Desk's words:
+
+| | |
+|---|---|
+| trusted | rated you as highly as this house rates anyone |
+| solid | rated you well |
+| watched | was still reading your work twice |
+| thin | kept you on, and not by much |
+| gone | had stopped answering for you |
+
+One real career, the same weeks, before and after. The desk stood
+at 0 and the last review read gone. Before: "CEO Moon Sang-chul
+rated you highly." After: "CEO Moon Sang-chul had stopped
+answering for you." The rest of the line is as it was: "I
+inherited the rating, not the reasons."
+
+**The number is untouched.** Trust carries as it did. Whether the
+record should move it is the owner's to call, and it is put below.
+
+**Old saves** (migration 0.11.39). A first meeting already open on
+the Desk was opened with the old line. It is given the last
+review's word, so what it says now is true. Where the one who left
+gave no review the meeting is left as it was: the number has been
+carried since, and proves nothing.
+
+**What moved.** No simulation changed: the piece is in what is
+said. The census’s output is v0.11.38’s to the byte, since no
+career there changes its chair. The long haul says the same of
+every scenario but for its new count, and writes the same number of
+letters: twelve of them read differently.
+
+**The long haul's check, tried.** The long haul keeps books of its
+own for each chair of a desk: the greenlights and the promises
+upstairs it saw appear while they sat, and the last review it saw
+them give. When the chair changes it holds the letter's six
+figures, its review and the meeting's rating to those books. It
+was run against seven engines broken on purpose.
+Kept and left dark the wrong way round. Every promise upstairs
+counted for whoever leaves. A meeting that carries no rating. A
+letter that says nothing of what was left. A rating read off the
+number and not the review. The oldest review given for the last. A
+letter that names the one who arrives. Each was flagged by name, in
+careers with two changes of chair. On the tree as it stands the
+same runs are clean.
+
+**Found by the mutation run.** One guard that guarded nothing. The
+first run, before the migration was written, caught 39 of 39
+broken lines by name. The second caught 42 of 45. The three that
+got through were all the migration's. It skipped a meeting that
+already carried a rating, and no file from before this version
+can carry one: the guard is deleted. The other two were the
+suite's: it asked whether a scene of another kind was left alone
+with a scene that named nobody, and whether a save of this version
+was left alone with a meeting the migration would have skipped
+anyway. Both are asked properly now. Third run, 44 of 44,
+and on the final run the same.
+
+**Mistakes on the way.**
+
+- The first wording of the sentence ended "and the desk standing
+  at “gone”". It is the last review's word, and the desk may stand
+  elsewhere the day the chair leaves: in one long-haul career it
+  stood at thin. That was seen in the output of the first trial.
+  The sentence names it as a review now.
+- One edit script stopped half way, on a backslash written twice
+  over. The engine had been changed and the tool and the suite had
+  not. The suite failed, which is how it was seen, and the edits
+  were made again.
+- A draft of this section said the number went from 0 to 36 eight
+  times. It was nine. The script that fills this section counts
+  the pairs itself, and stopped.
+
+Suite_146 (39): the record's greenlights, at a founded label,
+with another chair's, one set aside and the old house's; its
+promises upstairs, kept, barely kept, broken, set aside and open,
+one that names its chair, one to somebody who is not the chair,
+one in the week the desk began, and by the written record once the
+chair has changed; its review, the newest of that chair's under
+this desk and never another's; the sentence for small counts, for
+nothing at all and for large ones; the real rail changing the
+chair, with the letter, the meeting's rating, the line it says and
+the number carried as before; the five lines, a meeting with no
+rating and one that names nobody; a chair who gave no review; an
+old file with the meeting open, with and without a review, and a
+save of this version. Mutation-checked against 44 broken lines,
+each caught by a named assertion. A real-browser pass (12
+checks, no page errors): a real career saved by v0.11.38 two weeks
+before its chair changes plays those weeks by the real button; the
+letter in the inbox says what was left, the meeting on the Desk
+names the rating truly, the real answer walks the record, and the
+greenlights on the Record tab still name the chair who gave them;
+the same career saved with the meeting already open says the last
+review's word where it said "rated you highly".
+Battery 146/146, soak 40 clean, census 200 clean, longhaul 11 ×
+620 clean, the till audit clean, e2e 137, 32, 41 and 23, the
+twenty-one older browser passes, lockstep 0.11.39.
+
+*Left for the next pieces.* The staff given years; and the rest of
+what a desk change leaves on the file, read one thing at a time
+(§130). *The owner's to call*: whether the record should move the
+number a new chair starts from, and by how much: a desk at 0
+starts the next era at 36 today; the five lines above; the
+letter's last sentence, "What has not transferred is the part that
+took years to build: the benefit of the doubt", which is as it was
+and reads oddly after a record that says gone; and whether a
+promise upstairs should go on naming the chair it was made to once
+the chair has changed, where today the sitting chair is shown as
+holding the receipt. *Still the owner's to call*: from §129,
+whether a new label's Record tab should list the old house's
+greenlights too, and the wording of a row and of its three chips;
+from §128, whether a birthday should lift morale, whether a
+salaried house should have a founding date of its own, and the
+wording of the three openings; from §126, whether the count on
+Offers should sit beside the word; from §125, whether a long tag
+should take the line or the three long words be given shorter
+ones; from §124, the headline's order, and whether the letter
+should say more or less than its four things; from §123, whether
+the date should sit under the name on the larger phones too; from
+§122, whether a founded label's first trophy should be a first;
+from §121, the spacing of the manager's titles; from §120, the
+shape of probation; from §119, whether a pass should cost
+anything, and whether next door to the sound should count; the
+Desk's tie-break (§112); and from §109, the fade between records
+through a service chapter and the size of the window's bank.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -18776,6 +18956,34 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 620 clean, the till audit clean, e2e 137, 32, 41 and 23, a
 > real-browser pass (16), lockstep 0.11.38.
 > Rode to main. Next piece: the handover at a succession.
+
+> **0.11.39 — the handover.** Own judgment, under "Approved to
+> tackle as much of the remaining queue as you see fit" and "Break
+> remaining work into smaller pieces": the eighth piece of §96's
+> recommendation 7, the second half of the sentence 0.11.37 began.
+> §131: when the chair changes hands the next executive is handed
+> the record under the one who leaves: the greenlights they gave,
+> the promises upstairs while they sat, and their last review's
+> word. The letter says it in a sentence, and the first meeting
+> names the rating truly. Counted first:
+> the 200 census careers never reach a change of chair. The long haul
+> has 12. In all 12 the first meeting said the one who left “rated you
+> highly”, and in all 12 the desk stood at thin or gone; the last
+> review read gone in 11.
+> Read off the file; one word is kept, the rating the meeting
+> carries. The number carries as it did: whether the record should
+> move it is put to the owner. An old save's open meeting is given
+> the last review's word.
+> No simulation changed: the census’s output is 0.11.38’s to the byte.
+> Twelve of the long haul’s letters read differently.
+> Suite_146 (39), 44 mutations caught by name. The second
+> of three runs found a guard that guarded nothing, now deleted.
+> The long haul's own books of each chair, tried against seven
+> broken engines, flagged each.
+> Battery 146/146, soak 40 clean, census 200 clean, longhaul 11 ×
+> 620 clean, the till audit clean, e2e 137, 32, 41 and 23, a
+> real-browser pass (12), lockstep 0.11.39.
+> Rode to main. Next piece: the staff given years.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
