@@ -442,6 +442,7 @@ const careers = {};
 const GL = { given: 0, met: 0, lapsed: 0, open: 0, void: 0, walls: 0 };   // the greenlights of every career (v0.11.37, §129)
 const RV = { given: 0, firsts: 0, counted: 0 };                            // the annual reviews of every career (v0.11.38, §130)
 const HO = { given: 0 };                                                    // the handovers of every career (v0.11.39, §131)
+const CH = { walls: 0, minted: 0 };                                         // the chairs at every desk change (v0.11.40, §132)
 for (const sc of RUN) {
   const deskMark = deskCount.mark(DESK);   // this scenario's share of the Desk's count
   const state = KP.newGame(sc.seed, null,
@@ -463,7 +464,20 @@ for (const sc of RUN) {
   // upstairs while they sat, by the look it first saw each at, and the last review it saw them give
   const ho = { books: {}, claims: {}, changes: {}, given: 0 };
   const book = name => (ho.books[name] = ho.books[name] || { lights: [], claims: [], band: null });
+  // the chairs (v0.11.40, §132): this tool's own books of the building. Every chair it has seen sat, the week the desk
+  // last moved, and the house the desk walked out of. A house keeps its staff when the desk moves: the next building
+  // opens with four of its own. Nothing here asks the engine when the desk began
+  const ch = { seen: {}, opened: 1, walls: 0, minted: 0, walked: null };
+  const chLook = () => {
+    const S = state.seats || {};
+    Object.keys(S).forEach(seatId => {
+      const st = S[seatId];
+      ch.seen[st.id] = true;
+      if (!(st.since >= ch.opened && st.since <= state.week)) flag(sc.seed, state.week, st.name + ' is filed as sat in the ' + seatId + ' chair since week ' + st.since + ', and this building opened in week ' + ch.opened);
+    });
+  };
   const glLook = () => {   // one not seen before was given since the last look, by the chair of that time
+    chLook();
     (state.mandates || []).forEach(m => {
       if (gl.seen[m.id]) return;
       gl.seen[m.id] = true; gl.given++;
@@ -521,11 +535,26 @@ for (const sc of RUN) {
     }
     rv.base = r.sheets; rv.first = false;
   };
-  const glWall = move => {   // the desk moves to another house: everything on file is the last house's from here on
+  const glWall = (move, walkout) => {   // the desk moves to another house: everything on file is the last house's from here on
     glLook();
     const was = {};
     (state.mandates || []).forEach(m => { was[m.id] = m.status; });
+    const left = state.company.short;
     if (!move()) return;
+    // the chairs: none of the last house's, four of the next building's own, sat from this week, each under its own name
+    {
+      const S = state.seats || {}, sat = Object.keys(S), names = sat.map(seatId => S[seatId].name);
+      if (sat.join() !== 'vocal,dance,perf,scout') flag(sc.seed, state.week, 'the next building opened with the chairs [' + sat.join() + '] sat, and a house opens with its four');
+      sat.forEach(seatId => {
+        const st = S[seatId];
+        if (ch.seen[st.id]) flag(sc.seed, state.week, st.name + ' sat in the last house’s chairs and sits in the next building’s ' + seatId + ' chair');
+        if (st.since !== state.week) flag(sc.seed, state.week, st.name + ' is filed as sat since week ' + st.since + ' in a building that opened this week');
+        if (st.tier !== 'working') flag(sc.seed, state.week, st.name + ' opens the next building as “' + st.tier + '”');
+      });
+      if (new Set(names).size !== names.length) flag(sc.seed, state.week, 'two chairs of the next building answer to one name: ' + names.join(', '));
+      ch.opened = state.week; ch.walls++; ch.minted += sat.length;
+      if (walkout) ch.walked = { short: left, week: state.week };
+    }
     gl.walls++;
     Object.keys(was).forEach(id => { if (was[id] === 'open') gl.wallOpen++; gl.last[id] = was[id] === 'open' ? 'void' : was[id]; });   // what each must read from now on
     gl.chair = state.executive.name;
@@ -571,7 +600,7 @@ for (const sc of RUN) {
     }
     if (sc.mode === 'founder' && !founded && KP.foundingEligible &&
         KP.foundingEligible(state).ok) {
-      glWall(() => { KP.foundLabel(state, 'Audit House'); return !!state.founded; });
+      glWall(() => { KP.foundLabel(state, 'Audit House'); return !!state.founded; }, true);
       founded = true;
     }
     glLook();
@@ -727,8 +756,9 @@ for (const sc of RUN) {
     // it once, dated the week of the founding, and no other house holds one
     {
       const walk = KP.signingHouses(state).map(r => [r.short, (r.directed || []).filter(a => a.kind === 'weWalkedOut').map(a => a.week).join()]).filter(x => x[1]);
-      const oldHouse = state.founded ? KP.signingHouses(state).find(r => r.founderGrudge && r.short === state.founded.from) : null;
-      const want = oldHouse ? oldHouse.short + ' @' + state.founded.week : '';
+      // by this tool's own book of the house the desk walked out of (v0.11.40, §132). It used to ask the file where
+      // the label was founded from, and a founded label that later dissolved made the old house's true entry look wrong
+      const want = ch.walked && KP.signingHouses(state).some(r => r.short === ch.walked.short) ? ch.walked.short + ' @' + ch.walked.week : '';
       if (walk.map(x => x.join(' @')).join('; ') !== want) {
         flag(sc.seed, state.week, 'the walkout is not on the old house’s books alone: wanted ' + (want || 'none') + ', found ' + (walk.map(x => x.join(' @')).join('; ') || 'none'));
       }
@@ -770,6 +800,7 @@ for (const sc of RUN) {
   GL.given += gl.given; GL.walls += gl.walls;
   RV.given += rv.given; RV.firsts += rv.firsts; RV.counted += rv.counted;
   HO.given += ho.given;
+  CH.walls += ch.walls; CH.minted += ch.minted;
   ['met', 'lapsed', 'open', 'void'].forEach(k => { GL[k] += glEnd[k]; });
   // the sagas (v0.9.31): the hash window [60,320] sits fully inside a
   // 620-week run — every world MUST have been invaded at least once,
@@ -858,6 +889,7 @@ for (const sc of RUN) {
 }
 
 deskCount.lines(DESK, 5).forEach(l => console.log(l));
+console.log('the chairs (v0.11.40): ' + CH.walls + ' desk change' + (CH.walls === 1 ? '' : 's') + ' · ' + CH.minted + ' chairs opened the next buildings, four at each · none carried across, by this tool’s own books of who sat');
 console.log('the handovers (v0.11.39): ' + HO.given + ' · each letter held to this tool’s own books of the chair who left');
 console.log('the reviews (v0.11.38): ' + RV.given + ' given · ' + RV.firsts + ' the first under a new desk · ' + RV.counted + ' by a chair who counts sheets, each count held to the desk’s own year');
 console.log('the greenlights (v0.11.37): ' + GL.given + ' given · ' + GL.met + ' kept · ' + GL.lapsed + ' left dark · ' + GL.open + ' open · ' + GL.void + ' set aside at ' + GL.walls + ' desk change' + (GL.walls === 1 ? '' : 's'));

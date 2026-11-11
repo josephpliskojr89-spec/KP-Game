@@ -31,7 +31,9 @@ const play = (s, weeks) => { for (let i = 0; i < weeks && !KP.chapterPending(s);
 const mail = (s, ind) => (s.inbox || []).filter(m => m.ind === ind && m.week === s.week);
 // a salaried desk's world, and the same world made a label founded in a given week
 const desk = (seed, week) => { const s = KP.newGame(seed, null, {}); s.week = week; return s; };
-const label = (seed, founded, week, more) => { const s = desk(seed, week); s.founded = Object.assign({ week: founded, warChest: 300 }, more || {}); return s; };
+const label = (seed, founded, week, more) => { const s = desk(seed, week); s.founded = Object.assign({ week: founded, warChest: 300 }, more || {});
+  Object.values(KP.staffSeats(s)).forEach(st => { st.since = founded; });   // a label's chairs are its own, sat since its doors opened (v0.11.40, §132)
+  return s; };
 function lineup(s, id, name) {
   const g = Object.assign(JSON.parse(JSON.stringify(act(s))), { id, name, releases: [], debuted: false });
   ['debutWeek', 'honors', 'recoup', 'retiredWeek', 'trophies', 'legacy', 'lastShowWinWeek', 'eraBreakthrough'].forEach(k => { delete g[k]; });

@@ -333,6 +333,11 @@
     (state.mandates || []).forEach(m => {
       if (m.status === 'open' && m.issuedWeek < KP.deskSince(state)) bad('a greenlight from before this desk is still open (' + m.id + ', given week ' + m.issuedWeek + ')');
     });
+    // the chairs (v0.11.40, §132): nobody sits in this building's chair from before the building opened
+    Object.keys(state.seats || {}).forEach(seatId => {
+      const st = state.seats[seatId];
+      if (st.since < KP.deskSince(state)) bad('a chair of this building has been sat since before the building opened (' + seatId + ', since week ' + st.since + ')');
+    });
     return v;
   };
 })(typeof window !== 'undefined' ? window : globalThis);

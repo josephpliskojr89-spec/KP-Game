@@ -62,7 +62,8 @@
   // chair. The file is READ off them, and off the written record above for
   // what no marker keeps. Reading it writes nothing. Weeks before this
   // desk's own are the company's past.
-  KP.deskSince = function (state) { return state.chapterSince || (state.founded && state.founded.week) || 1; };
+  // the later of the two (v0.11.40, §132): a label founded out of a second house dates from its own founding
+  KP.deskSince = function (state) { return Math.max(state.chapterSince || 0, (state.founded && state.founded.week) || 0) || 1; };
   const FILE_ORDER = ['fold', 'desk', 'chair', 'debut', 'breakthrough', 'numberOne', 'trophy', 'award', 'daesang', 'settlement', 'red', 'redCleared', 'lastBow'];
   const honorWeek = h => (h.year - 1) * KP.C.WEEKS_PER_YEAR + KP.C.AWARDS.ceremonyWeek;   // an honor is dated by its ceremony
   const records = (state, test) => KP.groups(state)

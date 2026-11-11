@@ -355,7 +355,7 @@
             '<div class="w-text">Investors will back a label with you on the letterhead: a war chest of <b>' + gate.warChest + '</b>, raised on ' +
             (gate.honors.daesangs ? gate.honors.daesangs + ' daesang' + (gate.honors.daesangs > 1 ? 's' : '') + ', ' : '') +
             (gate.honors.bonsangs ? gate.honors.bonsangs + ' bonsang' + (gate.honors.bonsangs > 1 ? 's' : '') + ', ' : '') +
-            gate.honors.trophies + ' trophies and ' + gate.honors.years + ' years of your work. Walk, and everything you built stays behind — as the competition. This is not reversible.</div>' +
+            gate.honors.trophies + ' trophies and ' + gate.honors.years + ' years of your work. Walk, and everything you built stays behind — the groups, the trainees, the staff — as the competition. This is not reversible.</div>' +
             '<div style="display:flex;gap:6px;margin-top:10px">' +
             '<input id="label-name-input" maxlength="14" placeholder="Name the label…" value="' + UI.esc((KP.App || {}).labelName || '') + '" ' +
             'style="flex:1;background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:6px 10px;font-size:.85rem">' +
@@ -540,6 +540,7 @@
       }
       const read = KP.staffFileRead ? KP.staffFileRead(st) : null;
       const weeks = state.week - (st.since || 1);
+      const made = KP.seatMade(st).length;   // the records made for this house (v0.11.40, §132)
       const sev = Math.max(HR.severanceMin,
         Math.round((HR.hireCost[st.tier] || HR.hireCost.working) * HR.severanceMult));
       const knownFor = st.knownForTag
@@ -553,7 +554,7 @@
         (knownFor ? '<span class="chip">known for ' + UI.esc(knownFor) + ' work</span>' : '') +
         (st.lane ? '<span class="chip cool">lanes: ' + UI.esc(KP.producerLanes(st).map(l => (KP.conceptById(l) || { label: l }).label.toLowerCase()).join(' / ')) + '</span>' : '') +
         (st.themes ? '<span class="chip cool">themes: ' + UI.esc(st.themes.map(t => (KP.themeById(t) || { label: t }).label.toLowerCase()).join(', ')) + '</span>' : '') +
-        ((st.works || []).length ? '<span class="chip">' + st.works.length + ' record' + (st.works.length > 1 ? 's' : '') + ' for this house</span>' : '') +
+        (made ? '<span class="chip">' + made + ' record' + (made > 1 ? 's' : '') + ' for this house</span>' : '') +
         '<span class="chip">' + (weeks < 2 ? 'just arrived' : weeks + ' weeks in the chair') + '</span>' +
         '</div>' +
         (read ? '<div style="font-size:.76rem;line-height:1.5;margin-top:7px">The read across the table: ' +

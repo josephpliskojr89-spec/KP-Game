@@ -236,6 +236,10 @@
     };
     (state.groups || []).forEach(g => { delete g.manager; });   // the managers re-mint under the new house (v0.10.43)
     state.managerGen = (state.managerGen || 0) + 1;
+    // and so do the chairs (v0.11.40, §132): "everything you built stays behind", and the staff was built
+    // too. The old house keeps its people; the label opens with the founders' four, as the blank page does
+    const chairs = KP.seatBuilding(state, state.seed + '|founded|' + state.week, 'here since the founding — the résumé is this label');
+    const four = Object.keys(chairs).map(seatId => chairs[seatId].name);
     state.nextMeetingWeek = state.week + 8;
     delete state.knockLedger;   // the one door opens fresh for the new house (v0.10.30)
     state.renewalQuietUntil = 0;
@@ -270,7 +274,8 @@
 
     // ---- the announcement ------------------------------------------------
     push({ kind: 'company', priority: 'critical', ind: 'founding',
-      text: 'You signed the papers. ' + name + ' exists — a desk, a lease, a war chest of ' + h.warChest + ' raised on your name alone, and an industry that just stopped pretending not to watch. ' + oldCo.short + '’s statement wished you well in four words. The groups you built belong to the building you left, and the building intends to keep them. Eighteen months to prove it was you all along.' });
+      text: 'You signed the papers. ' + name + ' exists — a desk, a lease, a war chest of ' + h.warChest + ' raised on your name alone, and an industry that just stopped pretending not to watch. ' + oldCo.short + '’s statement wished you well in four words. The groups you built belong to the building you left, and the building intends to keep them. Its staff stayed with it: ' +
+        four.slice(0, -1).join(', ') + ' and ' + four[four.length - 1] + ' took the bet on you, and sit in the new label’s chairs. Eighteen months to prove it was you all along.' });
     push({ kind: 'industry', priority: 'high',
       text: 'The trades called it before lunch: the architect of ' + oldCo.short + '’s era is out, and the new shingle reads ' + name + '. Half the industry sent flowers. The other half sent lawyers to re-read their producer contracts. ' + oldCo.short + ' promoted from within and scheduled a comeback with unusual speed.' });
     push({ kind: 'public', priority: 'high',

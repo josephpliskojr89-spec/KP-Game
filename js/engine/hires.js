@@ -42,6 +42,11 @@
     if (led.passed.length > HR.passMemoryCap) led.passed = led.passed.slice(-HR.passMemoryCap);
   }
 
+  // the records a studio chair has made for THIS house: the ones that landed after they sat down in it (v0.11.40,
+  // §132). An old file may hold a chair that came across at a founding with records made for the house it left,
+  // and a record that landed the very week a chair was taken landed before it was
+  KP.seatMade = function (st) { return (st.works || []).filter(w => !(w.week <= st.since)); };
+
   // ---- the second chair (v0.10.39, §91 B2): a second studio chair opens
   // only when the first has records to show — a building earns depth
   KP.chairOpenable = function (state, seatId) {
@@ -50,7 +55,7 @@
     if (!seat) return false;
     if (!seat.second) return true;
     const first = (state.seats || {})[seat.second];
-    return !!(first && (first.works || []).length >= HR.secondChairAfter);
+    return !!(first && KP.seatMade(first).length >= HR.secondChairAfter);
   };
   KP.chairOpenReason = function (state, seatId) {
     const HR = KP.C.HIRES;
@@ -61,7 +66,7 @@
     return !first
       ? 'A second chair opens when the first ' + firstDef.label + ' has records to show. The first chair is empty.'
       : 'A second chair opens when ' + first.name + ' has ' + HR.secondChairAfter + ' records for this house — ' +
-        ((first.works || []).length || 'none') + ' so far.';
+        (KP.seatMade(first).length || 'none') + ' so far.';
   };
 
   // ---- the help wanted (v0.10.11): act on the market ---------------------
@@ -277,6 +282,29 @@
     return state.seats;
   }
   KP.staffSeats = seats;
+  // a later building's chairs (the second chance since v0.11.0; the founding too since v0.11.40, §132): the
+  // four a house opens with are new people, under names of their own, sat from the week its doors open
+  const TITLE = { perf: 'Director ', scout: 'Scout ' };
+  KP.seatBuilding = function (state, key, line) {
+    delete state.seats;
+    delete state.staffSearch;           // the posting was the last building's
+    delete state.seatSearchCooldowns;   // and so was the market's memory of it
+    const S = seats(state);
+    const taken = {};
+    Object.keys(S).forEach(seatId => {
+      const st = S[seatId];
+      let name = null;
+      // salted until it is this building's alone: two chairs of one house do not answer to one name
+      for (let salt = 0; salt < 8 && (!name || taken[name]); salt++) {
+        name = (TITLE[seatId] || 'Coach ') + KP.staffName(key + '|' + seatId + (salt ? '|' + salt : '')).split(' ')[0];
+      }
+      taken[name] = true;
+      st.name = name;
+      st.since = state.week;
+      st.resume = [line];
+    });
+    return S;
+  };
   // one staff (v0.10.43, §89 D8): every name the building speaks comes
   // from a chair — the scout's stories, the referral's voucher, the
   // evaluators' bylines. An empty chair speaks as the desk.

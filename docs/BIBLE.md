@@ -14636,6 +14636,265 @@ anything, and whether next door to the sound should count; the
 Desk's tie-break (§112); and from §109, the fade between records
 through a service chapter and the size of the window's bank.
 
+## §132 The chairs stay with the house (SHIPPED v0.11.40 — a repair of the founding, found counting the staff)
+
+Owner: *"Break remaining work into smaller pieces"*. Not on §96's
+list. A defect in the founding, as old as the staff (v0.10.6,
+§79), found while counting for the next piece of recommendation
+7, the staff given years.
+
+**The defect.** The card for the door says "everything you built
+stays behind — as the competition". The founding leaves the
+groups, the roster, the record, the greenlights and the sheets
+with the old house (§122, §129, §130). It never swept the staff.
+A founded label opened with the old house's chairs still sat in
+its building: their names, how well known they were, their weeks
+in the chair counted from the old house, and "here since the
+beginning — the résumé is this company" on their files. The
+dissolution has always swept them, under a comment that says it
+copies "the founding's sweep". The founding never got the line.
+
+**How it got through.** The census's player never founds a label.
+The long haul founds one, and nothing there kept books of who
+sat.
+
+**Counted first.**
+
+| | |
+|---|---|
+| foundings in the census's 200 careers | 0 |
+| in the long haul's 11 | 1, with 8 chairs carried |
+| in forty founder careers run for this | 40 |
+| chairs sat in those forty labels the day they opened | 317 |
+| of them carried from the old house | 317, every one |
+| by the trades' word for them | 61 a name, 69 known, 65 unknown, 122 working |
+
+**The rule now.** A house keeps its staff when the desk moves. The
+next building opens with four of its own, the vocal coach, the
+dance coach, the performance director and the scout: new people,
+working names, sat from the week the doors open. The A&R, the
+marketing and the studio chairs are open, as at any beginning.
+One mint does it for the founding and for a second chance alike
+(`KP.seatBuilding`), and with the chairs go the posting that was
+up and the market's memory of the last ones. The founding letter
+says it and names the four. From a real career:
+
+"Its staff stayed with it: Coach Shin, Coach Nam, Director Baek
+and Scout Yoon took the bet on you, and sit in the new label’s
+chairs."
+
+The card for the door names what stays behind before it is
+walked through: "the groups, the trainees, the staff".
+
+**One real career, before and after.** The same founding, in week
+164, with 314 in the till. Before: eight chairs sat, six of them
+names the trades know and two known, every one filed as sat
+since before the label existed. Letting them all go would have
+cost 280 of the 314. After: four working chairs, just arrived.
+
+**What it does to a founded label.** The same forty careers, with
+and without the repair.
+
+| | carried | its own four |
+|---|---|---|
+| chairs sat the day the label opened | 7.9 | 4 |
+| weeks to the first debut | 10.1 | 10.0 |
+| debuted inside the 72 weeks | 39 of 40 | 40 of 40 |
+| the first record's reception | 43.3 | 45.1 |
+| weeks in the red | 5.0 | 3.2 |
+| labels that dissolved later | 11 | 8 |
+| calls from outside for a chair | 49 | 19 |
+
+So a label that opens with its own four is not the harder start.
+The names that came across drew the calls: 40 of the 49 were for a
+carried chair, and a raise costs 25 from a till of about 200. Forty
+careers are few. The difference in dissolutions is inside what
+another run of luck gives, and is set down as measured, not as a
+finding.
+
+**Old saves** (migration 0.11.40). A label founded before this
+version has lived with the people who came across, and keeps
+them: the same names, as well known as they were, worth what
+they were worth. What is corrected is what the file says. Each
+is filed as sat in this label's chair since the week it opened.
+The line "here since the beginning" comes off the résumé, or
+"here before you" where the old house was a second one, and one
+true line goes on: "came across from HCG at the founding". The
+records a studio chair made for the old house stay on their
+file.
+
+**Records for this house, counted one way.** The Building tab
+said "1 record for this house" of a producer whose one record
+was the old house's, and the second chair opened on such
+records. The card, the second chair's gate and its own card now
+count the same thing (`KP.seatMade`): the records that landed
+after the chair was taken. On a file made by this version that
+is every record a chair has.
+
+**The file's own check.** A chair filed as sat since before its
+building opened is a complaint, by name and week.
+
+**Found on the way.**
+
+- A label founded out of a second house dated its desk from the
+  day that house hired the desk, not from its own founding
+  (`KP.deskSince`). Its record would have listed the second
+  house's greenlights, and its first review would have been held
+  against the second house's (§129, §130). No counted career
+  takes that road: a house folds, another hires the desk, and
+  the desk walks out of that one. The suite takes it by the real
+  doors. The desk dates from the later of the two now, and the
+  last statement reads the same week.
+- Two chairs of one building could answer to one name. The four
+  of a second chance were each named by hash from eight family
+  names, and nothing kept two coaches apart: the long haul's
+  insolvent career opened its second building with two called
+  Coach Yoon, one of the five second chances counted. A name
+  already taken in the building is passed over now.
+- The long haul’s check of the walkout asked the file where the
+  label was founded from. A founded label that later dissolved made
+  the old house’s true entry look wrong: eight of the forty founder
+  careers, each flagged, none of them a defect. The tool keeps its
+  own book of the house the desk walked out of.
+
+**What moved.** The census’s output is v0.11.39’s to the byte: no
+career there founds a label, and its two second chances are seated
+as they were. Ten of the long haul’s eleven careers read as they
+did, line for line. The founder’s reads differently from week 151,
+the week it walks out.
+
+**The long haul's check, tried.** The long haul keeps books of
+its own: every chair it has seen sat, and the week the desk last
+moved. At a desk change it holds the next building to four new
+chairs, sat that week, working names, each under its own name.
+Every week it holds each chair's first week to the building's.
+It was run against seven engines broken on purpose.
+A founding that does not sweep the chairs, which is the engine as
+it shipped. Chairs that keep the week they were minted with, at a
+founding and at a second chance. Two chairs under one name. A
+label’s chairs minted under the old building’s count, so they are
+the old people again. A second chance that seats nobody. A building
+that opens with names the trades know. A walkout left off the old
+house’s books. Each was flagged by name. On the tree as it stands
+the same careers are clean, and so are forty founders, where the
+tool as it shipped flagged eight.
+
+**Found by the mutation run.** One real edge, and three faults of
+the suite's own.
+The first run caught 50 of 54 broken lines by name. Two of the four
+that got away crashed the suite, where the law is that it fails by
+name: it read a file that had not loaded. One was a fixture that
+gave the label the old house’s name, so a résumé that named the
+wrong house read right. And one was real: the card counted a record
+that landed the very week a chair was taken, and that record landed
+before it was. The rule became “after”. The second run caught 54 of
+54, the third 58 of 58 once the second chair’s gate was held, the
+fourth 61 of 61 with the second house’s line and the card for the
+door, and the final run the same.
+
+**Mistakes on the way.**
+
+- The first draft of the mint took the week as a third argument.
+  Both callers passed the week it already knew. And the
+  migration and the file's check each guarded against a chair
+  that is on the file as nothing, which no file holds. All three
+  were deleted on reading the diff, before the mutation run.
+- One of the suite's expectations was a miscount: six chairs
+  where the fixture had seven.
+- The browser pass was wrong once on its first run: it read the
+  company's name as if it were the company.
+- One fixture of §128's suite built a founded label by hand,
+  with chairs sat since week 1. The file's new check refused it.
+  The fixture was given a label's own chairs, and nothing else
+  in that suite was touched.
+- Reading the diff before the long run found two things the
+  runs had not. A chair that came across from a second house
+  kept "here before you" on its résumé. And the card for the
+  door did not say the staff stays.
+- The probe that counted the carried chairs counted by first
+  week, and was one short: a chair hired the very week of the
+  founding. The script that fills this section stopped on it.
+- A draft of this section said eight broken engines. There were
+  seven, one of them run on two careers.
+
+Suite_147 (79): the mint, its four chairs, their week, their
+word, their résumé and their file numbers, the posting and the
+market's memory cleared, the names with and without a clash; a
+real founding out of a house with seven chairs sat, the label's
+four, their names by the founding's own week, the letter, the
+file's check, six real weeks on and a hire there; a second chance
+through the blank door and the salaried one, named by the
+chapter's own key; the week a desk began, by each road and by
+the real one out of a second house; the file's check, by name
+and week; old files of a label that kept its chairs, of one from
+a second house, of a second chance, of a house never left, of
+one with no chairs on file, and of this version; the Building
+tab's count, the card for the door, and the second chair's gate
+and card. Mutation-checked against 61 broken lines, each
+caught by a named assertion. A real-browser pass (24 checks,
+no page errors): a real career saved by v0.11.39 shows the old
+house's eight, founds its label through the real card, and the
+letter names the four; the Building tab shows them working and
+just arrived, with four chairs open; a posting through the real
+button brings a candidate, hired through the real meeting, and
+real weeks play on; a real label founded under v0.11.35 keeps
+the six who came across, and its cards say when they sat down
+here and where they came from; the first career founded by
+v0.11.39 itself keeps all eight, and neither the producer's card
+nor the second chair's counts the record made for the old house.
+Battery 147/147, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, the till audit clean, e2e 137, 32, 41 and 23, the twenty-two
+older browser passes, lockstep 0.11.40.
+
+**The count that found it.** Taken for the staff given years, on
+the tree before this release, and kept here for the pieces it is
+for.
+
+| | census, 200 careers | long haul, 11 |
+|---|---|---|
+| sittings in a chair | 2298 | 297 |
+| whole years sat, all chairs | 2569 | 826 |
+| of those, with no letter in the chair's own voice | 1993 | 511 |
+| the chair's weekly note: written, landed | 7507, 825 | 1877, 645 |
+| rises in the trades' word for a chair, each silent | 1330 | 39 |
+| eras closed | 3143 | 327 |
+| calls from outside, and chairs that walked | 115, 28 | 22, 2 |
+| chairs that left on their own | 0 | 0 |
+| the longest sitting, in weeks | 140 | 620 |
+
+*Left for the next pieces.* The staff given years, in this
+order: credit on the eras a chair was in the room for, a yearly
+word from each chair, a letter when the trades' word for one
+rises, and leaving on their own terms. And the rest of what a
+desk change leaves on the file, read one thing at a time (§130):
+the distributor and the funds' paper at a founding are next on
+that list. *The owner's to call*: whether the chairs should come
+across at a founding after all, or some of them, or at a price;
+whether an old label's carried chairs should be swept too, where
+today they stay; and the wording of the letter's sentence and of
+the card's three words. *Still the owner's to call*: from §131,
+whether the record should move the number a new chair starts
+from, the five lines, the letter's last sentence, and whether a
+promise upstairs should go on naming the chair it was made to;
+from §129, whether a new label's Record tab should list the old
+house's greenlights too, and the wording of a row and of its
+three chips; from §128, whether a birthday should lift morale,
+whether a salaried house should have a founding date of its own,
+and the wording of the three openings; from §126, whether the
+count on Offers should sit beside the word; from §125, whether a
+long tag should take the line or the three long words be given
+shorter ones; from §124, the headline's order, and whether the
+letter should say more or less than its four things; from §123,
+whether the date should sit under the name on the larger phones
+too; from §122, whether a founded label's first trophy should be
+a first; from §121, the spacing of the manager's titles; from
+§120, the shape of probation; from §119, whether a pass should
+cost anything, and whether next door to the sound should count;
+the Desk's tie-break (§112); and from §109, the fade between
+records through a service chapter and the size of the window's
+bank.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -18984,6 +19243,45 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 620 clean, the till audit clean, e2e 137, 32, 41 and 23, a
 > real-browser pass (12), lockstep 0.11.39.
 > Rode to main. Next piece: the staff given years.
+
+> **0.11.40 — the chairs stay with the house.** Own judgment,
+> under "Approved to tackle as much of the remaining queue as you
+> see fit" and "Break remaining work into smaller pieces": a
+> repair of the founding, found counting the staff for the next
+> piece of §96's recommendation 7. §132: the founding left the
+> groups, the roster and the record with the old house and never
+> the staff, so a founded label opened with the old house's chairs
+> still sat. The card for the door says everything built stays
+> behind. Counted first:
+> the census’s 200 careers never found a label. The long haul founds
+> one, and it carried 8 chairs. Forty founder careers run for this
+> carried 317 chairs into their labels, every chair that was sat: 61
+> names the trades know, 69 known, 65 unknown, 122 working.
+> Now a house keeps its staff when the desk moves, and the next
+> building opens with four working chairs of its own, by one mint
+> for the founding and a second chance alike. The letter names the
+> four. An old founded label keeps its people, and its file says
+> when they sat down there and where they came from.
+> The same forty with and without the repair: the first debut comes in
+> 10.1 weeks and 10.0, 39 and 40 debut inside the 72, 11 and 8
+> dissolve later, and the calls from outside fall from 49 to 19.
+> Found on the way: a label founded out of a second house dated
+> its desk from that house; two chairs of one building could
+> share a name; the long haul's walkout check asked the file
+> where the label was founded from.
+> The census’s output is 0.11.39’s to the byte. Ten of the long haul’s
+> eleven careers read as they did; the founder’s moves from the week
+> it walks out.
+> Suite_147 (79), 61 mutations caught by name. The first
+> of five runs found a real edge: a record that landed the week a
+> chair was taken was made before they sat. The long haul's own
+> books of the chairs, tried against seven broken engines,
+> flagged each.
+> Battery 147/147, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
+> pass (24), lockstep 0.11.40.
+> Rode to main. Next piece: the staff given years, the credits
+> first.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

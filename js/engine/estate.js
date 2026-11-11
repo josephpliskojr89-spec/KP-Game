@@ -148,7 +148,7 @@
       if (r.chartPeak && (bestScene == null || r.chartPeak < bestScene)) bestScene = r.chartPeak;
       if (r.nationalPeak && (bestNational == null || r.nationalPeak < bestNational)) bestNational = r.nationalPeak;
     }));
-    const since = state.chapterSince || (state.founded && state.founded.week) || 1;
+    const since = KP.deskSince(state);
     const weeks = Math.max(0, state.week - since);
     const co = state.company.short;
     const people = Object.values(state.people);
@@ -584,17 +584,8 @@
     }
     state.nextPersonId = KP.peekNextId();
     // the chairs: a new building's names (the salaried label's staff; the founders' four)
-    const S = KP.staffSeats(state);
-    const chapterN = ((state.career || []).length + 1);
-    Object.keys(S).forEach(seatId => {
-      const st = S[seatId];
-      if (!st) return;
-      st.name = seatId === 'perf' ? 'Director ' + KP.staffName(state.seed + '|ch' + chapterN + '|' + seatId).split(' ')[0]
-        : seatId === 'scout' ? 'Scout ' + KP.staffName(state.seed + '|ch' + chapterN + '|' + seatId).split(' ')[0]
-        : 'Coach ' + KP.staffName(state.seed + '|ch' + chapterN + '|' + seatId).split(' ')[0];
-      st.since = week;
-      st.resume = [door === 'salaried' ? 'here before you — the résumé is this company' : 'here since the second beginning'];
-    });
+    KP.seatBuilding(state, state.seed + '|ch' + ((state.career || []).length + 1),
+      door === 'salaried' ? 'here before you — the résumé is this company' : 'here since the second beginning');
     // every door people enter the world through mints the public number
     // on the spot (social.js's law; audit v0.11.3: the chapter's trainees
     // and the inherited act minted at first render and forked the twin)

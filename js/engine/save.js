@@ -1462,6 +1462,26 @@
       if (review) sc.rated = review;
     });
   } });
+  // v0.11.40 — the chairs stay with the house. A label founded by walking
+  // out kept the old house's chairs sat in its building: the founding swept
+  // everything else and never the staff. It sweeps them now. A file saved
+  // before this has lived with those people and keeps them. What is
+  // corrected is what the file says of them: each has sat in THIS label's
+  // chair since the day it opened, and none has been here since the
+  // beginning, or was here before the desk arrived. The records a studio
+  // chair made for the old house stay on their file, and the card counts
+  // the ones made since they sat here.
+  MIGRATIONS.push({ v: '0.11.40', fn: function (state) {
+    const f = state.founded;
+    if (!f || !state.seats) return;
+    Object.keys(state.seats).forEach(seatId => {
+      const st = state.seats[seatId];
+      if (!(st.since < f.week)) return;
+      st.since = f.week;
+      st.resume = (st.resume || []).filter(line => !/^here (since the beginning|before you)/.test(line))
+        .concat(['came across from ' + f.from + ' at the founding']);
+    });
+  } });
 
   KP.migrate = function (state) {
     const applied = [];
