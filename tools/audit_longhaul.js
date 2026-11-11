@@ -445,7 +445,13 @@ const HO = { given: 0 };                                                    // t
 const CH = { walls: 0, minted: 0 };                                         // the chairs at every desk change (v0.11.40, §132)
 const CR = { held: 0, calls: 0, callsHeld: 0 };                             // the credits of every chair (v0.11.41, §133)
 const YR = { due: 0, chairs: 0, wrote: 0, landed: 0 };                      // the yearly words of every chair (v0.11.42, §134)
-const NM = { cands: 0, weeks: 0, turns: 0 };                                // the names of every candidate (v0.11.43, §135)
+const NM = { cands: 0, weeks: 0, turns: 0, beyond: 0 };                     // the names of every candidate (v0.11.43, §135)
+// this tool's own copy of the names (v0.11.45, §138): the hundred of before, and the four hundred
+const NAMES_FAM = ['Baek', 'Cha', 'Im', 'Joo', 'Gil', 'Weon', 'Pyo', 'Sa', 'Byun', 'Ma', 'Seok', 'Ok', 'Bang', 'Eom', 'Mo', 'Kwak', 'Yeom', 'Gong', 'Ra', 'Bong'];
+const NAMES_GIV = ['Ki-tae', 'Seon-mi', 'Do-hwan', 'Yeo-reum', 'Sang-cheol', 'In-na', 'Moo-young', 'Ha-eun', 'Chul-soo', 'Bo-ra',
+  'Jae-hoon', 'Ji-sun', 'Sung-ho', 'Eun-sook', 'Kwang-soo', 'Hye-won', 'Dong-wook', 'Yoon-hee', 'Jin-ho', 'Soo-ah'];
+const NAMES_ALL = new Set(), NAMES_OLD = new Set();
+NAMES_FAM.forEach((f, i) => NAMES_GIV.forEach((g, j) => { NAMES_ALL.add(f + ' ' + g); if (i < 10 && j < 10) NAMES_OLD.add(f + ' ' + g); }));
 const FD = { wrote: 0, desk: 0, below: 0, most: 0 };                        // every letter, on the Desk or below the fold (v0.11.44, §137)
 const NW = { weeks: 0, landed: 0, under: 0, kinds: 0 };                     // the place kept for a kind never shown (v0.11.44, §137)
 for (const sc of RUN) {
@@ -504,7 +510,9 @@ for (const sc of RUN) {
   // career. A candidate does not come in under a name sat in the building, nor under one the tool has already
   // heard, until it has heard all hundred; then its note starts over, as the desk's memory does. And no week has
   // two chairs sat under one name. Nothing here asks the engine whom it remembers
-  const nm = { heard: {}, n: 0, cands: 0, seen: {}, weeks: 0, turns: 0 };
+  // Since v0.11.45 (§138) the pool is four hundred, and this tool keeps its own copy of it: a candidate's name is one
+  // of the four hundred, and a career that meets twenty or more hears names from beyond the hundred of before
+  const nm = { heard: {}, n: 0, cands: 0, seen: {}, weeks: 0, turns: 0, beyond: 0 };
   const nmLook = () => {
     const S = state.seats || {};
     const sat = Object.keys(S).map(k => S[k].name);
@@ -514,10 +522,12 @@ for (const sc of RUN) {
       if (nm.seen[x.cand.id]) return;
       nm.seen[x.cand.id] = true; nm.cands++;
       const name = x.cand.name;
+      if (!NAMES_ALL.has(name)) flag(sc.seed, state.week, name + ' took a meeting under a name that is not one of the four hundred');
+      else if (!NAMES_OLD.has(name)) nm.beyond++;
       if (sat.includes(name)) flag(sc.seed, state.week, name + ' took a meeting under a name sat in this building');
       else if (nm.heard[name]) {
-        if (nm.n >= 100) { nm.heard = {}; nm.n = 0; nm.turns++; }   // all hundred heard: the note starts over
-        else flag(sc.seed, state.week, name + ' took a meeting under a name this desk had already met, with ' + (100 - nm.n) + ' of the hundred unheard');
+        if (nm.n >= 400) { nm.heard = {}; nm.n = 0; nm.turns++; }   // all four hundred heard: the note starts over
+        else flag(sc.seed, state.week, name + ' took a meeting under a name this desk had already met, with ' + (400 - nm.n) + ' of the four hundred unheard');
       }
       if (!nm.heard[name]) { nm.heard[name] = true; nm.n++; }
     });
@@ -1002,7 +1012,8 @@ for (const sc of RUN) {
   CH.walls += ch.walls; CH.minted += ch.minted;
   CR.held += cr.held; CR.calls += cr.calls; CR.callsHeld += cr.callsHeld;
   YR.due += yr.due; YR.chairs += yr.chairs; YR.wrote += yr.wrote; YR.landed += yr.landed;
-  NM.cands += nm.cands; NM.weeks += nm.weeks; NM.turns += nm.turns;
+  NM.cands += nm.cands; NM.weeks += nm.weeks; NM.turns += nm.turns; NM.beyond += nm.beyond;
+  if (nm.cands >= 20 && !nm.beyond) flag(sc.seed, state.week, nm.cands + ' candidates took a meeting and not one under a name beyond the hundred of before');
   FD.wrote += fd.wrote; FD.desk += fd.desk; FD.below += fd.below; if (fd.most > FD.most) FD.most = fd.most;
   NW.weeks += nw.weeks; NW.landed += nw.landed; NW.under += nw.under; NW.kinds += nw.kinds;
   ['met', 'lapsed', 'open', 'void'].forEach(k => { GL[k] += glEnd[k]; });
@@ -1097,7 +1108,7 @@ console.log('the kept place (v0.11.44): ' + NW.weeks + ' weeks wrote a kind its 
   ' letters landed ahead of a higher priority, each alone in its week and of a kind never shown, by this tool’s own note of every letter that reached the inbox · the files’ two counts held to that note every week, ' +
   NW.kinds + ' kinds in all');
 console.log('below the fold (v0.11.44): ' + FD.wrote + ' letters written by the week · ' + FD.desk + ' on the Desk, ' + FD.below + ' below the fold, each the week it was written and the week after, by this tool’s own count of the wire · the fold at its fullest held ' + FD.most + ' letters');
-console.log('one name, one chair (v0.11.43): ' + NM.cands + ' candidates took a meeting, each held to this tool’s own note of the names it had heard · the hundred came round ' + NM.turns + ' time' + (NM.turns === 1 ? '' : 's') + ' · ' + NM.weeks + ' weeks of chairs sat, each looked at for two under one name');
+console.log('one name, one chair (v0.11.43): ' + NM.cands + ' candidates took a meeting, each held to this tool’s own note of the names it had heard and its own copy of the four hundred · ' + NM.beyond + ' under a name beyond the hundred of before · the four hundred came round ' + NM.turns + ' time' + (NM.turns === 1 ? '' : 's') + ' · ' + NM.weeks + ' weeks of chairs sat, each looked at for two under one name');
 console.log('the yearly word (v0.11.42): ' + YR.due + ' weeks a chair turned a year · ' + YR.wrote + ' letters written, ' + YR.landed + ' landed · ' + YR.chairs + ' chairs named, each by this tool’s own note of the week they sat down');
 console.log('the credits (v0.11.41): ' + CR.held + ' weeks of a chair’s credit held to this tool’s own books of what landed, how it closed and who signed · ' + CR.calls + ' calls from outside, ' + CR.callsHeld + ' of them for a chair that works an era, each held to the same books');
 console.log('the chairs (v0.11.40): ' + CH.walls + ' desk change' + (CH.walls === 1 ? '' : 's') + ' · ' + CH.minted + ' chairs opened the next buildings, four at each · none carried across, by this tool’s own books of who sat');

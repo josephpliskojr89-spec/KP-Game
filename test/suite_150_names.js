@@ -1,16 +1,17 @@
 /* Suite 150 — one name, one chair (v0.11.43, §135: a repair found by §134's
-   check). A candidate's name is drawn from a hundred, and passes over every
-   name the desk has met: the chairs sat, the names it passed on that the
-   market still remembers, and everyone who has taken a meeting. A candidate
-   whose own draw is free is who they always were. One whose draw is taken is
-   given a free name by the same hash. When all hundred have come through
-   the door the memory starts over. An old file starts with the people it
-   has, and nobody is renamed. No draw is made.
+   check). A candidate's name is drawn from the pool, a hundred then and four
+   hundred since v0.11.45 (§138), and passes over every name the desk has
+   met: the chairs sat, the names it passed on that the market still
+   remembers, and everyone who has taken a meeting. A candidate whose own
+   draw is free is who they always were. One whose draw is taken is given a
+   free name by the same hash. When the whole pool has come through the door
+   the memory starts over. An old file starts with the people it has, and
+   nobody is renamed. No draw is made.
 
    Laws (§99): a fixture forces every gate and rolls nothing; a missing
    sentence fails by name; nothing here can crash or hang under a broken
-   engine. This suite keeps its own copy of the hundred and its own read of
-   a candidate's draw: it never asks the engine what a name should be. */
+   engine. This suite keeps its own copy of the four hundred and its own read
+   of a candidate's draw: it never asks the engine what a name should be. */
 'use strict';
 const { loadEngine, makeT } = require('./load_engine');
 const KP = loadEngine();
@@ -19,15 +20,19 @@ const t = makeT('suite_150_names');
 // ---- the kit ------------------------------------------------------------------
 const say = fn => { try { return fn(); } catch (e) { return 'threw: ' + e.message; } };
 const js = x => JSON.stringify(x);
-const FAM = ['Baek', 'Cha', 'Im', 'Joo', 'Gil', 'Weon', 'Pyo', 'Sa', 'Byun', 'Ma'];
-const GIV = ['Ki-tae', 'Seon-mi', 'Do-hwan', 'Yeo-reum', 'Sang-cheol', 'In-na', 'Moo-young', 'Ha-eun', 'Chul-soo', 'Bo-ra'];
+const FAM = ['Baek', 'Cha', 'Im', 'Joo', 'Gil', 'Weon', 'Pyo', 'Sa', 'Byun', 'Ma', 'Seok', 'Ok', 'Bang', 'Eom', 'Mo', 'Kwak', 'Yeom', 'Gong', 'Ra', 'Bong'];
+const GIV = ['Ki-tae', 'Seon-mi', 'Do-hwan', 'Yeo-reum', 'Sang-cheol', 'In-na', 'Moo-young', 'Ha-eun', 'Chul-soo', 'Bo-ra',
+  'Jae-hoon', 'Ji-sun', 'Sung-ho', 'Eun-sook', 'Kwang-soo', 'Hye-won', 'Dong-wook', 'Yoon-hee', 'Jin-ho', 'Soo-ah'];
 const POOL = [];
 FAM.forEach(f => GIV.forEach(g => POOL.push(f + ' ' + g)));
+// the hundred of before v0.11.45: the first ten of each, in their places
+const OLD = [];
+FAM.slice(0, 10).forEach(f => GIV.slice(0, 10).forEach(g => OLD.push(f + ' ' + g)));
 const hh = (s, sid, key) => KP.hash01([s.seed, 'hires', sid, key].join('|'));
 // a candidate's own draw, and the pick among a list of free names, by this suite's own arithmetic
-const own = (s, sid) => FAM[Math.floor(hh(s, sid, 'f') * 10)] + ' ' + GIV[Math.floor(hh(s, sid, 'g') * 10)];
+const own = (s, sid) => FAM[Math.floor(hh(s, sid, 'f') * 20)] + ' ' + GIV[Math.floor(hh(s, sid, 'g') * 20)];
 const pick = (s, sid, list) => list[Math.floor(hh(s, sid, 'free') * list.length)];
-// a salt whose own draw, minted in this week, is the name asked for (about one in a hundred is)
+// a salt whose own draw, minted in this week, is the name asked for (about one in four hundred is)
 const saltFor = (s, week, name) => { for (let i = 0; i < 10000; i++) if (own(s, 'sf' + week + '_' + i) === name) return i; return -1; };
 // a building with no chairs sat and a ledger with nothing on it
 const desk = (seed, week) => { const s = KP.newGame(seed, null, {}); s.week = week; s.objective.status = 'met'; say(() => KP.staffSeats(s)); Object.keys(s.seats || {}).forEach(k => { delete s.seats[k]; });
@@ -50,7 +55,7 @@ const post = (s, seatId, salt) => { s.scenes = (s.scenes || []).filter(x => x.ki
   const s = desk('nm-own', 60);
   const sids = ['sf10_1', 'sf10_2', 'sf55_4821', 'sf300_77', 'sf60_9999'];
   t.eq(sids.map(x => name(s, x)).join(' | '), sids.map(x => own(s, x)).join(' | '), 'in a building that has met nobody, a candidate comes in under their own draw');
-  t.ok(sids.every(x => POOL.includes(own(s, x))) && POOL.length === 100 && new Set(POOL).size === 100, 'and the draw is one of a hundred');
+  t.ok(sids.every(x => POOL.includes(own(s, x))) && POOL.length === 400 && new Set(POOL).size === 400, 'and the draw is one of four hundred');
   // other people's names do not move them
   const others = POOL.filter(n => !sids.some(x => own(s, x) === n));
   sit(s, 'vocal', others[0]); sit(s, 'scout', 'Scout Im'); pass(s, others[1]); s.staffLedger2.met = others.slice(2, 40);
@@ -65,8 +70,8 @@ const post = (s, seatId, salt) => { s.scenes = (s.scenes || []).filter(x => x.ki
   const first = own(s, sid);
   sit(s, 'marketing', first);
   const got = name(s, sid);
-  t.ok(got !== first && POOL.includes(got), 'a candidate whose draw is the marketing lead’s name comes in under another of the hundred (' + first + ', ' + got + ')');
-  t.eq(got, pick(s, sid, POOL.filter(n => n !== first)), 'the one the same hash picks among the free names, in the hundred’s own order');
+  t.ok(got !== first && POOL.includes(got), 'a candidate whose draw is the marketing lead’s name comes in under another of the four hundred (' + first + ', ' + got + ')');
+  t.eq(got, pick(s, sid, POOL.filter(n => n !== first)), 'the one the same hash picks among the free names, in the pool’s own order');
   t.eq(name(s, sid), got, 'and the same one every time it is asked');
   delete s.seats.marketing;
   t.eq(name(s, sid), first, 'with the chair empty the name is free again');
@@ -92,7 +97,7 @@ const post = (s, seatId, salt) => { s.scenes = (s.scenes || []).filter(x => x.ki
   const [X, Y, Z] = [rest[11], rest[42], rest[77]];
   s.staffLedger2.met = POOL.filter(n => n !== X && n !== Y && n !== Z);   // the candidate's own draw is among those met
   sit(s, 'dance', X); pass(s, Y);
-  t.eq(name(s, sid), Z, 'with one name sat, one passed on and ninety-seven met, the candidate gets the one name left');
+  t.eq(name(s, sid), Z, 'with one name sat, one passed on and three hundred and ninety-seven met, the candidate gets the one name left');
   const zSalt = saltFor(s, 61, Z);
   t.ok(zSalt >= 0 && name(s, 'sf61_' + zSalt) === Z, 'and a candidate whose own draw is that name keeps it');
   // two free: the hash picks between them, by this suite's own arithmetic
@@ -100,22 +105,22 @@ const post = (s, seatId, salt) => { s.scenes = (s.scenes || []).filter(x => x.ki
   t.eq(name(s, sid), pick(s, sid, POOL.filter(n => n === rest[5] || n === Z)), 'with two left the hash picks between them');
 }
 
-// ---- D. the hundredth, and the memory’s turn ------------------------------------------------------------
+// ---- D. the last of the four hundred, and the memory’s turn ---------------------------------------------
 {
   const sid = 'sf62_808';
   const s = desk('nm-turn', 62);
   const first = own(s, sid);
   const rest = POOL.filter(n => n !== first);
   s.staffLedger2.met = POOL.slice();
-  t.eq(name(s, sid), first, 'when all hundred have come through the door a name comes round again: the candidate’s own, if the building does not answer to it today');
+  t.eq(name(s, sid), first, 'when all four hundred have come through the door a name comes round again: the candidate’s own, if the building does not answer to it today');
   sit(s, 'anr', first); pass(s, rest[3]);
   const got = name(s, sid);
   t.eq(got, pick(s, sid, POOL.filter(n => n !== first && n !== rest[3])), 'and if it does, one the hash picks among those it does not answer to');
   t.ok(got !== first && got !== rest[3], 'never the name sat, never the name passed on');
-  // a file no career makes: every name of the hundred remembered as passed on
+  // a file no career makes: every name of the four hundred remembered as passed on
   const absurd = desk('nm-absurd', 62);
   POOL.forEach(n => pass(absurd, n));
-  t.eq(name(absurd, sid), own(absurd, sid), 'with every name of the hundred passed on, which no career does, the candidate keeps their own draw and nothing breaks');
+  t.eq(name(absurd, sid), own(absurd, sid), 'with every name of the four hundred passed on, which no career does, the candidate keeps their own draw and nothing breaks');
   const bare = desk('nm-bare', 62);
   delete bare.staffLedger2; delete bare.seats;
   t.eq(name(bare, sid), own(bare, sid), 'a file with no ledger and no chairs reads the same');
@@ -154,10 +159,10 @@ const post = (s, seatId, salt) => { s.scenes = (s.scenes || []).filter(x => x.ki
   s.staffLedger2.met = POOL.filter(n => n !== last);
   s.week = 63;
   const d = post(s, 'anr', saltFor(s, 63, a.cand.name));
-  t.eq(d.cand.name + ' · ' + s.staffLedger2.met.length, last + ' · 100', 'the hundredth candidate takes the last name free, and the memory holds all hundred');
+  t.eq(d.cand.name + ' · ' + s.staffLedger2.met.length, last + ' · 400', 'the four-hundredth candidate takes the last name free, and the memory holds all four hundred');
   s.week = 64;
   const e = post(s, 'anr', saltFor(s, 64, a.cand.name));
-  t.eq(e.cand.name + ' · ' + js(s.staffLedger2.met), a.cand.name + ' · ' + js([a.cand.name]), 'the hundred-and-first comes round under their own draw, and the memory starts over with them');
+  t.eq(e.cand.name + ' · ' + js(s.staffLedger2.met), a.cand.name + ' · ' + js([a.cand.name]), 'the four-hundred-and-first comes round under their own draw, and the memory starts over with them');
   s.week = 65;
   const f = post(s, 'anr', saltFor(s, 65, first));
   t.ok(f.cand.name !== first && f.cand.name !== a.cand.name && POOL.includes(f.cand.name) && s.staffLedger2.met.length === 2, 'a memory that has started over still passes over the name sat and the name just met (' + f.cand.name + ')');
@@ -195,6 +200,7 @@ const post = (s, seatId, salt) => { s.scenes = (s.scenes || []).filter(x => x.ki
 // ---- G. the real weeks --------------------------------------------------------------------------------
 {
   // a new game, a posting every week on a chair in turn, and every candidate passed on: a hundred and four meetings.
+  // (The memory's turn is held through the rail above. Four hundred real meetings would be eight years of weeks.)
   // Bounded, and a week that does not move ends it, so a broken engine cannot hang this
   const s = KP.newGame('nm-real', null, {});
   const SEATS = ['vocal', 'dance', 'perf', 'scout', 'anr', 'marketing', 'producer', 'writer'];
@@ -213,9 +219,10 @@ const post = (s, seatId, salt) => { s.scenes = (s.scenes || []).filter(x => x.ki
   } return 'ok'; });
   const names = seen.map(x => x.name);
   t.ok(r === 'ok' && seen.length === 104, 'a hundred and four candidates took a meeting in the real weeks of one career (' + r + ', ' + seen.length + ')');
-  t.eq(new Set(names.slice(0, 100)).size, 100, 'the first hundred came in under a hundred different names');
-  t.eq(js(POOL.filter(n => !names.slice(0, 100).includes(n))), '[]', 'every name of the hundred, each once');
-  t.ok(seen.slice(100).every(x => POOL.includes(x.name)) && new Set(names.slice(100)).size === names.slice(100).length, 'the hundred-and-first and after come round again, each under a name of its own');
+  t.eq(new Set(names).size, 104, 'each came in under a name of their own: a hundred and four names');
+  t.ok(names.every(n => POOL.includes(n)), 'every one a name of the four hundred');
+  const beyond = names.filter(n => !OLD.includes(n)).length;
+  t.ok(beyond >= 52 && beyond <= 100, 'and most of them from beyond the hundred of before, as three names in four are (' + beyond + ' of 104)');
   t.eq(js(seen.filter((x, i) => i > 0 && seen.slice(Math.max(0, i - 6), i).some(y => y.name === x.name)).map(x => x.week)), '[]', 'and nobody comes in under one of the six names before them');
   t.eq(js(twins), '[]', 'no week has two chairs sat under one name');
   t.eq(js(say(() => KP.validateState(s))), '[]', 'and the file has no complaint at the end');

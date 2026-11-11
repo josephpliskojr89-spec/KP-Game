@@ -16264,6 +16264,194 @@ are marked high, so "high" no longer sorts anything. Re-grading
 the ninety kinds that claim it is an editorial pass of its own.
 
 
+## §138 Four hundred names, and doubles told apart (SHIPPED v0.11.45 — the owner's ruling, §136: decisions 5 and 34)
+
+The second piece built on the directive (§136). Owner, on the
+staff's names: *"expand to approximately 400 names."* On two
+people under one name in older saves: *"distinguish by context
+(role, agency, tenure); do not rename."*
+
+**Counted first.** A candidate's name was drawn from a hundred:
+ten family names by ten given. Since v0.11.43 no two people in a
+building share a whole name (§135). They still shared the halves
+of one. Over the census's 200 careers, on the tree before this
+piece and on this one:
+
+| the census, 200 careers | a hundred names | four hundred |
+|---|---|---|
+| candidates who took a meeting | 3,309 | 3,309 |
+| given names a career hears | 8.4 | 11.5 |
+| family names a career hears | 8.4 | 11.5 |
+| meetings under a given name the career had heard | 1,635 | 1,011 |
+| over every career the census plays, meetings | 3,384 | 3,384 |
+| of them, sharing a given name with a chair sat | 693 | 380 |
+| sharing a family name with a chair sat | 1,433 | 807 |
+| under the whole name of a chair sat | 0 | 0 |
+
+A career of 140 weeks meets sixteen or seventeen candidates. Under
+a hundred names every second one came in under a given name the
+career had already heard, and one in five shared a given name with
+somebody sat that week. Under four hundred it is fewer than one in
+three, and one in nine. The whole name was shared on neither tree:
+that is §135. A family name is shared more often than a given name
+because the chairs a house opens with carry family names too.
+
+**Four hundred names.** Twenty family names and twenty given
+(`FAM`, `GIV`). The hundred of before are the first ten of each,
+in their places, so a name an older file holds is still a name of
+the pool. Nothing on a file is touched, and there is no
+migration.
+
+- The ten new family names: Seok, Ok, Bang, Eom, Mo, Kwak, Yeom,
+  Gong, Ra, Bong.
+- The ten new given names: Jae-hoon, Ji-sun, Sung-ho, Eun-sook,
+  Kwang-soo, Hye-won, Dong-wook, Yoon-hee, Jin-ho, Soo-ah.
+- A candidate not yet minted draws from the twenty, so a career in
+  progress meets different people from here on. Everyone it has
+  already met keeps the name they came in with.
+- One name, one chair (§135) stands as it was. The memory turns
+  over at four hundred now, which no career reaches.
+- The dance coach a house opens with has always been named from
+  the same family names. A new house's is one of twenty.
+
+**Doubles told apart.** A file from before v0.11.43 can hold two
+chairs under one name: 37 of the census's 200 careers did then
+(§135). Nobody is renamed. Where the building speaks a name that
+two of its chairs answer to, it says whose: the chair, in brackets
+after the name (`KP.seatNameTold`). A name only one chair answers
+to is said as it always was.
+
+- *Role.* The chair is the context the building has, and no two
+  chairs carry one label. It is said wherever a name stood with no
+  chair beside it: the scout's stories, an evaluator's byline, the
+  A&R lead's word on a title, a call from outside in its title,
+  its first words and its answer, the letter when they go, and
+  the corridor's read of a method that does not fit.
+- *Tenure.* The Building tab's card already says how long each
+  has sat, under the chair's name. Nothing was added.
+- *Agency.* A name the desk passed on is said with the house that
+  took it, as it was (§96's wiring).
+- Where the chair was already in the sentence, the sentence is as
+  it was: the weekly notes, the yearly word, the letting go.
+
+**One real career, before and after.** A save from week 220 of
+the long haul's second career, made by v0.11.42: Gil Ki-tae is the
+head vocal coach, the A&R lead and the marketing lead.
+
+| what the building says | v0.11.44 | v0.11.45 |
+|---|---|---|
+| the scout’s byline | Scout Im | Scout Im |
+| the A&R lead’s byline | Gil Ki-tae | Gil Ki-tae (A&R lead) |
+| a call for the A&R lead: its title | Gil Ki-tae · the offer from outside | Gil Ki-tae (A&R lead) · the offer from outside |
+| its first words | Gil Ki-tae got the call | Gil Ki-tae (A&R lead) got the call |
+| the letter when they go | Gil Ki-tae goes to Novaline Entertainment | Gil Ki-tae (A&R lead) goes to Novaline Entertainment |
+| a call for the vocal coach, matched | Gil Ki-tae stays. | Gil Ki-tae (head vocal coach) stays. |
+| the vocal coach, the other two gone | Gil Ki-tae | Gil Ki-tae |
+
+**What moved.** Nothing in the simulation moves. Each of the
+census’s 200 careers was played on v0.11.44 and on this tree, and
+each ends on the same file once every name of the pool is read as
+one name and the Desk’s own keys are set aside. None of the
+census’s 365 rows moved: the census says the same thing as it did,
+to the letter. In the long haul the eleven careers read as they
+did, line for line, and only the tool’s own line on the names is
+new. There 317 candidates took a meeting, 245 of them under a name
+from beyond the hundred of before, and the four hundred never came
+round.
+
+**The long haul's check, tried.** The long haul keeps its own
+copy of the four hundred, and of the hundred of before. A
+candidate's name is one of the four hundred. A career that meets
+twenty or more hears names from beyond the hundred. And the checks
+of §135 stand, counted to four hundred.
+
+It was run against three engines broken on purpose. The pool is the
+hundred of before: 22 candidates in one career and not one from
+beyond it. A family name that is not on the list: flagged at the
+first candidate who carries it. The rule of §135 forgotten, in the
+career that meets 40: a name met twice, a name sat in the building,
+and two chairs sat under one name. Four hundred names do not keep
+doubles out by themselves. Each was flagged by name. On the tree as
+it stands the two long careers are clean.
+
+**Found by the mutation run.** The first run caught 25 of 27. Both
+survivors were named for two suites, and one of the two could not
+catch them. The older suite walks a hundred and four real meetings,
+and a pool with one family name or one given name wrong still gives
+them a hundred and four names of their own. The reach of the pool
+is the new suite’s, which draws nine thousand. The two are named
+for it, and the final run, on the tree as committed, caught 27 of
+27.
+
+**Assumptions, written down.**
+
+- "Approximately 400" is twenty by twenty, the candidates' pool.
+  The road managers are named from another list, sixty-four
+  names, one to a group. It was not asked about and is as it was.
+- The names are ordinary Korean names. Three of my first choices
+  made the whole name of a well-known person with a family name
+  already in the pool, and a fourth came one syllable from a
+  former president's. All four were changed. Four hundred
+  ordinary names will still be somebody's somewhere. None is
+  meant.
+- "Role, agency, tenure" is read as: say the role wherever the
+  building speaks the name alone. Tenure and agency are said
+  where they were already said.
+
+**Mistakes on the way.**
+
+- The last piece's browser pass named a candidate by the name
+  the hundred gave them. Under four hundred they are somebody
+  else. It reads the name off the letter now.
+- My first hash of the two trees read every pool name as one and
+  still differed in the chairs. It had missed the dance coach,
+  who is named from the same family names. Read as one too, the
+  two trees agree.
+- The trial's third engine, the rule of §135 forgotten, was run
+  on a career that meets 22 candidates, and nothing was flagged:
+  among four hundred names 22 seldom collide. It is run on the
+  career that meets 40, and is flagged there.
+
+Suite_152 (37): twenty by twenty, no name twice, no family name a
+given name; nine thousand candidates each under the draw the suite
+makes for them, and between them every name of the four hundred;
+three hundred from beyond the hundred; the hundred in their places;
+a road manager never one of the four hundred; a file saved under
+the hundred, its chairs, its memory and its passes as they were; a
+building with no doubles, said plainly though family names and
+given names are shared; an empty chair; two chairs under one name,
+three, and the scout among them; an evaluator’s byline; each of the
+ten chairs by its own label; nobody renamed, in the file and saved;
+one of two gone and the other plain again; a call from outside in
+its title and its first words, matched, wished well, and the same
+in a building with no doubles; and the corridor’s read, through the
+rail, on a stream that grants its one chance and nothing else.
+Suite_150 (47) was brought to four hundred: its own copy of the
+pool, the memory’s turn at the four-hundredth through the rail, and
+a hundred and four real meetings under a hundred and four names.
+Mutation-checked against 27 broken lines, each caught by a named
+assertion. A real-browser pass (18 checks, no page errors): the
+real career that holds three people called Gil Ki-tae opens, nobody
+is renamed, and the Building tab shows the three under their three
+chairs; a call from outside for the A&R lead says which in its
+title and its first words, and the letter says which when they go;
+the vocal coach, kept, is named with the chair; with the other two
+gone the last is said plainly; the candidate v0.11.42 brought in
+comes in under a name of the four hundred; and in a new career
+twenty-four candidates by the real button each have a name of their
+own.
+Battery 152/152, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, the till audit clean, e2e 137, 32, 41 and 23, the
+twenty-seven older browser passes, lockstep 0.11.45.
+
+*Left for the next pieces.* The rest of the directive's
+amendments, in §136's order: the yearly digest, the credits that
+stay, the house's own birthday. *Seen on the way, and left for a
+repair of their own*: two cards "Up close" in one week can carry
+one sentence under two names; and the executive's quoted word
+opens with two quotation marks when it begins with a title.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -20796,6 +20984,29 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
 > pass (16), lockstep 0.11.44.
 > Rode to main. Next piece: four hundred names.
+
+> **0.11.45 — four hundred names, and doubles told apart.** The
+> second piece built on the directive (§136: decisions 5 and 34).
+> §138: a candidate's name is drawn from four hundred, twenty
+> family names by twenty given, the hundred of before in their
+> places. No file is touched. And where an older file holds two
+> chairs under one name, nobody is renamed: the building says
+> whose, the chair in brackets after the name, wherever it spoke
+> the name alone. Counted first:
+> in the census a career meets sixteen or seventeen candidates, and
+> under a hundred names every second one came in under a given name it
+> had already heard. Under four hundred it is fewer than one in three.
+> Nothing in the simulation moves: each of the census’s 200 careers
+> ends on the same file as under v0.11.44, every name of the pool read
+> as one. None of the census’s 365 rows moved.
+> Suite_152 (37), and suite_150 brought to four hundred (47); 27
+> mutations caught by name, the first run 25. The long haul’s own copy
+> of the four hundred, tried against three broken engines, flagged
+> each.
+> Battery 152/152, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
+> pass (18), lockstep 0.11.45.
+> Rode to main. Next piece: the yearly digest.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

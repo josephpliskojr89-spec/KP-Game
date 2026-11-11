@@ -244,9 +244,14 @@
   };
 
   // ---- the people ------------------------------------------------------
-  const FAM = ['Baek', 'Cha', 'Im', 'Joo', 'Gil', 'Weon', 'Pyo', 'Sa', 'Byun', 'Ma'];
+  // four hundred names (v0.11.45, §138; the owner's ruling, §136: 5): twenty family names and twenty given. The
+  // first ten of each are the hundred of before, in their places: a name an older file holds is a name of the pool
+  const FAM = ['Baek', 'Cha', 'Im', 'Joo', 'Gil', 'Weon', 'Pyo', 'Sa', 'Byun', 'Ma',
+    'Seok', 'Ok', 'Bang', 'Eom', 'Mo', 'Kwak', 'Yeom', 'Gong', 'Ra', 'Bong'];
   const GIV = ['Ki-tae', 'Seon-mi', 'Do-hwan', 'Yeo-reum', 'Sang-cheol', 'In-na',
-    'Moo-young', 'Ha-eun', 'Chul-soo', 'Bo-ra'];
+    'Moo-young', 'Ha-eun', 'Chul-soo', 'Bo-ra',
+    'Jae-hoon', 'Ji-sun', 'Sung-ho', 'Eun-sook', 'Kwang-soo', 'Hye-won',
+    'Dong-wook', 'Yoon-hee', 'Jin-ho', 'Soo-ah'];
   const STYLES = ['drillmaster', 'nurturer', 'bigMachine', 'scrappy', 'classicist', 'trendChaser'];
   // the building directory (v0.10.15): ONE truth for how a staff file
   // reads — the interview and the card speak the same sentences
@@ -287,11 +292,12 @@
   }
   KP.staffTruthMint = function (state, st, legacy) { return truthFor(state, st, legacy ? KP.hash01Legacy : KP.hash01); };
 
-  // ---- one name, one chair (v0.11.43, §135): a candidate's name is drawn from a hundred, and passes over every name
-  // the desk has met: the chairs sat, the names it passed on that the market still remembers, and everyone who has
-  // taken a meeting. A candidate whose own draw is free is who they always were. One whose draw is taken is given a
-  // free name by the same hash, and no draw is made. When all hundred have come through the door the memory starts
-  // over and a name comes round again: never one the building answers to today
+  // ---- one name, one chair (v0.11.43, §135): a candidate's name is drawn from the pool (a hundred then, four
+  // hundred since v0.11.45), and passes over every name the desk has met: the chairs sat, the names it passed on
+  // that the market still remembers, and everyone who has taken a meeting. A candidate whose own draw is free is
+  // who they always were. One whose draw is taken is given a free name by the same hash, and no draw is made. When
+  // the whole pool has come through the door the memory starts over and a name comes round again: never one the
+  // building answers to today
   const POOL = [];
   FAM.forEach(f => GIV.forEach(g => POOL.push(f + ' ' + g)));
   // the names the building answers to today
@@ -311,7 +317,7 @@
     const pick = list => list[Math.floor(h(state, sid, 'free') * list.length)];
     const free = POOL.filter(fresh);
     if (free.length) return pick(free);
-    // all hundred have come through the door: the memory starts over, and a name comes round again
+    // the whole pool has come through the door: the memory starts over, and a name comes round again
     if (!here[own]) return own;
     const round = POOL.filter(n => !here[n]);
     return round.length ? pick(round) : own;
@@ -463,9 +469,21 @@
   // one staff (v0.10.43, §89 D8): every name the building speaks comes
   // from a chair — the scout's stories, the referral's voucher, the
   // evaluators' bylines. An empty chair speaks as the desk.
-  KP.seatHolderName = function (state, seatId, fallback) {
+  // doubles told apart (v0.11.45, §138; the owner's ruling, §136: 34). A file from before v0.11.43 can hold two
+  // chairs under one name. Nobody is renamed. Where the building speaks a name that two of its chairs answer to, it
+  // says whose: the chair, in brackets after the name. A name only one chair answers to is said as it always was
+  KP.seatNameShared = function (state, seatId) {
+    const S = seats(state), st = S[seatId];
+    return !!st && Object.keys(S).some(k => k !== seatId && S[k] && S[k].name === st.name);
+  };
+  KP.seatNameTold = function (state, seatId) {
     const st = seats(state)[seatId];
-    return st ? st.name : (fallback || 'the ' + ((KP.C.HIRES.SEATS.find(x => x.id === seatId) || {}).label || seatId) + ' desk');
+    if (!st) return null;
+    const seat = KP.C.HIRES.SEATS.find(x => x.id === seatId);
+    return KP.seatNameShared(state, seatId) && seat ? st.name + ' (' + seat.label + ')' : st.name;
+  };
+  KP.seatHolderName = function (state, seatId, fallback) {
+    return KP.seatNameTold(state, seatId) || (fallback || 'the ' + ((KP.C.HIRES.SEATS.find(x => x.id === seatId) || {}).label || seatId) + ' desk');
   };
   KP.scoutName = function (state) { return KP.seatHolderName(state, 'scout', 'the scouting desk'); };
   const EVAL_SEAT = { ev_vocal: 'vocal', ev_perf: 'perf', ev_scout: 'scout' };
@@ -576,7 +594,7 @@
         return (m ? m.name : 'The road manager') + ' · the counter-offer';
       }
       const st = (state.seats || {})[sc.seatId];
-      return (st ? st.name : 'The chair') + ' · the offer from outside';
+      return (st ? KP.seatNameTold(state, sc.seatId) : 'The chair') + ' · the offer from outside';
     },
     body: (state, sc) => {
       if (sc.groupId) {
@@ -593,7 +611,7 @@
       // and for a chair with neither, the red weeks, which are the only reason such a chair is called
       const read = st ? KP.seatCreditShort(KP.seatCredit(state, st)) : '';
       const named = st && KP.C.HIRES.REP_TIERS.indexOf(st.tier) >= KP.C.HIRES.poachTierMin;
-      return (st ? st.name : 'Your ' + seat.label) + ' got the call — ' + callFrom(state, sc) +
+      return (st ? KP.seatNameTold(state, sc.seatId) : 'Your ' + seat.label) + ' got the call — ' + callFrom(state, sc) +
         ', better title, real money. ' +
         (!st || read ? 'This is what happens when the results carry a name: the industry reads your credits and hires your people.' + (read ? ' What it read: ' + read + '.' : '')
           : named ? st.name + ' has no credit at this house yet: the call is for the name they came in with.'
@@ -633,14 +651,15 @@
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -KP.C.HIRES.raiseCost);
         led.raises++;
         onBooks(state, sc, 'weKeptOurStaff');
-        return { toast: st.name + ' stays. The raise is real; so is the fact they took the meeting.' };
+        return { toast: KP.seatNameTold(state, sc.seatId) + ' stays. The raise is real; so is the fact they took the meeting.' };
       }
       led.walked++;
       const leaves = KP.seatLeavesWith(state, st);   // what the résumé takes across the street (v0.11.41, §133)
+      const told = KP.seatNameTold(state, sc.seatId);   // said while the chair is still theirs
       delete state.seats[sc.seatId];
       onBooks(state, sc, 'theyHiredOurStaff');
       KP.note(state, { kind: 'company', ind: 'seatWalked', priority: 'high',
-        text: st.name + ' goes to ' + sc.rivalName + ' with a leaving speech that thanks everyone and a start date that says everything.' + leaves + ' The chair is open, and whether that is a loss or a mercy is exactly the thing nobody will ever know for certain.' });
+        text: told + ' goes to ' + sc.rivalName + ' with a leaving speech that thanks everyone and a start date that says everything.' + leaves + ' The chair is open, and whether that is a loss or a mercy is exactly the thing nobody will ever know for certain.' });
       return { toast: 'The chair is open. The industry hires from the schools it respects — that is the compliment and the bill.' };
     },
     expire: (state, sc) => {
@@ -741,7 +760,7 @@
         st.meshNoted = 1;
         led.meshNotes++;
         inbox.push({ kind: 'company', ind: 'meshFriction', priority: 'high',
-          text: 'Corridor read on ' + st.name + ': the method and the building keep missing each other — ' +
+          text: 'Corridor read on ' + KP.seatNameTold(state, seatId) + ': the method and the building keep missing each other — ' +
             STYLE_WORD[st.style] + ', and this is not that kind of house right now. Nobody doubts the work. Several people doubt the fit. Whether the difference matters is the ' + (state.week - st.since) + '-week question with no clean answer.' });
       }
     });
