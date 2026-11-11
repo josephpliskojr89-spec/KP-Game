@@ -232,6 +232,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .mail.folded { opacity: .78; }
 .fold { margin-top: 6px; border-top: 1px dashed var(--ink-faint); }
 .fold-cap { padding: 10px 16px 0; font-size: .68rem; color: var(--ink-faint); }
+/* a letter of several lines: each after the first on its own, a little apart (v0.11.46, §139) */
+.mail .m-line { display: block; margin-top: 7px; }
 /* a letter's tag is one word (v0.11.33, §125). The letter starts 73 px in, as
    on every mail row. A word that would come within 4 px of it takes the line,
    whole, and the letter starts under it, in its own column. */

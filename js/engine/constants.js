@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.45',
+    VERSION: '0.11.46',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1990,6 +1990,7 @@
       fameForKnown: 0.30, fameForName: 0.55,   // who takes the meeting
       noteChance: 0.04,          // a staff note in their voice
       meshNoteAfter: 10,         // friction shows in prose first
+      wordAfter: 12,             // the staff's year (v0.11.46, §139): a chair sat fewer weeks than this has no word on the year yet
       repRiseAt: 68, repRiseChance: 0.30,   // hits polish the seats' names
       poachTierMin: 2, poachChance: 0.010, poachCooldown: 30,
       raiseCost: 25,

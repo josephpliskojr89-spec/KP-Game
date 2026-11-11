@@ -10,6 +10,7 @@ const { loadEngine } = require('../test/load_engine');
 const KP = loadEngine();
 // the Desk, counted (v0.11.21, §112): what each week wrote and what landed
 const deskCount = require('./desk_count');
+const staffYear = require('./staff_year');
 const DESK = deskCount.watch(KP);
 
 const WEEKS = parseInt(process.argv[2] || '620', 10);
@@ -335,9 +336,23 @@ function botWeek(state, mode) {
           alloc: { vocals: 30, dance: 30, rap: 10, media: 30 } });
       }
     });
+    // the trial's own career (v0.11.46, §139): with HAUL_STUDIO set, the bot briefs each record to the house's own
+    // producer and writer and plans the record they deliver. A long career then holds studio chairs with records
+    // to their names, which no bot here makes otherwise: the staff's letter is tried on it. Off, none of this runs
+    const STUDIO = !!process.env.HAUL_STUDIO;
+    if (STUDIO) state.groups.forEach(g => {
+      if (!g.debuted || g.retiredWeek || g.prep || g.tour || g.hiatus || g.commission || !g.members.length) return;
+      if ((g.demos || []).some(d => d.commissioned)) return;
+      const pr = KP.houseProducers(state)[0], w = KP.houseWriters(state)[0];
+      if (!pr || !w) return;
+      const lane = g.concept || 'bright', themes = KP.themesForLane(lane);
+      const theme = (themes.find(th => (w.themes || []).includes(th.id)) || themes[0] || { id: 'longing' }).id;
+      KP.commissionRecord(state, g.id, { lane, theme, producerId: pr.id, writerId: w.id });
+    });
     // hiatus a worn group; comeback everything else on the calendar
     state.groups.forEach(g => {
       if (!g.debuted || g.prep || g.tour) return;
+      if (STUDIO && g.commission) return;   // the writing room has the brief: the calendar waits for it
       if (state.week <= (g.promoUntil || 0) + KP.C.COMEBACK.restWeeks) return;
       if (g.hiatus && state.week - g.hiatus.since < KP.C.HIATUS.graceWeeks + 4) return;
       const avgF = g.members.reduce((s, id) => s + state.people[id].fatigue, 0) / (g.members.length || 1);
@@ -349,7 +364,7 @@ function botWeek(state, mode) {
         g.demos = KP.generateDemos(state, rng, g);
         state.rngState = rng.state();
       }
-      const demo = g.demos[0];
+      const demo = (STUDIO && g.demos.find(d => d.commissioned)) || g.demos[0];
       KP.planDebut(state, { groupId: g.id, songId: demo.id, promo: 'modest',
         week: state.week + Math.max(KP.C.DEBUT.prepWeeksMin, 5),
         alloc: { vocals: 30, dance: 30, rap: 10, media: 30 } });
@@ -444,7 +459,7 @@ const RV = { given: 0, firsts: 0, counted: 0 };                            // th
 const HO = { given: 0 };                                                    // the handovers of every career (v0.11.39, §131)
 const CH = { walls: 0, minted: 0 };                                         // the chairs at every desk change (v0.11.40, §132)
 const CR = { held: 0, calls: 0, callsHeld: 0 };                             // the credits of every chair (v0.11.41, §133)
-const YR = { due: 0, chairs: 0, wrote: 0, landed: 0 };                      // the yearly words of every chair (v0.11.42, §134)
+const YR = { due: 0, wrote: 0, landed: 0, lines: 0, words: 0, held: 0 };    // the staff's letters on the year (v0.11.46, §139)
 const NM = { cands: 0, weeks: 0, turns: 0, beyond: 0 };                     // the names of every candidate (v0.11.43, §135)
 // this tool's own copy of the names (v0.11.45, §138): the hundred of before, and the four hundred
 const NAMES_FAM = ['Baek', 'Cha', 'Im', 'Joo', 'Gil', 'Weon', 'Pyo', 'Sa', 'Byun', 'Ma', 'Seok', 'Ok', 'Bang', 'Eom', 'Mo', 'Kwak', 'Yeom', 'Gong', 'Ra', 'Bong'];
@@ -479,32 +494,105 @@ for (const sc of RUN) {
   // last moved, and the house the desk walked out of. A house keeps its staff when the desk moves: the next building
   // opens with four of its own. Nothing here asks the engine when the desk began
   const ch = { seen: {}, opened: 1, walls: 0, minted: 0, walked: null };
-  // the yearly word (v0.11.42, §134): in the week a chair turns a year, by this tool's own note of the week it first
-  // saw them sat, one letter is written and lands. It names each chair that turned and no other, and the year it
-  // gives the house is the year this tool saw land
-  const yr = { first: {}, due: 0, chairs: 0, wrote: 0, landed: 0 };
+  // the staff's year (v0.11.46, §139; v0.11.42's yearly word, §134, as one letter). In the first week of a year, by
+  // this tool's own count of the weeks, the staff write one letter and it lands; in no other week do they. It has
+  // a line for each chair sat and for no one else, in the building's order, each under the chair's own name and
+  // title and the weeks this tool has seen it sat. A chair seen sat fewer than twelve weeks has no word, and every
+  // other has one. The year it gives the house is the year this tool saw land since the desk came. What a chair
+  // says of its year is held to this tool's own books of it: one that speaks of a trophy sat through one, one
+  // that speaks of the cold sat through nothing else, one that says nothing came of it sat through nothing, and a
+  // count is this tool's count, the whole years running with nothing among them. In a year this tool saw nothing
+  // land, the first line has said so and a room's chair does not say it again while it has anything else to say.
+  // A chair speaks of its weeks here only when it came during the year. No chair says
+  // a sentence it said in the letter before, no two chairs of one letter say the same sentence, and each chair's
+  // card keeps the word the letter gave it. Nothing here asks the engine what a chair should say
+  const yr = { first: {}, eras: [], made: {}, said: {}, dry: {}, due: 0, wrote: 0, landed: 0, lines: 0, words: 0, held: 0 };
+  const yrMade = () => {   // the records each studio chair has made here, by the week this tool saw each appear
+    const S = state.seats || {};
+    Object.keys(S).forEach(k => {
+      const st = S[k];
+      if (!KP.C.HIRES.SEATS.find(x => x.id === k).studio) return;
+      const now = (st.works || []).map(w => w.title + '|' + w.groupId);
+      const book = yr.made[st.id] = yr.made[st.id] || { was: now, weeks: [] };   // what a chair came with is not this house's
+      // the file keeps a chair's last twelve, so the list does not only grow: what is new this look is what follows
+      // the longest run of last look's that still opens it
+      let run = Math.min(book.was.length, now.length);
+      while (run > 0 && book.was.slice(book.was.length - run).join('\n') !== now.slice(0, run).join('\n')) run--;
+      for (let i = run; i < now.length; i++) book.weeks.push(state.week);
+      book.was = now;
+    });
+  };
   const yrLook = () => {
     const S = state.seats || {}, Y = KP.C.WEEKS_PER_YEAR;
-    const due = Object.keys(S).filter(k => yr.first[S[k].id] != null && state.week > yr.first[S[k].id] && (state.week - yr.first[S[k].id]) % Y === 0);
+    yrMade();
     const wrote = (KP.lastTickNotes || []).filter(n => n.ind === 'seatYear');
     const landed = state.inbox.filter(m => m.week === state.week && m.ind === 'seatYear');
-    if (due.length) { yr.due++; yr.chairs += due.length; }
+    const sat = KP.C.HIRES.SEATS.filter(x => S[x.id]);
+    const seen = x => state.week - yr.first[S[x.id].id];   // the weeks this tool has seen the chair sat
+    const turn = state.week > 1 && state.week % Y === 1;
+    const due = turn && sat.some(x => seen(x) >= 12);
+    if (due) yr.due++;
     yr.wrote += wrote.length; yr.landed += landed.length;
-    if (wrote.length !== (due.length ? 1 : 0)) { flag(sc.seed, state.week, due.length ? due.length + ' chairs turned a year and ' + wrote.length + ' yearly letters were written' : 'a yearly letter in a week no chair turned a year'); return; }
-    if (landed.length !== wrote.length) flag(sc.seed, state.week, 'a yearly letter was written and did not land');
+    if (wrote.length !== (due ? 1 : 0)) {
+      flag(sc.seed, state.week, due ? 'the first week of a year, with a chair sat twelve weeks or more, and the staff wrote ' + wrote.length + ' letters on the year'
+        : 'the staff wrote a letter on the year in ' + (turn ? 'a week no chair has been sat twelve weeks' : 'a week that is not the first of a year'));
+      return;
+    }
+    if (landed.length !== wrote.length) flag(sc.seed, state.week, 'the staff’s letter on the year was written and did not land');
     if (!wrote.length) return;
-    const text = wrote[0].text;
-    const label = k => KP.C.HIRES.SEATS.find(x => x.id === k).label;
-    Object.keys(S).forEach(k => {   // by name and chair: two people of one building can share a name
-      const named = (text.startsWith(S[k].name + ' has sat ') && text.includes(' in the ' + label(k) + ' chair.')) || new RegExp(' ' + S[k].name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ', [a-z0-9 ]+ the ' + label(k) + ': “').test(text);
-      if (named !== due.includes(k)) flag(sc.seed, state.week, 'the yearly letter ' + (named ? 'names ' : 'does not name ') + S[k].name + ', who ' + (due.includes(k) ? 'turned a year this week' : 'did not turn a year this week'));
+    const L = staffYear.read(wrote[0].text), close = state.week - 1;
+    if (L.year !== close / Y) flag(sc.seed, state.week, 'the staff’s letter is headed Year ' + L.year + ' in the first week after year ' + close / Y);
+    const own = yr.eras.filter(w => w > Math.max(close - Y, ch.opened) && w <= close).length;
+    if (L.house !== own) flag(sc.seed, state.week, 'the staff’s letter says the house put out ' + (L.house == null ? 'nothing it can be read for' : L.house) + ' in the year and this tool saw ' + own + ' land since the desk came');
+    if (L.lines.length !== sat.length || L.lines.some(l => l.bad)) {
+      flag(sc.seed, state.week, 'the staff’s letter has ' + L.lines.length + ' lines, ' + L.lines.filter(l => l.bad).length + ' of them unreadable, for ' + sat.length + ' chairs sat');
+      return;
+    }
+    const heard = {};
+    sat.forEach((x, i) => {
+      const st = S[x.id], l = L.lines[i], weeks = seen(x);
+      yr.lines++;
+      if (l.name !== st.name || l.label !== x.label) { flag(sc.seed, state.week, 'line ' + (i + 1) + ' of the staff’s letter is ' + l.name + ', ' + l.label + ', and the chair sat there is ' + st.name + ', ' + x.label); return; }
+      const told = l.arrived ? weeks < 2 : l.weeks != null ? weeks >= 2 && weeks < Y && l.weeks === weeks : weeks >= Y && l.years === Math.floor(weeks / Y);
+      if (!told) flag(sc.seed, state.week, 'the staff’s letter gives ' + st.name + ' ' + (l.arrived ? 'as just arrived' : l.weeks != null ? l.weeks + ' weeks' : l.years + ' years') + ' in the chair and this tool has seen them sat ' + weeks + ' weeks');
+      if ((l.word == null) !== (weeks < 12)) { flag(sc.seed, state.week, st.name + ' has ' + (l.word == null ? 'no word' : 'a word') + ' in the staff’s letter after ' + weeks + ' weeks sat'); return; }
+      if (l.word == null) { if (st.word) flag(sc.seed, state.week, 'the card of ' + st.name + ' keeps a word and the staff’s letter gave them none'); return; }
+      yr.words++;
+      if (!st.word || st.word.week !== state.week || st.word.text !== l.word) flag(sc.seed, state.week, 'the card of ' + st.name + ' does not keep the word the staff’s letter gave them');
+      const mine = staffYear.sentences(l.word);
+      const again = mine.filter(y => (yr.said[st.id] || {})[y]);
+      if (again.length) flag(sc.seed, state.week, st.name + ' says again what they said in the letter before: “' + again[0] + '”');
+      const twin = mine.filter(y => heard[y]);
+      if (twin.length) flag(sc.seed, state.week, st.name + ' and ' + heard[twin[0]] + ' say the same sentence in one letter: “' + twin[0] + '”');
+      yr.said[st.id] = {};
+      mine.forEach(y => { heard[y] = st.name; yr.said[st.id][y] = true; });
+      // the chair's year by this tool's own books
+      const c = staffYear.claims(l.word), whole = yr.first[st.id] <= Math.max(close - Y, 1);
+      const inYear = w => w > close - Y && w <= close;
+      let n;
+      if (ERA_CHAIRS.includes(x.id)) {
+        const book = cr.rec[st.id] || {}, keys = Object.keys(book).filter(key => inYear(Number(key.split('|').pop())));
+        const crowned = keys.filter(key => book[key] === 'crowned').length, cold = keys.filter(key => book[key] === 'cold').length;
+        n = keys.length;
+        if (c.trophy && !crowned) flag(sc.seed, state.week, st.name + ' speaks of a trophy and this tool saw no record close with one in their year');
+        if (c.cold && !(n && cold === n)) flag(sc.seed, state.week, st.name + ' says the records closed cold and this tool saw ' + cold + ' of ' + n + ' close cold in their year');
+      } else if (x.id === 'scout') n = state.roster.filter(id => cr.on[id] > yr.first[st.id] && inYear(cr.on[id])).length;
+      else n = ((yr.made[st.id] || {}).weeks || []).filter(inYear).length;
+      yr.held++;
+      const room = ERA_CHAIRS.includes(x.id);
+      // whole years running with nothing, by this tool's own count; a room's are the house's, and are not counted aloud
+      const dry = yr.dry[st.id] = n || room || !whole ? 0 : (yr.dry[st.id] || 0) + 1;
+      const bare = !!st.word && st.word.text === st.word.second;   // the word is what the chair says of itself and no more
+      if (room && !own) {   // the first line has said it: the room's chair says what it has to say of itself, and only with nothing of that says it again
+        if (!bare && !(c.nothing && st.word && st.word.second === '')) flag(sc.seed, state.week, st.name + (c.nothing ? ' says again that nothing went out, in a year the letter’s first line has said so' : ' speaks of the room’s work in a year this tool saw nothing land'));
+      } else if (bare) flag(sc.seed, state.week, st.name + ' says nothing of the year’s work in a year this tool counted ' + n + ' in');
+      else if (c.nothing !== (n === 0)) flag(sc.seed, state.week, st.name + (c.nothing ? ' says nothing came of the year and this tool counted ' + n + ' in it' : ' speaks of work in a year this tool counted nothing in'));
+      else if (!room && c.count !== n) flag(sc.seed, state.week, st.name + ' counts ' + c.count + ' in the year and this tool counted ' + n);
+      else if ((c.running || 0) !== (dry > 1 ? dry : 0)) flag(sc.seed, state.week, st.name + ' counts ' + (c.running || 'no') + ' years running with nothing and this tool counted ' + dry);
+      const opens = bare ? '' : mine[0];
+      if (/ in my weeks here/.test(opens) && whole) flag(sc.seed, state.week, st.name + ' speaks of their weeks here and this tool has seen them sat the year through');
+      if (/ last year/.test(opens) && !whole) flag(sc.seed, state.week, st.name + ' speaks of last year and this tool first saw them sat in week ' + yr.first[st.id] + ' of it');
     });
-    const era = due.filter(k => ERA_CHAIRS.includes(k));
-    const m = /the house put out (nothing|one era|(\d+) eras)/.exec(text);
-    if (!era.length) { if (m) flag(sc.seed, state.week, 'the yearly letter gives the house’s year and no chair that works an era turned one'); return; }
-    const own = Object.keys(cr.rec[S[era[0]].id] || {}).filter(key => Number(key.split('|').pop()) > state.week - Y).length;
-    const said = !m ? -1 : m[1] === 'nothing' ? 0 : m[1] === 'one era' ? 1 : Number(m[2]);
-    if (said !== own) flag(sc.seed, state.week, 'the yearly letter says the house put out ' + (said < 0 ? 'nothing it can be read for' : said) + ' in the year and this tool saw ' + own + ' land');
   };
   // one name, one chair (v0.11.43, §135): this tool's own note of every name it has heard take a meeting in this
   // career. A candidate does not come in under a name sat in the building, nor under one the tool has already
@@ -605,6 +693,7 @@ for (const sc of RUN) {
   };
   const chLook = () => {
     const S = state.seats || {};
+    yrMade();
     Object.keys(S).forEach(seatId => {
       const st = S[seatId];
       ch.seen[st.id] = true;
@@ -638,7 +727,7 @@ for (const sc of RUN) {
     KP.groups(state).forEach(g => (g.releases || []).forEach(rel => { rels[g.id + '|' + rel.week] = rel; }));
     Object.keys(rels).forEach(key => {
       const rel = rels[key];
-      if (rel.week === state.week) cr.sat.forEach(id => { (cr.rec[id] = cr.rec[id] || {})[key] = null; });   // landed this week, under every chair sat as it began
+      if (rel.week === state.week) { cr.sat.forEach(id => { (cr.rec[id] = cr.rec[id] || {})[key] = null; }); yr.eras.push(rel.week); }   // landed this week, under every chair sat as it began; and in the house's year (§139)
     });
     Object.keys(cr.rec).forEach(id => Object.keys(cr.rec[id]).forEach(key => {
       if (cr.rec[id][key] == null && rels[key] && rels[key].closed) cr.rec[id][key] = closedAs(rels[key]);   // closed since the last look
@@ -1011,7 +1100,7 @@ for (const sc of RUN) {
   HO.given += ho.given;
   CH.walls += ch.walls; CH.minted += ch.minted;
   CR.held += cr.held; CR.calls += cr.calls; CR.callsHeld += cr.callsHeld;
-  YR.due += yr.due; YR.chairs += yr.chairs; YR.wrote += yr.wrote; YR.landed += yr.landed;
+  YR.due += yr.due; YR.wrote += yr.wrote; YR.landed += yr.landed; YR.lines += yr.lines; YR.words += yr.words; YR.held += yr.held;
   NM.cands += nm.cands; NM.weeks += nm.weeks; NM.turns += nm.turns; NM.beyond += nm.beyond;
   if (nm.cands >= 20 && !nm.beyond) flag(sc.seed, state.week, nm.cands + ' candidates took a meeting and not one under a name beyond the hundred of before');
   FD.wrote += fd.wrote; FD.desk += fd.desk; FD.below += fd.below; if (fd.most > FD.most) FD.most = fd.most;
@@ -1109,7 +1198,7 @@ console.log('the kept place (v0.11.44): ' + NW.weeks + ' weeks wrote a kind its 
   NW.kinds + ' kinds in all');
 console.log('below the fold (v0.11.44): ' + FD.wrote + ' letters written by the week · ' + FD.desk + ' on the Desk, ' + FD.below + ' below the fold, each the week it was written and the week after, by this tool’s own count of the wire · the fold at its fullest held ' + FD.most + ' letters');
 console.log('one name, one chair (v0.11.43): ' + NM.cands + ' candidates took a meeting, each held to this tool’s own note of the names it had heard and its own copy of the four hundred · ' + NM.beyond + ' under a name beyond the hundred of before · the four hundred came round ' + NM.turns + ' time' + (NM.turns === 1 ? '' : 's') + ' · ' + NM.weeks + ' weeks of chairs sat, each looked at for two under one name');
-console.log('the yearly word (v0.11.42): ' + YR.due + ' weeks a chair turned a year · ' + YR.wrote + ' letters written, ' + YR.landed + ' landed · ' + YR.chairs + ' chairs named, each by this tool’s own note of the week they sat down');
+console.log('the staff’s year (v0.11.46): ' + YR.due + ' first weeks of a year with a chair sat twelve weeks · ' + YR.wrote + ' letters written, ' + YR.landed + ' landed · ' + YR.lines + ' lines, each under the name, the title and the weeks this tool has seen the chair sat · ' + YR.words + ' words, ' + YR.held + ' held to this tool’s own books of the chair’s year, each to the letter before and to the others of its letter');
 console.log('the credits (v0.11.41): ' + CR.held + ' weeks of a chair’s credit held to this tool’s own books of what landed, how it closed and who signed · ' + CR.calls + ' calls from outside, ' + CR.callsHeld + ' of them for a chair that works an era, each held to the same books');
 console.log('the chairs (v0.11.40): ' + CH.walls + ' desk change' + (CH.walls === 1 ? '' : 's') + ' · ' + CH.minted + ' chairs opened the next buildings, four at each · none carried across, by this tool’s own books of who sat');
 console.log('the handovers (v0.11.39): ' + HO.given + ' · each letter held to this tool’s own books of the chair who left');

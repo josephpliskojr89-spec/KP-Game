@@ -47,24 +47,26 @@
   // the records a studio chair has made for THIS house: the ones that landed after they sat down in it (v0.11.40,
   // §132). An old file may hold a chair that came across at a founding with records made for the house it left,
   // and a record that landed the very week a chair was taken landed before it was
-  KP.seatMade = function (st, from) { return (st.works || []).filter(w => !(w.week <= (from != null ? from : st.since))); };
+  // read with a last week, it is what landed up to and in that week: a year's (§139)
+  KP.seatMade = function (st, from, to) { return (st.works || []).filter(w => !(w.week <= (from != null ? from : st.since)) && !(w.week > to)); };
 
   // ---- the credit (v0.11.41, §133): what this house did after a chair was taken. The résumé's own law (§79): it
   // says where they were, never what they did there. Read off the file, and nothing is kept. A chair that works an
   // era is credited with the eras that landed after they sat, by how each closed; a studio chair with the records
   // made here; the scout with who on the roster signed on their watch
-  // read from a week other than the one the chair was taken, it is the credit since that week: a year's (§134)
-  KP.seatCredit = function (state, st, from) {
+  // read from a week other than the one the chair was taken, it is the credit since that week; read with a last
+  // week as well, it is the credit of the weeks after the one and up to the other: a year's (§134, §139)
+  KP.seatCredit = function (state, st, from, to) {
     const since = from != null ? from : st.since;
-    if (KP.C.HIRES.SEATS.some(x => x.id === st.seatId && x.studio)) return { kind: 'records', n: KP.seatMade(st, since).length };
+    if (KP.C.HIRES.SEATS.some(x => x.id === st.seatId && x.studio)) return { kind: 'records', n: KP.seatMade(st, since, to).length };
     if (st.seatId === 'scout') {
       const roster = state.roster.map(id => state.people[id]).filter(Boolean);
-      const found = roster.filter(p => p.signedWeek > since);
+      const found = roster.filter(p => p.signedWeek > since && !(p.signedWeek > to));
       return { kind: 'floor', n: found.length, of: roster.length, debuted: found.filter(p => p.status === 'idol').length };
     }
     const c = { kind: 'eras', n: 0, crowned: 0, warm: 0, quiet: 0, cold: 0, running: 0 };
     KP.groups(state).forEach(g => (g.releases || []).forEach((rel, i, all) => {
-      if (!(rel.week > since)) return;
+      if (!(rel.week > since) || rel.week > to) return;
       c.n++;
       if (rel.closed) c[rel.closed.verdict]++;
       else if (i === all.length - 1 && !g.retiredWeek && state.week <= (g.promoUntil || 0)) c.running++;
@@ -106,67 +108,263 @@
     return said ? ' On the résumé that leaves with ' + st.name + ': ' + said + '.' : '';
   };
 
-  // ---- the yearly word (v0.11.42, §134): in the week a chair was taken, each year, the chair says one true thing
-  // about its room. The fact is the year's credit, the credit's own read (§133) from a year back. The voice is the
-  // chair's own (§79): a candid one says what it cannot know, a careful one sands it. Chairs that turn a year in one
-  // week share one letter, and the year of the house is said once. No draw is made anywhere here
+  // ---- the staff's year (v0.11.46, §139; the owner's ruling, §136: 22, 26 and 33). The yearly word (v0.11.42,
+  // §134) was said in the week each chair was taken, a letter the week could not cut each time: 3.8 of them in a
+  // career's year, eight in the worst, and three times in ten a chair said the very sentence it said the year
+  // before. It is one letter now, in the first week of the new year, with each chair's word on a line of its own.
+  // A word is two parts. The first is what the room did, the year's credit (§133) in the chair's voice (§79): a
+  // candid one says what it cannot know, a careful one sands it. The second is what is most telling of the chair's
+  // own year: the desk kept them after a call, the desk advertised their chair, the corridor's read of their
+  // method, being new, a long tenure, and how they work, by their style and their warmth. Every line says only
+  // what the file holds, and a chair that came during the year speaks of its own weeks and not of the year. The
+  // wordings of a cell take turns by the year, so no chair says one twice running. No sentence is in two wordings,
+  // and no two chairs of one letter say the same thing of themselves. No draw is made anywhere here
+  // `¤` is the span a chair speaks of: 'last year', or 'in my weeks here' from one that came during it
   const ROOM = {
-    vocal: ['Every voice on a record this year came through my room. How much of what you heard was the room, I could not tell you.', 'The vocal room did its part.'],
-    dance: ['Every count on a stage this year was drilled in my room. Whether the drilling is what you saw, I would not swear to.', 'The dance room did its part.'],
-    perf: ['I ran the rehearsal before every stage this year. A stage can go wrong after a good rehearsal, and right after a bad one.', 'The rehearsals ran to schedule.'],
-    anr: ['Every demo that became a record this year crossed my desk first. I can tell you what I liked. I cannot tell you what I was right about.', 'The demo sheet was in order.'],
-    marketing: ['Every push behind a record this year was planned on my desk. What a push bought and what a record earned alone, nobody can pull apart.', 'The campaigns ran as planned.'],
+    vocal: { candid: ['Every voice on a record ¤ came through my room. How much of what you heard was the room, I could not tell you.',
+      'The voices on the records ¤ were worked in my room first. I heard them get better. What the room gave and what they brought, I cannot split.',
+      'I had every voice that went on a record ¤ in my room before it went on. I know what we worked on. I do not know what you heard.'],
+      careful: ['The vocal room did its part.', 'The vocal room kept to its plan.', 'The records speak for the vocal room.'] },
+    dance: { candid: ['The counts under every record ¤ were drilled in my room. Whether the drilling is what you saw, I would not swear to.',
+      'The records ¤ went on stage on counts from my room. Clean on the night is the room, or it is the night. I cannot tell you which.',
+      'I drilled the counts under every record ¤. A count can be right in my room and wrong under the lights, and I only see the room.'],
+      careful: ['The dance room did its part.', 'The dance room ran its weeks as planned.', 'The counts were drilled, record by record.'] },
+    perf: { candid: ['I ran the rehearsals behind every record ¤. A stage can go wrong after a good rehearsal, and right after a bad one.',
+      'Every record ¤ was rehearsed under me before it saw a stage. I know which rehearsals were good. I do not know which of them mattered.',
+      'Every record ¤ went to its stages through my rehearsals. I can vouch for the rehearsals. The stages are somebody else’s to judge.'],
+      careful: ['The rehearsals ran to schedule.', 'Every record ¤ was rehearsed on time.', 'The rehearsal room met its dates.'] },
+    anr: { candid: ['Every demo that became a record ¤ crossed my desk first. I can tell you what I liked. I cannot tell you what I was right about.',
+      'The records ¤ began as demos on my desk. I backed some and doubted some, and I still cannot say which habit was the better one.',
+      'I read the demos behind every record ¤ before anyone sang a line. Reading a demo and knowing a record are different skills, and I only have proof of the first.'],
+      careful: ['The demo sheet was in order.', 'The demos were read and the sheet was kept.', 'Every record ¤ had its demos read first.'] },
+    marketing: { candid: ['Every push behind a record ¤ was planned on my desk. What a push bought and what a record earned alone, nobody can pull apart.',
+      'The campaigns behind the records ¤ were mine. A record that lands flatters its campaign, and one that does not blames it. Neither tells me what the campaign did.',
+      'I planned the campaign for every record ¤. I can show you the plans. I cannot show you the same records without them.'],
+      careful: ['The campaigns ran as planned.', 'Each release ¤ had its campaign, on schedule.', 'The campaign desk covered every release ¤.'] },
   };
-  // a year in which the house put out nothing: each room says it of itself. A line says only what the read holds,
-  // that no record went out: a year without a record can still have had a stage, a tour or a record in the making
+  // no record went out: each room says it of itself. A line says only what the read holds, that no record went
+  // out: a stretch without a record can still have had a stage, a tour or a record in the making
   const QUIET = {
-    vocal: ['No record went out this year with a voice from my room on it, so there is nothing of mine to point at.', 'A quiet year. The vocal room is ready.'],
-    dance: ['No record went out this year with my room’s counts under it, so there is nothing of mine to point at.', 'A quiet year. The dance room is ready.'],
-    perf: ['No record went out this year for my room to stage. I cannot tell you what the room would have done.', 'No record to stage this year. The rehearsal room is ready.'],
-    anr: ['No demo became a record this year. I have a drawer of them and no proof.', 'A quiet year for the demo sheet.'],
-    marketing: ['No record went out this year for my desk to push, so there is nothing of mine to point at.', 'No record to push this year. The desk is ready.'],
+    vocal: { candid: ['No record went out ¤ with a voice from my room on it, so there is nothing of mine to point at.',
+      'No record carried a voice from my room ¤. I would rather tell you that than talk around it.'],
+      careful: ['Nothing went out ¤. The vocal room is ready.', 'No record ¤. The vocal room stands ready.'] },
+    dance: { candid: ['There was no record ¤, so nobody has seen what my room’s counts look like under one.',
+      'My room’s counts went under no record ¤. Ask me again when one is out.'],
+      careful: ['Nothing to report from the dance room ¤.', 'The dance room had no record to work to ¤.'] },
+    perf: { candid: ['No record went out ¤ for my room to stage. I cannot tell you what the room would have done.',
+      'There was no record ¤ for my room to put on a stage. What it would have made of one, neither of us knows.'],
+      careful: ['No record to stage ¤. The rehearsal room is ready.', 'No record came to the rehearsal room ¤.'] },
+    anr: { candid: ['No demo became a record ¤. I have a drawer of them and no proof.',
+      'Not one demo became a record ¤. I still think some of them should, and I cannot prove that from a drawer.'],
+      careful: ['A quiet stretch for the demo sheet ¤.', 'No demo went to record ¤. The sheet is current.'] },
+    marketing: { candid: ['A campaign needs a record, and there was none ¤. My desk has plans and nothing to show for them.',
+      'There was no record ¤ to put a campaign behind. I have nothing of mine to show you.'],
+      careful: ['No release ¤, so no campaign.', 'The campaign desk had no record ¤.'] },
+  };
+  // one of the eras closed with a trophy, or every one of them closed cold. A candid chair says so of its own
+  // part, and no more than the read holds. A careful one sands it as it sands every year
+  const CROWNED = {
+    vocal: ['A record with my room’s voices on it closed with a trophy ¤. I would like to say the room did that. I can say the room was there.',
+      'There is a trophy in the building, and the voices on that record were worked in my room. How much of the trophy is the room’s, I could not tell you.',
+      'The room’s voices are on a record that took a trophy ¤. I heard those takes before the trophy did, and I could not have told you which would matter.'],
+    dance: ['A record closed with a trophy ¤ on counts drilled in my room. A trophy has many parents, and I will not pretend to be the only one.',
+      'There is a trophy in the building, and my room drilled the counts that went with it. Whether the drilling won anything, I would not swear to.',
+      'A record ¤ took a trophy on counts from my room. I counted them in. I did not count on that.'],
+    perf: ['I rehearsed a record that closed with a trophy ¤. The rehearsal did not win it, and it did not lose it either.',
+      'A record I rehearsed closed with a trophy ¤. I know what I did in the rehearsal room. I do not know what the trophy was for.',
+      'A record that went through my rehearsals took a trophy ¤. I ran the same rehearsal for the ones that did not.'],
+    anr: ['A demo that crossed my desk became a record with a trophy ¤. I would like to say I knew. I can say I did not stop it.',
+      'There is a trophy in the building for a record that began on my demo sheet. I liked it then. Liking it was the easy part.',
+      'A record from my demo sheet took a trophy ¤. I have been wrong about demos I liked more.'],
+    marketing: ['The campaign behind a trophy ¤ was planned on my desk. A trophy makes every campaign look clever afterwards.',
+      'A record my desk pushed closed with a trophy ¤. What the push bought and what the record earned, the trophy does not say.',
+      'A record my desk campaigned for took a trophy ¤. I would not want to be asked to do it twice on purpose.'],
+  };
+  const all = n => (n === 1 ? 'The one record' : 'Every record');
+  const COLD = {
+    vocal: n => [all(n) + ' ¤ closed cold, with my room’s voices on it. I have gone over the room’s part and cannot find the answer there. That is not the same as it not being there.',
+      'It was a cold stretch for the records, and the voices on them were worked in my room. Some of the cold is ours. I do not know how much.'],
+    dance: n => [all(n) + ' ¤ closed cold, on counts drilled in my room. I have watched the stages back, and I still cannot tell you what the room should have done differently.',
+      'A cold stretch for the records my room drilled. I would rather tell you that plainly than wait to be asked.'],
+    perf: n => [all(n) + ' I rehearsed ¤ closed cold. A rehearsal cannot save a record, and I do not know that mine tried hard enough.',
+      'It was a cold stretch for the records I rehearsed. I have my own notes on why. They are guesses.'],
+    anr: n => [all(n) + ' that began on my desk ¤ closed cold. That is my sheet, and I am the one who should say so.',
+      'It was a cold stretch for the records I backed as demos. I would rather be asked why than not be asked.'],
+    marketing: n => [all(n) + ' my desk pushed ¤ closed cold. A campaign cannot make a record land, and I cannot prove mine did not help it miss.',
+      'A cold stretch for the releases my desk pushed. Some of that is the campaign. How much, I cannot measure.'],
   };
   // a count as a person says it, to open a sentence
   const SAID = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'];
   const Said = n => SAID[n] || String(n);
   const yearsSaid = n => (n === 1 ? 'a year' : Said(n).toLowerCase() + ' years');
-  // one chair's own words on its year: [candid, careful], picked by how the chair answers
-  KP.seatYearWord = function (state, st) {
-    const c = KP.seatCredit(state, st, state.week - KP.C.WEEKS_PER_YEAR);
-    const voice = st.candor >= 50 ? 0 : 1;
-    if (c.kind === 'eras') return (c.n ? ROOM : QUIET)[st.seatId][voice];
-    if (c.kind === 'floor') {
-      return (c.n ? [Said(c.n) + ' of the roster signed on my watch this year. Whether ' + (c.n === 1 ? 'that was the right one' : 'they were the right ones') + ' is a question for the year of the debut.',
-        Said(c.n) + ' signed this year. The pipeline is where it should be.']
-        : ['Nobody signed this year, so I have nothing to point at.', 'No signings this year. The desk stays open.'])[voice];
-    }
-    return (c.n ? [Said(c.n) + ' of this house’s records this year ' + (c.n === 1 ? 'was mine. It is on the shelf with my name on it' : 'were mine. They are on the shelf with my name on them') + ', for better or worse.',
-      Said(c.n) + (c.n === 1 ? ' record' : ' records') + ' for the house this year. More when the calendar asks.']
-      : ['No record of mine went out this year. I would rather say it than have you look for one.', 'No release under my name this year. The lane is ready.'])[voice];
+  // the scout, by who of the roster signed; a studio chair, by the records it made here, and each craft in its
+  // own words: the two chairs of one craft never have the same turn
+  const FLOOR = n => ({ candid: [Said(n) + ' of the roster signed ¤. Whether ' + (n === 1 ? 'that was the right one' : 'they were the right ones') + ' is a question for the year of the debut.',
+    Said(n) + ' of the roster joined ¤, while the board was mine. A signing is a guess that takes years to mark.'],
+    careful: [Said(n) + ' signed ¤. The pipeline is where it should be.', Said(n) + (n === 1 ? ' signing' : ' signings') + ' ¤. The board is in order.'] });
+  const FLOOR_NONE = { candid: ['Nobody on the roster signed ¤, so I have nothing to point at.',
+    'Nobody now on the roster joined ¤. A quiet board is not an empty one, and I cannot show you the difference.'],
+    careful: ['No signing to report ¤. The desk stays open.', 'The roster added nobody ¤. The board is current.'] };
+  const SHELF = {
+    producer: n => ({ candid: [Said(n) + ' of this house’s records ¤ ' + (n === 1 ? 'was my production. It is on the shelf with my name on it' : 'were my productions. They are on the shelf with my name on them') + ', for better or worse.',
+      'I produced ' + Said(n).toLowerCase() + ' of this house’s records ¤. You have heard ' + (n === 1 ? 'it. I am too close to it to tell you what it is.' : 'them. I am too close to them to tell you what they are.')],
+      careful: [Said(n) + (n === 1 ? ' production' : ' productions') + ' for the house ¤. More when the calendar asks.', Said(n) + (n === 1 ? ' production' : ' productions') + ' delivered ¤.'] }),
+    writer: n => ({ candid: ['I wrote ' + Said(n).toLowerCase() + ' of this house’s records ¤. A song stops being yours the day it is sung, and I could not tell you what ' + (n === 1 ? 'it is' : 'they are') + ' now.',
+      Said(n) + ' of this house’s records ¤ ' + (n === 1 ? 'has' : 'have') + ' my name under the title. Whether the writing is why anyone stayed to the end, I cannot say.'],
+      careful: [Said(n) + ' of the records ¤ ' + (n === 1 ? 'carries' : 'carry') + ' my writing.', Said(n) + (n === 1 ? ' writing credit' : ' writing credits') + ' for the house ¤.'] }),
   };
-  // the chairs that turn a year this week, in the building's own order
-  KP.seatYearsDue = function (state) {
-    const S = state.seats || {}, Y = KP.C.WEEKS_PER_YEAR;
-    return KP.C.HIRES.SEATS.filter(x => S[x.id] && state.week > S[x.id].since && (state.week - S[x.id].since) % Y === 0).map(x => S[x.id]);
+  const SHELF_NONE = {
+    producer: { candid: ['No record of mine went out ¤. I would rather say it than have you look for one.',
+      'Nothing I produced reached the shelf ¤. That is the whole of my report.'],
+      careful: ['No production under my name ¤. The lane is ready.', 'My studio put nothing on the shelf ¤. Ready when asked.'] },
+    writer: { candid: ['Nothing I wrote was recorded ¤. The pages exist. That is all I can say for them.',
+      'No song of mine went out ¤. I have opinions about that, and no evidence.'],
+      careful: ['No writing credit ¤. The desk is clear.', 'Nothing of mine was recorded ¤. Available when wanted.'] },
   };
-  KP.seatYearLetter = function (state) {
-    const due = KP.seatYearsDue(state);
-    if (!due.length) return null;
-    const Y = KP.C.WEEKS_PER_YEAR;
-    const label = st => KP.C.HIRES.SEATS.find(x => x.id === st.seatId).label;
-    const years = st => yearsSaid((state.week - st.since) / Y);
-    const house = due.map(st => KP.seatCredit(state, st, state.week - Y)).filter(c => c.kind === 'eras')[0];
-    const fact = !house ? '' : ' In the year behind ' + (due.length === 1 ? 'them' : 'the rooms') + ' the house put out ' +
-      (house.n ? (house.n === 1 ? 'one era' : house.n + ' eras') + erasStand(house) : 'nothing') + '.';
-    const text = due.length === 1
-      ? due[0].name + ' has sat ' + years(due[0]) + ' in the ' + label(due[0]) + ' chair.' + fact + ' “' + KP.seatYearWord(state, due[0]) + '”'
-      : Said(due.length) + ' chairs turn a year this week.' + fact +
-        due.map(st => ' ' + st.name + ', ' + years(st) + ' the ' + label(st) + ': “' + KP.seatYearWord(state, st) + '”').join('');
-    return { kind: 'company', ind: 'seatYear', priority: 'critical', seats: due.map(st => st.seatId), text };
+  // nothing again, a second whole year running or more: the chair counts the years, so no two of them read alike
+  const Years = n => { const y = yearsSaid(n); return y.charAt(0).toUpperCase() + y.slice(1); };
+  const FLOOR_DRY = n => ({ candid: ['That is ' + yearsSaid(n) + ' running with nobody on the roster signed on my watch, and I know how that reads.',
+    Years(n) + ' now without a signing that stayed, and a scout is paid for the ones who stay.'],
+    careful: [Years(n) + ' without a signing to report.', 'No signing to report, ' + yearsSaid(n) + ' running.'] });
+  const SHELF_DRY = {
+    producer: n => ({ candid: ['That is ' + yearsSaid(n) + ' running with nothing of mine on the shelf, and I would rather you heard the count from me.',
+      Years(n) + ' now without a production of mine going out, and I have kept count in case nobody else has.'],
+      careful: [Years(n) + ' without a production under my name.', 'No production under my name, ' + yearsSaid(n) + ' running.'] }),
+    writer: n => ({ candid: ['That is ' + yearsSaid(n) + ' running with nothing I wrote recorded, and the pages have piled up with the count.',
+      Years(n) + ' now without a song of mine going out, and I notice it more each year.'],
+      careful: [Years(n) + ' without a writing credit.', 'No writing credit, ' + yearsSaid(n) + ' running.'] }),
+  };
+  // the second part. What has passed between the desk and the chair, by how the chair answers:
+  const KEPT = { candid: ['Somebody rang for me last year and you answered it. I have not forgotten which of us picked up the bill.',
+    'You matched an offer for me last year. I have thought about what I would have done if you had not.'],
+    careful: ['The matter of the outside offer is closed, with thanks.', 'I was glad to stay.'] };
+  const POSTED = { candid: ['I saw the posting for my chair last year. I am still in it, and I have drawn my own conclusions.',
+    'You advertised my chair while I sat in it. I noticed. So did the corridor.'],
+    careful: ['I understand the chair was advertised last year. I have carried on.', 'The posting has been noted.'] };
+  const CORRIDOR = { candid: ['I know what the corridor says about my method and this house. The corridor may be right.',
+    'My way of working and this building have not met in the middle yet. I can hear that as well as anyone.'],
+    careful: ['There has been talk about fit. I would rather let the work answer it.', 'I am aware of the talk about method.'] };
+  // and the chair's own time here, by how the chair is in a room:
+  const FIRST = { warm: ['I am new here, and the building let me in faster than I expected.', 'A first year is mostly learning names. I know them now.'],
+    reserved: ['I am still new here. I am still finding where things are kept.', 'A first year. I have kept to my room and learned the hours.'] };
+  const LONG = n => ({ warm: [Years(n) + ' in this chair. It stopped feeling like a posting some time ago.',
+    'After ' + yearsSaid(n) + ' I know this building’s moods better than my own.'],
+    reserved: [Years(n) + ' in this chair. The work is the same and so am I.', 'After ' + yearsSaid(n) + ' the chair fits. That is all I will say about it.'] });
+  const STYLE_SAYS = {
+    drillmaster: { warm: ['I start at eight and I expect company. I would do it again tomorrow, gladly.',
+      'I am hard on people before noon because I like them. They have worked that out.',
+      'They think I do not hear them laugh when I leave the room. I hear it. I am glad of it.'],
+      reserved: ['I start on time and I finish what is on the list. That has not changed.', 'The standard was the standard. I do not grade on mood.',
+        'I was not hired to be liked, and I have kept to the terms.'] },
+    nurturer: { warm: ['I know how everyone on this floor takes their coffee, and I can tell when one of them has not slept.',
+      'People come to my door before they come to yours. I take that as the job.',
+      'Half of what I do is listening. The other half is pretending I was not.'],
+      reserved: ['I keep an eye on who is tired. I do not make a show of it.', 'I notice more than I say. That is how I look after people.',
+        'When someone is struggling I say less and stay later. It works.'] },
+    bigMachine: { warm: ['Give me a floor of departments and I am happy. I have been happy here, whatever the floor plan.',
+      'I think in quarters and org charts, and I have tried not to bore the room with either.',
+      'I like a house where everybody knows whose job it is. I am getting this one there, cheerfully.'],
+      reserved: ['I work best with a structure around me. I have built what structure the house allows.', 'I report by the quarter. This one is on time.',
+        'A process is only dull until it saves you. I keep mine.'] },
+    scrappy: { warm: ['I have done this job with less, and I liked doing it with these people.',
+      'Two hands and no budget is how I learned. A budget is a luxury, and so is this lot.',
+      'Give me a borrowed room and people who turn up. I have both, and I am not complaining.'],
+      reserved: ['I have done this job with less. I have not asked for more.', 'I make do. I always have.',
+        'What the house could not buy, I worked around. That is the job as I know it.'] },
+    classicist: { warm: ['Fundamentals first, every week. People groan, and then they thank me, usually in that order.',
+      'I teach the basics, with affection, to people who think they are past them.',
+      'Nobody is too good for the basics. I say it kindly, and I say it often.'],
+      reserved: ['The fundamentals do not change with the charts. Neither did my weeks.', 'I kept to the basics. They keep.',
+        'What worked before the charts existed still works. I do not chase the rest.'] },
+    trendChaser: { warm: ['I brought this week’s numbers to every meeting, and somebody always laughed. I enjoy that.',
+      'I chase what is moving. Here it has been fun to chase.',
+      'Ask me what is big next month and I will tell you, happily, and I will be wrong in a new way each time.'],
+      reserved: ['I read the numbers every week. Last year’s do not interest me.', 'I follow what is moving. I do not explain it.',
+        'By the time a thing has a name it is over. I try to be gone before that.'] },
+  };
+  // the first week of a year: the year behind it is the one the staff speak of. It is the year the books closed
+  // the week before (§124): the weeks after `open`, up to `close`, and at a house the desk came to in the year,
+  // the weeks since it came
+  KP.staffYearDue = function (state) { return state.week > 1 && state.week % KP.C.WEEKS_PER_YEAR === 1; };
+  const yearBehind = state => { const close = state.week - 1; return { open: close - KP.C.WEEKS_PER_YEAR, close }; };
+  // a cell read from its k-th wording on, and round again
+  const turned = (list, k) => list.map((x, i) => list[(i + k) % list.length]);
+  const sentencesOf = text => String(text || '').split(/(?<=[.?!]) /).filter(Boolean);
+  // one chair's word on the year behind it: { text, first, second, dry }. `taken` is what other chairs of this
+  // letter have said of themselves, sentence by sentence. Whose turn it is: the year's, and the chair's own start
+  // in it, which is its hash. The two chairs of one craft start a wording apart, whoever sits in them. In a year
+  // the house put out nothing (`quiet`), the letter's first line has said so, and a room does not say it again
+  KP.seatYearWord = function (state, st, taken, quiet) {
+    const Y = KP.C.WEEKS_PER_YEAR, yb = yearBehind(state);
+    const whole = (st.since || 0) <= Math.max(yb.open, 1);   // sat the year through: a chair sat in a career's first week sat its first year
+    const inYear = w => w > yb.open && w <= yb.close;
+    const c = KP.seatCredit(state, st, Math.max(yb.open, st.since || 0), yb.close);
+    const seat = KP.C.HIRES.SEATS.find(x => x.id === st.seatId) || {};
+    const k = Math.floor(yb.close / Y) + (seat.studio ? (seat.second ? 1 : 0) : Math.floor(h(state, st.id, 'yw') * 6));
+    const voice = st.candor >= 50 ? 'candid' : 'careful', manner = st.warmth >= 50 ? 'warm' : 'reserved';
+    // a candid chair speaks of the trophy, or of every record gone cold; a careful one says what it says of any year
+    const room = c.kind !== 'eras' ? null : !c.n ? QUIET[st.seatId][voice]
+      : voice === 'candid' && c.crowned ? CROWNED[st.seatId] : voice === 'candid' && c.cold === c.n ? COLD[st.seatId](c.n) : ROOM[st.seatId][voice];
+    const craft = seat.second || st.seatId;
+    // whole years running with nothing to show, this one counted: the scout's and the studio's, whose years are their own
+    const ran = (st.word || {}).week === state.week - Y ? st.word.dry || 0 : 0;
+    const dry = c.n || room || !whole ? 0 : ran + 1;
+    const cell = room || (c.kind === 'floor' ? (c.n ? FLOOR(c.n) : dry > 1 ? FLOOR_DRY(dry) : FLOOR_NONE)[voice]
+      : (c.n ? SHELF[craft](c.n) : dry > 1 ? SHELF_DRY[craft](dry) : SHELF_NONE[craft])[voice]);
+    const first = turned(cell, k)[0].replace('¤', whole ? 'last year' : 'in my weeks here');
+    const sat = state.week - (st.since || 0);
+    // what is most telling of the chair's own year, the first that the file holds
+    const own = inYear(st.keptWeek) ? KEPT[voice] : inYear(st.postedWeek) ? POSTED[voice] : inYear(st.meshNoted) ? CORRIDOR[voice]
+      : sat <= Y && (st.since || 0) > KP.deskSince(state) ? FIRST[manner]   // not the chairs a building opened with: only one who came to a house already running
+      : null;
+    // then a long tenure and how they work, which take the years in turn
+    const style = turned((STYLE_SAYS[st.style] || STYLE_SAYS.scrappy)[manner], k);
+    const long = sat >= 4 * Y ? turned(LONG(Math.floor(sat / Y))[manner], Math.floor(k / 2)) : [];
+    const used = Object.assign({}, taken);
+    sentencesOf((st.word || {}).second).forEach(x => { used[x] = true; });
+    // the first of them with no sentence another chair of the letter has said or this chair said last year; and
+    // if every one is taken, the first part alone
+    const second = (own ? turned(own, k) : []).concat(k % 2 ? style.concat(long) : long.concat(style))
+      .filter(x => !sentencesOf(x).some(y => used[y]))[0] || '';
+    if (quiet && room && second) return { text: second, first: '', second, dry };
+    return { text: first + (second ? ' ' + second : ''), first, second, dry };
+  };
+  // how long a chair has been sat, as a line of the letter says it
+  const tenureSaid = weeks => (weeks < 2 ? 'just arrived'
+    : weeks < KP.C.WEEKS_PER_YEAR ? (SAID[weeks] ? SAID[weeks].toLowerCase() : weeks) + ' weeks in' : yearsSaid(Math.floor(weeks / KP.C.WEEKS_PER_YEAR)) + ' in');
+  // the letter, and what each chair said in it: a line a chair, in the building's order, each under its name and
+  // its title, so two of one name are told apart (§138). Nothing is written on the file here: the rail keeps the words
+  KP.staffYearLetter = function (state) {
+    const HR = KP.C.HIRES, Y = KP.C.WEEKS_PER_YEAR, S = state.seats || {};
+    const sat = HR.SEATS.filter(x => S[x.id]).map(x => S[x.id]);
+    if (!sat.length) return null;
+    const label = st => HR.SEATS.find(x => x.id === st.seatId).label;
+    const yb = yearBehind(state);
+    const house = KP.seatCredit(state, { seatId: 'vocal', since: 0 }, Math.max(yb.open, KP.deskSince(state) - 1), yb.close);   // the year as its books counted it
+    const year = Math.floor(yb.close / Y);
+    const taken = {}, words = {};
+    const lines = sat.map(st => {
+      const weeks = state.week - (st.since || 0);
+      if (weeks < HR.wordAfter) return st.name + ', ' + label(st) + ', ' + tenureSaid(weeks) + ': too new to the chair for a word on the year.';
+      const w = KP.seatYearWord(state, st, taken, !house.n);
+      sentencesOf(w.second).forEach(x => { taken[x] = true; });
+      words[st.seatId] = w;
+      return st.name + ', ' + label(st) + ', ' + tenureSaid(weeks) + ': “' + w.text + '”';
+    });
+    if (!Object.keys(words).length) return null;   // a building too new for anyone in it to speak of the year
+    const text = 'Year ' + year + ', as the staff tell it. The house put out ' +
+      (house.n ? (house.n === 1 ? 'one era' : house.n + ' eras') + erasStand(house) : 'nothing, so no room has a record to speak of') + '.\n' + lines.join('\n');
+    return { kind: 'company', ind: 'seatYear', priority: 'critical', year, seats: Object.keys(words), words, text };
   };
   KP.registerWeekly('seatYears', 792, function (state, rng, inbox) {
-    const letter = KP.seatYearLetter(state);
-    if (letter) inbox.push(letter);
+    if (!KP.staffYearDue(state)) return;
+    const letter = KP.staffYearLetter(state);
+    if (!letter) return;
+    // the card keeps the word (§136: 33): each chair's last, with the week it was said
+    Object.keys(letter.words).forEach(seatId => { const w = letter.words[seatId];
+      state.seats[seatId].word = { week: state.week, text: w.text, second: w.second, dry: w.dry }; });
+    delete letter.words;
+    inbox.push(letter);
   });
 
   // ---- the second chair (v0.10.39, §91 B2): a second studio chair opens
@@ -210,6 +408,8 @@
     if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -HR.searchCost);
     state.staffSearch = { seatId, week: state.week };
     state.seatSearchCooldowns[seatId] = state.week;
+    // a posting for a chair somebody sits in is read by the one who sits in it (v0.11.46, §139): their yearly word says so
+    if ((state.seats || {})[seatId]) state.seats[seatId].postedWeek = state.week;
     ledger(state).searches++;
     KP.note(state, { kind: 'company', ind: 'searchPosted', priority: 'flavor',
       text: 'The posting goes up for the ' + seat.label + ' chair — through the recruiters, the industry boards, and the version of the industry that is three group chats. Somebody will take the meeting within the week. Who shows up is the market’s answer to what this company currently looks like from outside.' });
@@ -650,6 +850,7 @@
         state.budget -= KP.C.HIRES.raiseCost;
         if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -KP.C.HIRES.raiseCost);
         led.raises++;
+        st.keptWeek = state.week;   // the chair remembers the week the desk kept it (v0.11.46, §139): its yearly word says so
         onBooks(state, sc, 'weKeptOurStaff');
         return { toast: KP.seatNameTold(state, sc.seatId) + ' stays. The raise is real; so is the fact they took the meeting.' };
       }
@@ -757,7 +958,7 @@
       const mesh = meshOf(state, st);
       if (mesh < 0 && state.week - (st.since || 0) >= HR.meshNoteAfter &&
           !st.meshNoted && rng.chance(0.15)) {
-        st.meshNoted = 1;
+        st.meshNoted = state.week;   // the week it was said (v0.11.46, §139; a file from before holds 1): the yearly word speaks of it that year
         led.meshNotes++;
         inbox.push({ kind: 'company', ind: 'meshFriction', priority: 'high',
           text: 'Corridor read on ' + KP.seatNameTold(state, seatId) + ': the method and the building keep missing each other — ' +

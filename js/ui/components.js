@@ -66,7 +66,8 @@
     const wl = KP.weekLabel(m.week);
     return '<div class="mail letter ' + (m.urgent ? 'urgent ' : '') + (m.read ? '' : 'unread ') + (extraClass || '') + '">' +
       '<span class="m-tag">' + UI.esc(m.kind) + '</span>' +
-      '<div>' + UI.esc(m.text) +
+      // a letter of several lines keeps them, each set a little apart (v0.11.46, §139: the staff's year, a chair to a line)
+      '<div>' + UI.esc(m.text).split('\n').map((line, i) => (i ? '<span class="m-line">' + line + '</span>' : line)).join('') +
       '<span class="m-week">' + UI.esc(wl.text) + '</span></div></div>';
   };
 

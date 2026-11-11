@@ -579,6 +579,9 @@
             UI.esc(st.resume.join('; ')) + '.</div>' : '') +
         // the credit (v0.11.41, §133): what this house did after they sat, in the résumé's own voice
         (credit ? '<div class="seat-credit" style="font-size:.72rem;color:var(--ink-dim);margin-top:4px">' + UI.esc(credit) + '</div>' : '') +
+        // the card keeps the word (v0.11.46, §139; the owner's ruling, §136: 33): what they last said of a year, and when
+        (st.word ? '<div class="seat-word" style="font-size:.74rem;line-height:1.5;margin-top:6px">On Year ' + Math.floor((st.word.week - 1) / KP.C.WEEKS_PER_YEAR) +
+          ', in their own words: “' + UI.esc(st.word.text) + '”</div>' : '') +
         '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:4px">This chair ' + UI.esc(SEAT_BLURBS[seat.id] || 'runs a room') + '.</div>' +
         '<div style="display:flex;gap:6px;margin-top:9px">' +
         '<button class="btn small ghost" style="border:1px solid var(--line)" data-action="seat-release" data-id="' + seat.id + '">Let go · ' + sev + '</button>' +

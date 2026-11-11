@@ -16452,6 +16452,374 @@ one sentence under two names; and the executive's quoted word
 opens with two quotation marks when it begins with a title.
 
 
+## §139 The staff's year (SHIPPED v0.11.46 — the owner's ruling, §136: decisions 22, 26 and 33)
+
+The third piece built on the directive (§136). Owner, on the yearly
+word: *"Combine annual staff reflections into one protected yearly
+digest rather than generating several individually protected
+letters. Preserve distinct voices and meaningful individual
+reflections within that digest."* On the voices: *"Give staff
+distinct voices reflecting personality, role, trust, history, and
+recent events. Favor contextual reactions and minimal repetition.
+Avoid generic dialogue that makes every employee sound
+interchangeable."* On the card: *"Keep each staff member's most
+recent annual reflection visible on their staff card."*
+
+**Counted first.** The yearly word of §134 was written the week
+each chair turned a year in it, and no such letter could be cut.
+Over the census's 200 careers, on the tree before this piece and on
+this one:
+
+| the census, 200 careers of 140 weeks | v0.11.45 | v0.11.46 |
+|---|---|---|
+| letters from the staff on the year, none of which the week can cut | 1,502 | 400 |
+| the most in one year of one career | 8 | 1 |
+| words said by a chair in them | 2,569 | 2,525 |
+| of those, the very words the chair said the year before | 773 | 0 |
+| a sentence said by two chairs of one letter | not counted | 0 |
+| a letter, in characters | 308 | 1,386 |
+| the longest | 816 | 2,248 |
+
+A year of a career had three or four of these letters, 1,502 over
+the 400 years that had any, and eight at the worst. Each was a
+sentence or two. Three times in ten the chair said the very words
+it had said the year before. Now a year has one letter. It is
+longer, about 1,386 characters for the six or seven chairs a house
+of that age has sat, and nobody in it repeats last year’s words.
+187 of its 2,712 lines are a chair too new to speak.
+
+**One career, before and after.** The census's first career, the
+same weeks on both trees.
+
+On v0.11.45 its staff wrote ten of these letters in 126 weeks:
+three in weeks 49 to 52, and seven in weeks 97 to 126. Its vocal
+coach said “The vocal room did its part.” in both years, and its
+marketing lead said the same two sentences in both. On this tree it
+reads two letters, in weeks 49 and 97. The second, a row a line:
+
+| Year 2, as the career’s Desk shows it |
+|---|
+| Year 2, as the staff tell it. The house put out 6 eras: one closed with a trophy, 4 warm, one quietly. |
+| Yoon Hye-rim, head vocal coach, two years in: “The vocal room did its part. I start on time and I finish what is on the list. That has not changed.” |
+| Coach Bang, head dance coach, two years in: “The dance room ran its weeks as planned. I notice more than I say. That is how I look after people.” |
+| Joo Sung-ho, performance director, 31 weeks in: “The rehearsal room met its dates. A first year. I have kept to my room and learned the hours.” |
+| Gong In-na, head scout, 19 weeks in: “The roster added nobody in my weeks here. The board is current. I am aware of the talk about method.” |
+| Yeom Yeo-reum, A&R lead, 40 weeks in: “A record from my demo sheet took a trophy in my weeks here. I have been wrong about demos I liked more. I know what the corridor says about my method and this house. The corridor may be right.” |
+| Baek Moo-young, marketing lead, a year in: “The campaign behind a trophy last year was planned on my desk. A trophy makes every campaign look clever afterwards. Fundamentals first, every week. People groan, and then they thank me, usually in that order.” |
+| Gong Seon-mi, house producer, 44 weeks in: “No record of mine went out in my weeks here. I would rather say it than have you look for one. I am still new here. I am still finding where things are kept.” |
+| Kwak Jae-hoon, house writer, 43 weeks in: “No writing credit in my weeks here. The desk is clear. When someone is struggling I say less and stay later. It works.” |
+
+**One letter, in the first week of the year.** The week after the
+year's books close (§124) the staff write one letter
+(`KP.staffYearLetter`). Its first line says which year it is of and
+what the house put out in it, as the books counted it. Then a line
+a chair, in the building's order: the name, the title, the time in
+the chair, and the chair's word.
+
+- It cannot be cut by the week, and it is on the list of letters
+  said once. That is what "protected" meant under §134, and it is
+  one letter a year now.
+- A chair sat fewer than twelve weeks has its line and no word:
+  "too new to the chair for a word on the year." A building where
+  nobody has sat twelve weeks writes no letter.
+- Two chairs of one name are told apart by the title on each line
+  (§138).
+- The Desk sets each line a little apart, so a letter of nine
+  chairs reads as nine short paragraphs.
+
+**A word is two parts.** The first is what the room did: the year's
+credit (§133) in the chair's voice (§79). The second is what is
+most telling of the chair's own year.
+
+- *A room* (vocal, dance, the rehearsal room, A&R, marketing) has
+  its own lines for a year with records out, three wordings in each
+  voice. A candid chair says what it cannot know. A careful one
+  sands it.
+- *A trophy, and a cold year.* A candid chair says so of its own
+  part when one of its records closed with a trophy, or when every
+  one of them closed cold. A careful chair says what it says of any
+  year.
+- *The scout* speaks of who on the roster signed. *A studio chair*
+  speaks of the records it made here, and a producer and a writer
+  each in their own words.
+- *A chair that came during the year* speaks of what its room did
+  in "my weeks here", and counts from the week it came. Only a
+  chair sat the year through speaks of its room's "last year".
+- *A year the house put out nothing.* The first line has said so,
+  and a room's chair does not say it again. Its word is its second
+  part alone.
+- *Nothing, year after year.* A scout with nobody signed, or a
+  studio chair with nothing out, for a second whole year running
+  counts the years aloud. No two such years read alike.
+
+The second part is the first of these that the file holds: the desk
+kept the chair after a call from outside that year; the desk
+advertised the chair while it was sat; the corridor's read of its
+method was said that year; the chair is new, a year or less at a
+house already running. Failing all of those, a tenure of four years
+or more and how the chair works take the years in turn.
+
+**The five things the owner named, and where each is read.**
+
+- *Personality.* Candor decides the voice of the first part, and of
+  what has passed between the desk and the chair. Warmth decides
+  the manner of the rest. The style, one of six, decides how a
+  chair says it works.
+- *Role.* Each room has lines no other room says. So have the
+  scout, the producers and the writers.
+- *Trust.* What has passed between the desk and this chair: a call
+  from outside answered with a raise, or the chair advertised while
+  it was sat.
+- *History.* New to the house, or four years and more in the chair,
+  with the years counted. The years running with nothing. And the
+  chairs a building opened with are not new to it.
+- *Recent events.* The trophy, the cold year, the call, the
+  posting, the corridor's read: each is said in the year it
+  happened and in no other.
+
+**Minimal repetition, by rule.** The wordings of a cell take the
+years in turn, so no chair says a sentence two years running. No
+sentence stands in two wordings. No two chairs of one letter say
+the same sentence of themselves: the second to want it takes the
+next wording, and with none left says its first part and stops. The
+two chairs of one craft start a wording apart, whoever sits in
+them. Each of the four is held by the suite, and by the long haul
+on every letter of every long career.
+
+**The card keeps the word** (decision 33). The rail keeps on each
+chair what it last said: the week, the words, what it said of
+itself, and its count of empty years (`st.word`). The Building tab
+shows it under the chair's credit: "On Year 5, in their own words",
+and the word.
+
+**Three marks on a chair.** The week the desk kept it after a call
+(`keptWeek`), the week its chair was advertised (`postedWeek`), and
+the week the corridor's read was said (`meshNoted`, which was a
+bare mark before).
+
+**Old files.** There is no migration. The yearly letters a file
+already holds read as they did. A card shows no word until the
+staff next write. An old file's mark for the corridor's read is no
+week of any year but a career's first.
+
+**Measured**, on the tree as shipped.
+
+| the long haul, 11 careers of 620 weeks | v0.11.46 |
+|---|---|
+| letters from the staff, one a year, each landed | 130 |
+| words said by a chair in them | 856 |
+| a chair saying a sentence it said the year before | 0 |
+| a sentence said twice in one letter | 0 |
+| a word that is the chair’s second part alone, the house having put out nothing | 259 |
+| a first part the same chair had said in some earlier year | 77 of 597 |
+| a second part the same chair had said in some earlier year | 110 of 856 |
+| a letter, in characters | 1,258 |
+| the longest | 1,883 |
+
+The two rows that are not nought are what is left of repetition. A
+chair that sits ten years with the same kind of year comes back to
+a wording it used three years before, or two. The rule holds it
+apart from last year’s. It does not make a fourth wording.
+
+**What moved.** Nothing in the simulation moves. Each of the
+census’s 200 careers was played on v0.11.45 and on this tree, and
+each ends on the same file once the Desk’s own keys and what a
+chair keeps of the staff’s year are set aside. None of the census’s
+365 rows moved. Three of its other lines did, and each counts
+letters or bytes. The week wrote 1,171 fewer letters and landed
+1,171 fewer, the same number, since every one of them was a letter
+that could not be cut. The most such letters in one week was 10 and
+is 9, and the most landed in one week was 15 and is 14. The average
+file is one KB larger, 590, for the words the chairs keep. In the
+long haul the eleven careers read as they did, line for line. Its
+yearly letters were 634 and are 130, the Desk’s two counts fell by
+the 504 between them, and what lies below the fold did not change
+by one.
+
+**The tools' books.** A small reader (`tools/staff_year.js`) takes
+the letter apart by its own lines and says what a word claims: a
+trophy, a cold year, nothing at all, a count, the years running. It
+holds no copy of the engine's lines. The long haul holds every
+letter to its own books through it. One letter in the first week of
+a year, by its own count of the weeks, and none in any other. A
+line for each chair sat and for no one else, in order, under the
+name, the title and the weeks the tool has seen that chair sat. No
+word under twelve weeks and a word from then on. The house's count
+is what the tool saw land since the desk came. A chair that speaks
+of a trophy sat through one. A chair that speaks of the cold sat
+through nothing else. A chair that says nothing came of it sat
+through nothing. A count is the tool's count, the years running
+among them. A chair speaks of its weeks here only if it came during
+the year. No chair says a sentence it said in the letter before. No
+sentence is said twice in a letter. And the card keeps the word the
+letter gave.
+
+It was run against twenty-one engines broken on purpose, each one
+line of the engine changed. The staff write every week. The week
+can cut the letter. The letter is headed with the wrong year. The
+house’s year reaches five weeks too far back. The lines are out of
+the building’s order. A word is withheld past the twelfth week. The
+time in the chair is a week out. The card keeps other words than
+the letter gave. A chair says what another has said, or what it
+said last year. A trophy is spoken of with none, and one cold
+record makes a cold year. Every chair speaks of last year, or every
+chair of its weeks here. The scout counts one too many, and so does
+a studio chair. A room speaks of work in weeks that held none. A
+year sat in part counts as a whole year with nothing, or the count
+is not carried. A room says again that the house put out nothing,
+or a quiet year silences the scout too. Each was flagged by name.
+On the tree as it stands the careers they were run on are clean.
+
+**Found by the trial.** Three things, and all three in the tool.
+Writing the engines, I saw that the rule for a quiet year let a
+room say that nothing went out and then go on. It is tightened.
+Then two engines were not flagged, because the careers chosen for
+them do not hold the case. A room’s chair come after its year’s
+last record is in another long career, and the engine is flagged
+there. A studio chair with a record to its name is in none: no bot
+of the long haul briefs a record to a house chair. The long haul
+was given a switch for the trial that does. On that career, 30 of
+its 54 studio lines speaking of a record, the tree as it stood was
+flagged three times. The engine was right. The tool’s own note
+counted the length of a chair’s list of records, and the file keeps
+only the last twelve, so the note fell behind the file at the
+twelfth. It notes what is new now. The old note is kept in the
+trial as an engine of its own, and is flagged.
+
+**Found by the mutation run.** The first run caught 78 of 79 by
+name. The seventy-ninth, an engine that has the staff write in the
+last week of the year, crashed the suite: in the week the suite
+looked, no letter had been written, and a check read the first line
+of none. The suite’s own law is that a broken engine fails it by
+name. The checks that read a letter’s lines say so when there is
+none, and the final run, on the tree as committed, caught 79 of 79.
+
+**Assumptions, written down.**
+
+- "Protected" is read as it stood: the week cannot cut the letter.
+  There is one a year where there were three or four.
+- The staff write in the first week of the new year, not the last
+  of the old. The year's last week already carries the company's
+  own letter and the review. So the staff say "last year".
+- A chair speaks after twelve weeks. Under §134 it spoke only after
+  a whole year.
+- "Trust" is read as what has passed between the desk and the
+  chair. The staff have no trust number of their own, and none was
+  invented here. The founding piece (§136, decision 2) needs
+  loyalty on file, and these lines can read it when it is.
+- "Recent events" are the chair's own and its room's. The house's
+  wider year, a debut, a last bow, a new name upstairs, is in the
+  company's own letter the week before and is not said again by the
+  staff.
+- A careful chair says little, and so its three wordings for a year
+  with records out come round sooner than a candid chair's. That is
+  its voice, and it is left so.
+- The letter is long: about 1,386 characters, the longest
+  2,248 for nine chairs. It comes once a year.
+- The browser pass of v0.11.42 held the letter a chair wrote the
+  week it turned a year. That law is replaced, and the pass is
+  retired. This piece's pass takes its place.
+- The long haul gained one switch for the trial (`HAUL_STUDIO`).
+  With it the bot briefs its records to the house's own producer
+  and writer. Off, which is how the long haul runs, nothing of it
+  runs and no long career moves.
+
+**Mistakes on the way.**
+
+- My first lines said "this year" and "every record this year". The
+  letter is written the week after, and a chair that came mid-year
+  is credited only with what landed after it sat. For that chair
+  "every record" was untrue. The lines carry the span now, and the
+  long haul holds each to the week it first saw the chair sat.
+- The year the staff spoke of was at first the forty-eight weeks up
+  to the letter's own week: a week off the year the books had
+  closed. And I cited the books' section by the wrong number, in a
+  comment and in this draft, until I read the draft through. A
+  record landing in the first week of a year would have been
+  counted in the year before. It is the books' year now, and the
+  suite holds the two counts equal.
+- The house's count at first read the whole year at a house the
+  desk came to during it. Such a house can hold a record from
+  before the desk. It reads the weeks since the desk came, as the
+  books do.
+- Two studio chairs could say one sentence in one letter, since all
+  four read one table. I saw it reading a probe letter. Each craft
+  has its own words now.
+- "A first year" was said by the chairs a later building opens
+  with. They are the building's own. Only a chair that came to a
+  house already running says it.
+- One wording opened on a number, "One of the records", and the
+  tools read it as a count. The suite found it. It is reworded.
+- "Came in in my weeks here": found reading a real career's letter,
+  and reworded. Three careful lines, "nothing went out" among them,
+  read as untrue beside a first line that says the house put out
+  three records. They carry the span now.
+- The long haul's first rule for a quiet year let a room say that
+  nothing went out and then go on. I found it writing the trial,
+  and the rule is tightened.
+- The suite crashed under one broken engine, where its own law says
+  it fails by name. The first mutation run found it.
+- The trial's first run tried two broken engines on careers that do
+  not hold the case, and neither was flagged. One case is in
+  another long career. The other, a studio chair with a record to
+  its name, is in none of them. And when the trial was given a
+  career that holds it, the tool's own note was the thing that was
+  wrong. Both are told above.
+- A comment I added to the suite by script swallowed the rest of
+  its line, and a fixture ran on the wrong chair. The check it
+  broke found it.
+- The browser pass made three mistakes of its own. It took the old
+  save to hold no staff letters, and it holds the ones v0.11.42
+  wrote. It pressed the week button on a screen that has none. And
+  its new career folded before its second year.
+
+Suite_149 (134), written again for the letter: the weeks the staff
+write and the weeks they do not, through the rail, on a stream that
+refuses every draw; the letter whole, by this suite’s own copy of
+its lines; the tools’ reading of it, and a line they cannot read;
+two chairs of one name; the house’s year each way, its first and
+last week, the books’ own count, and a house the desk came to; the
+time in the chair as a person says it, and the twelfth week; each
+room in each voice, with records out, with a trophy, with every
+record cold, with one, and come after the year’s records; the scout
+by count and in both wordings, past twelve, with nobody, come
+mid-year, and two and three years running with nobody; a producer
+and a writer each in their own words, the second chair a wording
+apart for six years, and their years with nothing; what each word
+claims, as the tools read it; the second part’s order, its first
+and last week, an old file’s mark, who is new and who is not, four
+years to the week, six styles in two manners; no sentence in two
+wordings, of more than 250 read; fourteen years of ten chairs with
+no sentence said two years running or twice in a letter; what
+another chair has said giving way a sentence at a time; a year the
+house put out nothing; the card, the save, and a file from before;
+the three marks where they are made; and real weeks through a house
+that folds and the building after it. Mutation-checked against 79
+broken lines, each caught by a named assertion. A real-browser pass
+(23 checks, no page errors): a real career saved by v0.11.42 at
+week 220 plays twenty-one real weeks by the real button, and one
+letter from the staff is on the Desk, a chair to a line, each line
+set apart, the three chairs sat by a Gil Ki-tae told apart by their
+titles, nothing wider than a phone; no letter in the weeks a chair
+turned a year; the letters it already held read as they did; the
+Building tab keeps each word under its card; forty-eight real weeks
+more, and no chair says a sentence it said the year before; and a
+new career reads its first letter in week 49.
+Battery 152/152, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, the till audit clean, e2e 137, 32, 41 and 23, the
+twenty-seven older browser passes, lockstep 0.11.46.
+
+*Left for the next pieces.* The rest of the directive's amendments,
+in §136's order: the credits that stay, the house's own birthday,
+the handover. *Seen on the way, for the next piece*: the file keeps
+only the last twelve records of a producer or a writer, so a house
+chair's credit for this house stops at twelve. That is against
+decision 21, and it is the credits' piece to mend. *The owner's to
+see*: the assumptions above, and two of them most. "Trust" is read
+from two events and not from a number. And the house's wider year
+is left to the company's own letter.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -21007,6 +21375,32 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
 > pass (18), lockstep 0.11.45.
 > Rode to main. Next piece: the yearly digest.
+
+> **0.11.46 — the staff's year.** The third piece built on the
+> directive (§136: decisions 22, 26 and 33). §139: the staff write
+> one letter, in the first week of the year, where each chair wrote
+> its own the week it turned a year. A line a chair: the name, the
+> title, the time in the chair, and a word of two parts, what the
+> room did and what is most telling of the chair's own year. Voices
+> by candor, warmth, method and room; a chair that came during the
+> year speaks of its weeks here; no chair says a sentence two years
+> running, and no two chairs of a letter say the same one. The
+> Building tab keeps each chair's last word. Counted first:
+> over the census’s 200 careers the staff’s yearly letters were 1,502,
+> none of them cuttable, eight in one career’s worst year, and three
+> times in ten a chair said what it had said the year before. They are
+> 400, one a year, and no chair repeats its last year’s words.
+> Nothing in the simulation moves: each of the census’s 200 careers
+> ends on the same file as under v0.11.45, the Desk and what a chair
+> keeps of the year set aside. None of the census’s 365 rows moved.
+> Suite_149 written again (134); 79 mutations caught by name, the
+> first run 78 and a crash. The long haul reads every letter by its
+> own books: tried against twenty-one broken engines, it flagged each,
+> and the trial found three faults in the tool itself.
+> Battery 152/152, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
+> pass (23), lockstep 0.11.46.
+> Rode to main. Next piece: the credits that stay.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
