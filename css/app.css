@@ -61,18 +61,24 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ---------- chrome ---------- */
 #topbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 30;
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex; justify-content: space-between; align-items: center; gap: 4px;
   padding: calc(env(safe-area-inset-top) + 10px) 16px 10px;
   background: linear-gradient(to bottom, rgba(11,11,15,.96) 70%, rgba(11,11,15,0));
 }
-.tb-left { display: flex; align-items: baseline; gap: 10px; }
+/* the bar holds its line (v0.11.31, §123). The date and the till never
+   break in the middle, and the button and the till never give way. When
+   the bar is short of room the left block gives: first the date drops
+   under the name as a whole, then the name is cut with three dots, and
+   on the narrowest screens the date is cut last. */
+.tb-left { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px; row-gap: 1px; min-width: 0; }
 .tb-company {
   font-weight: 800; font-size: .74rem; letter-spacing: .3em; color: var(--cyan);
   border: 1px solid color-mix(in srgb, var(--cyan) 50%, transparent); border-radius: 4px; padding: .18em .45em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.tb-week { font-size: .8rem; color: var(--ink-dim); letter-spacing: .06em; font-weight: 600; }
+.tb-week { font-size: .8rem; color: var(--ink-dim); letter-spacing: .06em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tb-right { display: flex; align-items: center; gap: 12px; }
-.tb-budget { font-size: .8rem; font-weight: 700; color: var(--gold); letter-spacing: .04em; }
+.tb-budget { font-size: .8rem; font-weight: 700; color: var(--gold); letter-spacing: .04em; white-space: nowrap; }
 .tb-menu { font-size: 1.3rem; color: var(--ink-dim); padding: 2px 6px; }
 
 #screen {
@@ -109,6 +115,22 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 #advance-btn:active { transform: scale(.96); }
 .adv-arrow { font-size: .85rem; }
+/* at 400 and under the date is always under the name: at that width it
+   fitted beside it only while the till had three digits, and a bar that
+   changes shape as the till grows reads as a fault */
+@media (max-width: 400px) {
+  .tb-week { flex-basis: 100%; }
+}
+/* a narrow screen takes the room from the button's padding before it
+   takes it from anyone's words: a little under 375, and under 350 more,
+   with the space between the till and the menu */
+@media (max-width: 374px) {
+  #advance-btn { padding: 9px 12px; }
+}
+@media (max-width: 349px) {
+  .tb-right { gap: 6px; }
+  #advance-btn { padding: 9px 10px; letter-spacing: .06em; }
+}
 
 /* ---------- shared primitives ---------- */
 .pad { padding: 0 16px; }

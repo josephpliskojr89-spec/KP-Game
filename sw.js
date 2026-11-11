@@ -1,7 +1,7 @@
 /* Service worker — cache key rides the version lockstep. */
 'use strict';
-const CACHE = 'kpam-0.11.30';
-const V = '0.11.30';
+const CACHE = 'kpam-0.11.31';
+const V = '0.11.31';
 const PRECACHE = [
   '.',
   'index.html',

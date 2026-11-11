@@ -32,10 +32,11 @@ The ship ritual, in order:
 node tools/run_battery.js                             # test battery (accreting suites)
 node tools/harness.js 40                              # headless soak + observatory census
 NODE_PATH=$(npm root -g) node test/e2e_walkthrough.js # real-browser full-career walkthrough
+NODE_PATH=$(npm root -g) node test/e2e_topbar.js      # real-browser check of the top bar at phone widths
 node tools/version_lockstep.js                        # version agreement checker
 ```
 
-All four must be green before a push. Every release appends a note to the
+All five must be green before a push. Every release appends a note to the
 Bible's status ledger.
 
 ## Layout
@@ -43,7 +44,7 @@ Bible's status ledger.
 ```
 js/engine/   pure simulation (KP namespace, vm-testable, all tuning in constants.js)
 js/ui/       screens; render state, forward intents, own no simulation logic
-test/        battery suites + e2e walkthrough
+test/        battery suites + the two browser tests
 tools/       battery runner, soak harness, lockstep checker
 docs/        BIBLE.md (living spec + ledger), founding brief, process doc
 ```

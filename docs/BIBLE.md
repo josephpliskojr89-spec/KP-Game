@@ -402,6 +402,8 @@ rise or fall as companies — see §19.
   Playwright drives the real UI at 390×844 through a full career — scouting,
   training page, sit-down, release flow, debut, reload, a full comeback
   cycle, and the Industry tab's Scene/Chart/Feed — 60 checks.
+  Since v0.11.31 a second browser test, `test/e2e_topbar.js`, holds the
+  top bar to its line at phone widths (§123).
 - **Lockstep** (`node tools/version_lockstep.js`): version agrees across
   constants, sw cache key, index cache-busters, splash tag, precache list.
 
@@ -13288,6 +13290,124 @@ door to the sound should count; the Desk's tie-break (§112); and
 from §109, the fade between records through a service chapter and
 the size of the window's bank.
 
+## §123 The bar holds its line (SHIPPED v0.11.31 — a repair found in a screenshot)
+
+Owner: *"Break remaining work into smaller pieces"*. Not on §96's
+list. A fault seen in §122's browser pass, older than it, and
+measured before it was touched.
+
+**The finding.** The top bar is five things on one line: the
+label's short name, the date, the advance button, the till, the
+menu. They do not fit a phone. When they did not, every part gave
+way at once: the date broke in the middle, and so did the till.
+
+**Measured first**, in a real browser, over 360 cases: six widths
+from 320 to 430 px; five names (the house's own, a short one, eight
+letters, one with a hyphen, the widest nine); six tills from
+nothing to six digits; the first year and the twelfth.
+
+| on the old stylesheet | of 360 |
+|---|---|
+| the date broken onto a second line | 307 |
+| the till broken onto a second line | 307 |
+| a name broken at its hyphen | 71 |
+| the bar wider than the screen | 51 |
+| the bar taller than the room the page leaves it | 152 |
+
+In those 152 the bar covered the top of the page. At 360 px, the
+commonest Android width, the house's own name was broken with every
+till. At 390 px it held only while the till had three digits.
+
+**The rule now.** The date and the till never break in the middle,
+and the button never gives up its words. When the bar is short of
+room the left block gives, in this order:
+
+1. the date drops under the name, whole;
+2. the name is cut with three dots;
+3. on a 320 px screen, last, the date is cut with three dots.
+
+At 400 px and under the date is always under the name. At that
+width it fitted beside the name only while the till had three
+digits, and a bar that changes shape as the till grows reads as a
+fault. Above 400 px the date is beside the name wherever one line
+has room with 4 px between the parts, and under it wherever not.
+
+Under 375 px the button gives up 6 px of padding. Under 350 px it
+gives up more, and the till moves 6 px nearer the menu. Nothing
+else changes size.
+
+**What holds**, over the same 360 cases:
+
+- nothing breaks, nothing overlaps, nothing runs off the screen,
+  and at least 4 px stand between the button and its neighbours;
+- the bar is 56 px tall at most, inside the 58 px the page leaves
+  for it, and 54 px on one line as it was;
+- at 360 px and wider the date is whole, the house's own name is
+  whole, and an eight-letter name is whole;
+- a name is cut only once the date is under it. At 360 px and wider
+  only the widest nine letters are;
+- at 320 px the date is whole in the first year up to a five-digit
+  till, and cut in the twelfth from a four-digit one.
+
+**What changed where nothing was wrong.** Of 288 of those cases
+(without the hyphenated name), 52 fitted on one line before. 38
+still do. In 14 the date is under the name now: 9 at 390 px and
+under, by the rule, and 5 above it that had less than 8 px to
+spare.
+
+**The test is the repo's own** (`test/e2e_topbar.js`, 32
+checks, three seconds). Layout cannot be checked in the DOM stub,
+and the browser passes written for each release live outside the
+repository. This one is in it, beside the walkthrough, and the
+README's ritual lists it. Run against the old stylesheet it fails
+15 of its checks by name.
+
+**Found by the mutation run**, in four rounds.
+
+- First run, 16 of 29 caught. Seven survivors were declarations
+  that did nothing: a button told not to break that cannot, two
+  minimums a clipped box already has, two line heights, two margins
+  the narrow rules did not need. Deleted. Three pointed at two gaps
+  in the test: a name with a hyphen, and text spilling out of a cut
+  box. Three pointed at slack in the narrowest rule.
+- Second run, 18 of 22. One more gap: a date that could not be cut
+  ran over the button, and the test measured the wrong edge. One
+  rule began at 380 px and was needed only under 375: it has its
+  exact bound now. Two declarations had slack. Both were deleted,
+  which broke the claim at 320 px, so one came back.
+- Third run, 22 of 23. Nothing pinned where the tightest rule
+  begins. Each band of widths is pinned exactly now.
+- Fourth run, 23 of 23. On the final run, 23 of 23.
+
+Eight declarations were deleted on the way and four gaps in the
+test were closed. Six more had gone before the first run: they
+repeated the defaults.
+
+**A mistake on the way.** The narrow-screen rules were first
+written above the button's own rule, which overrode them. They did
+nothing, and the measurement showed it. They sit below it now, and
+one broken line holds them there.
+
+**No simulation changed.** Every one of the census's 363 rows is
+v0.11.30's.
+
+Battery 140/140, soak 40 clean, census 200 clean, longhaul 11 ×
+620 clean, e2e 137, the top bar's own test (32), the fourteen
+older browser passes, lockstep 0.11.31.
+
+*Left for the next pieces* (§122's list): the company anniversary;
+the year-end letter at week 48; the exec-side ledger and a
+succession that transfers a record; the staff given years. *The
+owner's to call*: whether the date should sit under the name on
+the larger phones too, 412 px and up, where it is still beside it
+when there is room. *Still the owner's to call*: from §122, whether
+a founded label's first trophy should be a first; from §121, the
+spacing of the manager's titles; from §120, the shape of probation;
+from §119, whether a pass should cost anything, and whether next
+door to the sound should count; the Desk's tie-break (§112); and
+from §109, the fade between records through a service chapter and
+the size of the window's bank.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -17389,6 +17509,30 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Battery 140/140, soak 40 clean, census 200 clean, longhaul 11 ×
 > 620 clean, e2e 137, a real-browser pass (24), lockstep 0.11.30.
 > Rode to main. Next piece: the top bar, which wraps at phone width.
+
+> **0.11.31 — the bar holds its line.** Own judgment, under
+> "Approved to tackle as much of the remaining queue as you see fit"
+> and "Break remaining work into smaller pieces": a repair, not on
+> §96's list, seen in 0.11.30's browser pass and older than it.
+> §123: the top bar's five parts do not fit a phone, and when they
+> did not, the date and the till broke in the middle. Measured first
+> over 360 cases in a real browser: the date broken in 307, the bar
+> wider than the screen in 51, and taller than its room, covering
+> the page, in 152. At 360 px the house's own name was broken with
+> every till. Now the date and the till never break. The left block
+> gives: the date drops under the name whole, then the name is cut
+> with three dots. At 400 px and under the date is always under the
+> name, so the bar does not change shape as the till grows. The
+> test is the repo's own, test/e2e_topbar.js (32 checks),
+> listed in the README's ritual; on the old stylesheet it fails 15
+> by name. Four rounds of mutations: 16 of 29, 18 of 22, 22 of 23,
+> then all of them; eight declarations that did nothing were
+> deleted on the way and four gaps in the test were closed. No
+> simulation changed: the census's 363 rows are 0.11.30's. 23
+> mutations caught by name.
+> Battery 140/140, soak 40 clean, census 200 clean, longhaul 11 ×
+> 620 clean, e2e 137 and 32, lockstep 0.11.31.
+> Rode to main. Next piece: the company anniversary.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
