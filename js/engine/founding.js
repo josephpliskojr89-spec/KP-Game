@@ -169,6 +169,7 @@
       if (!c.resolved) { c.resolved = 'void'; c.resolvedWeek = state.week; }
     });
     KP.closeGreenlights(state);   // and what the old house greenlit stays its own (v0.11.37, §129)
+    KP.evalDeskOpens(state);      // and so do the sheets its floor was read on (v0.11.38, §130)
     // the outside work (one list, v0.10.42): offers naming the rival's
     // idols come off the new label's desk, and the running jobs end with
     // the era (audit H2/M2)

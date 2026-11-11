@@ -440,6 +440,7 @@ const sizes = {};
 const dissolvedWeeks = {};
 const careers = {};
 const GL = { given: 0, met: 0, lapsed: 0, open: 0, void: 0, walls: 0 };   // the greenlights of every career (v0.11.37, §129)
+const RV = { given: 0, firsts: 0, counted: 0 };                            // the annual reviews of every career (v0.11.38, §130)
 for (const sc of RUN) {
   const deskMark = deskCount.mark(DESK);   // this scenario's share of the Desk's count
   const state = KP.newGame(sc.seed, null,
@@ -465,6 +466,28 @@ for (const sc of RUN) {
     });
     gl.chair = state.executive.name;
   };
+  // the annual reviews (v0.11.38, §130). A chair who counts sheets says how many reached the desk this year. The count
+  // is held to this tool's own books: the sheets the career had seen at the last mark, which is the desk's last review
+  // or the day the desk moved, read off the ledger as the weeks go by and never asked of the engine's review
+  const sheetsNow = () => (state.evalLedger ? state.evalLedger.sheets : 0);
+  const rv = { base: 0, first: false, seen: 0, given: 0, firsts: 0, counted: 0 };
+  const rvLook = before => {   // a review not seen yet was filed since the last look; `before` is the count as the week's tick began
+    const list = state.reviews || [];
+    const r = list[list.length - 1];
+    if (!r || r.week !== state.week || rv.seen === r.week) return;
+    rv.seen = r.week; rv.given++;
+    if (rv.first) rv.firsts++;
+    const at = [sheetsNow()].concat(before == null || before === sheetsNow() ? [] : [before]);   // a showcase in the same tick may fall either side of the review
+    if (!at.includes(r.sheets)) flag(sc.seed, state.week, 'a review notes ' + r.sheets + ' sheets, and the career had seen ' + at.join(' or '));
+    const m = /^(?:I read (one|\d+) evaluation sheets? this year\.|No evaluation sheet reached my desk this year\.)/.exec(r.said);
+    if (m) {
+      rv.counted++;
+      const said = m[1] == null ? 0 : m[1] === 'one' ? 1 : Number(m[1]);
+      const own = at.map(x => Math.max(0, x - rv.base));
+      if (!own.includes(said)) flag(sc.seed, state.week, 'a chair who counts sheets said ' + said + ' this year, and this desk’s own year held ' + own.join(' or '));
+    }
+    rv.base = r.sheets; rv.first = false;
+  };
   const glWall = move => {   // the desk moves to another house: everything on file is the last house's from here on
     glLook();
     const was = {};
@@ -473,6 +496,7 @@ for (const sc of RUN) {
     gl.walls++;
     Object.keys(was).forEach(id => { if (was[id] === 'open') gl.wallOpen++; gl.last[id] = was[id] === 'open' ? 'void' : was[id]; });   // what each must read from now on
     gl.chair = state.executive.name;
+    rv.base = sheetsNow(); rv.first = true;   // and the next house's year of sheets begins here
   };
   if (sc.mode === 'service') seedBoyGroup(state);
   glLook();
@@ -517,7 +541,10 @@ for (const sc of RUN) {
       founded = true;
     }
     glLook();
+    rvLook();
+    const sheetsAsTheTickBegan = sheetsNow();
     KP.advanceWeek(state);
+    rvLook(sheetsAsTheTickBegan);
     // the greenlights (v0.11.37, §129): one the last house gave reads as it did the day the desk moved, and one that
     // was open that day reads set aside; the record lists this desk's own and no other, each with its chair and its end
     glLook();
@@ -706,6 +733,7 @@ for (const sc of RUN) {
   (state.mandates || []).forEach(m => { glEnd[m.status]++; });
   if (glEnd.void !== gl.wallOpen) flag(sc.seed, state.week, gl.wallOpen + ' greenlights were open when the desk moved and ' + glEnd.void + ' read set aside');
   GL.given += gl.given; GL.walls += gl.walls;
+  RV.given += rv.given; RV.firsts += rv.firsts; RV.counted += rv.counted;
   ['met', 'lapsed', 'open', 'void'].forEach(k => { GL[k] += glEnd[k]; });
   // the sagas (v0.9.31): the hash window [60,320] sits fully inside a
   // 620-week run — every world MUST have been invaded at least once,
@@ -773,6 +801,7 @@ for (const sc of RUN) {
     ' | years: ' + (state.years || []).length + ' closed (' + (state.years || []).filter(a => a.headline).length + ' with a headline)' +
     ' | birthdays: ' + bd.wrote + ' written, ' + bd.landed + ' landed, of ' + bd.due + ' due' +
     ' | greenlights: ' + gl.given + ' given (' + glEnd.met + ' kept, ' + glEnd.lapsed + ' left dark, ' + glEnd.open + ' open, ' + glEnd.void + ' set aside), ' + gl.walls + ' desk change' + (gl.walls === 1 ? '' : 's') +
+    ' | reviews: ' + rv.given + ' given, ' + rv.firsts + ' the first under a new desk, ' + rv.counted + ' by a chair who counts sheets' +
     ' | record: ' + (marks => marks.length + ' mark' + (marks.length === 1 ? '' : 's') + ' (chairs ' + marks.filter(m => m.kind === 'chair').length + ', red weeks ' + marks.filter(m => m.kind === 'red').length + ')')(KP.fileMarks(state)) +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +
@@ -792,6 +821,7 @@ for (const sc of RUN) {
 }
 
 deskCount.lines(DESK, 5).forEach(l => console.log(l));
+console.log('the reviews (v0.11.38): ' + RV.given + ' given · ' + RV.firsts + ' the first under a new desk · ' + RV.counted + ' by a chair who counts sheets, each count held to the desk’s own year');
 console.log('the greenlights (v0.11.37): ' + GL.given + ' given · ' + GL.met + ' kept · ' + GL.lapsed + ' left dark · ' + GL.open + ' open · ' + GL.void + ' set aside at ' + GL.walls + ' desk change' + (GL.walls === 1 ? '' : 's'));
 console.log('dissolutions (the last statement, v0.11.0): ' + RUN.map(sc => sc.seed + ' ' + (dissolvedWeeks[sc.seed] == null ? '—' : 'wk ' + dissolvedWeeks[sc.seed] + (careers[sc.seed] ? ' then ' + careers[sc.seed] : ''))).join(' · '));
 report();

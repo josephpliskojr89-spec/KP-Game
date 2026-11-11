@@ -14293,6 +14293,169 @@ should count; the Desk's tie-break (§112); and from §109, the fade
 between records through a service chapter and the size of the
 window's bank.
 
+## §130 The review's own year (SHIPPED v0.11.38 — a repair of §120's annual review)
+
+Owner: *"Break remaining work into smaller pieces"*. Not on §96's
+list. A defect in §120, shipped in v0.11.28, seen in a screenshot
+from §129's browser pass and counted before it was touched.
+
+**The defect.** When the directors have gone the executive says one
+fact about the year. Two of the six kinds hold the year against
+the review before it: the profit hunter the till, the micromanager
+the evaluation sheets. §120 took "the review before it" to be the
+last one on the file, whoever gave it. After a founding or a
+second chance that is the last house's review. And with no review
+on the file, the micromanager's count began at the career's first
+sheet.
+
+So at a new house a profit hunter held the label's till against
+the old house's, and a micromanager counted sheets that the old
+house's floor was read on.
+
+**How it got through.** §120's suite never moved a desk, and the
+reviews it put on the file carried no week.
+
+**Counted first.**
+
+| | long haul | census |
+|---|---|---|
+| reviews given | 132 | 400 |
+| given after a desk change | 44 | 4 |
+| the first under a new desk | 4 | 2 |
+| whose "last review" was the last house's | 2 | 0 |
+| that said something untrue | 1 | 1 |
+
+Both untrue ones were a micromanager's count: "I read 6
+evaluation sheets this year" at a house that had held none, and "I
+read 11" at a house that had held 4. No profit hunter sat at a new
+desk's first review in either run. That one was seen on a real
+saved career. So the defect is rare. It needs a desk change, and
+then one of two kinds of chair at the next review.
+
+**One real career, before and after.** A save from week 141,
+walked out of that week to found a label. The label's first
+review, a week later:
+
+"The till holds 320. At the last review it held 652. I am paid to
+notice the direction."
+
+"The till holds 320. Next year I will have a number to hold it
+against."
+
+The 652 was the old house's till, at the old house's last review.
+
+**The rule now.** The year is held against the last review given
+under this desk. A desk's own review is never in the week the desk
+began, so that week's is the last house's. With none of its own,
+the profit hunter says there is no number yet, and the
+micromanager counts from the sheets the career had seen when the
+desk began. That count is noted when the desk moves
+(`KP.evalDeskOpens`, beside §129's sweep). The name the
+micromanager gives, the one who "was first on more of them", is
+taken from this house's sheets only.
+
+**Old saves** (migration 0.11.38). At a desk that has moved, what
+the career had seen when the desk began is worked out: the
+ledger's count less the showcases held since, which are on the
+trainees' own histories. The histories keep twelve months, and a
+desk older than that has a review of its own to count from. The
+reviews already filed keep what they said, and so do their
+letters: a file that holds the wrong sentence goes on holding it,
+and its next review is right.
+
+**What moved.** No simulation changed: the repair is in what is
+said. The census’s output is v0.11.37’s to the byte, and the long
+haul says the same of every scenario but for its new count. Two
+sentences read differently. In the census one career’s chair says
+“I read 4 evaluation sheets this year” where it said 11. In the
+long haul one says that no sheet reached the desk where it said 6.
+
+**The long haul's check, tried.** The long haul keeps its own
+count of the sheets since the last mark, which is the desk's last
+review or the day the desk moved. It reads the ledger week by week
+and holds a micromanager's sentence to that count. It was run
+against four engines broken on purpose.
+A review held against whichever review came before it. A count that
+begins at the career’s first sheet. A second chance that notes
+nothing. A review that does not note what the career had seen. Each
+was flagged, the first three by the chair’s own sentence: “6” and
+“16” at a house that had held none. On the tree as it stands the
+same run is clean.
+It does not hold the profit hunter's till. None of its eleven
+careers seats one at a new desk's first review, so that check
+could not be tried there. The suite and the browser pass hold it.
+
+**Found by the mutation run.** Nothing. On the first run 27 of
+27 broken lines were caught by name, and on the final run the
+same.
+
+**Mistakes on the way.**
+
+- Six checks of §120's own suite failed when the engine began to
+  read a review's week: five of its fixtures put reviews on the
+  file with no week, or in week 1. A filed review always carries
+  its week. The fixtures were given weeks, and nothing else in
+  that suite was touched.
+- Two of the new suite's expectations were wrong on its first run:
+  a sentence cut one character short.
+- The browser pass was wrong twice on its first run. A review is
+  filed when the board season is answered, not when it opens. And
+  the pass switched the app out of the epilogue by hand, which left
+  the week's button hidden. The third career is taken through the
+  door before the browser opens it now.
+
+Suite_145 (45): the till held against the newest review, up,
+down and the same; a founded label and a second chance, with the
+old house's reviews on the file, a review in the very week the
+desk began, and one the week after; the sheets with no review,
+with one, at a desk that has moved with and without a review of
+its own, on a file that does not say and at a house with no ledger
+at all; who was first, on this house's sheets and inside the year;
+the note at the wall by hand, through a real founding and through
+a second chance by each door; the real board season at a founded
+label, its review, its letter, and the second a year on; old files
+at a founded label, at a desk that never moved, and with no sheets
+at all. Suite_138 holds the newest review and the year's bound
+with it. Mutation-checked against 27 broken lines, each caught
+by a named assertion in every suite that owns the line. A
+real-browser pass (16 checks, no page errors): a real career
+saved by v0.11.29 is walked out of, and a real week on the label's
+first review holds the till against nothing and sits above the old
+house's two on the Record tab; a real label founded under v0.11.35
+opens with its three reviews word for word, and twenty-nine real
+weeks on its second is held against its own first; a real career
+taken through a last statement and the salaried door plays real
+weeks to its first board season, where a chair who counts sheets
+gives the 5 the new house held and not those and the 26 behind
+the career.
+Battery 145/145, soak 40 clean, census 200 clean, longhaul 11 ×
+620 clean, the till audit clean, e2e 137, 32, 41 and 23, the
+twenty older browser passes, lockstep 0.11.38.
+
+*Left for the next pieces.* A succession that hands over a record;
+the staff given years; and the rest of what a desk change leaves
+on the file, read one thing at a time and counted before it is
+touched: the year-end sheets of the old floor, the chair a
+founding picks from every executive, and others on the list.
+*Still the owner's to call*: from §129, whether a new label's
+Record tab should list the old house's greenlights too, as it
+lists the old house's reviews and promises today, and the wording
+of a row and of its three chips; from §128, whether a birthday
+should lift morale, whether a salaried house should have a
+founding date of its own, and the wording of the three openings;
+from §126, whether the count on Offers should sit beside the word;
+from §125, whether a long tag should take the line or the three
+long words be given shorter ones; from §124, the headline's order,
+and whether the letter should say more or less than its four
+things; from §123, whether the date should sit under the name on
+the larger phones too; from §122, whether a founded label's first
+trophy should be a first; from §121, the spacing of the manager's
+titles; from §120, the shape of probation; from §119, whether a
+pass should cost anything, and whether next door to the sound
+should count; the Desk's tie-break (§112); and from §109, the fade
+between records through a service chapter and the size of the
+window's bank.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -18585,6 +18748,34 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Found and not fixed: at a founded label the first annual review
 > holds its till against the old house's (§120).
 > Rode to main. Next piece: the review's last year, a repair.
+
+> **0.11.38 — the review's own year.** Own judgment, under
+> "Approved to tackle as much of the remaining queue as you see
+> fit" and "Break remaining work into smaller pieces": a repair of
+> 0.11.28's annual review, seen in a screenshot of 0.11.37's
+> browser pass. §130: two kinds of executive hold the year against
+> the review before it, the profit hunter the till and the
+> micromanager the evaluation sheets, and "the review before it"
+> was the last on the file, whoever gave it. After a founding or a
+> second chance that is the last house's. Counted first:
+> of the long haul’s 132 reviews 4 are the first under a new desk and
+> 1 said something untrue; of the census’s 400, 2 and 1. Both untrue
+> ones were a micromanager’s count. The profit hunter’s was seen on a
+> real saved career.
+> Now the year is held against the last review given under this
+> desk, and with none the micromanager counts from the sheets the
+> career had seen when the desk began, which the wall notes. Old
+> saves work that count out from the trainees' histories. The
+> reviews already filed keep what they said.
+> No simulation changed: the census’s output is 0.11.37’s to the byte.
+> Two chairs’ sentences read differently.
+> Suite_145 (45), 27 mutations caught by name, all on the
+> first run. The long haul's own count of sheets, tried against
+> four broken engines, flagged each.
+> Battery 145/145, soak 40 clean, census 200 clean, longhaul 11 ×
+> 620 clean, the till audit clean, e2e 137, 32, 41 and 23, a
+> real-browser pass (16), lockstep 0.11.38.
+> Rode to main. Next piece: the handover at a succession.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

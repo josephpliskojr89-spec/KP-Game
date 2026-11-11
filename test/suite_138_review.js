@@ -84,11 +84,11 @@ function settle(s) {
   const s = world('rev-till', 'profitHunter');
   s.budget = 132.4;
   t.eq(fact(s), 'The till holds 132. Next year I will have a number to hold it against.', 'a profit hunter’s first review states the till, in whole units');
-  s.reviews = [{ year: 0, week: 1, till: 100, sheets: 0 }];
+  s.reviews = [{ year: 0, week: 2, till: 100, sheets: 0 }];   // a filed review always carries its week (v0.11.38, §130)
   t.eq(fact(s), 'The till holds 132. At the last review it held 100. That is the direction I am paid to like.', 'after that he holds it against the last review');
-  s.reviews = [{ till: 100, sheets: 0 }, { till: 200, sheets: 0 }];
+  s.reviews = [{ week: 2, till: 100, sheets: 0 }, { week: 3, till: 200, sheets: 0 }];
   t.eq(fact(s), 'The till holds 132. At the last review it held 200. I am paid to notice the direction.', 'the last one, not an older one, and he notices a fall');
-  s.reviews = [{ till: 132, sheets: 0 }];
+  s.reviews = [{ week: 3, till: 132, sheets: 0 }];
   t.eq(fact(s), 'The till holds 132. At the last review it held 132. A year, and the number did not move.', 'and a year that went nowhere');
 }
 {
@@ -117,13 +117,13 @@ function settle(s) {
   a.evalHistory = [{ week: -10, rank: 1, of: 6 }, { week: 10, rank: 1, of: 6 }, { week: 14, rank: 2, of: 6 }];
   b.evalHistory = [{ week: 18, rank: 1, of: 6 }, { week: 22, rank: 1, of: 6 }];
   t.eq(fact(s), 'I read 13 evaluation sheets this year. ' + KP.displayName(b) + ' was first on more of them than anyone still in this building.', 'a micromanager counts the year’s sheets and names who was first most often');
-  s.week = 46 + YEAR; s.reviews = [{ till: 0, sheets: 12 }];
+  s.week = 46 + YEAR; s.reviews = [{ week: 46, till: 0, sheets: 12 }];
   a.evalHistory = [{ week: 40, rank: 1, of: 6 }, { week: 44, rank: 1, of: 6 }, { week: 46, rank: 1, of: 6 }, { week: 50, rank: 1, of: 6 }];
   b.evalHistory = [{ week: 60, rank: 1, of: 6 }, { week: 64, rank: 1, of: 6 }];
   t.eq(fact(s), 'I read one evaluation sheet this year. ' + KP.displayName(b) + ' was first on more of them than anyone still in this building.', 'the count is since the last review, and a first of more than a year ago is not this year’s');
   a.evalHistory = []; b.evalHistory = [{ week: 60, rank: 2, of: 6 }];
   t.eq(fact(s), 'I read one evaluation sheet this year. Nobody who was first on one is still in this building.', 'with nobody left who was first, she says so');
-  s.reviews = [{ till: 0, sheets: 13 }];
+  s.reviews = [{ week: 46, till: 0, sheets: 13 }];
   t.eq(fact(s), 'No evaluation sheet reached my desk this year. I noticed.', 'and a year with no sheet is noticed');
   const tie = world('rev-sheets-tie', 'micromanager');
   const [c, d] = room(tie);

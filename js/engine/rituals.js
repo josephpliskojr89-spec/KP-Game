@@ -19,6 +19,9 @@
     return state.evalLedger;
   }
   KP.evalLedger = evalLedger;
+  // the wall (v0.11.38, §130): the next house's floor starts its own count.
+  // What the career had seen is noted, so "this year" is this house's year
+  KP.evalDeskOpens = function (state) { const led = evalLedger(state); led.before = led.sheets; };
   function pointLedger(state) {
     state.pointLedger = state.pointLedger || { breakdowns: 0, nearMisses: 0, nudges: 0 };
     return state.pointLedger;

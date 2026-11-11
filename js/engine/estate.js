@@ -521,6 +521,7 @@
     else state.founded = { week, warChest: chest, from: dead.short, door };
     state.chapterSince = week;
     KP.closeGreenlights(state);   // what the dead label was greenlit is not the next house's to keep (v0.11.37, §129)
+    KP.evalDeskOpens(state);      // nor are the sheets its floor was read on the next house's year (v0.11.38, §130)
     state.nextMeetingWeek = week + 8;
     state.renewalQuietUntil = 0; state.truckQuietUntil = 0;
     delete state.petProjectDone; delete state.hypeDirective;

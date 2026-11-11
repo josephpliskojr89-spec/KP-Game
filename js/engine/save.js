@@ -1437,6 +1437,19 @@
       if (act) m.act = act.name;
     });
   } });
+  // v0.11.38 — the review's own year. An annual review held its year against
+  // the review before it, whoever gave it, and counted evaluation sheets
+  // from the career's first. At a desk that has moved, the sheets the
+  // career had seen when the desk began are worked out from what the
+  // trainees' own histories still hold: every showcase since is on one.
+  // The reviews already filed keep what they said.
+  MIGRATIONS.push({ v: '0.11.38', fn: function (state) {
+    const since = KP.deskSince(state);
+    if (since <= 1 || !state.evalLedger) return;
+    const mine = {};
+    Object.keys(state.people || {}).forEach(id => ((state.people[id].evalHistory) || []).forEach(e => { if (e.week > since) mine[e.week] = true; }));
+    state.evalLedger.before = state.evalLedger.sheets - Object.keys(mine).length;
+  } });
 
   KP.migrate = function (state) {
     const applied = [];

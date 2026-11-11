@@ -380,7 +380,10 @@
   const thisYear = state => recordsAfter(state, Math.max(0, state.week - KP.C.WEEKS_PER_YEAR));   // ours, not the records we inherited
   const some = (n, word) => (n === 0 ? 'no ' + word + 's' : n === 1 ? 'one ' + word : n + ' ' + word + 's');
   const sheetsSoFar = state => (state.evalLedger ? state.evalLedger.sheets : 0);   // read, never made: a review that is only read changes nothing
-  // the year, in the terms her kind keeps: `last` is the review before this one, whoever gave it
+  const sheetsBefore = state => (state.evalLedger && state.evalLedger.before) || 0;   // what the career had seen when this desk began (v0.11.38, §130)
+  // the year, in the terms her kind keeps: `last` is the review before this
+  // one under this desk, whichever chair of this house gave it. The last
+  // house's reviews are not hers to hold a year against (v0.11.38, §130)
   const REVIEW_FACT = {
     profitHunter: (state, last) => {
       const till = Math.round(state.budget);
@@ -395,9 +398,9 @@
         (p.status === 'idol' ? 'The public can hear it, which is the point.' : 'The public has not heard it yet.');
     },
     micromanager: (state, last) => {
-      const sheets = sheetsSoFar(state) - (last ? last.sheets : 0);
+      const sheets = sheetsSoFar(state) - (last ? last.sheets : sheetsBefore(state));
       if (sheets <= 0) return 'No evaluation sheet reached my desk this year. I noticed.';
-      const from = state.week - KP.C.WEEKS_PER_YEAR;
+      const from = Math.max(state.week - KP.C.WEEKS_PER_YEAR, KP.deskSince(state));   // this house's sheets, and no older than the year
       const firsts = p => (p.evalHistory || []).filter(e => e.week > from && e.rank === 1).length;
       const top = ourPeople(state).filter(p => firsts(p)).sort((a, b) => firsts(b) - firsts(a) || (a.id < b.id ? -1 : 1))[0];
       return 'I read ' + some(sheets, 'evaluation sheet') + ' this year. ' +
@@ -439,10 +442,11 @@
   // board left unanswered is reviewed three weeks on, and at week 46 that
   // is past the turn of the year
   KP.annualReview = function (state, year) {
-    const reviews = state.reviews || [];
+    const since = KP.deskSince(state);
+    const mine = (state.reviews || []).filter(r => r.week > since);   // a desk's own review is never in the week the desk began
     const band = KP.trustBand(state.trust);
     const y = year || Math.ceil(state.week / KP.C.WEEKS_PER_YEAR);
-    return { band, year: y, said: [REVIEW_FACT[state.executive.personality](state, reviews[reviews.length - 1] || null, y), REVIEW_BAND[band], KP.reviewOpens(state)].join(' ') };
+    return { band, year: y, said: [REVIEW_FACT[state.executive.personality](state, mine[mine.length - 1] || null, y), REVIEW_BAND[band], KP.reviewOpens(state)].join(' ') };
   };
   // board season's last word: on the file, and a letter that always lands (§112)
   KP.fileReview = function (state, year) {
