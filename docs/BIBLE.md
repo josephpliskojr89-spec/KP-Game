@@ -17419,6 +17419,295 @@ assumptions above, and that this piece moves the simulation a
 little, as a lift must.
 
 
+## §142 The promises that stay (SHIPPED v0.11.49 — the owner's ruling, §136: decision 36, and a repair found counting for it)
+
+The sixth piece built on the directive (§136). Owner, on promises
+made to previous executives: *"Continue identifying the original
+executive to whom a promise was made. Preserve historical
+attribution even after leadership changes."* §136 put this with the
+handover. It ships on its own, with a repair the count for it
+found. The handover's number and its words (decisions 10 and 29)
+are the next piece.
+
+**Counted first, and what the count found.** The count was of
+promises upstairs that one chair took and another judged. To see a
+verdict it noted every promise as it settled, and looked for it on
+the file after the week. Most were not there. The file was meant to
+keep the last ten promises to settle. Each week it put the open
+ones first and kept the last ten of the rest, in the order they
+stood. A promise that settled that week still stood among the open
+ones, ahead of the ten already kept. So the first ten promises of a
+career to settle were kept for good, and every promise after them
+went the week it settled. On the tree before this piece:
+
+| on v0.11.48 | the census, 200 careers | the long haul, 11 careers |
+|---|---|---|
+| promises seen to settle | 2,913 | 490 |
+| on the file after their week | 2,018 | 102 |
+| gone the week they settled | 895 | 388 |
+| careers that lost at least one | 188 | 10 |
+| the most to settle in one career | 21 | 74 |
+| weeks from the newest promise kept to the last to settle, at the end: the median | 20 | 414 |
+| and the most | 72 | 543 |
+| promises upstairs that settled | 1,099 | 302 |
+| of them, carrying a chair’s name | 473 | 187 |
+| changes of chair | 0 | 12 |
+| promises judged by a chair they were not made to | 0 | 8 |
+
+A census career is 140 weeks and settles about fifteen promises:
+188 of the 200 careers lost at least one, and 31% of all that
+settled were gone. In the long haul it was 79%, and at the careers’
+ends the newest promise a file still held had settled 414 weeks
+before the last one did, at the median. The eight judged by another
+chair were all of one kind, the trainee closest to ready, and all
+broken. Each was said in the words “You told me in”, by a chair who
+had not been told.
+
+Three things read that list. The Record tab's "Settled" showed the
+first ten promises of a career and never a later one. The
+handover's letter counts a chair's promises kept and broken from it
+(§131), so a chair who came after the tenth was handed a record
+with nothing settled on it. And a second pass in a row on a chair's
+own question is charged unless something was put on the record
+since the first (§119): a promise made since and already settled
+was gone, and the pass was charged.
+
+**What settles stays.** The stage door cuts nothing from the list
+now. A promise stays on the file once it has settled, as it
+settled, with its week and its words. Nothing sets a number on how
+many a file may hold.
+
+**The name on a promise** (decision 36). A promise upstairs carries
+the name of the chair it was made to (`execName`). It is written
+the moment the promise is made, in the one place every promise is
+opened, and it is never written over. A promise to a chair's own
+question carried it already (§119). The three the Monday meeting
+takes, the growth the board was promised and the pet project
+carried none, and read as the sitting chair's.
+
+**Whose a promise is.** `KP.chairsOwn` says which promises are a
+chair's own: one made to their own question, and the pet project,
+of which the chair says "this one is mine". A chair's own promise
+goes with them. Under another chair it is set aside unjudged, with
+no letter and no cost. That was the law for a chair's own question
+(§119), and the pet project is under it now. Every other promise
+upstairs is the house's. Whoever sits in the chair when it falls
+due judges it, and trust moves as it would have. That is as it was.
+
+**The words say whose it was.** Where the judge is not the chair it
+was made to, the three meeting promises say so, and the file says
+who judged it (`judgedBy`). The board's verdict on promised growth
+names no chair and reads as it did.
+
+| judged by the chair it was made to | judged by the next chair |
+|---|---|
+| You told me in Jan · Wk 3 · Y7 that Min Hyo-na was closest to ready. The window has closed. I keep my notes, and I reread them. | You told CEO Yoon Da-jung in Jan · Wk 3 · Y7 that Min Hyo-na was closest to ready. The window has closed. The notes came with the chair, and I have read them. |
+| You told me Min Hyo-na was the one, and then she was. I remember the people who read talent correctly. | You told CEO Yoon Da-jung that Min Hyo-na was the one, and then she was. It is in the file, and I remember the people who read talent correctly. |
+| AUDITLINE came back inside the window you promised. | AUDITLINE came back inside the window you promised CEO Yoon Da-jung. |
+| You promised the AUDITLINE comeback by Feb · Wk 3 · Y8. | You promised CEO Yoon Da-jung the AUDITLINE comeback by Feb · Wk 3 · Y8. |
+| A second lineup, inside the window. | A second lineup, inside the window you gave CEO Yoon Da-jung. |
+| A year ago the trainee room was full and you said a second lineup was coming. | A year ago the trainee room was full and you told CEO Yoon Da-jung a second lineup was coming. |
+
+**The Record tab.**
+
+- *On the clock.* The sitting chair holds every receipt that is the
+  house's. One made to a chair who has gone says so: "CEO Kang
+  Min-ho holds the receipt, made to CEO Yoon Da-jung". One that was
+  that chair's own reads "CEO Yoon Da-jung held the receipt, and it
+  goes with them", with no date. It stands so for the week, until
+  the door turns and sets it aside.
+- *Settled.* Every settled promise of this desk, the last to settle
+  first. Ten are shown. With more, one line says how many, "All 11
+  settled promises", and a tap shows them. A row stands under the
+  chair the promise was made to. One another chair judged says
+  "judged by CEO Kang Min-ho" over the words.
+- *In words.* A second lineup and a pet project are said as what
+  was promised. The tab had shown the file's own names for them,
+  "secondGroup" and "petProject".
+- *A desk that has moved.* The list is this desk's own. What was
+  promised at the house before stays on the file, for the career's
+  record (decision 35), and is not listed here.
+
+**Old files** (migration 0.11.49). What an older file lost is not
+on it and cannot be put back. Its plain promises upstairs are named
+as far as its written record proves who sat in the chair the week
+each was made, the rule the greenlights were named by (§129). One
+made in the very week a chair changed, or at a house before this
+one, is left unnamed and reads as the sitting chair's, as it did.
+From its first week under this version every promise that settles
+is kept, and stands above the old ten.
+
+**Measured**, on the tree as shipped.
+
+| on this tree | the census | the long haul |
+|---|---|---|
+| promises seen to settle | 2,913 | 490 |
+| on the file after their week | 2,913 | 490 |
+| gone | 0 | 0 |
+| settled promises on the files at the careers’ ends | 2,918 | 499 |
+| promises upstairs that settled, each under its chair’s name | 1,099 | 302 |
+| judged by a chair they were not made to, in words that say whose | 0 | 8 |
+| set aside under another chair | 0 | 5 |
+
+The same promises settle, the same ways: every count of what
+settled and how is as it was, and what is new is that all of it is
+on the file. The files hold a few more at the end than were seen to
+settle in a week, since a promise set aside when a desk moves is
+settled outside one. The average census file is 596 KB where it was
+594. A long career’s file is up by 22 KB at the most.
+
+**What moved.** One rule read the list, and it moves. A second pass
+in a row on a chair’s own question costs a point of trust unless
+something was put on the record since the first. In the census that
+pass was charged 149 times and is charged 141: in eight careers a
+promise had been made and had settled between the two passes, and
+the file had dropped it. Each of the census’s 200 careers was
+played on v0.11.48 and on this tree. With the Desk and the list of
+promises set aside, 192 end on the same file and eight do not, and
+each of those eight is one point of trust the better, and differs
+otherwise only in its own count of such passes and the meeting’s
+log of them. One of the census’s 365 rows moved, and it reads the
+list: “orgs that kept a promise made across the desk to an idol”,
+171 where it was 166. The long haul’s eleven careers read as they
+did but for their size, and the tool has one line more.
+
+**The tools' books.** The long haul keeps its own note of every
+promise: who sat upstairs when it first saw it and, once it has
+seen it settle, how and in which week. A promise that stood open as
+a week began is on the file after it. One the tool saw settle is on
+the file every week after, as it settled. A promise upstairs
+carries the name of the chair the tool saw sitting when it was
+made, and no other promise carries a name. The judge is the chair
+that sat as the week began, since the door turns before a chair
+changes. Where the judge is the chair it was made to, the file
+names no judge and the words name no other chair. Where it is
+another, the file names that judge and the words open with their
+name and say whose the promise was. A pet project or a chair's own
+question is never judged by another chair. Nothing here asks the
+engine whose a promise was.
+
+Over the eleven long careers the tool saw 490 promises settle and
+read a settled promise 164,211 times, each on the file as it
+settled. It held 316 promises upstairs to the chair it had seen
+sitting. Eight were judged by a chair they were not made to, each
+in words that said whose it was, and five were set aside under
+another chair.
+
+It was run against thirteen engines broken on purpose, each a small
+change to the engine, on a long career that holds the case. The
+list cut to ten again as it was, cut to the last ten to settle, and
+cut of what was set aside. A settled promise’s week written again
+every week. A promise upstairs with no name, every promise named,
+and a name rewritten when the promise is judged. No judge written,
+a judge written on every verdict, and a judge written on a promise
+set aside. The old words, “You told me”, under another chair. A
+chair’s own question judged by the next chair. And a pet project
+judged by the next chair. Twelve were flagged, each in the words
+written for its case. The last was not, and could not be: no long
+career has a pet project open when a chair changes. The suite holds
+it by fixture. On the tree as it stands the four careers the trial
+used are clean.
+
+**Assumptions the owner may overrule.**
+
+- *A plain promise is the house's.* The next chair judges a promise
+  made to the last one, and trust moves with the chair who judges.
+  The ruling asks that the name be kept. It does not say the
+  promise lapses, and the next chair "has read the file".
+- *A pet project goes with its chair.* It is set aside at no cost
+  when the chair who asked for it leaves. No long career has had
+  one open at a change, since a chair asks early in their time.
+- *Every settled promise is kept, with no limit.* A file grows by
+  what it keeps. The measure is above.
+- *Ten are shown.* The rest are one tap away.
+- *An older file keeps its old ten.* They are the first ten
+  promises of that career to settle.
+- *The words.* "The notes came with the chair, and I have read
+  them", "It is in the file", "held the receipt, and it goes with
+  them". They are mine. Each is written in one place.
+
+**What the checks found, and what I got wrong.**
+
+- The count found the defect, and its first answer was wrong. I
+  wrote it to see which chair judged each promise, and it said no
+  promise had ever been judged by another chair. Eight had. The
+  count read the file after each week, and the promises were gone
+  by then. Going after that answer found the list.
+- The helper that says whose a promise is stopped the week on a
+  promise with no subject. A fixture of an older suite has one. The
+  battery caught it, and the helper reads such a promise as
+  nobody's.
+- The suite's first run failed four checks. Two were mine: each
+  read a promise's end before the door had turned. One looked for a
+  word the stage door's own file uses elsewhere. One was the tool's
+  lines not yet written.
+- The browser pass found a fault on the screen. In the week a chair
+  changes, the Record tab said the next chair "holds the receipt"
+  of the last chair's own question, which is set aside the week
+  after. It says now that the last chair held it and it goes with
+  them. The pass's own count of rows was wrong by that same row.
+- The Record tab showed "secondGroup" and "petProject" where it
+  should say what was promised. It had since those promises were
+  built.
+- I wrote the migration into the wrong place in the list, ahead of
+  four older ones, with a note saying the order did not matter. It
+  stands at the end, in order.
+- Writing the plan for the mutation run showed four gaps in the
+  suite. They were closed before it ran, and the first run caught
+  65 of 65.
+- One engine of the trial is not flagged, and is not meant to be: a
+  pet project judged by another chair. No long career has the case.
+  The suite holds it by fixture.
+
+Suite_154 (76), new: twelve promises settling a week apart, each on
+the file the week it settles and at the end, in the order made,
+through a save, and by the real week; the name on each of the five
+plain promises upstairs, none on a promise to an artist or a fund,
+a name given kept, and the name unchanged when the chair changes;
+whose a promise is, under its own chair and another, for a promise
+with no name and one with no subject; the trainee closest to ready
+kept, kept barely, broken and released, each under its own chair
+and under another, with the words, the trust, the judge and the
+words kept on the promise; the comeback and the second lineup, kept
+and broken, each way; the growth the board was promised under
+another chair; a pet project broken under its own chair, set aside
+under another, and a solo stage that banks nothing with a chair who
+did not ask; a chair’s own question under another chair; the Record
+tab’s open rows under one chair and the next, the row of a promise
+that went with its chair, a second lineup and a pet project in
+words, ten rows and no button, twelve with the line that opens
+them, the real button both ways, the order by the week each
+settled, the judge on a row, and a desk that has moved; the
+handover’s count of a chair’s twelve; an older file named by its
+written record, at a first house, across a change of chair and at a
+desk that has moved; the validator; and 150 real weeks in which
+every promise that settles stays. Suite_041 is brought up to the
+new law. Mutation-checked against 72 broken lines, each caught by a
+named assertion; the first run caught 65 of 65, and seven were
+added for the fault the browser pass found. A real-browser pass (15
+checks, no page errors): a real career saved by v0.11.42 at week
+220 opens with the ten settled promises that file still held, the
+last of them 98 weeks old, each promise upstairs under its chair’s
+name; real weeks by the real button until a promise settles, and it
+is the first row; an eleventh settles, ten are shown and one line
+says eleven, and a tap shows them all; real weeks on until the
+chair changes, and the next chair holds the receipt of a promise
+made to the last, while the last chair’s own question is said to
+have gone with them; and on until it falls due, when the next chair
+judges it in words that say whom it was told to, and the row stands
+under the chair it was made to with the judge’s name.
+Battery 154/154, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, the till audit clean, e2e 137, 32, 41 and 23, the thirty
+older browser passes, lockstep 0.11.49.
+
+*Left for the next pieces.* The handover inherited in part, in
+words that fit (10, 29): its count is taken. Then her questions
+without a toll (11, 12). *Seen on the way*: at ten of the long
+haul's twelve changes of chair the desk stood at 0 to 4 with the
+chair who left, and started the next at 36 or 37. That is the next
+piece's to weigh. *The owner's to see*: the assumptions above.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -22060,6 +22349,40 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
 > pass (18), lockstep 0.11.48.
 > Rode to main. Next piece: the handover inherited in part.
+
+> **0.11.49 — the promises that stay.** The sixth piece built on the
+> directive (§136: decision 36), with a repair its count found.
+> §142: a promise that has settled stays on the file. The list was
+> cut to ten every week, and the cut kept the ten that settled
+> first, so every later promise went the week it settled. A promise
+> upstairs keeps the name of the chair it was made to. A plain one
+> is the house's: the chair that sits there judges it, in words that
+> say whose it was, and the file says who judged it. A pet project
+> goes with its chair, as a promise to a chair's own question does.
+> The Record tab lists every settled promise of this desk, the last
+> first, ten at a time, and says who holds an open receipt and whom
+> it was made to. Counted first:
+> of 2,913 promises seen to settle in the census’s 200 careers, 895
+> were gone from the file the week they settled, and 188 careers lost
+> at least one; in the long haul 388 of 490. On this tree every one is
+> on the file. Eight promises of the long haul were judged by a chair
+> they were not made to, each in the words “You told me”; each now
+> says whom it was told to.
+> One rule read the list and moves: a second pass in a row on a
+> chair’s own question was charged in eight census careers where a
+> promise had been made and settled between the two passes. Those
+> eight careers end one point of trust the better and differ in
+> nothing else that plays; the other 192 end on the same file.
+> Suite_154 new (76); 72 mutations caught by name, the first run 65 of
+> 65. The long haul keeps its own note of every promise: tried against
+> thirteen broken engines, it flagged twelve, and the other has no
+> case in a long career. The browser pass found the Record tab giving
+> the next chair a receipt that had gone with the last.
+> Battery 154/154, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
+> pass (15), lockstep 0.11.49.
+> Rode to main. Next piece: the handover inherited in part, in words
+> that fit.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

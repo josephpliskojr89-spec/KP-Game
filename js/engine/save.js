@@ -1523,6 +1523,20 @@
     }));
     KP.signedStamp(state);
   } });
+  // v0.11.49 — the promises that stay. Every promise upstairs carries the name of the chair it was made to. An
+  // older file's plain promises carry none. Each is named as far as the written record proves who sat there the
+  // week it was made, the rule the greenlights were named by (§129). One the record cannot prove is left unnamed
+  // and reads as the sitting chair's, as it did. The list of settled promises was cut to ten every week, and the
+  // cut kept the ten that had settled first: what an older file lost that way is not on it and cannot be put back.
+  MIGRATIONS.push({ v: '0.11.49', fn: function (state) {
+    const since = KP.deskSince(state);
+    (state.claims || []).forEach(c => {
+      if (c.subject.kind !== 'exec' || c.execName) return;
+      if (since > 1 && c.week <= since) return;   // made at a house before this one: this record cannot say
+      const name = KP.chairProven(state, c.week);
+      if (name) c.execName = name;
+    });
+  } });
 
   KP.migrate = function (state) {
     const applied = [];

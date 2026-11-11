@@ -273,8 +273,16 @@
     c.id = 'cl' + state.nextClaimId;
     c.week = c.week || state.week;
     c.resolved = null;
+    // a promise upstairs is made to the one who sits there that week, and keeps the name (v0.11.49, §142; the
+    // owner's ruling, §136: 36)
+    if (c.subject.kind === 'exec' && !c.execName && state.executive) c.execName = state.executive.name;
     state.claims.push(c);
     return c;
+  };
+  // the chair a promise upstairs was made to, when that is not the one who sits there now. A promise an old file
+  // could not name is nobody's but the sitting chair's, as it always read
+  KP.madeTo = function (state, c) {
+    return c.subject && c.subject.kind === 'exec' && c.execName && state.executive && c.execName !== state.executive.name ? c.execName : null;
   };
 
   // ---- 6. the state validator -------------------------------------------
@@ -386,6 +394,10 @@
     (state.claims || []).forEach(c => {
       if (!c.id || !c.type || !c.subject || !c.subject.kind) bad('malformed claim ' + JSON.stringify(c && c.type));
       else if (!claimChecks[c.type]) bad('claim of unregistered type ' + c.type);
+      // the names on a promise upstairs (v0.11.49, §142): the chair it was made to, and the chair that judged it
+      // where that was another. Only a judged promise has a judge
+      else if (c.execName != null && (c.subject.kind !== 'exec' || typeof c.execName !== 'string' || !c.execName)) bad('a ' + c.type + ' promise names “' + c.execName + '” as the chair it was made to');
+      else if (c.judgedBy != null && (typeof c.judgedBy !== 'string' || !c.judgedBy || c.judgedBy === c.execName || !c.resolved || c.resolved === 'void')) bad('a ' + c.type + ' promise names “' + c.judgedBy + '” as its judge');
     });
     // the written record (v0.11.30, §122): a mark is of a known kind, and
     // dated inside this desk's own weeks. A move closes the record

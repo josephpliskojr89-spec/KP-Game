@@ -184,6 +184,9 @@
     },
   });
   KP.registerClaim('petProject', (state, c) => {
+    // the project was its chair's own ("this one is mine"). Under another chair it is set aside unjudged, as a
+    // promise to a chair's own question is (§119; v0.11.49, §142)
+    if (KP.madeTo(state, c)) return { resolved: 'void', notes: [] };
     const soloDebuted = KP.groups(state).some(g => g.type === 'solo' && g.debuted &&
       g.debutWeek >= c.week);
     if (soloDebuted) {

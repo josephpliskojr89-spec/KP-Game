@@ -735,7 +735,7 @@
       }
     }
     html.push(booksCard(state));
-    const who = c => c.subject.kind === 'exec' ? (c.execName || state.executive.name)   // a promise to her own question names the chair it was made to (v0.11.27, §119)
+    const who = c => c.subject.kind === 'exec' ? (c.execName || state.executive.name)   // a promise upstairs names the chair it was made to (v0.11.27, §119; every one since v0.11.49, §142)
       : c.subject.kind === 'idol' ? (state.people[c.subject.id || c.personId] ? KP.displayName(state.people[c.subject.id || c.personId]) : 'her')
       : c.subject.kind === 'fund' ? (c.fundName || 'the fund')
       : c.subject.kind;
@@ -775,33 +775,46 @@
       }
       if (c.label) return UI.esc(c.label);   // gravity-era claims carry prose
       const WORDS = { soloPromise: (c.rung || 1) >= 2 ? 'the promised solo album — her name on the spine' : 'the promised solo, on a record',
-        growthPromise: 'the growth the board was promised' };
+        growthPromise: 'the growth the board was promised',
+        secondGroup: 'a second lineup, inside the year', petProject: 'the solo debut the chair asked for, inside the year' };
       return WORDS[c.type] || c.type;
     };
     const open = claims.filter(c => !c.resolved);
     html.push('<div class="kicker">Promises on the clock</div>');
     if (open.length) {
       open.forEach(c => {
+        // the sitting chair holds every receipt that is the house's. One made to a chair who has gone says so, and
+        // one that was that chair's own goes with them: it is set aside when the door next turns (v0.11.49, §142)
+        const to = KP.madeTo(state, c), gone = !!to && KP.chairsOwn(c);
         html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(c.week).text) + '</span>' +
-          '<div><b>' + UI.esc(who(c)) + '</b> holds the receipt: ' + what(c) +
-          '<span class="m-week">due ' + UI.esc(KP.weekLabel(c.byWeek).text) + '</span></div></div>');
+          '<div><b>' + UI.esc(to && !gone ? state.executive.name : who(c)) + '</b> ' +
+          (gone ? 'held the receipt, and it goes with them' : 'holds the receipt' + (to ? ', made to ' + UI.esc(to) : '')) + ': ' + what(c) +
+          (gone ? '' : '<span class="m-week">due ' + UI.esc(KP.weekLabel(c.byWeek).text) + '</span>') + '</div></div>');
       });
     } else {
       html.push('<div class="card" style="color:var(--ink-dim);font-style:italic">Nothing on the clock. Either you promise carefully or not at all — both are strategies.</div>');
     }
-    const settled = claims.filter(c => c.resolved).slice().reverse();
+    // every settled promise is kept (v0.11.49, §142): the last to settle first, ten shown, and the rest behind one line.
+    // The list is this desk's own. What was promised at a house before this one stays on the file and is not read here
+    const SHOWN = 10;
+    const since = KP.deskSince(state);   // the week this desk began, and week one where it has never moved
+    const settled = claims.filter(c => c.resolved && (since <= 1 || c.week > since)).sort((a, b) => (b.resolvedWeek || b.week) - (a.resolvedWeek || a.week));
     if (settled.length) {
+      const all = !!(KP.App && KP.App.settledOpen);
       html.push('<div class="kicker">Settled</div>');
-      settled.forEach(c => {
+      (all ? settled : settled.slice(0, SHOWN)).forEach(c => {
         const chip = c.resolved === 'met' ? '<span class="chip cool">kept</span>'
           : c.resolved === 'metPoorly' ? '<span class="chip">kept, barely</span>'
           : c.resolved === 'void' ? '<span class="chip">set aside</span>'   // not judged: the act ended, the chair changed, the sheet was not held (v0.11.27, §119)
           : '<span class="chip hot">broken</span>';
         html.push('<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(c.resolvedWeek || c.week).text) + '</span>' +
           '<div><b>' + UI.esc(who(c)) + '</b>: ' + what(c) + ' ' + chip +
+          (c.judgedBy ? '<div class="judged-by" style="font-size:.72rem;color:var(--ink-dim);margin-top:3px">judged by ' + UI.esc(c.judgedBy) + '</div>' : '') +
           (c.replyText ? '<div style="font-size:.78rem;font-style:italic;color:var(--ink-dim);margin-top:5px;line-height:1.45">' + UI.esc(c.replyText) + '</div>' : '') +
           '</div></div>');
       });
+      if (settled.length > SHOWN) html.push('<button class="btn fold-btn" data-action="settled-toggle" style="width:100%;margin:2px 0 10px">' +
+        (all ? 'Show the last ten' : 'All ' + settled.length + ' settled promises') + '</button>');
     }
     // the greenlights (v0.11.37, §129): what the chair gave this desk and what came of it, the newest first
     const lights = KP.greenlights(state).reverse();

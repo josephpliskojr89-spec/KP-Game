@@ -46,17 +46,15 @@
       if (!r) return;
       c.resolved = r.resolved;
       c.resolvedWeek = state.week;
+      // a promise upstairs judged by a chair it was not made to says who judged it (v0.11.49, §142)
+      if (r.resolved !== 'void' && KP.madeTo(state, c)) c.judgedBy = state.executive.name;
       // her words at settlement are kept on the claim — the record
       // shows how she took it, not just the verdict chip
       if (r.notes && r.notes.length) c.replyText = r.notes[0].text;
       (r.notes || []).forEach(n => inbox.push(n));
     });
-    // the ledger keeps every open claim and a bounded tail of settled ones
-    if (state.claims) {
-      const S = KP.C.SCENES;
-      state.claims = state.claims.filter(c => !c.resolved).concat(
-        state.claims.filter(c => c.resolved).slice(-S.maxResolvedClaims));
-    }
+    // a settled promise stays on the file (v0.11.49, §142). The list was cut to ten here, and the cut kept the ten
+    // that had settled first: every promise after them went the week it settled
   });
 
   // ---- the directed-acts door -------------------------------------------

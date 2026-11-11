@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.48',
+    VERSION: '0.11.49',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -3034,10 +3034,6 @@
       // on a small weekly hash during promotion (a world fact, not a draw)
       LATE: { heatAt: 62, chance: 0.05, scoreMult: 0.7 },   // heatAt 58→62 at the first soak (20/40 climbed): the climb is the rarer story
       HEAT_WORDS: [[70, 'burning'], [58, 'warm'], [45, 'quiet'], [0, 'skipped']],
-    },
-    // ---- The stage door (v0.8.0) — scenes, claims, directed acts --------
-    SCENES: {
-      maxResolvedClaims: 10,     // settled promises kept for the record
     },
     // ---- the ledger between you (v0.10.30, §89 D3) -----------------------
     // ONE table for what the player did to a person: the standing

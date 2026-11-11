@@ -99,13 +99,15 @@ function debuted(seed) {
   const inboxHits = s.inbox.filter(n => /Promise .* kept/.test(n.text)).length;
   KP.advanceWeek(s);
   t.eq(s.inbox.filter(n => /Promise .* kept/.test(n.text)).length, inboxHits, 'and fires exactly once');
-  // the bounded tail
-  for (let i = 0; i < KP.C.SCENES.maxResolvedClaims + 5; i++) {
+  // a settled promise stays on the file (v0.11.49, §142): the list was cut to ten here, and the cut kept the first ten
+  const before = s.claims.filter(c2 => c2.resolved).length;
+  for (let i = 0; i < 15; i++) {
     KP.openClaim(s, { type: 'testPromise', subject: { kind: 'idol', id: 'p1' }, byWeek: s.week });
   }
+  const made = s.claims.slice(-15);
   KP.advanceWeek(s);
-  t.ok(s.claims.filter(c2 => c2.resolved).length <= KP.C.SCENES.maxResolvedClaims,
-    'settled claims keep a bounded tail (' + s.claims.length + ' total)');
+  t.ok(s.claims.filter(c2 => c2.resolved).length === before + 15 && made.every(c2 => c2.resolved && s.claims.includes(c2)),
+    'every settled claim is kept (' + s.claims.length + ' on the file)');
 }
 
 // ---- the meeting rides the rails: subject on the record ----------------

@@ -111,6 +111,9 @@
   // on the books at a time, and it is hers: it leaves with her chair. A
   // patient executive asks nothing; that is what patient means.
   const OWN = ['execQuarter', 'execVoice', 'execByName', 'execSound', 'execRemember'];
+  // a promise that is its chair's own and goes with them when they go: one made to a chair's own question, and the
+  // pet project (v0.11.49, §142). Every other promise upstairs is the house's, and the next chair judges it
+  KP.chairsOwn = function (c) { return OWN.includes(c.type) || c.type === 'petProject'; };
   function ownLedger(state) {
     const led = state.upstairsLedger = state.upstairsLedger || {};
     ['asked', 'promised', 'passed', 'passedTwice', 'overtaken', 'met', 'missed', 'void', 'reviews'].forEach(k => { if (led[k] == null) led[k] = 0; });
@@ -532,9 +535,12 @@
   });
 
   // ---- the claims: promises checked by predicate, fire once -------------
+  // A plain promise upstairs is the house's: whoever sits in the chair when it falls due judges it. Where that is
+  // not the chair it was made to, the words say whose it was (v0.11.49, §142; the owner's ruling, §136: 36)
   KP.registerClaim('readyTrainee', (state, c) => {
     const M = KP.C.MEETING;
     const p = state.people[c.personId];
+    const to = KP.madeTo(state, c);
     if (p && p.status === 'idol') {
       const g = KP.groupOf(state, p.id);
       const rec = g && g.results ? g.results.reception : 0;
@@ -543,34 +549,36 @@
       return { resolved: met ? 'met' : 'metPoorly',
         notes: [{ kind: 'executive', text: state.executive.name + ': “' +
           KP.fillPro(met
-            ? 'You told me ' + KP.displayName(p) + ' was the one, and then {she} was. I remember the people who read talent correctly.'
+            ? (to ? 'You told ' + to + ' that ' + KP.displayName(p) + ' was the one, and then {she} was. It is in the file, and I remember the people who read talent correctly.'
+              : 'You told me ' + KP.displayName(p) + ' was the one, and then {she} was. I remember the people who read talent correctly.')
             : '{She} debuted, as you said. The debut itself we will discuss another day.', p) + '”' }] };
     }
     if (!p || p.status === 'released' || state.week > c.byWeek) {
       state.trust = KP.clamp(state.trust + M.missTrust *
         (KP.boardSeatActive && KP.boardSeatActive(state) ? 2 : 1), 0, 100);   // §85 B: a missed promise costs twice the face under the board seat
       return { resolved: 'missed',
-        notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “You told me in ' +
+        notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “You told ' + (to || 'me') + ' in ' +
           KP.weekLabel(c.week).text + ' that ' + c.personName + ' was closest to ready. ' +
           (p && p.status === 'released' ? KP.fillPro('You then released {her}.', p) : 'The window has closed.') +
-          ' I keep my notes, and I reread them.”' }] };
+          (to ? ' The notes came with the chair, and I have read them.”' : ' I keep my notes, and I reread them.”') }] };
     }
     return null;
   });
   KP.registerClaim('comebackPromise', (state, c) => {
     const M = KP.C.MEETING;
     const g = KP.groupById(state, c.groupId);
+    const to = KP.madeTo(state, c);
     if (g && (g.lastReleaseWeek || 0) > c.week) {
       state.trust = KP.clamp(state.trust + M.payoffTrust, 0, 100);
       return { resolved: 'met',
         notes: [{ kind: 'executive', text: state.executive.name + ': “' + g.name +
-          ' came back inside the window you promised. A calendar that means something — refreshing.”' }] };
+          ' came back inside the window you promised' + (to ? ' ' + to : '') + '. A calendar that means something — refreshing.”' }] };
     }
     if (state.week > c.byWeek) {
       state.trust = KP.clamp(state.trust + M.missTrust *
         (KP.boardSeatActive && KP.boardSeatActive(state) ? 2 : 1), 0, 100);   // §85 B: a missed promise costs twice the face under the board seat
       return { resolved: 'missed',
-        notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “You promised the ' +
+        notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “You promised ' + (to ? to + ' ' : '') + 'the ' +
           (g ? g.name : '') + ' comeback by ' + KP.weekLabel(c.byWeek).text +
           '. It is ' + KP.weekLabel(state.week).text + '. I do not enjoy being a person who checks dates. And yet.”' }] };
     }
@@ -579,16 +587,17 @@
 
   KP.registerClaim('secondGroup', (state, c) => {
     const M = KP.C.MEETING;
+    const to = KP.madeTo(state, c);
     if (KP.groups(state).length > c.baseline) {
       state.trust = KP.clamp(state.trust + M.payoffTrust, 0, 100);
       return { resolved: 'met',
-        notes: [{ kind: 'executive', text: state.executive.name + ': “A second lineup, inside the window. This building is starting to look like a company.”' }] };
+        notes: [{ kind: 'executive', text: state.executive.name + ': “A second lineup, inside the window' + (to ? ' you gave ' + to : '') + '. This building is starting to look like a company.”' }] };
     }
     if (state.week > c.byWeek) {
       state.trust = KP.clamp(state.trust + M.missTrust *
         (KP.boardSeatActive && KP.boardSeatActive(state) ? 2 : 1), 0, 100);   // §85 B: a missed promise costs twice the face under the board seat
       return { resolved: 'missed',
-        notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “A year ago the trainee room was full and you said a second lineup was coming. The room is still full. Rooms do not debut, ' + 'unfortunately.”' }] };
+        notes: [{ kind: 'executive', urgent: true, text: state.executive.name + ': “A year ago the trainee room was full and you ' + (to ? 'told ' + to : 'said') + ' a second lineup was coming. The room is still full. Rooms do not debut, ' + 'unfortunately.”' }] };
     }
     return null;
   });

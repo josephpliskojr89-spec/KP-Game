@@ -471,6 +471,7 @@ const CR = { held: 0, calls: 0, callsHeld: 0 };                             // t
 const YR = { due: 0, wrote: 0, landed: 0, lines: 0, words: 0, held: 0 };    // the staff's letters on the year (v0.11.46, §139)
 const RL = { gone: 0, lines: 0, held: 0, recs: 0, stamped: 0, atDesk: 0, shut: 0 };   // the roll, the room on a record, the scout's name (v0.11.47, §140)
 const BD = { due: 0, wrote: 0, big: 0, landed: 0, lifted: 0, learnt: 0 };              // the house's birthdays (v0.11.48, §141)
+const PR = { seen: 0, held: 0, upstairs: 0, across: 0, aside: 0 };                     // the promises that stay (v0.11.49, §142)
 // what the birthday's own rail does to the morale of everyone under contract, noted here by standing either side of
 // it: the lift is this tool's to read, and not the engine's to report
 const HBD = { seen: null };
@@ -729,6 +730,63 @@ for (const sc of RUN) {
   // tool saw sat as its week began, and keeps them. Each of the roster first seen while a scout sat carries that
   // scout's name, and nobody else carries one. And a studio chair's list of records loses nothing. Nothing here
   // asks the engine who has gone
+  // ---- the promises that stay (v0.11.49, §142) -----------------------------------------------------------------
+  // This tool's own note of every promise: who sat upstairs when it first saw it, and once it has seen it settle,
+  // how and in which week. A promise it saw settle is on the file every week after, as it settled. A promise
+  // upstairs carries the name of the chair this tool saw. One judged by another chair says so on the file and in
+  // its words, and a pet project or a chair's own question is set aside under another chair and never judged.
+  // Nothing here asks the engine whose a promise was
+  const pr = { made: {}, open: [], settled: [], seen: 0, held: 0, upstairs: 0, across: 0, aside: 0 };
+  const CHAIRS = KP.DATA.executives.map(e => e.name);
+  const prNote = () => {   // as the week begins, after the desk's own turn: who sits upstairs, and what stands open
+    (state.claims || []).forEach(c => { if (!pr.made[c.id]) pr.made[c.id] = { chair: state.executive.name, type: c.type }; });
+    pr.open = (state.claims || []).filter(c => !c.resolved).map(c => c.id);
+  };
+  const prLook = judge => {   // after the week: `judge` sat upstairs as it began, and the door turns before a chair changes
+    const onFile = {};
+    (state.claims || []).forEach(c => { onFile[c.id] = c; });
+    pr.open.forEach(id => {
+      const c = onFile[id], m = pr.made[id];
+      if (!c) { flag(sc.seed, state.week, 'a promise that stood open as the week began (' + m.type + ') is not on the file after it'); return; }
+      if (!c.resolved) return;
+      pr.seen++;
+      pr.settled.push({ id, type: c.type, how: c.resolved, week: c.resolvedWeek });
+      if (c.subject.kind !== 'exec') return;
+      const to = m.chair, said = String(c.replyText || '');
+      if (c.resolved === 'void') {
+        if (to !== judge) pr.aside++;
+        if (c.judgedBy) flag(sc.seed, state.week, 'a ' + c.type + ' promise was set aside and names ' + c.judgedBy + ' as its judge');
+        return;
+      }
+      if (to === judge) {
+        if (c.judgedBy) flag(sc.seed, state.week, 'a ' + c.type + ' promise made to ' + to + ' and judged by them names ' + c.judgedBy + ' as its judge');
+        const other = CHAIRS.filter(n => n !== judge && said.includes(n))[0];
+        if (other) flag(sc.seed, state.week, 'a ' + c.type + ' promise made to ' + to + ' and judged by them is said in words that name ' + other);
+        return;
+      }
+      pr.across++;
+      if (c.type === 'petProject' || KP.upstairsLedger(state).types[c.type]) { flag(sc.seed, state.week, 'a ' + c.type + ' promise made to ' + to + ' was judged by ' + judge + ': it was ' + to + '’s own, and goes with them'); return; }
+      if (c.judgedBy !== judge) flag(sc.seed, state.week, 'a ' + c.type + ' promise made to ' + to + ' was judged by ' + judge + ', and the file gives its judge as ' + (c.judgedBy || 'nobody'));
+      // the three the Monday meeting takes are said to the desk by name; one kept barely names nobody
+      if (/^(readyTrainee|comebackPromise|secondGroup)$/.test(c.type) && !/debuted, as you said/.test(said) && !(said.indexOf(judge + ': “') === 0 && said.includes(to)))
+        flag(sc.seed, state.week, 'a ' + c.type + ' promise made to ' + to + ' was judged by ' + judge + ' in words that do not say whose it was: ' + said.slice(0, 90));
+    });
+    pr.settled.forEach(e => {
+      if (e.gone) return;
+      const c = onFile[e.id];
+      if (c && c.type === e.type && c.resolved === e.how && c.resolvedWeek === e.week) { pr.held++; return; }
+      e.gone = true;
+      flag(sc.seed, state.week, 'a promise that settled has gone from the file: ' + e.type + ', ' + e.how + ' in week ' + e.week + (c ? ', which now reads ' + c.resolved + ' in week ' + c.resolvedWeek : ''));
+    });
+    (state.claims || []).forEach(c => {
+      const m = pr.made[c.id];
+      if (!m || m.wrong) return;   // one made inside this week is noted as the next begins
+      if (c.subject.kind === 'exec') {
+        if (!m.counted) { m.counted = true; pr.upstairs++; }
+        if (c.execName !== m.chair) { m.wrong = true; flag(sc.seed, state.week, 'a ' + c.type + ' promise names ' + (c.execName || 'nobody') + ' as the chair it was made to, and this tool saw it made to ' + m.chair); }
+      } else if (c.execName != null) { m.wrong = true; flag(sc.seed, state.week, 'a ' + c.type + ' promise, which is not one made upstairs, names a chair: ' + c.execName); }
+    });
+  };
   const rl = { sat: {}, began: {}, copy: [], rooms: {}, under: {}, floor: {}, titles: {}, house: null, left: {}, gone: 0, lines: 0, recs: 0, stamped: 0, held: 0, atDesk: 0, shut: 0 };
   const rlFloor = () => {   // what this tool's books hold for the scout sat now
     const sc = (state.seats || {}).scout;
@@ -1044,8 +1102,10 @@ for (const sc of RUN) {
     rvLook();
     const sheetsAsTheTickBegan = sheetsNow(), chairAsTheTickBegan = gl.chair, trustAsTheTickBegan = state.trust;
     crBegin();
+    prNote();
     const weekBefore = state.week;
     KP.advanceWeek(state);
+    if (state.week !== weekBefore) prLook(chairAsTheTickBegan);
     crLook();
     yrLook();
     nmLook();
@@ -1299,6 +1359,7 @@ for (const sc of RUN) {
   CH.walls += ch.walls; CH.minted += ch.minted;
   CR.held += cr.held; CR.calls += cr.calls; CR.callsHeld += cr.callsHeld;
   YR.due += yr.due; YR.wrote += yr.wrote; YR.landed += yr.landed; YR.lines += yr.lines; YR.words += yr.words; YR.held += yr.held;
+  PR.seen += pr.seen; PR.held += pr.held; PR.upstairs += pr.upstairs; PR.across += pr.across; PR.aside += pr.aside;
   BD.due += bd.due; BD.wrote += bd.wrote; BD.big += bd.big; BD.landed += bd.landed; BD.lifted += bd.lifted; BD.learnt += bd.learnt;
   RL.gone += rl.gone; RL.lines += rl.lines; RL.held += rl.held; RL.recs += rl.recs; RL.stamped += rl.stamped; RL.atDesk += rl.atDesk; RL.shut += rl.shut;
   NM.cands += nm.cands; NM.weeks += nm.weeks; NM.turns += nm.turns; NM.beyond += nm.beyond;
@@ -1372,6 +1433,7 @@ for (const sc of RUN) {
     ' | file: ' + (cf => cf.chapters.length + ' chapter' + (cf.chapters.length === 1 ? '' : 's') + ' (' + cf.chapters.filter(c => !c.before).length + ' under this desk), ' + cf.manager.title)(KP.companyFile(state)) +
     ' | years: ' + (state.years || []).length + ' closed (' + (state.years || []).filter(a => a.headline).length + ' with a headline)' +
     ' | birthdays: ' + bd.due + ' due, ' + bd.wrote + ' written, ' + bd.big + ' of them milestones, ' + bd.landed + ' landed' +
+    ' | promises: ' + pr.seen + ' settled, ' + pr.upstairs + ' upstairs, ' + pr.across + ' judged by another chair, ' + pr.aside + ' set aside under one' +
     ' | greenlights: ' + gl.given + ' given (' + glEnd.met + ' kept, ' + glEnd.lapsed + ' left dark, ' + glEnd.open + ' open, ' + glEnd.void + ' set aside), ' + gl.walls + ' desk change' + (gl.walls === 1 ? '' : 's') +
     ' | reviews: ' + rv.given + ' given, ' + rv.firsts + ' the first under a new desk, ' + rv.counted + ' by a chair who counts sheets' +
     ' | handovers: ' + ho.given +
@@ -1400,6 +1462,9 @@ console.log('the kept place (v0.11.44): ' + NW.weeks + ' weeks wrote a kind its 
 console.log('below the fold (v0.11.44): ' + FD.wrote + ' letters written by the week · ' + FD.desk + ' on the Desk, ' + FD.below + ' below the fold, each the week it was written and the week after, by this tool’s own count of the wire · the fold at its fullest held ' + FD.most + ' letters');
 console.log('one name, one chair (v0.11.43): ' + NM.cands + ' candidates took a meeting, each held to this tool’s own note of the names it had heard and its own copy of the four hundred · ' + NM.beyond + ' under a name beyond the hundred of before · the four hundred came round ' + NM.turns + ' time' + (NM.turns === 1 ? '' : 's') + ' · ' + NM.weeks + ' weeks of chairs sat, each looked at for two under one name');
 console.log('the staff’s year (v0.11.46): ' + YR.due + ' first weeks of a year with a chair sat twelve weeks · ' + YR.wrote + ' letters written, ' + YR.landed + ' landed · ' + YR.lines + ' lines, each under the name, the title and the weeks this tool has seen the chair sat · ' + YR.words + ' words, ' + YR.held + ' held to this tool’s own books of the chair’s year, each to the letter before and to the others of its letter');
+console.log('the promises that stay (v0.11.49): ' + PR.seen + ' promises seen to settle, each on the file every week after as it settled, by this tool’s own note of each · ' + PR.held +
+  ' weekly reads of a settled promise · ' + PR.upstairs + ' promises upstairs, each under the chair this tool saw sitting the week it was made · ' + PR.across +
+  ' judged by a chair they were not made to, each in words that say whose it was and with its judge on the file · ' + PR.aside + ' set aside under another chair');
 console.log('the house’s birthdays (v0.11.48): ' + BD.due + ' due by this tool’s own count of the weeks, ' + BD.wrote + ' written · ' + BD.big + ' of them a first or a fifth, each a letter the week cannot cut, ' + BD.landed +
   ' landed · ' + (BD.wrote - BD.big) + ' an ordinary year’s line · ' + BD.learnt + ' houses that were there before the desk, each telling its date by its first birthday under it · ' + BD.lifted +
   ' lifts, each one or two by this tool’s own note of the morale either side of the rail · none ending as the last did');
