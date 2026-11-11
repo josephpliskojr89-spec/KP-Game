@@ -228,6 +228,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .mail.urgent .m-tag { color: var(--magenta); }
 .mail.unread { background: color-mix(in srgb, var(--surface) 55%, transparent); }
 .mail .m-week { display: block; font-size: .62rem; color: var(--ink-faint); margin-top: 4px; }
+/* a letter's tag is one word (v0.11.33, §125). The letter starts 73 px in, as
+   on every mail row. A word that would come within 4 px of it takes the line,
+   whole, and the letter starts under it, in its own column. */
+.mail.letter { flex-wrap: wrap; gap: 0 4px; }
+.mail.letter .m-tag { width: auto; }
+.mail.letter > div { flex-basis: calc(100% - 73px); margin-left: auto; }
 
 /* objective banner */
 .objective {

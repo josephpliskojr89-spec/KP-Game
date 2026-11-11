@@ -403,7 +403,8 @@ rise or fall as companies — see §19.
   training page, sit-down, release flow, debut, reload, a full comeback
   cycle, and the Industry tab's Scene/Chart/Feed — 60 checks.
   Since v0.11.31 a second browser test, `test/e2e_topbar.js`, holds the
-  top bar to its line at phone widths (§123).
+  top bar to its line at phone widths (§123). Since v0.11.33 a third,
+  `test/e2e_mail.js`, holds a letter's tag clear of its letter (§125).
 - **Lockstep** (`node tools/version_lockstep.js`): version agrees across
   constants, sw cache key, index cache-busters, splash tag, precache list.
 
@@ -13551,6 +13552,123 @@ door to the sound should count; the Desk's tie-break (§112); and
 from §109, the fade between records through a service chapter and
 the size of the window's bank.
 
+## §125 The tag takes the line (SHIPPED v0.11.33 — a repair found in a screenshot)
+
+Owner: *"Break remaining work into smaller pieces"*. Not on §96's
+list. A fault seen in §124's browser pass, older than it, and
+counted and measured before it was touched.
+
+**The finding.** A letter's row is a tag in a 62 px column with the
+letter beside it. The tag is one word, the kind of the letter, and
+it cannot break. A word wider than the column ran on into the
+letter.
+
+**Counted first.** Over 200 careers the engine writes fourteen
+tags, and the source holds no others. Three are longer than the
+column: DEVELOPMENT, RELATIONSHIP and BREAKTHROUGH.
+
+| over 200 careers, 29,440 weeks | a tag run into its letter |
+|---|---|
+| weekly reports with at least one | 29,423 (99.9%) |
+| rows of the weekly report | 71,350 of 214,196 (33.3%) |
+| weeks with at least one on the Desk | 17,737 (60.2%) |
+| rows of the Desk's inbox | 28,068 of 411,359 (6.8%) |
+
+The weekly report shows it most. Its rows from the spotlight, two
+a week, are tagged DEVELOPMENT.
+
+**Measured**, in a real browser, at six widths from 320 to 430 px,
+in the face the app names and in two others. The column is fixed,
+so the fault was the same at every width.
+
+| the tag | its word | into the letter |
+|---|---|---|
+| BREAKTHROUGH | 92 px | 19 px |
+| DEVELOPMENT | 83 px | 10 px |
+| RELATIONSHIP | 82 px | 9 px |
+| EXECUTIVE | 64 px | none, 9 px short of it |
+| SHOWCASE | 64 px | none, 9 px short of it |
+
+The other nine fit the column. In the widest face measured the
+three ran 16 to 27 px into the letter, and SHOWCASE stopped 5 px
+short of it. The other mail rows were measured too, 654 cases a
+face: a date, a year, a record's kind, a save slot. None runs past
+its column.
+
+**The rule now.** The letter starts 73 px in on every row, where it
+did. A tag up to 69 px wide stands beside its letter, so 4 px
+always stand between them. A wider tag takes the line, whole, and
+its letter starts directly under it, in its own column.
+
+Eleven of the fourteen tags sit where they sat, and so does every
+letter. A row whose tag takes the line is 15.5 px taller. That is
+38 px on an average weekly report, and 15 px on the Desk.
+
+**Why not a wider column.** A column wide enough for BREAKTHROUGH
+in the widest face measured would take 31 px from every letter on
+every row, a seventh of its width on a 320 px phone, to seat three
+words in fourteen. And it would hold only the words written so
+far. The rule holds for any word in any face.
+
+**Why not shorter words.** The tags are the game's own words. A
+shorter one is the owner's call, not a repair.
+
+**The test is the repo's own** (`test/e2e_mail.js`, 41 checks,
+three seconds), the third browser test, and the README's ritual
+lists it. It holds the rule for the fourteen tags and for a ladder
+of 49 made-up words whose widths step across the line a quarter px
+at a time, so the line is pinned to the px and the rule is held for
+a tag nobody has written yet. Each is measured in the Desk's inbox
+and in the weekly report at six widths, 756 rows. Then the other
+mail rows, which must keep the column they had; eight real weeks
+by the real button; and the company's page, a file and the system
+sheet as a real career shows them. Run against the stylesheet as
+shipped in v0.11.32 it fails 11 of its checks by name.
+
+**Found by the mutation run.** Nothing. On the first run 17 of 17
+broken lines were caught by name. One thing went before it: the
+letter's rule first named its grow and shrink as well as its
+basis. Both were the defaults, and a broken line for either would
+have changed nothing. On the final run, 17 of 17.
+
+**Found by the browser pass.** Nothing in this piece. One thing
+older than it: on a 320 px phone the Desk's strip of five tabs is
+12 px wider than the screen, the last tab is cut, and the page
+slides sideways. It is the next piece.
+
+**No simulation changed.** Every one of the census's 365 rows is
+v0.11.32's.
+
+A real-browser pass (32 checks, no page errors): real weeks by
+the real button on a 360 px phone reach a weekly report with a
+long tag and a short one, and the Desk's inbox after them; a real
+career saved by v0.11.29 opens on a 320 px phone with its inbox
+under the rule, and one real week on so is its report; its company
+page keeps its dates and its years in the column they had.
+Battery 141/141, soak 40 clean, census 200 clean, longhaul 11 ×
+620 clean, e2e 137, the top bar's test (32), the fifteen older
+browser passes, lockstep 0.11.33.
+
+The container restarted during the last but one of the older
+browser passes. Nothing was lost. The pass it cut and the steps
+after it were run again on the same tree, and the record marks
+where.
+
+*Left for the next pieces.* The Desk's tabs on a 320 px phone. The
+company anniversary. The exec-side ledger and a succession that
+transfers a record; the staff given years. *The owner's to call*:
+whether a long tag should take the line as it does now, or the
+three long words be given shorter ones. *Still the owner's to
+call*: from §124, the headline's order, and whether the letter
+should say more or less than its four things; from §123, whether
+the date should sit under the name on the larger phones too; from
+§122, whether a founded label's first trophy should be a first;
+from §121, the spacing of the manager's titles; from §120, the
+shape of probation; from §119, whether a pass should cost
+anything, and whether next door to the sound should count; the
+Desk's tie-break (§112); and from §109, the fade between records
+through a service chapter and the size of the window's bank.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -17701,6 +17819,32 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 620 clean, e2e 137 and 32, a real-browser pass (23), lockstep
 > 0.11.32.
 > Rode to main. Next piece: the inbox tag that runs into its letter.
+
+> **0.11.33 — the tag takes the line.** Own judgment, under
+> "Approved to tackle as much of the remaining queue as you see fit"
+> and "Break remaining work into smaller pieces": a repair, not on
+> §96's list, seen in 0.11.32's browser pass and older than it.
+> §125: a letter's tag is one word in a 62 px column, and a word
+> wider than the column ran on into the letter. Counted first: of
+> the fourteen tags the engine writes, three are too long, and over
+> 200 careers 99.9% of weekly reports showed at least one, in a
+> third of their rows; the Desk showed one in 60% of weeks. Measured
+> in a real browser in three faces at six widths: 9 to 19 px into
+> the letter in the app's own face. Now the letter starts 73 px in
+> on every row, as it did; a tag up to 69 px wide stands beside it
+> with 4 px between; a wider tag takes the line, whole, and its
+> letter starts under it in its own column. Eleven tags and every
+> letter sit where they sat. The test is the repo's own,
+> test/e2e_mail.js (41 checks), the third browser test, listed
+> in the README's ritual; on the stylesheet as shipped in 0.11.32 it
+> fails 11 by name. It holds the rule for a ladder of made-up words
+> too, so for a tag nobody has written yet. No simulation changed:
+> the census's 365 rows are 0.11.32's. 17 mutations caught by
+> name, all of them on the first run.
+> Battery 141/141, soak 40 clean, census 200 clean, longhaul 11 ×
+> 620 clean, e2e 137, 32 and 41, a real-browser pass (32),
+> lockstep 0.11.33.
+> Rode to main. Next piece: the Desk's tabs on a 320 px phone.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

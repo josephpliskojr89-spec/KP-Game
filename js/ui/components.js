@@ -59,9 +59,12 @@
     ).join('');
   };
 
+  // a letter's row: its tag is one word of the inbox's own, so the row is
+  // marked and the stylesheet lets a word longer than the column take the
+  // line (v0.11.33, §125)
   UI.mailRow = function (state, m, extraClass) {
     const wl = KP.weekLabel(m.week);
-    return '<div class="mail ' + (m.urgent ? 'urgent ' : '') + (m.read ? '' : 'unread ') + (extraClass || '') + '">' +
+    return '<div class="mail letter ' + (m.urgent ? 'urgent ' : '') + (m.read ? '' : 'unread ') + (extraClass || '') + '">' +
       '<span class="m-tag">' + UI.esc(m.kind) + '</span>' +
       '<div>' + UI.esc(m.text) +
       '<span class="m-week">' + UI.esc(wl.text) + '</span></div></div>';
