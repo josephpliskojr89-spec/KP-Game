@@ -691,7 +691,9 @@
     ].filter(Boolean).join(' · ')) + '</div></div>';
     return '<div class="card co-file"><div class="kicker" style="margin-top:0">The company</div>' +
       '<div style="font-size:1.25rem;font-weight:800;line-height:1.15">' + UI.esc(f.name) + '</div>' +
-      '<div style="font-size:.8rem;color:var(--ink-dim);margin-top:6px">' + UI.esc(f.manager.name) + ' · ' + UI.esc(f.manager.title) + ' · ' + yearsWord(f.manager.weeks) + '</div></div>' +
+      '<div style="font-size:.8rem;color:var(--ink-dim);margin-top:6px">' + UI.esc(f.manager.name) + ' · ' + UI.esc(f.manager.title) + ' · ' + yearsWord(f.manager.weeks) + '</div>' +
+      // the house's own age (v0.11.48, §141): when its doors opened, and when the week next comes round
+      '<div class="co-born" style="font-size:.76rem;color:var(--ink-dim);margin-top:4px">' + UI.esc(KP.houseFoundedSaid(state)) + ' · ' + UI.esc(KP.houseTurnsSaid(state)) + '</div></div>' +
       // the years it has closed (v0.11.32, §124), the newest first
       (years.length ? '<div class="kicker">The years</div>' + years.slice().reverse().map(yearRow).join('') : '') +
       '<div class="kicker">Under this desk</div>' + mine.slice().reverse().map(row).join('') +

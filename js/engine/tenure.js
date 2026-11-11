@@ -271,62 +271,126 @@
     inbox.push(KP.closeYear(state));
   });
 
-  // ---- the label's birthday (v0.11.36, §128) ----------------------------
-  // A founded label has a week it opened its doors. When that week comes
-  // round the company sets down what it opened with and what stands there
-  // now. Everything is READ off the state: the founding is on file, the
-  // shelf is the records since. One thing is kept, which opening was used,
-  // so next year's is another.
-  const NUM = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
-  KP.labelAge = function (state) {
-    const f = state.founded, Y = KP.C.WEEKS_PER_YEAR;
-    return f && (state.week - f.week) % Y === 0 ? (state.week - f.week) / Y : 0;   // the week of the founding itself is nought
+  // ---- the house's own birthday (v0.11.36, §128; every house since v0.11.48, §141) ----------------------
+  // Every house has a week its doors opened. A label this desk founded has it on its founding. A house that was
+  // there before the desk has its own, from before the desk came, and keeps it whoever sits there (the owner's
+  // ruling, §136: 15). It is READ, never kept: the founding where there is one, and for an established house the
+  // seed, the house's name and the week the desk came, which never change. When the week comes round everyone
+  // under contract is given a small lift (§136: 14) and the house writes one short line; on the first birthday
+  // and every fifth after it writes a letter (§136: 30). Nothing is drawn, and nothing is stored
+  const ONES = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen',
+    'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+  const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+  const spell = n => (n < 20 ? ONES[n] : n < 100 ? TENS[Math.floor(n / 10)] + (n % 10 ? '-' + ONES[n % 10] : '') : String(n));
+  const hb = (state, salt) => KP.hash01([state.seed, state.company.short, salt].join('|'));
+  KP.houseFounded = function (state) {
+    if (state.founded) return state.founded.week;                               // a label this desk founded: the founding says
+    const H = KP.C.HOUSE, Y = KP.C.WEEKS_PER_YEAR;
+    if (!state.chapterSince && state.door === 'fresh') return 0;                // a new label, opened the month before the career
+    const came = state.chapterSince || 1;                                       // the week the desk came to it
+    const span = state.chapterSince ? H.age.salaried : state.door === 'major' ? H.age.major : H.age.current;
+    const years = span[0] + Math.floor(hb(state, 'founded') * span[1]);        // how old it was that week
+    // and how far into a year its doors opened: never the very week the desk came, which no week's run begins in
+    return came - years * Y - (1 + Math.floor(hb(state, 'foundedIn') * (Y - 1)));
   };
-  KP.labelStanding = function (state) {
-    const f = state.founded;
-    if (!f) return null;
-    const since = w => w > f.week;
+  // its age in the week its doors opened, and nought in every other week. The week of a founding itself is nought
+  KP.houseAge = function (state) {
+    const Y = KP.C.WEEKS_PER_YEAR, since = state.week - KP.houseFounded(state);
+    return since > 0 && since % Y === 0 ? since / Y : 0;
+  };
+  // the next time the week comes round: the week, and the age it will be
+  KP.houseNext = function (state) {
+    const Y = KP.C.WEEKS_PER_YEAR, since = state.week - KP.houseFounded(state);
+    const years = Math.floor(since / Y) + 1;
+    return { week: KP.houseFounded(state) + years * Y, years };
+  };
+  // a birthday worth a letter: the first, and every fifth
+  KP.houseMilestone = function (years) { return years === 1 || (years > 0 && years % KP.C.HOUSE.every === 0); };
+  // where the company's page says it from
+  KP.houseFoundedSaid = function (state) {
+    const w = KP.houseFounded(state), Y = KP.C.WEEKS_PER_YEAR;
+    if (w >= 1) return 'Opened its doors ' + KP.weekLabel(w).text;
+    const came = state.chapterSince || 1, years = Math.floor((came - w) / Y);
+    return years < 1 ? 'Opened its doors the month before your first week'
+      : 'Opened its doors ' + spell(years) + (years === 1 ? ' year' : ' years') + ' before ' + (state.chapterSince ? 'you came' : 'your first week');
+  };
+  KP.houseTurnsSaid = function (state) {
+    const next = KP.houseNext(state);
+    return 'turns ' + spell(next.years) + ' ' + KP.weekLabel(next.week).text;
+  };
+  // what stands there now, for a house this desk has had since its doors opened: a label it founded, or a new
+  // label it was the first to run. A house that was there before the desk has no then-and-now of this desk's
+  KP.houseStanding = function (state) {
+    const f = state.founded || null, opened = KP.houseFounded(state);
+    if (!f && (state.chapterSince || 1) - opened >= KP.C.WEEKS_PER_YEAR) return null;
+    const since = w => w > opened;
     const groups = KP.groups(state);
-    return { years: KP.labelAge(state), from: f.from || null,
-      chest: typeof f.warChest === 'number' ? Math.round(f.warChest) : null,   // an old file may not say
+    return { years: KP.houseAge(state), from: (f && f.from) || null,
+      chest: f && typeof f.warChest === 'number' ? Math.round(f.warChest) : null,   // an old file may not say
       acts: groups.filter(g => g.debuted && !g.retiredWeek).length,
       people: state.roster.length,
       trophies: records(state, r => since(r.week)).reduce((n, x) => n + (x.r.trophies || 0), 0),
-      honors: groups.reduce((n, g) => n + (g.honors || []).filter(h => since(honorWeek(h))).length, 0),
-      till: Math.round(state.budget) };
+      honors: groups.reduce((n, g) => n + (g.honors || []).filter(h => since(honorWeek(h))).length, 0) };
   };
-  // the letter: an opening the label did not use last year, then and now, and the opening's own last line
-  KP.birthdayLetter = function (state, s, last) {
-    const name = state.company.name, age = (NUM[s.years] || s.years) + (s.years === 1 ? ' year' : ' years');
-    const lines = [
-      name + ' is ' + age + ' old this week.',
-      'It is ' + age + ' to the week since ' + name + ' opened its doors.',
-      'The week ' + name + ' opened its doors has come round again: ' + age + '.',
-    ];
-    const closes = [
-      'Somebody left a cake at the front desk, and nobody has admitted to it.',
-      'The first lease is framed by the lift now. The staff signed the back of it.',
-      'The founding desk is still in the corner office. Nobody will let it be replaced.',
-    ];
-    const opening = KP.lineFor(state, 'labelBirthday', lines, last);
-    const line = lines.indexOf(opening);
-    const then = [s.from ? 'out of ' + s.from : null, s.chest != null ? 'with ' + s.chest + ' in the till' : null].filter(Boolean);
-    return { line, text: [
-      opening,
+  // what the house says of the day. In an ordinary year, one line and what the building did with the afternoon.
+  // The wordings take the years in turn, so no year reads as the last one did
+  const TURNS = [
+    (name, age) => name + ' turns ' + age + ' this week.',
+    (name, age) => name + ' is ' + age + ' years old this week.',
+    (name, age) => 'It is ' + age + ' years this week since ' + name + ' opened its doors.',
+  ];
+  const DAYS = [
+    'The floor got cake and an early finish, and went home lighter for it.',
+    'Somebody left a cake at the front desk. Nobody has admitted to it, and everybody had a slice.',
+    'The practice rooms closed at six, for once, and nobody argued.',
+    'Lunch was on the house, and the whole floor turned up for it.',
+    'There was a toast in the corridor, in paper cups, and it did the building good.',
+    'The old photographs came out for the afternoon, and the room laughed at the haircuts.',
+  ];
+  // on a milestone: what the number is called, then and now for a house this desk has had from the start, the
+  // desk's own years for a house that was there before it, and how the building marked it
+  const MARKS = { 1: 'One year.', 5: 'Five years.', 10: 'A decade.', 25: 'A quarter of a century.', 50: 'Half a century.' };
+  const MARKED = [
+    'The whole building stopped for an afternoon, and nobody minded.',
+    'There was a dinner, and speeches nobody will admit to enjoying.',
+    'Everyone under contract signed one card, and it is pinned by the lift.',
+  ];
+  // a house with nobody under contract marks the day alone: there is no floor to feed and nobody to sign a card
+  const ALONE = [
+    'The rooms are empty, and the day passed quietly.',
+    'The desk bought itself a coffee and got on with it.',
+    'The lease was renewed, which is a kind of party.',
+  ];
+  KP.birthdayLetter = function (state, years) {
+    const name = state.company.name, Y = KP.C.WEEKS_PER_YEAR;
+    const turn = Math.floor(hb(state, 'birthday') * 6);   // where this house starts in the wordings
+    const alone = state.roster.length ? null : ALONE[(years + turn) % ALONE.length];
+    if (!KP.houseMilestone(years)) {
+      return { milestone: false, years, text: TURNS[(years + turn) % TURNS.length](name, spell(years)) + ' ' + (alone || DAYS[(years + turn) % DAYS.length]) };
+    }
+    const s = KP.houseStanding(state);
+    const then = s ? [s.from ? 'out of ' + s.from : null, s.chest != null ? 'with ' + s.chest + ' in the till' : null].filter(Boolean) : [];
+    const mine = Math.floor((state.week - KP.deskSince(state)) / Y);
+    return { milestone: true, years, text: [
+      (MARKS[years] ? MARKS[years] + ' ' : '') + name + ' opened its doors ' + (years === 1 ? 'a year' : spell(years) + ' years') + ' ago this week.',
       then.length ? 'It started ' + then.join(' ') + '.' : null,
-      'Today it has ' + many(s.acts, 'act', 'acts') + ', ' + (s.people ? s.people : 'nobody') + ' under contract, ' +
-        many(s.trophies, 'trophy', 'trophies') + ' on the shelf' + (s.honors ? ', ' + many(s.honors, 'honor', 'honors') : '') +
-        (s.till < 0 ? ', and a till ' + (-s.till) + ' short.' : ', and ' + s.till + ' in the till.'),
-      closes[line],
+      s ? 'Today it has ' + many(s.acts, 'act', 'acts') + ', ' + (s.people ? s.people : 'nobody') + ' under contract and ' +
+          many(s.trophies, 'trophy', 'trophies') + ' on the shelf' + (s.honors ? ', with ' + many(s.honors, 'honor', 'honors') : '') + '.'
+        : mine >= 1 ? 'You have sat at its desk for ' + spell(mine) + ' of them.' : 'You came to its desk this year.',
+      alone || MARKED[(Math.floor(years / KP.C.HOUSE.every) + turn) % MARKED.length],
     ].filter(Boolean).join(' ') };
   };
-  // the week the doors opened, come round again, after the year's own close (order 892)
-  KP.registerWeekly('labelBirthday', 892, function (state, rng, inbox) {
-    const years = KP.labelAge(state);
+  // the week the doors opened, come round again, after the year's own close (order 892). The lift is for everyone
+  // under contract, the chairs carrying no morale of their own (§136, as read). A milestone's letter cannot be cut
+  // by the week; an ordinary year's line can
+  KP.registerWeekly('houseBirthday', 892, function (state, rng, inbox) {
+    const years = KP.houseAge(state);
     if (!years || KP.chapterPending(state)) return;
-    const said = KP.birthdayLetter(state, KP.labelStanding(state), state.founded.said);
-    state.founded.said = said.line;
-    inbox.push({ kind: 'company', ind: 'labelBirthday', priority: 'critical', years, text: said.text });
+    const H = KP.C.HOUSE, said = KP.birthdayLetter(state, years);
+    const lift = said.milestone ? H.liftMilestone : H.lift;
+    state.roster.forEach(id => { const p = state.people[id]; if (p) p.morale = KP.clamp(p.morale + lift, 0, 100); });
+    if (said.milestone) inbox.push({ kind: 'company', ind: 'labelBirthday', priority: 'critical', years, text: said.text });
+    else inbox.push({ kind: 'company', ind: 'houseBirthday', priority: 'flavor', years, text: said.text });
   });
 
   // ---- the weekly: every clock, one pass (order 859) --------------------

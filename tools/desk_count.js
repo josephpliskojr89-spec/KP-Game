@@ -31,7 +31,7 @@ const ONE_SHOTS = [
   'annualReview',
   // the year's close (§124): once a year, the company to itself
   'yearEnd',
-  // the label's birthday (§128): once a year, at a founded label
+  // a house's milestone birthday (§128, §141): its first, and every fifth after
   'labelBirthday',
   // a call from outside left unanswered (§133): the chair is gone, said once
   'seatLapsed',

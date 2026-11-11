@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.47',
+    VERSION: '0.11.48',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -2853,6 +2853,15 @@
       // and sold alive (§86 A), the catalog's upside is one of the honest moves
       SHELF: { runChance: 0.004,     // weekly, per folded label: a reverse run nobody here gets paid for
         salePct: 0.4, saleMinReception: 40 },   // the distributor pays this share of each record's revival windfall, once
+    },
+    // the house's own birthday (v0.11.48, §141; the owner's ruling, §136: 14, 15 and 30)
+    HOUSE: {
+      // how old an established house was the week the desk came: the least, and the spread above it. The first
+      // house has gone "six years" without a hit, a major is older, and a small salaried label has an aging act
+      age: { current: [12, 13], major: [22, 14], salaried: [6, 7] },
+      every: 5,                // a milestone is the first birthday and every fifth
+      lift: 1,                 // morale, for everyone under contract, in an ordinary year: small
+      liftMilestone: 2,        // and on a milestone: what an act's own anniversary gives its members (§41)
     },
     // ---- The founding (v0.9.9, Phase C opens) ---------------------------
     // Owner: "I'm not the CEO, I work below them... option, after your

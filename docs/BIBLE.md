@@ -17147,6 +17147,278 @@ allowed to land that week is a question for the simulation pieces.
 *The owner's to see*: the assumptions above.
 
 
+## §141 The house's own birthday (SHIPPED v0.11.48 — the owner's ruling, §136: decisions 14, 15 and 30)
+
+The fifth piece built on the directive (§136). Owner, on the day:
+*"Give staff a small morale boost on the agency's founding
+anniversary. Keep the effect modest and appropriate to the
+occasion."* On the houses that were there first: *"Established
+agencies should retain their own historical founding dates and
+anniversaries, regardless of when the player joined them."* On the
+letters: *"Keep anniversary correspondence short, varied, and aware
+of significant milestones. Avoid repetitive celebrations and
+excessive inbox clutter."*
+
+**Counted first.** The birthday (§128) belonged to a label with a
+founding on file. A house the desk came to had no date at all. On
+the tree before this piece:
+
+| on v0.11.47 | the census, 200 careers | the long haul, 11 careers |
+|---|---|---|
+| years played | 583 | 142 |
+| houses the desk sat at | 202 | 15 |
+| of them, with a date | 0 | 5 |
+| birthdays that came round | 0 | 56 |
+| of them, a letter the week cannot cut | 0 | 56 |
+| average length, in characters | none | 271 |
+| the longest | none | 295 |
+| saying what the label started with | none | 56 |
+| the most in one career | 0 | 12 |
+
+No career of the census has a founding on file, so in 583 years of
+play not one of its 202 houses had a birthday. In the long haul
+five of the fifteen houses had a date, and ten had none. Those five
+wrote 56 letters, one every year from the first to the twelfth.
+Each was a letter the week cannot cut. Each said again what the
+label started with, and the average ran to 271 characters.
+
+**Every house has a date** (decision 15). `KP.houseFounded` says
+the week a house's doors opened.
+
+- *A label with a founding on file* opened the week the founding
+  says. That is a label the desk founded, the blank page, and a
+  second chance other than a salaried desk.
+- *A new label the desk is the first to run* opened the month
+  before the career.
+- *A house that was there before the desk* has a date from before
+  the desk came, and keeps it for as long as the desk sits there.
+  The first house of a career was twelve to twenty-four years old
+  the week the desk came. A top-three house was twenty-two to
+  thirty-five. A small label that hires a desk after a fold was six
+  to twelve. The week of the year is the house's own. It is never
+  the week the desk came.
+
+The date is read and never stored. It comes from the seed, the
+house's name and the week the desk came, and none of those change.
+So an old file needs nothing, and its house has its date the first
+time the file is opened.
+
+**The lift** (decision 14). The week the doors opened comes round
+once a year. That week everyone under contract is one the better in
+morale. On a milestone it is two, which is what an act's own
+anniversary gives its members (§41). The chairs carry no morale of
+their own, as §136 recorded, so the lift goes to the trainees and
+the artists. Nothing is drawn. Morale stops at a hundred.
+
+**What is written** (decision 30). A milestone is the first
+birthday and every fifth after. A milestone is a letter the week
+cannot cut (§137). Any other year is one line of the lowest mail
+there is, and it can sit below the fold.
+
+- *An ordinary year* says the age, and what the building did with
+  the afternoon: "Hanseong Culture Group turns nineteen this week.
+  The floor got cake and an early finish, and went home lighter for
+  it." There are three ways to say the age and six afternoons. A
+  house starts at its own place in them and takes them in turn, so
+  no year reads as the last did.
+- *A milestone* says how long ago the doors opened, and names the
+  number where it has a name: "One year.", "A decade." A house the
+  desk has had from the start then says what it started with and
+  what stands there today. A house that was there before the desk
+  says how many of its years the desk has sat there: "You have sat
+  at its desk for one of them." Then how the building marked it,
+  three ways, taken in turn.
+- *A house with nobody under contract* marks the day alone: "The
+  lease was renewed, which is a kind of party."
+- *The till as it stands is no longer in the letter.* The top of
+  every screen says it.
+
+**The company's page.** One line under the manager's: "Opened its
+doors twenty-one years before your first week · turns twenty-two
+Mar · Wk 3 · Y1". A house whose doors opened inside the career's
+own calendar gives the week, as a label the desk founded does. A
+salaried house older than that says "before you came".
+
+**Old files.** No migration. An older founded label kept which
+opening its last letter used. Nothing reads that now, and it is
+left where it is.
+
+**Measured**, on the tree as shipped.
+
+| on this tree | the census | the long haul |
+|---|---|---|
+| birthdays that came round | 589 | 137 |
+| of them, a first or a fifth: a letter | 143 | 32 |
+| of those, landed | 143 | 32 |
+| an ordinary year’s line | 446 | 105 |
+| of those, on the Desk that week | 198 | 48 |
+| a letter’s average length, in characters | 184 | 214 |
+| the longest letter | 209 | 261 |
+| a line’s average length | 137 | 129 |
+| the longest line | 167 | 167 |
+| saying what the label started with | 0 | 14 |
+| ending as the year before did | 0 | 0 |
+| the most in one career | 3 | 13 |
+
+Every career of both sets had a birthday. A census career is 140
+weeks, so it has two or three. The long haul’s 142 years wrote 32
+letters the week cannot cut where they wrote 56, though ten more of
+its houses have a date now. A letter averages 214 characters where
+it averaged 271, and fourteen of them say what the label started
+with where all 56 did. The rest of the years are a line each, 129
+characters on average. In the census 198 of the 446 lines were on
+the Desk the week they were written and 248 were below the fold. In
+the long haul it was 48 and 57.
+
+**What moved.** This piece moves the simulation, as a lift must:
+morale is read by the weeks that follow. Of the census’s 365 rows
+90 moved against v0.11.47, none by more than five careers of the
+200. The largest: orgs that got the warehouse memo (overpressed),
+153 careers where it was 158; and worlds where a stage became
+somebody's (darling narrative), 123 careers where it was 127. Every
+band holds, and the soak is clean. Of the long haul’s eleven
+careers seven read differently and all are clean.
+
+**The tools' books.** The long haul works out the week a birthday
+is due and never asks the engine. A label with a founding on file
+is counted from the founding. A house that was there before the
+desk tells its date by its first birthday under the desk. That must
+come within the year, and must make the house an age its kind can
+be, by the tool's own copy of the figures. Every birthday after is
+a year on and a year older. On the week it is due there is one
+note, and on no other week is there any. The first and every fifth
+is a letter the week cannot cut, and it lands. Any other is the
+lowest mail there is. An ordinary line is at most 180 characters
+and a milestone at most 300. None ends as last year's did, and no
+milestone ends as the milestone before it did. The tool stands
+either side of the birthday's rail and notes everyone's morale.
+Everyone under contract is one the better, or two on a milestone,
+and no more than a hundred. Nobody else moves. On every other week
+nobody moves at all.
+
+Over the eleven long careers the tool counted 137 birthdays due and
+saw 137 written: 32 a first or a fifth, each landed, and 105 an
+ordinary year’s line. Eight houses that were there before the desk
+told their date by their first birthday under it. It read the lift
+on 984 people, each one or two the better.
+
+It was run against twenty-three engines broken on purpose, each a
+small change to the engine, on a long career that holds the case.
+The lift not given, given the same on a milestone, given as three,
+given to everyone on the file, and given past a hundred. A birthday
+every week, and none at a house with no founding on file. The age a
+year out, a founding read a week late, a date that moves from week
+to week, a first house two to four years old, and a new label dated
+like an old house. A salaried label as old as a major, and one
+dated from the career’s first week. No note at all, two notes, a
+milestone the week can cut, every year a letter, a milestone every
+fourth year, an afternoon that never changes, a milestone marked
+the same way each time, and a line with two afternoons in it. And
+the rail under another name, so that the tool cannot stand either
+side of it. All twenty-three were flagged, each in the words
+written for its case. On the tree as it stands the seven careers
+the trial used are clean. One case is in no long career, since no
+bot takes a salaried desk. The long haul has a switch for it, used
+by the trial alone: `HAUL_SALARIED`. With it a career whose first
+house folds sat at four salaried labels in turn, and each told its
+date.
+
+**Assumptions the owner may overrule.**
+
+- *Who gets the lift.* Everyone under contract, trainees and
+  artists alike. The chairs have no morale to lift. If decision 1
+  gives them one, the birthday reads it too.
+- *How much.* One, and two on a milestone. An act's own anniversary
+  gives its members two.
+- *What a milestone is.* The first birthday and every fifth after.
+- *How old the houses are.* Twelve to twenty-four years for the
+  first house, twenty-two to thirty-five for a top-three house, six
+  to twelve for a salaried label. The figures are mine. They sit in
+  one place.
+- *An ordinary year's line can sit below the fold.* It is the
+  lowest mail there is, so a busy week puts it there.
+- *Then and now is said on milestones only*, and only at a house
+  the desk has had from the start.
+- *The rival houses have no dates.* Only the desk's own house has a
+  birthday. A rival's founding year is not built.
+- *The words.* The afternoons and the marks are mine. Each is
+  written in one place.
+
+**What the checks found, and what I got wrong.**
+
+- The browser pass showed a first birthday at a house with nobody
+  under contract. It said everyone under contract had signed a
+  card. An empty house has three lines of its own now.
+- The suite that holds the letters said once (§137) failed on the
+  first run. The rail chose the kind of mail in one expression, and
+  that suite reads the source for a letter's kind on the line that
+  writes it. The rail writes each kind on its own line now.
+- The birthday's own suite failed on its first run. An ordinary
+  line ran to 176 characters where the suite allows 170, and the
+  third opening was shortened. The other failures were mine: a
+  wrong count of a roster, a salaried career that folded before its
+  birthday, and the tool's lines not yet written.
+- The first mutation run caught 58 of 63. One was a real gap: a
+  house joined later could have been dated from the career's first
+  week, and the suite's salaried house was joined too early to
+  tell. Three crashed the suite, which its own law forbids. One was
+  asked of a second suite that cannot see it, and the birthday's
+  own suite holds it. The second run caught 62 of 63. The last was
+  the salaried label's age, pinned now by the suite's own figures.
+- The long haul had no career at a salaried house, which is the
+  house decision 15 names. It has a switch for one now, used by the
+  trial alone. My first try took the salaried door in a career that
+  never charted, and the door refused. The switch takes the door
+  only when it is open.
+- That career tripped an older check of the tool. It said "no
+  executive succession in 620 weeks" of a house the desk had sat at
+  for far less. It is said now only of a house the desk never left.
+- The trial's own search missed one of the tool's flags, a
+  milestone ending as the one before it did. The search was
+  widened.
+- An older browser pass pinned the old law. It is brought up to the
+  new one, and its filed copy is kept beside it.
+- A guard that guarded nothing, a helper nothing called, and a
+  comment left above the wrong block are gone.
+- The first count was taken on the tree of v0.11.46. It was taken
+  again on the tree of v0.11.47 and reads the same.
+
+Suite_143 (81), written again for the new law: the week a house’s
+doors opened, for a label with a founding, the blank page, a new
+label, the first house, a top-three house, and a salaried house
+joined early and joined late; the figures themselves; that the date
+holds from week to week and through a save; the age on the week and
+nought on every other; the next time it comes round; which years
+are milestones; what stands there today, and for which houses it is
+said; an ordinary year’s line, its three openings and six
+afternoons taken in turn, its length, and a number said in words; a
+milestone’s letter at a founded label, at a new one, and at a house
+that was there first, with the desk’s own years; an empty house
+marking the day alone, three ways; the rail on a stream that
+refuses every draw, the lift of one and of two, the stop at a
+hundred, nobody outside the house, and no other week; real weeks at
+the first house, the blank page, a founding, a second chance and a
+salaried desk; the file and the company’s page; and the lists and
+the tools’ lines. Mutation-checked against 67 broken lines, each
+caught by a named assertion; the first run caught 58 of 63 and the
+second 62 of 63. A real-browser pass (18 checks, no page errors): a
+real career saved by v0.11.42 at week 220 opens with its house’s
+date on the company’s page; real weeks by the real button reach the
+birthday, an ordinary year’s line on the Desk at the age the page
+gave; a year on, the next is written and sits below the fold of a
+busy week; and a blank page’s first birthday is a letter on the
+Desk, an empty house marking the day alone.
+Battery 153/153, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, the till audit clean, e2e 137, 32, 41 and 23, the
+twenty-nine older browser passes, lockstep 0.11.48.
+
+*Left for the next pieces.* The rest of the directive's amendments,
+in §136's order: the handover inherited in part and the promises
+that keep their name, then her questions. *The owner's to see*: the
+assumptions above, and that this piece moves the simulation a
+little, as a lift must.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -21758,6 +22030,36 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
 > pass (32), lockstep 0.11.47.
 > Rode to main. Next piece: the house's own birthday.
+
+> **0.11.48 — the house's own birthday.** The fifth piece built on
+> the directive (§136: decisions 14, 15 and 30). §141: every house
+> has a week its doors opened. A label with a founding on file has
+> it there. A house that was there before the desk has a date from
+> before the desk came, read from the seed, the house's name and the
+> week the desk came, and never stored. When the week comes round
+> everyone under contract is one the better in morale, and two on
+> the first birthday and every fifth. Those are letters the week
+> cannot cut. Any other year is one line of the lowest mail there
+> is. The company's page says when the doors opened and when the
+> week next comes round. Counted first:
+> in the census’s 583 years of play no house had a birthday, and in
+> the long haul’s 142 the five houses with a founding wrote 56
+> letters, one a year, each saying again what the label started with.
+> On this tree every house has one: 589 in the census, 143 of them a
+> letter and the rest a line, and 32 letters in the long haul where
+> there were 56.
+> The lift moves the simulation a little: 90 of the census’s 365 rows
+> moved against v0.11.47, none by more than five careers of the 200,
+> and every band holds.
+> Suite_143 written again (81); 67 mutations caught by name, the first
+> run 58 of 63. The long haul counts the birthdays and reads the lift
+> by its own books: tried against twenty-three broken engines, it
+> flagged all twenty-three. The browser pass found an empty house
+> saying everyone had signed a card.
+> Battery 153/153, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
+> pass (18), lockstep 0.11.48.
+> Rode to main. Next piece: the handover inherited in part.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

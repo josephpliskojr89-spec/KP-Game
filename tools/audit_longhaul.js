@@ -470,6 +470,22 @@ const CH = { walls: 0, minted: 0 };                                         // t
 const CR = { held: 0, calls: 0, callsHeld: 0 };                             // the credits of every chair (v0.11.41, §133)
 const YR = { due: 0, wrote: 0, landed: 0, lines: 0, words: 0, held: 0 };    // the staff's letters on the year (v0.11.46, §139)
 const RL = { gone: 0, lines: 0, held: 0, recs: 0, stamped: 0, atDesk: 0, shut: 0 };   // the roll, the room on a record, the scout's name (v0.11.47, §140)
+const BD = { due: 0, wrote: 0, big: 0, landed: 0, lifted: 0, learnt: 0 };              // the house's birthdays (v0.11.48, §141)
+// what the birthday's own rail does to the morale of everyone under contract, noted here by standing either side of
+// it: the lift is this tool's to read, and not the engine's to report
+const HBD = { seen: null };
+{
+  const ph = KP.weeklyPipeline([]).find(x => x.name === 'houseBirthday');
+  if (ph) {
+    const fn = ph.fn;
+    ph.fn = function (state) {
+      const snap = () => { const m = {}; Object.keys(state.people).forEach(id => { m[id] = state.people[id].morale; }); return m; };
+      const before = snap(), mine = state.roster.slice(), r = fn.apply(this, arguments);
+      HBD.seen = { state, before, mine, after: snap() };
+      return r;
+    };
+  }
+}
 const NM = { cands: 0, weeks: 0, turns: 0, beyond: 0 };                     // the names of every candidate (v0.11.43, §135)
 // this tool's own copy of the names (v0.11.45, §138): the hundred of before, and the four hundred
 const NAMES_FAM = ['Baek', 'Cha', 'Im', 'Joo', 'Gil', 'Weon', 'Pyo', 'Sa', 'Byun', 'Ma', 'Seok', 'Ok', 'Bang', 'Eom', 'Mo', 'Kwak', 'Yeom', 'Gong', 'Ra', 'Bong'];
@@ -978,15 +994,19 @@ for (const sc of RUN) {
   rlLook(false);
   let founded = false;
   let dissolvedAt = null;
-  const bd = { due: 0, wrote: 0, landed: 0 };   // the label's birthdays (v0.11.36, §128)
+  const bd = { due: 0, wrote: 0, big: 0, landed: 0, lifted: 0, learnt: 0, house: null, came: 0, first: null, last: null, lastBig: null, missed: false, salaried: false };   // the house's birthdays (v0.11.36, §128; v0.11.48, §141)
   for (let w = 0; w < WEEKS; w++) {
     // the last statement (v0.11.0, §86): the bot is allowed to die. A
     // dissolved label takes the blank page and the world keeps running
     if (KP.chapterPending && KP.chapterPending(state)) {
       if (dissolvedAt == null) dissolvedAt = state.week;
       glWall(() => {
-        const r = KP.nextChapter(state, 'blank', { companyName: 'Chapter' + ((state.career || []).length + 2) + ' House' });   // a distinct short per chapter — the obituaries keep their names
-        if (!r.ok) flag(sc.seed, state.week, 'the blank page refused: ' + r.reason);
+        // the trial's own career (v0.11.48, §141): with HAUL_SALARIED set, the bot takes a salaried desk when its
+        // house folds and one will have it: a house that was there before it, with a date of its own
+        const door = process.env.HAUL_SALARIED && KP.chapterDoors(state).some(d => d.id === 'salaried' && d.open) ? 'salaried' : 'blank';
+        const r = KP.nextChapter(state, door, { companyName: 'Chapter' + ((state.career || []).length + 2) + ' House' });   // a distinct short per chapter — the obituaries keep their names
+        if (!r.ok) flag(sc.seed, state.week, (door === 'salaried' ? 'the salaried desk' : 'the blank page') + ' refused: ' + r.reason);
+        else bd.salaried = door === 'salaried';
         return r.ok;
       });
     }
@@ -1044,20 +1064,68 @@ for (const sc of RUN) {
       if (rec.map(e => e.id).join() !== mine.map(m => m.id).join()) flag(sc.seed, state.week, 'the record lists the greenlights [' + rec.map(e => e.id).join() + '] and this desk was given [' + mine.map(m => m.id).join() + ']');
       else rec.forEach((e, i) => { if (e.status !== mine[i].status || e.who !== mine[i].exec) flag(sc.seed, state.week, 'the record says “' + e.who + ', ' + e.status + '” of a greenlight (' + e.id + ') that ' + mine[i].exec + ' gave and that reads “' + mine[i].status + '”'); });
     }
-    // the label's birthday (v0.11.36, §128): the week its doors opened, each year, one letter, and it lands.
-    // The week it is due is worked out here from the founding itself, never asked of the engine: a check that
-    // asks the engine when the birthday is agrees with an engine that has it wrong
+    // the house's birthday (v0.11.36, §128; every house since v0.11.48, §141). The week it is due is worked out here
+    // and never asked of the engine: a check that asks the engine when the birthday is agrees with an engine that has
+    // it wrong. A label with a founding on file is counted from the founding. A house that was there before the
+    // desk tells its date by its first birthday under this desk: that must come within the year, must make the house
+    // older than the desk's time there, and every one after is a year on from it and a year older. The first and
+    // every fifth is a letter the week cannot cut, and lands; any other is the lowest mail there is. Each is short,
+    // and none ends as last year's did. And everyone under contract is one the better for it, or two on a
+    // milestone, by this tool's own note of the morale either side of the rail: nobody else, and no other week
     {
-      const f = state.founded, since = f ? state.week - f.week : 0;
-      const age = f && since > 0 && since % KP.C.WEEKS_PER_YEAR === 0 ? since / KP.C.WEEKS_PER_YEAR : 0;
-      const due = age > 0 && !(state.dissolved && !state.dissolved.door);
-      const wrote = (KP.lastTickNotes || []).filter(n => n.ind === 'labelBirthday');
-      const landed = state.inbox.filter(m => m.week === state.week && m.ind === 'labelBirthday');
-      if (due) bd.due++;
-      bd.wrote += wrote.length; bd.landed += landed.length;
-      if (wrote.length !== (due ? 1 : 0)) flag(sc.seed, state.week, due ? 'a founded label’s birthday came round with ' + wrote.length + ' letters' : 'a birthday letter on a week that is no birthday');
-      if (landed.length !== wrote.length) flag(sc.seed, state.week, 'a birthday letter was written and did not land');
-      if (wrote.length && wrote[0].years !== age) flag(sc.seed, state.week, 'a birthday letter gives the wrong age: ' + wrote[0].years + ' for ' + age);
+      const Y = KP.C.WEEKS_PER_YEAR, short = state.company.short;
+      const wrote = (KP.lastTickNotes || []).filter(n => n.ind === 'labelBirthday' || n.ind === 'houseBirthday');
+      const folded = !!(state.dissolved && !state.dissolved.door);   // the house folded as this week ended: its last week is not held
+      if (bd.house !== short) { bd.house = short; bd.came = weekBefore; bd.first = null; bd.last = null; bd.lastBig = null; bd.missed = false; }   // another house: its date is to be learnt again
+      const f = state.founded;
+      let age = 0;
+      if (f) { const since = state.week - f.week; age = since > 0 && since % Y === 0 ? since / Y : 0; }
+      else if (bd.first) { const since = state.week - bd.first.week; age = since % Y === 0 ? bd.first.years + since / Y : 0; }
+      else if (wrote.length === 1 && !folded) {
+        bd.first = { week: state.week, years: wrote[0].years }; age = wrote[0].years; bd.learnt++;
+        // how old each kind of house is at its first birthday under the desk, by this tool's own copy: a small label
+        // that hires a desk is seven to thirteen, a new label is one, the first house of a career thirteen to
+        // twenty-five, a top-three house twenty-three to thirty-six
+        const span = bd.salaried ? [7, 13] : /^(fresh|home|insolvent)$/.test(sc.mode) ? [1, 1] : /^(major|founder)$/.test(sc.mode) ? [23, 36] : [13, 25];
+        if (!(age >= span[0] && age <= span[1])) flag(sc.seed, state.week, 'the first birthday at ' + short + ' makes the house ' + age + ', and a house of its kind is ' + span[0] + ' to ' + span[1] + ' at its first under the desk');
+      } else if (!folded && !bd.missed && state.week - bd.came >= Y) { bd.missed = true; flag(sc.seed, state.week, 'a year at ' + short + ' and its birthday has not come round'); }
+      const due = age > 0;
+      const seen = HBD.seen && HBD.seen.state === state ? HBD.seen : null;
+      HBD.seen = null;
+      if (!folded) {
+        if (due) bd.due++;
+        bd.wrote += wrote.length;
+        if (wrote.length !== (due ? 1 : 0)) flag(sc.seed, state.week, due ? 'a house’s birthday came round with ' + wrote.length + ' letters' : 'a birthday is written on a week that is none');
+        if (due && wrote.length === 1) {
+          const n = wrote[0], big = age === 1 || age % 5 === 0;
+          if (n.years !== age) flag(sc.seed, state.week, 'a birthday gives the wrong age: ' + n.years + ' for ' + age);
+          if (big) {
+            bd.big++;
+            const landed = state.inbox.filter(m => m.week === state.week && m.ind === 'labelBirthday').length;
+            bd.landed += landed;
+            if (n.ind !== 'labelBirthday' || n.priority !== 'critical') flag(sc.seed, state.week, 'a milestone’s birthday is written as ' + n.ind + ', ' + n.priority + ', and not as a letter the week cannot cut');
+            else if (landed !== 1) flag(sc.seed, state.week, 'a milestone’s letter was written and did not land');
+          } else if (n.ind !== 'houseBirthday' || n.priority !== 'flavor') flag(sc.seed, state.week, 'an ordinary year’s birthday is written as ' + n.ind + ', ' + n.priority);
+          if (String(n.text).length > (big ? 300 : 180)) flag(sc.seed, state.week, 'a birthday runs to ' + String(n.text).length + ' characters');
+          const end = String(n.text).split('. ').pop();
+          if (bd.last === end) flag(sc.seed, state.week, 'a birthday ends as last year’s did: ' + end);
+          if (big && bd.lastBig === end) flag(sc.seed, state.week, 'a milestone ends as the milestone before it did: ' + end);
+          bd.last = end;
+          if (big) bd.lastBig = end;
+        }
+        if (!seen) flag(sc.seed, state.week, 'the week ran without the birthday’s rail');
+        else {
+          const lift = !due ? 0 : age === 1 || age % 5 === 0 ? 2 : 1;   // this tool's own figures: small, and a little more on a milestone
+          const under = {}; seen.mine.forEach(id => { under[id] = true; });
+          const off = seen.mine.filter(id => seen.after[id] !== Math.min(100, seen.before[id] + lift));
+          const others = Object.keys(seen.before).filter(id => !under[id] && seen.after[id] !== seen.before[id]);
+          if (off.length) flag(sc.seed, state.week, due
+            ? 'a birthday at ' + age + ' should leave everyone under contract ' + lift + ' the better, and ' + off.length + ' of ' + seen.mine.length + ' are not'
+            : 'the birthday’s rail moved the morale of ' + off.length + ' under contract on a week that is no birthday');
+          if (others.length) flag(sc.seed, state.week, 'the birthday’s rail moved the morale of ' + others.length + ' who are not under contract');
+          if (due) bd.lifted += seen.mine.length;
+        }
+      }
     }
     if (w % 10 === 0) checkIntegrity(sc.seed, state.week, state);
     if (w % 40 === 0) checkRoundtrip(sc.seed, state.week, state);
@@ -1231,6 +1299,7 @@ for (const sc of RUN) {
   CH.walls += ch.walls; CH.minted += ch.minted;
   CR.held += cr.held; CR.calls += cr.calls; CR.callsHeld += cr.callsHeld;
   YR.due += yr.due; YR.wrote += yr.wrote; YR.landed += yr.landed; YR.lines += yr.lines; YR.words += yr.words; YR.held += yr.held;
+  BD.due += bd.due; BD.wrote += bd.wrote; BD.big += bd.big; BD.landed += bd.landed; BD.lifted += bd.lifted; BD.learnt += bd.learnt;
   RL.gone += rl.gone; RL.lines += rl.lines; RL.held += rl.held; RL.recs += rl.recs; RL.stamped += rl.stamped; RL.atDesk += rl.atDesk; RL.shut += rl.shut;
   NM.cands += nm.cands; NM.weeks += nm.weeks; NM.turns += nm.turns; NM.beyond += nm.beyond;
   if (nm.cands >= 20 && !nm.beyond) flag(sc.seed, state.week, nm.cands + ' candidates took a meeting and not one under a name beyond the hundred of before');
@@ -1246,9 +1315,10 @@ for (const sc of RUN) {
   }
   // time takes its share (v0.9.32): the first exec era ends by week
   // ~337 at the latest, so a 620-week non-founded world MUST have
-  // seen the chair change hands at least once
+  // seen the chair change hands at least once. It is said of a house the desk has sat at for all of them: a desk
+  // that came to a house mid-career (the trial's salaried desk, v0.11.48) has not sat there that long
   const tml = state.timeLedger || {};
-  if (!state.founded && (tml.successions || 0) < 1) {
+  if (!state.founded && dissolvedAt == null && (tml.successions || 0) < 1) {
     flag(sc.seed, state.week, 'no executive succession in ' + WEEKS + ' weeks of a non-founded house');
   }
   if (state.founded && !state.board) {
@@ -1301,7 +1371,7 @@ for (const sc of RUN) {
       ', reviews ' + up.reviews + ' (thin ' + up.bands.thin + ', gone ' + up.bands.gone + ')')(KP.upstairsLedger(state)) +
     ' | file: ' + (cf => cf.chapters.length + ' chapter' + (cf.chapters.length === 1 ? '' : 's') + ' (' + cf.chapters.filter(c => !c.before).length + ' under this desk), ' + cf.manager.title)(KP.companyFile(state)) +
     ' | years: ' + (state.years || []).length + ' closed (' + (state.years || []).filter(a => a.headline).length + ' with a headline)' +
-    ' | birthdays: ' + bd.wrote + ' written, ' + bd.landed + ' landed, of ' + bd.due + ' due' +
+    ' | birthdays: ' + bd.due + ' due, ' + bd.wrote + ' written, ' + bd.big + ' of them milestones, ' + bd.landed + ' landed' +
     ' | greenlights: ' + gl.given + ' given (' + glEnd.met + ' kept, ' + glEnd.lapsed + ' left dark, ' + glEnd.open + ' open, ' + glEnd.void + ' set aside), ' + gl.walls + ' desk change' + (gl.walls === 1 ? '' : 's') +
     ' | reviews: ' + rv.given + ' given, ' + rv.firsts + ' the first under a new desk, ' + rv.counted + ' by a chair who counts sheets' +
     ' | handovers: ' + ho.given +
@@ -1330,6 +1400,9 @@ console.log('the kept place (v0.11.44): ' + NW.weeks + ' weeks wrote a kind its 
 console.log('below the fold (v0.11.44): ' + FD.wrote + ' letters written by the week · ' + FD.desk + ' on the Desk, ' + FD.below + ' below the fold, each the week it was written and the week after, by this tool’s own count of the wire · the fold at its fullest held ' + FD.most + ' letters');
 console.log('one name, one chair (v0.11.43): ' + NM.cands + ' candidates took a meeting, each held to this tool’s own note of the names it had heard and its own copy of the four hundred · ' + NM.beyond + ' under a name beyond the hundred of before · the four hundred came round ' + NM.turns + ' time' + (NM.turns === 1 ? '' : 's') + ' · ' + NM.weeks + ' weeks of chairs sat, each looked at for two under one name');
 console.log('the staff’s year (v0.11.46): ' + YR.due + ' first weeks of a year with a chair sat twelve weeks · ' + YR.wrote + ' letters written, ' + YR.landed + ' landed · ' + YR.lines + ' lines, each under the name, the title and the weeks this tool has seen the chair sat · ' + YR.words + ' words, ' + YR.held + ' held to this tool’s own books of the chair’s year, each to the letter before and to the others of its letter');
+console.log('the house’s birthdays (v0.11.48): ' + BD.due + ' due by this tool’s own count of the weeks, ' + BD.wrote + ' written · ' + BD.big + ' of them a first or a fifth, each a letter the week cannot cut, ' + BD.landed +
+  ' landed · ' + (BD.wrote - BD.big) + ' an ordinary year’s line · ' + BD.learnt + ' houses that were there before the desk, each telling its date by its first birthday under it · ' + BD.lifted +
+  ' lifts, each one or two by this tool’s own note of the morale either side of the rail · none ending as the last did');
 console.log('the roll (v0.11.47): ' + RL.gone + ' chairs seen sat and gone, each on the roll the week it went, by this tool’s own note of who sat · ' + RL.lines + ' lines at the careers’ ends, none lost or changed · ' + RL.atDesk + ' credits read the day a chair went at the desk and ' + RL.held + ' weekly reads of a line’s eras, each this tool’s own books · ' + RL.shut + ' weekly reads of a line of a house the desk had left, each shut · ' + RL.recs + ' records, each carrying the room this tool saw sat as its week began · ' + RL.stamped + ' weekly reads of a scout’s name on someone who signed on their watch');
 console.log('the credits (v0.11.41): ' + CR.held + ' weeks of a chair’s credit held to this tool’s own books of what landed, how it closed and who signed · ' + CR.calls + ' calls from outside, ' + CR.callsHeld + ' of them for a chair that works an era, each held to the same books');
 console.log('the chairs (v0.11.40): ' + CH.walls + ' desk change' + (CH.walls === 1 ? '' : 's') + ' · ' + CH.minted + ' chairs opened the next buildings, four at each · none carried across, by this tool’s own books of who sat');
