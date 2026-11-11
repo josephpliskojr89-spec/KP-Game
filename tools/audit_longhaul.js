@@ -443,6 +443,7 @@ const GL = { given: 0, met: 0, lapsed: 0, open: 0, void: 0, walls: 0 };   // the
 const RV = { given: 0, firsts: 0, counted: 0 };                            // the annual reviews of every career (v0.11.38, §130)
 const HO = { given: 0 };                                                    // the handovers of every career (v0.11.39, §131)
 const CH = { walls: 0, minted: 0 };                                         // the chairs at every desk change (v0.11.40, §132)
+const CR = { held: 0, calls: 0, callsHeld: 0 };                             // the credits of every chair (v0.11.41, §133)
 for (const sc of RUN) {
   const deskMark = deskCount.mark(DESK);   // this scenario's share of the Desk's count
   const state = KP.newGame(sc.seed, null,
@@ -474,6 +475,69 @@ for (const sc of RUN) {
       const st = S[seatId];
       ch.seen[st.id] = true;
       if (!(st.since >= ch.opened && st.since <= state.week)) flag(sc.seed, state.week, st.name + ' is filed as sat in the ' + seatId + ' chair since week ' + st.since + ', and this building opened in week ' + ch.opened);
+    });
+  };
+  // the credits (v0.11.41, §133): this tool's own books of what happened while each chair sat. Which records landed
+  // in a week the chair began sat, how each closed by this tool's own reading of the close, and the week each of
+  // the roster came on to it. The engine's read of a chair's credit is held to them every week, and so is what a
+  // call from outside says the industry read. Nothing here asks the engine what a chair is credited with
+  const cr = { rec: {}, on: {}, sat: [], seen: {}, held: 0, calls: 0, callsHeld: 0 };
+  const ERA_CHAIRS = ['vocal', 'dance', 'perf', 'anr', 'marketing'];
+  const closedAs = rel => ((rel.trophies || 0) >= 1 ? 'crowned' : rel.receptionBand === 'sensation' || rel.receptionBand === 'strong' ? 'warm' : rel.receptionBand === 'miss' ? 'cold' : 'quiet');
+  const crRoster = () => {   // who is on the roster at this look, and since which week
+    const now = {};
+    state.roster.forEach(id => { now[id] = cr.on[id] != null ? cr.on[id] : state.week; });
+    cr.on = now;
+  };
+  const crBegin = () => { crRoster(); cr.sat = Object.keys(state.seats || {}).map(k => state.seats[k].id); };   // the chairs sat as the week begins
+  const crOwn = id => {
+    const book = cr.rec[id] || {}, keys = Object.keys(book);
+    const own = { n: keys.length, crowned: 0, warm: 0, quiet: 0, cold: 0 };
+    keys.forEach(k => { if (book[k]) own[book[k]]++; });
+    own.running = own.n - own.crowned - own.warm - own.quiet - own.cold;
+    return own;
+  };
+  const crLook = () => {
+    crRoster();
+    const rels = {};
+    KP.groups(state).forEach(g => (g.releases || []).forEach(rel => { rels[g.id + '|' + rel.week] = rel; }));
+    Object.keys(rels).forEach(key => {
+      const rel = rels[key];
+      if (rel.week === state.week) cr.sat.forEach(id => { (cr.rec[id] = cr.rec[id] || {})[key] = null; });   // landed this week, under every chair sat as it began
+    });
+    Object.keys(cr.rec).forEach(id => Object.keys(cr.rec[id]).forEach(key => {
+      if (cr.rec[id][key] == null && rels[key] && rels[key].closed) cr.rec[id][key] = closedAs(rels[key]);   // closed since the last look
+    }));
+    const S = state.seats || {};
+    Object.keys(S).forEach(seatId => {
+      const st = S[seatId];
+      const c = KP.seatCredit(state, st);
+      if (ERA_CHAIRS.includes(seatId)) {
+        const own = crOwn(st.id);
+        cr.held++;
+        const a = [c.n, c.crowned, c.warm, c.quiet, c.cold, c.running].join('/'), b = [own.n, own.crowned, own.warm, own.quiet, own.cold, own.running].join('/');
+        if (c.kind !== 'eras' || a !== b) flag(sc.seed, state.week, st.name + '’s credit reads ' + a + ' (eras, with a trophy, warm, quietly, cold, still running) and this tool saw ' + b + ' land and close while they sat');
+      } else if (seatId === 'scout') {
+        const mine = state.roster.filter(id => cr.on[id] > st.since);
+        cr.held++;
+        const a = [c.n, c.of, c.debuted].join('/'), b = [mine.length, state.roster.length, mine.filter(id => state.people[id].status === 'idol').length].join('/');
+        if (c.kind !== 'floor' || a !== b) flag(sc.seed, state.week, st.name + '’s credit reads ' + a + ' (signed on their watch, on the roster, debuted) and this tool saw ' + b + ' come on to the roster while they sat');
+      }
+    });
+    // a call from outside says what the industry read: the count, and the best of it
+    (state.scenes || []).forEach(x => {
+      if (x.kind !== 'seatPoach' || !x.seatId || cr.seen[x.id]) return;
+      cr.seen[x.id] = true; cr.calls++;
+      const st = S[x.seatId];
+      if (!st || !ERA_CHAIRS.includes(x.seatId)) return;
+      cr.callsHeld++;
+      const own = crOwn(st.id), body = KP.sceneDef('seatPoach').body(state, x);
+      const m = /What it read: (one|\d+) eras? for this house(?:, (?:(one|\d+) of them )?closed (with a trophy|warm))?\./.exec(body);
+      const said = m ? [num(m[1]), m[3] ? num(m[2] || m[1]) : 0, m[3] || 'none'].join('/') : /has no credit at this house yet/.test(body) ? 'no credit, a name' : /not for a credit or a name/.test(body) ? 'no credit, no name' : 'nothing';
+      const best = own.crowned ? [own.crowned, 'with a trophy'] : own.warm ? [own.warm, 'warm'] : [0, 'none'];
+      const named = ['known', 'a name'].includes(st.tier);
+      const want = own.n ? [own.n, best[0], best[1]].join('/') : named ? 'no credit, a name' : 'no credit, no name';
+      if (said !== want) flag(sc.seed, state.week, 'the call for ' + st.name + ' says the industry read “' + said + '” and this tool’s books hold “' + want + '”');
     });
   };
   const glLook = () => {   // one not seen before was given since the last look, by the chair of that time
@@ -606,7 +670,9 @@ for (const sc of RUN) {
     glLook();
     rvLook();
     const sheetsAsTheTickBegan = sheetsNow(), chairAsTheTickBegan = gl.chair, trustAsTheTickBegan = state.trust;
+    crBegin();
     KP.advanceWeek(state);
+    crLook();
     rvLook(sheetsAsTheTickBegan);
     // the greenlights (v0.11.37, §129): one the last house gave reads as it did the day the desk moved, and one that
     // was open that day reads set aside; the record lists this desk's own and no other, each with its chair and its end
@@ -801,6 +867,7 @@ for (const sc of RUN) {
   RV.given += rv.given; RV.firsts += rv.firsts; RV.counted += rv.counted;
   HO.given += ho.given;
   CH.walls += ch.walls; CH.minted += ch.minted;
+  CR.held += cr.held; CR.calls += cr.calls; CR.callsHeld += cr.callsHeld;
   ['met', 'lapsed', 'open', 'void'].forEach(k => { GL[k] += glEnd[k]; });
   // the sagas (v0.9.31): the hash window [60,320] sits fully inside a
   // 620-week run — every world MUST have been invaded at least once,
@@ -889,6 +956,7 @@ for (const sc of RUN) {
 }
 
 deskCount.lines(DESK, 5).forEach(l => console.log(l));
+console.log('the credits (v0.11.41): ' + CR.held + ' weeks of a chair’s credit held to this tool’s own books of what landed, how it closed and who signed · ' + CR.calls + ' calls from outside, ' + CR.callsHeld + ' of them for a chair that works an era, each held to the same books');
 console.log('the chairs (v0.11.40): ' + CH.walls + ' desk change' + (CH.walls === 1 ? '' : 's') + ' · ' + CH.minted + ' chairs opened the next buildings, four at each · none carried across, by this tool’s own books of who sat');
 console.log('the handovers (v0.11.39): ' + HO.given + ' · each letter held to this tool’s own books of the chair who left');
 console.log('the reviews (v0.11.38): ' + RV.given + ' given · ' + RV.firsts + ' the first under a new desk · ' + RV.counted + ' by a chair who counts sheets, each count held to the desk’s own year');

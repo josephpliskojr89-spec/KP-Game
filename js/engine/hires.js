@@ -47,6 +47,58 @@
   // and a record that landed the very week a chair was taken landed before it was
   KP.seatMade = function (st) { return (st.works || []).filter(w => !(w.week <= st.since)); };
 
+  // ---- the credit (v0.11.41, §133): what this house did after a chair was taken. The résumé's own law (§79): it
+  // says where they were, never what they did there. Read off the file, and nothing is kept. A chair that works an
+  // era is credited with the eras that landed after they sat, by how each closed; a studio chair with the records
+  // made here; the scout with who on the roster signed on their watch
+  KP.seatCredit = function (state, st) {
+    if (KP.C.HIRES.SEATS.some(x => x.id === st.seatId && x.studio)) return { kind: 'records', n: KP.seatMade(st).length };
+    if (st.seatId === 'scout') {
+      const roster = state.roster.map(id => state.people[id]).filter(Boolean);
+      const found = roster.filter(p => p.signedWeek > st.since);
+      return { kind: 'floor', n: found.length, of: roster.length, debuted: found.filter(p => p.status === 'idol').length };
+    }
+    const c = { kind: 'eras', n: 0, crowned: 0, warm: 0, quiet: 0, cold: 0, running: 0 };
+    KP.groups(state).forEach(g => (g.releases || []).forEach((rel, i, all) => {
+      if (!(rel.week > st.since)) return;
+      c.n++;
+      if (rel.closed) c[rel.closed.verdict]++;
+      else if (i === all.length - 1 && !g.retiredWeek && state.week <= (g.promoUntil || 0)) c.running++;
+      else c[KP.eraVerdict(rel)]++;   // an era from before closes were kept, or one that never came to its close
+    }));
+    return c;
+  };
+  const one = n => (n === 1 ? 'one' : String(n));
+  const HOW = [['crowned', 'with a trophy'], ['warm', 'warm'], ['quiet', 'quietly'], ['cold', 'cold']];
+  // in full, for the chair's own card. A studio chair's count is the card's chip
+  KP.seatCreditSaid = function (c) {
+    if (!c.n || c.kind === 'records') return '';
+    if (c.kind === 'floor') {
+      return 'Of the ' + c.of + ' on this house’s roster, ' + one(c.n) + ' signed on their watch' +
+        (c.debuted ? ', and ' + one(c.debuted) + ' of them ' + (c.debuted === 1 ? 'has' : 'have') + ' debuted' : '') + '.';
+    }
+    const closed = HOW.filter(h => c[h[0]]);
+    if (c.n === 1) return 'In the room for one era of this house, ' + (closed.length ? 'which closed ' + closed[0][1] : 'still running') + '.';
+    if (!closed.length) return 'In the room for ' + c.n + ' eras of this house, all still running.';
+    if (closed.length === 1 && c[closed[0][0]] === c.n) return 'In the room for ' + c.n + ' eras of this house, all closed ' + closed[0][1] + '.';
+    return 'In the room for ' + c.n + ' eras of this house: ' + closed.map((h, i) => one(c[h[0]]) + (i ? ' ' : ' closed ') + h[1]).join(', ') +
+      (c.running ? '; ' + one(c.running) + ' still running' : '') + '.';
+  };
+  // in a clause, for a call from outside and for a goodbye: the count, and the best of it
+  KP.seatCreditShort = function (c) {
+    if (!c.n) return '';
+    if (c.kind === 'records') return one(c.n) + (c.n === 1 ? ' record' : ' records') + ' for this house';
+    if (c.kind === 'floor') return one(c.n) + ' of the ' + c.of + ' on this house’s roster signed on their watch';
+    const best = c.crowned ? ['crowned', 'closed with a trophy'] : c.warm ? ['warm', 'closed warm'] : null;
+    return one(c.n) + (c.n === 1 ? ' era' : ' eras') + ' for this house' +
+      (!best ? '' : c.n === 1 ? ', ' + best[1] : ', ' + one(c[best[0]]) + ' of them ' + best[1]);
+  };
+  // what a chair takes out of the door: one sentence, or nothing when there is nothing to take
+  KP.seatLeavesWith = function (state, st) {
+    const said = KP.seatCreditShort(KP.seatCredit(state, st));
+    return said ? ' On the résumé that leaves with ' + st.name + ': ' + said + '.' : '';
+  };
+
   // ---- the second chair (v0.10.39, §91 B2): a second studio chair opens
   // only when the first has records to show — a building earns depth
   KP.chairOpenable = function (state, seatId) {
@@ -106,6 +158,7 @@
     if (state.budget < severance) return { ok: false, reason: 'The severance is ' + severance + ' and the account cannot cover a clean goodbye. An unclean one is not on the menu.' };
     state.budget -= severance;
     if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -severance);
+    const leaves = KP.seatLeavesWith(state, st);   // what the résumé takes with it (v0.11.41, §133)
     delete S[seatId];
     if (state.scenes) state.scenes = state.scenes.filter(sc =>
       !(sc.kind === 'seatPoach' && sc.seatId === seatId));
@@ -116,7 +169,7 @@
       state.trust = KP.clamp(state.trust - 1, 0, 100);
     }
     KP.note(state, { kind: 'company', ind: 'seatReleased', priority: 'high',
-      text: st.name + ' and the company part ways — the ' + seat.label + ' chair is open, the severance is paid, and the building spends a week discussing it in doorways. Here is the part nobody will ever resolve: if the results turn around now, it proves you right; if they don’t, it proves nothing, because everything else changed too. Firing into the fog is still firing.' });
+      text: st.name + ' and the company part ways — the ' + seat.label + ' chair is open, the severance is paid, and the building spends a week discussing it in doorways. Here is the part nobody will ever resolve: if the results turn around now, it proves you right; if they don’t, it proves nothing, because everything else changed too. Firing into the fog is still firing.' + leaves });
     return { ok: true, severance };
   };
 
@@ -369,6 +422,7 @@
       if (state.budget < cost) { led.passes++; rememberPass(state, sc.cand); return { toast: 'The fee' + (sev ? ' — and the severance a replacement owes —' : '') + ' outran the account. The candidate’s agent stopped returning calls.' }; }
       state.budget -= cost;
       if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -cost);
+      const leaves = prev ? KP.seatLeavesWith(state, prev) : '';   // what the one who leaves takes (v0.11.41, §133)
       if (prev) {
         led.fired++;
         // letting a name go by replacement raises the same eyebrows
@@ -381,7 +435,7 @@
       KP.note(state, { kind: 'company', ind: 'seatFilled', priority: 'high',
         text: sc.cand.name + ' signs on as ' + HR.SEATS.find(x => x.id === sc.cand.seatId).label +
           (prev ? ', taking the chair from ' + prev.name + ' — severance paid, and the building notices chairs' : '') +
-          '. What the hire actually is, only the months will say: the results arrive tangled with everything else, which is the whole job of judging them.' });
+          '.' + leaves + ' What the hire actually is, only the months will say: the results arrive tangled with everything else, which is the whole job of judging them.' });
       return { toast: 'Hired. Now comes the only interview that counts: the next year.' };
     },
     expire: (state, sc) => { ledger(state).passes++; rememberPass(state, sc.cand); return null; },
@@ -433,9 +487,16 @@
       }
       const st = (state.seats || {})[sc.seatId];
       const seat = KP.C.HIRES.SEATS.find(x => x.id === sc.seatId);
+      // what the industry read (v0.11.41, §133): the credit at this house; with none, the name they came in with;
+      // and for a chair with neither, the red weeks, which are the only reason such a chair is called
+      const read = st ? KP.seatCreditShort(KP.seatCredit(state, st)) : '';
+      const named = st && KP.C.HIRES.REP_TIERS.indexOf(st.tier) >= KP.C.HIRES.poachTierMin;
       return (st ? st.name : 'Your ' + seat.label) + ' got the call — ' + callFrom(state, sc) +
-        ', better title, real money. This is what happens when the results carry a name: the industry ' +
-        'reads your credits and hires your people. A raise keeps the chair (' + KP.C.HIRES.raiseCost +
+        ', better title, real money. ' +
+        (!st || read ? 'This is what happens when the results carry a name: the industry reads your credits and hires your people.' + (read ? ' What it read: ' + read + '.' : '')
+          : named ? st.name + ' has no credit at this house yet: the call is for the name they came in with.'
+          : 'The call is not for a credit or a name: a house this far behind has its chairs called.') +
+        ' A raise keeps the chair (' + KP.C.HIRES.raiseCost +
         '); pride keeps nothing.' + callWhy(state, sc);
     },
     // the raise is offered only when the account can pay it (audit
@@ -473,10 +534,11 @@
         return { toast: st.name + ' stays. The raise is real; so is the fact they took the meeting.' };
       }
       led.walked++;
+      const leaves = KP.seatLeavesWith(state, st);   // what the résumé takes across the street (v0.11.41, §133)
       delete state.seats[sc.seatId];
       onBooks(state, sc, 'theyHiredOurStaff');
       KP.note(state, { kind: 'company', ind: 'seatWalked', priority: 'high',
-        text: st.name + ' goes to ' + sc.rivalName + ' with a leaving speech that thanks everyone and a start date that says everything. The chair is open, and whether that is a loss or a mercy is exactly the thing nobody will ever know for certain.' });
+        text: st.name + ' goes to ' + sc.rivalName + ' with a leaving speech that thanks everyone and a start date that says everything.' + leaves + ' The chair is open, and whether that is a loss or a mercy is exactly the thing nobody will ever know for certain.' });
       return { toast: 'The chair is open. The industry hires from the schools it respects — that is the compliment and the bill.' };
     },
     expire: (state, sc) => {
@@ -490,8 +552,14 @@
           text: 'The counter-offer window closed unanswered, and ' + m.name + ' signed elsewhere. The members found out from the group chat. The silence in the van this week has a new-staff-orientation quality to it.' };
       }
       const st = (state.seats || {})[sc.seatId];
-      if (st) { ledger(state).walked++; delete state.seats[sc.seatId]; onBooks(state, sc, 'theyHiredOurStaff'); }
-      return null;
+      if (!st) return null;
+      // it used to go without a word (v0.11.41, §133): a chair that walks on an unanswered call says so, once, and
+      // the letter is one the week's budget cannot cut
+      const seat = KP.C.HIRES.SEATS.find(x => x.id === sc.seatId);
+      const leaves = KP.seatLeavesWith(state, st);
+      ledger(state).walked++; delete state.seats[sc.seatId]; onBooks(state, sc, 'theyHiredOurStaff');
+      return { kind: 'company', ind: 'seatLapsed', priority: 'critical',
+        text: 'The offer sat on the desk until it answered itself: ' + st.name + ' signed with ' + sc.rivalName + ', and the ' + seat.label + ' chair is open.' + leaves };
     },
   });
 

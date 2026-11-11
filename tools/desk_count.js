@@ -33,6 +33,8 @@ const ONE_SHOTS = [
   'yearEnd',
   // the label's birthday (§128): once a year, at a founded label
   'labelBirthday',
+  // a call from outside left unanswered (§133): the chair is gone, said once
+  'seatLapsed',
 ];
 
 function watch(KP) {

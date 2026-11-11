@@ -541,6 +541,7 @@
       const read = KP.staffFileRead ? KP.staffFileRead(st) : null;
       const weeks = state.week - (st.since || 1);
       const made = KP.seatMade(st).length;   // the records made for this house (v0.11.40, §132)
+      const credit = KP.seatCreditSaid(KP.seatCredit(state, st));
       const sev = Math.max(HR.severanceMin,
         Math.round((HR.hireCost[st.tier] || HR.hireCost.working) * HR.severanceMult));
       const knownFor = st.knownForTag
@@ -562,6 +563,8 @@
         ((st.resume || []).length
           ? '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:6px">The résumé: ' +
             UI.esc(st.resume.join('; ')) + '.</div>' : '') +
+        // the credit (v0.11.41, §133): what this house did after they sat, in the résumé's own voice
+        (credit ? '<div class="seat-credit" style="font-size:.72rem;color:var(--ink-dim);margin-top:4px">' + UI.esc(credit) + '</div>' : '') +
         '<div style="font-size:.72rem;color:var(--ink-dim);margin-top:4px">This chair ' + UI.esc(SEAT_BLURBS[seat.id] || 'runs a room') + '.</div>' +
         '<div style="display:flex;gap:6px;margin-top:9px">' +
         '<button class="btn small ghost" style="border:1px solid var(--line)" data-action="seat-release" data-id="' + seat.id + '">Let go · ' + sev + '</button>' +

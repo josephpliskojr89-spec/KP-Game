@@ -9532,7 +9532,7 @@ the written record, SHIPPED v0.11.30, §122; part five, the year's
 close, SHIPPED v0.11.32, §124; part six, the label's birthday,
 SHIPPED v0.11.36, §128; part seven, the greenlights on the record,
 SHIPPED v0.11.37, §129; part eight, the handover, SHIPPED v0.11.39,
-§131).** The
+§131; part nine, the credits, SHIPPED v0.11.41, §133).** The
 exec's `personality` finally read: a question
 family per type (the profit hunter asks about the quarter, the
 traditionalist about the vocal room, the micromanager about a trainee
@@ -14895,6 +14895,213 @@ records through a service chapter and the size of the window's
 bank.
 
 
+## §133 The credits (SHIPPED v0.11.41 — §96 recommendation 7, the people upstairs and down the hall, part nine)
+
+Owner: *"Break remaining work into smaller pieces"*. The ninth of
+recommendation 7's pieces, and the first of the staff given
+years: "credit on the eras she coached". §96 found the staff
+"hired as people through the best-composed scene in the company
+slice and then kept as multipliers: no review, no credit, no
+leaving on their own terms".
+
+**Counted first.** Nothing on the file said what this house did
+while a chair sat. The call from outside said "the industry reads
+your credits and hires your people", and there were no credits to
+read.
+
+| | census, 200 careers | long haul, 11 |
+|---|---|---|
+| chairs that work an era, sat at the end | 1000 | 55 |
+| of them with an era or more behind them | 973 | 26 |
+| eras behind them, in all | 11682 | 301 |
+| calls from outside for such a chair | 105 | 19 |
+| of those, for a chair with no era at this house | 15 | 7 |
+| such chairs that left a house that went on | 495 | 142 |
+| eras behind the ones who left | 4389 | 1231 |
+
+So the sentence was said of a chair with nothing at this house in
+15 of 105 calls in the census and 7 of 19 in the long haul. Those
+chairs came with a name, or the house was in its red weeks: the
+call was never for a credit.
+
+**The credit.** Read off the file, and nothing is kept
+(`KP.seatCredit`). It is the résumé's own law (§79): it says where
+they were, never what they did there.
+
+- A chair that works an era, the vocal coach, the dance coach,
+  the performance director, the A&R lead and the marketing lead,
+  is credited with the eras that landed after they sat, by how
+  each closed (§100): with a trophy, warm, quietly, cold, or
+  still running. An era that landed the very week a chair was
+  taken landed before it was (§132).
+- A studio chair is credited with the records made here (§132).
+- The scout is credited with those of the roster who signed on
+  their watch, and how many of those have debuted.
+
+No number here is what a chair is worth. The same eras stand
+behind every chair that sat through them, and the results arrive
+tangled with everything else, as they always did.
+
+**Where it is said.**
+
+- *The chair's card*, under the résumé: "In the room for 17 eras
+  of this house: 8 closed with a trophy, 2 warm, 4 quietly, 3
+  cold." A scout's: "Of the 17 on this house’s roster, 7 signed
+  on their watch, and 3 of them have debuted." A chair with
+  nothing behind it has no such line.
+- *The call from outside* says what the industry read: "What it
+  read: 17 eras for this house, 8 of them closed with a trophy."
+  Of a chair with a name and nothing here it says so: "Sa Seon-mi
+  has no credit at this house yet: the call is for the name they
+  came in with." A chair with neither is only ever called in the
+  red weeks (§86), and the scene says that.
+- *The goodbyes*, when a chair is let go, replaced at an
+  interview or takes the offer: "On the résumé that leaves with
+  Kang Byung-chul: 17 eras for this house, 8 of them closed with
+  a trophy."
+
+**Found on the way.** A chair that walked on an unanswered call
+went without a word. The road manager's unanswered counter-offer
+has always written a letter. A chair's wrote none: the chair was
+simply open the next time the Building tab was looked at. No run
+could have found it, because the tools' players answer every
+call. It was found reading the code for the goodbyes. Now a
+letter says who took them, which chair is open and what went
+with them, and it is one the week's budget cannot cut
+(`seatLapsed`, on the one-shot list of §112).
+
+**One real career, before and after.** A save from week 164, four
+of its chairs sat since the first week.
+
+Before, the call for the vocal coach and the call for a writer
+eight weeks in read the same: “the industry reads your credits and
+hires your people.” After, the first goes on: “What it read: 17
+eras for this house, 8 of them closed with a trophy.” The second
+says: “Sa Seon-mi has no credit at this house yet: the call is for
+the name they came in with.”
+
+Before, a call left unanswered for the dance coach wrote nothing at
+all. After: “The offer sat on the desk until it answered itself:
+Coach Cha signed with Aurum Media, and the head dance coach chair
+is open. On the résumé that leaves with Coach Cha: 17 eras for this
+house, 8 of them closed with a trophy.”
+
+**What moved.** No simulation changed: the piece is in what is
+said. The census’s output is v0.11.40’s but for one line: the
+average save is 579 KB where it was 578, because the goodbyes it
+holds say more. Every count and every band is the same. The long
+haul says the same of every career, line for line, and writes the
+same number of letters. The tools’ players answer every call, so
+the new letter is never written there: the suite and the browser
+pass hold it.
+
+**The long haul's check, tried.** The long haul keeps books of
+its own for every chair: which records landed in a week the
+chair began sat, how each closed by the tool's own reading of the
+close, and the week each of the roster came on to it. Every week
+it holds each chair's credit to those books, and each call from
+outside to what they hold. It was run against ten engines broken on
+purpose.
+Every era on the file counted, whenever the chair sat down. Every
+closed era closed quietly. Nothing ever still running. Everyone on
+the roster signed on the scout’s watch. Everyone who has debuted
+counted for the scout. A call that does not say what was read. A
+call that says credits were read whatever the chair has. The warm
+ones named the best where there is a trophy. A chair with a name
+told the call is for the red weeks. A chair with neither told it is
+for its name. Each was flagged by name. On the tree as it stands
+four careers are clean, and the whole run holds 37040 weeks of a
+chair’s credit and 19 calls to the books.
+
+**Found by the mutation run.** Nothing. 76 of 76 broken lines were
+caught by name on the first run, and on the final run the same.
+
+**Mistakes on the way.**
+
+- The first trial left one broken engine unflagged: a call that
+  says credits were read whatever the chair has. The career it
+  ran on has five calls, every one for a chair with credits. The
+  check was sound, and the trial was not trying it. Two careers
+  that do have such calls were added, and it is flagged in both.
+- The chain did not start the first time. The script was made
+  from the last one by renaming, and the renaming changed the
+  name of the scratch folder inside it. Nothing was checked and
+  nothing in the tree was touched. A copy of the tree it had
+  written to the wrong place was removed.
+- The probe that counted first read a scout's signings off each
+  person's chapters, which are kept forty to a person. In the
+  long haul it found none of them on a stage, which was the
+  chapters falling off the end of long files. The credit reads
+  the week a person signed, which is kept.
+- The first draft read the scout's credit off the week a person
+  came to the board. That counts people a rival signed first. It
+  reads the week they signed with this house.
+- Three comments said the credit had to be read while the chair
+  was still sat. It does not: the read takes the chair itself.
+  The comments say what the lines do now.
+
+Suite_148 (66): the eras after a chair sat, before, the very
+week and after, closed each way, never closed, still running and
+in its last promotion week, a second act, a retired act and two
+acts in promotion; the five chairs that work an era; the words in
+full and in a clause, for one era and for many, each way they can
+stand; the scout, by the week each of the roster signed, with a
+roster entry that has no file; the studio chairs; the card, its
+place and its absence; the call, for a chair with credits, with a
+name and none, with neither, for a producer, for a scout and for
+a chair since emptied; each goodbye with something to take and
+with nothing; a chair kept with a raise; the call left
+unanswered, its letter, its place on the house's books, and two
+real weeks that land it. Mutation-checked against 76 broken
+lines, each caught by a named assertion. A real-browser pass
+(12 checks, no page errors): a real career saved by v0.11.34
+opens with what each chair was in the room for on its card; the
+marketing lead is let go through the real button, and the letter
+says what the résumé takes; a call for the vocal coach says what
+the industry read, and "Wish them well" through the real button
+writes what goes across the street; a call for a writer eight
+weeks in says it is for the name; a call left unanswered for
+real weeks takes the dance coach, and the letter lands.
+Battery 148/148, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, the till audit clean, e2e 137, 32, 41 and 23, the twenty-
+three older browser passes, lockstep 0.11.41.
+
+*Left for the next pieces.* The rest of the staff given years: a
+yearly word from each chair, a letter when the trades' word for
+one rises, and leaving on their own terms. And the rest of what
+a desk change leaves on the file (§130, §132). *The owner's to
+call*: the wording of the credit, in full and in a clause, of
+"What it read" and of "On the résumé that leaves with"; whether
+a credit should stay on a record after the chair has gone, as a
+booklet's does, where today it goes with them; whether a call
+left unanswered should cost more than the chair; and whether the
+road manager's unanswered counter-offer, which can be cut in a
+loud week, should be made a letter that cannot. *Still the
+owner's to call*: from §132, whether the chairs should come
+across at a founding after all, whether an old label's carried
+chairs should be swept too, and the wording of the letter's
+sentence and the card's three words; from §131, whether the
+record should move the number a new chair starts from, the five
+lines, the letter's last sentence, and whether a promise upstairs
+should go on naming the chair it was made to; from §129, whether
+a new label's Record tab should list the old house's greenlights
+too, and the wording of a row and of its three chips; from §128,
+whether a birthday should lift morale, whether a salaried house
+should have a founding date of its own, and the wording of the
+three openings; from §126, whether the count on Offers should sit
+beside the word; from §125, whether a long tag should take the
+line or the three long words be given shorter ones; from §124,
+the headline's order, and whether the letter should say more or
+less than its four things; from §123, whether the date should sit
+under the name on the larger phones too; from §122, whether a
+founded label's first trophy should be a first; from §121, the
+spacing of the manager's titles; from §120, the shape of
+probation; from §119, whether a pass should cost anything, and
+whether next door to the sound should count; the Desk's tie-break
+(§112); and from §109, the fade between records through a service
+chapter and the size of the window's bank.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -19282,6 +19489,37 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > pass (24), lockstep 0.11.40.
 > Rode to main. Next piece: the staff given years, the credits
 > first.
+
+> **0.11.41 — the credits.** Own judgment, under "Approved to
+> tackle as much of the remaining queue as you see fit" and "Break
+> remaining work into smaller pieces": the ninth piece of §96's
+> recommendation 7, and the first of the staff given years. §133:
+> a chair was kept as a multiplier, and nothing on the file said
+> what this house did while they sat. Now it is read off the file:
+> the eras that landed after a chair sat, by how each closed; a
+> studio chair's records made here; who signed on a scout's watch.
+> The chair's card says it, a call from outside says what the
+> industry read, and a goodbye says what the résumé takes.
+> Counted first:
+> at the end of the census’s 200 careers 973 of the 1000 chairs that
+> work an era had one or more behind them, 11682 eras in all, and
+> nothing said so. Of 105 calls from outside for such a chair, 15 were
+> for one with no era at this house, and the scene said the industry
+> had read its credits; in the long haul, 7 of 19.
+> Found on the way: a chair that walked on an unanswered call
+> went without a word. A letter says so now, and it cannot be cut.
+> No simulation changed: the census’s output is 0.11.40’s but for the
+> average save, 1 KB larger for the goodbyes that say more, and the
+> long haul’s careers read as they did.
+> Suite_148 (66), 76 mutations caught by name, all on the
+> first run. The long haul’s own books of each chair’s credit, tried
+> against ten broken engines, flagged each. The first trial left one
+> unflagged: the career it ran on had no such call, and two that do
+> were added.
+> Battery 148/148, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
+> pass (12), lockstep 0.11.41.
+> Rode to main. Next piece: a yearly word from each chair.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
