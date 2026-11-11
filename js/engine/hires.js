@@ -45,22 +45,24 @@
   // the records a studio chair has made for THIS house: the ones that landed after they sat down in it (v0.11.40,
   // §132). An old file may hold a chair that came across at a founding with records made for the house it left,
   // and a record that landed the very week a chair was taken landed before it was
-  KP.seatMade = function (st) { return (st.works || []).filter(w => !(w.week <= st.since)); };
+  KP.seatMade = function (st, from) { return (st.works || []).filter(w => !(w.week <= (from != null ? from : st.since))); };
 
   // ---- the credit (v0.11.41, §133): what this house did after a chair was taken. The résumé's own law (§79): it
   // says where they were, never what they did there. Read off the file, and nothing is kept. A chair that works an
   // era is credited with the eras that landed after they sat, by how each closed; a studio chair with the records
   // made here; the scout with who on the roster signed on their watch
-  KP.seatCredit = function (state, st) {
-    if (KP.C.HIRES.SEATS.some(x => x.id === st.seatId && x.studio)) return { kind: 'records', n: KP.seatMade(st).length };
+  // read from a week other than the one the chair was taken, it is the credit since that week: a year's (§134)
+  KP.seatCredit = function (state, st, from) {
+    const since = from != null ? from : st.since;
+    if (KP.C.HIRES.SEATS.some(x => x.id === st.seatId && x.studio)) return { kind: 'records', n: KP.seatMade(st, since).length };
     if (st.seatId === 'scout') {
       const roster = state.roster.map(id => state.people[id]).filter(Boolean);
-      const found = roster.filter(p => p.signedWeek > st.since);
+      const found = roster.filter(p => p.signedWeek > since);
       return { kind: 'floor', n: found.length, of: roster.length, debuted: found.filter(p => p.status === 'idol').length };
     }
     const c = { kind: 'eras', n: 0, crowned: 0, warm: 0, quiet: 0, cold: 0, running: 0 };
     KP.groups(state).forEach(g => (g.releases || []).forEach((rel, i, all) => {
-      if (!(rel.week > st.since)) return;
+      if (!(rel.week > since)) return;
       c.n++;
       if (rel.closed) c[rel.closed.verdict]++;
       else if (i === all.length - 1 && !g.retiredWeek && state.week <= (g.promoUntil || 0)) c.running++;
@@ -77,13 +79,16 @@
       return 'Of the ' + c.of + ' on this house’s roster, ' + one(c.n) + ' signed on their watch' +
         (c.debuted ? ', and ' + one(c.debuted) + ' of them ' + (c.debuted === 1 ? 'has' : 'have') + ' debuted' : '') + '.';
     }
-    const closed = HOW.filter(h => c[h[0]]);
-    if (c.n === 1) return 'In the room for one era of this house, ' + (closed.length ? 'which closed ' + closed[0][1] : 'still running') + '.';
-    if (!closed.length) return 'In the room for ' + c.n + ' eras of this house, all still running.';
-    if (closed.length === 1 && c[closed[0][0]] === c.n) return 'In the room for ' + c.n + ' eras of this house, all closed ' + closed[0][1] + '.';
-    return 'In the room for ' + c.n + ' eras of this house: ' + closed.map((h, i) => one(c[h[0]]) + (i ? ' ' : ' closed ') + h[1]).join(', ') +
-      (c.running ? '; ' + one(c.running) + ' still running' : '') + '.';
+    return 'In the room for ' + (c.n === 1 ? 'one era' : c.n + ' eras') + ' of this house' + erasStand(c) + '.';
   };
+  // how a count of eras stands, to follow the count: ", which closed warm", ", all still running", ": 3 closed with a trophy, 2 warm"
+  function erasStand(c) {
+    const closed = HOW.filter(h => c[h[0]]);
+    if (c.n === 1) return ', ' + (closed.length ? 'which closed ' + closed[0][1] : 'still running');
+    if (!closed.length) return ', all still running';
+    if (closed.length === 1 && c[closed[0][0]] === c.n) return ', all closed ' + closed[0][1];
+    return ': ' + closed.map((h, i) => one(c[h[0]]) + (i ? ' ' : ' closed ') + h[1]).join(', ') + (c.running ? '; ' + one(c.running) + ' still running' : '');
+  }
   // in a clause, for a call from outside and for a goodbye: the count, and the best of it
   KP.seatCreditShort = function (c) {
     if (!c.n) return '';
@@ -98,6 +103,69 @@
     const said = KP.seatCreditShort(KP.seatCredit(state, st));
     return said ? ' On the résumé that leaves with ' + st.name + ': ' + said + '.' : '';
   };
+
+  // ---- the yearly word (v0.11.42, §134): in the week a chair was taken, each year, the chair says one true thing
+  // about its room. The fact is the year's credit, the credit's own read (§133) from a year back. The voice is the
+  // chair's own (§79): a candid one says what it cannot know, a careful one sands it. Chairs that turn a year in one
+  // week share one letter, and the year of the house is said once. No draw is made anywhere here
+  const ROOM = {
+    vocal: ['Every voice on a record this year came through my room. How much of what you heard was the room, I could not tell you.', 'The vocal room did its part.'],
+    dance: ['Every count on a stage this year was drilled in my room. Whether the drilling is what you saw, I would not swear to.', 'The dance room did its part.'],
+    perf: ['I ran the rehearsal before every stage this year. A stage can go wrong after a good rehearsal, and right after a bad one.', 'The rehearsals ran to schedule.'],
+    anr: ['Every demo that became a record this year crossed my desk first. I can tell you what I liked. I cannot tell you what I was right about.', 'The demo sheet was in order.'],
+    marketing: ['Every push behind a record this year was planned on my desk. What a push bought and what a record earned alone, nobody can pull apart.', 'The campaigns ran as planned.'],
+  };
+  // a year in which the house put out nothing: each room says it of itself. A line says only what the read holds,
+  // that no record went out: a year without a record can still have had a stage, a tour or a record in the making
+  const QUIET = {
+    vocal: ['No record went out this year with a voice from my room on it, so there is nothing of mine to point at.', 'A quiet year. The vocal room is ready.'],
+    dance: ['No record went out this year with my room’s counts under it, so there is nothing of mine to point at.', 'A quiet year. The dance room is ready.'],
+    perf: ['No record went out this year for my room to stage. I cannot tell you what the room would have done.', 'No record to stage this year. The rehearsal room is ready.'],
+    anr: ['No demo became a record this year. I have a drawer of them and no proof.', 'A quiet year for the demo sheet.'],
+    marketing: ['No record went out this year for my desk to push, so there is nothing of mine to point at.', 'No record to push this year. The desk is ready.'],
+  };
+  // a count as a person says it, to open a sentence
+  const SAID = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'];
+  const Said = n => SAID[n] || String(n);
+  const yearsSaid = n => (n === 1 ? 'a year' : Said(n).toLowerCase() + ' years');
+  // one chair's own words on its year: [candid, careful], picked by how the chair answers
+  KP.seatYearWord = function (state, st) {
+    const c = KP.seatCredit(state, st, state.week - KP.C.WEEKS_PER_YEAR);
+    const voice = st.candor >= 50 ? 0 : 1;
+    if (c.kind === 'eras') return (c.n ? ROOM : QUIET)[st.seatId][voice];
+    if (c.kind === 'floor') {
+      return (c.n ? [Said(c.n) + ' of the roster signed on my watch this year. Whether ' + (c.n === 1 ? 'that was the right one' : 'they were the right ones') + ' is a question for the year of the debut.',
+        Said(c.n) + ' signed this year. The pipeline is where it should be.']
+        : ['Nobody signed this year, so I have nothing to point at.', 'No signings this year. The desk stays open.'])[voice];
+    }
+    return (c.n ? [Said(c.n) + ' of this house’s records this year ' + (c.n === 1 ? 'was mine. It is on the shelf with my name on it' : 'were mine. They are on the shelf with my name on them') + ', for better or worse.',
+      Said(c.n) + (c.n === 1 ? ' record' : ' records') + ' for the house this year. More when the calendar asks.']
+      : ['No record of mine went out this year. I would rather say it than have you look for one.', 'No release under my name this year. The lane is ready.'])[voice];
+  };
+  // the chairs that turn a year this week, in the building's own order
+  KP.seatYearsDue = function (state) {
+    const S = state.seats || {}, Y = KP.C.WEEKS_PER_YEAR;
+    return KP.C.HIRES.SEATS.filter(x => S[x.id] && state.week > S[x.id].since && (state.week - S[x.id].since) % Y === 0).map(x => S[x.id]);
+  };
+  KP.seatYearLetter = function (state) {
+    const due = KP.seatYearsDue(state);
+    if (!due.length) return null;
+    const Y = KP.C.WEEKS_PER_YEAR;
+    const label = st => KP.C.HIRES.SEATS.find(x => x.id === st.seatId).label;
+    const years = st => yearsSaid((state.week - st.since) / Y);
+    const house = due.map(st => KP.seatCredit(state, st, state.week - Y)).filter(c => c.kind === 'eras')[0];
+    const fact = !house ? '' : ' In the year behind ' + (due.length === 1 ? 'them' : 'the rooms') + ' the house put out ' +
+      (house.n ? (house.n === 1 ? 'one era' : house.n + ' eras') + erasStand(house) : 'nothing') + '.';
+    const text = due.length === 1
+      ? due[0].name + ' has sat ' + years(due[0]) + ' in the ' + label(due[0]) + ' chair.' + fact + ' “' + KP.seatYearWord(state, due[0]) + '”'
+      : Said(due.length) + ' chairs turn a year this week.' + fact +
+        due.map(st => ' ' + st.name + ', ' + years(st) + ' the ' + label(st) + ': “' + KP.seatYearWord(state, st) + '”').join('');
+    return { kind: 'company', ind: 'seatYear', priority: 'critical', seats: due.map(st => st.seatId), text };
+  };
+  KP.registerWeekly('seatYears', 792, function (state, rng, inbox) {
+    const letter = KP.seatYearLetter(state);
+    if (letter) inbox.push(letter);
+  });
 
   // ---- the second chair (v0.10.39, §91 B2): a second studio chair opens
   // only when the first has records to show — a building earns depth

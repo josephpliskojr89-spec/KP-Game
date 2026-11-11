@@ -9532,7 +9532,8 @@ the written record, SHIPPED v0.11.30, §122; part five, the year's
 close, SHIPPED v0.11.32, §124; part six, the label's birthday,
 SHIPPED v0.11.36, §128; part seven, the greenlights on the record,
 SHIPPED v0.11.37, §129; part eight, the handover, SHIPPED v0.11.39,
-§131; part nine, the credits, SHIPPED v0.11.41, §133).** The
+§131; part nine, the credits, SHIPPED v0.11.41, §133; part ten,
+the yearly word, SHIPPED v0.11.42, §134).** The
 exec's `personality` finally read: a question
 family per type (the profit hunter asks about the quarter, the
 traditionalist about the vocal room, the micromanager about a trainee
@@ -15102,6 +15103,265 @@ whether next door to the sound should count; the Desk's tie-break
 chapter and the size of the window's bank.
 
 
+## §134 The yearly word (SHIPPED v0.11.42 — §96 recommendation 7, the people upstairs and down the hall, part ten)
+
+Owner: *"Break remaining work into smaller pieces"*. The tenth of
+recommendation 7's pieces, and the second of the staff given
+years: "a yearly word from each chair" (§133, left for the next
+pieces). §96 found the staff "kept as multipliers: no review, no
+credit, no leaving on their own terms".
+
+**Counted first.** A chair has a voice already: a weekly note in
+its own words, at the lowest priority. The week's budget cuts
+most of them (§112), so a chair can sit a whole year and the
+Desk never hears from it.
+
+| | census, 200 careers | long haul, 11 |
+|---|---|---|
+| whole years a chair sat | 2569 | 826 |
+| of them with no letter in the chair's voice | 1993 | 511 |
+| weeks in which a chair turns a year | 1502 | 634 |
+| chairs turning a year in them | 2569 | 815 |
+| to a career-year | 4.40 chairs in 2.58 weeks | 5.74 in 4.46 |
+| the most chairs in one such week | 5 | 4 |
+| such weeks for an era chair | 1209 | 429 |
+| of them with nothing put out in the year | 0 | 191 |
+| a scout's year | 394 | 123 |
+| of them with nobody signed | 35 | 86 |
+| a studio chair's year | 292 | 163 |
+| of them with no record made | 256 | 163 |
+| uncuttable letters already in such a week, at most | 9 | 4 |
+
+**The word.** In the week a chair was taken, each year after,
+the chair says one true thing about its room
+(`KP.seatYearLetter`, on the rail `seatYears`, after the week's
+hires). Nothing is kept on the file for it: the week is read off
+the week the chair was taken, and the fact is the credit's own
+read (§133) from a year back.
+
+- *The fact.* For a chair that works an era, the house's year:
+  how many eras landed in it, and how each closed. For the scout,
+  who of the roster signed in it. For a studio chair, the records
+  it made here in it.
+- *The voice.* The chair's own (§79), by the same line the card
+  draws: one that "answers straight even when it costs" says
+  what it cannot know, and one that "answers carefully, edges
+  sanded" sands it. Neither says what the chair is worth. The
+  fog stays where it was.
+- *One letter.* Chairs that turn a year in the same week share a
+  letter, in the building's own order, and the house's year is
+  said once.
+- *It lands.* The letter is one the week's budget cannot cut
+  (`seatYear`, on the one-shot list of §112). A yearly word that
+  can be cut is a year of silence again.
+- *No draw is made*, so no career's dice move.
+
+**The lines.** Twenty-eight in all. Each says only what the read
+holds. A year without a record can still have had a stage, a
+tour or a record in the making, so a quiet year's line says that
+no record went out, and nothing wider.
+
+A year the house put a record out:
+
+| chair | answers straight | answers carefully |
+|---|---|---|
+| the head vocal coach | Every voice on a record this year came through my room. How much of what you heard was the room, I could not tell you. | The vocal room did its part. |
+| the head dance coach | Every count on a stage this year was drilled in my room. Whether the drilling is what you saw, I would not swear to. | The dance room did its part. |
+| the performance director | I ran the rehearsal before every stage this year. A stage can go wrong after a good rehearsal, and right after a bad one. | The rehearsals ran to schedule. |
+| the A&R lead | Every demo that became a record this year crossed my desk first. I can tell you what I liked. I cannot tell you what I was right about. | The demo sheet was in order. |
+| the marketing lead | Every push behind a record this year was planned on my desk. What a push bought and what a record earned alone, nobody can pull apart. | The campaigns ran as planned. |
+
+A year it put out nothing:
+
+| chair | answers straight | answers carefully |
+|---|---|---|
+| the head vocal coach | No record went out this year with a voice from my room on it, so there is nothing of mine to point at. | A quiet year. The vocal room is ready. |
+| the head dance coach | No record went out this year with my room’s counts under it, so there is nothing of mine to point at. | A quiet year. The dance room is ready. |
+| the performance director | No record went out this year for my room to stage. I cannot tell you what the room would have done. | No record to stage this year. The rehearsal room is ready. |
+| the A&R lead | No demo became a record this year. I have a drawer of them and no proof. | A quiet year for the demo sheet. |
+| the marketing lead | No record went out this year for my desk to push, so there is nothing of mine to point at. | No record to push this year. The desk is ready. |
+
+The scout and the studio chairs carry their own count:
+
+| chair | answers straight | answers carefully |
+|---|---|---|
+| the head scout, three signed | Three of the roster signed on my watch this year. Whether they were the right ones is a question for the year of the debut. | Three signed this year. The pipeline is where it should be. |
+| one signed | One of the roster signed on my watch this year. Whether that was the right one is a question for the year of the debut. | One signed this year. The pipeline is where it should be. |
+| nobody signed | Nobody signed this year, so I have nothing to point at. | No signings this year. The desk stays open. |
+| a studio chair, two records | Two of this house’s records this year were mine. They are on the shelf with my name on them, for better or worse. | Two records for the house this year. More when the calendar asks. |
+| one record | One of this house’s records this year was mine. It is on the shelf with my name on it, for better or worse. | One record for the house this year. More when the calendar asks. |
+| none | No record of mine went out this year. I would rather say it than have you look for one. | No release under my name this year. The lane is ready. |
+
+**One real career, before and after.** A save from week 141, four
+of its chairs sat since the first week and a fifth since the
+third. Six real weeks on each tree.
+
+Before, the six weeks wrote 93 letters and 35 landed, and none was
+a chair’s word on its year. After, 95 were written and 37 landed.
+The two more are the yearly words, and no other letter was cut for
+them: the same letters landed beside them, week for week. The file
+is otherwise the same on both trees. Only the letters, the letter
+counter and the version differ.
+
+Week 145, four chairs: “Four chairs turn a year this week. In the
+year behind the rooms the house put out 6 eras: one closed with a
+trophy, 2 quietly, one cold; 2 still running. Kang Byung-chul,
+three years the head vocal coach: ‘Every voice on a record this
+year came through my room. How much of what you heard was the room,
+I could not tell you.’ Coach Cha, three years the head dance coach:
+‘The dance room did its part.’ Director Cha, three years the
+performance director: ‘I ran the rehearsal before every stage this
+year. A stage can go wrong after a good rehearsal, and right after
+a bad one.’ Scout Im, three years the head scout: ‘Nobody signed
+this year, so I have nothing to point at.’”
+
+Week 147, one chair: “Sa Bo-ra has sat three years in the A&R lead
+chair. In the year behind them the house put out 6 eras: one closed
+with a trophy, 2 quietly, 3 cold. ‘Every demo that became a record
+this year crossed my desk first. I can tell you what I liked. I
+cannot tell you what I was right about.’”
+
+**What moved.** No simulation changed: the piece is a letter. The
+census’s output is v0.11.41’s but for one line, the Desk’s count of
+letters: 1595 more written and 1595 more landed. Every one is a
+yearly word, 1502 of them in the 200 careers, one for each week a
+chair turned a year, and 93 in the tool’s other careers. No other
+letter was cut for one. The loudest week now holds ten letters that
+cannot be cut, where it held nine. Every count and every band is
+the same: 365 rows, none moved. The long haul says the same of
+every career, line for line, with 634 more letters written and 634
+more landed, its own count of the weeks a chair turned a year.
+
+**The long haul's check, tried.** The long haul notes the week it
+first saw each chair sat, and asks the engine for nothing. Every
+week it holds that one letter is written if a chair turns a year
+by that note and none if not, that it landed, that it names each
+chair that turned and no other, and that the year it gives the
+house is the count this tool saw land.
+
+It was run against eight engines broken on purpose. A rail that
+writes nothing. A chair that turns a year a week late. Every chair
+turning a year every week. A letter the week’s budget can cut: 45
+of the 60 in one career were cut, which is why it cannot be. A
+shared letter that does not say which chair each sits in. The
+house’s year given as everything since the chair sat. The house’s
+year left out. A scout’s or a writer’s year given as the house’s.
+Each was flagged by name. On the tree as it stands three careers
+are clean, and over the whole run a chair turned a year in 634
+weeks: 634 letters written, 634 landed, 815 chairs named.
+
+**Found on the way.** Two people sat in one building can share a
+name. The tool flagged its own first run for it: the letter
+named a Gil Ki-tae who had turned a year, and the tool matched
+the name to another Gil Ki-tae who had not. The check now reads
+the name with its chair, as the letter gives them. The cause is
+older than this piece: a candidate's name is drawn from a
+hundred, and nothing passes over a name already sat.
+
+In the census 37 of 200 careers had two sat chairs of one name in
+some week: 40 names, 1425 of 28000 weeks. In the long haul 10 of 11
+careers: 14 names, 1582 of 6820 weeks. It is left for its own small
+repair.
+
+**Found by the mutation run.** The first run caught 50 of 53. Two
+broken lines crashed the suite where they should have failed it by
+name: a helper read the text of a letter that was not there, and a
+check read whose years a letter held when it held none. One
+survived: the house’s year read as everything since the chair sat.
+No fixture had an era from before the year, so the two reads
+agreed. The helper returns a letter that says there is none, and
+the five-chair fixture has two records from before the year. The
+second run caught 53 of 53, and the final run, on the tree as
+committed, the same.
+
+**Mistakes on the way.**
+
+- The lines as first written said more than was read. A quiet
+  year's line said there was no stage to rehearse for, and a
+  studio chair's said nobody had asked. The read holds only that
+  no record went out. Seven lines did this. It was found writing
+  this section, after the first chain had started. The chain was
+  stopped, the lines were rewritten, and every check was run
+  again from the start.
+- Five more lines leaned on the sentence before them: "every
+  count of it", "every demo behind it". In a letter for four
+  chairs that sentence is far away. Each now stands on its own.
+  A thirteenth line was reworded to be plainer.
+- The suite hung on its first run. Its walk of real weeks had no
+  bound and answered every scene with its first option. It was
+  stopped and replaced by a walk that is bounded, answers
+  nothing, and ends if the week does not move.
+- Reading the diff, the words "still running" looked as if they
+  could be said of an era that was neither closed nor running.
+  A count was started for it. The credit already reads such an
+  era by how it would have closed (§133), so nothing was wrong
+  and nothing changed.
+
+Suite_149 (54): the week a chair turns a year, not the week
+it was taken and not a week either side, and every forty-eight
+after; the building's order; a building with nobody turning and
+one with no chairs on file; each of the five rooms in each voice,
+in a year with a record and in a quiet one, at the line between
+the voices; the scout, by who signed in the year, not the week it
+began nor before; the studio chairs, by the records made in the
+year; counts said as a person says them, and written as a number
+past twelve; the letter for one chair, the house's year each way
+it can stand, the years in words; five chairs in one letter with
+two records from before the year; a scout and a writer alone; a
+writer alone; forty-eight real weeks from a new game; and the
+rail run on a stream that refuses every draw. Mutation-checked
+against 53 broken lines, each caught by a named assertion. A
+real-browser pass (10 checks, no page errors): a real career
+saved by v0.11.29 opens four weeks before its first four chairs
+turn three years; four real weeks by the real button, and one
+letter is on the Desk, with the house's year as the file's own
+records have it and each of the four in their own words; two
+more, and the A&R lead turns three years alone.
+Battery 149/149, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, the till audit clean, e2e 137, 32, 41 and 23, the
+twenty-four older browser passes, lockstep 0.11.42.
+
+*Left for the next pieces.* The repair so that two people in one
+building cannot share a name. Then the rest of the staff given
+years: a letter when the trades' word for a chair rises, and
+leaving on their own terms. And the rest of what a desk change
+leaves on the file (§130, §132). *The owner's to call*: the
+wording of the twenty-eight lines and of the letter around them;
+whether the word should be a letter the week cannot cut, as it
+is, or one that takes its chances; whether the card should keep
+the last word said; and whether the two voices should be drawn
+at the card's line, as they are, or somewhere else. *Still the
+owner's to call*: from §133, the wording of the credit, in full
+and in a clause, of "What it read" and of "On the résumé that
+leaves with", whether a credit should stay on a record after the
+chair has gone, whether a call left unanswered should cost more
+than the chair, and whether the road manager's unanswered
+counter-offer should be made a letter that cannot be cut; from
+§132, whether the chairs should come across at a founding after
+all, whether an old label's carried chairs should be swept too,
+and the wording of the letter's sentence and the card's three
+words; from §131, whether the record should move the number a
+new chair starts from, the five lines, the letter's last
+sentence, and whether a promise upstairs should go on naming the
+chair it was made to; from §129, whether a new label's Record tab
+should list the old house's greenlights too, and the wording of a
+row and of its three chips; from §128, whether a birthday should
+lift morale, whether a salaried house should have a founding date
+of its own, and the wording of the three openings; from §126,
+whether the count on Offers should sit beside the word; from
+§125, whether a long tag should take the line or the three long
+words be given shorter ones; from §124, the headline's order, and
+whether the letter should say more or less than its four things;
+from §123, whether the date should sit under the name on the
+larger phones too; from §122, whether a founded label's first
+trophy should be a first; from §121, the spacing of the manager's
+titles; from §120, the shape of probation; from §119, whether a
+pass should cost anything, and whether next door to the sound
+should count; the Desk's tie-break (§112); and from §109, the
+fade between records through a service chapter and the size of
+the window's bank.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -19520,6 +19780,39 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
 > pass (12), lockstep 0.11.41.
 > Rode to main. Next piece: a yearly word from each chair.
+
+> **0.11.42 — the yearly word.** Own judgment, under "Approved to
+> tackle as much of the remaining queue as you see fit" and "Break
+> remaining work into smaller pieces": the tenth piece of §96's
+> recommendation 7, and the second of the staff given years. §134:
+> a chair's own voice was a weekly note the week's budget mostly
+> cut, so a chair could sit a year unheard. Now, in the week a
+> chair was taken, each year after, it says one true thing about
+> its room: the house's year for a chair that works an era, who
+> signed for the scout, the records made here for a studio chair,
+> in the chair's own voice. Chairs that turn a year together share
+> one letter, and it cannot be cut. No draw is made.
+> Counted first:
+> in the census’s 2569 whole years a chair sat, 1993 passed with no
+> letter in the chair’s voice landing, and in the long haul 511 of
+> 826. A chair turns a year in 1502 weeks of the census’s 200 careers,
+> 2.58 to a career-year, and at most five turn together.
+> Found on the way: two people sat in one building can share a
+> name. Counted, and left for its own repair.
+> No simulation changed: the census’s output is 0.11.41’s but for the
+> Desk’s count of letters, 1595 more written and 1595 more landed,
+> each a yearly word, and the long haul’s careers read as they did,
+> with 634 more. No other letter was cut for one.
+> Suite_149 (54), 53 mutations caught by name; the first run caught
+> 50. The long haul’s own note of the week each chair sat, tried
+> against eight broken engines, flagged each. Seven lines said more
+> than was read and were rewritten after the first chain had started;
+> every check was run again.
+> Battery 149/149, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
+> pass (10), lockstep 0.11.42.
+> Rode to main. Next piece: no two people of one name in one
+> building.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

@@ -444,6 +444,7 @@ const RV = { given: 0, firsts: 0, counted: 0 };                            // th
 const HO = { given: 0 };                                                    // the handovers of every career (v0.11.39, §131)
 const CH = { walls: 0, minted: 0 };                                         // the chairs at every desk change (v0.11.40, §132)
 const CR = { held: 0, calls: 0, callsHeld: 0 };                             // the credits of every chair (v0.11.41, §133)
+const YR = { due: 0, chairs: 0, wrote: 0, landed: 0 };                      // the yearly words of every chair (v0.11.42, §134)
 for (const sc of RUN) {
   const deskMark = deskCount.mark(DESK);   // this scenario's share of the Desk's count
   const state = KP.newGame(sc.seed, null,
@@ -469,11 +470,39 @@ for (const sc of RUN) {
   // last moved, and the house the desk walked out of. A house keeps its staff when the desk moves: the next building
   // opens with four of its own. Nothing here asks the engine when the desk began
   const ch = { seen: {}, opened: 1, walls: 0, minted: 0, walked: null };
+  // the yearly word (v0.11.42, §134): in the week a chair turns a year, by this tool's own note of the week it first
+  // saw them sat, one letter is written and lands. It names each chair that turned and no other, and the year it
+  // gives the house is the year this tool saw land
+  const yr = { first: {}, due: 0, chairs: 0, wrote: 0, landed: 0 };
+  const yrLook = () => {
+    const S = state.seats || {}, Y = KP.C.WEEKS_PER_YEAR;
+    const due = Object.keys(S).filter(k => yr.first[S[k].id] != null && state.week > yr.first[S[k].id] && (state.week - yr.first[S[k].id]) % Y === 0);
+    const wrote = (KP.lastTickNotes || []).filter(n => n.ind === 'seatYear');
+    const landed = state.inbox.filter(m => m.week === state.week && m.ind === 'seatYear');
+    if (due.length) { yr.due++; yr.chairs += due.length; }
+    yr.wrote += wrote.length; yr.landed += landed.length;
+    if (wrote.length !== (due.length ? 1 : 0)) { flag(sc.seed, state.week, due.length ? due.length + ' chairs turned a year and ' + wrote.length + ' yearly letters were written' : 'a yearly letter in a week no chair turned a year'); return; }
+    if (landed.length !== wrote.length) flag(sc.seed, state.week, 'a yearly letter was written and did not land');
+    if (!wrote.length) return;
+    const text = wrote[0].text;
+    const label = k => KP.C.HIRES.SEATS.find(x => x.id === k).label;
+    Object.keys(S).forEach(k => {   // by name and chair: two people of one building can share a name
+      const named = (text.startsWith(S[k].name + ' has sat ') && text.includes(' in the ' + label(k) + ' chair.')) || new RegExp(' ' + S[k].name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ', [a-z0-9 ]+ the ' + label(k) + ': “').test(text);
+      if (named !== due.includes(k)) flag(sc.seed, state.week, 'the yearly letter ' + (named ? 'names ' : 'does not name ') + S[k].name + ', who ' + (due.includes(k) ? 'turned a year this week' : 'did not turn a year this week'));
+    });
+    const era = due.filter(k => ERA_CHAIRS.includes(k));
+    const m = /the house put out (nothing|one era|(\d+) eras)/.exec(text);
+    if (!era.length) { if (m) flag(sc.seed, state.week, 'the yearly letter gives the house’s year and no chair that works an era turned one'); return; }
+    const own = Object.keys(cr.rec[S[era[0]].id] || {}).filter(key => Number(key.split('|').pop()) > state.week - Y).length;
+    const said = !m ? -1 : m[1] === 'nothing' ? 0 : m[1] === 'one era' ? 1 : Number(m[2]);
+    if (said !== own) flag(sc.seed, state.week, 'the yearly letter says the house put out ' + (said < 0 ? 'nothing it can be read for' : said) + ' in the year and this tool saw ' + own + ' land');
+  };
   const chLook = () => {
     const S = state.seats || {};
     Object.keys(S).forEach(seatId => {
       const st = S[seatId];
       ch.seen[st.id] = true;
+      if (yr.first[st.id] == null) yr.first[st.id] = state.week;   // the week this tool first saw them sat (§134)
       if (!(st.since >= ch.opened && st.since <= state.week)) flag(sc.seed, state.week, st.name + ' is filed as sat in the ' + seatId + ' chair since week ' + st.since + ', and this building opened in week ' + ch.opened);
     });
   };
@@ -673,6 +702,7 @@ for (const sc of RUN) {
     crBegin();
     KP.advanceWeek(state);
     crLook();
+    yrLook();
     rvLook(sheetsAsTheTickBegan);
     // the greenlights (v0.11.37, §129): one the last house gave reads as it did the day the desk moved, and one that
     // was open that day reads set aside; the record lists this desk's own and no other, each with its chair and its end
@@ -868,6 +898,7 @@ for (const sc of RUN) {
   HO.given += ho.given;
   CH.walls += ch.walls; CH.minted += ch.minted;
   CR.held += cr.held; CR.calls += cr.calls; CR.callsHeld += cr.callsHeld;
+  YR.due += yr.due; YR.chairs += yr.chairs; YR.wrote += yr.wrote; YR.landed += yr.landed;
   ['met', 'lapsed', 'open', 'void'].forEach(k => { GL[k] += glEnd[k]; });
   // the sagas (v0.9.31): the hash window [60,320] sits fully inside a
   // 620-week run — every world MUST have been invaded at least once,
@@ -956,6 +987,7 @@ for (const sc of RUN) {
 }
 
 deskCount.lines(DESK, 5).forEach(l => console.log(l));
+console.log('the yearly word (v0.11.42): ' + YR.due + ' weeks a chair turned a year · ' + YR.wrote + ' letters written, ' + YR.landed + ' landed · ' + YR.chairs + ' chairs named, each by this tool’s own note of the week they sat down');
 console.log('the credits (v0.11.41): ' + CR.held + ' weeks of a chair’s credit held to this tool’s own books of what landed, how it closed and who signed · ' + CR.calls + ' calls from outside, ' + CR.callsHeld + ' of them for a chair that works an era, each held to the same books');
 console.log('the chairs (v0.11.40): ' + CH.walls + ' desk change' + (CH.walls === 1 ? '' : 's') + ' · ' + CH.minted + ' chairs opened the next buildings, four at each · none carried across, by this tool’s own books of who sat');
 console.log('the handovers (v0.11.39): ' + HO.given + ' · each letter held to this tool’s own books of the chair who left');
