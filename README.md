@@ -34,10 +34,11 @@ node tools/harness.js 40                              # headless soak + observat
 NODE_PATH=$(npm root -g) node test/e2e_walkthrough.js # real-browser full-career walkthrough
 NODE_PATH=$(npm root -g) node test/e2e_topbar.js      # real-browser check of the top bar at phone widths
 NODE_PATH=$(npm root -g) node test/e2e_mail.js        # real-browser check of the mail rows at phone widths
+NODE_PATH=$(npm root -g) node test/e2e_strips.js      # real-browser check of the strips of tabs from 280 px up
 node tools/version_lockstep.js                        # version agreement checker
 ```
 
-All six must be green before a push. Every release appends a note to the
+All seven must be green before a push. Every release appends a note to the
 Bible's status ledger.
 
 ## Layout
@@ -45,7 +46,7 @@ Bible's status ledger.
 ```
 js/engine/   pure simulation (KP namespace, vm-testable, all tuning in constants.js)
 js/ui/       screens; render state, forward intents, own no simulation logic
-test/        battery suites + the three browser tests
+test/        battery suites + the four browser tests
 tools/       battery runner, soak harness, lockstep checker
 docs/        BIBLE.md (living spec + ledger), founding brief, process doc
 ```

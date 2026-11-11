@@ -487,7 +487,7 @@
 
     // the bio page (v0.10.27, §88): the file grows meaningful tabs —
     // Career and The person join the card, "how they evolve" gets a home
-    html.push('<div class="pad" style="margin-top:8px"><div class="seg" style="flex-wrap:wrap">' +
+    html.push('<div class="pad" style="margin-top:8px"><div class="seg">' +
       [['profile', 'Profile'], ['notes', 'The file'], ['career', 'Career'], ['person', 'The person'], ['history', 'History']].map(tb =>
         '<button class="' + (tab === tb[0] ? 'on' : '') + '" data-action="dossier-tab" data-tab="' + tb[0] + '">' + tb[1] + '</button>').join('') +
       '</div></div>');

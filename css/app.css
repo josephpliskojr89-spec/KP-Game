@@ -285,8 +285,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .domain-quote { padding: 2px 16px 10px 100px; font-size: .86rem; line-height: 1.4; font-style: italic; color: var(--ink); border-bottom: 1px solid color-mix(in srgb, var(--line) 55%, transparent); }
 .domain-quote .q-who { font-style: normal; font-size: .62rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); display: block; margin-top: 4px; }
 
-/* segmented control */
-.seg { display: flex; background: var(--surface2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; }
+/* segmented control. A strip of tabs never runs off (v0.11.34, §126): when
+   its tabs do not fit one line, the last of them take the next. */
+.seg { display: flex; flex-wrap: wrap; background: var(--surface2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; }
 .seg button {
   flex: 1; padding: 8px 4px; border-radius: 8px; font-size: .68rem; font-weight: 800;
   letter-spacing: .08em; text-transform: uppercase; color: var(--ink-dim);
@@ -294,6 +295,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .seg button.on { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
 .seg button.on.rest { color: var(--cyan); }
 .seg button.on.heavy { color: var(--magenta); }
+/* under 360 px a tab gives up padding and letter-spacing, so the Desk's five
+   still fit one line on a 320 px phone */
+@media (max-width: 359px) {
+  .seg button { padding-left: 2px; padding-right: 2px; letter-spacing: .02em; }
+}
 
 .focus-chips { display: flex; flex-wrap: wrap; gap: 7px; }
 .focus-chips .chip.on { background: color-mix(in srgb, var(--era1) 26%, var(--surface2)); color: var(--ink); border-color: var(--era1); }

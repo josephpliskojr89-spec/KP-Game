@@ -405,6 +405,8 @@ rise or fall as companies — see §19.
   Since v0.11.31 a second browser test, `test/e2e_topbar.js`, holds the
   top bar to its line at phone widths (§123). Since v0.11.33 a third,
   `test/e2e_mail.js`, holds a letter's tag clear of its letter (§125).
+  Since v0.11.34 a fourth, `test/e2e_strips.js`, holds every strip of
+  tabs on the screen from 280 px up (§126).
 - **Lockstep** (`node tools/version_lockstep.js`): version agrees across
   constants, sw cache key, index cache-busters, splash tag, precache list.
 
@@ -13669,6 +13671,131 @@ anything, and whether next door to the sound should count; the
 Desk's tie-break (§112); and from §109, the fade between records
 through a service chapter and the size of the window's bank.
 
+## §126 The tabs keep to the screen (SHIPPED v0.11.34 — a repair found in a screenshot)
+
+Owner: *"Break remaining work into smaller pieces"*. Not on §96's
+list. A fault seen in §125's browser pass, older than it, and
+measured before it was touched.
+
+**The finding.** A strip of tabs is one line of equal parts, and a
+tab cannot be narrower than its word. When the words did not fit,
+the strip ran on past its box and past the screen, and the whole
+page slid sideways with it.
+
+**Measured first**, in a real browser: every strip a real career
+shows, ten of them in 41 states, at ten widths from 280 to 430 px.
+The narrow widths matter. A phone with its page zoom raised is
+narrower than 320 px.
+
+| the Desk's five tabs, as shipped | |
+|---|---|
+| the screen they need for one line | 352 px |
+| at 340 px | 9 px out of their box |
+| at 320 px | 12 px off the screen, the last tab cut |
+| at 300 px | 32 px off the screen |
+| at 280 px | 52 px off the screen |
+
+One more strip ran out of its box: the four training loads, by 4
+px at 280 px. The other eight fit at every width. In the widest
+face measured the Desk's tabs need 376 px.
+
+The count on Offers was counted too. Over 200 careers it shows in
+42% of weeks and never passes 8. It sits under the word, so it
+changes nothing about what the strip needs.
+
+**The rule now.**
+
+1. A strip of tabs never runs off. When its tabs do not fit one
+   line, the last of them take the next.
+2. Under 360 px a tab gives up 2 px of padding on each side and
+   most of its letter-spacing. The Desk's five tabs then need 311
+   px, so on a 320 px phone they are on one line with 9 px to
+   spare.
+3. At 360 px and wider nothing changes.
+
+**What holds.**
+
+- from 280 to 430 px no tab runs off the screen or out of its box,
+  no word spills out of its tab, and no page is wider than the
+  screen;
+- the Desk's five tabs are on one line from 312 px, with a count
+  on Offers or without, and under that the fifth takes a second
+  line;
+- a file's five tabs are on one line at 320 px, where the fifth
+  sat alone on a second;
+- at 360, 390 and 430 px every strip compared is pixel for pixel
+  what v0.11.33 drew, 15 of 15.
+
+**The test is the repo's own** (`test/e2e_strips.js`, 23
+checks, eighteen seconds), the fourth browser test, and the
+README's ritual lists it. It walks every strip a new career shows,
+with each count on Offers, at eight widths from 280 to 430 px, and
+twelve made-up strips of three to nine tabs of short, middling and
+long words. The law it holds is free of the face: a strip is on
+one line wherever its tabs fit one at their narrowest, and on more
+wherever they do not. Run against the stylesheet as shipped in
+v0.11.33 it fails 9 of its checks by name.
+
+**Found by the mutation run.** On the first run 12 of 13 broken
+lines were caught. The one that got through set the narrow tab's
+letter-spacing to none. A spacing of none reads as the word
+"normal" and not as a number, and the check let a reading that was
+not a number pass. It fails one now. Second run, 13 of 13. On the
+final run, 13 of 13.
+
+**Mistakes on the way.** Two, both caught by measuring.
+
+- The first narrow rule began under 350 px and kept more of the
+  letter-spacing. It left the Desk's tabs 2 px short at 320 px,
+  where they wrapped. And it made them wrap at 350 px, where the
+  old strip had run 2 px out of its box unseen. The widths had
+  been worked out by hand. Measured to the tenth of a px, the rule
+  begins under 360 px and gives up more.
+- The narrow rule first restated the tab's top and bottom padding.
+  A broken line there would have changed nothing the test sees. It
+  names the two sides only now.
+
+One line went. The file's strip carried its own instruction to
+wrap, and every strip has it now.
+
+**Left as it is.** The count on Offers sits under the word at
+every width, as it has since v0.11.6, and the strip is one line
+taller in the weeks it shows. That is a look and not a fault, and
+it is the owner's to call. The bottom nav was measured too. It
+holds down to 260 px, with its last word 3 px from the edge at 320
+px.
+
+**No simulation changed.** Every one of the census's 365 rows is
+v0.11.33's.
+
+A real-browser pass (28 checks, no page errors): a new career
+through the front door on a 320 px phone has the Desk's five tabs
+whole, on one line, in their box; real weeks by the real button
+put a real count on Offers and the line holds; on a 300 px screen
+the fifth tab takes a second line and nothing runs off; a real
+career saved by v0.11.29 shows its Desk, a file, the studio and
+the industry page under the rule; and the strips at 360 px and
+wider are compared pixel for pixel with the last build.
+Battery 141/141, soak 40 clean, census 200 clean, longhaul 11 ×
+620 clean, e2e 137, the top bar's test (32), the mail rows' (41),
+the sixteen older browser passes, lockstep 0.11.34.
+
+*Left for the next pieces.* The company anniversary. The exec-side
+ledger and a succession that transfers a record; the staff given
+years. *The owner's to call*: whether the count on Offers should
+sit beside the word and not under it. *Still the owner's to call*:
+from §125, whether a long tag should take the line or the three
+long words be given shorter ones; from §124, the headline's order,
+and whether the letter should say more or less than its four
+things; from §123, whether the date should sit under the name on
+the larger phones too; from §122, whether a founded label's first
+trophy should be a first; from §121, the spacing of the manager's
+titles; from §120, the shape of probation; from §119, whether a
+pass should cost anything, and whether next door to the sound
+should count; the Desk's tie-break (§112); and from §109, the fade
+between records through a service chapter and the size of the
+window's bank.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -17845,6 +17972,32 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 620 clean, e2e 137, 32 and 41, a real-browser pass (32),
 > lockstep 0.11.33.
 > Rode to main. Next piece: the Desk's tabs on a 320 px phone.
+
+> **0.11.34 — the tabs keep to the screen.** Own judgment, under
+> "Approved to tackle as much of the remaining queue as you see fit"
+> and "Break remaining work into smaller pieces": a repair, not on
+> §96's list, seen in 0.11.33's browser pass and older than it.
+> §126: a strip of tabs that did not fit ran on past its box and
+> past the screen, and the page slid sideways. Measured first in a
+> real browser, ten strips in 41 states from 280 to 430 px: the
+> Desk's five tabs need a 352 px screen, and at 320 px they ran 12
+> px off it with the last tab cut. Now a strip never runs off: when
+> its tabs do not fit one line the last of them take the next.
+> Under 360 px a tab gives up 2 px of padding each side and most of
+> its letter-spacing, so the Desk's five are on one line on a 320
+> px phone with 9 px to spare. At 360 px and wider nothing changes:
+> 15 of 15 strips are pixel for pixel what 0.11.33 drew. The test
+> is the repo's own, test/e2e_strips.js (23 checks), the
+> fourth browser test, listed in the README's ritual; on the
+> stylesheet as shipped in 0.11.33 it fails 9 by name. The first
+> mutation run caught 12 of 13: a letter-spacing of none read as a
+> word and passed a check that wanted a number. Closed, then all
+> 13. No simulation changed: the census's 365 rows are 0.11.33's.
+> 13 mutations caught by name.
+> Battery 141/141, soak 40 clean, census 200 clean, longhaul 11 ×
+> 620 clean, e2e 137, 32, 41 and 23, a real-browser pass (28),
+> lockstep 0.11.34.
+> Rode to main. Next piece: the company anniversary.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
