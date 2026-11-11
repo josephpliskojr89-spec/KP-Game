@@ -29,6 +29,8 @@
     }
     // the market remembers (v0.11.5, §96 wiring) — healed lazily
     if (!state.staffLedger2.passed) state.staffLedger2.passed = [];
+    // and the desk remembers who came through the door (v0.11.43, §135)
+    if (!state.staffLedger2.met) state.staffLedger2.met = [];
     return state.staffLedger2;
   }
   KP.hiresLedger = ledger;
@@ -285,11 +287,43 @@
   }
   KP.staffTruthMint = function (state, st, legacy) { return truthFor(state, st, legacy ? KP.hash01Legacy : KP.hash01); };
 
+  // ---- one name, one chair (v0.11.43, §135): a candidate's name is drawn from a hundred, and passes over every name
+  // the desk has met: the chairs sat, the names it passed on that the market still remembers, and everyone who has
+  // taken a meeting. A candidate whose own draw is free is who they always were. One whose draw is taken is given a
+  // free name by the same hash, and no draw is made. When all hundred have come through the door the memory starts
+  // over and a name comes round again: never one the building answers to today
+  const POOL = [];
+  FAM.forEach(f => GIV.forEach(g => POOL.push(f + ' ' + g)));
+  // the names the building answers to today
+  KP.seatNamesHere = function (state) {
+    const here = {};
+    const S = state.seats || {};
+    Object.keys(S).forEach(k => { if (S[k] && S[k].name) here[S[k].name] = true; });
+    ((state.staffLedger2 || {}).passed || []).forEach(e => { if (e && e.name) here[e.name] = true; });
+    return here;
+  };
+  KP.candidateName = function (state, sid) {
+    const own = FAM[Math.floor(h(state, sid, 'f') * FAM.length)] + ' ' + GIV[Math.floor(h(state, sid, 'g') * GIV.length)];
+    const here = KP.seatNamesHere(state);
+    const met = (state.staffLedger2 || {}).met || [];
+    const fresh = n => !here[n] && !met.includes(n);
+    if (fresh(own)) return own;
+    const pick = list => list[Math.floor(h(state, sid, 'free') * list.length)];
+    const free = POOL.filter(fresh);
+    if (free.length) return pick(free);
+    // all hundred have come through the door: the memory starts over, and a name comes round again
+    if (!here[own]) return own;
+    const round = POOL.filter(n => !here[n]);
+    return round.length ? pick(round) : own;
+  };
+
   function mintCandidate(state, seatId, tier, salt) {
     const sid = 'sf' + state.week + '_' + salt;
     const HR = KP.C.HIRES;
-    const name = FAM[Math.floor(h(state, sid, 'f') * FAM.length)] + ' ' +
-      GIV[Math.floor(h(state, sid, 'g') * GIV.length)];
+    const name = KP.candidateName(state, sid);
+    const led = ledger(state);
+    if (led.met.includes(name)) led.met = [];   // it came round again: the memory starts over with this one
+    led.met.push(name);
     const core = HR.SEATS.filter(x => !x.studio);
     const knownFor = h(state, sid, 'kfm') < HR.knownForMatch
       ? null   // null = the tag matches the true best seat (resolved in truth)

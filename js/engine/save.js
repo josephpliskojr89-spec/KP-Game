@@ -1483,6 +1483,19 @@
     });
   } });
 
+  // v0.11.43 — one name, one chair. A candidate's name passes over every name
+  // the desk has met, and the memory is kept on the staff ledger. An old file
+  // has none: it starts with the people it has, the chairs sat and the names
+  // the desk passed on. Nobody is renamed: two people a file already holds
+  // under one name keep it.
+  MIGRATIONS.push({ v: '0.11.43', fn: function (state) {
+    const led = state.staffLedger2;
+    if (!led) return;
+    const names = Object.keys(state.seats || {}).map(k => state.seats[k] && state.seats[k].name)
+      .concat((led.passed || []).map(e => e && e.name)).filter(Boolean);
+    led.met = names.filter((n, i) => names.indexOf(n) === i);
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

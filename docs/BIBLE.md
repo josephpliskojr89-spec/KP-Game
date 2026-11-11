@@ -15362,6 +15362,196 @@ fade between records through a service chapter and the size of
 the window's bank.
 
 
+## §135 One name, one chair (SHIPPED v0.11.43 — a repair of the hires, found by §134's check)
+
+Owner: *"Break remaining work into smaller pieces"*. A repair, and
+not a piece of the queue. §134's check flagged its own first run:
+the long haul's second career had two people called Gil Ki-tae in
+one building, and by its week 216 a third was at the door.
+
+**Counted first.** A candidate's name was drawn from a hundred, ten
+family names by ten given names, by a hash of the week and a salt.
+Nothing looked at who the desk already knew.
+
+| | census, 200 careers | long haul, 11 |
+|---|---|---|
+| candidates who took a meeting | 3309 | 317 |
+| under a name sat in the building | 64 | 18 |
+| of them, for that very chair | 2 | 2 |
+| under a name the desk passed on, still remembered | 47 | 1 |
+| under a name that had taken a meeting here before | 218 | 46 |
+| under the name of someone who sat here and had gone | 6 | 14 |
+| hires that sat down | 1490 | 245 |
+| of them, beside someone of the same name | 41 | 16 |
+| careers with two chairs sat under one name | 37 | 10 |
+| weeks with two chairs sat under one name | 1425 of 28000 | 1582 of 6820 |
+
+So the wider fault was names coming round again. One candidate in
+fifteen in the census, and one in seven in the long haul, came in
+under a name the desk had already met. Each was a different person:
+another file, another manner, another truth behind it. On the Desk
+they read as the same person back again.
+
+**The repair.** A candidate's name passes over every name the desk
+has met (`KP.candidateName`):
+
+- the chairs sat;
+- the names the desk passed on that the market still remembers
+  (six of them, for a season: §96's wiring);
+- everyone who has taken a meeting, kept on the staff ledger.
+
+A candidate whose own draw is free is who they always were: the
+draw is the hash it was. One whose draw is taken is given a free
+name by the same hash, picked among the names still free. No draw
+is made, so no career's dice move. The memory is the desk's, and
+it goes with the desk through a founding and a second chance.
+
+*The hundredth.* When all hundred have come through the door the
+memory starts over, and a name comes round again: the candidate's
+own if the building does not answer to it that day, and otherwise
+one it does not answer to.
+At the census’s rate of meetings that is some seventeen years in,
+and at the long haul’s some forty-four.
+
+**Old files** (migration 0.11.43). The memory starts with the
+people the file has: the chairs sat and the names passed on, each
+once. Nobody is renamed. A file that holds two people under one
+name keeps them both: they are people the player hired, and a
+name changed on a card is worse than a name shared. A third does
+not come in.
+
+**Two real careers, before and after.** Both saved by v0.11.42.
+
+The census’s third career, the week before. Before, week 120 wrote
+“Joo Bo-ra is in the building about the head scout chair”, and a
+Joo Bo-ra sat in the marketing chair. After, it writes “Weon
+Moo-young is in the building about the head scout chair”. It is the
+same candidate, with the same file, the same manner and the same
+week, under another name. The rest of the file is the same on both
+trees.
+
+The long haul’s second career at week 220. Gil Ki-tae is the head
+vocal coach, the A&R lead and the marketing lead. Under this
+release it opens as it was, with no complaint, and its memory
+starts with its six names.
+
+**What moved.** No simulation changed: the piece is a name. The
+census’s output is v0.11.42’s to the byte, and so is the soak’s.
+The long haul’s is v0.11.42’s but for its own new line and the size
+of three careers’ files, each 1 KB larger for the memory it now
+keeps. A candidate given another name is the same person with the
+same file, so nothing downstream of a name moves: 365 rows, none
+moved.
+
+**The long haul's check, tried.** The long haul keeps its own note
+of every name it has heard take a meeting, and asks the engine for
+nothing. A candidate does not come in under a name sat in the
+building, nor under one the tool has heard, until it has heard all
+hundred. And no week has two chairs sat under one name.
+
+It was run against five engines broken on purpose. The mint as it
+was. A memory that is not read. A desk that does not remember who
+came. A memory that starts over at every meeting. The chairs sat
+not counted, with the memory unread. Each was flagged by name. Two
+broken engines the tool cannot try. One passes over the memory and
+not the chairs sat: in a career played from its first week every
+name sat was met first, so the two agree. One renames a candidate
+whose own draw was free: the tool does not know the draw. The suite
+holds both. On the tree as it stands three careers are clean, and
+the whole run holds 317 candidates to the tool’s note and looks at
+6820 weeks of chairs.
+
+**Found by the mutation run.** Nothing. 32 of 32 broken lines were
+caught by name on the first run, and on the final run the same.
+
+**Found on the way.**
+
+- The migration had a guard for a file that already holds the
+  memory. No file older than this release can. It guarded
+  nothing, and it was taken out.
+- The browser pass first looked for the "is in the building"
+  letter in the inbox, and it was not there. The week's budget
+  had cut it, as it can any letter of its priority. The meeting
+  itself is on the Desk as a scene, so nobody is missed. The pass
+  reads the letter as the week wrote it, and says whether it
+  landed.
+
+**Mistakes on the way.**
+
+- The first design passed over only the names in the building
+  that day. A count on twelve careers showed the wider fault,
+  names coming round again, and the design was widened before
+  anything was built on it.
+- The count's first full run kept too few lines of its own
+  output and lost its totals. It was run again.
+
+Suite_150 (47): a candidate in a building that has met nobody
+comes in under their own draw, by this suite's own arithmetic and
+its own copy of the hundred; other people's names do not move
+them; a name sat, a name passed on and a name met are each passed
+over, and each is free again when it should be; the free name is
+the one the hash picks, in the hundred's own order; one name left
+of the hundred, and two; the turn, with the candidate's own draw
+free and with it sat; a file no career makes; the rail, minting
+under a salt this suite chooses, through a pass, a hire, a
+letting go, the hundredth candidate and the hundred-and-first; an
+old file, with two people already under one name; a file saved by
+this release; a file with no staff ledger; and a hundred and four
+meetings in the real weeks of one career, the first hundred under
+a hundred names. Mutation-checked against 32 broken lines,
+each caught by a named assertion. A real-browser pass (16
+checks, no page errors): the first career opens the week before,
+one real week by the real button brings the candidate in under
+another name, the real button hires them, and the Building tab
+shows a card for each with every name once; the second opens
+with its three, shows the three cards, and plays three real weeks
+on.
+Battery 150/150, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, the till audit clean, e2e 137, 32, 41 and 23, the
+twenty-five older browser passes, lockstep 0.11.43.
+
+*Left for the next pieces.* The rest of the staff given years: a
+letter when the trades' word for a chair rises, and leaving on
+their own terms. And the rest of what a desk change leaves on the
+file (§130, §132). *The owner's to call*: whether the hundred
+should be made wider, where twenty by twenty would put the turn
+past any career; whether an old file's people who share a name
+should be told apart on their cards, where today they are left as
+they are; and whether the "is in the building" letter should be one
+the week cannot cut. *Still the owner's to call*: from §134, the
+wording of the twenty-eight lines and of the letter around them,
+whether the word should be a letter the week cannot cut, whether
+the card should keep the last word said, and whether the two voices
+should be drawn at the card's line; from §133, the wording of the
+credit, in full and in a clause, of "What it read" and of "On the
+résumé that leaves with", whether a credit should stay on a record
+after the chair has gone, whether a call left unanswered should
+cost more than the chair, and whether the road manager's unanswered
+counter-offer should be made a letter that cannot be cut; from
+§132, whether the chairs should come across at a founding after
+all, whether an old label's carried chairs should be swept too, and
+the wording of the letter's sentence and the card's three words;
+from §131, whether the record should move the number a new chair
+starts from, the five lines, the letter's last sentence, and
+whether a promise upstairs should go on naming the chair it was
+made to; from §129, whether a new label's Record tab should list
+the old house's greenlights too, and the wording of a row and of
+its three chips; from §128, whether a birthday should lift morale,
+whether a salaried house should have a founding date of its own,
+and the wording of the three openings; from §126, whether the count
+on Offers should sit beside the word; from §125, whether a long tag
+should take the line or the three long words be given shorter ones;
+from §124, the headline's order, and whether the letter should say
+more or less than its four things; from §123, whether the date
+should sit under the name on the larger phones too; from §122,
+whether a founded label's first trophy should be a first; from
+§121, the spacing of the manager's titles; from §120, the shape of
+probation; from §119, whether a pass should cost anything, and
+whether next door to the sound should count; the Desk's tie-break
+(§112); and from §109, the fade between records through a service
+chapter and the size of the window's bank.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -19813,6 +20003,35 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > pass (10), lockstep 0.11.42.
 > Rode to main. Next piece: no two people of one name in one
 > building.
+
+> **0.11.43 — one name, one chair.** Own judgment, under "Approved
+> to tackle as much of the remaining queue as you see fit" and
+> "Break remaining work into smaller pieces": a repair, found by
+> §134's check, which flagged its own first run on two people of
+> one name in one building. §135: a candidate's name was drawn
+> from a hundred and nothing looked at who the desk already knew.
+> Now it passes over every name the desk has met: the chairs sat,
+> the names passed on that the market still remembers, and
+> everyone who has taken a meeting. A candidate whose own draw is
+> free is who they always were. When all hundred have come
+> through the door the memory starts over. An old file starts
+> with the people it has, and nobody is renamed. No draw is made.
+> Counted first:
+> in the census 218 of 3309 candidates came in under a name the desk
+> had already met, 64 of them under one sat in the building that day;
+> in the long haul 46 of 317, and 18. Two chairs were sat under one
+> name in 37 of the census’s 200 careers and 10 of the long haul’s 11.
+> No simulation changed: the census’s output is 0.11.42’s to the byte,
+> and the long haul’s is 0.11.42’s but for its own new line and three
+> files 1 KB larger for the memory.
+> Suite_150 (47), 32 mutations caught by name, all on the first run.
+> The long haul’s own note of the names it has heard, tried against
+> five broken engines, flagged each.
+> Battery 150/150, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
+> pass (16), lockstep 0.11.43.
+> Rode to main. Next piece: a letter when the trades' word for a
+> chair rises.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical
