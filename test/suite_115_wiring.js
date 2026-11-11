@@ -498,7 +498,11 @@ function expireAll(s, kind) { (s.scenes || []).forEach(sc => { if (sc.kind === k
   ok(/group’s page/.test(landed.text) && !/Studio/.test(landed.text), 'signpost says the group’s page: ' + landed.text.slice(-45));
   ok(KP.lastTickNotes.length > KP.C.EVENTS.maxInboxPerWeek, '(a release week is loud: ' + KP.lastTickNotes.length + ' emitted)');
   const rest = kept.filter(n => n.ind !== 'landed');
-  const trimmed = KP.trimWeekNotes(KP.lastTickNotes, KP.C.EVENTS.maxInboxPerWeek).filter(n => n.ind !== 'landed');
+  // since v0.11.44 (§137) the trim reads what this Desk had been shown and written before the week: what the file
+  // holds now, less the week's own letters
+  const less = (book, list) => { const o = Object.assign({}, book); list.forEach(n => { const k = KP.noteKind(n); o[k] = (o[k] || 0) - 1; }); return o; };
+  const wire = KP.lastTickNotes.filter(n => !n.spotlight && !n.feedOnly);
+  const trimmed = KP.trimWeekNotes(KP.lastTickNotes, KP.C.EVENTS.maxInboxPerWeek, less(s.deskSeen, kept), less(s.deskWrote, wire)).filter(n => n.ind !== 'landed');
   ok(rest.map(n => n.text).join('|') === trimmed.map(n => n.text).join('|'), 'the rest keep their trim order');
   // 2. the debut stage
   KP.advanceWeek(s);

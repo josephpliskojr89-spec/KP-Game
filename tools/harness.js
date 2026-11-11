@@ -2265,7 +2265,13 @@ for (let s = 0; s < SEEDS; s++) {
   // widest org ran 280 real people (schools + rival rooms, bounded by their
   // caps) = 611 KB with the pair content itself ~6 KB of it (averages 529).
   // Cap 700 keeps the headroom; the widest org prints below so growth shows.
-  guard(sizeKB <= 700, seed + ' save size runaway: ' + sizeKB + ' KB after 140 weeks');
+  // v0.11.44: the widest org had grown to 690 KB with the releases since, and
+  // the headroom with it. The Desk's two counts and the fold add about 10 KB
+  // a file: 579 to 589 on the average, 690 to 703 on the widest. Over 24
+  // careers the counts are 2.8 and 3.0 KB and the fold 4.3, sixteen lean
+  // letters. (As first built, three weeks of whole letters, the fold took the
+  // widest to 707.) Cap 760 puts back about 60 KB over the widest.
+  guard(sizeKB <= 760, seed + ' save size runaway: ' + sizeKB + ' KB after 140 weeks');
   totalSaveKB += sizeKB;
   const nPeople = Object.keys(state.people || {}).length;
   if (sizeKB > maxSaveKB) { maxSaveKB = sizeKB; maxSaveSeed = seed; }
@@ -3380,6 +3386,10 @@ console.log('the year’s sheet: read ' + yearSum.years + ' times · the year’
 // letters it cuts. A one-shot written and cut is a violation.
 deskCount.lines(DESK).forEach(l => console.log(l));
 deskCount.cutOneShots(DESK).forEach(m => violations.push('a one-shot letter was written and cut by the week’s budget: ' + m));
+deskCount.unannounced(DESK).forEach(m => violations.push('a decision opened unannounced, or its letter was cut: ' + m));
+deskCount.heldCut(DESK).forEach(m => violations.push('a letter the week must hold was cut: ' + m));
+deskCount.starved(DESK).forEach(m => violations.push('a high letter starves at the Desk, landing under one time in four: ' + m));
+deskCount.buried(DESK).forEach(m => violations.push('a letter is buried at the Desk, landing under one time in ten: ' + m));
 console.log('the heads: houses standing at the end ' + (wallSum.houses || 0) + ' (' + KP.HEAD_TEMPERS.map(k => k + ' ' + (wallSum['t_' + k] || 0)).join(' · ') +
   ') · heads stamped over the careers ' + (wallSum.stamped || 0) + ' · quoted in the yearly ranking ' + (wallSum.quotes || 0) + ' times in ' + (wallSum.rankings || 0) + ' rankings');
 console.log('the books: acts recorded ' + (wallSum.acts || 0) + ' (' + Object.keys(KP.C.WALL.KINDS).map(k => k + ' ' + (wallSum['k_' + k] || 0)).join(' · ') +

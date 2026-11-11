@@ -26,7 +26,7 @@
         KP.openScene(state, { kind: 'execQuestion', q,
           expiresWeek: state.week + M.ignoreAfterWeeks - 1 });
         if (OWN.includes(q.type)) { const led = ownLedger(state); led.asked++; led.types[q.type].asked++; state.execOwnLine = q.line; }
-        out.push({ kind: 'executive', urgent: true,
+        out.push({ kind: 'executive', opens: 'execQuestion', urgent: true,
           text: state.executive.name + ', Monday meeting: “' + q.text + '” Your answer goes on the record. The options are on the Desk.' });
       }
     }

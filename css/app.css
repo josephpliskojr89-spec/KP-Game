@@ -228,6 +228,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .mail.urgent .m-tag { color: var(--magenta); }
 .mail.unread { background: color-mix(in srgb, var(--surface) 55%, transparent); }
 .mail .m-week { display: block; font-size: .62rem; color: var(--ink-faint); margin-top: 4px; }
+/* below the fold (v0.11.44, §137): what the week's five could not hold, quieter than what landed */
+.mail.folded { opacity: .78; }
+.fold { margin-top: 6px; border-top: 1px dashed var(--ink-faint); }
+.fold-cap { padding: 10px 16px 0; font-size: .68rem; color: var(--ink-faint); }
 /* a letter's tag is one word (v0.11.33, §125). The letter starts 73 px in, as
    on every mail row. A word that would come within 4 px of it takes the line,
    whole, and the letter starts under it, in its own column. */

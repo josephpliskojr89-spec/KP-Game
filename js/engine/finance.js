@@ -267,7 +267,7 @@
         led.sheets++;
         KP.openScene(state, { kind: 'termSheet', offers,
           expiresWeek: state.week + F.sheetFuseWeeks });
-        inbox.push({ kind: 'company', ind: 'fundSheet', priority: 'critical',
+        inbox.push({ kind: 'company', opens: 'termSheet', ind: 'fundSheet', priority: 'critical',
           text: offers.fund + ' called back with a term sheet. Three structures, one fuse — ' + F.sheetFuseWeeks + ' weeks before the offer walks. The table is on the Desk, and the door is always one of the options.' });
       }
     }

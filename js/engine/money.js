@@ -254,7 +254,7 @@
     if (next && !stayed && d.bestChodong >= next.bar &&
         !(state.scenes || []).some(sc => sc.kind === 'distributorCall')) {
       KP.openScene(state, { kind: 'distributorCall', expiresWeek: state.week + 3 });
-      inbox.push({ kind: 'company', ind: 'distCourted', priority: 'high',
+      inbox.push({ kind: 'company', opens: 'distributorCall', ind: 'distCourted', priority: 'high',
         text: 'The courting call: a first-week number like this label’s does not stay a secret in ' +
           'distribution. ' + next.label.charAt(0).toUpperCase() + next.label.slice(1) +
           ' wants the account. The table is on the Desk.' });
@@ -286,7 +286,7 @@
       if ((g.redEras || 0) >= KP.C.BOOKS.redErasAt && !g.redTalkDone &&
           !(state.scenes || []).some(sc => sc.kind === 'redInk' && sc.groupId === g.id)) {
         KP.openScene(state, { kind: 'redInk', groupId: g.id, expiresWeek: state.week + 3 });
-        inbox.push({ kind: 'company', ind: 'redInk', priority: 'high', groupId: g.id,
+        inbox.push({ kind: 'company', opens: 'redInk', ind: 'redInk', priority: 'high', groupId: g.id,
           text: g.name + ' has now lost money three eras running — the books say so in the ' +
             'flattest possible font. The hard conversation is on the Desk. Every label has ' +
             'this meeting eventually; the good ones have it on purpose.' });

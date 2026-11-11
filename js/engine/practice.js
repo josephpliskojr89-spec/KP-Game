@@ -132,7 +132,7 @@
         if (!p.flags.agingTalk && !(state.scenes || []).some(sc => sc.personId === p.id)) {
           p.flags.agingTalk = true;
           KP.openScene(state, { kind: 'agingOutTalk', personId: p.id, expiresWeek: state.week + 3 });
-          inbox.push({ kind: 'development', urgent: true, personId: p.id,
+          inbox.push({ kind: 'development', opens: 'agingOutTalk', urgent: true, personId: p.id,
             text: KP.fillPro(KP.displayName(p) + ' asked for five minutes after practice and used four of them on silence. The fifth: “Am I ever debuting?” The question is on the Desk, and {she} watched you hear it.', p) });
         }
       });
@@ -157,7 +157,7 @@
       if (!rng.chance(chance)) return;
       led.quitsAsked++;
       KP.openScene(state, { kind: 'traineeQuit', personId: p.id, expiresWeek: state.week + 2 });
-      inbox.push({ kind: 'development', urgent: true, personId: p.id,
+      inbox.push({ kind: 'development', opens: 'traineeQuit', urgent: true, personId: p.id,
         text: KP.fillPro(KP.displayName(p) + ' knocked with a folded piece of paper — a resignation, handwritten, dated today. ' +
           Math.round(tenure / KP.C.WEEKS_PER_YEAR * 10) / 10 + ' years in the practice room and {she} is done waiting for the door to be for {her}. What you say next is on the Desk.', p) });
     });

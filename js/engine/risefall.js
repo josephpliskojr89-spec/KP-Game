@@ -183,7 +183,7 @@
         led.offers++;
         KP.openScene(state, { kind: 'theOffer', company: suitor.short,
           expiresWeek: state.week + 3 });
-        inbox.push({ kind: 'company', urgent: true,
+        inbox.push({ kind: 'company', opens: 'theOffer', urgent: true,
           text: 'A courier envelope, heavy paper, ' + suitor.name + '’s letterhead' + (KP.rivalHead && KP.rivalHead(state, suitor) ? ', ' + KP.rivalHead(state, suitor).name + '’s signature' : '') + ': they want YOU. Not your acts, not your trainees — the person running this desk. The meeting is offered quietly, the way real offers always are. It is on the Desk, and it is the founding’s mirror held up to your face.' });
       }
     }

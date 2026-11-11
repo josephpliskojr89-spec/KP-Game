@@ -219,7 +219,7 @@
       if (g && g.members.length) {
         KP.openScene(state, { kind: 'awardNight', groupId: g.id,
           year: state.awardSeason.year, expiresWeek: state.week + 1 });
-        notes.push({ kind: 'company', ind: 'awardSeating', groupId: g.id,
+        notes.push({ kind: 'company', opens: 'awardNight', ind: 'awardSeating', groupId: g.id,
           text: 'The year-end ceremony seating chart arrived — ' + g.name + ' at a floor table, cameras on a rail behind them, and the acceptance-speech question suddenly not hypothetical: if the night goes our way, WHO takes the microphone? The stage manager needs a name. It is on the Desk.' });
       }
     }

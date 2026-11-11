@@ -92,7 +92,7 @@ const crowd = (n, priority) => { const out = []; for (let i = 0; i < n; i++) out
   t.ok(T.written === w1 && T.weeks === wk1 && keptOff.length === BUDGET, 'switched off, the trim still trims and nothing is counted');
   // the lines
   const ls = desk.lines(T, 1);
-  t.eq(ls.length, 2, 'two lines');
+  t.eq(ls.length, 3, 'three lines: the totals, the rare and cut, and since v0.11.44 what is held to the Desk');
   t.ok(/^the Desk: \d+ letters written by the week · \d+ landed · \d+% cut by the week’s budget · the most critical letters in one week \d+$/.test(ls[0]), 'the first says written, landed, the share cut, and the loudest week (' + ls[0] + ')');
   t.ok(ls[1].startsWith('rare and cut (a year of play writes it about once or less; a quarter or more never land): '), 'the second names the rare letters the budget cuts');
 }

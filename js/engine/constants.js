@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.43',
+    VERSION: '0.11.44',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -3354,6 +3354,7 @@
     // ---- Inbox / events -------------------------------------------------
     EVENTS: {
       maxInboxPerWeek: 5,        // the inbox law (v0.10.29): five a week, all events — only critical bypasses
+      foldWeeks: 2,              // below the fold (v0.11.44, §137): what the five could not hold stays within reach this week and the last
       viralChance: 0.02,          // ultra-rare pre-debut viral moment
     },
 

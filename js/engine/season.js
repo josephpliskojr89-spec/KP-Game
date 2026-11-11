@@ -89,7 +89,7 @@
     }
     const byCo = {};
     contestants.forEach(c => { if (c.source === 'rival') byCo[c.company] = (byCo[c.company] || 0) + 1; });
-    inbox.push({ kind: 'industry', ind: 'seasonCast', priority: 'high',
+    inbox.push({ kind: 'industry', opens: 'seasonInvite', ind: 'seasonCast', priority: 'high',
       text: 'The ' + show + ' casting call went out this week — a ' + (gender === 'm' ? 'boys’' : 'girls’') + ' season: ' +
         Object.keys(byCo).length + ' companies sent ' + contestants.filter(c => c.source === 'rival').length + ' trainees' +
         (Object.keys(byCo).length ? ' (' + Object.entries(byCo).map(([k, v]) => k + ' ' + v).join(', ') + ')' : '') +
@@ -396,7 +396,7 @@
           c.editWeek = state.week;
           led.edits = (led.edits || 0) + 1;
           KP.openScene(state, { kind: 'seasonEdit', personId: p.id, edit: c.edit, expiresWeek: state.week + 1 });
-          inbox.push({ kind: 'company', ind: 'seasonEdit', priority: 'critical', personId: p.id, edit: c.edit,
+          inbox.push({ kind: 'company', opens: 'seasonEdit', ind: 'seasonEdit', priority: 'critical', personId: p.id, edit: c.edit,
             text: KP.fillPro(s.show + ' cut ' + KP.displayName(p) + ' ' + (c.edit === 'villain'
               ? 'the villain edit this week — a reaction shot, a line out of context, a caption that chose a side. The comments found {her} by midnight.'
               : 'the underdog edit this week — the practice-room footage, the late-night run, the mentor who said {she} was not ready and the clip of {her} proving otherwise. The nation is rooting.') +

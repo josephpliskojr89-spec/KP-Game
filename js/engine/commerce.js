@@ -213,7 +213,7 @@
       if (!g.fanclub && (g.fandom.intensity || 0) >= M.clubAt &&
           !(state.scenes || []).some(sc => sc.kind === 'fanclubOpen')) {
         KP.openScene(state, { kind: 'fanclubOpen', groupId: g.id, expiresWeek: state.week + 3 });
-        inbox.push({ kind: 'company', ind: 'clubAsk', priority: 'high', groupId: g.id,
+        inbox.push({ kind: 'company', opens: 'fanclubOpen', ind: 'clubAsk', priority: 'high', groupId: g.id,
           text: 'The fan cafés put it formally this time: the ' + g.name + ' fandom wants OFFICIAL membership — dues, card, pre-sales. Recurring money is on the table, and the price you set is a sentence they will all read. The table is on the Desk.' });
       }
       // annual renewal: the dues come in on the anniversary

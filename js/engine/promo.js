@@ -235,7 +235,7 @@
           'The variety desk wants ' + KP.displayName(state.people[offer.personId]) + ' next week — a panel seat, with the group in the shot.',
           'Variety called: ' + KP.displayName(state.people[offer.personId]) + ' tested well with the writers’ room, and a panel slot opened for next week. The group rides along.',
         ]), state.people[offer.personId]);
-      inbox.push({ kind: 'company', ind: 'promoOffer', priority: 'high', groupId: g.id,
+      inbox.push({ kind: 'company', opens: 'promoOffer', ind: 'promoOffer', priority: 'high', groupId: g.id,
         text: lead +
           (replace ? ' Taking it means cancelling ' + A[replace].label + (A[replace].show ? ', and their desk will remember.' : '.') : ' Next week has room.') +
           ' The invitation is on the Desk; it answers within the week.' });

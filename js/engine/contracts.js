@@ -100,7 +100,7 @@
       } else {
         KP.openScene(state, { kind: 'traineeRenewal', personId: dueTrainee.id,
           expiresWeek: state.week + TC.noticeWeeks });
-        inbox.push({ kind: 'company', urgent: true, personId: dueTrainee.id,
+        inbox.push({ kind: 'company', opens: 'traineeRenewal', urgent: true, personId: dueTrainee.id,
           text: KP.fillPro(KP.displayName(dueTrainee) + '’s three-year trainee contract is running out — term ' + dueTrainee.traineeContract.term + ' ends ' + KP.weekLabel(dueTrainee.traineeContract.start + tcWeeks).text + '. The table is on the Desk, and {she} has been doing {pos} own math about {pos} odds all week.', dueTrainee) });
       }
     }
@@ -144,7 +144,7 @@
     state.renewalQuietUntil = state.week + C.spacingWeeks;
     KP.openScene(state, { kind: 'renewal', personId: due.id,
       expiresWeek: state.week + 3 });
-    inbox.push({ kind: 'company', priority: 'high', personId: due.id,
+    inbox.push({ kind: 'company', opens: 'renewal', priority: 'high', personId: due.id,
       text: KP.fillPro('Legal sent up the folder nobody rushes to open: ' + KP.displayName(due) +
         '’s exclusive contract enters its renewal window. Two years of runway, one conversation that decides how they get used. The table is on the Desk — and {she} knows the folder went up.', due) });
   });

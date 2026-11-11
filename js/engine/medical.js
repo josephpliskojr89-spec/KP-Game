@@ -166,7 +166,7 @@
       KP.openScene(state, { kind: 'theDiagnosis', personId: p.id, kindOf,
         site: siteFor(state, p, kindOf), expiresWeek: state.week + 2 });
       const part = kindOf === 'vocal' ? 'the voice' : 'a working part of the job';
-      inbox.push({ kind: 'health', ind: 'diagnosisIn', priority: 'high', personId: p.id,
+      inbox.push({ kind: 'health', opens: 'theDiagnosis', ind: 'diagnosisIn', priority: 'high', personId: p.id,
         text: KP.fillPro(KP.lineFor(state, 'diagnosis|' + p.id, [
           'The clinic report on ' + KP.displayName(p) + ' is on the desk and it is not routine — ' + part + ' needs a decision, not a schedule. Three doors on the Desk. The roster will hear which one opens.',
           'Medical sent up ' + KP.displayName(p) + '’s clinic report, and it is not a scheduling note: ' + part + ' needs a decision. Three doors on the Desk. The roster is already listening for which one opens.',

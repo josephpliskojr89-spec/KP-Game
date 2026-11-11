@@ -392,6 +392,20 @@
       state.inbox.slice(0, 14).forEach(m => { html.push(UI.mailRow(state, m)); });
       html.push('</div>');
     }
+    // below the fold (v0.11.44, §137): the letters the last weeks wrote that their five could not hold. One tap
+    // opens them, newest first, each with the week it was written. The button keeps to one line on a phone, so
+    // what the fold is, it says once it is open
+    const fold = state.fold || [];
+    if (fold.length) {
+      const open = !!(KP.App && KP.App.foldOpen);
+      html.push('<button class="btn fold-btn" data-action="fold-toggle" style="width:100%;margin-top:10px">' +
+        (open ? 'Close the fold' : 'Below the fold · ' + fold.length + ' more ' + (fold.length === 1 ? 'letter' : 'letters')) + '</button>');
+      if (open) {
+        html.push('<div class="fold"><div class="fold-cap">Written in the last ' + KP.C.EVENTS.foldWeeks + ' weeks. The Desk had no room for them.</div>');
+        fold.forEach(m => { html.push(UI.mailRow(state, m, 'folded')); });
+        html.push('</div>');
+      }
+    }
 
     return html.join('');
   };

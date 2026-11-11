@@ -69,7 +69,7 @@
         state.truckQuietUntil = state.week + C.quietWeeks;
         KP.openScene(state, { kind: 'fanTruck', groupId: g.id,
           grievance: fresh.kind, expiresWeek: state.week + 2 });
-        inbox.push({ kind: 'public', ind: 'fanTruck', priority: 'high', groupId: g.id,
+        inbox.push({ kind: 'public', opens: 'fanTruck', ind: 'fanTruck', priority: 'high', groupId: g.id,
           text: GRIEVANCES[fresh.kind].truck + ' The statement window is open, and silence is also a statement. The table is on the Desk.' });
       }
     });

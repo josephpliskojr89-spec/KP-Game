@@ -446,6 +446,8 @@ const CH = { walls: 0, minted: 0 };                                         // t
 const CR = { held: 0, calls: 0, callsHeld: 0 };                             // the credits of every chair (v0.11.41, §133)
 const YR = { due: 0, chairs: 0, wrote: 0, landed: 0 };                      // the yearly words of every chair (v0.11.42, §134)
 const NM = { cands: 0, weeks: 0, turns: 0 };                                // the names of every candidate (v0.11.43, §135)
+const FD = { wrote: 0, desk: 0, below: 0, most: 0 };                        // every letter, on the Desk or below the fold (v0.11.44, §137)
+const NW = { weeks: 0, landed: 0, under: 0, kinds: 0 };                     // the place kept for a kind never shown (v0.11.44, §137)
 for (const sc of RUN) {
   const deskMark = deskCount.mark(DESK);   // this scenario's share of the Desk's count
   const state = KP.newGame(sc.seed, null,
@@ -519,6 +521,77 @@ for (const sc of RUN) {
       }
       if (!nm.heard[name]) { nm.heard[name] = true; nm.n++; }
     });
+  };
+  // below the fold (v0.11.44, §137): nothing a week writes is lost. By this tool's own count of the week's wire,
+  // every letter is on the Desk or below the fold with the week it was written; the week after, by this tool's
+  // own note of what was cut, every one is still there; and the fold holds no letter older than that
+  const fd = { wrote: 0, desk: 0, below: 0, most: 0, last: null };
+  const fdLook = weekBefore => {
+    if (state.week === weekBefore) return;   // no week ran: the wire is the last week's
+    const wire = (KP.lastTickNotes || []).filter(n => !n.spotlight && !n.feedOnly);
+    const fold = state.fold || [];
+    const landed = state.inbox.filter(m => m.week === state.week && wire.includes(m));
+    const desk = landed.length;
+    // a folded letter is a lean copy, told by its words: what is below the fold this week is, word for word and in
+    // the wire's order, what the wire wrote and the Desk does not hold
+    const cut = wire.filter(n => !landed.includes(n)).map(n => n.text);
+    const now = fold.filter(m => m.week === state.week).map(m => m.text);
+    fd.wrote += wire.length; fd.desk += desk; fd.below += now.length;
+    if (desk + now.length !== wire.length) flag(sc.seed, state.week, 'the week wrote ' + wire.length + ' letters: ' + desk + ' are on the Desk and ' + now.length + ' below the fold');
+    else if (JSON.stringify(now) !== JSON.stringify(cut)) flag(sc.seed, state.week, 'below the fold are not the letters the week cut');
+    if (now.length > cut.length) flag(sc.seed, state.week, 'a letter is on the Desk and below the fold');
+    const before = fold.filter(m => m.week === state.week - 1).map(m => m.text);
+    if (fd.last && fd.last.week === state.week - 1 && JSON.stringify(before) !== JSON.stringify(fd.last.cut))
+      flag(sc.seed, state.week, 'the fold let go of last week’s letters: ' + before.length + ' of ' + fd.last.cut.length + ' are left');
+    fd.last = { week: state.week, cut };
+    const stale = fold.filter(m => !(m.week > state.week - 2));
+    if (stale.length) flag(sc.seed, state.week, 'the fold holds a letter from week ' + stale[0].week);
+    if (fold.length > fd.most) fd.most = fold.length;
+  };
+  // the kept place (v0.11.44, §137; the ruling's first clause): in a week that writes a kind this Desk has never
+  // shown, one lands, if the five have any room. And one place is all it takes: no letter is cut for one of lower
+  // priority, but for that one. Held to this tool's own note of every letter that reached the inbox, the week's
+  // own and an action's, from the career's first week
+  // And the file's two counts are this tool's own, kind for kind: what the Desk has shown, and what the weeks have written
+  const nw = { shown: {}, lastId: 0, weeks: 0, landed: 0, under: 0, seen: {}, wrote: {}, kinds: 0, off: {} };
+  const nwLook = weekBefore => {
+    if (state.week === weekBefore) return;
+    const idOf = m => +String(m.id || '').slice(1) || 0;
+    const kindOf = n => n.ind || ('kind:' + (n.kind || '?'));
+    const isCrit = n => n.priority === 'critical';
+    const isHeld = n => !isCrit(n) && (!!n.opens || (n.kind === 'health' && (n.priority === 'high' || (!n.priority && !!n.urgent))));
+    const wire = (KP.lastTickNotes || []).filter(n => !n.spotlight && !n.feedOnly);
+    const fresh = state.inbox.filter(m => idOf(m) > nw.lastId);
+    // an action's letter since the last look was on the Desk before the week was trimmed
+    fresh.filter(m => !wire.includes(m)).forEach(m => { nw.shown[kindOf(m)] = true; });
+    const held = wire.filter(isHeld);
+    wire.filter(n => isCrit(n) || isHeld(n)).forEach(n => { nw.shown[kindOf(n)] = true; });
+    const pool = wire.filter(n => !isCrit(n) && !isHeld(n));
+    const newKinds = Array.from(new Set(pool.map(kindOf).filter(k => !nw.shown[k])));
+    const landedKinds = new Set(pool.filter(n => fresh.includes(n)).map(kindOf));
+    const room = Math.max(0, 5 - held.length);
+    const got = newKinds.filter(k => landedKinds.has(k));
+    if (newKinds.length && room) { nw.weeks++; if (got.length) nw.landed++; }
+    if (newKinds.length && room && !got.length)
+      flag(sc.seed, state.week, 'a week wrote a kind this Desk has never shown and none landed, with room for ' + room + ': ' + newKinds[0] + (newKinds.length > 1 ? ' and ' + (newKinds.length - 1) + ' more' : ''));
+    // priority holds for every place but the kept one
+    const prio = n => (n.priority === 'high' || (!n.priority && n.urgent) ? 2 : n.priority === 'flavor' ? 0 : 1);
+    const cut = pool.filter(n => !fresh.includes(n));
+    const cutMost = cut.reduce((m, n) => Math.max(m, prio(n)), -1);
+    const under = pool.filter(n => fresh.includes(n) && prio(n) < cutMost);
+    nw.under += under.length;
+    if (under.length > 1 || (under.length === 1 && !newKinds.includes(kindOf(under[0]))))
+      flag(sc.seed, state.week, 'a letter was cut for ' + under.length + ' of lower priority, and the kept place is one, for a kind never shown: ' + under.map(kindOf).join(', '));
+    fresh.forEach(m => { const k = kindOf(m); nw.seen[k] = (nw.seen[k] || 0) + 1; nw.wrote[k] = (nw.wrote[k] || 0) + 1; });
+    cut.concat(wire.filter(n => (isCrit(n) || isHeld(n)) && !fresh.includes(n))).forEach(n => { const k = kindOf(n); nw.wrote[k] = (nw.wrote[k] || 0) + 1; });
+    [['seen', 'deskSeen', 'what its Desk has shown'], ['wrote', 'deskWrote', 'what its weeks have written']].forEach(([mine, theirs, what]) => {
+      if (nw.off[mine]) return;   // said once for a career
+      const file = state[theirs] || {};
+      const k = Object.keys(Object.assign({}, nw[mine], file)).find(x => (nw[mine][x] || 0) !== (file[x] || 0));
+      if (k) { nw.off[mine] = true; flag(sc.seed, state.week, 'the file’s count of ' + what + ' is not this tool’s: ' + k + ' is ' + (file[k] || 0) + ' on the file and ' + (nw[mine][k] || 0) + ' by the note'); }
+    });
+    nw.kinds = Object.keys(nw.wrote).length;
+    fresh.forEach(m => { nw.shown[kindOf(m)] = true; if (idOf(m) > nw.lastId) nw.lastId = idOf(m); });
   };
   const chLook = () => {
     const S = state.seats || {};
@@ -723,10 +796,13 @@ for (const sc of RUN) {
     rvLook();
     const sheetsAsTheTickBegan = sheetsNow(), chairAsTheTickBegan = gl.chair, trustAsTheTickBegan = state.trust;
     crBegin();
+    const weekBefore = state.week;
     KP.advanceWeek(state);
     crLook();
     yrLook();
     nmLook();
+    fdLook(weekBefore);
+    nwLook(weekBefore);
     rvLook(sheetsAsTheTickBegan);
     // the greenlights (v0.11.37, §129): one the last house gave reads as it did the day the desk moved, and one that
     // was open that day reads set aside; the record lists this desk's own and no other, each with its chair and its end
@@ -888,6 +964,9 @@ for (const sc of RUN) {
   // once, so the week's budget must never cut it. The ledgers below count
   // letters written; this counts the Desk.
   deskCount.cutOneShots(DESK, deskMark).forEach(m => flag(sc.seed, state.week, 'a one-shot letter was written and cut by the week’s budget: ' + m));
+  // the letters that must land (v0.11.44, §137): a decision on the list does not open without its letter, and the letter lands
+  deskCount.unannounced(DESK, deskMark).forEach(m => flag(sc.seed, state.week, 'a decision opened unannounced, or its letter was cut: ' + m));
+  deskCount.heldCut(DESK, deskMark).forEach(m => flag(sc.seed, state.week, 'a letter the week must hold was cut: ' + m));
   // the wait (v0.11.19, §110): a house whose men came home heard from the
   // wait on the way — day 100, the letter from the base, the turn — and
   // never more often than men went
@@ -924,6 +1003,8 @@ for (const sc of RUN) {
   CR.held += cr.held; CR.calls += cr.calls; CR.callsHeld += cr.callsHeld;
   YR.due += yr.due; YR.chairs += yr.chairs; YR.wrote += yr.wrote; YR.landed += yr.landed;
   NM.cands += nm.cands; NM.weeks += nm.weeks; NM.turns += nm.turns;
+  FD.wrote += fd.wrote; FD.desk += fd.desk; FD.below += fd.below; if (fd.most > FD.most) FD.most = fd.most;
+  NW.weeks += nw.weeks; NW.landed += nw.landed; NW.under += nw.under; NW.kinds += nw.kinds;
   ['met', 'lapsed', 'open', 'void'].forEach(k => { GL[k] += glEnd[k]; });
   // the sagas (v0.9.31): the hash window [60,320] sits fully inside a
   // 620-week run — every world MUST have been invaded at least once,
@@ -1012,6 +1093,10 @@ for (const sc of RUN) {
 }
 
 deskCount.lines(DESK, 5).forEach(l => console.log(l));
+console.log('the kept place (v0.11.44): ' + NW.weeks + ' weeks wrote a kind its Desk had never shown, with room in the five · in ' + NW.landed + ' of them one landed · ' + NW.under +
+  ' letters landed ahead of a higher priority, each alone in its week and of a kind never shown, by this tool’s own note of every letter that reached the inbox · the files’ two counts held to that note every week, ' +
+  NW.kinds + ' kinds in all');
+console.log('below the fold (v0.11.44): ' + FD.wrote + ' letters written by the week · ' + FD.desk + ' on the Desk, ' + FD.below + ' below the fold, each the week it was written and the week after, by this tool’s own count of the wire · the fold at its fullest held ' + FD.most + ' letters');
 console.log('one name, one chair (v0.11.43): ' + NM.cands + ' candidates took a meeting, each held to this tool’s own note of the names it had heard · the hundred came round ' + NM.turns + ' time' + (NM.turns === 1 ? '' : 's') + ' · ' + NM.weeks + ' weeks of chairs sat, each looked at for two under one name');
 console.log('the yearly word (v0.11.42): ' + YR.due + ' weeks a chair turned a year · ' + YR.wrote + ' letters written, ' + YR.landed + ' landed · ' + YR.chairs + ' chairs named, each by this tool’s own note of the week they sat down');
 console.log('the credits (v0.11.41): ' + CR.held + ' weeks of a chair’s credit held to this tool’s own books of what landed, how it closed and who signed · ' + CR.calls + ' calls from outside, ' + CR.callsHeld + ' of them for a chair that works an era, each held to the same books');

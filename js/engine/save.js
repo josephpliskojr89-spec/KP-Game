@@ -1496,6 +1496,17 @@
     led.met = names.filter((n, i) => names.indexOf(n) === i);
   } });
 
+  // v0.11.44 — the letters that must land. The week's five now go first to
+  // the kinds a career has been shown least, and the count is kept on the
+  // file. An old file has none: it starts with what its Desk holds.
+  MIGRATIONS.push({ v: '0.11.44', fn: function (state) {
+    const seen = {};
+    (state.inbox || []).forEach(n => { const k = KP.noteKind(n); seen[k] = (seen[k] || 0) + 1; });
+    state.deskSeen = seen;
+    state.deskWrote = Object.assign({}, seen);   // what the file can know it wrote is what it holds
+    state.fold = [];
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

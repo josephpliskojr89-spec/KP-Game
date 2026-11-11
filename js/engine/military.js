@@ -154,7 +154,7 @@
       if (!men.length || !men.some(m => m.age >= M.noticeAge)) return;
       led.plans++;
       KP.openScene(state, { kind: 'servicePlan', groupId: g.id, expiresWeek: state.week + 4 });
-      inbox.push({ kind: 'company', urgent: true, groupId: g.id,
+      inbox.push({ kind: 'company', opens: 'servicePlan', urgent: true, groupId: g.id,
         text: 'The folder with the flag on it reached the Desk: ' + g.name + '’s service plan. ' +
           KP.displayName(men.slice().sort((a, b) => b.age - a.age)[0]) + ' is ' +
           men.slice().sort((a, b) => b.age - a.age)[0].age + ', the wall is age ' + M.deadlineAge +
@@ -173,7 +173,7 @@
       due.flags.enlistPapers = state.week;
       led.notices++;
       KP.openScene(state, { kind: 'enlistPapers', personId: due.id, expiresWeek: state.week + 4 });
-      inbox.push({ kind: 'company', urgent: true, personId: due.id,
+      inbox.push({ kind: 'company', opens: 'enlistPapers', urgent: true, personId: due.id,
         text: KP.fillPro(KP.displayName(due) + '’s enlistment window is open — {she} is ' + due.age +
           ', the wall is age ' + M.deadlineAge + ', and the papers on the Desk only have two boxes. {She} has already done the math; everyone {pos} age has. The question is the calendar’s, and it is yours.', due) });
     }

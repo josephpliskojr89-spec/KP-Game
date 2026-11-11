@@ -15902,6 +15902,368 @@ together.
   roadmap, unbuilt.
 
 
+## §137 The letters that must land (SHIPPED v0.11.44 — the owner's ruling, §136: decisions 3 and 23 to 25)
+
+The first piece built on the directive (§136). Owner, on the
+weekly limit: *"Prioritize letters the player has not previously
+seen. Protect critical health notices and messages requiring
+important decisions. The inbox limit must never silently eliminate
+essential gameplay information or prevent the player from
+responding to an actionable event."* On a candidate in the
+building: *"uncuttable."* On offers: *"Make actionable,
+time-sensitive offers uncuttable."* On a rival taking the date:
+protected *"only when an immediate player response is required"*.
+
+**Counted first.** The law as it stood (§89 B, §112): a critical
+letter always lands, and the week lands five more, by priority and
+then by the order the systems run in. Over the census's 200
+careers:
+
+| a letter that opens a decision | written | landed |
+|---|---|---|
+| a festival’s invitation | 6,854 | 1,331 |
+| an outside offer | 5,759 | 5,724 |
+| a promotion offer | 3,635 | 3,488 |
+| a candidate in the building | 3,384 | 2,704 |
+| the casting call for the season | 630 | 542 |
+| the fan club’s ask | 592 | 435 |
+| the fan truck | 482 | 235 |
+| the ceremony’s seating | 400 | 16 |
+| the red ledger’s hard conversation | 291 | 11 |
+| the Japanese partner’s offer | 200 | 139 |
+| all twenty-one kinds that have a name of their own | 23,380 | 15,757 |
+
+The decision itself was never lost: the scene sat on the Desk
+either way. What the week cut was the letter that says it is there,
+7,623 of 23,380. A call from outside for a chair had no letter to
+cut. And of the kinds the week mostly writes at high, twenty times
+or more, 15 landed under half the time and 5 under one time in ten:
+a member’s first songwriting credit 4 in a hundred, the sophomore
+slump 16 in a hundred, a hit the critics panned 14 in a hundred, a
+lost head-to-head week 20 in a hundred.
+
+**What is held.** A letter that opens a decision names the
+decision it stands beside (`opens`). An urgent health notice is
+one from the health desk at high or above. Both land whatever the
+week holds (`KP.noteHeld`), and they take their places in the
+week's five. A critical letter is outside the five, as it was.
+
+- Thirty-six letters carry the mark at their sources: thirty-three
+  beside a scene, the chair’s call, and the two outside offers,
+  which open no scene and wait in the pile with a date on them.
+- A call from outside for a chair had no letter at all. It has
+  one now (`seatCalled`), as the road manager's always had.
+- A rival taking the date (25): the letter opens the hold-or-slip
+  decision every time, so it stays critical. The story the trades
+  tell about a house that keeps doing it opens nothing, and takes
+  its chances.
+- A decision that opens with no letter was not given one. The
+  scene is on the Desk, and a scene cannot be cut.
+
+**The smallest share, and one place kept.** What is left of the
+five goes by priority, and then to the kind this career has been
+shown the smallest share of: what its Desk has landed of the kind
+against what its weeks have written of it. The share is counted
+through the week as the five fill, so one kind does not take
+every place. Then by arrival. And the last place is kept for a
+kind this career's Desk has never shown, if the week wrote one
+that the others did not take: the ruling's first clause. Both
+counts are on the file (`deskSeen`, `deskWrote`), and a new
+career's begin with the letters its first screen shows.
+
+§112 recommended least seen first by count, and the ruling was
+made on that. Built as recommended, it starved a different
+letter: the first-week sales fell from landing 87 times in a
+hundred to 35. So the rules were replayed on the same careers
+before one was kept, nine of them. The trim decides nothing in
+the simulation, so one run of the census reads under every rule
+at once.
+
+| the tie-break: landed, in a hundred | as it was | held, by arrival | held, least seen | held, longest unseen | held, new first among equals | held, smallest share |
+|---|---|---|---|---|---|---|
+| high kinds landing under half the time | 15 | 18 | 3 | 4 | 10 | 1 |
+| high kinds landing under one in ten | 5 | 7 | 0 | 0 | 0 | 0 |
+| the worst-served high kind | 4 | 3 | 35 | 28 | 13 | 47 |
+| the first-week sales | 87 | 76 | 35 | 46 | 60 | 51 |
+| an era’s close | 98 | 93 | 80 | 84 | 91 | 75 |
+| a tour leg | 100 | 99 | 83 | 82 | 97 | 77 |
+| the monthly sheet | 69 | 66 | 60 | 66 | 65 | 62 |
+| the trades’ stories | 76 | 69 | 37 | 42 | 61 | 52 |
+| a member’s first songwriting credit | 4 | 3 | 66 | 61 | 43 | 58 |
+| the sophomore slump | 16 | 9 | 85 | 74 | 47 | 65 |
+| a lost head-to-head week | 20 | 12 | 64 | 56 | 25 | 54 |
+
+| a kind never shown, on the smallest share | the tie-break alone | never shown first of all | never shown read a priority higher | the last place kept: as built | the last two kept |
+|---|---|---|---|---|---|
+| kinds a career is written and never shown | 10.8 | 1.0 | 2.8 | 1.6 | 1.1 |
+| kinds written a hundred times, landing under one in ten | 4 | 0 | 1 | 0 | 0 |
+| high kinds landing under half the time | 1 | 6 | 2 | 5 | 6 |
+| high letters with no name of their own, landed in a hundred | 68 | 63 | 64 | 65 | 64 |
+| the critics’ word that a record has grown | 0 | 35 | 35 | 33 | 35 |
+| a B-side sleeper | 1 | 47 | 47 | 45 | 47 |
+| a friend’s coffee truck | 0 | 19 | 0 | 18 | 19 |
+| an award that went to someone else | 27 | 72 | 72 | 69 | 72 |
+| the first-week sales | 51 | 47 | 48 | 47 | 47 |
+| an overseas market turning loud | 47 | 43 | 44 | 43 | 43 |
+
+“As it was” holds nothing. Every other rule holds the decisions and
+the urgent health notices. In the first table they differ only in
+the tie-break within a priority, and the smallest share is the one
+under which no high kind lands under four times in ten. But a
+tie-break only sorts equals, and half the week’s letters claim
+high. Under it a career is written about eleven kinds of letter
+that its Desk never shows, the critics’ word that a record has
+grown and a B-side sleeper among them. The second table is the
+ruling’s first clause, four ways. Never shown first of all leaves
+one kind in a career unshown, and it was built first. It turned a
+new career’s second week over: every place went to something new,
+and the CEO’s urgent word was below the fold behind a school
+opening. Three older suites caught it. One kept place leaves 1.6
+kinds unshown, buries nothing, and can cost a week one letter and
+no more. The first-week sales land 47 times in a hundred under it,
+where the old order landed them 87. No rule could land everything
+in a week that writes ten letters and lands five. That is what the
+fold is for.
+
+**Below the fold.** No rule lands every letter in a week that
+writes ten. So what the five cannot hold is no longer thrown
+away. It is kept below the fold (`state.fold`): this week's
+letters that did not land and last week's, every one, each kept
+lean, its desk, its words and its week. The Desk shows one line
+under the inbox, "Below the fold · 12 more letters", and one tap
+opens them, under a line that says what they are. The limit
+decides what is read first. It no longer decides what can be
+read.
+
+**Old files** (migration 0.11.44). Both counts start with the
+letters the Desk holds, and nothing is below the fold. An old
+file cannot know what its Desk showed before the sixty letters it
+holds. For a season it reads some kinds it has shown as new, and
+the kept place goes to them, one a week.
+
+**Measured**, on the tree as shipped.
+
+| the census, 200 careers | v0.11.43 | v0.11.44 |
+|---|---|---|
+| letters the weeks wrote | 304,542 | 304,663 |
+| landed | 157,390 | 157,498 |
+| kept below the fold | none: they were cut | 147,165 |
+| letters that open a decision, landed | 15,757 of 23,380 | 23,501 of 23,501 |
+| high kinds landing under half the time | 15 | 5 |
+| high kinds landing under one in ten | 5 | 0 |
+| the first-week sales, in a hundred | 87 | 47 |
+| a member’s first songwriting credit | 4 | 54 |
+| the sophomore slump | 16 | 59 |
+| the trades’ stories | 76 | 49 |
+| the critics’ word that a record has grown | 0 | 33 |
+| a B-side sleeper | 1 | 45 |
+| kinds a career is written and never shown | 24.7, by the replay | 1.6, by the files’ own counts |
+| the most letters landed in one week | 15 | 15 |
+
+**What moved.** Nothing in the simulation moves, and that was held,
+not assumed. Each of the census’s 200 careers was played on
+v0.11.43 and on this tree, and each ends on the same file once the
+Desk’s own keys are set aside: the inbox, the fold, the two counts,
+the letter counter and the version. What moved is what reads the
+Desk. The census counts a career as having met a thing when its
+letter lands, so 16 of its 365 rows moved, 14 up and 2 down, and no
+band broke: an award that went to someone else 19 careers to 156, a
+lost head-to-head week 138 careers to 199, a protest truck outside
+145 careers to 184, a senior’s public word for a rookie 151 careers
+to 190, a daesang watched going elsewhere 2 careers to 32, the
+warehouse memo 128 careers to 158, a passed candidate in a rival’s
+chair 174 careers to 200. The other nine moved by six careers or
+fewer. The weeks wrote 304,663 letters where they wrote 304,542:
+the 121 more are the calls for a chair, said for the first time. In
+the long haul the eleven careers read as they did, line for line,
+but for the size of the file, 2 to 10 KB larger, and the Desk’s own
+lines. There 658 weeks wrote a kind new to their Desk with room in
+the five, and in every one of them one landed. In 123 of those
+weeks it landed ahead of a higher priority: that is what the kept
+place costs, about one letter in fifty-five weeks. And of 53,409
+letters the weeks wrote, 31,890 are on the Desk and 21,519 below
+the fold.
+
+**The tools' books.** The Desk's counter (`tools/desk_count.js`)
+keeps its own note of the scenes each week opens, from the
+tick's start to its trim. It lists the decisions that never open
+unannounced, thirty-one of them. One that opens with no letter
+beside it, or whose letter is cut, is a violation in the census
+and a flag in the long haul. So is a held letter written and not
+landed. So, in the census, is a kind the week mostly writes at
+high, a hundred times or more, that lands under one time in four,
+and a kind of any priority written as often that lands under one
+time in ten. The long haul counts the wire itself every week:
+each letter is on the Desk or below the fold the week it is
+written, every letter cut is still below the fold the week after,
+by the tool's own note, and the fold holds nothing older. And it
+keeps its own note of every letter that reached the inbox, the
+week's and an action's. In a week that writes a kind the Desk
+has never shown, one lands if the five have room. No letter is
+cut for one of lower priority, but for that one. And the file's
+two counts are the tool's own, kind for kind, every week.
+
+**The books, tried.** They were run against thirteen engines broken
+on purpose. A letter that opens a decision is not held. An urgent
+health notice is not held: 38 of 203 were cut in one career. The
+candidate’s letter does not name the meeting it opens. A call for a
+chair is not said, as it was not before. Nothing is kept below the
+fold. The fold never lets a week go. The fold holds what landed
+too. The fold is capped at twenty. The fold lets last week go a
+week early. The tie-break is arrival, as it was: the census names
+an overseas market turning loud as starved. No place is kept for a
+kind never shown, as none was: the long haul names 52 weeks in one
+career, and the census names four kinds as buried, a B-side sleeper
+and the critics’ word that a record has grown among them. Every
+place is kept, as the clause was first built: the long haul names
+four weeks in which a letter was cut for lesser ones. A new career
+does not count the letters its first screen shows: the long haul
+names week 2, where the file’s count is not its own. Each was
+flagged by name. On the tree as it stands three long careers and
+sixty of the census’s are clean.
+
+**Found by the tools.** The fold was first three weeks of whole
+letters. That took the census’s widest save from 690 KB to 707,
+over the tool’s cap of 700, and the chain stopped at the census. So
+the fold was made lean, two weeks and twenty letters at most. Then
+the trial ran the long haul on the tree as it stood, before any
+engine was broken, and it flagged four weeks in two careers: one
+week wrote 35 letters, kept 8 on the Desk and 20 below the fold,
+and 7 were gone. A cap by count is the silent loss the ruling
+forbids. The fold has none now: it holds this week and the last,
+whatever they wrote, and at its fullest in the long haul that was
+56 letters. The census’s cap dated from a widest save of 611 KB. It
+is 760 now, with the measurement written beside it: the two counts
+and the fold add about 10 KB to a file, 579 to 589 on the average
+and 690 to 703 on the widest. And the long haul’s first check of a
+kind never shown, run on a third career, flagged its second week: a
+new career did not count the letters its first screen shows, so a
+kind already on the Desk read as new. A new career’s counts begin
+with those letters now, and the long haul holds the file’s two
+counts to its own note every week. That check found one thing more,
+in the career founded outside the capital: its first letter had
+carried no id and no read mark since v0.10.10. It has both.
+
+**Found by the mutation run.** The first run caught 54 of 58. One
+survivor was the order the five are read in: no check had letters
+of two priorities in one week, and one does now. One was the tools’
+report of a letter written and cut: the kernel holds such letters,
+so no fixture had one. The suite now sets a kernel that cuts them
+under the tool. One was a line in the tool that emptied its note of
+the week a second time, after the week had already emptied it: a
+guard that guarded nothing, taken out. And one was a mutation of
+mine that changed nothing. It was written again so that it does.
+The second run caught 57 of 57. Twenty-four more were added as the
+piece grew, seven with the tools’ rule for a kind that starves, two
+with the fold, twelve with the kept place and the rule for a kind
+that is buried, and three with a new career’s first letters, and
+the final run, on the tree as committed, caught 81 of 81.
+
+**Assumptions, written down** (§136: "document important
+assumptions").
+
+- The held take places in the five. They do not add to them: the
+  Desk stays the length the inbox law gave it.
+- An urgent health notice is one the health desk marks high or
+  urgent. A routine note from it competes like any other.
+- Every letter that announces a decision with a date on it is held,
+  the offers in the pile among them: a festival’s invitation, a
+  promotion offer, an outside offer. That is about one letter a
+  week in the census, 28,798 in 29,440 weeks. The ruling on offers
+  (24) is explicit.
+- "Prioritize letters the player has not previously seen" is
+  given one place of the five: the last, kept for a kind never
+  shown. The other places go by priority, and the share shown
+  breaks the ties, not the count seen. Both for the reasons
+  measured above.
+- The fold is new, and nobody asked for it by name. It is how
+  "must never silently eliminate" is kept in a week that writes
+  twice what it can land. It holds two weeks and has no cap by
+  count.
+- The census's cap on the size of a file was moved, 700 KB to
+  760. That is a tool's tripwire and not a rule of the game.
+
+**Mistakes on the way.**
+
+- §112's recommendation was mine, and it was measured on the
+  letters it helped and not on the ones it cost. The cost was
+  found building it.
+- Two of the suite's first expectations were the old tie-break in
+  disguise: a high letter of another kind "is cut" after nine.
+  Under any rule that looks at what was shown, it lands. The loud
+  week in the suite is nine kinds never seen.
+- The counter's summary crashed an older suite that builds its
+  count by hand. It reads a hand-built count now.
+- One expected order in the suite was worked out wrong by hand.
+- The fold was given a cap by count twice, and both were wrong.
+  The tools found each, and I did not. They are told above.
+- The rule as it first went to the chain broke ties and nothing
+  more. A tie-break only sorts equals, and half the week's
+  letters claim high. It was found in the census's own line of
+  rare letters while the chain ran: the critics' word that a
+  record has grown had landed 2 times in 513. The chain was
+  stopped and the clause for a kind never shown was built.
+- The clause was first built as never shown first of all, and it
+  went to the chain. I had not run the whole battery again after
+  the last change to the engine. The chain's battery failed three
+  older suites: in a new career's second week the CEO's urgent
+  word was below the fold. The chain was stopped a second time
+  and the clause cut down to one place.
+- An older suite ran the week's trim a second time without the
+  counts, and had been passing by luck. It gives the trim the
+  counts the week read.
+- The suite's first check of a new career held that its counts
+  were empty. They were, and that was the defect the long haul
+  found. The check holds the opening letters now.
+- An older browser pass, v0.11.21's, held that nine letters of
+  one kind take all five places. That was arrival and not the
+  budget, and it failed in the chain. It holds the budget now:
+  five below critical, the crowd among them.
+
+Suite_151 (90): the law where nothing was ruled; a letter that
+opens a decision, at every priority, in the loudest week; an urgent
+health notice, and one that is not; what is held, said one by one;
+the held in the five, read after the critical; seven decisions in
+one week; the share, against the count, against the priority,
+counted through the week; a kind never shown, in the last place,
+once in a week, not the week after, not when a critical letter of
+its kind is in the week, and still new when it has been written and
+never shown; one place and no more, a high letter of a kind already
+shown against six lesser kinds never shown; the place the last and
+not the first; four decisions and one place left; a letter with no
+kind of its own; the counts untouched by the trim; a new career's
+first letters, and a regional founding's; an action's letter;
+thirty real weeks held to this suite's own tally of what landed and
+what did not; the fold, newest first, each kept lean, saved with
+the file; the loudest week, forty letters and none lost, all still
+there the week after and gone the week after that; every decision
+on the tools' list against the engine's source; the candidate, the
+chair's call and the road manager's offer through the rail; the
+ambush; an old file; and the tools' note of a week that opens a
+decision with its letter, without one, with one that does not name
+it, with one a broken kernel cuts, and of a scene opened between
+weeks; and a kind that starves and a kind that is buried, on counts
+made by hand. Mutation-checked against 81 broken lines, each caught
+by a named assertion. A real-browser pass (16 checks, no page
+errors): the real career that v0.11.43's pass found the candidate's
+letter cut in opens the week before; one real week by the real
+button and the letter is on the Desk; the fold says how many
+letters are below it, on one line of a phone, opens at one tap with
+every one of them in full under a line that says what they are, and
+closes at the next; three more real weeks lose nothing.
+Battery 151/151, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, the till audit clean, e2e 137, 32, 41 and 23, the twenty-six
+older browser passes, lockstep 0.11.44.
+
+*Left for the next pieces.* The rest of the directive's
+amendments, in §136's order: four hundred names, the yearly
+digest, the credits that stay. *The owner's to see*: the six
+assumptions above, and one thing the count shows that no rule
+here mends. The week writes about ten letters and half of them
+are marked high, so "high" no longer sorts anything. Re-grading
+the ninety kinds that claim it is an editorial pass of its own.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -20391,6 +20753,49 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > offer are approved and deferred. §136 records the directive in
 > the owner's words, how three of its decisions are read, and the
 > build order. The running list of open questions is closed.
+
+> **0.11.44 — the letters that must land.** The first piece built
+> on the directive (§136: decisions 3 and 23 to 25). §137: a letter
+> that opens a decision names it and cannot be cut, and neither can
+> an urgent health notice; both take their places in the week's
+> five. What is left of the five goes by priority, then to the
+> kind this career has been shown the smallest share of, and the
+> last place is kept for a kind its Desk has never shown. A call
+> for a chair, which opened with no letter, has one. And what the
+> five cannot hold is kept below the fold, two weeks of it, one
+> tap away: the limit decides what is read first, never what can
+> be read. Counted first:
+> in the census the week cut 7,623 of 23,380 letters that open a
+> decision, and 15 high kinds landed under half the time. Now all
+> 23,501 land, 5 high kinds are under half, and none is under one in
+> ten.
+> The rule §112 recommended, least seen by count, was built first
+> and starved the first-week sales. Nine rules were replayed on
+> the same careers. A tie-break alone left a career about eleven
+> kinds of letter its Desk never showed. Never shown first of all
+> was built next, and put the CEO's urgent word below the fold in
+> a new career's second week. One kept place is what stands.
+> Nothing in the simulation moves: each of the census’s 200 careers
+> ends on the same file as under v0.11.43, the Desk’s own keys set
+> aside. 16 of the census’s 365 rows moved, each a count of a letter
+> landing, and no band broke.
+> The fold was given a cap by count twice, and the tools found both.
+> The first, three weeks of whole letters, took the widest save over
+> the census’s cap of 700 KB. The second, twenty lean letters, lost 7
+> of the 35 a loud week wrote, and the long haul flagged it on the
+> tree as it stood. The fold has no cap by count now, and the census’s
+> cap is 760 with the measurement beside it: a file is about 10 KB
+> larger. A new career did not count its first screen’s letters. The
+> long haul found that too, and it holds the file’s two counts to its
+> own note every week now. That check found a regional founding’s
+> first letter, which had carried no id since v0.10.10. It has one.
+> Suite_151 (90), 81 mutations caught by name; the first run caught 54
+> of 58. The tools’ own books of the decisions a week opens, tried
+> against thirteen broken engines, flagged each.
+> Battery 151/151, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
+> pass (16), lockstep 0.11.44.
+> Rode to main. Next piece: four hundred names.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

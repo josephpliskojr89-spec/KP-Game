@@ -74,7 +74,7 @@
       KP.openScene(state, { kind: 'boardSeason', popSum,
         year: Math.ceil(state.week / KP.C.WEEKS_PER_YEAR),
         expiresWeek: state.week + 2 });
-      inbox.push({ kind: 'executive', urgent: true,
+      inbox.push({ kind: 'executive', opens: 'boardSeason', urgent: true,
         text: 'Board season. The directors are in the building, the good coffee is out, and ' + state.executive.name +
           ' has stopped making jokes. The company’s year gets summarized in one meeting, and the summary is yours to give. On the Desk.' });
     }
@@ -85,7 +85,7 @@
         groups.some(g => g.debuted) && rng.chance(B.petChance)) {
       state.petProjectDone = true;
       KP.openScene(state, { kind: 'petProject', expiresWeek: state.week + 3 });
-      inbox.push({ kind: 'executive', urgent: true,
+      inbox.push({ kind: 'executive', opens: 'petProject', urgent: true,
         text: state.executive.name + KP.fillPro(' closes your office door {herself}, which never means anything small: {she} has a project. {Hers}, personally. The details — and your answer — are on the Desk.', KP.execP(state)) });
     }
   });

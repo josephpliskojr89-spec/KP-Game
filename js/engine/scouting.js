@@ -379,7 +379,7 @@
           inbox.push(clauseWalk(state, p, false));
         } else {
           KP.openScene(state, { kind: 'clauseCall', personId: p.id, expiresWeek: state.week + 2 });
-          inbox.push({ kind: 'talent', ind: 'clauseDue', priority: 'high', personId: p.id,
+          inbox.push({ kind: 'talent', opens: 'clauseCall', ind: 'clauseDue', priority: 'high', personId: p.id,
             text: KP.fillPro(KP.displayName(p) + ' put the contract on the desk, open to the clause, and sat down. The debut-by date has passed. {She} is not angry. {She} is holding paper. The table is on the Desk.', p) });
         }
       }

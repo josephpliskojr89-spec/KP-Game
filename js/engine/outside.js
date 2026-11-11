@@ -179,7 +179,7 @@
       sponsor(state).soloAsked++;
       KP.openScene(state, { kind: 'sponsorSolo', personId: p.id, jobId: d.id,
         brand: d.label, expiresWeek: state.week + 3 });
-      inbox.push({ kind: 'company', urgent: true, personId: p.id,
+      inbox.push({ kind: 'company', opens: 'sponsorSolo', urgent: true, personId: p.id,
         text: KP.fillPro(d.label + ' called with the request that is never just a request: they want ' +
           KP.displayName(p) + ' ALONE for a sponsored solo stage — {her} name, their logo, no group. The answer is on the Desk, and everyone in the building already knows the question was asked.', p) });
     }
@@ -325,7 +325,7 @@
           weeks: rng.int(D.weeks[0], D.weeks[1]), expiresWeek: state.week + O.expiresWeeks,
         };
         offers(state).push(offer);
-        inbox.push({ kind: 'company', urgent: true, ind: 'outsideOffer', outsideKind: 'brand', personId: face.id,
+        inbox.push({ kind: 'company', opens: 'outsideOffer', urgent: true, ind: 'outsideOffer', outsideKind: 'brand', personId: face.id,
           text: brand + ' wants ' + KP.displayName(face) + ' as an ambassador: ' + offer.lump +
             ' up front, ' + offer.weekly + ' a week for ' + offer.weeks +
             ' weeks. The offer is on the Desk and expires ' + KP.weekLabel(offer.expiresWeek).text +
@@ -376,7 +376,7 @@
             ' weeks, ' + offer.weekly + ' a week. Live television, every week, {pos} face opening the broadcast.'
           : 'The ' + offer.label + ' production wants ' + KP.displayName(p) + ' on the OST — three weeks of recording, ' +
             offer.lump + ' on delivery. The music director asked for “that voice” by name.';
-        inbox.push({ kind: 'company', urgent: true, ind: 'outsideOffer', outsideKind: pick.kind, personId: p.id,
+        inbox.push({ kind: 'company', opens: 'outsideOffer', urgent: true, ind: 'outsideOffer', outsideKind: pick.kind, personId: p.id,
           text: KP.fillPro(pitch + ' The offer is on the Desk and expires ' +
             KP.weekLabel(offer.expiresWeek).text + '. A second job is a second schedule.', p) });
       }

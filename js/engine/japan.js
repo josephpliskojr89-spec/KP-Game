@@ -216,7 +216,7 @@
         const cut = KP.jpOfferCut(state);   // the letter keeps its own number (v0.11.5, §96 wiring)
         const word = cutWord(state, cut);
         KP.openScene(state, { kind: 'partnerDeal', partner, cut, expiresWeek: state.week + 3 });
-        inbox.push({ kind: 'industry', ind: 'jpOffer', priority: 'high',
+        inbox.push({ kind: 'industry', opens: 'partnerDeal', ind: 'jpOffer', priority: 'high',
           text: word
             ? partner + ' has been watching the Japanese numbers and wants the meeting again — the same partnership, the second discography behind it, and a cut ' + word + '. The “not yet” was heard; it was priced. The table is on the Desk.'
             : partner + ' has been watching the Japanese numbers and wants the meeting — a licensing partnership, the real kind, with the second discography behind it. The table is on the Desk. The market across the water does not knock twice quickly.' });

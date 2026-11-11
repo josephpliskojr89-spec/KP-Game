@@ -475,7 +475,7 @@
     led.truceCalls++;
     KP.openScene(state, { kind: 'theTruce', company: r.short, expiresWeek: state.week + T.answerWeeks });
     // critical: it opens a decision, and a head calls about this once in two years
-    inbox.push({ kind: 'industry', ind: 'truceCall', priority: 'critical', company: r.short,
+    inbox.push({ kind: 'industry', opens: 'theTruce', ind: 'truceCall', priority: 'critical', company: r.short,
       text: head.name + ' of ' + r.name + ' called the desk directly, which heads of houses do not do. ' + TRUCE_LINES[head.temper] +
         ' The offer is a truce for a year: ' + TERMS + '. It is on the Desk.' });
   }

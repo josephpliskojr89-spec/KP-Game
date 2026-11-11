@@ -711,7 +711,7 @@
         const cand = mintCandidate(state, seat.id, tiers[rng.int(0, tiers.length - 1)], rng.int(0, 9999));
         led.candidates++;
         KP.openScene(state, { kind: 'theInterview', cand, expiresWeek: state.week + 2 });
-        inbox.push({ kind: 'company', ind: 'interviewSet', priority: 'high',
+        inbox.push({ kind: 'company', opens: 'theInterview', ind: 'interviewSet', priority: 'high',
           text: cand.name + ' is in the building about the ' + seat.label + ' chair — ' +
             (searching ? 'answering the posting, ' : '') + cand.tier +
             ' by the industry’s file, priced accordingly. The interview will tell you who they are. It will tell you nothing about how good they are. That part costs a year.' });
@@ -786,13 +786,17 @@
         const rival = rivalOf();
         KP.openScene(state, Object.assign({ kind: 'seatPoach', seatId: seatTarget,
           rivalName: rival ? rival.name : 'a rival house', expiresWeek: state.week + 2 }, callStamp(state, rival)));
+        // the call is said, as the road manager's always was (v0.11.44, §137): a decision does not open unannounced
+        inbox.push({ kind: 'company', opens: 'seatPoach', ind: 'seatCalled', priority: 'high',
+          text: S[seatTarget].name + ' got a call from ' + (KP.signedBy ? KP.signedBy(state, rival) : (rival ? rival.name : 'a rival house')) +
+            ' about a ' + HR.SEATS.find(x => x.id === seatTarget).label + ' chair across the street. The call is on the Desk, and in two weeks it answers itself.' });
       } else if (mgrTarget && rng.chance(MG.poachChance * redMult)) {
         state.seatPoachQuiet = state.week + HR.poachCooldown;
         led.poachCalls++;
         const rival = rivalOf();
         const rivalName = rival ? rival.name : 'a rival house';
         KP.openScene(state, Object.assign({ kind: 'seatPoach', groupId: mgrTarget.id, rivalName, expiresWeek: state.week + 2 }, callStamp(state, rival)));
-        inbox.push({ kind: 'company', priority: 'high', groupId: mgrTarget.id,
+        inbox.push({ kind: 'company', opens: 'seatPoach', priority: 'high', groupId: mgrTarget.id,
           text: mgrTarget.manager.name + ' got an offer from ' + (KP.signedBy ? KP.signedBy(state, rival) : rivalName) +
             ' — better title, better hours, someone else’s vans. The counter-offer window is on the Desk, and the members have already noticed the long phone calls.' });
       }

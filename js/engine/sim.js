@@ -365,12 +365,22 @@
     // pre-trim array is kept on the engine (not the save) so tests and
     // tools can see what the week EMITTED under the inbox law (§89 B)
     KP.lastTickNotes = inbox;
-    const kept = KP.trimWeekNotes(inbox, KP.C.EVENTS.maxInboxPerWeek)
+    const kept = KP.trimWeekNotes(inbox, KP.C.EVENTS.maxInboxPerWeek, state.deskSeen, state.deskWrote)
       // the landing leads its week (v0.11.5, §96 wiring): a stable sort —
       // the 'landed' letters first, everything else in the order it came
       .sort((a, b) => (b.ind === 'landed' ? 1 : 0) - (a.ind === 'landed' ? 1 : 0));
-    kept.forEach(n => { n.week = state.week; n.read = false; n.id = 'm' + (state.nextMsgId++); });
+    kept.forEach(n => { n.week = state.week; n.read = false; n.id = 'm' + (state.nextMsgId++); KP.noteCounted(state, n, true); });
     state.inbox = kept.concat(state.inbox).slice(0, 60);
+    // below the fold (v0.11.44, §137; the owner's ruling, §136: the limit "must never silently eliminate"). What
+    // the week wrote and its five could not hold is kept where the Desk can open it, this week's and the last's.
+    // The limit decides what is read first, never what can be read. A folded letter is kept lean, its desk, its
+    // words and its week: a file holds about sixteen of them, 4 KB. The fold has no cap by count. It first
+    // had one, twenty, and the long haul found the week that wrote thirty-five letters and lost seven
+    const E = KP.C.EVENTS;
+    const folded = inbox.filter(n => !n.spotlight && !n.feedOnly && !kept.includes(n));
+    folded.forEach(n => { KP.noteCounted(state, n, false); });
+    state.fold = folded.map((n, i) => ({ id: 'f' + state.week + '_' + i, week: state.week, kind: n.kind, text: n.text, read: true }))
+      .concat((state.fold || []).filter(n => n.week > state.week - E.foldWeeks));
 
     saveRng(state, rng);
     return kept;

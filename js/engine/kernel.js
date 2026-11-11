@@ -51,7 +51,23 @@
     n.id = 'm' + (state.nextMsgId++);
     n.fed = false;   // the next feed pass reads it (audit v0.11.3: action letters never reached the timeline)
     state.inbox.unshift(n);
+    KP.noteCounted(state, n, true);
     return n;
+  };
+  // what this career has written and what its Desk has shown, by kind (v0.11.44, §137): the trim reads both, and
+  // every letter is counted once, written, and once more if it landed
+  KP.noteKind = function (n) { return n.ind || ('kind:' + (n.kind || '?')); };
+  KP.noteCounted = function (state, n, landed) {
+    const wrote = state.deskWrote || (state.deskWrote = {});
+    const seen = state.deskSeen || (state.deskSeen = {});
+    const k = KP.noteKind(n);
+    wrote[k] = (wrote[k] || 0) + 1;
+    if (landed) seen[k] = (seen[k] || 0) + 1;
+  };
+  // a letter the week cannot cut though it is not critical: one that opens a decision (`opens` names the scene it
+  // stands beside), and an urgent health notice. The owner's ruling (§136, 3 and 23 to 25)
+  KP.noteHeld = function (n) {
+    return !!n.opens || (n.kind === 'health' && KP.notePriority(n) >= PRIORITY.high);
   };
   // the weekly trim — THE INBOX LAW (v0.10.29, §89 B). The old contract
   // let every 'high' bypass the budget, and the audit measured the
@@ -62,13 +78,61 @@
   // more than a handful of criticals is a design bug, not a busy week.
   // Spotlight and feed-only notes ride through for the feed pass and
   // never land — the timeline reacts, the inbox does not.
-  KP.trimWeekNotes = function (notes, budget) {
+  // Since v0.11.44 (§137, the owner's ruling): a letter that opens a
+  // decision and an urgent health notice land whatever the week holds,
+  // and take their places in the week's five. What is left of the five
+  // goes by priority, then to the kind this career has been shown the
+  // smallest share of: what its Desk has landed of the kind (`seen`)
+  // against what its weeks have written of it (`wrote`), this week's
+  // letters counted in as the five fill. Then by arrival. And the last
+  // place is kept for a kind this career's Desk has never shown, if
+  // the week wrote one the others did not take: "prioritize letters
+  // the player has not previously seen". One place and no more. With
+  // every place kept so, a new career's second week put the CEO's
+  // urgent word below the fold behind a school opening. What does not
+  // land is not thrown away: the driver keeps it below the fold
+  // (sim.js).
+  KP.trimWeekNotes = function (notes, budget, seen, wrote) {
     notes.forEach(n => { KP.noteCheck(n, 'tick'); });
     const live = notes.filter(n => !n.spotlight && !n.feedOnly);
-    const must = live.filter(n => KP.notePriority(n) >= PRIORITY.critical);
-    const rest = live.filter(n => KP.notePriority(n) < PRIORITY.critical)
-      .sort((a, b) => KP.notePriority(b) - KP.notePriority(a));
-    return must.concat(rest.slice(0, budget));
+    const crit = n => KP.notePriority(n) >= PRIORITY.critical;
+    const must = live.filter(crit);
+    const held = live.filter(n => !crit(n) && KP.noteHeld(n));
+    const pool = live.filter(n => !crit(n) && !KP.noteHeld(n));
+    const got = Object.assign({}, seen || {}), all = Object.assign({}, wrote || {});
+    live.forEach(n => { const k = KP.noteKind(n); all[k] = (all[k] || 0) + 1; });
+    const shown = n => { const k = KP.noteKind(n); got[k] = (got[k] || 0) + 1; };
+    const share = n => { const k = KP.noteKind(n); return (got[k] || 0) / all[k]; };
+    const fresh = n => !got[KP.noteKind(n)];   // a kind this Desk has never shown
+    must.concat(held).forEach(shown);
+    // the next by the law: priority, then the smallest share, then arrival
+    const next = () => {
+      let best = 0;
+      for (let j = 1; j < pool.length; j++) {
+        const d = KP.notePriority(pool[j]) - KP.notePriority(pool[best]);
+        if (d > 0 || (d === 0 && share(pool[j]) < share(pool[best]))) best = j;
+      }
+      return best;
+    };
+    // the kind never shown that the kept place goes to: the highest priority, then arrival; -1 when there is none
+    const newest = () => {
+      let best = -1;
+      for (let j = 0; j < pool.length; j++) {
+        if (fresh(pool[j]) && (best < 0 || KP.notePriority(pool[j]) > KP.notePriority(pool[best]))) best = j;
+      }
+      return best;
+    };
+    const rest = [];
+    for (let left = budget - held.length; left > 0 && pool.length; left--) {
+      const kept = left === 1 ? newest() : -1;
+      const n = pool.splice(kept < 0 ? next() : kept, 1)[0];
+      rest.push(n);
+      shown(n);
+    }
+    // read in the order the law always gave: by priority, then as they arrived
+    const at = new Map(live.map((n, i) => [n, i]));
+    rest.sort((a, b) => KP.notePriority(b) - KP.notePriority(a) || at.get(a) - at.get(b));
+    return must.concat(held, rest);
   };
 
   // ---- 2. the feed-reaction registry ------------------------------------

@@ -328,7 +328,7 @@
         KP.openScene(state, { kind: 'festivalInvite', groupId: g.id,
           festivalId: f.id, headline: icon && f.tier >= 2, expiresWeek: state.week + 2 });
         // the scene on the Desk is the truth; this line competes (v0.10.29)
-        inbox.push({ kind: 'company', ind: 'festivalInvite', groupId: g.id,
+        inbox.push({ kind: 'company', opens: 'festivalInvite', ind: 'festivalInvite', groupId: g.id,
           text: (f.region
             ? 'An invite from ' + f.name + ': a ' + KP.regionLabel(f.region) + ' convention slot for ' + g.name + ', ' +
               KP.weekLabel(festWeek(state, f)).text + '. The far markets open one weekend at a time, and the weekends have dates on them. The table is on the Desk.'

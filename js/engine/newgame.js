@@ -384,12 +384,17 @@
       const cityLabel = (KP.C.TOUR.KR_CITIES.find(c => c.id === homeCity) || {}).label || homeCity;
       // the atlas (v0.10.12, §82 A): the letter says THIS city's trade
       const dossier = (KP.C.HOME.CITIES || {})[homeCity];
-      open.push({ week: 1, kind: 'company', ind: 'regionalFounding', priority: 'high',
+      // (it has had no id and no read mark since v0.10.10: the long haul found it, holding the file's counts to
+      // its own note of the letters that reached the inbox, v0.11.44)
+      open.push({ week: 1, read: false, id: 'm' + (state.nextMsgId++), kind: 'company', ind: 'regionalFounding', priority: 'high',
         text: 'The lease is signed in ' + cityLabel + ' — not Seoul, on purpose. ' +
           (dossier ? 'What this address means, plainly: ' + dossier.trade + '. ' : '') +
           'The local academy is a walk from the office, the home rooms book their own, and the capital circuit is exactly as far away as it looks on the map. The trade is real on both sides; you chose which sides.' });
     }
     state.inbox = open;
+    // the opening letters are on the Desk, so the Desk's counts begin with them (v0.11.44, §137): a kind the first
+    // screen shows is not new to the week after. (The long haul found one taking a new kind's place in week 2.)
+    open.forEach(n => { KP.noteCounted(state, n, true); });
 
     // every face gets its public number at the door (v0.6.3)
     KP.mintSocialAll(state);

@@ -102,7 +102,7 @@
       if (red.weeks >= R.weeksToDissolve && !red.sentenced &&
           !(state.scenes || []).some(sc => sc.kind === 'lastStatement')) {
         KP.openScene(state, { kind: 'lastStatement', expiresWeek: state.week + R.sceneFuseWeeks });
-        inbox.push({ kind: 'company', ind: 'lastStatement', priority: 'critical',
+        inbox.push({ kind: 'company', opens: 'lastStatement', ind: 'lastStatement', priority: 'critical',
           text: 'The last statement is on the Desk. Twelve weeks behind, the arrears still standing, the creditors done writing. It is one page. Reading it dissolves ' + state.company.name + ' on the record; leaving it unread for a week reads it for you.' });
       }
     } else if (red.weeks > 0) {

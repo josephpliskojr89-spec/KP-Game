@@ -258,7 +258,7 @@
           led.unsanctioned++;
           doLive(state, rng, inbox, p, false);
           KP.openScene(state, { kind: 'unsanctionedLive', personId: p.id, expiresWeek: state.week + 2 });
-          inbox.push({ kind: 'company', ind: 'unsancLive', priority: 'high', personId: p.id,
+          inbox.push({ kind: 'company', opens: 'unsanctionedLive', ind: 'unsancLive', priority: 'high', personId: p.id,
             text: KP.fillPro(KP.displayName(p) + ' went live on WeCast last night without asking anyone. The staff found out from the fans, which is the worst available way. The conversation is on the Desk.', p) });
         } else {
           const wantsChannel = p.personality.creativity >= 55 || p.broadcastAskedLive;

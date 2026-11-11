@@ -186,7 +186,7 @@
         KP.openScene(state, { kind: 'theChoice', personId: p.id, expiresWeek: state.week + 3 });
         ledger(state).choices++;
       }
-      return { kind: 'public', ind: 'scandalDrift', priority: 'high', personId: p.id,
+      return { kind: 'public', opens: 'theChoice', ind: 'scandalDrift', priority: 'high', personId: p.id,
         text: 'The response window closed with no response — the story wrote its own second cycle, and the company’s silence is quoted in it as a character.' };
     },
   });
@@ -327,7 +327,7 @@
         led.rebroke++;
         state.trust = KP.clamp(state.trust - 3, 0, 100);
         p.scandal.sev = Math.min(4, p.scandal.sev + 1);
-        inbox.push({ kind: 'public', ind: 'scandalRebreak', priority: 'high', personId: p.id,
+        inbox.push({ kind: 'public', opens: 'theChoice', ind: 'scandalRebreak', priority: 'high', personId: p.id,
           text: KP.fillPro('The story re-broke — with receipts this time, and the company’s denial pinned above every repost. The first story was about ' + KP.displayName(p) + '. The second story is about the label, which is the trade denial always offers.', p) });
         if (p.scandal.sev >= 4 && !(state.scenes || []).some(sc => sc.kind === 'theChoice' && sc.personId === p.id)) {
           KP.openScene(state, { kind: 'theChoice', personId: p.id, expiresWeek: state.week + 3 });

@@ -221,7 +221,7 @@
       const id = pickIdentity(state, S.JV.NAMES, entry.nameIdx);
       KP.openScene(state, { kind: 'globalJV', company: id.short, coName: id.co,
         act: id.act, expiresWeek: state.week + S.JV.answerWeeks });
-      push({ kind: 'company', urgent: true, ind: 'sagaJV',
+      push({ kind: 'company', opens: 'globalJV', urgent: true, ind: 'sagaJV',
         text: id.co + ' put the co-build on YOUR desk first: worldwide auditions on their money, split control, split revenue — a global group built between two letterheads. The term sheet is generous and it is dated: they are doing this with or without us, and the second meeting on their itinerary is across the street. It is on the Desk.' });
       return;
     }

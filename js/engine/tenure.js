@@ -426,7 +426,7 @@
             ' years in the chair, {she} is stepping away. ', { gender: old.gender || 'f' }) +
             (warm ? 'The last thing packed was a framed chart printout — one of ours. “Whatever the next chair thinks of you,” ' + old.name.split(' ')[0] + ' said at the door, “make them learn it the way I did.”'
                   : 'The goodbye was professional, which both of you understood to be a complete sentence. Some eras end even; this one ends filed.') });
-        inbox.push({ kind: 'executive', urgent: true, ind: 'newChair', priority: 'critical',
+        inbox.push({ kind: 'executive', opens: 'newChair', urgent: true, ind: 'newChair', priority: 'critical',
           text: next.name + ' takes the chair Monday. ' + next.intro + ' The new executive has read the file ' + old.name + ' left: ' + KP.chairRecordSaid(left) + '. What has not transferred is the part that took years to build: the benefit of the doubt. The first meeting is on the Desk, and it sets the tone for the era.' });
         KP.openScene(state, { kind: 'newChair', prevName: old.name, rated: left.rated,
           expiresWeek: state.week + 3 });
