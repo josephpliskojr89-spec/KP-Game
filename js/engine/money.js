@@ -24,6 +24,9 @@
   KP.ledgerFlow = function (state, stream, amount) {
     const b = books(state);
     b.cur[stream] = (b.cur[stream] || 0) + amount;
+    // the year's own sum (v0.11.32, §124): what came in, for the letter the
+    // company writes to itself at the year's close
+    if (amount > 0) KP.yearLedger(state).took += amount;
   };
 
   // ---- jeongsan: the recoup ledger -------------------------------------

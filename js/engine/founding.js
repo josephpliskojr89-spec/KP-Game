@@ -219,6 +219,9 @@
       const red = state.red || {};
       state.red = { weeks: 0, arrears: 0, rung: 0, peak: red.peak || 0, total: red.total || 0, paid: red.paid || 0, episodes: red.episodes || 0 };
       state.books = { cur: {}, curStartBudget: h.warChest, last: null, closed: (state.books && state.books.closed) || 0 };
+      // and its own years (v0.11.32, §124): the first opens with the war chest
+      state.yearLedger = { took: 0, open: { week: state.week, budget: h.warChest } };
+      state.years = [];
     }
     state.signingsAllowed = 6;
     state.signingsUsed = 0;

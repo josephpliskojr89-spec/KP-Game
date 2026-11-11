@@ -300,6 +300,9 @@
     // chapter's first statement netted the old streams); its trophies
     // and its daesang are its own — the next company's first is a first
     state.books = { cur: {}, curStartBudget: 0, last: null, closed: (state.books && state.books.closed) || 0 };
+    // its years close with it too (v0.11.32, §124)
+    state.yearLedger = { took: 0, open: { week, budget: 0 } };
+    state.years = [];
     delete state.gravityExecAsk;
     state.firstShowWinWeek = 0;
     delete state.daesangWonYear;
@@ -497,6 +500,7 @@
     state.budget = chest;
     state.fiscal = { monthStartBudget: chest, pressure: 0, monthSignings: 0 };
     if (state.books) state.books.curStartBudget = chest;   // the first statement nets from the chest, not from zero
+    state.yearLedger = { took: 0, open: { week, budget: chest } };   // and so does the first year's close (v0.11.32, §124)
     // the salaried door inherits an act with trophies on the wall — its
     // first win is not the company's first; every other door starts clean
     state.firstShowWinWeek = door === 'salaried' ? week - R.groupAge : 0;

@@ -241,6 +241,8 @@
     if (KP.wallLedger) KP.wallLedger(state);         // the heads of the other houses (v0.11.22, §113)
     state.deadShorts = state.deadShorts || [];   // the registry exists from week one, so a fork never creates it in a different order
     state.annals = state.annals || [];           // and so does the company's written record (v0.11.30, §122)
+    if (KP.yearLedger) KP.yearLedger(state);     // the year's own books open with the career (v0.11.32, §124)
+    state.years = state.years || [];             // and the years it has closed
     return state;
   };
   KP.validateState = function (state) {

@@ -9525,7 +9525,8 @@ feature the player can sit for or refuse.
 company's file; part one, her own questions, SHIPPED v0.11.27,
 §119; part two, the annual review, SHIPPED v0.11.28, §120; part
 three, the company's own file, SHIPPED v0.11.29, §121; part four,
-the written record, SHIPPED v0.11.30, §122).** The
+the written record, SHIPPED v0.11.30, §122; part five, the year's
+close, SHIPPED v0.11.32, §124).** The
 exec's `personality` finally read: a question
 family per type (the profit hunter asks about the quarter, the
 traditionalist about the vocal room, the micromanager about a trainee
@@ -13402,6 +13403,148 @@ owner's to call*: whether the date should sit under the name on
 the larger phones too, 412 px and up, where it is still beside it
 when there is room. *Still the owner's to call*: from §122, whether
 a founded label's first trophy should be a first; from §121, the
+spacing of the manager's titles; from §120, the shape of probation;
+from §119, whether a pass should cost anything, and whether next
+door to the sound should count; the Desk's tie-break (§112); and
+from §109, the fade between records through a service chapter and
+the size of the window's bank.
+
+## §124 The year's close (SHIPPED v0.11.32 — §96 recommendation 7, the people upstairs and down the hall, part five)
+
+Owner: *"Break remaining work into smaller pieces"*. The fifth of
+recommendation 7's pieces: "a year-end letter at week 48 from the
+company to itself as the yearly accounting". Taken ahead of the
+anniversary: it reaches every career every year, and the
+anniversary can reuse its reader.
+
+**Counted first** (§118's lesson). Over 200 careers every week of
+the year writes about twelve letters, and the inbox keeps five and
+the critical ones. Week 48 writes fifteen and keeps five and a
+half. A critical letter is added to the five and pushes nothing
+out, and the feed has drawn its own stream since v0.10.30. So a
+letter of words in the last week of the year lands every time and
+moves no outcome.
+
+**What the company writes to itself.** One letter, the company's,
+critical, in the last week of the year: an opening, then four
+things in a fixed order.
+
+- *The headline*: one chapter of the year from the company's file
+  (§121, §122), the first there is of these: the daesang, an honor,
+  this desk's first number one, its first trophy, the breakthrough,
+  a debut, a settlement, a new chair, a last bow, the arrears
+  cleared, the red weeks. Of two of a kind, the file's last. A year
+  with none: "No headline: a quiet year on the file."
+- *The work*: the records that came out in the year, the best
+  place any of them reached, and the trophies they won.
+- *The people*: acts that debuted, people who signed, people who
+  left, acts that took a last bow. A year with none: "nobody came
+  and nobody went".
+- *The books*: what came in, what went out, the till, and how far
+  it moved.
+
+"The year closes, and Hanseong Culture Group writes to itself, as
+it does once a year. Year 1. The headline: VESPER4 took Artist of
+the Year. The work: 4 records out, the best at number 1, and 5
+trophies. The people: one act debuted, 3 signed. The books: 2231
+came in and 1939 went out. The till closes at 412, up 292."
+
+The opening is a family of three (§93), picked by hash and never
+last year's.
+
+**Read, not written** (`KP.yearAccount`, pure). The tallies are
+read off the state, for this year or any before it: records by
+their week, honors by their ceremony, signings and leavings by the
+chapters on each person's file (§90). A year is the calendar's. A
+desk that began inside it answers for its own weeks.
+
+**Two things are kept** (`state.yearLedger`), because nothing else
+holds them: what came in, which the flows add up as they happen,
+and the till the year opened with. What went out is what came in
+less what the till gained. The sum is given only when it adds up.
+A till that gained more than came in was fed from outside the
+books, and then the letter gives the till and how far it moved.
+
+**The closed year is filed** (`state.years`, the last twelve) with
+what was said. The company's page (§121) lists the years above
+this desk's chapters, the newest first: "Y2 · 3 records · 14
+trophies · 2 honors, the daesang among them · 1 debut · till 3975".
+
+**A move closes them.** The years are the company's, like its
+written record. A founded label's first year opens with its war
+chest; a second chance's with what its door gave.
+
+**Old saves** (migration 0.11.32). The years already closed under
+this desk are filed from what the state still shows, with no till
+and nothing said. The year in hand keeps its books from the day of
+the load, so its letter gives the till and not the sum. The year
+after is whole.
+
+**Measured.** Over 200 careers the company closes 400 years, two a
+career, and every letter lands. 394 of them have a headline, and
+all 400 give the year's sum. They count 2,056 records, 2,495
+trophies, 995 honors, 353 debuts, 1,287 signings and 12 leavings.
+Two bands: a year closed (200 of 200), a year with a headline
+(200). No career moved: every one of the 363 rows the census had
+is v0.11.31's. Across the long haul's eleven scenarios, 620 weeks
+each, 128 closed years are on file, 38 with a headline. On a wider
+run with the tool's side worlds, 424 letters were written and 424
+landed; the till in the letter was the till after the week in all
+424; the three openings were used 138, 134 and 149 times, never
+the same two years running; and the sum failed to add up in 1
+year of 421, where a tool sets the till by hand.
+
+**Found while building it.** The first rule for a whole year's
+books asked only that they had opened by the year's first week. A
+fixture that jumped a year without closing it then read last year's
+opening till as this year's. The books count only when they opened
+with the year. Two guards in the account guarded nothing, since a
+week that is missing is in no year, and were deleted.
+
+**Found by the mutation run.** On the first run 108 of 112 broken
+lines were caught and none survived. Four crashed the suite where
+they should have failed by name: it read the second filed year, a
+list the backfill had not returned, and books a load had not
+opened, each without looking first. Each read is guarded. On the
+final run, 112 of 112.
+
+**Found by the browser pass.** Nothing in this piece. One thing
+older than it: in the Desk's inbox the tag DEVELOPMENT is wider
+than its column and runs into the letter beside it. It is a later
+piece.
+
+Suite_141 (92): the year's books at a career's start; what the
+flows add to them; each tally from its marker with its edges (the
+year's first and last week, the week a desk began, a year still
+running, any year before); the headline's order, step by step; the
+books' three states; the letter's three openings and each of its
+four parts in words; the close through its real week, twice, and
+at the epilogue, and thirteen times for the twelve kept; fifty real
+weeks to a letter in the inbox; a founding, a last statement and a
+second chance; an old file's years, and the real load with the two
+closes after it; the company's page through the DOM stub; the
+tools' wiring. Suite_131 holds the letter to the list of letters
+said once. Mutation-checked against 112 broken lines, each caught
+by a named assertion in every suite that owns the line. A
+real-browser pass (23 checks, no page errors): the real advance
+button turns the last week of a first year and the letter is on
+the Desk with its headline, work, people and books; forty-eight
+real weeks on the second year closes with another opening and the
+page lists both; a real career saved by v0.11.29 opens with its two
+closed years listed without a till, and three real weeks on its
+third closes with the till alone; a label founded today lists none.
+Battery 141/141, soak 40 clean, census 200 clean, longhaul 11 ×
+620 clean, e2e 137 and 32, the fourteen older browser passes,
+lockstep 0.11.32.
+
+*Left for the next pieces.* The company anniversary, a founded
+label's birthday, reusing the year's reader. The inbox tag. The
+exec-side ledger and a succession that transfers a record; the
+staff given years. *The owner's to call*: the headline's order, and
+whether the letter should say more or less than its four things.
+*Still the owner's to call*: from §123, whether the date should sit
+under the name on the larger phones too; from §122, whether a
+founded label's first trophy should be a first; from §121, the
 spacing of the manager's titles; from §120, the shape of probation;
 from §119, whether a pass should cost anything, and whether next
 door to the sound should count; the Desk's tie-break (§112); and
@@ -17533,6 +17676,31 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > Battery 140/140, soak 40 clean, census 200 clean, longhaul 11 ×
 > 620 clean, e2e 137 and 32, lockstep 0.11.31.
 > Rode to main. Next piece: the company anniversary.
+
+> **0.11.32 — the year's close.** Own judgment, under "Approved to
+> tackle as much of the remaining queue as you see fit" and "Break
+> remaining work into smaller pieces": the fifth piece of §96's
+> recommendation 7, taken ahead of the anniversary because it
+> reaches every career every year. §124: in the last week of the
+> year the company writes to itself. Counted first: a critical
+> letter pushes nothing out of the inbox and the feed draws its own
+> stream, so a letter of words lands every time and moves no
+> outcome. The letter is an opening and four things in a fixed
+> order: the year's headline from the company's file, the work, the
+> people, the books. The tallies are read off the state, for this
+> year or any before it. Two things are kept as they happen: what
+> came in, and the till the year opened with; the sum is given only
+> when it adds up. The closed year is filed, and the company's page
+> lists the last twelve above this desk's chapters. A move closes
+> them. Old saves get the years they had already closed, with no
+> till. Over 200 careers 400 years close, two a career;
+> 394 have a headline and all 400 give the sum; every one of the
+> census's 363 rows is 0.11.31's.
+> Suite_141 (92), 112 mutations caught by name.
+> Battery 141/141, soak 40 clean, census 200 clean, longhaul 11 ×
+> 620 clean, e2e 137 and 32, a real-browser pass (23), lockstep
+> 0.11.32.
+> Rode to main. Next piece: the inbox tag that runs into its letter.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.31',
+    VERSION: '0.11.32',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1714,6 +1714,9 @@
     // decays into expectation, executives have eras, and the founder
     // answers to a board with names. All hash-timed — the module
     // consumes no rng.
+    // the year's close (v0.11.32, §124): the company writes to itself in
+    // the last week of the year, and its page keeps the last twelve
+    YEAR: { kept: 12 },
     TIME: {
       SENESCE: {               // audit A4: a 33-year-old trained like a rookie
         at: 28,                // the body starts keeping a different ledger

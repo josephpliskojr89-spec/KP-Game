@@ -636,9 +636,19 @@
     const f = KP.companyFile(state);
     const row = c => '<div class="mail"><span class="m-tag">' + UI.esc(KP.weekLabel(c.week).text) + '</span><div>' + UI.esc(c.text) + '</div></div>';
     const past = f.chapters.filter(c => c.before), mine = f.chapters.filter(c => !c.before);
+    const years = state.years || [];
+    const n = (x, one, more) => x + ' ' + (x === 1 ? one : more);
+    const yearRow = a => '<div class="mail yr-row"><span class="m-tag">Y' + a.year + '</span><div>' + UI.esc([
+      n(a.records, 'record', 'records'), n(a.trophies, 'trophy', 'trophies'),
+      a.honors ? n(a.honors, 'honor', 'honors') + (a.daesang ? ', the daesang among them' : '') : null,
+      a.debuts ? n(a.debuts, 'debut', 'debuts') : null,
+      a.till != null ? 'till ' + a.till : null,
+    ].filter(Boolean).join(' · ')) + '</div></div>';
     return '<div class="card co-file"><div class="kicker" style="margin-top:0">The company</div>' +
       '<div style="font-size:1.25rem;font-weight:800;line-height:1.15">' + UI.esc(f.name) + '</div>' +
       '<div style="font-size:.8rem;color:var(--ink-dim);margin-top:6px">' + UI.esc(f.manager.name) + ' · ' + UI.esc(f.manager.title) + ' · ' + yearsWord(f.manager.weeks) + '</div></div>' +
+      // the years it has closed (v0.11.32, §124), the newest first
+      (years.length ? '<div class="kicker">The years</div>' + years.slice().reverse().map(yearRow).join('') : '') +
       '<div class="kicker">Under this desk</div>' + mine.slice().reverse().map(row).join('') +
       (past.length ? '<div class="kicker">Before this desk</div>' + past.slice().reverse().map(row).join('') : '');
   };

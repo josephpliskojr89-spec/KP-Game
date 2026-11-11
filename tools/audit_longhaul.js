@@ -595,6 +595,15 @@ for (const sc of RUN) {
       if (KP.groups(state).some(g => g.lastShowWinWeek >= since) && n('trophy') !== 1) flag(sc.seed, state.week, 'this desk has won a trophy and the written record has no night for it');
       if (!marks.every(m => cf.chapters.some(c => c.week === m.week && c.kind === m.kind))) flag(sc.seed, state.week, 'a mark on the written record is not a chapter of the company’s file');
     }
+    // the year's close (v0.11.32, §124): one year after another, each on its last week, and the books of the year in hand open
+    {
+      const years = state.years || [], led = state.yearLedger;
+      if (!years.every((a, i) => i === 0 || a.year === years[i - 1].year + 1)) flag(sc.seed, state.week, 'the closed years do not follow one another');
+      if (!years.every(a => a.week === a.year * KP.C.WEEKS_PER_YEAR && a.week <= state.week)) flag(sc.seed, state.week, 'a year is closed on a week that is not its last');
+      if (!years.every(a => !/came in/.test(a.said || '') || a.took >= a.till - a.was)) flag(sc.seed, state.week, 'a year’s letter gives a sum that does not add up');
+      if (years.length > KP.C.YEAR.kept) flag(sc.seed, state.week, years.length + ' closed years on the file');
+      if (!led || !(led.took >= 0) || led.open.week > state.week) flag(sc.seed, state.week, 'the books of the year in hand are not open');
+    }
     // the letterhead (v0.11.25, §116): the staff calls add up, and an answer needs a call
     if ((wl.callsBooks || 0) + (wl.callsTemper || 0) > (wl.calls || 0)) flag(sc.seed, state.week, 'the staff calls do not add up: ' + [wl.calls, wl.callsBooks, wl.callsTemper].join('/'));
     if (((wl.kinds || {}).theyHiredOurStaff || 0) + ((wl.kinds || {}).weKeptOurStaff || 0) > (wl.calls || 0)) flag(sc.seed, state.week, 'more answers on the books than staff calls: ' + (wl.calls || 0) + ' calls');
@@ -702,6 +711,7 @@ for (const sc of RUN) {
     ' | upstairs: ' + (up => 'asked ' + up.asked + ', promised ' + up.promised + ', kept ' + up.met + ', broken ' + up.missed + ', set aside ' + up.void +
       ', reviews ' + up.reviews + ' (thin ' + up.bands.thin + ', gone ' + up.bands.gone + ')')(KP.upstairsLedger(state)) +
     ' | file: ' + (cf => cf.chapters.length + ' chapter' + (cf.chapters.length === 1 ? '' : 's') + ' (' + cf.chapters.filter(c => !c.before).length + ' under this desk), ' + cf.manager.title)(KP.companyFile(state)) +
+    ' | years: ' + (state.years || []).length + ' closed (' + (state.years || []).filter(a => a.headline).length + ' with a headline)' +
     ' | record: ' + (marks => marks.length + ' mark' + (marks.length === 1 ? '' : 's') + ' (chairs ' + marks.filter(m => m.kind === 'chair').length + ', red weeks ' + marks.filter(m => m.kind === 'red').length + ')')(KP.fileMarks(state)) +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +

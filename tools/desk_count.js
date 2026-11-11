@@ -29,6 +29,8 @@ const ONE_SHOTS = [
   'execOwnMet', 'execOwnMissed',
   // the annual review (§120): once a year, when the directors have gone
   'annualReview',
+  // the year's close (§124): once a year, the company to itself
+  'yearEnd',
 ];
 
 function watch(KP) {

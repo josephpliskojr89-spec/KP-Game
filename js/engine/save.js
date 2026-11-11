@@ -1405,6 +1405,14 @@
     if (KP.fileBackfill) KP.fileBackfill(state);
   } });
 
+  // v0.11.32 — the year's close. The years already closed under this desk
+  // are filed from what the state still shows; the year in hand keeps its
+  // books from today, so its letter will give the till and not the sum.
+  MIGRATIONS.push({ v: '0.11.32', fn: function (state) {
+    if (KP.ensureLedgers) KP.ensureLedgers(state);
+    if (KP.yearBackfill) KP.yearBackfill(state);
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

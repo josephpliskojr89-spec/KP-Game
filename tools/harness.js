@@ -734,6 +734,11 @@ const BANDS = {
   // careers, the staff meeting of the red weeks in 42
   recordNight:       { lo: 0.90, hi: 1.00, label: 'orgs whose written record holds the night of this desk’s first trophy' },
   recordRed:         { lo: 0.05, hi: 0.60, label: 'orgs whose written record holds the red weeks' },
+  // the year's close (v0.11.32, §124): every career that sees a December
+  // closes its year. Ruled from the census: 424 letters, all landed; a
+  // headline in 401 of 421 years
+  yearClosed:        { lo: 0.90, hi: 1.00, label: 'orgs whose company wrote to itself at the year’s close' },
+  yearHeadline:      { lo: 0.70, hi: 1.00, label: 'orgs with a year that had a headline' },
   projectTalkSeen:   { lo: 0.10, hi: 1.00, label: 'orgs where an open project set the practice room talking' },
   traineeQuitAsked:  { lo: 0.00, hi: 0.80, label: 'orgs where a trainee brought the resignation letter' },
   traineeGone:       { lo: 0.00, hi: 0.80, label: 'orgs that lost a trainee on her own terms (quit or broken promise)' },
@@ -892,6 +897,7 @@ const wallSum = {};   // the head (v0.11.22, §113)
 const upSum = { types: {} };   // her own questions (v0.11.27, §119)
 const fileSum = {};            // the company's own file (v0.11.29, §121)
 const recSum = {};             // the written record (v0.11.30, §122)
+const closeSum = {};           // the year's close (v0.11.32, §124)
 const tally = {
   sensation: 0, strongPlus: 0, missOrQuiet: 0, nonCenterBreakout: 0,
   rivalSteals: 0, burnouts: 0, instinctSigning: 0,
@@ -974,7 +980,7 @@ const tally = {
   listPosted: 0, offListDoor: 0,
   quietRested: 0, quietFull: 0,
   headQuoted: 0, houseBooks: 0, parkMoved: 0, callReason: 0, truceCalled: 0, truceTaken: 0, truceBroken: 0,
-  ownAsked: 0, ownKept: 0, ownBroken: 0, reviewHeard: 0, reviewGone: 0, fileFirst: 0, recordNight: 0, recordRed: 0,
+  ownAsked: 0, ownKept: 0, ownBroken: 0, reviewHeard: 0, reviewGone: 0, fileFirst: 0, recordNight: 0, recordRed: 0, yearClosed: 0, yearHeadline: 0,
   agingOutFaced: 0, lastChanceSeen: 0,
   bubbleSeen: 0, meetingKept: 0, ambitionMet: 0,
   peopleFelt: 0, quietWeekCaught: 0,
@@ -2647,6 +2653,30 @@ for (let s = 0; s < SEEDS; s++) {
       guard(moved ? n('chair') <= chairs : n('chair') === chairs, seed + ' ' + chairs + ' successions and ' + n('chair') + ' chairs on the written record');
       guard(marks.every(m => cf.chapters.some(c => c.week === m.week && c.kind === m.kind)), seed + ' a mark on the written record is not a chapter of the company’s file');
     }
+    // the year's close (v0.11.32, §124): one year after another, each closed
+    // on its last week with its letter and its till; the sum is given only
+    // when it adds up; the books of the year in hand are open; and reading
+    // the account changes nothing
+    {
+      const years = state.years || [], led = state.yearLedger;
+      const Yw = KP.C.WEEKS_PER_YEAR;
+      if (years.length >= 1) tally.yearClosed++;
+      if (years.some(a => a.headline)) tally.yearHeadline++;
+      closeSum.years = (closeSum.years || 0) + years.length;
+      ['records', 'trophies', 'honors', 'debuts', 'signed', 'left', 'bows'].forEach(k => { closeSum[k] = (closeSum[k] || 0) + years.reduce((n, a) => n + a[k], 0); });
+      closeSum.headline = (closeSum.headline || 0) + years.filter(a => a.headline).length;
+      closeSum.sums = (closeSum.sums || 0) + years.filter(a => /came in/.test(a.said)).length;
+      guard(years.every((a, i) => i === 0 || a.year === years[i - 1].year + 1), seed + ' the closed years do not follow one another');
+      guard(years.every(a => a.week === a.year * Yw && a.week <= state.week), seed + ' a year is closed on a week that is not its last');
+      guard(years.every(a => typeof a.said === 'string' && a.said.includes('Year ' + a.year + '.') && a.said.includes('closes at ' + a.till)), seed + ' a closed year has no letter, or its letter has not its till');
+      guard(years.every(a => !/came in/.test(a.said) || (a.took >= a.till - a.was && a.said.includes(a.took + ' came in and ' + (a.took - (a.till - a.was)) + ' went out'))), seed + ' a year’s letter gives a sum that does not add up');
+      guard(years.every((a, i) => i === 0 || a.line !== years[i - 1].line), seed + ' the company opened its letter the same way two years running');
+      guard(years.length <= KP.C.YEAR.kept, seed + ' ' + years.length + ' closed years on the file');
+      guard(!!led && led.took >= 0 && led.open.week <= state.week, seed + ' the books of the year in hand are not open');
+      const before = KP.serialize(state);
+      KP.yearAccount(state);
+      guard(KP.serialize(state) === before, seed + ' reading the year’s account changed the save');
+    }
     // the letterhead (v0.11.25, §116): who called our staff, and what the
     // answers put on the books. An answer needs a call
     if ((wallL.callsBooks || 0) + (wallL.callsTemper || 0) >= 1) tally.callReason++;
@@ -3371,6 +3401,8 @@ console.log('the annual review: given ' + (upSum.reviews || 0) + ' times · ' + 
 console.log('the company’s file: chapters ' + (fileSum.chapters || 0) + ' · under this desk ' + (fileSum.mine || 0) + ' · ' +
   ['debut', 'numberOne', 'trophy', 'award', 'daesang', 'settlement', 'lastBow', 'fold', 'chair', 'breakthrough', 'red', 'redCleared'].map(k => k + ' ' + (fileSum['k_' + k] || 0)).join(' · '));
 console.log('  the manager’s title at the end: ' + ['A&R Manager', 'Senior A&R Manager', 'Head of A&R', 'Executive Producer', 'Founder'].map(k => k + ' ' + (fileSum['t_' + k] || 0)).join(' · '));
+console.log('the year’s close: years closed ' + (closeSum.years || 0) + ' · with a headline ' + (closeSum.headline || 0) + ' · with the year’s sum ' + (closeSum.sums || 0) + ' · records ' + (closeSum.records || 0) +
+  ' · trophies ' + (closeSum.trophies || 0) + ' · honors ' + (closeSum.honors || 0) + ' · debuts ' + (closeSum.debuts || 0) + ' · signed ' + (closeSum.signed || 0) + ' · left ' + (closeSum.left || 0) + ' · last bows ' + (closeSum.bows || 0));
 console.log('the written record: marks ' + (recSum.marks || 0) + ' · the night of this desk’s first trophy ' + (recSum.k_trophy || 0) + ' · the red weeks ' + (recSum.k_red || 0) +
   ' (cleared ' + (recSum.k_redCleared || 0) + ') · a new chair ' + (recSum.k_chair || 0) + ' · the breakthrough ' + (recSum.k_breakthrough || 0));
 console.log('the quiet: told the rest was in ' + (quietSum.rested || 0) + ' · told the bank was full ' + (quietSum.full || 0) +

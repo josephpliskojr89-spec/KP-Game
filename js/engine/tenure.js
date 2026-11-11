@@ -166,6 +166,98 @@
       manager: { name: state.player.name, title: KP.managerTitle(state), weeks: state.week - since }, chapters: ch };
   };
 
+  // ---- the year's close (v0.11.32, §124) --------------------------------
+  // In the last week of the year the company writes to itself: the year's
+  // headline, the work, the people, the books. The tallies are READ off the
+  // state, for this year or any year before it. Two things are kept as
+  // they happen, because nothing else holds them: what came in (the flows
+  // add it up) and the till the year opened with. A closed year is filed,
+  // and the company's page lists the last twelve.
+  KP.yearLedger = function (state) {
+    state.yearLedger = state.yearLedger || { took: 0, open: { week: state.week, budget: state.budget } };
+    return state.yearLedger;
+  };
+  const HEADLINE = ['daesang', 'award', 'numberOne', 'trophy', 'breakthrough', 'debut', 'settlement', 'chair', 'lastBow', 'redCleared', 'red'];
+  KP.yearAccount = function (state, year) {
+    const Y = KP.C.WEEKS_PER_YEAR;
+    const now = Math.ceil(state.week / Y);
+    const y = year || now;
+    const open = Math.max((y - 1) * Y, KP.deskSince(state) - 1), close = Math.min(y * Y, state.week);   // the year is the weeks after `open`, up to `close`
+    const inYear = w => w > open && w <= close;
+    const recs = records(state, r => inYear(r.week));
+    const peaks = recs.map(x => x.r.chartPeak).filter(p => p >= 1);
+    const groups = KP.groups(state);
+    const honors = groups.reduce((all, g) => all.concat((g.honors || []).filter(h => inYear(honorWeek(h)))), []);
+    const short = state.company.short;
+    const moved = kinds => Object.keys(state.people).filter(id =>
+      (state.people[id].chapters || []).some(ch => kinds.includes(ch.kind) && ch.co === short && inYear(ch.week))).length;
+    const chapters = KP.companyFile(state).chapters.filter(c => inYear(c.week) && c.kind !== 'desk' && c.kind !== 'fold');
+    const head = HEADLINE.map(k => chapters.filter(c => c.kind === k).pop()).filter(Boolean)[0];
+    // the books are this year's only, and only when they opened with the year
+    const led = y === now ? state.yearLedger : null;
+    const whole = !!led && led.open.week >= open && led.open.week <= open + 1;
+    return { year: y, week: close,
+      records: recs.length, best: peaks.length ? Math.min.apply(null, peaks) : null,
+      trophies: recs.reduce((n, x) => n + (x.r.trophies || 0), 0),
+      honors: honors.length, daesang: honors.some(h => h.category === 'daesang'),
+      debuts: groups.filter(g => inYear(g.debutWeek)).length,
+      bows: groups.filter(g => inYear(g.retiredWeek)).length,
+      signed: moved(['signed']), left: moved(['released', 'departed']),
+      chapters: chapters.length, headline: head ? head.text : null,
+      till: y === now ? Math.round(state.budget) : null,
+      was: whole ? Math.round(led.open.budget) : null, took: whole ? Math.round(led.took) : null };
+  };
+  const many = (n, one, more) => (n === 0 ? 'no ' + more : n === 1 ? 'one ' + one : n + ' ' + more);
+  // the letter: an opening the company did not use last year, then four things in a fixed order
+  KP.yearLetter = function (state, a, last) {
+    const name = state.company.name;
+    const lines = [
+      'The year closes, and ' + name + ' writes to itself, as it does once a year.',
+      name + ', to its own file, in the last week of the year.',
+      'The last week of the year. ' + name + ' sets it down for the file.',
+    ];
+    const opening = KP.lineFor(state, 'yearEnd', lines, last);
+    const people = [a.debuts ? many(a.debuts, 'act', 'acts') + ' debuted' : null, a.signed ? a.signed + ' signed' : null, a.left ? a.left + ' left' : null,
+      a.bows ? many(a.bows, 'act', 'acts') + ' took a last bow' : null].filter(Boolean);
+    // the sum is given only when it adds up: a till that gained more than came in was fed from outside the books
+    const sums = a.took != null && a.took >= a.till - a.was;
+    const moved = a.was == null ? '' : ', ' + (a.till > a.was ? 'up ' + (a.till - a.was) : a.till < a.was ? 'down ' + (a.was - a.till) : 'where it opened');
+    return { line: lines.indexOf(opening), text: [
+      opening, 'Year ' + a.year + '.',
+      a.headline ? 'The headline: ' + a.headline : 'No headline: a quiet year on the file.',
+      'The work: ' + many(a.records, 'record', 'records') + ' out' + (a.best ? ', the best at number ' + a.best : '') + ', and ' + many(a.trophies, 'trophy', 'trophies') + '.',
+      'The people: ' + (people.length ? people.join(', ') : 'nobody came and nobody went') + '.',
+      'The books: ' + (sums ? a.took + ' came in and ' + (a.took - (a.till - a.was)) + ' went out. The till' : 'the till') + ' closes at ' + a.till + moved + '.',
+    ].join(' ') };
+  };
+  // the close: the account is filed with what was said, and the next year's books open
+  KP.closeYear = function (state) {
+    const years = state.years = state.years || [];
+    const a = KP.yearAccount(state);
+    const prev = years[years.length - 1];
+    const said = KP.yearLetter(state, a, prev ? prev.line : null);
+    years.push(Object.assign(a, { line: said.line, said: said.text }));
+    if (years.length > KP.C.YEAR.kept) years.shift();
+    state.yearLedger = { took: 0, open: { week: state.week, budget: state.budget } };
+    return { kind: 'company', ind: 'yearEnd', priority: 'critical', year: a.year, text: said.text };
+  };
+  // an old file (migration 0.11.32): the years already closed under this
+  // desk are filed from what the state still shows. Their tills are not on
+  // any file, and nothing was said of them.
+  KP.yearBackfill = function (state) {
+    const Y = KP.C.WEEKS_PER_YEAR;
+    const first = Math.ceil(KP.deskSince(state) / Y), ended = Math.floor(state.week / Y);
+    const years = [];
+    for (let y = first; y <= ended; y++) years.push(KP.yearAccount(state, y));
+    state.years = years.slice(-KP.C.YEAR.kept);
+    return state.years;
+  };
+  // the last week of the year, after every other clock of the week (order 890)
+  KP.registerWeekly('yearClose', 890, function (state, rng, inbox) {
+    if (state.week % KP.C.WEEKS_PER_YEAR !== 0 || KP.chapterPending(state)) return;
+    inbox.push(KP.closeYear(state));
+  });
+
   // ---- the weekly: every clock, one pass (order 859) --------------------
   KP.registerWeekly('timeShare', 859, function (state, rng, inbox, roster) {
     const T = KP.C.TIME;
