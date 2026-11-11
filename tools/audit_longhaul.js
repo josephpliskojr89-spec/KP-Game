@@ -455,6 +455,7 @@ for (const sc of RUN) {
   if (sc.mode === 'service') seedBoyGroup(state);
   let founded = false;
   let dissolvedAt = null;
+  const bd = { due: 0, wrote: 0, landed: 0 };   // the label's birthdays (v0.11.36, §128)
   for (let w = 0; w < WEEKS; w++) {
     // the last statement (v0.11.0, §86): the bot is allowed to die. A
     // dissolved label takes the blank page and the world keeps running
@@ -490,6 +491,21 @@ for (const sc of RUN) {
       founded = true;
     }
     KP.advanceWeek(state);
+    // the label's birthday (v0.11.36, §128): the week its doors opened, each year, one letter, and it lands.
+    // The week it is due is worked out here from the founding itself, never asked of the engine: a check that
+    // asks the engine when the birthday is agrees with an engine that has it wrong
+    {
+      const f = state.founded, since = f ? state.week - f.week : 0;
+      const age = f && since > 0 && since % KP.C.WEEKS_PER_YEAR === 0 ? since / KP.C.WEEKS_PER_YEAR : 0;
+      const due = age > 0 && !(state.dissolved && !state.dissolved.door);
+      const wrote = (KP.lastTickNotes || []).filter(n => n.ind === 'labelBirthday');
+      const landed = state.inbox.filter(m => m.week === state.week && m.ind === 'labelBirthday');
+      if (due) bd.due++;
+      bd.wrote += wrote.length; bd.landed += landed.length;
+      if (wrote.length !== (due ? 1 : 0)) flag(sc.seed, state.week, due ? 'a founded label’s birthday came round with ' + wrote.length + ' letters' : 'a birthday letter on a week that is no birthday');
+      if (landed.length !== wrote.length) flag(sc.seed, state.week, 'a birthday letter was written and did not land');
+      if (wrote.length && wrote[0].years !== age) flag(sc.seed, state.week, 'a birthday letter gives the wrong age: ' + wrote[0].years + ' for ' + age);
+    }
     if (w % 10 === 0) checkIntegrity(sc.seed, state.week, state);
     if (w % 40 === 0) checkRoundtrip(sc.seed, state.week, state);
     if (w === 200 || w === 420 || w === WEEKS - 20) {
@@ -712,6 +728,7 @@ for (const sc of RUN) {
       ', reviews ' + up.reviews + ' (thin ' + up.bands.thin + ', gone ' + up.bands.gone + ')')(KP.upstairsLedger(state)) +
     ' | file: ' + (cf => cf.chapters.length + ' chapter' + (cf.chapters.length === 1 ? '' : 's') + ' (' + cf.chapters.filter(c => !c.before).length + ' under this desk), ' + cf.manager.title)(KP.companyFile(state)) +
     ' | years: ' + (state.years || []).length + ' closed (' + (state.years || []).filter(a => a.headline).length + ' with a headline)' +
+    ' | birthdays: ' + bd.wrote + ' written, ' + bd.landed + ' landed, of ' + bd.due + ' due' +
     ' | record: ' + (marks => marks.length + ' mark' + (marks.length === 1 ? '' : 's') + ' (chairs ' + marks.filter(m => m.kind === 'chair').length + ', red weeks ' + marks.filter(m => m.kind === 'red').length + ')')(KP.fileMarks(state)) +
     ' | sagas: ' + (state.sagas ? state.sagas.fired.map(f => f.kind + '@' + f.week).join(' ') || 'none' : 'none') +
     (sgl.jvSigned ? ' jvSigned' : '') + (sgl.jvDeclined ? ' jvDeclined' : '') +

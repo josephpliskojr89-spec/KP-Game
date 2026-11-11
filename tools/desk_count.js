@@ -31,6 +31,8 @@ const ONE_SHOTS = [
   'annualReview',
   // the year's close (§124): once a year, the company to itself
   'yearEnd',
+  // the label's birthday (§128): once a year, at a founded label
+  'labelBirthday',
 ];
 
 function watch(KP) {

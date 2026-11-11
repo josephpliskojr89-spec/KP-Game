@@ -9529,7 +9529,8 @@ company's file; part one, her own questions, SHIPPED v0.11.27,
 §119; part two, the annual review, SHIPPED v0.11.28, §120; part
 three, the company's own file, SHIPPED v0.11.29, §121; part four,
 the written record, SHIPPED v0.11.30, §122; part five, the year's
-close, SHIPPED v0.11.32, §124).** The
+close, SHIPPED v0.11.32, §124; part six, the label's birthday,
+SHIPPED v0.11.36, §128).** The
 exec's `personality` finally read: a question
 family per type (the profit hunter asks about the quarter, the
 traditionalist about the vocal room, the micromanager about a trainee
@@ -13953,6 +13954,145 @@ anything, and whether next door to the sound should count; the
 Desk's tie-break (§112); and from §109, the fade between records
 through a service chapter and the size of the window's bank.
 
+## §128 The label's birthday (SHIPPED v0.11.36 — §96 recommendation 7, the people upstairs and down the hall, part six)
+
+Owner: *"Break remaining work into smaller pieces"*. The sixth of
+recommendation 7's pieces: "a company anniversary on the founding
+week reusing the group anniversary's family". Set aside once, for
+§127's repair, which its first look uncovered.
+
+**Counted first.** A founding week is on file for a founded label
+and for no other company: a salaried desk's house was there before
+the career began. So the piece reaches founded labels only.
+
+| | |
+|---|---|
+| census careers that ever live at a founded label | 0 of 200 |
+| long-haul weeks lived at one | 2,802 of 6,817 |
+| labels in the long haul | 5 |
+| birthdays that come round there | 56 |
+| of those, in the week the year closes | 12 |
+| of those, while a last statement waits | 0 |
+
+On a birthday week the inbox writes about five letters and keeps
+four, and a critical letter lands on top of those. The census
+cannot see this piece at all. It is held by its suite and by the
+long haul.
+
+**What the label writes.** One letter, the company's, critical, in
+the week its doors opened, each year: an opening, then and now,
+and a last line.
+
+- *Then*: what it came out of, if it came out of a house, and what
+  was in the till the day it opened. Both are on the founding.
+- *Now*: the acts on stage, the people under contract, the
+  trophies and honors since the doors opened, and the till.
+
+"It is one year to the week since HOMEWARD opened its doors. It
+started out of HCG with 278 in the till. Today it has no acts,
+nobody under contract, no trophies on the shelf, and 304 in the
+till. The first lease is framed by the lift now. The staff signed
+the back of it."
+
+The opening is a family of three (§93), picked by hash and never
+last year's, and each opening has its own last line. The age is
+said in words up to twelve.
+
+**Then and now, not the year.** A blank page's birthday falls in
+the week its year closes, and the year's letter has already
+counted the year. So the birthday counts nothing of the year. It
+sets what the label started with beside what stands there today.
+
+**Read, not written** (`KP.labelAge`, `KP.labelStanding`, pure).
+The founding is on file. The shelf is read off the records and the
+honors since it, with the file's own readers (§121). One thing is
+kept: which opening was used, on the founding itself.
+
+**Words only.** An act's anniversary lifts its members' morale
+(§41). The label's moves nothing. The census’s output
+is v0.11.35’s to the byte, and the long haul says the same of
+every scenario but for its new count and the size of a save.
+
+**Old saves.** Nothing to migrate: the birthday is counted from
+the founding a save already holds. A label that has kept no
+opening says its next one as any first.
+
+**Found while building it.** Two guards guarded nothing and were
+deleted. The age asked that the week be after the founding, and
+the founding's own week is nought years by the arithmetic. The
+shelf asked that a record be no later than today, and no record
+is. And §127's defect: the first look at a blank page's birthday
+showed its year's letter giving no sum.
+
+**Found by the mutation run.** Nothing. On the first run 39 of
+39 broken lines were caught by name, and on the final run the
+same.
+
+**Mistakes on the way.**
+
+- The first count was wrong: 70 birthdays in 3,402 weeks. The long
+  haul plays copies of a career side by side to see that two runs
+  agree, and the count took those copies for careers. The long
+  haul's own count, 56, did not match it, and that is how it was
+  seen.
+- Two of the suite's own expectations were wrong on its first run.
+  One joined a value that was not there, and one counted the
+  birthday week itself among the weeks before it.
+
+**The long haul's check, tried.** The suite only reads the long
+haul's text, and §127 showed what that is worth. So the check was
+run against an engine whose birthday comes a week late.
+The first trial found nothing. The check had asked the engine when
+a birthday was due, and a wrong engine agreed with itself. The
+check works the week out from the founding now. The second trial
+stops at the long haul’s limit, 61 problems, and every one is the
+birthday’s: 21 birthdays that came round with no letter, 20 letters
+in a week that is no birthday, and 20 that give the wrong age.
+
+Suite_143 (48): the age at a salaried desk, a blank page and a
+label founded in the middle of a year; the standing from its
+markers, with an act that took its last bow, a lineup not yet
+debuted, a ceremony before the founding and one after, and an old
+file that does not say what the label opened with; the letter's
+three openings each with its last line, never last year's, and
+every part of then and now in words; the week it comes round, the
+weeks it does not, a salaried desk, a label at its last statement,
+and its place after the year's close; real weeks at a blank page
+through two birthdays, at a label founded in the middle of a
+career, and through a second chance by the blank door and by the
+salaried one; the save; the list of letters said once. Suite_131
+holds the letter to that list. Mutation-checked against 39
+broken lines, each caught by a named assertion in every suite that
+owns the line. A real-browser pass (14 checks, no page
+errors): the front door's blank page played by the real button to
+its first birthday, which lands beside the year's own letter; a
+real label founded under v0.11.35 opened and played to its first
+birthday, a year to the week after the founding; and thirty real
+weeks at a salaried desk, across a year's close, with no birthday
+letter in any.
+Battery 143/143, soak 40 clean, census 200 clean, longhaul 11 ×
+620 clean, the till audit clean, e2e 137, 32, 41 and 23, the
+eighteen older browser passes, lockstep 0.11.36.
+
+*Left for the next pieces.* The exec-side ledger and a succession
+that transfers a record; the staff given years. *The owner's to
+call*: whether a birthday should lift anyone's morale as an act's
+anniversary does; whether a salaried desk's house should have a
+founding date of its own, and so a birthday; and the wording of
+the three openings and their last lines. *Still the owner's to
+call*: from §126, whether the count on Offers should sit beside
+the word; from §125, whether a long tag should take the line or
+the three long words be given shorter ones; from §124, the
+headline's order, and whether the letter should say more or less
+than its four things; from §123, whether the date should sit under
+the name on the larger phones too; from §122, whether a founded
+label's first trophy should be a first; from §121, the spacing of
+the manager's titles; from §120, the shape of probation; from
+§119, whether a pass should cost anything, and whether next door
+to the sound should count; the Desk's tie-break (§112); and from
+§109, the fade between records through a service chapter and the
+size of the window's bank.
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -18185,6 +18325,31 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > 620 clean, the till audit clean, e2e 137, 32, 41 and 23, a
 > real-browser pass (15), lockstep 0.11.35.
 > Rode to main. Next piece: the company anniversary.
+
+> **0.11.36 — the label's birthday.** Own judgment, under "Approved
+> to tackle as much of the remaining queue as you see fit" and
+> "Break remaining work into smaller pieces": the sixth piece of
+> §96's recommendation 7, set aside once for 0.11.35's repair.
+> §128: a founded label has a week it opened its doors, and when
+> that week comes round the company writes one critical letter.
+> Counted first: a founding is on file only for a founded label,
+> so none of the 200 census careers is reached; the long haul
+> lives 2,802 of its 6,817 weeks at five such labels, and 56
+> birthdays come round there, 12 of them in the week the year
+> closes. So the letter counts nothing of the year: it sets what
+> the label started with beside what stands there today, the acts,
+> the people, the trophies and honors since the doors opened, and
+> the till. Three openings, never last year's, each with its own
+> last line. Read off the state; one thing kept, which opening was
+> used. Words only: no morale moves. A salaried desk has no
+> birthday. No simulation changed: the census’s output is
+> 0.11.35’s to the byte.
+> Suite_143 (48), 39 mutations caught by name, all on the
+> first run.
+> Battery 143/143, soak 40 clean, census 200 clean, longhaul 11 ×
+> 620 clean, the till audit clean, e2e 137, 32, 41 and 23, a
+> real-browser pass (14), lockstep 0.11.36.
+> Rode to main. Next piece: the exec-side ledger.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

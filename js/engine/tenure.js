@@ -258,6 +258,64 @@
     inbox.push(KP.closeYear(state));
   });
 
+  // ---- the label's birthday (v0.11.36, §128) ----------------------------
+  // A founded label has a week it opened its doors. When that week comes
+  // round the company sets down what it opened with and what stands there
+  // now. Everything is READ off the state: the founding is on file, the
+  // shelf is the records since. One thing is kept, which opening was used,
+  // so next year's is another.
+  const NUM = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+  KP.labelAge = function (state) {
+    const f = state.founded, Y = KP.C.WEEKS_PER_YEAR;
+    return f && (state.week - f.week) % Y === 0 ? (state.week - f.week) / Y : 0;   // the week of the founding itself is nought
+  };
+  KP.labelStanding = function (state) {
+    const f = state.founded;
+    if (!f) return null;
+    const since = w => w > f.week;
+    const groups = KP.groups(state);
+    return { years: KP.labelAge(state), from: f.from || null,
+      chest: typeof f.warChest === 'number' ? Math.round(f.warChest) : null,   // an old file may not say
+      acts: groups.filter(g => g.debuted && !g.retiredWeek).length,
+      people: state.roster.length,
+      trophies: records(state, r => since(r.week)).reduce((n, x) => n + (x.r.trophies || 0), 0),
+      honors: groups.reduce((n, g) => n + (g.honors || []).filter(h => since(honorWeek(h))).length, 0),
+      till: Math.round(state.budget) };
+  };
+  // the letter: an opening the label did not use last year, then and now, and the opening's own last line
+  KP.birthdayLetter = function (state, s, last) {
+    const name = state.company.name, age = (NUM[s.years] || s.years) + (s.years === 1 ? ' year' : ' years');
+    const lines = [
+      name + ' is ' + age + ' old this week.',
+      'It is ' + age + ' to the week since ' + name + ' opened its doors.',
+      'The week ' + name + ' opened its doors has come round again: ' + age + '.',
+    ];
+    const closes = [
+      'Somebody left a cake at the front desk, and nobody has admitted to it.',
+      'The first lease is framed by the lift now. The staff signed the back of it.',
+      'The founding desk is still in the corner office. Nobody will let it be replaced.',
+    ];
+    const opening = KP.lineFor(state, 'labelBirthday', lines, last);
+    const line = lines.indexOf(opening);
+    const then = [s.from ? 'out of ' + s.from : null, s.chest != null ? 'with ' + s.chest + ' in the till' : null].filter(Boolean);
+    return { line, text: [
+      opening,
+      then.length ? 'It started ' + then.join(' ') + '.' : null,
+      'Today it has ' + many(s.acts, 'act', 'acts') + ', ' + (s.people ? s.people : 'nobody') + ' under contract, ' +
+        many(s.trophies, 'trophy', 'trophies') + ' on the shelf' + (s.honors ? ', ' + many(s.honors, 'honor', 'honors') : '') +
+        (s.till < 0 ? ', and a till ' + (-s.till) + ' short.' : ', and ' + s.till + ' in the till.'),
+      closes[line],
+    ].filter(Boolean).join(' ') };
+  };
+  // the week the doors opened, come round again, after the year's own close (order 892)
+  KP.registerWeekly('labelBirthday', 892, function (state, rng, inbox) {
+    const years = KP.labelAge(state);
+    if (!years || KP.chapterPending(state)) return;
+    const said = KP.birthdayLetter(state, KP.labelStanding(state), state.founded.said);
+    state.founded.said = said.line;
+    inbox.push({ kind: 'company', ind: 'labelBirthday', priority: 'critical', years, text: said.text });
+  });
+
   // ---- the weekly: every clock, one pass (order 859) --------------------
   KP.registerWeekly('timeShare', 859, function (state, rng, inbox, roster) {
     const T = KP.C.TIME;
