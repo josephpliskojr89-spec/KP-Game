@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.49',
+    VERSION: '0.11.50',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1738,6 +1738,9 @@
         eraWeeks: [240, 336],  // 5–7 years per chair, hash-timed per exec
         minWeek: 96,           // no successions in the opening years
         carry: 0.35,           // the record transfers; the devotion does not
+        // and no more than this either way (v0.11.50, §143; the owner's ruling, §136: 10). A new chair is a real
+        // start: never below the line where the board stops hearing a pitch, never so high nothing is left to earn
+        carryCap: 10,
       },
       BOARD: {                 // the founder's own board
         burnAt: 0.25,          // war-chest share that draws the investor memo

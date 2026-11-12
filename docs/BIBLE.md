@@ -17708,6 +17708,313 @@ chair who left, and started the next at 36 or 37. That is the next
 piece's to weigh. *The owner's to see*: the assumptions above.
 
 
+## §143 The handover, inherited in part (SHIPPED v0.11.50 — the owner's ruling, §136: decisions 10 and 29)
+
+The seventh piece built on the directive (§136). Owner, on a new
+executive's starting trust: *"Use partial inheritance of the
+previous executive relationship when calculating starting trust.
+The prior relationship should matter, but its influence must be
+capped so a new executive offers a meaningful opportunity to
+rebuild trust."* And on the handover's words: *"Use contextual
+handover wording based on the circumstances of succession, previous
+reputation, and inherited trust. The language should reflect
+whether the new relationship begins positively, cautiously, or
+under difficult circumstances."*
+
+**Counted first.** A chair's era is five to seven years, so no
+career of the census, at 140 weeks, changes its chair. The count is
+of the long haul's eleven careers, on the tree before this piece.
+
+| at the long haul’s twelve changes of chair, on v0.11.49 | |
+|---|---|
+| where the desk stood with the chair who left | 0 at eight of them; 2, 4, 18 and 25 at the others |
+| where it started with the next | 36 at nine of them; 37, 42 and 45 at the others |
+| started under 45, where the board hears no pitch | 11 |
+| started in the band “thin” | 10 |
+| the last word of the chair who left | “gone”, at all twelve |
+| the letter’s last sentence on the file | “What has not transferred is the part that took years to build: the benefit of the doubt.”, at all twelve |
+| the next chair’s line at the first meeting | “I inherited the rating, not the reasons.”, at all twelve |
+| the first meeting’s answer | the record walked, at all twelve |
+
+The sum was a part already: the house’s 55, and 35 parts in 100 of
+how far the desk stood from it. Nothing capped it. From a desk at 0
+the next chair started at 36, nine points under the line where the
+board will hear a pitch, so at eleven of the twelve changes the new
+chair opened with that door shut. And the words did not turn with
+the file. Every letter ended on the same sentence and every first
+meeting opened on the same line, under a last word that read “gone”
+twelve times.
+
+**The start.** `KP.handoverStart`. The desk starts the next chair
+at the house's 55, and 35 parts in 100 of how far it stood from 55
+with the chair who left, by no more than 10 either way
+(`KP.C.TIME.EXEC.carryCap`). The part is what it was. The cap is
+new. A start is never under 45 and never over 65.
+
+| the desk stood at | started the next chair at, before | starts the next chair at |
+|---|---|---|
+| 0 | 36 | 45 |
+| 10 | 39 | 45 |
+| 20 | 43 | 45 |
+| 25 | 45 | 45 |
+| 40 | 50 | 50 |
+| 55 | 55 | 55 |
+| 68 | 60 | 60 |
+| 84 | 65 | 65 |
+| 90 | 67 | 65 |
+| 100 | 71 | 65 |
+
+A start moves for a desk that stood under 25 or over 84. Between
+them it is what it was.
+
+- *45 is the line where the board hears a pitch.* Under it the
+  Monday meeting says "Do not bring me a pitch this year. The board
+  would not hear it." The worst relationship now starts the next
+  chair on that line, in the band "watched", with everything to
+  earn and nothing shut.
+- *65 is "solid", and short of what trust opens above it.* The
+  founding asks 70, and "trusted" is 80. The best relationship
+  starts the next chair well, and those are still to be earned with
+  them.
+- *The record does not move the number.* Each promise kept or
+  broken and each greenlight moved trust in the week it settled.
+  The record is what the next chair reads out, and it is not
+  counted a second time.
+- *The bar comes first.* Above 75 a point comes off every fourth
+  week. In such a week it comes off before the chair goes, as it
+  did, and what is carried is what stood after.
+
+**How it begins.** `KP.handoverBegins` reads two things: where the
+desk starts with the next chair, and the last word the chair who
+left put on the file. That word is the band of their last annual
+review (§131). With no review of theirs it is the band where the
+desk stood.
+
+| it begins | when |
+|---|---|
+| well | the start is 60 or more, which is "solid", and the last word is not "thin" or "gone" |
+| the hard way | the last word is "thin" or "gone", and the start is under 60 |
+| warily | everything else: a middling start on a middling word, a good word on a middling start, a poor word on a good start |
+
+The letter that announces the next chair reads out the record as it
+did (§131), and then says how it begins. The first meeting opens on
+the last word as it did, and then says it too.
+
+| it begins | the letter, after the record | the next chair, at the first meeting |
+|---|---|---|
+| well | Some of what you built with CEO Yoon Da-jung came up the stairs with the file: you start on good terms, and they are yours to keep. | CEO Yoon Da-jung rated you as highly as this house rates anyone. I inherited the rating, not the reasons, and I would like the reasons. |
+| warily | What has not transferred is the part that took years to build: the benefit of the doubt. | CEO Yoon Da-jung was still reading your work twice. I inherited the rating, not the reasons. |
+| the hard way | It does not read well. CEO Kang Min-ho has read it once and means to judge the rest firsthand: the file follows you only part of the way up the stairs. | CEO Yoon Da-jung had stopped answering for you. I am not CEO Yoon Da-jung, and I have decided nothing yet. |
+
+The words for "warily" are the words the letter and the meeting had
+for every handover.
+
+**The first meeting's answers** move trust as they did: three
+points for walking the record, one for the clean page, and two off
+for a meeting never held. What changes is what walking a poor
+record is said to be. It read "You walked the whole ledger — the
+debuts, the promises kept, the years the numbers earned", whatever
+the file held. Where the handover begins the hard way it reads "You
+walked the whole ledger and left nothing out: what went dark, what
+broke, and what there was to set beside it", and it ends "Owning
+the record moved her where charm never would have."
+
+**The goodbye, by name.** A repair found reading the rail. A chair
+who leaves a desk that stands at 60 or more says a warm goodbye,
+and it read "“Whatever the next chair thinks of you,” CEO said at
+the door". The words took the first word of the chair's name, and
+every chair's name begins with the title. It says the name now. No
+long career had shown the fault, since no bot leaves a chair at 60.
+
+**Old files** (migration 0.11.50). A first meeting stands open for
+three weeks. A file saved in those weeks carries a meeting that was
+never told how it begins. It is told when the file is read, from
+the word it carries and from where the desk stands with the chair
+that day. The number is left as it was carried: a desk that an
+older version started at 36 stays where it has got to since.
+
+**Measured**, on the tree as shipped.
+
+| at the long haul’s twelve changes of chair | v0.11.49 | this tree |
+|---|---|---|
+| where the desk stood with the chair who left | 0 to 25 | the same, at all twelve |
+| where it starts with the next | 36 to 45 | 45, at all twelve |
+| starts under 45 | 11 | 0 |
+| starts in the band “thin” | 10 | 0 |
+| the letter and the first meeting say how it begins | no | the hard way, at all twelve |
+| the record walked at the first meeting | 12 | 12 |
+| the desk four weeks on, at the median | 38 | 46.5 |
+| the desk a year on, at the median of the eight changes with a year left to run | 2.5 | 9.5 |
+
+Eleven of the twelve starts are higher than they were, nine of them
+by nine points. The twelfth stood at 25: the cap holds it too, and
+it starts at 45 as it did, since the old sum came to 44.5. The cap
+gives a start and nothing after it. The long haul’s bot lets its
+greenlights go dark and breaks its promises, and a year after a
+change its desks stand at 9.5 at the median where they stood at
+2.5. By the next change of chair each stands exactly where it stood
+on v0.11.49. So no long career has a handover that begins well or
+warily. The trial’s own careers, the suite and the browser pass
+hold those two.
+
+**What moved.** The census does not move. None of its 200 careers
+changes its chair. Each was played on v0.11.49 and on this tree
+and, with the Desk set aside, ends on the same file, and none of
+the 365 rows moved. Three of the census’s own lines on the Desk
+differ, by 14 letters written in 304,390: they count the harness’s
+three longer careers as well, and each of those changes its chair
+inside its 380 weeks. The long haul moves. Six of its eleven
+careers change their chair, twice each. After a change the desk
+stands up to nine points higher than it did, for as long as the bot
+keeps them, and five of the six read differently at their ends.
+Five annual reviews that read “gone” read better. One greenlight
+fewer is given. And the yearly ranking weighs where the desk
+stands, 35 parts in 100 of it, so in two careers the rival houses
+ran another way from there. The five careers with no change of
+chair read as they did, and the tool has one line more.
+
+**The tools' books.** The long haul stands either side of the rail
+that changes the chair. It notes where the rail found the desk and
+where it left it. The start is the tool's own sum: 55, and 35 parts
+in 100 of how far the desk stood from it, by no more than 10 either
+way, with the bar's point taken off first in a fourth week above
+75. How it begins is the tool's own rule, and it is held to the
+first meeting and to the words of the letter. Nothing asks the
+engine for either.
+
+Over the eleven long careers the tool saw twelve changes of chair
+and held each start to its own sum. Twelve were held at the cap,
+and all twelve begin the hard way by its own rule, in the letter
+and at the first meeting.
+
+No long career’s desk stands well with its chair, so the trial has
+a switch of its own that holds a desk where the trial puts it. On
+the tree as it stands six careers are clean: a desk at the bottom;
+desks held at 90 and at 72, which begin well; at 50 and at 62,
+which begin warily; and one held at 80 whose chair goes in a week
+the bar takes its point. The tool was then run against twelve
+engines broken on purpose, each a small change, on a career where
+the change shows. No cap, as it was. A cap of five. A cap on the
+fall only, and on the rise only. Nothing carried, and half carried.
+The number carried as it stood before the bar took its point. Every
+handover beginning warily. Well and the hard way the other way
+round. How it begins read from where the desk stood, and not from
+where it starts. The letter in the words it had. And a first
+meeting not told how it begins. All twelve were flagged, each in
+the words written for its case.
+
+**Assumptions the owner may overrule.**
+
+- *The part stays 35 in 100.* The ruling asks for a part and a cap.
+  The part was there, and I left it.
+- *The cap is ten either way*, so a start is 45 to 65. Ten is the
+  distance from the house's 55 down to the line where the board
+  hears a pitch. I used the same ten upward.
+- *The record is not counted into the number.* It is read out, and
+  with the start it decides the words.
+- *Three beginnings, by the start and the last word.* "Watched" is
+  not a poor word. A poor word on a good start begins warily, and
+  so does a good word on a middling start.
+- *A chair leaves one way in this game: the era ends.* So the
+  circumstances of a succession are how the desk stood when it
+  ended. The goodbye was already warm or professional by that, and
+  the letter already read out the record. This piece adds how it
+  begins.
+- *Walking a poor record is still three points.* The ruling calls a
+  new chair a chance to rebuild. Owning the record is the first use
+  of it.
+- *An older file is not capped after the fact.*
+- *The words.* They are mine. Each is written in one place.
+
+**What the checks found, and what I got wrong.**
+
+- The count's first answer on the first meeting was wrong. It said
+  eleven of twelve were let lapse. The bot answers in its own turn,
+  before the count looked. Read against the ledger, all twelve
+  walked the record. The false answer was not written into any
+  record.
+- Suite_146 failed two checks after the change, as it should: it
+  held the words the letter and the meeting had. It is brought up.
+- My comment on the rule said that a start and a word that disagree
+  begin warily. A good start on the word "watched" begins well, and
+  "watched" is no good word. The comment says the rule exactly now.
+- Writing the plan for the mutation run showed three gaps in the
+  suite. They were closed before it ran, and the first run caught
+  43 of 43.
+- Two of the trial's engines were first run where they could not
+  differ from the true one. Half the distance carried gives the
+  same start as 35 parts from a desk at 50, and it was run again
+  from 62. And one career I picked for a high standing has no
+  change of chair when its desk is held there: its house is in the
+  red from week 33 and ends at week 44. Another career is used.
+- The browser pass failed twice on my own assumption. I raised the
+  desk's number to 88 and expected it to begin well. The file's
+  last review still read "gone", and the handover began warily, as
+  the rule says. The pass sets the review's word for "well" now,
+  and keeps the disagreement as its third case.
+- Reading the whole change before the long run, I found a term of
+  the tool's sum that no career tried: the bar's point in the week
+  a chair goes. One long career changes its chair in such a week.
+  It is in the trial at a desk held at 80, with an engine broken
+  there, and the suite and the mutation run each have the case.
+- The long run caught what I had not brought up. The browser pass
+  of v0.11.39 held the old words and the old sum, and failed three
+  checks. I had brought up the suite and not the pass. It is
+  brought up, with the pass as filed kept beside it, and it has one
+  check more: a real older file whose first meeting stands open.
+  The chain was started again for that pass and for this piece's
+  own, and the record of the first run is kept.
+- The goodbye's fault was found by reading, not by a check.
+
+Suite_155 (42), new: the house’s figures; every start from 0 to 100
+against the suite’s own sum, with both ends and both edges of the
+cap; a file with no trust on it; how it begins for each of the five
+words at each start, by the suite’s own rule, and with no word at
+all; the real rail from a desk at 0 on a last word of “gone”, from
+90 on “trusted” and from 50 on “watched”, each with its start, its
+letter and the first meeting’s line; a word and a start that
+disagree, each way; a chair who left no review; a change in a week
+the bar takes its point; the goodbye by name; the answers at the
+first meeting, in words and in trust, for each way it begins, a
+meeting never held, and a meeting that does not say how it begins;
+an older file’s open meeting told how it begins with its number
+left alone, one already told, a file of this version, and a file
+with none; and a real week, twice, that changes the chair from the
+bottom and from the top with the validator clean. Suite_146 is
+brought up to the new words. Mutation-checked against 44 broken
+lines, each caught by a named assertion; the first run caught 43 of
+43, and one was added for the bar’s week. A real-browser pass (15
+checks, no page errors): a real career saved by v0.11.42 at week
+220 is played by the real button to its change of chair at week
+306, where the desk stands at 0 and starts the next chair at 45.
+The letter is on the Desk once and says the file does not read
+well, the first meeting says “I am not CEO Yoon Da-jung, and I have
+decided nothing yet”, and the record walked by the real button is
+said to be owned and is three points. The same career is played
+again with the desk put at 88 and the last review at “trusted”: it
+starts at 65 and begins well, the letter says what came up the
+stairs, the goodbye is said by name, and the meeting asks for the
+reasons. And a third time at 88 with the review left as it read,
+“gone”: 65 and warily, in the words the letter always had. The
+browser pass of v0.11.39 is brought up (13 checks): it opens a real
+file saved by v0.11.38 with the first meeting open, which is told
+that it begins the hard way while the desk stays at the 36 that
+file carried.
+Battery 155/155, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, the till audit clean, e2e 137, 32, 41 and 23, the thirty-one
+older browser passes, lockstep 0.11.50.
+
+*Left for the next pieces.* Her questions without a toll (11, 12),
+and the call left unanswered (13). *Seen on the way*: the long
+haul’s bot stands at 0 to 25 with its chair at every change, so the
+long haul shows one of the three beginnings and the trial’s switch
+shows the others. The handover’s letter does not say which open
+promises pass to the next chair. The Record tab does (§142). The
+written record says that a chair changed, and not how it began:
+that is for the two records (35). *The owner’s to see*: the
+assumptions above.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -22383,6 +22690,41 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > pass (15), lockstep 0.11.49.
 > Rode to main. Next piece: the handover inherited in part, in words
 > that fit.
+
+> **0.11.50 — the handover, inherited in part.** The seventh piece
+> built on the directive (§136: decisions 10 and 29). §143: the desk
+> starts a new chair at the house's 55 and 35 parts in 100 of how
+> far it stood from 55 with the chair who left, as it did, and by no
+> more than ten either way, which is new. A start is 45 to 65: never
+> under the line where the board hears a pitch, never so high that
+> nothing is left to earn. The handover says how it begins, well,
+> warily or the hard way, by the start and by the last word the
+> chair who left put on the file. The letter says it after the
+> record, the next chair says it at the first meeting, and a poor
+> record walked there is said to be owned. A warm goodbye gives the
+> name of the chair who leaves, where it said "CEO". Counted first:
+> at the long haul’s twelve changes of chair on v0.11.49 the desk
+> stood at 0 to 25 with the chair who left and started the next at 36
+> to 45, eleven of the twelve under the line where the board hears a
+> pitch, and every letter and every first meeting said the same words.
+> On this tree all twelve start at 45 and begin the hard way, in the
+> letter and at the first meeting.
+> The census does not move: none of its 200 careers changes its chair,
+> each ends on the same file, and no row moved. The long haul’s six
+> careers with a change of chair do: the desk stands up to nine points
+> higher after one, for as long as the bot keeps them, and five of the
+> six read differently at their ends.
+> Suite_155 new (42); suite_146 brought up; 44 mutations caught by
+> name, the first run 43 of 43. The long haul works out each start by
+> its own sum and each beginning by its own rule: six careers clean on
+> the tree as it stands, and twelve broken engines flagged of twelve.
+> The long run caught the browser pass of v0.11.39 still holding the
+> old words and the old sum: it is brought up, and the chain was
+> started again for it.
+> Battery 155/155, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
+> pass (15), lockstep 0.11.50.
+> Rode to main. Next piece: her questions without a toll.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

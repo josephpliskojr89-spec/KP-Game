@@ -194,6 +194,10 @@ function checkRoundtrip(seed, week, state) {
 // soak bot (that one measures the game); this one stresses the state.
 function botWeek(state, mode) {
   const wk = state.week;
+  // the trial's own career (v0.11.50, §143): with HAUL_TRUST set, the desk stands with its chair where the trial
+  // puts it, every week. No bot here keeps its chair's trust, so every chair in a long career changes hands the
+  // hard way: a handover that begins well, and one that begins warily, need a desk that stands higher
+  if (process.env.HAUL_TRUST && !state.founded) state.trust = Number(process.env.HAUL_TRUST);
   // scenes: renewal via the standard policy, everything else first-option
   (state.scenes || []).slice().forEach(sc => {
     if (sc.kind === 'renewal') {
@@ -465,7 +469,21 @@ const dissolvedWeeks = {};
 const careers = {};
 const GL = { given: 0, met: 0, lapsed: 0, open: 0, void: 0, walls: 0 };   // the greenlights of every career (v0.11.37, §129)
 const RV = { given: 0, firsts: 0, counted: 0 };                            // the annual reviews of every career (v0.11.38, §130)
-const HO = { given: 0 };                                                    // the handovers of every career (v0.11.39, §131)
+const HO = { given: 0, capped: 0, well: 0, warily: 0, hard: 0 };            // the handovers of every career (v0.11.39, §131; v0.11.50, §143)
+// either side of the rail that changes the chair: where it found the desk with the one who left, and where it left it
+// with the next. The start is this tool's to work out, and not the engine's to report
+const HTS = { seen: null };
+{
+  const ph = KP.weeklyPipeline([]).find(x => x.name === 'timeShare');
+  if (ph) {
+    const fn = ph.fn;
+    ph.fn = function (state) {
+      const before = { trust: state.trust, chair: state.executive && state.executive.name }, r = fn.apply(this, arguments);
+      HTS.seen = { state, before, after: { trust: state.trust, chair: state.executive && state.executive.name } };
+      return r;
+    };
+  }
+}
 const CH = { walls: 0, minted: 0 };                                         // the chairs at every desk change (v0.11.40, §132)
 const CR = { held: 0, calls: 0, callsHeld: 0 };                             // the credits of every chair (v0.11.41, §133)
 const YR = { due: 0, wrote: 0, landed: 0, lines: 0, words: 0, held: 0 };    // the staff's letters on the year (v0.11.46, §139)
@@ -515,7 +533,7 @@ for (const sc of RUN) {
   const gl = { seen: {}, chair: state.executive.name, last: {}, given: 0, walls: 0, wallOpen: 0 };
   // the handover (v0.11.39, §131): this tool's own books of each chair of this desk. What it saw greenlit and promised
   // upstairs while they sat, by the look it first saw each at, and the last review it saw them give
-  const ho = { books: {}, claims: {}, changes: {}, given: 0 };
+  const ho = { books: {}, claims: {}, changes: {}, given: 0, capped: 0, well: 0, warily: 0, hard: 0 };
   const book = name => (ho.books[name] = ho.books[name] || { lights: [], claims: [], band: null });
   // the chairs (v0.11.40, §132): this tool's own books of the building. Every chair it has seen sat, the week the desk
   // last moved, and the house the desk walked out of. A house keeps its staff when the desk moves: the next building
@@ -997,6 +1015,23 @@ for (const sc of RUN) {
     const scene = (state.scenes || []).find(x => x.kind === 'newChair');
     const rating = b.band || KP.trustBand(trustAsTheTickBegan);   // with no review of theirs, where the desk stood as the week began
     if (!scene || scene.rated !== rating) flag(sc.seed, state.week, 'the first meeting carries “' + (scene && scene.rated) + '” and the rating ' + old + ' left was “' + rating + '”');
+    // the handover, inherited in part (v0.11.50, §143). The start is this tool's own sum: the house's 55, and 35 parts
+    // in 100 of how far the desk stood from it, by no more than 10 either way. Where the desk stood is what this
+    // tool saw as the rail began, less the point the bar takes in a fourth week above 75, which the rail takes
+    // before the chair goes. And how it begins is this tool's own rule, held to the letter and to the first meeting
+    const seen = HTS.seen && HTS.seen.state === state && HTS.seen.before.chair === old ? HTS.seen : null;
+    if (!seen) { flag(sc.seed, state.week, 'the chair changed and this tool did not see the rail that changes it'); return; }
+    const stood = seen.before.trust - (state.week % 4 === 0 && seen.before.trust > 75 ? 1 : 0);
+    const part = (stood - 55) * 0.35, want = Math.max(0, Math.min(100, Math.round(55 + Math.max(-10, Math.min(10, part)))));
+    if (seen.after.trust !== want) flag(sc.seed, state.week, 'the desk starts with ' + state.executive.name + ' at ' + seen.after.trust + ', and this tool’s own sum of where the desk stood is ' + want + ' (it stood at ' + stood + ' with ' + old + ')');
+    if (Math.abs(part) > 10) ho.capped++;
+    const poor = rating === 'thin' || rating === 'gone', good = want >= 60;
+    const begins = good && !poor ? 'well' : poor && !good ? 'hard' : 'warily';
+    ho[begins]++;
+    if (!scene || scene.begins !== begins) flag(sc.seed, state.week, 'the first meeting begins “' + (scene && scene.begins) + '”, and by this tool’s own rule it begins “' + begins + '” (a start of ' + want + ', a last word of “' + rating + '”)');
+    const SAYS = { well: 'you start on good terms, and they are yours to keep.', warily: 'the benefit of the doubt.', hard: 'It does not read well.' };
+    const after = letter.text.slice(letter.text.indexOf(m[0]) + m[0].length);
+    if (!after.includes(SAYS[begins]) || Object.keys(SAYS).some(k => k !== begins && after.includes(SAYS[k]))) flag(sc.seed, state.week, 'the handover’s letter does not say that it begins “' + begins + '”: ' + after.slice(0, 110));
   };
   // the annual reviews (v0.11.38, §130). A chair who counts sheets says how many reached the desk this year. The count
   // is held to this tool's own books: the sheets the career had seen at the last mark, which is the desk's last review
@@ -1355,7 +1390,7 @@ for (const sc of RUN) {
   if (glEnd.void !== gl.wallOpen) flag(sc.seed, state.week, gl.wallOpen + ' greenlights were open when the desk moved and ' + glEnd.void + ' read set aside');
   GL.given += gl.given; GL.walls += gl.walls;
   RV.given += rv.given; RV.firsts += rv.firsts; RV.counted += rv.counted;
-  HO.given += ho.given;
+  HO.given += ho.given; HO.capped += ho.capped; HO.well += ho.well; HO.warily += ho.warily; HO.hard += ho.hard;
   CH.walls += ch.walls; CH.minted += ch.minted;
   CR.held += cr.held; CR.calls += cr.calls; CR.callsHeld += cr.callsHeld;
   YR.due += yr.due; YR.wrote += yr.wrote; YR.landed += yr.landed; YR.lines += yr.lines; YR.words += yr.words; YR.held += yr.held;
@@ -1472,6 +1507,8 @@ console.log('the roll (v0.11.47): ' + RL.gone + ' chairs seen sat and gone, each
 console.log('the credits (v0.11.41): ' + CR.held + ' weeks of a chair’s credit held to this tool’s own books of what landed, how it closed and who signed · ' + CR.calls + ' calls from outside, ' + CR.callsHeld + ' of them for a chair that works an era, each held to the same books');
 console.log('the chairs (v0.11.40): ' + CH.walls + ' desk change' + (CH.walls === 1 ? '' : 's') + ' · ' + CH.minted + ' chairs opened the next buildings, four at each · none carried across, by this tool’s own books of who sat');
 console.log('the handovers (v0.11.39): ' + HO.given + ' · each letter held to this tool’s own books of the chair who left');
+console.log('the handover, inherited in part (v0.11.50): ' + HO.given + ' changes of chair, each start this tool’s own sum of where the desk stood with the one who left · ' + HO.capped +
+  ' held at the cap · ' + HO.well + ' begin well, ' + HO.warily + ' warily and ' + HO.hard + ' the hard way, each by this tool’s own rule, in the letter and at the first meeting');
 console.log('the reviews (v0.11.38): ' + RV.given + ' given · ' + RV.firsts + ' the first under a new desk · ' + RV.counted + ' by a chair who counts sheets, each count held to the desk’s own year');
 console.log('the greenlights (v0.11.37): ' + GL.given + ' given · ' + GL.met + ' kept · ' + GL.lapsed + ' left dark · ' + GL.open + ' open · ' + GL.void + ' set aside at ' + GL.walls + ' desk change' + (GL.walls === 1 ? '' : 's'));
 console.log('dissolutions (the last statement, v0.11.0): ' + RUN.map(sc => sc.seed + ' ' + (dissolvedWeeks[sc.seed] == null ? '—' : 'wk ' + dissolvedWeeks[sc.seed] + (careers[sc.seed] ? ' then ' + careers[sc.seed] : ''))).join(' · '));

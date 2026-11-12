@@ -102,12 +102,12 @@ const body = (s, sc) => String(say(() => KP.sceneDef('newChair').body(s, sc)));
   const next = s.executive.name;
   const letter = inbox.find(n => n.ind === 'newChair') || { text: 'no letter: ' + inbox.map(n => n.ind + ' ' + String(n.text).slice(0, 60)).join(' | ') };
   t.ok(next !== old && !!inbox.find(n => n.ind === 'execFarewell'), 'the fixture: the real rail changes the chair, and the one who leaves says goodbye (' + old + ' to ' + next + ')');
-  t.ok(letter.text.includes(' The new executive has read the file ' + old + ' left: 2 greenlights, one kept and one left dark; 2 promises upstairs, one kept and one broken; and a last review that read “thin”. What has not transferred'),
+  t.ok(letter.text.includes(' The new executive has read the file ' + old + ' left: 2 greenlights, one kept and one left dark; 2 promises upstairs, one kept and one broken; and a last review that read “thin”. It does not read well. ' + next + ' has read it once'),   // the hard way (v0.11.50, §143)
     'the letter says what the one who left leaves on the file (' + letter.text.slice(letter.text.indexOf('The new executive'), letter.text.indexOf('The new executive') + 170) + ')');
   t.eq(letter.priority + ' ' + letter.urgent, 'critical true', 'and it lands as it always did');
   const sc = meeting(s);
   t.eq(sc.rated + ' · ' + sc.prevName, 'thin · ' + old, 'the first meeting carries the last review’s word');
-  t.ok(body(s, sc).includes('“' + old + ' kept you on, and not by much. I inherited the rating, not the reasons.') && !body(s, sc).includes('rated you highly'),
+  t.ok(body(s, sc).includes('“' + old + ' kept you on, and not by much. I am not ' + old + ', and I have decided nothing yet.') && !body(s, sc).includes('rated you highly'),
     'and the next chair names that rating truly (' + body(s, sc).slice(body(s, sc).indexOf('“'), body(s, sc).indexOf('“') + 110) + ')');
   t.eq(s.trust, Math.round(KP.C.EXEC.startTrust + (30 - KP.C.EXEC.startTrust) * T.EXEC.carry), 'the number carries as it always did');
   // the one who left can still be read, and the one who sits has nothing yet

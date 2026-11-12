@@ -1537,6 +1537,13 @@
       if (name) c.execName = name;
     });
   } });
+  // v0.11.50 — the handover, inherited in part. A first meeting with a new chair that is still open on the Desk
+  // was opened before a meeting said how the relationship begins. It is given that from the rating it carries and
+  // from where the desk stands with the chair today. The number itself is left as it was carried: an older file's
+  // start is not capped after the fact
+  MIGRATIONS.push({ v: '0.11.50', fn: function (state) {
+    (state.scenes || []).forEach(sc => { if (sc.kind === 'newChair' && !sc.begins) sc.begins = KP.handoverBegins(state.trust || 0, sc.rated); });
+  } });
 
   KP.migrate = function (state) {
     const applied = [];

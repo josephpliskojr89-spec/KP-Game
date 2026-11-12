@@ -427,6 +427,34 @@
     thin: 'kept you on, and not by much',
     gone: 'had stopped answering for you',
   };
+  // ---- the handover, inherited in part (v0.11.50, §143; the owner's ruling, §136: 10 and 29) ---------------
+  // Where the desk starts with the next chair: the house's starting trust, and a part of how far the desk stood
+  // from it with the chair who left. The part is capped either way, so the relationship that ended matters and a
+  // new one can still be built: the lowest start is where the board will hear a pitch
+  KP.handoverStart = function (trust) {
+    const E = KP.C.TIME.EXEC, base = KP.C.EXEC.startTrust;
+    return KP.clamp(Math.round(base + KP.clamp(((trust || 0) - base) * E.carry, -E.carryCap, E.carryCap)), 0, 100);
+  };
+  // how the new relationship begins: well, warily, or the hard way. It is read from where the desk starts with the
+  // next chair and from the word the last chair left for it: well on a good start with no poor word against it,
+  // the hard way on a poor word with no good start to set beside it, and warily otherwise
+  KP.handoverBegins = function (start, rated) {
+    const good = start >= KP.C.EXEC.bands[1][0], poor = rated === 'thin' || rated === 'gone';
+    return good && !poor ? 'well' : poor && !good ? 'hard' : 'warily';
+  };
+  // the letter's last word on the file, by how it begins
+  const CARRIED = {
+    well: (old, next) => 'Some of what you built with ' + old + ' came up the stairs with the file: you start on good terms, and they are yours to keep.',
+    warily: () => 'What has not transferred is the part that took years to build: the benefit of the doubt.',
+    hard: (old, next) => 'It does not read well. ' + next + ' has read it once and means to judge the rest firsthand: the file follows you only part of the way up the stairs.',
+  };
+  // and what the next chair says across the desk at the first meeting
+  const OPENS = {
+    well: prev => 'I inherited the rating, not the reasons, and I would like the reasons.',
+    warily: prev => 'I inherited the rating, not the reasons.',
+    hard: prev => 'I am not ' + prev + ', and I have decided nothing yet.',
+  };
+  const plain = name => String(name).replace(/^CEO\s+/, '');   // a chair by name, without the title
 
   KP.registerWeekly('timeShare', 859, function (state, rng, inbox, roster) {
     const T = KP.C.TIME;
@@ -474,9 +502,9 @@
         state.execGen = gen + 1;
         state.executive = { name: next.name, gender: next.gender || 'f',
           personality: next.personality, intro: next.intro, since: state.week };
-        // the ledger reset: the record transfers, the devotion does not
-        const startT = KP.C.EXEC.startTrust;
-        state.trust = KP.clamp(Math.round(startT + ((state.trust || 0) - startT) * T.EXEC.carry), 0, 100);
+        // the ledger reset: the record transfers, the devotion does not. A part of it does, capped (v0.11.50, §143)
+        state.trust = KP.handoverStart(state.trust);
+        const begins = KP.handoverBegins(state.trust, left.rated);
         delete state.petProjectDone;   // a new chair brings its own someday
         delete state.driftNoted;       // and its own bar
         led.successions++;
@@ -488,11 +516,11 @@
           text: old.name + KP.fillPro(' announced it in the all-hands voice: after ' +
             Math.round((state.week - (old.since || 1)) / KP.C.WEEKS_PER_YEAR) +
             ' years in the chair, {she} is stepping away. ', { gender: old.gender || 'f' }) +
-            (warm ? 'The last thing packed was a framed chart printout — one of ours. “Whatever the next chair thinks of you,” ' + old.name.split(' ')[0] + ' said at the door, “make them learn it the way I did.”'
+            (warm ? 'The last thing packed was a framed chart printout — one of ours. “Whatever the next chair thinks of you,” ' + plain(old.name) + ' said at the door, “make them learn it the way I did.”'
                   : 'The goodbye was professional, which both of you understood to be a complete sentence. Some eras end even; this one ends filed.') });
         inbox.push({ kind: 'executive', opens: 'newChair', urgent: true, ind: 'newChair', priority: 'critical',
-          text: next.name + ' takes the chair Monday. ' + next.intro + ' The new executive has read the file ' + old.name + ' left: ' + KP.chairRecordSaid(left) + '. What has not transferred is the part that took years to build: the benefit of the doubt. The first meeting is on the Desk, and it sets the tone for the era.' });
-        KP.openScene(state, { kind: 'newChair', prevName: old.name, rated: left.rated,
+          text: next.name + ' takes the chair Monday. ' + next.intro + ' The new executive has read the file ' + old.name + ' left: ' + KP.chairRecordSaid(left) + '. ' + CARRIED[begins](old.name, next.name) + ' The first meeting is on the Desk, and it sets the tone for the era.' });
+        KP.openScene(state, { kind: 'newChair', prevName: old.name, rated: left.rated, begins,
           expiresWeek: state.week + 3 });
       }
     }
@@ -535,7 +563,7 @@
   // ---- the first meeting: the new chair sets the tone -------------------
   KP.registerScene('newChair', {
     title: (state) => state.executive.name + ' · the first meeting',
-    body: (state, sc) => state.executive.name + KP.fillPro(' opens the file — YOUR file — and closes it again without reading, which is the test. “' + (sc.prevName || 'My predecessor') + ' ' + (RATED[sc.rated] || 'rated you highly') + '. I inherited the rating, not the reasons. You can walk me through the record, or we can start from a clean page and let this year speak. Choose — I read a lot into how people choose.”', KP.execP(state)),
+    body: (state, sc) => state.executive.name + KP.fillPro(' opens the file — YOUR file — and closes it again without reading, which is the test. “' + (sc.prevName || 'My predecessor') + ' ' + (RATED[sc.rated] || 'rated you highly') + '. ' + (OPENS[sc.begins] || OPENS.warily)(sc.prevName || 'my predecessor') + ' You can walk me through the record, or we can start from a clean page and let this year speak. Choose — I read a lot into how people choose.”', KP.execP(state)),
     options: () => [
       { id: 'receipts', label: 'Walk the record — bring the receipts' },
       { id: 'slate', label: 'The clean page — let this year speak' },
@@ -545,7 +573,11 @@
       if (optionId === 'receipts') {
         led.receipts++;
         state.trust = KP.clamp((state.trust || 0) + 3, 0, 100);
-        return { toast: KP.fillPro('You walked the whole ledger — the debuts, the promises kept, the years the numbers earned. {She} interrupted twice with sharp questions and once with a note to {herself}, which is how this one shows respect. The record moved {her} where charm never would have. Trust +3, and the new era opens with the file OPEN.', KP.execP(state)) };
+        // a record that reads badly is walked too, and owning it is what moves her (v0.11.50, §143)
+        return { toast: KP.fillPro((sc.begins === 'hard'
+          ? 'You walked the whole ledger and left nothing out: what went dark, what broke, and what there was to set beside it. {She} interrupted twice with sharp questions and once with a note to {herself}, which is how this one shows respect. Owning the record moved {her} where charm never would have.'
+          : 'You walked the whole ledger — the debuts, the promises kept, the years the numbers earned. {She} interrupted twice with sharp questions and once with a note to {herself}, which is how this one shows respect. The record moved {her} where charm never would have.') +
+          ' Trust +3, and the new era opens with the file OPEN.', KP.execP(state)) };
       }
       led.cleanSlates++;
       state.trust = KP.clamp((state.trust || 0) + 1, 0, 100);
