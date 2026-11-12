@@ -88,8 +88,8 @@ const otherLane = (id, far) => KP.C.CONCEPTS.map(c => c.id).find(x => x !== 'fus
   t.eq(say(() => KP.execOwnTypes().join()), TYPES.join(), 'and there are five promises they ask for');
   t.ok(TYPES.every(k => typeof KP.claimCheckFor(k) === 'function'), 'each is a registered promise');
   t.eq(KP.DATA.executives.map(e => e.personality).sort().join(), KP.C.EXEC.personalities.slice().sort().join(), 'every chair in the data has a kind the table knows, and every kind has a chair');
-  t.eq([M.everyWeeks, M.quarterWeeks, O.voiceWeeks, O.voiceGain, O.recordWeeks, O.passAgainTrust, M.payoffTrust, M.missTrust, M.silenceTrust].join('|'), '10|12|24|3|48|-1|2|-2|-1',
-    'the quarter is twelve weeks, a voice gets half a year and three points, a record gets a year; a second pass costs one; kept is worth two and broken costs two');
+  t.eq([M.everyWeeks, M.quarterWeeks, O.voiceWeeks, O.voiceGain, O.recordWeeks, O.passUrgentTrust, O.nextDoorTrust, O.passAgainTrust, M.payoffTrust, M.missTrust, M.silenceTrust].join('|'), '10|12|24|3|48|-1|1||2|-2|-1',
+    'the quarter is twelve weeks, a voice gets half a year and three points, a record gets a year; a pass is counted for one only while the red weeks run, and no run of them costs (v0.11.51, §144); next door to the sound is worth one; kept is worth two and broken costs two');
   t.ok(['execOwnMet', 'execOwnMissed'].every(k => desk.ONE_SHOTS.includes(k)), 'both verdicts are on the list of letters said once');
   const s = KP.newGame('up-shape', null, {});
   t.eq(counts(s), '0|0|0|0|0|0|0|0', 'a new career opens with the ledger upstairs at zero');
@@ -349,17 +349,17 @@ const otherLane = (id, far) => KP.C.CONCEPTS.map(c => c.id).find(x => x !== 'fus
   t.eq([JSON.stringify(s.execPass), s.trust].join(' '), '{"name":"CEO Kang Min-ho","run":1,"week":30} 55', 'the first pass is remembered and free');
   s.week = 40; ask(s);
   const two = answer(s, 'pass');
-  t.eq([two.toast, s.trust, counts(s)].join(' | '), '“That is two of my questions running with nothing on the record.” He wrote that down instead. | 54 | 2|0|2|1|0|0|0|0', 'the second in a row costs one, and he says why');
+  t.eq([two.toast, s.trust, counts(s)].join(' | '), '“That is two of my questions running with nothing on the record.” He said it the way people read out a forecast, and turned to the calendar. | 55 | 2|0|2|1|0|0|0|0', 'the second in a row is said and noted, and costs nothing (v0.11.51, §144)');
   s.week = 50; ask(s);
   const three = answer(s, 'pass');
-  t.eq([three.toast, s.trust, counts(s)].join(' | '), '“That is 3 of my questions running with nothing on the record.” He wrote that down instead. | 53 | 3|0|3|2|0|0|0|0', 'and so does the third');
+  t.eq([three.toast, s.trust, counts(s)].join(' | '), '“That is 3 of my questions running with nothing on the record.” He said it the way people read out a forecast, and turned to the calendar. | 55 | 3|0|3|2|0|0|0|0', 'and so is the third');
   // a promise ends the run
   s.week = 60; const c = promised(s);
   t.ok(c.type === 'execQuarter', 'fixture: a promise is put on the record');
   c.resolved = 'met';
   s.week = 70; ask(s);
   const after = answer(s, 'pass');
-  t.eq([after.toast, s.trust, (s.execPass || {}).run].join(' | '), 'He wrote one word on the pad, and then a smaller word under it. | 53 | 1', 'after a promise the next pass is a first one again');
+  t.eq([after.toast, s.trust, (s.execPass || {}).run].join(' | '), 'He wrote one word on the pad, and then a smaller word under it. | 55 | 1', 'after a promise the next pass is a first one again');
   // so does anything else put on her record since
   const o = world('up-pass-other', 'profitHunter');
   ask(o); answer(o, 'pass');
@@ -373,7 +373,7 @@ const otherLane = (id, far) => KP.C.CONCEPTS.map(c => c.id).find(x => x !== 'fus
   p.week = 40;
   KP.openClaim(p, { type: 'secondGroup', subject: { kind: 'idol', id: room(p)[0].id }, baseline: 9, byWeek: 999 });
   p.week = 41; ask(p);
-  t.eq([(answer(p, 'pass').toast || '').slice(0, 18), p.trust].join(' | '), '“That is two of my | 54', 'a promise made to somebody else does not');
+  t.eq([(answer(p, 'pass').toast || '').slice(0, 18), p.trust].join(' | '), '“That is two of my | 55', 'a promise made to somebody else does not');
   // a new chair starts her own count
   const n = world('up-pass-chair', 'profitHunter');
   ask(n); answer(n, 'pass');
@@ -579,7 +579,7 @@ const otherLane = (id, far) => KP.C.CONCEPTS.map(c => c.id).find(x => x !== 'fus
   t.eq([verdict(settle(b.s)).text, b.c.resolved, b.s.trust].join('|'), 'CEO Moon Sang-chul: “The year’s sound is ' + laneLabel(lane(b.s, 40)) + '. “Elsewhere” is not. You told me it would be.”|missed|53', 'a record outside it breaks it');
   const n = mk('up-v-sound-near');
   record(n.g, 40, { conceptId: otherLane(lane(n.s, 40), false), songTitle: 'Nearly' }); n.s.week = 40;
-  t.eq(say(() => { settle(n.s); return n.c.resolved; }), 'missed', 'and next door to the sound is not in it');
+  t.eq(say(() => { settle(n.s); return n.c.resolved + '|' + n.s.trust + '|' + byType(n.s, 'execSound'); }), 'metPoorly|56|1|1|0', 'and next door to the sound keeps it in part, for one (v0.11.51, §144): it was broken');
   // the sound of the record's own year
   const y = mk('up-v-sound-year');
   const now = lane(y.s, 40), nextYear = otherLane(now, true);
@@ -748,7 +748,7 @@ const otherLane = (id, far) => KP.C.CONCEPTS.map(c => c.id).find(x => x !== 'fus
   const read = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
   const h = read('tools/harness.js'), l = read('tools/audit_longhaul.js');
   t.ok(h.includes("console.log('her own questions: asked ") && ['ownAsked:', 'ownKept:', 'ownBroken:'].every(k => h.includes(k)) && h.includes("'botOwn'"), 'the census prints her questions’ line, holds bands on it, and its bot gives both answers');
-  t.ok(h.includes('more answers to her own questions than questions') && h.includes('of her own promises stand at once') && h.includes('a first pass was charged'), 'with its guards');
+  t.ok(h.includes('more answers to her own questions than questions') && h.includes('of her own promises stand at once') && h.includes('a first pass was counted as a second'), 'with its guards');
   t.ok(l.includes("' | upstairs: '") && l.includes('more verdicts on her own promises than promises') && l.includes('a promise made to another chair’s question is still on the clock'), 'the long haul carries it on each scenario’s line, with its flags');
 }
 
@@ -847,7 +847,8 @@ const otherLane = (id, far) => KP.C.CONCEPTS.map(c => c.id).find(x => x !== 'fus
   t.ok(p.bad.length === 0 && counts(p.s) === '0|0|0|0|0|0|0|0' && p.letters === 0, 'two hundred weeks under a patient executive: nothing of her own asked (' + counts(p.s) + ')');
   const passer = run('up-weeks-pass', 'trendChaser', 200, sc => (TYPES.includes(sc.q.type) ? 1 : 0));
   const up = led(passer.s);
-  t.ok(passer.bad.length === 0 && up.passed >= 2 && up.promised === 0 && up.passedTwice >= 1 && up.passedTwice <= up.passed - 1, 'a desk that passes every time is charged from the second pass on (' + counts(passer.s) + ')');
+  t.ok(passer.bad.length === 0 && up.passed >= 2 && up.promised === 0 && up.passedTwice >= 1 && up.passedTwice <= up.passed - 1, 'a desk that passes every time is noted from the second pass on (' + counts(passer.s) + ')');
+  t.eq(up.passedUrgent, 0, 'and with no red week running none of those passes is charged');
 }
 
 t.finish();

@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.50',
+    VERSION: '0.11.51',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -3316,7 +3316,12 @@
       OWN: {
         voiceWeeks: 24, voiceGain: 3,     // the best voice in the room, half a year on: this many points better
         recordWeeks: 48,                  // "the next record" has a year to arrive
-        passAgainTrust: -1,               // a pass is free once; each one after it in a row costs this
+        // a pass costs nothing, however many in a row (v0.11.51, §144; the owner's ruling, §136: 11). One pass is
+        // counted: the quarter's, answered while the red weeks are running
+        passUrgentTrust: -1,
+        // a record next door to the year's sound keeps that promise in part: half of what a record in it earns
+        // (the owner's ruling, §136: 12)
+        nextDoorTrust: 1,
       },
       reviewsKept: 12,           // the annual reviews kept on the file (v0.11.28, §120)
     },

@@ -116,7 +116,7 @@
   KP.chairsOwn = function (c) { return OWN.includes(c.type) || c.type === 'petProject'; };
   function ownLedger(state) {
     const led = state.upstairsLedger = state.upstairsLedger || {};
-    ['asked', 'promised', 'passed', 'passedTwice', 'overtaken', 'met', 'missed', 'void', 'reviews'].forEach(k => { if (led[k] == null) led[k] = 0; });
+    ['asked', 'promised', 'passed', 'passedTwice', 'passedUrgent', 'overtaken', 'met', 'nextDoor', 'missed', 'void', 'reviews'].forEach(k => { if (led[k] == null) led[k] = 0; });
     if (!led.types) led.types = {};
     OWN.forEach(k => { if (!led.types[k]) led.types[k] = { asked: 0, met: 0, missed: 0 }; });
     if (!led.bands) led.bands = {};   // the annual review, by where the desk stood (v0.11.28, §120)
@@ -242,6 +242,12 @@
     }
     return false;
   };
+  // a pass that is counted (v0.11.51, §144; the owner's ruling, §136: 11). Declining a promise is restraint, and
+  // costs nothing. One question is urgent where it is asked: the quarter's, while the red weeks are running. The
+  // house is behind on what it owes, and saying nothing about the till is itself an answer
+  KP.execOwnUrgent = function (state, q) {
+    return !!q && q.type === 'execQuarter' && !!state.red && state.red.weeks > 0;
+  };
   // the promise, in the words the Desk's list uses, and what it is held to
   const OWN_TERMS = {
     execQuarter: (state, q) => ({ byWeek: q.week + KP.C.MEETING.quarterWeeks, baseline: q.baseline,
@@ -275,18 +281,22 @@
       return { toast: KP.fillPro('The question had answered itself before you did. {She} crossed it off the agenda.', X) };
     }
     if (optionId !== 'promise') {
-      // a pass is free once. The second in a row is a pattern, and she
-      // counts patterns (§96 release 1: no answer is free)
+      // a pass costs nothing (v0.11.51, §144). A second in a row is a pattern, and she says so: it is counted on
+      // the ledger and not against the desk. The one pass that costs is the urgent one
       led.passed++;
       const run = state.execPass && state.execPass.name === state.executive.name ? state.execPass : { name: state.executive.name, run: 0, week: 0 };
       // anything put on her record since the last pass ends the run
       if ((state.claims || []).some(c => c.subject.kind === 'exec' && c.week >= run.week)) run.run = 0;
       run.run++; run.week = state.week;
       state.execPass = run;
+      if (KP.execOwnUrgent(state, q)) {
+        led.passedUrgent++;
+        state.trust = KP.clamp(state.trust + M.OWN.passUrgentTrust, 0, 100);
+        return { toast: KP.fillPro('“The red weeks are running, and you will not say when they stop.” {She} wrote that down. Trust ' + M.OWN.passUrgentTrust + '.', X) };
+      }
       if (run.run < 2) return { toast: KP.fillPro(OWN_PASS[q.type], X) };
       led.passedTwice++;
-      state.trust = KP.clamp(state.trust + M.OWN.passAgainTrust, 0, 100);
-      return { toast: KP.fillPro('“That is ' + (run.run === 2 ? 'two' : run.run) + ' of my questions running with nothing on the record.” {She} wrote that down instead.', X) };
+      return { toast: KP.fillPro('“That is ' + (run.run === 2 ? 'two' : run.run) + ' of my questions running with nothing on the record.” {She} said it the way people read out a forecast, and turned to the calendar.', X) };
     }
     const c = Object.assign({ type: q.type, subject: { kind: 'exec' }, askedWeek: q.week, execName: state.executive.name },
       OWN_TERMS[q.type](state, q));
@@ -297,13 +307,15 @@
   // the verdict: trust the way every promise to her moves it, and her
   // sentence about it. A promise made to her question is hers: under a
   // new chair it is set aside unjudged.
+  // `met` is true, false, or 'near': kept in part, for less (v0.11.51, §144; the owner's ruling, §136: 12)
   function ownVerdict(state, c, met, said) {
     const M = KP.C.MEETING, led = ownLedger(state);
-    if (met) { led.met++; led.types[c.type].met++; state.trust = KP.clamp(state.trust + M.payoffTrust, 0, 100); }
+    if (met === 'near') { led.met++; led.nextDoor++; led.types[c.type].met++; state.trust = KP.clamp(state.trust + M.OWN.nextDoorTrust, 0, 100); }
+    else if (met) { led.met++; led.types[c.type].met++; state.trust = KP.clamp(state.trust + M.payoffTrust, 0, 100); }
     else { led.missed++; led.types[c.type].missed++; state.trust = KP.clamp(state.trust + M.missTrust * (KP.boardSeatActive(state) ? 2 : 1), 0, 100); }
     // said once, so it always lands (§112)
     const text = state.executive.name + ': “' + said + '”';
-    return { resolved: met ? 'met' : 'missed', notes: [met
+    return { resolved: met === 'near' ? 'metPoorly' : met ? 'met' : 'missed', notes: [met
       ? { kind: 'executive', ind: 'execOwnMet', priority: 'critical', text }
       : { kind: 'executive', ind: 'execOwnMissed', priority: 'critical', text }] };
   }
@@ -349,8 +361,14 @@
     }
     const lane = KP.trendLane(state, Math.floor((rel.week - 1) / KP.C.WEEKS_PER_YEAR));
     const label = ((KP.conceptById(lane) || {}).label || lane).toLowerCase();
-    if (KP.laneDistance(lane, rel.conceptId) !== 0) {
+    const far = KP.laneDistance(lane, rel.conceptId);
+    if (far > 1) {
       return ownVerdict(state, c, false, 'The year’s sound is ' + label + '. “' + rel.songTitle + '” is not. You told me it would be.');
+    }
+    // next door to the year's sound: the promise is kept in part, and she says which part
+    if (far === 1) {
+      const own = ((KP.conceptById(rel.conceptId) || {}).label || rel.conceptId).toLowerCase();
+      return ownVerdict(state, c, 'near', 'The year’s sound is ' + label + '. “' + rel.songTitle + '” is ' + own + ', which is next door. You heard the market through a wall. I will count that, and I will count it for less.');
     }
     return ownVerdict(state, c, true, rel.fusionOutcome === 'shift'
       ? 'I asked you to follow the market. “' + rel.songTitle + '” moved it instead. I will take that.'
@@ -465,7 +483,9 @@
   // ---- the scene: the question on the table -----------------------------
   KP.registerScene('execQuestion', {
     title: (state) => state.executive.name + ' is waiting',
-    body: (state, sc) => '“' + sc.q.text + '” Your answer goes on the record — and the record gets checked.',
+    // her own question says what a pass costs (v0.11.51, §144): nothing, unless the house is behind that morning
+    body: (state, sc) => '“' + sc.q.text + '” Your answer goes on the record — and the record gets checked.' +
+      (!OWN.includes(sc.q.type) ? '' : KP.execOwnUrgent(state, sc.q) ? ' The red weeks are running: a pass will be counted against you.' : ' A pass costs nothing.'),
     options: (state, sc) => sc.q.options,
     resolve: (state, sc, optionId) => {
       const M = KP.C.MEETING;

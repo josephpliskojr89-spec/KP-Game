@@ -18015,6 +18015,295 @@ that is for the two records (35). *The owner’s to see*: the
 assumptions above.
 
 
+## §144 Her questions without a toll (SHIPPED v0.11.51 — the owner's ruling, §136: decisions 11 and 12)
+
+The eighth piece built on the directive (§136). Owner, on passing
+on an executive's question: *"Only penalize passing when the
+decision is genuinely urgent or when refusing to act has a clear
+contextual consequence. Do not punish reasonable restraint or
+declining nonessential commitments."* And on the trend chaser's
+question: *"Allow records in adjacent musical styles to count
+toward satisfying a trend-focused executive, but award a weaker
+benefit than an exact match."* Both were left to the owner when her
+own questions were built (§119).
+
+**Counted first**, on the tree before this piece. The census's bot
+answers each of a chair's own questions by a hash of the week it
+was asked, so it passes about half and steers toward no sound. Its
+numbers say what the rules do, and not how a desk is played.
+
+| in the census’s 200 careers, on v0.11.50 | |
+|---|---|
+| answers to a chair’s own question | 1,008 |
+| put on the record | 501 |
+| passed | 507 |
+| passes charged a point, each a second or later in a row | 140, in 93 careers |
+| the most charged in one career | 3 |
+| the quarter asked about | 187 times, 9 of them with the red weeks running |
+| the quarter passed on with the red weeks running | 3 |
+| promises on the sound of the year judged | 135 |
+| kept: the record was in the year’s sound | 9 |
+| broken by a record next door to it | 69: 41 genre-bending, 28 in a neighbouring sound |
+| broken by a record further off | 57 |
+
+More than half of the broken promises on the sound were broken by a
+record next door to it. A pass was charged 140 times, and none of
+those charges was for anything the desk had been told was urgent.
+The long haul’s bot always promises, so its eleven careers have no
+pass. Of 16 promises on the sound there, one was kept, eight were
+broken next door, six further off, and one was set aside under
+another chair.
+
+**A pass costs nothing.** A pass on a chair's own question was free
+once, and cost a point of trust from the second in a row (§119). It
+costs nothing now, however many in a row. Declining a promise is
+restraint, and each of the five questions asks for a promise the
+desk does not owe.
+
+- *The words.* A first pass is answered in the chair's own words
+  for it, as it was. A second in a row is still said to be one:
+  "That is two of my questions running with nothing on the record."
+  It ended "She wrote that down instead." It ends "She said it the
+  way people read out a forecast, and turned to the calendar." The
+  ledger counts it as a run. Nothing is counted against the desk.
+- *The card says so.* The question on the Desk now ends "A pass
+  costs nothing."
+
+**The one pass that is counted.** `KP.execOwnUrgent`. The ruling
+keeps a cost where the decision is urgent, or where refusing to act
+has a clear consequence where it stands. One of the five questions
+can be that: the profit hunter's, about the quarter, asked while
+the red weeks are running (§86). The house is then behind on what
+it owes. The player has had the accountant's memo since the first
+red week, and twelve of them end the house. The chair asks when the
+till will be in the black, and saying nothing is itself an answer.
+
+- It costs one point, each time it is passed on in a red week. The
+  chair says why: "The red weeks are running, and you will not say
+  when they stop." The card says it before the answer: "The red
+  weeks are running: a pass will be counted against you."
+- Putting the quarter on the record in a red week costs nothing to
+  do.
+- It is the morning of the answer that counts, and not of the
+  question.
+- An empty till with no red week running is not urgent. The red
+  weeks are the ladder the player has letters for, and the till's
+  number alone is not.
+- The other four questions are never urgent: the voice, the name on
+  the sheet, the sound of the year, the record that lands harder.
+
+**Silence costs what it did.** A question left unanswered for its
+four weeks costs one point, as it always has. That is the meeting
+stood up. It is not a pass, and a pass is now free to make.
+
+**The sound next door.** The trend chaser asks whether the house's
+next record will be in the sound of its year. Only a record in that
+sound kept the promise. A record next door to it now keeps the
+promise in part.
+
+| the house’s next record is | the promise is | trust | she says |
+|---|---|---|---|
+| in the sound of its year | kept | +2 | “Nearly There” is retro, in the year of retro. You listened to the market, and the market noticed. |
+| next door to it | kept in part | +1 | The year’s sound is elegant / luxury. “Nearly There” is bright / youthful, which is next door. You heard the market through a wall. I will count that, and I will count it for less. |
+| further off | broken | −2 | The year’s sound is retro. “Nearly There” is not. You told me it would be. |
+
+- *Next door* is the house's own table of neighbours, the one the
+  studio and the trend already read (§91). Each of the eight sounds
+  has two or three. A genre-bending record stands next door to
+  every one of them.
+- *A record that moved the year's sound* to itself is in it, as it
+  was.
+- *The first record out* after the question is the one judged, as
+  it was.
+- *The books.* The ledger counts a promise kept next door among the
+  kept, and counts it next door. The Record tab reads "kept,
+  barely" over her words. The file a chair leaves (§131) counts it
+  among the promises kept.
+
+**Old files.** No file needs changing. The ledger's two new counts
+start at nought. A point an older version charged for a run of
+passes is not paid back, and the count of passes in a row carries
+on from where it stood.
+
+**Measured**, on the tree as shipped.
+
+| in the census’s 200 careers | v0.11.50 | this tree |
+|---|---|---|
+| passes on a chair’s own question | 507 | 506 |
+| passes charged a point | 140 | 3 |
+| of them, for a run of passes | 140 | 0 |
+| of them, the quarter passed on in a red week | 0 | 3 |
+| careers charged for a pass | 93 | 2 |
+| promises on the sound of the year judged | 135 | 135 |
+| kept in full | 9 | 9 |
+| kept in part, next door | 0 | 69 |
+| broken | 126 | 57 |
+
+A pass is charged three times where it was charged 140, and each of
+the three is the quarter passed on in a red week. Two of the three
+were first passes, which were free before. The same 135 promises on
+the sound are judged. The 69 that a record next door broke are kept
+in part, and the 57 that a record further off broke are still
+broken. In the long haul eight promises on the sound are kept in
+part where they were broken.
+
+**What moved.** The simulation moves, by what the two rules are
+worth: a point where a run of passes was charged, and three where a
+record next door broke a promise and now keeps it in part. Each of
+the census’s 200 careers was played on v0.11.50 and on this tree,
+and its file at the end compared with the Desk and the list of
+promises set aside. 101 differ only in the ledger’s two new counts.
+39 differ only in the meeting’s own books and in trust, which ends
+up to three points higher in 28 of them and a point lower in one.
+60 played on differently from there: a point at the desk moves a
+pitch or a debut by a week, and the career takes another course.
+Trust ends higher in 71 careers and lower in two. Two careers end
+36 and 48 points apart. Traced week by week on both trees, each
+parted by one point, in week 32 and in week 72, and in the first
+the desk stood lower on this tree for 54 of the 110 weeks after. A
+file’s end does not measure the rule there. The counts above do. 59
+of the census’s 365 rows moved. The two that read the rule moved
+most: “orgs that kept a promise made to her own question”, 132
+where it was 106, and “orgs that broke one”, 124 where it was 134.
+No other moved by more than three. In the long haul one career of
+eleven reads differently, in its count of promises kept and broken,
+and the tool’s lines are as they were.
+
+**The tools' books.** The census keeps its own note of every pass:
+which question it was, and whether a red week was running that
+morning, read off the file. What the pass cost is held to the
+tool's own rule, and the ledger's counts are held to the tool's
+notes. For the sound, the tool stands either side of the stage
+door, where a promise is judged. Before the door turns it works out
+what each open promise on the sound is owed, by its own reading of
+the next record against the year's sound. After, it holds the
+verdict to that, and holds her words to it: said to be next door
+where it is, and nowhere else.
+
+Over the census the tool noted 506 passes: three with the red weeks
+running, each charged one point, and 503 charged nothing. It stood
+at the stage door for 135 promises on the sound of the year, in
+every career it plays: 9 in the year’s sound and kept, 69 next door
+and kept in part, 57 further off and broken.
+
+The tool was run against thirteen engines broken on purpose, each a
+small change, on nine census careers that hold the cases: passes in
+a red week on the quarter and on the other questions, and records
+in the year’s sound, next door and further off. A second pass in a
+row charged, as it was. The quarter in a red week not charged.
+Every question urgent in a red week. The quarter urgent only from
+the second red week, and never. The urgent pass not counted on the
+ledger. Next door breaking the promise, as it did, and keeping it
+in full. Further off counted next door. A record in the sound
+counted next door. Her words not saying next door. The file reading
+kept in full. The ledger not counting next door. All thirteen were
+flagged, each in the words written for its case, and on the tree as
+it stands the nine careers are clean. Two things the tool cannot
+hold, and the suite does. It cannot see what a verdict moved, since
+a week moves trust in many places: the one point is held by the
+suite, for each of the eight sounds against each kind of record.
+And no census career passes on the quarter with an empty till
+outside the red weeks, so that case is the suite’s as well.
+
+**Assumptions the owner may overrule.**
+
+- *Only the quarter's question has an urgent form.* I found no week
+  in which the other four are urgent, or in which passing on them
+  has a consequence where it stands.
+- *Urgent means the red weeks are running that morning.* Not an
+  empty till, and not a poor quarter.
+- *The urgent pass costs one point, each time.* It is what a second
+  pass cost before.
+- *A run of passes is still remarked on*, in words, at no cost.
+- *The card says what a pass costs.* It is plain speech on a card
+  written in a voice.
+- *Silence still costs one.*
+- *Next door is the house's table of neighbours*, and a
+  genre-bending record is next door to every sound.
+- *Next door earns one point*, half of what a record in the sound
+  earns. It reads "kept, barely", and it is counted kept.
+- *Nothing is paid back* to a file that was charged under the old
+  rule.
+- *The words.* They are mine. Each is written in one place.
+
+**What the checks found, and what I got wrong.**
+
+- The suite’s first run failed four checks, and all four were mine.
+  One compared fourteen characters of a sentence with thirteen. One
+  miscounted its own table: thirty pairs of sounds are next door,
+  and I had written twenty-eight. One expected the file a chair
+  leaves to count a promise my fixture had dated to the first week,
+  before any meeting. The fourth found a fault that is not this
+  piece’s, and is the next item.
+- Writing that fourth check, I found that a second record to move
+  the year’s sound in the same year changes nothing: the first one
+  of the year stays the sound. The game announces the second as it
+  does the first. It is logged, and it is counted and repaired in a
+  piece of its own.
+- Writing the plan for the mutation run showed that two broken
+  engines would have stopped the suite, where a suite must fail by
+  name. The suite reads those answers so that they fail by name
+  now.
+- The first mutation run caught 48 of 49. The one it did not catch
+  changed nothing: a test that came after the case had already been
+  taken. It is dropped from the plan.
+- This time the older browser pass that held the old rule was found
+  before the long run, and brought up with the pass as filed kept
+  beside it. The older suite held the old rule in seven checks, and
+  is brought up.
+- The two careers that end 36 and 48 points apart looked like a
+  fault in the measure. They are two careers that parted by one
+  point and went different ways. I traced both, week by week,
+  before writing that.
+- My first try at that trace played only the two careers and
+  skipped the rest, and the census stopped. It plays the whole
+  census now and notes two.
+
+Suite_156 (72), new: the figures; for each of the five kinds of
+chair, a first pass in their own words and four more in a row, each
+said as a run and none charged; the same with the red weeks
+running, for the four questions that are never urgent; the quarter
+passed on in the first red week and in the ninth, each charged one
+and said so; the red weeks over; the quarter put on the record in a
+red week; an empty till with no red week; the morning of the answer
+and not of the question, each way; the floor; the rule for each of
+the five questions, clean and in the red weeks, against the suite’s
+own; a file with no red counter, and no question; what the card
+says for each kind, in the red weeks and after them, and for the
+three older questions; the card on the Desk; silence, clean and in
+the red weeks; a record in the sound, next door and further off,
+each with her words, the trust, the ledger and the letter that
+lands; each of the eight sounds against each of the nine kinds of
+record, by the suite’s own table; a genre-bending record; the first
+record out; a record that moved the sound; a year with no record;
+the fund’s seat; another chair; the file a chair leaves; the Record
+tab; an older file; and real weeks: two hundred under each kind
+passing every time, and a hundred and twenty under the profit
+hunter with a stretch of red weeks, each pass held to the suite’s
+own rule. Suite_137 is brought up to the new law. Mutation-checked
+against 48 broken lines, each caught by a named assertion. A
+real-browser pass (19 checks, no page errors): a trend chaser’s
+question on the Desk says that a pass costs nothing, and is passed
+on with the real button at two meetings running, the second said as
+a run and neither charged; a profit hunter’s question in a house
+three weeks behind says that a pass will be counted, costs one when
+passed on with the real button, and costs nothing when put on the
+record; and a promise on the sound of the year is made with the
+real button, the house’s next record is put out next door to it,
+and one real week on her letter says so, the promise is worth one
+point, and the Record tab reads “kept, barely” over her words.
+Battery 156/156, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, the till audit clean, e2e 137, 32, 41 and 23, the thirty-two
+older browser passes, lockstep 0.11.51.
+
+*Left for the next pieces.* The call left unanswered (13). Then the
+two records, the year’s four, and the screen. *Seen on the way*: a
+second record that moves the year’s sound in one year is ignored,
+and is logged for its own repair. The chair’s verdict still opens
+on two quote marks where it begins with a song’s title, which is
+logged too. *The owner’s to see*: the assumptions above.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -22725,6 +23014,39 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
 > pass (15), lockstep 0.11.50.
 > Rode to main. Next piece: her questions without a toll.
+
+> **0.11.51 — her questions without a toll.** The eighth piece built
+> on the directive (§136: decisions 11 and 12). §144: a pass on a
+> chair's own question costs nothing, however many in a row; a run
+> is still said to be one, in words. One pass is counted: the
+> quarter's, passed on while the red weeks are running, for one
+> point each time, and the question's card says so before the
+> answer. Silence costs what it did. And a record next door to the
+> year's sound keeps the trend chaser's promise in part: one point
+> where a record in the sound earns two, said in her words, and read
+> "kept, barely" on the Record tab. Counted first:
+> in the census’s 200 careers on v0.11.50, 140 passes were charged a
+> point, each for being a second or later in a row, and 69 of 135
+> promises on the sound of the year were broken by a record next door
+> to it. On this tree three passes are charged, each the quarter
+> passed on in a red week, and those 69 promises are kept in part.
+> The simulation moves by what the two rules are worth. Of the
+> census’s 200 careers, 101 end on the same file but for the ledger’s
+> new counts, 39 differ only in the meeting’s books and in trust, by
+> three points at the most, and 60 played on differently from there.
+> 59 of 365 census rows moved; the two that read the rule moved by 26
+> and 10, and no other by more than three.
+> Suite_156 new (72); suite_137 brought up; 48 mutations caught by
+> name, the first run 48 of 49 with the other changing nothing. The
+> census keeps its own note of each pass and its own reading of each
+> record judged: nine careers clean on the tree as it stands, and
+> thirteen broken engines flagged of thirteen. Found on the way and
+> logged: a second record to move the year’s sound in one year is
+> ignored.
+> Battery 156/156, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
+> pass (19), lockstep 0.11.51.
+> Rode to main. Next piece: the call left unanswered.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

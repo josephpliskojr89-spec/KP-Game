@@ -895,6 +895,7 @@ const postSum = {};   // the posting (v0.11.17, §108)
 const quietSum = {};  // the quiet (v0.11.20, §111)
 const wallSum = {};   // the head (v0.11.22, §113)
 const upSum = { types: {} };   // her own questions (v0.11.27, §119)
+const ownSum = { passes: 0, urgent: 0 };   // this tool's own notes of each pass on one (v0.11.51, §144)
 const fileSum = {};            // the company's own file (v0.11.29, §121)
 const recSum = {};             // the written record (v0.11.30, §122)
 const closeSum = {};           // the year's close (v0.11.32, §124)
@@ -1014,6 +1015,42 @@ const allAges = [];
 let violations = [];
 
 function guard(cond, msg) { if (!cond) violations.push(msg); }
+// the sound next door (v0.11.51, §144; the owner's ruling, §136: 12). This tool stands either side of the stage door,
+// where a promise is judged. Before the door turns it works out, by its own rule, what each open promise on the sound
+// of the year is owed: kept in full where the next record is in the year's sound, kept in part where it is next door,
+// broken where it is further off or a year has gone with no record. After, it holds the door to that
+const SOUND = { judged: 0, inIt: 0, nextDoor: 0, far: 0, noRecord: 0, setAside: 0, by: new WeakMap() };
+const nextDoorTo = (a, b) => { const N = KP.C.TREND.NEIGHBOURS; return a !== b && ((N[a] || []).includes(b) || (N[b] || []).includes(a)); };
+{
+  const ph = KP.weeklyPipeline([]).find(x => x.name === 'stageDoor');
+  const fn = ph.fn;
+  ph.fn = function (state) {
+    const open = (state.claims || []).filter(c => c.type === 'execSound' && !c.resolved).map(c => {
+      const rel = KP.groups(state).reduce((all, g) => all.concat((g.releases || []).filter(r => r.week > c.askedWeek)), []).sort((x, y) => x.week - y.week)[0];
+      const lane = rel ? KP.trendLane(state, Math.floor((rel.week - 1) / KP.C.WEEKS_PER_YEAR)) : null;
+      const owed = c.execName && c.execName !== state.executive.name ? 'void'
+        : !rel ? (state.week > c.byWeek ? 'missed' : null)
+        : lane === rel.conceptId ? 'met' : nextDoorTo(lane, rel.conceptId) ? 'metPoorly' : 'missed';
+      return { c, owed, rel };
+    });
+    const r = fn.apply(this, arguments);
+    const book = SOUND.by.get(state) || { nextDoor: 0 };
+    SOUND.by.set(state, book);
+    open.forEach(o => {
+      const got = o.c.resolved || null, at = state.seed + ' wk ' + state.week + ': ';
+      if (got !== o.owed) { violations.push(at + 'a promise on the sound of the year reads “' + got + '”, and by this tool’s own reading of the record it is owed “' + o.owed + '”' + (o.rel ? ' (“' + o.rel.songTitle + '”, ' + o.rel.conceptId + ')' : ' (no record)')); return; }
+      if (!got) return;
+      SOUND.judged++;
+      if (got === 'void') { SOUND.setAside++; return; }
+      if (!o.rel) { SOUND.noRecord++; return; }
+      const near = /, which is next door\. /.test(o.c.replyText || '');
+      if (got === 'metPoorly') { SOUND.nextDoor++; book.nextDoor++; }
+      else if (got === 'met') SOUND.inIt++; else SOUND.far++;
+      if (near !== (got === 'metPoorly')) violations.push(at + 'a promise on the sound of the year, owed “' + got + '”, is ' + (near ? '' : 'not ') + 'said to be next door: ' + String(o.c.replyText).slice(0, 140));
+    });
+    return r;
+  };
+}
 
 // the renewal table policy (v0.9.0), shared by the census bot and the
 // long-horizon pass: a decent boss pays real terms when the books allow,
@@ -1033,7 +1070,11 @@ function botRenewal(state, sc) {
   return pick;
 }
 
+// the trial's own careers (v0.11.51, §144): with HARNESS_ONLY set, only the careers it names are played. A trial of
+// this tool's books needs the careers that hold the case, and not the census
+const ONLY = process.env.HARNESS_ONLY ? process.env.HARNESS_ONLY.split(',').map(Number) : null;
 for (let s = 0; s < SEEDS; s++) {
+  if (ONLY && !ONLY.includes(s)) continue;
   const seed = 'soak-' + s;
   const state = KP.newGame(seed);
   const scout = KP.DATA.evaluators[2];
@@ -1048,6 +1089,9 @@ for (let s = 0; s < SEEDS; s++) {
   });
   let sawFriction = false;
   let pressureSeen = false;
+  // a pass on her own question (v0.11.51, §144; the owner's ruling, §136: 11): this tool's own note of each one, with
+  // the till's ladder as it stood that morning
+  const ownBook = { passes: 0, urgent: 0 };
   let pressureWarned = false;
   let hypeSeen = false, directiveSeen = false, soloProposed = false;
   let playerTop3 = false;
@@ -1547,7 +1591,16 @@ for (let s = 0; s < SEEDS; s++) {
           // her own questions (v0.11.27, §119): this bot steers toward none of
           // them, so it answers each by a hash of the week it was asked, and
           // both answers are measured (the other tools' bots always promise)
-          KP.answerMeeting(state, KP.hash01([state.seed, 'botOwn', q.week].join('|')) < 0.5 ? 0 : 1);
+          const pick = KP.hash01([state.seed, 'botOwn', q.week].join('|')) < 0.5 ? 0 : 1;
+          // a pass costs nothing, by this tool's own rule, but the quarter's while the red weeks are running
+          const behind = !!(state.red && state.red.weeks > 0), was = state.trust, stale = KP.execOwnOvertaken(state, q);
+          KP.answerMeeting(state, pick);
+          if (pick === 1 && !stale) {
+            const due = q.type === 'execQuarter' && behind ? 1 : 0;
+            ownBook.passes++; ownBook.urgent += due;
+            guard(was - state.trust === Math.min(due, was), seed + ' wk ' + state.week + ': a pass on her own question cost ' + (was - state.trust) + ', and by this tool’s own rule it costs ' + due +
+              ' (' + q.type + ', ' + (behind ? 'the red weeks running' : 'no red week running') + ')');
+          }
         } else {
           KP.answerMeeting(state, 0);
         }
@@ -2596,7 +2649,7 @@ for (let s = 0; s < SEEDS; s++) {
       if (up.asked >= 1) tally.ownAsked++;
       if (up.met >= 1) tally.ownKept++;
       if (up.missed >= 1) tally.ownBroken++;
-      ['asked', 'promised', 'passed', 'passedTwice', 'overtaken', 'met', 'missed', 'void'].forEach(k => { upSum[k] = (upSum[k] || 0) + up[k]; });
+      ['asked', 'promised', 'passed', 'passedTwice', 'passedUrgent', 'overtaken', 'met', 'nextDoor', 'missed', 'void'].forEach(k => { upSum[k] = (upSum[k] || 0) + up[k]; });
       upSum.open = (upSum.open || 0) + openOwn.length;
       OWN_T.forEach(k => {
         const row = upSum.types[k] = upSum.types[k] || { asked: 0, met: 0, missed: 0 };
@@ -2606,7 +2659,11 @@ for (let s = 0; s < SEEDS; s++) {
       guard(up.met + up.missed + up.void + openOwn.length <= up.promised, seed + ' more verdicts on her own promises than promises: ' + [up.promised, up.met, up.missed, up.void, openOwn.length].join('/'));
       guard(openOwn.length <= 1, seed + ' ' + openOwn.length + ' of her own promises stand at once');
       guard(openOwn.every(c => c.execName === state.executive.name), seed + ' a promise made to another chair’s question is still on the clock');
-      guard(up.passedTwice <= Math.max(0, up.passed - 1), seed + ' a first pass was charged: ' + up.passed + ' passes, ' + up.passedTwice + ' charged');
+      guard(up.passedTwice <= Math.max(0, up.passed - 1), seed + ' a first pass was counted as a second: ' + up.passed + ' passes, ' + up.passedTwice + ' a second in a row');
+      // the ledger's counts held to this tool's own notes (v0.11.51, §144)
+      guard(up.passed === ownBook.passes && up.passedUrgent === ownBook.urgent, seed + ' the ledger counts ' + up.passed + ' passes and ' + up.passedUrgent + ' with the red weeks running, and this tool noted ' + ownBook.passes + ' and ' + ownBook.urgent);
+      guard(up.nextDoor === (SOUND.by.get(state) || { nextDoor: 0 }).nextDoor, seed + ' the ledger counts ' + up.nextDoor + ' promises kept next door to the sound, and this tool saw ' + (SOUND.by.get(state) || { nextDoor: 0 }).nextDoor);
+      ownSum.passes += ownBook.passes; ownSum.urgent += ownBook.urgent;
       // the annual review (v0.11.28, §120): every review is counted under
       // one band, the band is the one its trust falls in, and the file
       // keeps the latest twelve in order
@@ -3403,10 +3460,15 @@ console.log('the letterhead: staff calls ' + (wallSum.calls || 0) + ' · from a 
 console.log('the truce: a head called ' + (wallSum.truceCalls || 0) + ' times · shaken on ' + (wallSum.truces || 0) + ' · declined or unanswered ' + (wallSum.truceDeclined || 0) +
   ' · broken by a signing ' + (wallSum.trucesBroken || 0) + ' · ran their year ' + (wallSum.trucesRun || 0) + ' · in force at the end ' + (wallSum.truceOn || 0));
 console.log('her own questions: asked ' + (upSum.asked || 0) + ' · put on the record ' + (upSum.promised || 0) + ' · passed ' + (upSum.passed || 0) +
-  ' (a second in a row, charged ' + (upSum.passedTwice || 0) + ') · overtaken before the answer ' + (upSum.overtaken || 0) + ' · kept ' + (upSum.met || 0) + ' · broken ' + (upSum.missed || 0) +
+  ' (a second in a row ' + (upSum.passedTwice || 0) + ', none charged · with the red weeks running ' + (upSum.passedUrgent || 0) + ', each charged) · overtaken before the answer ' + (upSum.overtaken || 0) +
+  ' · kept ' + (upSum.met || 0) + ' (in part, next door to the year’s sound ' + (upSum.nextDoor || 0) + ') · broken ' + (upSum.missed || 0) +
   ' · set aside ' + (upSum.void || 0) + ' · on the clock at the end ' + (upSum.open || 0));
 console.log('  by question: ' + Object.keys(upSum.types).map(k => ({ execQuarter: 'the quarter', execVoice: 'the voice', execByName: 'the name', execSound: 'the sound', execRemember: 'the record' }[k] || k) +
   ' asked ' + upSum.types[k].asked + ' (kept ' + upSum.types[k].met + ', broken ' + upSum.types[k].missed + ')').join(' · '));
+console.log('a pass without a toll (v0.11.51): ' + ownSum.passes + ' passes on her own questions, each held to this tool’s own note of the till’s ladder that morning · ' + ownSum.urgent +
+  ' with the red weeks running, each charged one · ' + (ownSum.passes - ownSum.urgent) + ' charged nothing');
+console.log('the sound next door (v0.11.51): ' + SOUND.judged + ' promises on the sound of the year judged, each held to this tool’s own reading of the record · ' + SOUND.inIt + ' in the year’s sound, kept · ' +
+  SOUND.nextDoor + ' next door, kept in part · ' + SOUND.far + ' further off, broken · ' + SOUND.noRecord + ' with no record inside the year · ' + SOUND.setAside + ' set aside');
 console.log('the annual review: given ' + (upSum.reviews || 0) + ' times · ' + ['trusted', 'solid', 'watched', 'thin', 'gone'].map(k => k + ' ' + ((upSum.bands || {})[k] || 0)).join(' · '));
 console.log('the company’s file: chapters ' + (fileSum.chapters || 0) + ' · under this desk ' + (fileSum.mine || 0) + ' · ' +
   ['debut', 'numberOne', 'trophy', 'award', 'daesang', 'settlement', 'lastBow', 'fold', 'chair', 'breakthrough', 'red', 'redCleared'].map(k => k + ' ' + (fileSum['k_' + k] || 0)).join(' · '));
