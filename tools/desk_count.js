@@ -35,6 +35,8 @@ const ONE_SHOTS = [
   'labelBirthday',
   // a call from outside left unanswered (§133): the chair is gone, said once
   'seatLapsed',
+  // and a road manager's (§145): the van has a new driver, and the letter says what the silence did
+  'vanLapsed',
   // a chair's yearly word (§134): once a year, the week it was taken
   'seatYear',
 ];

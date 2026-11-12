@@ -22,6 +22,8 @@
     state.staffLedger2 = state.staffLedger2 ||
       { candidates: 0, hires: 0, passes: 0, repRises: 0, poachCalls: 0,
         raises: 0, walked: 0, notes: 0, meshNotes: 0 };
+    // a call left unanswered (v0.11.52, §145) — healed lazily
+    if (state.staffLedger2.unanswered == null) { state.staffLedger2.unanswered = 0; state.staffLedger2.unansweredCharged = 0; }
     // the help wanted (v0.10.11) — fields added post-ship, healed lazily
     if (state.staffLedger2.searches == null) {
       state.staffLedger2.searches = 0;
@@ -330,6 +332,10 @@
   const CORRIDOR = { candid: ['I know what the corridor says about my method and this house. The corridor may be right.',
     'My way of working and this building have not met in the middle yet. I can hear that as well as anyone.'],
     careful: ['There has been talk about fit. I would rather let the work answer it.', 'I am aware of the talk about method.'] };
+  // a call for another chair that the desk left unanswered (v0.11.52, §145): what the ones still sat say of it
+  const WATCHED = name => ({ candid: ['An offer for ' + name + ' sat on your desk last year until it answered itself. I watched that from down the hall.',
+    name + ' went last year on a call nobody answered. I have wondered since what mine would get.'],
+    careful: [name + '’s departure last year has been noted down the hall.', 'The building noticed how ' + name + '’s offer ended.'] });
   // and the chair's own time here, by how the chair is in a room:
   const FIRST = { warm: ['I am new here, and the building let me in faster than I expected.', 'A first year is mostly learning names. I know them now.'],
     reserved: ['I am still new here. I am still finding where things are kept.', 'A first year. I have kept to my room and learned the hours.'] };
@@ -400,7 +406,8 @@
     const first = turned(cell, k)[0].replace('¤', whole ? 'last year' : 'in my weeks here');
     const sat = state.week - (st.since || 0);
     // what is most telling of the chair's own year, the first that the file holds
-    const own = inYear(st.keptWeek) ? KEPT[voice] : inYear(st.postedWeek) ? POSTED[voice] : inYear(st.meshNoted) ? CORRIDOR[voice]
+    const own = inYear(st.keptWeek) ? KEPT[voice] : inYear(st.postedWeek) ? POSTED[voice]
+      : st.sawUnanswered && inYear(st.sawUnanswered.week) ? WATCHED(st.sawUnanswered.name)[voice] : inYear(st.meshNoted) ? CORRIDOR[voice]
       : sat <= Y && (st.since || 0) > KP.deskSince(state) ? FIRST[manner]   // not the chairs a building opened with: only one who came to a house already running
       : null;
     // then a long tenure and how they work, which take the years in turn
@@ -873,6 +880,81 @@
   const callFrom = (state, sc) => { const r = callHouse(state, sc); return r && KP.signedBy ? KP.signedBy(state, r) : sc.rivalName; };
   const callWhy = (state, sc) => { const r = callHouse(state, sc); const t = r && KP.parkWhyText ? KP.parkWhyText(state, r, sc.why) : ''; return t ? ' ' + t : ''; };
   const onBooks = (state, sc, kind) => { const r = callHouse(state, sc); if (r && KP.recordHouse) KP.recordHouse(state, r.short, kind); };
+  // ---- a call left unanswered (v0.11.52, §145; the owner's ruling, §136: 13) ------------------------------------
+  // What it weighs is never one number for every call, and the close weighs what the card said. Who was called:
+  // they matter to this house when a chair has a credit here, or a road manager has been with the group a year or
+  // more, each as they stood the week the call came. What stood between them and the desk: the desk is bound to
+  // one it had kept before with a raise.
+  // And where the house stood: with a till that could not have matched the offer, nobody upstairs or down the hall
+  // holds the silence against the desk. The till is the one the desk saw. A call closes inside a week, after that
+  // week's takings and bills have moved, so the till at the close is not what the desk had in hand when it said
+  // nothing. It is read each time a week's work is done, which is the morning the desk next sees the call, and
+  // clear of what the house owes (§86). A call that held its raise on one such morning is marked, and the mark
+  // stays. A label the desk founded is weighed as any house is: it has a chair and a board upstairs (§73)
+  KP.callTillHolds = function (state, sc) {
+    return state.budget - ((state.red && state.red.arrears) || 0) >= KP.raiseCostFor(state, sc);
+  };
+  KP.callLeft = function (state, sc) {
+    const C = KP.C.HIRES.CALL;
+    // who they were to this house the week the call came: the card says what silence would weigh, and the close
+    // weighs the same person three weeks on
+    const at = sc.week != null ? sc.week : state.week;
+    let name = null, matters = false, bound = false;
+    if (sc.groupId) {
+      const g = KP.groupById(state, sc.groupId), m = g && g.manager;
+      if (!m) return null;
+      name = m.name; matters = at - m.since >= KP.C.WEEKS_PER_YEAR; bound = !!m.countered;
+    } else {
+      const st = (state.seats || {})[sc.seatId];
+      if (!st) return null;
+      name = st.name; matters = KP.seatCredit(state, st, undefined, at).n > 0; bound = !!st.keptWeek;
+    }
+    const excused = sc.tillHeld ? null : 'till';
+    const weighs = !excused && (matters || bound);
+    return { who: sc.groupId ? 'manager' : 'chair', name, matters, bound, excused, weighs,
+      trust: !weighs ? 0 : (matters ? C.mattersTrust : 0) + (bound ? C.boundTrust : 0) };
+  };
+  // what keeping the one called costs: the raise, and half as much again for a chair who watched another's call go
+  // unanswered within the year. A chair pays it once at most: the quiet after a call (poachCooldown) is longer than
+  // what is left of that year
+  KP.raiseCostFor = function (state, sc) {
+    const HR = KP.C.HIRES;
+    const st = sc && !sc.groupId ? (state.seats || {})[sc.seatId] : null;
+    const saw = !!(st && st.sawUnanswered) && state.week - st.sawUnanswered.week <= HR.CALL.memoryWeeks;
+    return saw ? Math.round(HR.raiseCost * HR.CALL.keepMore) : HR.raiseCost;
+  };
+  // the silence, as the letter that says they have gone says it
+  const leftSaid = (state, left, others) => {
+    if (!left) return '';
+    if (left.excused === 'till') return ' The till could not have matched it, and nobody holds the silence against you.';
+    if (!left.weighs) return '';
+    const upstairs = ' ' + state.executive.name + ' noticed that nobody answered' + (left.bound ? ', and that you had kept ' + left.name + ' once before' : '') + '. Trust ' + left.trust + '.';
+    return upstairs + (left.who === 'manager' ? ' The members will remember who said nothing: it is on each of their files.'
+      : others ? ' The chairs down the hall watched it happen.' : '');
+  };
+  // and on the card, before the answer: where leaving it unanswered would be noticed
+  const silenceSaid = (state, sc) => {
+    const left = KP.callLeft(state, sc);
+    if (!left || !left.weighs) return '';
+    return ' Left unanswered, it will be noticed upstairs, and' + (left.who === 'manager' ? ' in the van.' : ' down the hall.');
+  };
+  // what the silence does: upstairs, and among the people who worked beside the one who went
+  function callLeftLands(state, sc, left) {
+    const led = ledger(state);
+    led.unanswered++;
+    if (!left || !left.weighs) return 0;
+    led.unansweredCharged++;
+    state.trust = KP.clamp(state.trust + left.trust, 0, 100);
+    if (left.who === 'manager') {
+      const g = KP.groupById(state, sc.groupId);
+      (g ? g.members : []).forEach(id => KP.recordDirected(state, id, 'managerUnanswered'));
+      return g ? g.members.length : 0;
+    }
+    const S = state.seats || {};
+    const others = Object.keys(S).filter(k => S[k] && k !== sc.seatId);
+    others.forEach(k => { S[k].sawUnanswered = { week: state.week, name: left.name }; });
+    return others.length;
+  }
   KP.registerScene('seatPoach', {
     title: (state, sc) => {
       if (sc.groupId) {   // the road manager (v0.10.43): one scene for every chair
@@ -890,7 +972,7 @@
         if (!g || !m) return '';
         return callFrom(state, sc) + ' wants ' + m.name + ' — the person who knows ' + g.name +
           '’s van seating, coffee orders, and bad days better than the members’ own families do. Money keeps ' +
-          (m.name.split(' ')[0]) + ' (' + KP.C.HIRES.raiseCost + '); nothing else will.' + callWhy(state, sc);
+          (m.name.split(' ')[0]) + ' (' + KP.raiseCostFor(state, sc) + '); nothing else will.' + callWhy(state, sc) + silenceSaid(state, sc);
       }
       const st = (state.seats || {})[sc.seatId];
       const seat = KP.C.HIRES.SEATS.find(x => x.id === sc.seatId);
@@ -903,13 +985,14 @@
         (!st || read ? 'This is what happens when the results carry a name: the industry reads your credits and hires your people.' + (read ? ' The credit it read: ' + read + '.' : '')
           : named ? st.name + ' has no credit at this house yet: the call is for the name they came in with.'
           : 'The call is not for a credit or a name: a house this far behind has its chairs called.') +
-        ' A raise keeps the chair (' + KP.C.HIRES.raiseCost +
-        '); pride keeps nothing.' + callWhy(state, sc);
+        ' A raise keeps the chair (' + KP.raiseCostFor(state, sc) +
+        '); pride keeps nothing.' + (st && KP.raiseCostFor(state, sc) > KP.C.HIRES.raiseCost ? ' ' + st.name + ' watched ' + st.sawUnanswered.name + '’s call go unanswered, and is dearer to keep for it.' : '') +
+        callWhy(state, sc) + silenceSaid(state, sc);
     },
     // the raise is offered only when the account can pay it (audit
     // v0.11.3: an unaffordable "Match it" fell through to the walk)
-    options: (state) => (state.budget >= KP.C.HIRES.raiseCost
-      ? [{ id: 'raise', label: 'Match it · ' + KP.C.HIRES.raiseCost }] : [])
+    options: (state, sc) => (state.budget >= KP.raiseCostFor(state, sc)
+      ? [{ id: 'raise', label: 'Match it · ' + KP.raiseCostFor(state, sc) }] : [])
       .concat([{ id: 'walk', label: 'Wish them well' }]),
     resolve: (state, sc, optionId) => {
       const led = ledger(state);
@@ -917,9 +1000,10 @@
         const g = KP.groupById(state, sc.groupId);
         const m = g && g.manager;
         if (!g || !m) return { toast: 'The van had already found a new driver.' };
-        if (optionId === 'raise' && state.budget >= KP.C.HIRES.raiseCost) {
-          state.budget -= KP.C.HIRES.raiseCost;
-          if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -KP.C.HIRES.raiseCost);
+        const cost = KP.raiseCostFor(state, sc);
+        if (optionId === 'raise' && state.budget >= cost) {
+          state.budget -= cost;
+          if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -cost);
           m.countered = state.week;
           led.raises++;
           onBooks(state, sc, 'weKeptOurStaff');
@@ -933,9 +1017,10 @@
       }
       const st = (state.seats || {})[sc.seatId];
       if (!st) return { toast: 'The chair had already emptied.' };
-      if (optionId === 'raise' && state.budget >= KP.C.HIRES.raiseCost) {
-        state.budget -= KP.C.HIRES.raiseCost;
-        if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -KP.C.HIRES.raiseCost);
+      const cost = KP.raiseCostFor(state, sc);
+      if (optionId === 'raise' && state.budget >= cost) {
+        state.budget -= cost;
+        if (KP.ledgerFlow) KP.ledgerFlow(state, 'signings', -cost);
         led.raises++;
         st.keptWeek = state.week;   // the chair remembers the week the desk kept it (v0.11.46, §139): its yearly word says so
         onBooks(state, sc, 'weKeptOurStaff');
@@ -956,10 +1041,13 @@
       if (sc.groupId) {
         const g = KP.groupById(state, sc.groupId);
         if (!g || !g.manager) return null;
+        const left = KP.callLeft(state, sc);   // read while the van is still theirs (v0.11.52, §145)
         const m = managerWalks(state, g, sc);
         onBooks(state, sc, 'theyHiredOurStaff');
-        return { kind: 'company', priority: 'high', groupId: g.id,
-          text: 'The counter-offer window closed unanswered, and ' + m.name + ' signed elsewhere. The members found out from the group chat. The silence in the van this week has a new-staff-orientation quality to it.' };
+        callLeftLands(state, sc, left);
+        // the letter says what the silence did, and nothing else does: it is one the week cannot cut (v0.11.52, §145)
+        return { kind: 'company', ind: 'vanLapsed', priority: 'critical', groupId: g.id,
+          text: 'The counter-offer window closed unanswered, and ' + m.name + ' signed elsewhere. The members found out from the group chat. The silence in the van this week has a new-staff-orientation quality to it.' + leftSaid(state, left, 0) };
       }
       const st = (state.seats || {})[sc.seatId];
       if (!st) return null;
@@ -967,11 +1055,19 @@
       // the letter is one the week's budget cannot cut
       const seat = KP.C.HIRES.SEATS.find(x => x.id === sc.seatId);
       const leaves = KP.seatLeavesWith(state, st);
+      const left = KP.callLeft(state, sc);   // read while the chair is still theirs (v0.11.52, §145)
       KP.seatGoes(state, st, 'lapsed', { to: sc.rivalName });
       ledger(state).walked++; delete state.seats[sc.seatId]; onBooks(state, sc, 'theyHiredOurStaff');
+      const others = callLeftLands(state, sc, left);
       return { kind: 'company', ind: 'seatLapsed', priority: 'critical',
-        text: 'The offer sat on the desk until it answered itself: ' + st.name + ' signed with ' + sc.rivalName + ', and the ' + seat.label + ' chair is open.' + leaves };
+        text: 'The offer sat on the desk until it answered itself: ' + st.name + ' signed with ' + sc.rivalName + ', and the ' + seat.label + ' chair is open.' + leaves + leftSaid(state, left, others) };
     },
+  });
+
+  // the till a call stood beside (v0.11.52, §145): when the week's work is done, each call still on the Desk is
+  // marked if the till holds its raise. It is the week's last rail, so it reads the till the desk wakes to
+  KP.registerWeekly('callTill', 995, function (state) {
+    (state.scenes || []).forEach(sc => { if (sc.kind === 'seatPoach' && !sc.tillHeld && KP.callTillHolds(state, sc)) sc.tillHeld = true; });
   });
 
   // ---- the week ----------------------------------------------------------

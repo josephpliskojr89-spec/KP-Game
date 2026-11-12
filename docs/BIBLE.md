@@ -18304,6 +18304,378 @@ on two quote marks where it begins with a song’s title, which is
 logged too. *The owner’s to see*: the assumptions above.
 
 
+## §145 The call left unanswered (SHIPPED v0.11.52 — the owner's ruling, §136: decision 13)
+
+The ninth piece built on the directive (§136). Owner: *"Add
+contextual trust and relationship consequences when the player
+ignores a poaching approach. Consequences should reflect the
+employee's importance, existing relationships, and circumstances
+rather than imposing an arbitrary universal penalty."* A rival
+house calls for one of ours, a chair or a road manager, and the
+call stands on the Desk for its weeks. Left unanswered, they went.
+A road manager's group lost three points of morale. Nothing else
+followed, and nobody was said to have noticed.
+
+**Counted first**, on the tree before this piece.
+
+| in the census’s 200 careers, on v0.11.51 | |
+|---|---|
+| calls from a rival house for one of ours | 529, in 199 careers |
+| for a road manager | 413: 324 matched, 86 wished well, 3 still open at the end |
+| for a chair | 116: 88 matched, 28 wished well |
+| left unanswered | none |
+| road managers a year or more with the group | 265 of 413 |
+| road managers the desk had kept before | 149 |
+| chairs with a credit at this house | 94 of 116 |
+| chairs the desk had kept before | 4 |
+| calls that came with the till short of the raise | 46 |
+
+The census’s bot answered every call, so what silence did was
+measured nowhere. For this piece the bot leaves about one call in
+seven on the desk, chosen by a hash of the week the call came. The
+long haul’s bot still answers every call: 75 calls in eight of its
+eleven careers, and none left.
+
+**What the silence weighs.** `KP.callLeft`. It is never one number
+for every call. Three things are read.
+
+- *Who was called.* They matter to this house when a chair has a
+  credit here, by the count its résumé reads (§133), or when a road
+  manager has been with the group a year or more. Both are read as
+  they stood the week the call came.
+- *What stood between them and the desk.* The desk is bound to one
+  it had kept before with a raise.
+- *Where the house stood.* A desk that could not have paid the
+  raise is not held to have ignored the offer. The till is read as
+  the desk saw it. Each time a week's work is done, a call still on
+  the Desk is marked if the till holds its raise, clear of what the
+  house owes (§86). A call that was never marked weighs nothing,
+  upstairs or beside the one who went.
+
+| the one called, the week the call came | the desk had kept them before | a morning held the raise | upstairs |
+|---|---|---|---|
+| matters to this house | yes | yes | −2 |
+| matters to this house | no | yes | −1 |
+| does not yet matter here | yes | yes | −1 |
+| does not yet matter here | no | yes | nothing |
+| anyone | either | no | nothing |
+
+- *An answer costs nothing.* "Wish them well" and "Match it" are
+  answers. Neither is noticed upstairs.
+- *A label the desk founded is weighed as any house is.* It has a
+  chair and a board upstairs (§73), and a trust that other rules
+  already move.
+- *The close weighs what the card said.* The person is read as of
+  the week the call came, and the till as of the mornings the call
+  stood, so nothing that moves inside the week a call closes can
+  change what the silence weighs.
+
+**Upstairs.** One point where the one called matters here, and one
+more where the desk was bound. The letter that says they have gone
+says who noticed: "CEO Kang Min-ho noticed that nobody answered.
+Trust -1." Where the desk was bound it says so: "CEO Kang Min-ho
+noticed that nobody answered, and that you had kept Coach Shin once
+before. Trust -2."
+
+**In the van.** A road manager's members each take a line on their
+file, the lightest the ledger carries: "the road manager left on an
+offer nobody answered". It lowers her standing with the office by
+one, fades as every line does, and reads under "The ledger between
+you" on her page. The group loses the three points of morale it
+always did.
+
+**Down the hall.** Every chair still sat notes whose call it was,
+and the week.
+
+- *The yearly word.* A chair with that note says so in its word on
+  the year (§134, §139), in its own voice. A candid chair: "An
+  offer for Coach Shin sat on your desk last year until it answered
+  itself. I watched that from down the hall." A careful one: "Coach
+  Shin's departure last year has been noted down the hall." There
+  are two wordings for each voice, and no chair of one letter
+  repeats another: with six chairs who watched, four speak of it
+  and the other two say something of their own. A raise the desk
+  gave that chair, or a posting of its seat, is said before it, and
+  the talk about its method after.
+- *The dearer raise.* For 48 weeks, keeping a chair who watched
+  costs half as much again: 38 where the raise is 25.
+  `KP.raiseCostFor`. The card says why: "Coach Im watched Seo
+  Jung-ho's call go unanswered, and is dearer to keep for it." The
+  button reads "Match it · 38", and a till that holds 25 and not 38
+  is offered the goodbye alone. A chair pays it once at most: the
+  quiet a house is left after a call is longer than what is left of
+  that year.
+
+**The card says so before the answer.** A call whose silence would
+weigh ends "Left unanswered, it will be noticed upstairs, and down
+the hall." For a road manager it ends "in the van." A call whose
+silence would weigh nothing says nothing of it.
+
+**The road manager's letter cannot be cut.** It was a letter a
+crowded week could cut. It now carries the only word of what the
+silence cost, so it is one the week cannot cut, as a chair's has
+been since §133, and the tools hold both to the Desk.
+
+**Old files.** One small migration. A call open on the Desk when an
+older file was saved is marked from the till the file was saved
+with, which is the till the desk sees when the file is opened.
+Nothing else is changed: the staff ledger's two new counts start at
+nought, and a chair on an older file has watched nothing.
+
+**Measured**, on the tree as shipped.
+
+| in the census’s 200 careers, on this tree | |
+|---|---|
+| calls from a rival house for one of ours | 532 |
+| answered | 446: 352 matched, 94 wished well |
+| still open at the end | 3 |
+| left unanswered | 83: 63 for a road manager, 20 for a chair |
+| of those, two points upstairs | 16 |
+| one point | 29 |
+| nothing: no morning held the raise | 4 |
+| nothing: the one called did not yet matter here | 34 |
+| members’ files that took the line | 136 |
+| chairs who noted it | 67 |
+| raises paid | 352, none of them dearer |
+
+More than four in ten of the calls left cost nothing, and each for
+a reason the letter can give. The census’s bot changes its chairs
+often and a chair is rarely called, so in its 200 careers no chair
+who had watched was called again inside the year, and no chair the
+desk had kept before was left. Both are measured in the trial’s own
+world, where a call for a chair comes six times as often and half
+of all calls are left: 328 calls left, 31 owing two points, 192 one
+and 105 nothing. Twelve of the two-point calls were for a chair the
+desk had kept before. Of 258 raises paid there, 22 were dearer, two
+of them in the last week the chair remembers, and five were paid
+after that year had run out and cost 25.
+
+**The till, read two ways.** I first read the till the day a call
+closes. A call closes inside a week, after that week’s takings and
+bills have moved, so that till is not the one the desk had in hand
+when it said nothing. In the census the till at the close stood on
+the other side of the raise from the till the desk saw in five of
+the 83 calls left, and none of those would have weighed either way.
+In the trial’s world it did in 25 of 328, and eleven of those would
+have weighed: two that the first reading would have charged to a
+desk that never once had the raise in hand, and nine it would have
+let off though the desk had had it. The till is now read when each
+week’s work is done, clear of what the house owes.
+
+**Who they were, and the red weeks.** Three road managers in the
+census turned a year with the group while their call stood, and two
+chairs had their first record at the house come out. Read as they
+stood the week the call came, none is weighed, and the card had
+said nothing of silence to the desk. Six calls stood a morning with
+arrears on the file, and three of them never stood one with the
+raise clear of the arrears: they weighed nothing. One call came
+with the creditors’ letters out. That house cleared what it owed
+the next week and woke to 391 in the till, left the call where it
+was, and was charged one point.
+
+**What moved.** To tell the rule from the bot’s new silence, each
+of the census’s 200 careers was played twice under this tree’s bot,
+which leaves the same calls: on v0.11.51, and on this tree. There
+the 83 calls left cost nothing. Here 45 careers hold a close that
+cost something. 152 careers end on the same file but for the
+ledger’s two new counts. 33 differ only where the rule writes, and
+in the two books that read trust back: trust, the chairs’ notes,
+the members’ files, the mark on a call still open, the letter the
+record keeps, the annual review and the drift. 15 played on
+differently from there: a point at the desk moves a pitch or a
+debut by a week, and the career takes another course. Trust ends
+lower in 24 careers and higher in three. Those three, and every
+move of more than two points, are among the careers that took
+another course. The bot’s new silence alone, on v0.11.51, changes
+the file that 70 of the 200 careers end on. So against v0.11.51 as
+shipped, whose bot answered every call, 138 of the census’s 365
+rows moved, none by more than seven: that is the bot’s silence and
+the rule together. The long haul’s bot answers every call, and its
+eleven careers read as they did, line for line.
+
+**The tools' books.** The census stands either side of a call's
+answer and of its close. It keeps its own notes: whom the desk has
+kept with a raise, which chairs watched a call go unanswered and
+when, and on each morning a call stands whether the till, clear of
+what the house owes, holds the raise. At a close it reads off the
+file who was called the week the call came, by its own count: a
+chair's credit from the house's records, its studio's works or its
+roster, and a road manager's weeks with the group. What the close
+did upstairs, to the members' files and to the chairs down the hall
+is held to that reading, and so are the letter's words and the mark
+on the call. A raise is held to the tool's own note of what the
+chair had watched. The staff ledger's two counts are held to the
+tool's own, career by career.
+
+Over every career it plays the tool stood at the close of 83 calls
+left unanswered: 16 that owed two points, 29 one and 38 nothing,
+four for a call that stood no morning with its raise and 34 for one
+who did not yet matter. It saw 136 members’ files written and 67
+chairs’ notes, and 364 raises paid, each for 25.
+
+The tool was run against twenty-three engines broken on purpose,
+each a small change, in two worlds: the census as it is, on ten
+careers that hold the cases, and the trial’s own world on nine
+more. Nothing charged upstairs. Every chair mattering. The desk’s
+word not counted for a road manager. A road manager mattering from
+the first week. The person read the week the call closes. A call
+that stood no morning with its raise weighed all the same, two
+ways. The till read the day the call closes, as I first had it. No
+call ever marked. A mark taken back when the till falls. The
+silence weighed after the one called has gone. The members’ files
+not written, and written with a heavier line. The chairs’ notes not
+written. The dearer raise not charged, charged to every chair,
+charged for ever, and dropped a week early. The letter not saying
+what it cost, and not saying the till. The desk’s raise not
+remembered, for a road manager and for a chair. The ledger not
+counting. All twenty-three were flagged, each in the words written
+for its case, and on the tree as it stands both sets of careers are
+clean. Seven of them one world could not flag: the census as it is
+holds no dearer raise and no chair the desk had kept, and the
+trial’s nine careers hold no road manager it had kept and no call
+whose till fell between one morning and the next. One reading no
+career tries. No call, in either world, was left with money in the
+till that the arrears would have taken, so the tool’s reading of
+the arrears is held by nothing but the suite’s check of the
+engine’s.
+
+**Assumptions the owner may overrule.**
+
+- *Who matters.* A chair with a credit at this house, and a road
+  manager a year or more with the group, each as they stood the
+  week the call came. A chair called for the name it came in with
+  does not yet matter here.
+- *What binds the desk.* A raise it gave that person before.
+  Nothing else binds it.
+- *The till is the one excuse*, and it is the till the desk saw: on
+  no morning the call stood did it hold the raise, once what the
+  house owed was set aside.
+- *One point each.* One where they matter and one where the desk
+  was bound, so two at most. One is what a meeting stood up costs,
+  and two what a broken promise does.
+- *The members' line is the lightest the ledger has*, and it
+  carries no grudge.
+- *A chair who watched is dearer for 48 weeks, by half.*
+- *The card warns.* It says where silence would be noticed before
+  the player chooses it.
+- *The census's bot now leaves about one call in seven*, chosen by
+  a hash of the week the call came, so that the rule is measured in
+  every release.
+- *The words.* They are mine. Each is written in one place.
+
+**What the checks found, and what I got wrong.**
+
+- Counting found that my rule read the till at the wrong moment. I
+  read it the day a call closes, which is inside a week, after that
+  week’s money has moved. A desk could be charged for money that
+  arrived the week the call closed, and let off for money it had
+  held all three mornings. I stopped the long run, and the till is
+  now read when each week’s work is done, clear of the arrears. The
+  account above says how many calls that changes.
+- I had written a second excuse, for a call that closes with the
+  creditors’ letters out. Counting showed it decided nothing: while
+  the arrears stand the till is not clear, and once they are paid
+  the desk has the money. It is taken out.
+- The card and the close could disagree about who was called. A
+  road manager could turn a year, or a chair’s first record come
+  out, in the weeks a call stood, so that the close weighed a
+  silence the card had said nothing about. Both are read as of the
+  week the call came. In the census that is five of 83 calls left.
+- I had written that a founder answers to nobody upstairs, and
+  exempted a founded label. Reading the founding for the next piece
+  showed that a founded label has a chair and a board (§73), and a
+  trust that other rules move. The exemption was mine and wrong. I
+  stopped the long run a second time and took it out.
+- A raise was to settle what a chair had watched. Nothing was there
+  to settle: the quiet a house is left after a call is longer than
+  what is left of the year a chair remembers, so no chair can be
+  asked for the dearer raise twice. The clause is gone, and the
+  suite holds the two figures to that.
+- The census counted no dearer raise. Two careers looked as if they
+  should have paid one, so I followed them week by week: in both,
+  the chair called the second time had been hired after the first
+  call. The bot changes its chairs often. The dearer raise, and a
+  call left for a chair the desk had kept, are measured in the
+  trial’s own world, which two switches of the trial make.
+- The staff ledger’s two new counts were written and read by
+  nothing. The census now holds them to its own, career by career.
+- The road manager’s letter on a call left unanswered was one a
+  crowded week could cut, and it now carries the only word of what
+  the silence cost. It cannot be cut now.
+- The census named a career in these flags by a number the file
+  keeps, which nobody can read back to a career. It names it by the
+  name it was started under, here and in the flags of §144.
+- The plan for the mutation run was wrong twice in my hands. The
+  first run caught 74 of 76 by name: the other two were caught by
+  the suite, and my plan had also named a second suite that does
+  not hold the number. A later run stopped the suite on one broken
+  engine, where a suite must fail by name: it read an older file
+  without a guard. It reads files through one now.
+- My counting script missed the first morning of the first call in
+  each career, 37 calls of 83. The engine and the census were not
+  affected. The script is corrected and everything recounted.
+- The browser pass was wrong in its fourth part, and the engine was
+  right. I had set the till to ten each morning and expected the
+  silence to be excused. One week ended with the raise in the till,
+  and the call was rightly marked. The part is now a house truly
+  behind on what it owes.
+- Smaller slips of mine, each caught before it wrote anything: four
+  expectations in the suite’s first run and two in the browser
+  pass’s, a background run I detached and lost, and three edit
+  commands that stopped before they wrote anything.
+
+Suite_157 (84), new: the figures and the shape; a chair’s call left
+unanswered, for one with a credit, one the desk had kept, one with
+no credit yet, and one with none whom the desk had kept; the
+letter’s words for each; the person read as of the week the call
+came, each way; a call that stood no morning with its raise, with
+the till full the day it closes, and one that did, with the till
+empty; the creditors’ letters out with money in the till; a label
+the desk founded; the floor; a studio chair and a scout; a chair
+already gone; the same for a road manager, with each member’s file,
+the three points of morale, and the letter landing in a crowded
+week; the rail that reads the till: last of the week, exactly the
+raise and a won short, the mark that stays, the arrears, a file
+with no red counter, the dearer raise, and no other scene marked;
+the rule against the suite’s own table, for chairs and for road
+managers; what the card says in each case, and on the Desk; both
+answers costing nothing; the dearer raise, its 48 weeks, a till
+that holds 25 and not 38, and the raise paid through the books; the
+yearly word in both voices, in its year only, in its place among
+the others, and six chairs who watched with no sentence said twice;
+an older file with a call open, marked from its till, with the till
+good and short; real weeks for a chair, a road manager, a house
+with the creditors’ letters out, and takings that arrive the week a
+call closes; and the tools’ own books. Suite_148 is brought up to
+the new letter. Mutation-checked against 84 broken lines, each
+caught by a named assertion. A real-browser pass (23 checks, no
+page errors): a call for a chair with a credit says on its card
+where silence would be noticed, is left through three real weeks,
+and closes itself with a letter that says who noticed, a point gone
+upstairs, and every chair still sat holding the note; the Record
+tab keeps the call, the answer that was not given and what the
+silence did; a call for one of those chairs then costs 38, says
+why, and is matched with the real button; a road manager’s card
+says the van, and left unanswered its letter lands and the line
+reads on a member’s page; and at a house behind on what it owes the
+card offers the goodbye alone and the letter says nobody holds the
+silence against the desk.
+Battery 157/157, soak 40 clean, census 200 clean, longhaul 11 × 620
+clean, the till audit clean, e2e 137, 32, 41 and 23, the
+thirty-three older browser passes, lockstep 0.11.52.
+
+*Left for the next pieces.* A repair of the Record tab’s titles
+first. Then the career’s record beside the house’s (35, 16), the
+greenlight’s row, the year’s four, and the screen. *Seen on the
+way*: a founded label’s Record tab still lists the reviews and the
+conversations of the house before it, which is the next piece’s to
+mend. The Record tab files a call the desk wished well, or left,
+under “The chair” and not under a name, because the title is read
+after the person has gone: it is logged for its own repair. A
+letter says “Trust -2” where the desk had one point left to lose.
+*The owner’s to see*: the assumptions above.
+
+
 ## §18 Watch items
 
 Re-checked every soak; either fixed or watched, never silently tolerated.
@@ -23047,6 +23419,45 @@ Re-checked every soak; either fixed or watched, never silently tolerated.
 > clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
 > pass (19), lockstep 0.11.51.
 > Rode to main. Next piece: the call left unanswered.
+
+> **0.11.52 — the call left unanswered.** The ninth piece built on
+> the directive (§136: decision 13). §145: a call from a rival house
+> for a chair or a road manager, left on the Desk until it answers
+> itself, is now weighed by who was called. It costs a point
+> upstairs where they matter to this house, a chair with a credit
+> here or a road manager a year with the group, and a point more
+> where the desk had kept them before with a raise. It costs nothing
+> where the desk could not have paid the raise on any morning the
+> call stood. A road manager's members each take the ledger's
+> lightest line. The chairs still sat note it, say so in their
+> yearly word, and for 48 weeks cost 38 to keep where the raise is
+> 25. The card says where silence would be noticed before the
+> answer, and the road manager's letter is now one the week cannot
+> cut. Counted first:
+> in the census’s 200 careers on v0.11.51 there were 529 such calls
+> and the bot answered every one, so the bot now leaves about one in
+> seven. On this tree 83 are left: 16 owe two points, 29 one and 38
+> nothing, four because no morning held the raise and 34 because the
+> one called did not yet matter here.
+> Played under one bot on v0.11.51 and on this tree, 152 of the
+> census’s 200 careers end on the same file but for the ledger’s new
+> counts, 33 differ only where the rule writes, and 15 played on
+> differently from there. 138 of 365 census rows moved against
+> v0.11.51 as shipped, none by more than seven; the long haul reads as
+> it did.
+> Suite_157 new (84); suite_148 brought up; 84 mutations caught by
+> name. The census keeps its own reading of each call left and its own
+> note of each morning and each raise: clean on the tree as it stands
+> in two worlds, and twenty-three broken engines flagged of
+> twenty-three. Counting changed the rule three times before it
+> shipped: the till is read as the desk saw it and not the day a call
+> closes, the person as of the week the call came, and a founded label
+> is weighed as any house is.
+> Battery 157/157, soak 40 clean, census 200 clean, longhaul 11 × 620
+> clean, the till audit clean, e2e 137, 32, 41 and 23, a real-browser
+> pass (23), lockstep 0.11.52.
+> Rode to main. Next piece: the Record tab names who a conversation
+> was with.
 
 > **Planning — the comeback (§91).** Owner: "something that really
 > defines kpop and it's the comeback… a commercial and critical

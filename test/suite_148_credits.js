@@ -40,7 +40,7 @@ const full = c => String(say(() => KP.seatCreditSaid(c)));
 const short = c => String(say(() => KP.seatCreditShort(c)));
 const eras = (n, crowned, warm, quiet, cold, running) => ({ kind: 'eras', n, crowned: crowned || 0, warm: warm || 0, quiet: quiet || 0, cold: cold || 0, running: running || 0 });
 const mailOf = (s, ind) => (s.inbox || []).filter(n => n.ind === ind)[0] || { text: 'no such letter' };
-const call = (seatId, more) => Object.assign({ id: 'sc-call', kind: 'seatPoach', seatId, rivalName: 'Rival House', expiresWeek: 999 }, more || {});
+const call = (seatId, more) => Object.assign({ id: 'sc-call', kind: 'seatPoach', seatId, rivalName: 'Rival House', expiresWeek: 999, tillHeld: true }, more || {});   // one that stood a morning with its raise in the till (v0.11.52, §145)
 const body = (s, sc) => String(say(() => KP.sceneDef('seatPoach').body(s, sc)));
 
 // ---- A. what a chair that works an era is credited with --------------------------------
@@ -149,7 +149,8 @@ const body = (s, sc) => String(say(() => KP.sceneDef('seatPoach').body(s, sc)));
   records(s, [rec(110, 'crowned'), rec(120, 'crowned'), rec(130, 'quiet')]);
   const RAISE = KP.C.HIRES.raiseCost;
   t.eq(body(s, call('vocal')), 'Coach Shin got the call — Rival House, better title, real money. This is what happens when the results carry a name: the industry reads your credits and hires your people. ' +
-    'The credit it read: 3 eras at HCG, 2 of them closed with a trophy. A raise keeps the chair (' + RAISE + '); pride keeps nothing.', 'a chair with credits here: the scene says what the industry read');
+    'The credit it read: 3 eras at HCG, 2 of them closed with a trophy. A raise keeps the chair (' + RAISE + '); pride keeps nothing. Left unanswered, it will be noticed upstairs, and down the hall.',   // the last sentence since v0.11.52 (§145)
+    'a chair with credits here: the scene says what the industry read');
   sit(s, 'dance', 195, { name: 'Coach Nam', tier: 'a name' });
   t.eq(body(s, call('dance')), 'Coach Nam got the call — Rival House, better title, real money. Coach Nam has no credit at this house yet: the call is for the name they came in with. ' +
     'A raise keeps the chair (' + RAISE + '); pride keeps nothing.', 'a chair with none here and a name in the trades: the call is for the name, and the scene does not say the industry read credits');
@@ -217,8 +218,8 @@ const body = (s, sc) => String(say(() => KP.sceneDef('seatPoach').body(s, sc)));
   records(s, [rec(110, 'crowned'), rec(120, 'warm')]);
   const walkedBefore = obj(say(() => KP.hiresLedger(s))).walked || 0;
   const n = obj(say(() => KP.sceneDef('seatPoach').expire(s, call('vocal'))));
-  t.eq(n.text, 'The offer sat on the desk until it answered itself: Coach Shin signed with Rival House, and the head vocal coach chair is open. Coach Shin leaves with this on the résumé: 2 eras at HCG, one of them closed with a trophy.',
-    'a call left unanswered: the chair goes, and a letter says who took them, which chair is open, and what went with them');
+  t.eq(n.text, 'The offer sat on the desk until it answered itself: Coach Shin signed with Rival House, and the head vocal coach chair is open. Coach Shin leaves with this on the résumé: 2 eras at HCG, one of them closed with a trophy. CEO Yoon Da-jung noticed that nobody answered. Trust -1. The chairs down the hall watched it happen.',
+    'a call left unanswered: the chair goes, and a letter says who took them, which chair is open, what went with them, and since v0.11.52 (§145) who noticed');
   t.eq([n.kind, n.ind, n.priority].join('/'), 'company/seatLapsed/critical', 'it is said once, and the week’s budget cannot cut it');
   t.ok(!s.seats.vocal && (KP.hiresLedger(s).walked || 0) === walkedBefore + 1, 'and the chair is open, counted as walked');
   t.eq(js(say(() => KP.sceneDef('seatPoach').expire(s, call('vocal')))), 'null', 'a call for a chair already empty lapses without a word');

@@ -11,6 +11,10 @@ const { loadEngine } = require('../test/load_engine');
 
 const SEEDS = parseInt(process.argv[2] || '40', 10);
 const KP = loadEngine();
+// a flag names its career by the name it was started under: the file keeps only a number (v0.11.52, §145)
+const NAMED = new WeakMap();
+{ const ng = KP.newGame; KP.newGame = function (seed) { const st = ng.apply(this, arguments); NAMED.set(st, String(seed)); return st; }; }
+const careerOf = state => NAMED.get(state) || String(state.seed);
 // the Desk, counted (v0.11.21, §112): what each week wrote and what landed
 const deskCount = require('./desk_count');
 const DESK = deskCount.watch(KP);
@@ -1037,7 +1041,7 @@ const nextDoorTo = (a, b) => { const N = KP.C.TREND.NEIGHBOURS; return a !== b &
     const book = SOUND.by.get(state) || { nextDoor: 0 };
     SOUND.by.set(state, book);
     open.forEach(o => {
-      const got = o.c.resolved || null, at = state.seed + ' wk ' + state.week + ': ';
+      const got = o.c.resolved || null, at = careerOf(state) + ' wk ' + state.week + ': ';
       if (got !== o.owed) { violations.push(at + 'a promise on the sound of the year reads “' + got + '”, and by this tool’s own reading of the record it is owed “' + o.owed + '”' + (o.rel ? ' (“' + o.rel.songTitle + '”, ' + o.rel.conceptId + ')' : ' (no record)')); return; }
       if (!got) return;
       SOUND.judged++;
@@ -1070,9 +1074,94 @@ function botRenewal(state, sc) {
   return pick;
 }
 
+// a call left unanswered (v0.11.52, §145; the owner's ruling, §136: 13). This tool stands either side of a call's
+// answer and of its close. It keeps its own notes: who the desk has kept with a raise, and which chairs watched a
+// call go unanswered and when. At a close it reads off the file who was called the week the call came, by its own count: a chair's credit
+// from the house's records, its studio's works or its roster, a road manager's weeks with the group; and where the
+// house stood: whether the till, clear of what the house owed, held the raise on any morning the call stood, by
+// the tool's own note of each morning. What the close then did upstairs, to the members' files and to the chairs
+// down the hall is held to that reading, and so is what the letter says. A raise is held to the tool's own note
+// of what the chair had watched
+const CALLS = { left: 0, two: 0, one: 0, till: 0, light: 0, files: 0, notes: 0, raises: 0, dearer: 0, by: new WeakMap() };
+{
+  const def = KP.sceneDef('seatPoach');
+  const Y = KP.C.WEEKS_PER_YEAR, RAISE = 25, DEARER = 38, YEAR_OF_IT = 48;
+  const book = state => { if (!CALLS.by.has(state)) CALLS.by.set(state, { kept: {}, watched: {}, held: {}, left: 0, weighed: 0 }); return CALLS.by.get(state); };
+  const keyOf = (state, sc) => (sc.groupId ? 'van:' + sc.groupId + ':' + ((KP.groupById(state, sc.groupId) || {}).manager || {}).name : 'chair:' + ((state.seats || {})[sc.seatId] || {}).id);
+  // a chair's credit at this house, counted here: the records out since the chair was taken, the works a studio
+  // chair has made, or the roster signed on the scout's watch
+  const credited = (state, st, by) => {
+    const seat = KP.C.HIRES.SEATS.find(x => x.id === st.seatId) || {};
+    if (seat.studio) return (st.works || []).some(w => w.week > st.since && w.week <= by);
+    if (st.seatId === 'scout') return state.roster.some(id => state.people[id] && state.people[id].signedWeek > st.since && state.people[id].signedWeek <= by);
+    return KP.groups(state).some(g => (g.releases || []).some(r => r.week > st.since && r.week <= by));
+  };
+  const name0 = (m, st) => (m ? m.name : st.name);
+  const costOf = (state, sc) => { const st = sc.groupId ? null : (state.seats || {})[sc.seatId]; const w = st ? book(state).watched[st.id] : null;
+    return w != null && state.week - w <= YEAR_OF_IT ? DEARER : RAISE; };
+  // the tool's own note of each morning: when a week's work is done, whether the till, clear of what the house
+  // owes, holds the raise of each call still on the Desk
+  const advance = KP.advanceWeek;
+  KP.advanceWeek = function (state) {
+    const r = advance.apply(this, arguments);
+    const b = book(state), owes = state.red ? state.red.arrears || 0 : 0;
+    (state.scenes || []).forEach(sc => { if (sc.kind === 'seatPoach' && state.budget - owes >= costOf(state, sc)) b.held[sc.id] = true; });
+    return r;
+  };
+  const resolve = def.resolve, expire = def.expire;
+  def.resolve = function (state, sc, optionId) {
+    const b = book(state), k = keyOf(state, sc), cost = costOf(state, sc), till = state.budget, there = sc.groupId ? !!(KP.groupById(state, sc.groupId) || {}).manager : !!(state.seats || {})[sc.seatId];
+    const r = resolve.apply(this, arguments);
+    if (optionId === 'raise' && there && till >= cost) {
+      CALLS.raises++; if (cost === DEARER) CALLS.dearer++;
+      if (Math.round(till - state.budget) !== cost) violations.push(careerOf(state) + ' wk ' + state.week + ': a raise to keep one of ours cost ' + Math.round(till - state.budget) + ', and by this tool’s own note of what they had watched it costs ' + cost);
+      b.kept[k] = state.week;
+    }
+    return r;
+  };
+  def.expire = function (state, sc) {
+    const b = book(state), k = keyOf(state, sc), at = careerOf(state) + ' wk ' + state.week + ': ';
+    const g = sc.groupId ? KP.groupById(state, sc.groupId) : null, m = g && g.manager, st = sc.groupId ? null : (state.seats || {})[sc.seatId];
+    if (!m && !st) return expire.apply(this, arguments);
+    const matters = m ? sc.week - m.since >= Y : credited(state, st, sc.week), bound = b.kept[k] != null;   // who they were the week the call came
+    const held = !!b.held[sc.id];
+    if (!!sc.tillHeld !== held) violations.push(at + 'the call for ' + name0(m, st) + ' is marked as one the till ' + (sc.tillHeld ? 'held' : 'never held') + ' the raise for, and this tool’s own note of each morning says the other');
+    const excused = held ? null : 'till';
+    const weighs = !excused && (matters || bound), owed = !weighs ? 0 : (matters ? 1 : 0) + (bound ? 1 : 0);
+    const name = m ? m.name : st.name, was = state.trust;
+    const members = g ? g.members.slice() : [], others = st ? Object.keys(state.seats).filter(x => state.seats[x] && x !== sc.seatId).map(x => state.seats[x]) : [];
+    const filed = id => (state.people[id].directed || []).filter(d => d.kind === 'managerUnanswered' && d.week === state.week).length;
+    const filedWas = members.map(filed);
+    if ((m ? !!m.countered : !!st.keptWeek) !== bound) violations.push(at + 'the file says the desk ' + (bound ? 'never kept ' : 'kept ') + name + ' with a raise, and this tool’s own note says the other');
+    const r = expire.apply(this, arguments);
+    const text = String((r && r.text) || '');
+    CALLS.left++; b.left++; if (weighs) b.weighed++;
+    if (excused === 'till') CALLS.till++; else if (!weighs) CALLS.light++; else if (owed === 2) CALLS.two++; else CALLS.one++;
+    if (was - state.trust !== Math.min(owed, was)) violations.push(at + 'a call for ' + name + ' left unanswered cost ' + (was - state.trust) + ' upstairs, and by this tool’s own reading of who was called it costs ' + owed +
+      ' (' + (matters ? 'matters here' : 'does not yet matter here') + ', ' + (bound ? 'kept before' : 'never kept') + ', ' + (excused === 'till' ? 'the till never good for the raise' : 'the till good for it on a morning') + ')');
+    const wrote = members.map((id, i) => filed(id) - filedWas[i]);
+    if (wrote.some(n => n !== (weighs && m ? 1 : 0))) violations.push(at + 'a call for ' + name + ' left unanswered wrote ' + wrote.join('/') + ' on the members’ files, and by this tool’s own reading each is owed ' + (weighs && m ? 1 : 0));
+    CALLS.files += wrote.reduce((a, n) => a + n, 0);
+    const noted = others.filter(o => o.sawUnanswered && o.sawUnanswered.week === state.week && o.sawUnanswered.name === name).length;
+    if (noted !== (weighs && st ? others.length : 0)) violations.push(at + 'a call for ' + name + ' left unanswered was noted by ' + noted + ' of the ' + others.length + ' chairs down the hall, and by this tool’s own reading by ' + (weighs && st ? others.length : 0));
+    CALLS.notes += noted;
+    if (weighs && st) others.forEach(o => { b.watched[o.id] = state.week; });
+    const SAYS = { charged: 'noticed that nobody answered', till: 'The till could not have matched it' };
+    const want = excused || (owed ? 'charged' : null);
+    if (Object.keys(SAYS).some(x => text.includes(SAYS[x]) !== (x === want)) || (owed === 2) !== text.includes('once before'))
+      violations.push(at + 'the letter on a call for ' + name + ' left unanswered does not say what this tool reads (' + (want || 'nothing more') + (owed === 2 ? ', kept before' : '') + '): ' + text.slice(-150));
+    return r;
+  };
+}
 // the trial's own careers (v0.11.51, §144): with HARNESS_ONLY set, only the careers it names are played. A trial of
 // this tool's books needs the careers that hold the case, and not the census
 const ONLY = process.env.HARNESS_ONLY ? process.env.HARNESS_ONLY.split(',').map(Number) : null;
+// the trial's own world (v0.11.52, §145): this bot changes its chairs often and a call for a chair is rare, so no
+// census career pays a raise to a chair who watched a call go unanswered, or leaves a call for a chair the desk had
+// kept before. With HARNESS_CALLS set, a call for a chair comes that many times as often. With HARNESS_SILENT set,
+// that share of the calls is left on the desk, and 1 leaves them all. Both are for a trial of this tool's books
+const SILENT = process.env.HARNESS_SILENT ? Number(process.env.HARNESS_SILENT) : 0.15;
+if (process.env.HARNESS_CALLS) KP.C.HIRES.poachChance *= Number(process.env.HARNESS_CALLS);
 for (let s = 0; s < SEEDS; s++) {
   if (ONLY && !ONLY.includes(s)) continue;
   const seed = 'soak-' + s;
@@ -1787,6 +1876,9 @@ for (let s = 0; s < SEEDS; s++) {
         return;
       }
       if (sc.kind === 'seatPoach') {
+        // a call left unanswered (v0.11.52, §145): this bot steers toward no answer, so about one call in seven
+        // is left on the desk, by a hash of the week it came, and what the silence does is measured
+        if (KP.hash01([state.seed, 'botCall', sc.week].join('|')) < SILENT) return;
         KP.resolveScene(state, sc.id,
           state.budget > KP.C.HIRES.raiseCost + 100 ? 'raise' : 'walk');
         return;
@@ -2664,6 +2756,12 @@ for (let s = 0; s < SEEDS; s++) {
       guard(up.passed === ownBook.passes && up.passedUrgent === ownBook.urgent, seed + ' the ledger counts ' + up.passed + ' passes and ' + up.passedUrgent + ' with the red weeks running, and this tool noted ' + ownBook.passes + ' and ' + ownBook.urgent);
       guard(up.nextDoor === (SOUND.by.get(state) || { nextDoor: 0 }).nextDoor, seed + ' the ledger counts ' + up.nextDoor + ' promises kept next door to the sound, and this tool saw ' + (SOUND.by.get(state) || { nextDoor: 0 }).nextDoor);
       ownSum.passes += ownBook.passes; ownSum.urgent += ownBook.urgent;
+      // a call left unanswered (v0.11.52, §145): the staff ledger's two counts, held to this tool's own
+      {
+        const cb = CALLS.by.get(state) || { left: 0, weighed: 0 }, sl = KP.hiresLedger(state);
+        guard(sl.unanswered === cb.left && sl.unansweredCharged === cb.weighed, seed + ' the staff ledger counts ' + sl.unanswered + ' calls left unanswered and ' + sl.unansweredCharged +
+          ' that weighed, and this tool noted ' + cb.left + ' and ' + cb.weighed);
+      }
       // the annual review (v0.11.28, §120): every review is counted under
       // one band, the band is the one its trust falls in, and the file
       // keeps the latest twelve in order
@@ -3469,6 +3567,8 @@ console.log('a pass without a toll (v0.11.51): ' + ownSum.passes + ' passes on h
   ' with the red weeks running, each charged one · ' + (ownSum.passes - ownSum.urgent) + ' charged nothing');
 console.log('the sound next door (v0.11.51): ' + SOUND.judged + ' promises on the sound of the year judged, each held to this tool’s own reading of the record · ' + SOUND.inIt + ' in the year’s sound, kept · ' +
   SOUND.nextDoor + ' next door, kept in part · ' + SOUND.far + ' further off, broken · ' + SOUND.noRecord + ' with no record inside the year · ' + SOUND.setAside + ' set aside');
+console.log('a call left unanswered (v0.11.52): ' + CALLS.left + ' calls left on the desk, each held to this tool’s own reading of who was called and where the house stood · upstairs ' + CALLS.two + ' cost two, ' + CALLS.one +
+  ' one and ' + (CALLS.till + CALLS.light) + ' nothing (' + CALLS.till + ' with a till that could not match, ' + CALLS.light + ' for one who did not yet matter here) · ' + CALLS.files + ' members’ files written and ' + CALLS.notes + ' chairs’ notes, each seen · ' + CALLS.raises + ' raises paid, ' + CALLS.dearer + ' of them dearer for a call the chair had watched, each held to this tool’s own note · the staff ledger’s two counts held to this tool’s own in each of the census’s careers');
 console.log('the annual review: given ' + (upSum.reviews || 0) + ' times · ' + ['trusted', 'solid', 'watched', 'thin', 'gone'].map(k => k + ' ' + ((upSum.bands || {})[k] || 0)).join(' · '));
 console.log('the company’s file: chapters ' + (fileSum.chapters || 0) + ' · under this desk ' + (fileSum.mine || 0) + ' · ' +
   ['debut', 'numberOne', 'trophy', 'award', 'daesang', 'settlement', 'lastBow', 'fold', 'chair', 'breakthrough', 'red', 'redCleared'].map(k => k + ' ' + (fileSum['k_' + k] || 0)).join(' · '));

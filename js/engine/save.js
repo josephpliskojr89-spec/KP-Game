@@ -1545,6 +1545,13 @@
     (state.scenes || []).forEach(sc => { if (sc.kind === 'newChair' && !sc.begins) sc.begins = KP.handoverBegins(state.trust || 0, sc.rated); });
   } });
 
+  // v0.11.52 — the call left unanswered. A call from outside still open on the Desk has stood its mornings without
+  // the mark this version keeps: whether the till held its raise. It is marked from the till the file was saved
+  // with, which is the till the desk sees when the file is opened
+  MIGRATIONS.push({ v: '0.11.52', fn: function (state) {
+    (state.scenes || []).forEach(sc => { if (sc.kind === 'seatPoach' && !sc.tillHeld && KP.callTillHolds(state, sc)) sc.tillHeld = true; });
+  } });
+
   KP.migrate = function (state) {
     const applied = [];
     // a file from before the era module is known by the ledger's absence,

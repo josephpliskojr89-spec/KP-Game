@@ -6,7 +6,7 @@
   const KP = root.KP = root.KP || {};
 
   KP.C = {
-    VERSION: '0.11.51',
+    VERSION: '0.11.52',
 
     // ---- Calendar: 4-week months, 48-week years -------------------------
     WEEKS_PER_MONTH: 4,
@@ -1997,6 +1997,10 @@
       repRiseAt: 68, repRiseChance: 0.30,   // hits polish the seats' names
       poachTierMin: 2, poachChance: 0.010, poachCooldown: 30,
       raiseCost: 25,
+      // a call left unanswered (v0.11.52, §145; the owner's ruling, §136: 13). What it costs upstairs is read from
+      // who was called: a point where they matter to this house, and a point more where the desk had kept them once
+      // before. A chair who watched one go unanswered is dearer to keep, for a year
+      CALL: { mattersTrust: -1, boundTrust: -1, keepMore: 1.5, memoryWeeks: 48 },
       // the road manager (v0.8.4; on the group since v0.10.43, §89 D8): one
       // staff — the seats are the building's, the manager is the group's,
       // and one poach scene covers every chair (the raise is the same 25)
@@ -3112,6 +3116,7 @@
         friendDeparted:   { w: -1, words: 'her friend left the company' },
         friendReleased:   { w: -3, grudge: 1, words: 'her friend was released' },
         leftWaiting:      { w: -2, grudge: 1, words: 'left waiting for an answer' },
+        managerUnanswered: { w: -1, words: 'the road manager left on an offer nobody answered' },   // a call left unanswered (v0.11.52, §145)
         tableLeftWaiting: { w: -3, grudge: 1, words: 'the renewal folder left unopened' },
       },
     },
